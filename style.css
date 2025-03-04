@@ -1,0 +1,273 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
+}
+
+body {
+  background-color: #f0f8ff;
+  padding: 15px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #4b0082;
+}
+
+h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 15px;
+}
+
+.main-area {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  .main-area {
+    flex-direction: row;
+  }
+}
+
+.code-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 3px solid #6a5acd;
+}
+
+.code-header {
+  background-color: #6a5acd;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+#code-editor {
+  flex: 1;
+  padding: 15px;
+  resize: none;
+  border: none;
+  outline: none;
+  font-family: monospace;
+  font-size: 18px;
+  line-height: 1.5;
+  min-height: 180px;
+}
+
+.canvas-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+  border: 3px solid #ff6347;
+  min-height: 300px;
+}
+
+.canvas-header {
+  background-color: #ff6347;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+#ravlyk-canvas {
+  flex: 1;
+  background-color: white;
+  min-height: 180px;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.start-marker {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,15 15,85 85,85" fill="%234a6fa5"/></svg>');
+  background-size: contain;
+  background-repeat: no-repeat;
+  transform: translate(-50%, -50%) rotate(0deg);
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.7;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+#run-btn, #to-manual-btn {
+  background-color: #32cd32;
+  color: white;
+}
+
+.manual-buttons {
+  margin: 0 auto;
+}
+
+#clear-btn {
+  background-color: #ff6347;
+  color: white;
+}
+
+.color-toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.color-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.color-btn:hover {
+  transform: scale(1.1);
+}
+
+.color-btn.selected {
+  border: 3px solid black;
+  transform: scale(1.1);
+}
+
+.examples {
+  background-color: white;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 3px solid #ffa500;
+}
+
+.examples h2 {
+  color: #ff8c00;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.example-blocks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.example-block {
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  border: 2px solid #ccc;
+  font-weight: bold;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.example-block:hover {
+  background-color: #e0e0e0;
+  transform: scale(1.05);
+}
+
+footer {
+  text-align: center;
+  margin-top: 15px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.error-message {
+  background-color: #ffe6e6;
+  color: #cc0000;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.help-box {
+  background-color: #e0f7fa;
+  border-radius: 10px;
+  padding: 15px;
+  margin-top: 15px;
+  border: 3px dashed #4db6ac;
+}
+
+.help-box h3 {
+  color: #00897b;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.command-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+}
+
+.command-item {
+  background-color: white;
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 5px solid #4db6ac;
+}
+
+.command-name {
+  font-weight: bold;
+  color: #00796b;
+}
