@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Равлик - онлайн програмування</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1>🐌 Малюй з Равликом! 🐌</h1>
+      <h2>Равлик - твоя перша мова програмування!</h2>
+    </header>
+    <div class="container">
+      <div class="color-toolbar">
+        <div
+          class="color-btn selected"
+          style="background-color: black"
+          data-color="black"
+        ></div>
+        <div
+          class="color-btn"
+          style="background-color: red"
+          data-color="red"
+        ></div>
+        <div
+          class="color-btn"
+          style="background-color: blue"
+          data-color="blue"
+        ></div>
+        <div
+          class="color-btn"
+          style="background-color: green"
+          data-color="green"
+        ></div>
+        <div
+          class="color-btn"
+          style="background-color: orange"
+          data-color="orange"
+        ></div>
+        <div
+          class="color-btn"
+          style="background-color: purple"
+          data-color="purple"
+        ></div>
+        <div
+          class="color-btn"
+          style="background-color: pink"
+          data-color="pink"
+        ></div>
+        <div
+          class="color-btn"
+          style="background-color: yellow"
+          data-color="yellow"
+        ></div>
+      </div>
+      <div class="buttons">
+        <button id="run-btn">Запустити 🚀</button>
+        <button id="clear-btn">Очистити 🧹</button>
+      </div>
+      <div class="main-area">
+        <div class="code-box">
+          <div class="code-header">Команди для равлика</div>
+          <textarea
+            id="code-editor"
+            placeholder="Напиши команди для равлика тут...
+Приклад:
+вперед 100
+праворуч 90
+вперед 100"
+          ></textarea>
+        </div>
+        <div class="canvas-box">
+          <div class="canvas-header">Малюнок равлика</div>
+          <canvas id="ravlyk-canvas"></canvas>
+          <!-- <div id="start-marker" class="start-marker"></div> -->
+        </div>
+      </div>
+      <div class="examples">
+        <h2>Спробуй ці приклади!</h2>
+        <div class="example-blocks">
+          <div
+            class="example-block"
+            data-code="повтори 4 ( вперед 100 праворуч 90 )"
+          >
+            Квадрат
+          </div>
+          <div
+            class="example-block"
+            data-code="повтори 36 ( вперед 5 праворуч 10 )"
+          >
+            Коло
+          </div>
+          <div
+            class="example-block"
+            data-code="колір червоний повтори 3 ( вперед 100 праворуч 120 )"
+          >
+            Червоний трикутник
+          </div>
+          <div
+            class="example-block"
+            data-code="колір синій повтори 8 ( вперед 50 праворуч 45 )"
+          >
+            Синій восьмикурник
+          </div>
+          <div
+            class="example-block"
+            data-code="колір зелений повтори 6 ( вперед 70 праворуч 60 )"
+          >
+            Зелений шестикутник
+          </div>
+          <div
+            class="example-block"
+            data-code="колір фіолетовий повтори 5 ( вперед 80 праворуч 144 )"
+          >
+            Фіолетова зірка
+          </div>
+        </div>
+      </div>
+      <div class="help-box">
+        <h3>Основні команди для равлика</h3>
+        <div class="command-list">
+          <div class="command-item">
+            <div class="command-name">вперед 100</div>
+            <div class="command-desc">Рухає равлика вперед</div>
+          </div>
+          <div class="command-item">
+            <div class="command-name">назад 100</div>
+            <div class="command-desc">Рухає равлика назад</div>
+          </div>
+          <div class="command-item">
+            <div class="command-name">праворуч 90</div>
+            <div class="command-desc">Повертає праворуч</div>
+          </div>
+          <div class="command-item">
+            <div class="command-name">ліворуч 90</div>
+            <div class="command-desc">Повертає ліворуч</div>
+          </div>
+          <div class="command-item">
+            <div class="command-name">колір червоний</div>
+            <div class="command-desc">Змінює колір лінії</div>
+          </div>
+          <div class="command-item">
+            <div class="command-name">повтори 4 ( вперед 100 праворуч 90 )</div>
+            <div class="command-desc">Повторює команди 4 рази</div>
+          </div>
+        </div>
+      </div>
+      <div class="manual-buttons">
+        <button id="to-manual-btn" onclick="window.location.href='manual.html'">
+          📗 Поcібник з програмування
+        </button>
+      </div>
+    </div>
+    <footer>
+      <p>
+        © 2025 Мова програмування "Равлик" | Створено для навчання дітей
+        програмуванню
+      </p>
+    </footer>
+    <script src="script.js"></script>
+  </body>
+</html>
