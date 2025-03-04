@@ -338,7 +338,7 @@ function initializeApp() {
         red: "червоний",
         blue: "синій",
         green: "зелений",
-        orange: "оранжевий",
+        orange: "жовтогарячий",
         purple: "фіолетовий",
         pink: "рожевий",
         yellow: "жовтий",
