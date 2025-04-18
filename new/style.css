@@ -162,6 +162,11 @@
     color: white;
   }
   
+  #save-btn {
+    background-color: #4a90e2;
+    color: white;
+  }
+  
   .manual-buttons {
     margin: 0 auto;
   }
@@ -241,13 +246,43 @@
   }
   
   .error-message {
-    background-color: #ffe6e6;
-    color: #cc0000;
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    background: #ffd6d6;
+    color: #b71c1c;
+    font-size: 1.3rem;
     font-weight: bold;
-    text-align: center;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 8px;
+    border-left: 8px solid #b71c1c;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(183,28,28,0.08);
+  }
+  
+  .error-text {
+    flex: 1;
+  }
+  
+  .error-close-btn {
+    background: #b71c1c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.1s;
+  }
+  
+  .error-close-btn:hover {
+    background: #d32f2f;
+    transform: scale(1.1);
   }
   
   .help-box {
@@ -355,21 +390,6 @@
     background: #7c6ee6;
   }
   
-  .error-message {
-    background: #ffd6d6;
-    color: #b71c1c;
-    font-size: 1.3rem;
-    font-weight: bold;
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 8px;
-    border-left: 8px solid #b71c1c;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    box-shadow: 0 2px 8px rgba(183,28,28,0.08);
-  }
-  
   #code-editor {
     font-size: 1.35rem;
     font-family: 'Fira Mono', 'Consolas', monospace;
@@ -421,4 +441,44 @@
     justify-content: center;
     gap: 16px;
     margin: 18px 0 18px 0;
+  }
+  
+  .success-message {
+    background: #e8f5e9;
+    color: #2e7d32;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 8px;
+    border-left: 8px solid #2e7d32;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);
+  }
+  
+  .success-text {
+    flex: 1;
+  }
+  
+  .success-close-btn {
+    background: #2e7d32;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.1s;
+  }
+  
+  .success-close-btn:hover {
+    background: #388e3c;
+    transform: scale(1.1);
   }
