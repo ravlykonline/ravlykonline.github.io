@@ -82,7 +82,14 @@
     font-family: monospace;
     font-size: 18px;
     line-height: 1.5;
-    min-height: 180px;
+    min-height: 270px;
+    font-size: 1.35rem;
+    font-family: 'Fira Mono', 'Consolas', monospace;
+    background: #f7f9fa;
+    border: 2px solid #b3b3ff;
+    border-radius: 10px;
+    padding: 14px 12px;
+    margin-bottom: 10px;
   }
   
   .canvas-box {
@@ -95,7 +102,9 @@
     overflow: hidden;
     position: relative;
     border: 3px solid #ff6347;
-    min-height: 300px;
+    min-height: 450px;
+    max-height: 600px;
+    height: 600px;
   }
   
   .canvas-header {
@@ -114,7 +123,6 @@
   #ravlyk-canvas {
     flex: 1;
     background-color: white;
-    min-height: 180px;
     width: 100%;
     height: 100%;
     display: block;
@@ -388,17 +396,6 @@
   }
   .help-content button:hover {
     background: #7c6ee6;
-  }
-  
-  #code-editor {
-    font-size: 1.35rem;
-    font-family: 'Fira Mono', 'Consolas', monospace;
-    background: #f7f9fa;
-    border: 2px solid #b3b3ff;
-    border-radius: 10px;
-    min-height: 170px;
-    padding: 14px 12px;
-    margin-bottom: 10px;
   }
   
   .main-btn, #run-btn, #clear-btn {

@@ -16,7 +16,6 @@ const codeEditor = document.getElementById("code-editor");
 const runBtn = document.getElementById("run-btn");
 const clearBtn = document.getElementById("clear-btn");
 const exampleBlocks = document.querySelectorAll(".example-block");
-const colorButtons = document.querySelectorAll(".color-btn");
 
 // Глобальна карта кольорів для уникнення дублювання
 const COLOR_MAP = {
@@ -58,18 +57,36 @@ const COLOR_NAMES = {
 // Функція для правильного розміру полотна та переналаштування позиції равлика
 function resizeCanvas() {
   const canvasBox = canvas.parentElement;
+  // Зберігаємо поточне зображення
+  const prevImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const prevWidth = canvas.width;
+  const prevHeight = canvas.height;
+
+  // Оновлюємо розміри (фіксуємо висоту, щоб не рости безмежно)
   canvas.width = canvasBox.clientWidth;
-  canvas.height = canvasBox.clientHeight;
-  if (canvas.height < 200) {
-    canvas.height = 200;
+  // canvas.height = canvasBox.clientHeight;
+  // Встановлюємо висоту відповідно до стилю (600px)
+  canvas.height = 600;
+
+  // Відновлюємо зображення по верхньому лівому куту
+  if (prevWidth > 0 && prevHeight > 0) {
+    ctx.putImageData(prevImage, 0, 0);
   }
+  // Переміщуємо равлика у відповідне місце (без reset, щоб не очищати малюнок)
   if (window.interpreter) {
-    window.interpreter.reset();
+    window.interpreter.updateRavlykPosition();
   }
 }
 
 // Викликаємо resizeCanvas при завантаженні та зміні розміру вікна
-window.addEventListener("load", resizeCanvas);
+window.addEventListener("load", () => {
+  resizeCanvas();
+  // Центруємо равлика лише один раз після першого завантаження
+  if (window.interpreter && !window.firstRavlykResetDone) {
+    window.interpreter.reset();
+    window.firstRavlykResetDone = true;
+  }
+});
 window.addEventListener("resize", resizeCanvas);
 
 // Функція для показу повідомлень про помилки
@@ -515,7 +532,7 @@ function saveDrawing() {
       return;
     }
     
-    // Додаємо посилання до документа, клікаємо по ньому і видаляємо
+    // Додаємо посилання до документу, клікаємо по ньому і видаляємо
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -644,35 +661,6 @@ function initializeApp() {
     block.addEventListener("click", () => {
       codeEditor.value = block.getAttribute("data-code");
       runCode();
-    });
-  });
-
-  colorButtons.forEach((btn) => {
-    // Додаємо заголовки (tooltips) для кнопок кольорів
-    const color = btn.getAttribute("data-color");
-    if (COLOR_NAMES[color]) {
-      btn.title = COLOR_NAMES[color];
-    }
-    
-    btn.addEventListener("click", () => {
-      colorButtons.forEach((b) => b.classList.remove("selected"));
-      btn.classList.add("selected");
-
-      const color = btn.getAttribute("data-color");
-      const colorName = COLOR_NAMES[color];
-
-      interpreter.setColor(color);
-
-      // Додавання команди кольору до редактора, якщо там є код
-      if (codeEditor.value.trim() !== "") {
-        // Перевіряємо, чи код уже починається з команди зміни кольору
-        if (
-          !codeEditor.value.trim().toLowerCase().startsWith("колір") &&
-          !codeEditor.value.trim().toLowerCase().startsWith("color")
-        ) {
-          codeEditor.value = `колір ${colorName}\n` + codeEditor.value;
-        }
-      }
     });
   });
 

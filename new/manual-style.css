@@ -89,7 +89,9 @@
     overflow: hidden;
     position: relative;
     border: 3px solid #ff6347;
-    min-height: 220px;
+    min-height: 330px;
+    max-height: 600px;
+    height: 600px;
   }
   
   .canvas-header {
@@ -103,9 +105,9 @@
   #logo-canvas {
     flex: 1;
     background-color: white;
-    min-height: 180px;
-    width: 100%;
+    min-height: 270px;
     height: 100%;
+    width: 100%;
     display: block;
   }
   
