@@ -1,0 +1,225 @@
+/* css/lessons.css */
+.course-header { /* Specific to lessons page, if different from global main-header */
+    text-align: center;
+    margin-bottom: 25px;
+    color: #4b0082;
+}
+
+.course-header h1 {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    margin-bottom: 8px;
+}
+
+.course-header p {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    color: #555;
+}
+
+.tabs-container {
+    display: flex;
+    flex-wrap: nowrap;
+    margin-bottom: 20px;
+    background-color: #e7e3f3; /* Lighter purple */
+    border-radius: 8px;
+    padding: 5px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #6a5acd #e0e0e0;
+}
+.tabs-container::-webkit-scrollbar { height: 6px; }
+.tabs-container::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 3px; }
+.tabs-container::-webkit-scrollbar-thumb { background-color: #6a5acd; border-radius: 3px; }
+
+.tab-button {
+    padding: 10px 15px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    font-weight: bold;
+    color: #4b0082;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+    flex-shrink: 0;
+    white-space: nowrap;
+    margin-right: 5px;
+}
+.tab-button:last-child { margin-right: 0; }
+.tab-button:hover, .tab-button:focus-visible {
+    background-color: #d0c0e0;
+    color: #300052;
+}
+.tab-button.active {
+    background-color: #6a5acd;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.lesson-content {
+    display: none; /* Initially hidden, JS will make it active */
+    padding: 20px; /* Increased padding */
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 2px solid #6a5acd;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.lesson-content.active {
+    display: block;
+}
+
+.lesson-content h2 {
+    color: #ff6347; /* Tomato */
+    font-size: clamp(1.5rem, 4vw, 2rem); /* Slightly larger */
+    margin-bottom: 18px; /* Increased margin */
+    padding-bottom: 8px;
+    border-bottom: 2px dashed #ff6347;
+}
+
+.lesson-content h3 {
+    color: #00796b; /* Teal */
+    font-size: clamp(1.3rem, 3.5vw, 1.6rem); /* Slightly larger */
+    margin-top: 25px;
+    margin-bottom: 12px;
+}
+
+.lesson-content p, .lesson-content li {
+    font-size: clamp(0.95rem, 2.8vw, 1.1rem);
+    margin-bottom: 12px; /* Increased margin */
+}
+
+.lesson-content ul {
+    list-style-position: outside; /* More standard list appearance */
+    list-style-type: '🐌'; /* Custom bullet */
+    padding-left: 30px; /* Proper indentation */
+}
+.lesson-content ul li {
+    padding-left: 8px; /* Space after bullet */
+}
+
+.lesson-content .why-important {
+    background-color: #e6f7ff; /* Light blue */
+    border-left: 5px solid #1890ff; /* Blue */
+    padding: 18px; /* Increased padding */
+    margin: 25px 0;
+    border-radius: 8px;
+}
+.lesson-content .why-important h4 {
+    color: #0050b3; /* Dark blue */
+    font-size: clamp(1.1rem, 3vw, 1.3rem); /* Slightly larger */
+    margin-bottom: 12px;
+}
+.lesson-content .why-important ul {
+    list-style-type: '💡'; /* Custom bullet */
+}
+
+.lesson-content .code-example {
+    background-color: #f8f9fa;
+    border-left: 5px solid #32cd32; /* Green */
+    padding: 12px 18px; /* Adjusted padding */
+    margin: 20px 0;
+    font-family: 'Fira Mono', 'Consolas', 'Courier New', monospace;
+    font-size: clamp(0.9rem, 2.5vw, 1.05rem); /* Slightly larger */
+    border-radius: 6px; /* Softer radius */
+    white-space: pre-wrap;
+    overflow-x: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.task {
+    background-color: #fffbe6; /* Light yellow */
+    border: 2px dashed #ffa500; /* Orange */
+    padding: 18px;
+    margin-top: 25px;
+    border-radius: 8px;
+}
+.task h4 {
+    color: #ff8c00; /* Dark orange */
+    font-size: clamp(1.1rem, 3vw, 1.3rem);
+    margin-bottom: 10px;
+}
+.task__btn {
+    margin-top: 10px;
+}
+
+.tip {
+    background-color: #e0f7fa; /* Light cyan */
+    border-left: 5px solid #4db6ac; /* Teal */
+    padding: 12px 18px;
+    margin-top: 20px;
+    border-radius: 6px;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+}
+ .tip strong {
+    color: #00897b; /* Dark teal */
+ }
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    gap: 15px;
+}
+
+.navigation-buttons__btn {
+    flex-grow: 1;
+    max-width: calc(50% - 7.5px); /* For two buttons with gap */
+}
+.navigation-buttons__btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.7;
+}
+
+.lesson-image {
+    display: block;
+    max-width: clamp(200px, 50vw, 350px); /* Responsive max-width */
+    height: auto;
+    margin: 20px auto; /* Centered with more margin */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 1px solid #eee; /* Subtle border */
+}
+.lesson-image-fullwidth {
+    max-width: 100%; /* Allow full width if specified */
+    width: 100%;
+}
+
+.bottom-nav-buttons { /* For buttons like "To Editor", "To Manual" at the very bottom */
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping */
+    justify-content: center;
+    gap: 15px;
+    margin: 30px auto 10px auto;
+}
+
+
+/* Media Queries for smaller screens */
+@media (max-width: 768px) {
+    .navigation-buttons .btn {
+        max-width: 100%; /* Stack buttons on smaller screens */
+    }
+    .navigation-buttons {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 600px) {
+    .page-wrapper { padding: 5px; } /* Reduced padding for page wrapper */
+    .tabs-container { padding: 5px 0; }
+    .tab-button { padding: 8px 10px; font-size: 0.85rem; }
+    .lesson-content { padding: 15px; }
+    .lesson-content h2 { font-size: 1.6rem; }
+    .lesson-content h3 { font-size: 1.3rem; }
+    .lesson-content p, .lesson-content li { font-size: 0.9rem; }
+    .lesson-content .code-example { font-size: 0.85rem; padding: 10px 12px;}
+}

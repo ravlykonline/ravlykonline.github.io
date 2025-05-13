@@ -1,0 +1,447 @@
+/* Стилі для функцій доступності */
+
+/* Кнопка доступності */
+.accessibility-toggle {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #4a6fa5;
+    color: white;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+/* Захист іконки доступності від зникнення */
+.accessibility-toggle i,
+html.a11y-high-contrast .accessibility-toggle i,
+html.a11y-sans-serif-font .accessibility-toggle i,
+html.a11y-larger-text .accessibility-toggle i,
+html.a11y-increased-spacing .accessibility-toggle i,
+html.a11y-reduce-animations .accessibility-toggle i {
+    font-family: "Font Awesome 5 Free" !important;
+    font-style: normal !important;
+    font-weight: 900 !important;
+    font-size: 24px !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+    text-rendering: auto !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+.accessibility-toggle:hover {
+    background-color: #3a5f95;
+    transform: scale(1.05);
+}
+
+.accessibility-toggle:focus {
+    outline: 3px solid #ffb300;
+    outline-offset: 2px;
+}
+
+/* Панель налаштувань доступності */
+.accessibility-panel {
+    position: fixed;
+    bottom: 80px;
+    left: 20px;
+    width: 320px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    padding: 0;
+    overflow: hidden;
+    transition: transform 0.3s, opacity 0.3s;
+    transform-origin: bottom left;
+}
+
+.accessibility-panel[hidden] {
+    display: none;
+}
+
+.accessibility-panel.show-panel {
+    display: block;
+    animation: slideIn 0.3s forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.accessibility-panel.show-panel {
+    display: block !important;
+}
+
+.accessibility-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #4a6fa5;
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+.accessibility-header h3 {
+    margin: 0;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0 5px;
+    line-height: 1;
+}
+
+.accessibility-options {
+    padding: 20px;
+}
+
+.accessibility-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.accessibility-option label {
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Стиль перемикача */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.toggle-switch input:focus + .toggle-slider {
+    box-shadow: 0 0 2px 2px #ffb300;
+    outline: none;
+}
+
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: #32cd32;
+}
+
+input:focus + .toggle-slider {
+    box-shadow: 0 0 1px #32cd32;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+
+.accessibility-footer {
+    padding: 15px 20px;
+    text-align: center;
+    border-top: 1px solid #eee;
+}
+
+/* Класи для модифікації сайту згідно з налаштуваннями доступності */
+
+/* Високий контраст */
+.a11y-high-contrast {
+    --bg-color: #000 !important;
+    --text-color: #fff !important;
+    --link-color: #00CCFF !important;
+    --link-hover-color: #ff9900 !important;
+    --btn-primary-bg: #3d85c6 !important;
+    --btn-success-bg: #38761d !important;
+    --btn-warning-bg: #e69138 !important;
+    --btn-danger-bg: #cc0000 !important;
+    --btn-info-bg: #3d85c6 !important;
+    --border-color: #fff !important;
+}
+
+.a11y-high-contrast body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.a11y-high-contrast a {
+    color: var(--link-color);
+}
+
+.a11y-high-contrast a:hover {
+    color: var(--link-hover-color);
+}
+
+.a11y-high-contrast .btn-primary {
+    background-color: var(--btn-primary-bg);
+    color: var(--text-color);
+}
+
+/* Додаткові стилі для високого контрасту */
+.a11y-high-contrast .btn,
+.a11y-high-contrast .tab-button,
+.a11y-high-contrast .example-block,
+.a11y-high-contrast .example-section,
+.a11y-high-contrast .accessibility-panel,
+.a11y-high-contrast .accessibility-header,
+.a11y-high-contrast .accessibility-option,
+.a11y-high-contrast .lesson-content,
+.a11y-high-contrast .resource-item,
+.a11y-high-contrast .panel,
+.a11y-high-contrast .card,
+.a11y-high-contrast .main-header,
+.a11y-high-contrast .content-container {
+    background-color: var(--bg-color) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+.a11y-high-contrast .btn-danger,
+.a11y-high-contrast .btn-warning,
+.a11y-high-contrast .btn-info,
+.a11y-high-contrast .btn-success,
+.a11y-high-contrast .btn-primary {
+    color: var(--text-color) !important;
+}
+
+.a11y-high-contrast .accessibility-panel,
+.a11y-high-contrast .lesson-content,
+.a11y-high-contrast .resource-item,
+.a11y-high-contrast .panel,
+.a11y-high-contrast .card {
+    box-shadow: 0 0 0 2px var(--border-color) !important;
+}
+
+.a11y-high-contrast .btn-success {
+    background-color: var(--btn-success-bg);
+    color: var(--text-color);
+}
+
+.a11y-high-contrast .btn-warning {
+    background-color: var(--btn-warning-bg);
+    color: #000;
+}
+
+.a11y-high-contrast .btn-danger {
+    background-color: var(--btn-danger-bg);
+    color: var(--text-color);
+}
+
+.a11y-high-contrast .btn-info {
+    background-color: var(--btn-info-bg);
+    color: var(--text-color);
+}
+
+.a11y-high-contrast header.main-header {
+    color: var(--text-color);
+}
+
+.a11y-high-contrast .code-box,
+.a11y-high-contrast .canvas-box {
+    border-color: var(--border-color);
+    background-color: var(--bg-color);
+}
+
+.a11y-high-contrast .code-editor,
+.a11y-high-contrast #code-editor {
+    background-color: #111;
+    color: #fff;
+    border-color: var(--border-color);
+}
+
+/* Збільшений текст */
+.a11y-larger-text {
+    font-size: 120% !important;
+}
+
+.a11y-larger-text h1 {
+    font-size: 2.4rem !important;
+}
+
+.a11y-larger-text h2 {
+    font-size: 2rem !important;
+}
+
+.a11y-larger-text h3 {
+    font-size: 1.7rem !important;
+}
+
+.a11y-larger-text .btn {
+    font-size: 1.2rem !important;
+    padding: 12px 24px !important;
+}
+
+.a11y-larger-text #code-editor {
+    font-size: 1.2rem !important;
+}
+
+/* Зменшення анімації */
+.a11y-reduce-animations * {
+    animation-duration: 0.001s !important;
+    transition-duration: 0.001s !important;
+}
+
+.a11y-reduce-animations .btn:hover {
+    transform: none !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+/* Простий шрифт */
+.a11y-sans-serif-font,
+.a11y-sans-serif-font * {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+.a11y-sans-serif-font #code-editor {
+    font-family: 'Courier New', monospace !important;
+}
+
+/* Повідомлення поверх сайту */
+.error-message-global, .success-message-global {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20000;
+    width: max-content;
+    min-width: 320px;
+    max-width: 90vw;
+    pointer-events: auto;
+    opacity: 0.98;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+    margin: 0;
+    transition: opacity 0.2s;
+    padding: 10px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.success-message-global {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+    border-left: 4px solid #4caf50;
+}
+
+.error-message-global {
+    background-color: #ffebee;
+    color: #b71c1c;
+    border-left: 4px solid #f44336;
+}
+
+.message-text-global {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+.message-close-btn-global {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 12px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s, background-color 0.2s;
+}
+
+.message-close-btn-global:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Стилі для Font Awesome іконок */
+.success-message-global .fa-check-circle {
+    color: #4CAF50;
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+.error-message-global .fa-exclamation-circle {
+    color: #f44336;
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+
+/* Збільшені інтервали */
+.a11y-increased-spacing {
+    letter-spacing: 0.05em !important;
+    word-spacing: 0.1em !important;
+    line-height: 1.8 !important;
+}
+
+.a11y-increased-spacing p,
+.a11y-increased-spacing li {
+    margin-bottom: 1.5em !important;
+}
+
+.a11y-increased-spacing .btn {
+    margin: 0.5em !important;
+}
+
+.a11y-increased-spacing #code-editor {
+    line-height: 1.8 !important;
+}
