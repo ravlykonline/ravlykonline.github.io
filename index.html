@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Равлик - українська мова програмування для дітей. Навчайтеся програмувати через малювання геометричних фігур." />
+    <meta name="keywords" content="равлик, програмування для дітей, вивчення програмування, українська мова програмування, черепашача графіка, малювання кодом" />
+    <meta name="author" content="Равлик" />
+    <meta name="robots" content="index, follow" />
+    <title>Равлик - онлайн програмування для дітей</title>
+    <link rel="stylesheet" type="text/css" href="css/global.css" />
+    <link rel="stylesheet" type="text/css" href="css/accessibility.css" />
+    <link rel="stylesheet" type="text/css" href="css/main-editor.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q8HSYBM61W"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Q8HSYBM61W');
+    </script>
+  </head>
+
+  <body>
+    <header class="main-header">
+      <h1>🐌 Малюй з Равликом! 🐌</h1>
+      <h2>РАВЛИК - твоя перша текстова мова програмування!</h2>
+    </header>
+    <main class="content-container">
+      <div class="toolbar">
+        <button id="run-btn" class="btn btn-success" title="Запусти програму (Ctrl/Cmd/Shift + Enter)" aria-label="Запусти програму">🚀 Запустити</button>
+        <button id="stop-btn" class="btn btn-warning" title="Зупинити програму (Esc)" aria-label="Зупинити програму">🛑 Зупинити</button>
+        <button id="clear-btn" class="btn btn-danger" title="Очистити малюнок та код" aria-label="Очистити малюнок та код">🧹 Очистити</button>
+        <button id="save-btn" class="btn btn-info" title="Зберегти малюнок" aria-label="Зберегти малюнок">💾 Зберегти</button>
+        <button id="help-btn" class="btn btn-primary" title="Пояснення команд" aria-label="Пояснення команд">🛈 Довідка</button>
+      </div>
+      <div class="main-area">
+        <section class="code-box" aria-labelledby="code-header">
+          <h3 id="code-header" class="area-header code-header">Команди для равлика</h3>
+          <textarea id="code-editor" spellcheck="false" aria-label="Поле для команд" placeholder="Наприклад:&#10;колір синій&#10;вперед 100&#10;праворуч 90&#10;вперед 50"></textarea>
+        </section>
+        <section class="canvas-box" aria-labelledby="canvas-header">
+          <h3 id="canvas-header" class="area-header canvas-header">Малюнок равлика</h3>
+          <canvas id="ravlyk-canvas" role="img" aria-label="Полотно для малювання Равлика"></canvas>
+          </section>
+      </div>
+      <section class="examples" aria-labelledby="examples-title">
+        <h2 id="examples-title">Спробуй ці приклади!</h2>
+        <div class="example-blocks">
+          <div class="example-block" tabindex="0" role="button" data-code="повторити 4 ( вперед 100 праворуч 90 )">Квадрат</div>
+          <div class="example-block" tabindex="0" role="button" data-code="повторити 36 ( вперед 10 праворуч 10 )">Коло</div>
+          <div class="example-block" tabindex="0" role="button" data-code="колір червоний повторити 3 ( вперед 100 праворуч 120 )">Червоний трикутник</div>
+          <div class="example-block" tabindex="0" role="button" data-code="колір синій повторити 8 ( вперед 50 праворуч 45 )">Синій восьмикутник</div>
+          <div class="example-block" tabindex="0" role="button" data-code="колір зелений повторити 6 ( вперед 70 праворуч 60 )">Зелений шестикутник</div>
+          <div class="example-block" tabindex="0" role="button" data-code="колір фіолетовий повторити 5 ( вперед 80 праворуч 144 )">Фіолетова зірка</div>
+        </div>
+      </section>
+      <section class="help-box-main" aria-labelledby="helpbox-title">
+        <h3 id="helpbox-title">Основні команди для равлика</h3>
+        <div class="command-list">
+            <div class="command-item"><div class="command-name">вперед N</div><div class="command-desc">Рух вперед на N кроків</div></div>
+            <div class="command-item"><div class="command-name">назад N</div><div class="command-desc">Рух назад на N кроків</div></div>
+            <div class="command-item"><div class="command-name">праворуч N</div><div class="command-desc">Поворот праворуч на N градусів</div></div>
+            <div class="command-item"><div class="command-name">ліворуч N</div><div class="command-desc">Поворот ліворуч на N градусів</div></div>
+            <div class="command-item"><div class="command-name">колір [назва]</div><div class="command-desc">Зміна кольору (напр. червоний, веселка)</div></div>
+            <div class="command-item"><div class="command-name">підняти</div><div class="command-desc">Підняти олівець (рух без малювання)</div></div>
+            <div class="command-item"><div class="command-name">опустити</div><div class="command-desc">Опустити олівець (рух з малюванням)</div></div>
+            <div class="command-item"><div class="command-name">очистити</div><div class="command-desc">Очистити полотно</div></div>
+            <div class="command-item"><div class="command-name">повторити N ( ... )</div><div class="command-desc">Повторити команди в дужках N разів</div></div>
+        </div>
+      </section>
+      <nav class="manual-lessons-buttons-main" aria-label="Додаткова навігація">
+        <button id="to-manual-btn" class="btn btn-primary">📖 Посібник з програмування</button>
+        <button id="to-lessons-btn" class="btn btn-primary">📚 Уроки Равлика</button>
+      </nav>
+    </main>
+    <footer class="main-footer">
+      <p>&copy;<span class="current-year">2024</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a></p>
+    </footer>
+
+    <button id="accessibility-toggle" class="accessibility-toggle" aria-expanded="false" aria-controls="accessibility-panel" aria-label="Налаштування доступності"><i class="fas fa-universal-access"></i></button>
+    <div id="accessibility-panel" class="accessibility-panel hidden" role="dialog" aria-modal="true" aria-labelledby="accessibility-title">
+      <div class="accessibility-header">
+        <h3 id="accessibility-title" class="accessibility-panel-title">Налаштування доступності</h3>
+        <button id="close-accessibility-panel-btn" class="close-btn" aria-label="Закрити панель налаштувань доступності">&times;</button>
+      </div>
+      <div class="accessibility-options">
+        <div class="accessibility-option">
+          <label for="high-contrast-input">Високий контраст</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="high-contrast-input" class="accessibility-setting-input" data-setting="high-contrast">
+            <span class="toggle-slider"></span>
+          </div>
+        </div>
+        <div class="accessibility-option">
+          <label for="larger-text-input">Збільшений текст</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="larger-text-input" class="accessibility-setting-input" data-setting="larger-text">
+            <span class="toggle-slider"></span>
+          </div>
+        </div>
+        <div class="accessibility-option">
+          <label for="reduce-animations-input">Зменшення анімації</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="reduce-animations-input" class="accessibility-setting-input" data-setting="reduce-animations">
+            <span class="toggle-slider"></span>
+          </div>
+        </div>
+        <div class="accessibility-option">
+          <label for="sans-serif-font-input">Простий шрифт</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="sans-serif-font-input" class="accessibility-setting-input" data-setting="sans-serif-font">
+            <span class="toggle-slider"></span>
+          </div>
+        </div>
+        <div class="accessibility-option">
+          <label for="increased-spacing-input">Збільшені інтервали</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="increased-spacing-input" class="accessibility-setting-input" data-setting="increased-spacing">
+            <span class="toggle-slider"></span>
+          </div>
+        </div>
+      </div>
+      <div class="accessibility-footer">
+        <button id="reset-accessibility-btn" class="btn btn-danger">Скинути налаштування</button>
+      </div>
+    </div>
+
+    <div id="help-modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="help-modal-title-static">
+        <div id="help-modal-content" class="modal-content help-content">
+            <h2 id="help-modal-title-static" class="modal-title">Довідка: Команди Равлика</h2>
+            <ul>
+              <li><b>вперед N</b> — рух вперед на N кроків</li>
+              <li><b>назад N</b> — рух назад на N кроків</li>
+              <li><b>ліворуч N</b> — повернути ліворуч на N градусів</li>
+              <li><b>праворуч N</b> — повернути праворуч на N градусів</li>
+              <li><b>колір [назва]</b> — змінити колір (напр. червоний, синій, веселка)</li>
+              <li><b>підняти</b> — підняти олівець (не малювати при русі)</li>
+              <li><b>опустити</b> — опустити олівець (малювати при русі)</li>
+              <li><b>очистити</b> — очистити малюнок</li>
+              <li><b>повторити N ( ... )</b> — повторити команди в дужках N разів</li>
+            </ul>
+            <div class="modal-actions">
+                <button id="to-manual-btn-modal" class="btn btn-info">Повний посібник</button>
+                <button id="close-help-modal-btn" class="btn btn-secondary">Закрити</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="clear-confirm-modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="clear-modal-title-static">
+        <div id="clear-confirm-modal-content" class="modal-content">
+            <h2 id="clear-modal-title-static" class="modal-title">Підтвердження очищення</h2>
+            <p>Ви впевнені, що хочете очистити малюнок і поле команд?</p>
+            <div class="modal-actions">
+                <button id="confirm-clear-btn" class="btn btn-danger">Так, очистити</button>
+                <button id="cancel-clear-btn" class="btn btn-secondary">Скасувати</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/modules/constants.js"></script>
+    <script type="module" src="js/modules/ui.js"></script>
+    <script type="module" src="js/modules/ravlykInterpreter.js"></script>
+    <script type="module" src="js/accessibility.js"></script>
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
