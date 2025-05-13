@@ -2,7 +2,7 @@
 
 **Равлик – твоя перша текстова мова програмування українською!**
 
-[![Малюй з Равликом!](https://user-images.githubusercontent.com/USERNAME/REPOSITORY/assets/ravlyk_screenshot_placeholder.png)](https://ravlykonline.github.io/new/index.html)
+[![Малюй з Равликом!]([https://user-images.githubusercontent.com/USERNAME/REPOSITORY/assets/ravlyk_screenshot_placeholder.png](https://ravlyk-org-o5jkz.ondigitalocean.app/assets/images/editor.jpg))](https://ravlyk.org/index.html)
 *(Замініть `USERNAME/REPOSITORY` та `ravlyk_screenshot_placeholder.png` на актуальні дані та шлях до скріншоту)*
 
 "Равлик" – це проста текстова мова програмування, створена спеціально для дітей молодшого шкільного віку (зокрема, 1-2 класів), щоб зробити перші кроки у світі коду захопливими та зрозумілими. Проєкт має на меті познайомити дітей з основами програмування, логікою та алгоритмами через візуально привабливе малювання геометричних фігур.
