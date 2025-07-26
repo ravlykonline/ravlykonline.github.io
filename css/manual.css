@@ -1,50 +1,104 @@
 /* css/manual.css */
 
-/* --- Error Highlighting for Manual --- */
-.error-list-manual p {
-    border-bottom: 2px solid #e57373;
+/* --- Message Highlighting for Manual --- */
+
+/* Base layout for all message boxes */
+.message-list-manual {
+    border-radius: 10px;
+    padding: 20px;
+    margin: 25px 0;
+    border-left-width: 5px;
+    border-left-style: solid;
+}
+
+.message-list-manual p {
     padding-bottom: 14px;
     margin-bottom: 22px;
     margin-top: 0;
     position: relative;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
 }
 
-.a11y-high-contrast .error-list-manual p {
-    border-bottom: 2px solid #fff !important;
-}
-
-
-.error-list-manual p:last-child {
+.message-list-manual p:last-child {
     border-bottom: none;
 }
-.error-list-manual code {
-    color: #d32f2f;
+
+.message-list-manual code {
     font-weight: bold;
     background: none;
     font-size: 1.08em;
 }
-.a11y-high-contrast .error-list-manual code {
-    color: #ff5252 !important;
-    background: none !important;
-}
 
-.error-list-manual strong {
+.message-list-manual strong {
     color: #222;
     font-weight: bold;
 }
-.a11y-high-contrast .error-list-manual strong {
-    color: #fff !important;
-    font-weight: bold;
+
+/* Success Messages (Green) */
+.success-list-manual {
+    background-color: #e8f5e9;
+    border-left-color: #4caf50;
+}
+.success-list-manual p {
+    border-bottom-color: #a5d6a7;
+}
+.success-list-manual code {
+    color: #2e7d32;
 }
 
-.error-list-manual {
-    margin-top: 25px;
-    margin-bottom: 25px;
+/* Info Messages (Orange) */
+.info-list-manual {
+    background-color: #fff3e0;
+    border-left-color: #ff9800;
 }
-.a11y-high-contrast .error-list-manual {
+.info-list-manual p {
+    border-bottom-color: #ffcc80;
+}
+.info-list-manual code {
+    color: #e65100;
+}
+
+/* Error Messages (Red) */
+.error-list-manual {
+    background-color: #ffebee;
+    border-left-color: #f44336;
+}
+.error-list-manual p {
+    border-bottom-color: #e57373;
+}
+.error-list-manual code {
+    color: #d32f2f;
+}
+
+/* High Contrast Mode */
+.a11y-high-contrast .message-list-manual {
     background: #000 !important;
     color: #fff !important;
-    border-left: 5px solid #fff !important;
+}
+.a11y-high-contrast .message-list-manual p {
+    border-bottom-color: #fff !important;
+}
+.a11y-high-contrast .message-list-manual strong {
+    color: #fff !important;
+}
+.a11y-high-contrast .success-list-manual {
+    border-left-color: #4caf50 !important;
+}
+.a11y-high-contrast .success-list-manual code {
+    color: #81c784 !important;
+}
+.a11y-high-contrast .info-list-manual {
+    border-left-color: #ff9800 !important;
+}
+.a11y-high-contrast .info-list-manual code {
+    color: #ffb74d !important;
+}
+.a11y-high-contrast .error-list-manual {
+    border-left-color: #f44336 !important;
+}
+.a11y-high-contrast .error-list-manual code {
+    color: #e57373 !important;
 }
 
 
@@ -386,7 +440,7 @@
 .tips-box,
 .interactive-example-manual,
 .challenge-box,
-.error-list-manual {
+.message-list-manual {
     border-radius: 10px;
     padding: 20px;
     margin: 25px 0;

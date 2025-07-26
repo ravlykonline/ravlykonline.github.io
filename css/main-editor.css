@@ -88,18 +88,21 @@
     background-color: white;
 }
 
-/* Ravlyk sprite - now defined in ui.js for dynamic creation, this is a fallback/base */
 .ravlyk-sprite-global {
-    position: absolute; /* Will be positioned by JS relative to canvas-box */
-    width: 30px;  /* Match JS constant or define here and read in JS */
-    height: 30px; /* Match JS constant */
-    /* background-image is set by JS */
+    position: absolute;
+    width: 30px;
+    height: 30px;
     background-size: contain;
     background-repeat: no-repeat;
     transform-origin: center center;
-    z-index: 10; /* Above canvas, below messages/modals if they are also in canvas-box */
+    z-index: 10;
     pointer-events: none;
-    transition: none; /* Managed by JS animation loop */
+    /* Усуваємо будь-яку CSS-анімацію для transform */
+    transition: filter 0.2s linear;
+}
+
+.ravlyk-sprite-global.lifted {
+    filter: drop-shadow(3px 4px 3px rgba(0,0,0,0.3));
 }
 
 
