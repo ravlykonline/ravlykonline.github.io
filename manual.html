@@ -14,7 +14,7 @@
     <link rel="manifest" href="site.webmanifest" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="stylesheet" href="css/global.css" />
-    <link rel="stylesheet" href="css/manual.css" />
+    <link rel="stylesheet" href="css/manual.css?v=1.2" />
     <link rel="stylesheet" type="text/css" href="css/accessibility.css" /> <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"> <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q8HSYBM61W"></script>
     <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-QV58ZGT594"></script>
@@ -236,20 +236,21 @@
                     
                     <h3>Повідомлення про успіх</h3>
                     <p>Ці повідомлення з'являються, коли операція виконана успішно:</p>
-                    <div class="error-list-manual">
+                    <div class="message-list-manual success-list-manual">
                         <p><code>Малюнок збережено!</code><br><strong>Значення:</strong> Твій малюнок був успішно збережений як зображення.</p>
                         <p><code>Код виконано успішно!</code><br><strong>Значення:</strong> Твоя програма була повністю виконана без помилок.</p>
                     </div>
                     
                     <h3>Інформаційні повідомлення</h3>
                     <p>Ці повідомлення просто інформують тебе про певні події:</p>
-                    <div class="error-list-manual">
+                    <div class="message-list-manual info-list-manual">
                         <p><code>Виконання зупинено.</code><br><strong>Значення:</strong> Програма була зупинена. Це не помилка, а просто інформація про зміну стану.</p>
+                        <p><code>Равлик намагається вийти за межі полотна!</code><br><strong>Значення:</strong> Команди змусили Равлика спробувати вийти за межі видимої області для малювання. Равлик зупиниться біля краю, але це не є помилкою, що перериває програму.<br><strong>Як виправити:</strong> Зміни команди руху або повороту так, щоб Равлик залишався на полотні.</p>
                     </div>
                     
                     <h3>Повідомлення про помилки</h3>
                     <p>Справжні програмісти не бояться помилок! Помилятися - це нормально. Головне - вміти їх знаходити та виправляти. Якщо Равлик не виконує твої команди або малює не те, що ти очікував, перевір свій код на наявність помилок. Нижче наведені повідомлення про помилки, які ти можеш побачити, та їх пояснення:</p>
-                    <div class="error-list-manual">
+                    <div class="message-list-manual error-list-manual">
                         <p><code>Не вказано відстань для команди "КОМАНДА"</code><br><strong>Значення:</strong> Ти написав команду руху (наприклад, <code>вперед</code>) без числа, яке вказує, скільки кроків зробити.<br><strong>Як виправити:</strong> Додай число після команди, наприклад: <code>вперед 100</code>.</p>
 
                         <p><code>Некоректна відстань "ЗНАЧЕННЯ" для команди "КОМАНДА"</code><br><strong>Значення:</strong> Ти вказав неправильне значення відстані для команди руху.<br><strong>Як виправити:</strong> Перевір, що ти вказав правильне число (наприклад, <code>вперед 100</code> замість <code>вперед сто</code>).</p>
@@ -282,7 +283,7 @@
 
                         <p><code>Код занадто довгий. Максимальна довжина - 10000 символів.</code><br><strong>Значення:</strong> Ти ввів занадто багато тексту в редактор коду.<br><strong>Як виправити:</strong> Скороти свій код або розбий його на менші частини (якщо це можливо).</p>
 
-                        <p><code>Равлик намагається вийти за межі полотна!</code><br><strong>Значення:</strong> Команди змусили Равлика спробувати вийти за межі видимої області для малювання.<br><strong>Як виправити:</strong> Зміни команди руху або повороту так, щоб Равлик залишався на полотні.</p>
+
                         
                         <p><code>Не вдалося зберегти малюнок: ПРИЧИНА</code><br><strong>Значення:</strong> Виникла проблема при спробі зберегти малюнок.<br><strong>Як виправити:</strong> Залежить від причини, часто допомагає спроба зробити скріншот.</p>
                         
@@ -516,7 +517,7 @@
         <button id="reset-accessibility-btn" class="btn btn-danger">Скинути налаштування</button>      </div>
     </div>
 
-    <script type="module" src="js/common.js"></script>
-    <script type="module" src="js/accessibility.js"></script> 
+    <script src="js/common.js"></script>
+    <script src="js/accessibility.js"></script> 
 </body>
 </html>
