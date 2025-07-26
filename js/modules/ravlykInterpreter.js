@@ -486,4 +486,8 @@ export class RavlykInterpreter {
     stopExecution() {
         this.shouldStop = true;
     }
+    
+    wasBoundaryWarningShown() {
+        return this.boundaryWarningShown;
+    }
 }
