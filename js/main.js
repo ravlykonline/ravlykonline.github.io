@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     createRavlykSprite(canvasContainer);
-    const interpreter = new RavlykInterpreter(ctx, canvas, updateRavlykVisualsOnScreen, updateCommandIndicator);
+    const interpreter = new RavlykInterpreter(ctx, canvas, updateRavlykVisualsOnScreen, updateCommandIndicator, showInfoMessage);
     
     // Make interpreter instance globally accessible for accessibility module if needed (alternative to event bus)
     window.ravlykInterpreterInstance = interpreter;
@@ -96,7 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             await Promise.race([executionPromise, timeoutPromise]);
-            showSuccessMessage(SUCCESS_MESSAGES.CODE_EXECUTED);
+            if (!interpreter.wasBoundaryWarningShown()) {
+                showSuccessMessage(SUCCESS_MESSAGES.CODE_EXECUTED);
+            }
         } catch (error) {
             if (error.name === "RavlykError") {
                  if (error.message === ERROR_MESSAGES.EXECUTION_STOPPED_BY_USER) {
