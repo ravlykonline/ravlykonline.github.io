@@ -136,32 +136,31 @@ export function createRavlykSprite(canvasContainer) {
 export function updateRavlykVisualsOnScreen(ravlykState, canvasElement) {
     if (!ravlykSpriteElement || !ravlykState || !canvasElement) return;
 
-    // Ravlyk sprite is now inside canvas-box, so positioning is simpler
-    const ravlykSize = 30; // Should match CSS
+    const ravlykSize = 30;
 
-    // SVG geometry: центр (50,50), носик (50,15)
     const angleRad = (ravlykState.angle - 90) * Math.PI / 180;
-    // Вектор від центру до носика (0, -50) у масштабі спрайта (новий SVG)
     const offsetX = 0;
     const offsetY = -ravlykSize * 50 / 100;
-    // Обертаємо цей вектор
     const dx = offsetX * Math.cos(angleRad) - offsetY * Math.sin(angleRad);
     const dy = offsetX * Math.sin(angleRad) + offsetY * Math.cos(angleRad);
-    // Враховуємо зсув між canvas і контейнером DOM
     const canvasRect = canvasElement.getBoundingClientRect();
     const containerRect = ravlykSpriteElement.parentElement.getBoundingClientRect();
     const offsetDomX = canvasRect.left - containerRect.left;
     const offsetDomY = canvasRect.top - containerRect.top;
 
-    // Лівий верхній кут спрайта для точного співпадіння носика з (x, y)
     const newLeft = ravlykState.x + dx - ravlykSize / 2 + offsetDomX;
     const newTop = ravlykState.y + dy - ravlykSize / 2 + offsetDomY;
-
+    
     ravlykSpriteElement.style.left = `${newLeft}px`;
     ravlykSpriteElement.style.top = `${newTop}px`;
-    ravlykSpriteElement.style.transform = `rotate(${ravlykState.angle + 90}deg)`; // +90 SVG points up
 
-
+    // Завжди будуємо повний рядок transform в одному місці
+    const rotation = `rotate(${ravlykState.angle + 90}deg)`;
+    const scale = `scale(${ravlykState.scale})`; // Використовуємо scale зі стану
+    ravlykSpriteElement.style.transform = `${rotation} ${scale}`;
+    
+    // Керуємо тінню через клас
+    ravlykSpriteElement.classList.toggle('lifted', !ravlykState.isPenDown);
 }
 
 // --- Command Indicator ---
