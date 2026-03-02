@@ -99,12 +99,26 @@ runTest('supports arithmetic expressions in assignments and command arguments', 
     assert.equal(queue[1].value, 90);
 });
 
+runTest('supports long expressions with precedence and parentheses', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens([
+        'create', 'step', '=', '(', '2', '+', '3', ')', '*', '4',
+        'forward', 'step', '+', '6', '/', '2',
+        'left', '(', '10', '+', '5', ')', '*', '2',
+    ]);
+    assert.equal(queue.length, 2);
+    assert.equal(queue[0].type, 'MOVE');
+    assert.equal(queue[0].value, 23);
+    assert.equal(queue[1].type, 'TURN_LEFT');
+    assert.equal(queue[1].value, 30);
+});
+
 runTest('supports arithmetic expressions in goto and repeat count', () => {
     const interpreter = createInterpreter();
     const queue = interpreter.parseTokens([
         'create', 'x', '=', '10',
         'create', 'y', '=', '20',
-        'goto', 'x', '+', '5', 'y', '-', '2',
+        'goto', 'x', '+', '5', ',', 'y', '-', '2',
         'repeat', '2', '+', '1', '(', 'forward', '1', ')',
     ]);
     assert.equal(queue.length, 2);
@@ -113,6 +127,21 @@ runTest('supports arithmetic expressions in goto and repeat count', () => {
     assert.equal(queue[0].y, 18);
     assert.equal(queue[1].type, 'REPEAT');
     assert.equal(queue[1].count, 3);
+});
+
+runTest('supports unary minus in expressions', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens([
+        'create', 'x', '=', '-', '10',
+        'forward', '-', 'x',
+        'goto', '(', 'x', '+', '2', ')', '-', '(', '-', '3', ')',
+    ]);
+    assert.equal(queue.length, 2);
+    assert.equal(queue[0].type, 'MOVE');
+    assert.equal(queue[0].value, 10);
+    assert.equal(queue[1].type, 'GOTO');
+    assert.equal(queue[1].x, -8);
+    assert.equal(queue[1].y, 3);
 });
 
 runTest('function declaration and call are expanded', () => {
@@ -149,6 +178,14 @@ runTest('throws on division by zero in expression', () => {
     const interpreter = createInterpreter();
     assert.throws(
         () => interpreter.parseTokens(['forward', '10', '/', '0']),
+        (error) => error && error.name === 'RavlykError'
+    );
+});
+
+runTest('throws on unclosed parentheses in expression', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parseTokens(['forward', '(', '10', '+', '2']),
         (error) => error && error.name === 'RavlykError'
     );
 });

@@ -126,7 +126,7 @@ export class RavlykInterpreter {
             .map(line => line.replace(/#.*/, '').trim())
             .filter(line => line.length > 0);
         const combinedCode = lines.join(' ');
-        const tokens = combinedCode.match(/[()=]|[^\s()=]+/g) || [];
+        const tokens = combinedCode.match(/[(),=]|[^\s(),=]+/g) || [];
         return tokens.filter(token => token.trim() !== "");
     }
 
@@ -208,6 +208,12 @@ export class RavlykInterpreter {
         return token === "+" || token === "-" || token === "*" || token === "/";
     }
 
+    getOperatorPrecedence(operator) {
+        if (operator === "+" || operator === "-") return 1;
+        if (operator === "*" || operator === "/") return 2;
+        return -1;
+    }
+
     applyArithmeticOperator(leftValue, operator, rightValue, errorKey, ...errorParams) {
         if (operator === "+") return leftValue + rightValue;
         if (operator === "-") return leftValue - rightValue;
@@ -219,53 +225,115 @@ export class RavlykInterpreter {
         throw new RavlykError(errorKey, ...errorParams);
     }
 
-    parseNumberExpressionOrThrow(tokens, startIndex, substitutions, errorKey, ...errorParams) {
+    parseExpressionPrimaryOrThrow(tokens, startIndex, substitutions, errorKey, ...errorParams) {
         if (startIndex >= tokens.length) {
             throw new RavlykError(errorKey, ...errorParams);
         }
 
-        const leftToken = this.parseStrictNumberOrThrow(tokens[startIndex], substitutions, errorKey, ...errorParams);
-        const operatorIndex = startIndex + 1;
-        const rightIndex = startIndex + 2;
-
-        if (
-            operatorIndex < tokens.length &&
-            this.isArithmeticOperator(tokens[operatorIndex]) &&
-            rightIndex < tokens.length
-        ) {
-            const rightToken = this.parseStrictNumberOrThrow(tokens[rightIndex], substitutions, errorKey, ...errorParams);
-            const resolvedExpression = `${leftToken.resolved} ${tokens[operatorIndex]} ${rightToken.resolved}`;
-            let value;
-            try {
-                value = this.applyArithmeticOperator(
-                    leftToken.value,
-                    tokens[operatorIndex],
-                    rightToken.value,
-                    errorKey,
-                    ...errorParams,
-                    resolvedExpression
-                );
-            } catch (error) {
-                if (error instanceof RavlykError) {
-                    throw error;
-                }
-                throw new RavlykError(errorKey, ...errorParams, resolvedExpression);
-            }
-            if (!Number.isFinite(value)) {
-                throw new RavlykError(errorKey, ...errorParams, resolvedExpression);
+        const token = tokens[startIndex];
+        if (token === "(") {
+            const inner = this.parseExpressionWithPrecedenceOrThrow(
+                tokens,
+                startIndex + 1,
+                0,
+                substitutions,
+                errorKey,
+                ...errorParams
+            );
+            if (inner.nextIndex >= tokens.length || tokens[inner.nextIndex] !== ")") {
+                throw new RavlykError(errorKey, ...errorParams, inner.resolved);
             }
             return {
-                value,
-                resolved: resolvedExpression,
-                nextIndex: rightIndex + 1,
+                value: inner.value,
+                resolved: `(${inner.resolved})`,
+                nextIndex: inner.nextIndex + 1,
             };
         }
 
+        const numberToken = this.parseStrictNumberOrThrow(token, substitutions, errorKey, ...errorParams);
         return {
-            value: leftToken.value,
-            resolved: leftToken.resolved,
-            nextIndex: operatorIndex,
+            value: numberToken.value,
+            resolved: numberToken.resolved,
+            nextIndex: startIndex + 1,
         };
+    }
+
+    parseExpressionUnaryOrThrow(tokens, startIndex, substitutions, errorKey, ...errorParams) {
+        if (startIndex >= tokens.length) {
+            throw new RavlykError(errorKey, ...errorParams);
+        }
+
+        const token = tokens[startIndex];
+        if (token === "+" || token === "-") {
+            const operand = this.parseExpressionUnaryOrThrow(
+                tokens,
+                startIndex + 1,
+                substitutions,
+                errorKey,
+                ...errorParams
+            );
+            const value = token === "-" ? -operand.value : operand.value;
+            return {
+                value,
+                resolved: `${token}${operand.resolved}`,
+                nextIndex: operand.nextIndex,
+            };
+        }
+
+        return this.parseExpressionPrimaryOrThrow(tokens, startIndex, substitutions, errorKey, ...errorParams);
+    }
+
+    parseExpressionWithPrecedenceOrThrow(tokens, startIndex, minPrecedence, substitutions, errorKey, ...errorParams) {
+        let left = this.parseExpressionUnaryOrThrow(tokens, startIndex, substitutions, errorKey, ...errorParams);
+
+        while (left.nextIndex < tokens.length) {
+            const operator = tokens[left.nextIndex];
+            const precedence = this.getOperatorPrecedence(operator);
+            if (precedence < minPrecedence) {
+                break;
+            }
+
+            const right = this.parseExpressionWithPrecedenceOrThrow(
+                tokens,
+                left.nextIndex + 1,
+                precedence + 1,
+                substitutions,
+                errorKey,
+                ...errorParams
+            );
+
+            const expressionText = `${left.resolved} ${operator} ${right.resolved}`;
+            const value = this.applyArithmeticOperator(
+                left.value,
+                operator,
+                right.value,
+                errorKey,
+                ...errorParams,
+                expressionText
+            );
+            if (!Number.isFinite(value)) {
+                throw new RavlykError(errorKey, ...errorParams, expressionText);
+            }
+
+            left = {
+                value,
+                resolved: expressionText,
+                nextIndex: right.nextIndex,
+            };
+        }
+
+        return left;
+    }
+
+    parseNumberExpressionOrThrow(tokens, startIndex, substitutions, errorKey, ...errorParams) {
+        return this.parseExpressionWithPrecedenceOrThrow(
+            tokens,
+            startIndex,
+            0,
+            substitutions,
+            errorKey,
+            ...errorParams
+        );
     }
 
     parseIntegerExpressionOrThrow(tokens, startIndex, substitutions, errorKey, ...errorParams) {
@@ -478,17 +546,53 @@ export class RavlykInterpreter {
 
         if (xIndex >= tokens.length) throw new RavlykError("NO_POSITION_X", originalToken);
 
-        const xToken = this.parseNumberExpressionOrThrow(
-            tokens,
-            xIndex,
-            substitutions,
-            "INVALID_POSITION_X",
-            originalToken
-        );
+        let commaIndex = -1;
+        let parenDepth = 0;
+        for (let i = xIndex; i < tokens.length; i++) {
+            if (tokens[i] === "(") {
+                parenDepth++;
+                continue;
+            }
+            if (tokens[i] === ")") {
+                if (parenDepth === 0) break;
+                parenDepth--;
+                continue;
+            }
+            if (tokens[i] === "," && parenDepth === 0) {
+                commaIndex = i;
+                break;
+            }
+        }
+
+        let xToken;
+        if (commaIndex !== -1) {
+            xToken = this.parseNumberExpressionOrThrow(
+                tokens,
+                xIndex,
+                substitutions,
+                "INVALID_POSITION_X",
+                originalToken
+            );
+            if (xToken.nextIndex !== commaIndex) {
+                throw new RavlykError("INVALID_POSITION_X", originalToken, xToken.resolved);
+            }
+        } else {
+            // Without comma, parse X as a single unary/parenthesized value to avoid ambiguity with Y.
+            xToken = this.parseExpressionUnaryOrThrow(
+                tokens,
+                xIndex,
+                substitutions,
+                "INVALID_POSITION_X",
+                originalToken
+            );
+        }
+
         if (xToken.nextIndex >= tokens.length) throw new RavlykError("NO_POSITION_Y", originalToken);
+        const yStartIndex = tokens[xToken.nextIndex] === "," ? xToken.nextIndex + 1 : xToken.nextIndex;
+        if (yStartIndex >= tokens.length) throw new RavlykError("NO_POSITION_Y", originalToken);
         const yToken = this.parseNumberExpressionOrThrow(
             tokens,
-            xToken.nextIndex,
+            yStartIndex,
             substitutions,
             "INVALID_POSITION_Y",
             originalToken
