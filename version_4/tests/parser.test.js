@@ -129,6 +129,17 @@ runTest('supports arithmetic expressions in goto and repeat count', () => {
     assert.equal(queue[1].count, 3);
 });
 
+runTest('repeat with assignment expands with updated variable values per iteration', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens([
+        'create', 'step', '=', '5',
+        'repeat', '3', '(', 'forward', 'step', 'step', '=', 'step', '+', '2', ')',
+    ]);
+    assert.equal(queue.length, 3);
+    assert.deepEqual(queue.map((cmd) => cmd.type), ['MOVE', 'MOVE', 'MOVE']);
+    assert.deepEqual(queue.map((cmd) => cmd.value), [5, 7, 9]);
+});
+
 runTest('supports unary minus in expressions', () => {
     const interpreter = createInterpreter();
     const queue = interpreter.parseTokens([

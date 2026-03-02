@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearBtn = document.getElementById("clear-btn");
     const saveBtn = document.getElementById("save-btn");
     const saveCodeBtn = document.getElementById("save-code-btn");
+    const shareBtn = document.getElementById("share-btn");
     const gridBtn = document.getElementById("grid-btn");
     const helpBtn = document.getElementById("help-btn");
     const gridCanvas = document.getElementById("ravlyk-grid-canvas");
@@ -53,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const gridCtx = gridCanvas ? gridCanvas.getContext("2d") : null;
     const GRID_STORAGE_KEY = 'ravlyk_grid_visible_v1';
+    const MAX_SHARE_URL_LENGTH_CHARS = 7000;
     let isGridVisible = false;
     let editorErrorLine = null;
 
@@ -198,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearBtn.disabled = isExecuting;
         saveBtn.disabled = isExecuting;
         if (saveCodeBtn) saveCodeBtn.disabled = isExecuting;
+        if (shareBtn) shareBtn.disabled = isExecuting;
         if (gridBtn) gridBtn.disabled = isExecuting;
         helpBtn.disabled = isExecuting;
         codeEditor.disabled = isExecuting;
@@ -432,6 +435,110 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function encodeCodeForUrlHash(code) {
+        const bytes = new TextEncoder().encode(code);
+        let binary = "";
+        bytes.forEach((byte) => {
+            binary += String.fromCharCode(byte);
+        });
+        return btoa(binary)
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/g, '');
+    }
+
+    function decodeCodeFromUrlHash(encodedValue) {
+        const normalized = String(encodedValue || '')
+            .replace(/-/g, '+')
+            .replace(/_/g, '/');
+        const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
+        const binary = atob(padded);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+        }
+        return new TextDecoder().decode(bytes);
+    }
+
+    async function copyTextToClipboard(text) {
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            await navigator.clipboard.writeText(text);
+            return;
+        }
+
+        const helper = document.createElement('textarea');
+        helper.value = text;
+        helper.setAttribute('readonly', '');
+        helper.style.position = 'fixed';
+        helper.style.opacity = '0';
+        helper.style.pointerEvents = 'none';
+        document.body.appendChild(helper);
+        helper.focus();
+        helper.select();
+        const copied = document.execCommand('copy');
+        document.body.removeChild(helper);
+        if (!copied) {
+            throw new Error('clipboard copy failed');
+        }
+    }
+
+    function buildShareLink(code) {
+        const encoded = encodeCodeForUrlHash(code);
+        const url = new URL(window.location.href);
+        url.hash = `code=${encoded}`;
+        return url.toString();
+    }
+
+    async function shareCodeAsLink() {
+        const code = codeEditor.value || '';
+        if (!code.trim()) {
+            showInfoMessage('Поле коду порожнє. Додай команди перед поширенням.');
+            return;
+        }
+        if (code.length > MAX_CODE_LENGTH_CHARS) {
+            showError(ERROR_MESSAGES.CODE_TOO_LONG, 0);
+            return;
+        }
+
+        const shareLink = buildShareLink(code);
+        if (shareLink.length > MAX_SHARE_URL_LENGTH_CHARS) {
+            showError('Код завеликий для посилання. Скористайся кнопкою "Зберегти код".', 0);
+            return;
+        }
+
+        try {
+            await copyTextToClipboard(shareLink);
+            showSuccessMessage('Посилання з кодом скопійовано!');
+        } catch (error) {
+            showError('Не вдалося скопіювати посилання. Спробуй ще раз.', 0);
+        }
+    }
+
+    function loadCodeFromUrlHash() {
+        const hashRaw = String(window.location.hash || '');
+        if (!hashRaw.startsWith('#')) return;
+        const hashValue = hashRaw.slice(1);
+        if (!hashValue) return;
+
+        const hashParams = new URLSearchParams(hashValue);
+        const encodedCode = hashParams.get('code');
+        if (!encodedCode) return;
+
+        try {
+            const decodedCode = decodeCodeFromUrlHash(encodedCode);
+            if (decodedCode.length > MAX_CODE_LENGTH_CHARS) {
+                showError(ERROR_MESSAGES.CODE_TOO_LONG, 0);
+                return;
+            }
+            codeEditor.value = decodedCode;
+            setEditorErrorLine(null);
+            updateEditorDecorations();
+            showInfoMessage('Код завантажено з посилання.');
+        } catch (error) {
+            showError('Посилання з кодом пошкоджене або неповне.', 0);
+        }
+    }
+
     // --- Event Listeners ---
     if (runBtn) runBtn.addEventListener("click", runCode);
     if (stopBtn) stopBtn.addEventListener("click", () => {
@@ -445,6 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if (saveBtn) saveBtn.addEventListener('click', saveDrawing);
     if (saveCodeBtn) saveCodeBtn.addEventListener('click', saveCodeToFile);
+    if (shareBtn) shareBtn.addEventListener('click', shareCodeAsLink);
     if (gridBtn) gridBtn.addEventListener('click', () => setGridVisibility(!isGridVisible));
     if (helpBtn) helpBtn.addEventListener('click', showHelpModal);
 
@@ -583,6 +691,7 @@ document.addEventListener('DOMContentLoaded', () => {
     isGridVisible = loadGridPreference();
     updateGridButtonState();
     initialSetup(); // Initial call
+    loadCodeFromUrlHash();
 
     // Placeholder logic for textarea
     const defaultPlaceholder = codeEditor.getAttribute('placeholder') || '';

@@ -589,8 +589,26 @@ export class RavlykParser {
 
         const commandsToRepeatTokens = tokens.slice(subTokensStart, subTokensEnd);
         const nestedTokenMeta = tokenMeta ? tokenMeta.slice(subTokensStart, subTokensEnd) : null;
-        const nestedCommands = this.parseTokens(commandsToRepeatTokens, depth + 1, substitutions, nestedTokenMeta);
 
+        // When loop body mutates variables, expand iterations at parse time
+        // so expressions like "вперед крок" see updated values each iteration.
+        const hasAssignmentInBody = commandsToRepeatTokens.includes("=");
+        if (hasAssignmentInBody) {
+            for (let iteration = 0; iteration < actualRepeatCount; iteration++) {
+                const iterationCommands = this.parseTokens(
+                    commandsToRepeatTokens,
+                    depth + 1,
+                    substitutions,
+                    nestedTokenMeta
+                );
+                if (iterationCommands.length > 0) {
+                    queue.push(...iterationCommands);
+                }
+            }
+            return subTokensEnd + 1;
+        }
+
+        const nestedCommands = this.parseTokens(commandsToRepeatTokens, depth + 1, substitutions, nestedTokenMeta);
         if (actualRepeatCount > 0 && nestedCommands.length > 0) {
             queue.push({
                 type: "REPEAT",
