@@ -84,6 +84,37 @@ runTest('variables are resolved in command arguments', () => {
     assert.equal(queue[0].value, 25);
 });
 
+runTest('supports arithmetic expressions in assignments and command arguments', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens([
+        'create', 'step', '=', '10',
+        'step', '=', 'step', '+', '5',
+        'forward', 'step', '+', '10',
+        'right', '180', '/', '2',
+    ]);
+    assert.equal(queue.length, 2);
+    assert.equal(queue[0].type, 'MOVE');
+    assert.equal(queue[0].value, 25);
+    assert.equal(queue[1].type, 'TURN');
+    assert.equal(queue[1].value, 90);
+});
+
+runTest('supports arithmetic expressions in goto and repeat count', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens([
+        'create', 'x', '=', '10',
+        'create', 'y', '=', '20',
+        'goto', 'x', '+', '5', 'y', '-', '2',
+        'repeat', '2', '+', '1', '(', 'forward', '1', ')',
+    ]);
+    assert.equal(queue.length, 2);
+    assert.equal(queue[0].type, 'GOTO');
+    assert.equal(queue[0].x, 15);
+    assert.equal(queue[0].y, 18);
+    assert.equal(queue[1].type, 'REPEAT');
+    assert.equal(queue[1].count, 3);
+});
+
 runTest('function declaration and call are expanded', () => {
     const interpreter = createInterpreter();
     const queue = interpreter.parseTokens([
@@ -95,11 +126,30 @@ runTest('function declaration and call are expanded', () => {
     assert.equal(queue[0].value, 12);
 });
 
+runTest('function call accepts expression argument', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens([
+        'create', 'line', '(', 'n', ')', '(', 'forward', 'n', ')',
+        'line', '(', '10', '+', '2', ')',
+    ]);
+    assert.equal(queue.length, 1);
+    assert.equal(queue[0].type, 'MOVE');
+    assert.equal(queue[0].value, 12);
+});
+
 runTest('throws on undefined variable', () => {
     const interpreter = createInterpreter();
     assert.throws(
         () => interpreter.parseTokens(['forward', 'unknown_value']),
         (error) => error && error.name === 'RavlykError' && error.message.includes('unknown_value')
+    );
+});
+
+runTest('throws on division by zero in expression', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parseTokens(['forward', '10', '/', '0']),
+        (error) => error && error.name === 'RavlykError'
     );
 });
 

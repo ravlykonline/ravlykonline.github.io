@@ -204,6 +204,84 @@ export class RavlykInterpreter {
         throw new RavlykError(errorKey, ...errorParams, resolved);
     }
 
+    isArithmeticOperator(token) {
+        return token === "+" || token === "-" || token === "*" || token === "/";
+    }
+
+    applyArithmeticOperator(leftValue, operator, rightValue, errorKey, ...errorParams) {
+        if (operator === "+") return leftValue + rightValue;
+        if (operator === "-") return leftValue - rightValue;
+        if (operator === "*") return leftValue * rightValue;
+        if (operator === "/") {
+            if (rightValue === 0) throw new RavlykError(errorKey, ...errorParams);
+            return leftValue / rightValue;
+        }
+        throw new RavlykError(errorKey, ...errorParams);
+    }
+
+    parseNumberExpressionOrThrow(tokens, startIndex, substitutions, errorKey, ...errorParams) {
+        if (startIndex >= tokens.length) {
+            throw new RavlykError(errorKey, ...errorParams);
+        }
+
+        const leftToken = this.parseStrictNumberOrThrow(tokens[startIndex], substitutions, errorKey, ...errorParams);
+        const operatorIndex = startIndex + 1;
+        const rightIndex = startIndex + 2;
+
+        if (
+            operatorIndex < tokens.length &&
+            this.isArithmeticOperator(tokens[operatorIndex]) &&
+            rightIndex < tokens.length
+        ) {
+            const rightToken = this.parseStrictNumberOrThrow(tokens[rightIndex], substitutions, errorKey, ...errorParams);
+            const resolvedExpression = `${leftToken.resolved} ${tokens[operatorIndex]} ${rightToken.resolved}`;
+            let value;
+            try {
+                value = this.applyArithmeticOperator(
+                    leftToken.value,
+                    tokens[operatorIndex],
+                    rightToken.value,
+                    errorKey,
+                    ...errorParams,
+                    resolvedExpression
+                );
+            } catch (error) {
+                if (error instanceof RavlykError) {
+                    throw error;
+                }
+                throw new RavlykError(errorKey, ...errorParams, resolvedExpression);
+            }
+            if (!Number.isFinite(value)) {
+                throw new RavlykError(errorKey, ...errorParams, resolvedExpression);
+            }
+            return {
+                value,
+                resolved: resolvedExpression,
+                nextIndex: rightIndex + 1,
+            };
+        }
+
+        return {
+            value: leftToken.value,
+            resolved: leftToken.resolved,
+            nextIndex: operatorIndex,
+        };
+    }
+
+    parseIntegerExpressionOrThrow(tokens, startIndex, substitutions, errorKey, ...errorParams) {
+        const expression = this.parseNumberExpressionOrThrow(
+            tokens,
+            startIndex,
+            substitutions,
+            errorKey,
+            ...errorParams
+        );
+        if (!Number.isInteger(expression.value)) {
+            throw new RavlykError(errorKey, ...errorParams, expression.resolved);
+        }
+        return expression;
+    }
+
     parseVariableAssignment(tokens, startIndex, substitutions, createdWithKeyword = false) {
         const nameIndex = createdWithKeyword ? startIndex + 1 : startIndex;
         const eqIndex = createdWithKeyword ? startIndex + 2 : startIndex + 1;
@@ -226,14 +304,15 @@ export class RavlykInterpreter {
             throw new RavlykError("VARIABLE_NAME_CONFLICT_FUNCTION", variableName);
         }
 
-        const parsedValue = this.parseStrictNumberOrThrow(
-            tokens[valueIndex],
+        const parsedValue = this.parseNumberExpressionOrThrow(
+            tokens,
+            valueIndex,
             substitutions,
             "VARIABLE_VALUE_INVALID",
             variableName
         );
         this.userVariables[variableKey] = parsedValue.value;
-        return valueIndex + 1;
+        return parsedValue.nextIndex;
     }
 
     parseCreateStatement(tokens, startIndex, substitutions) {
@@ -321,29 +400,34 @@ export class RavlykInterpreter {
         const functionDef = this.userFunctions[nameLower];
         if (!functionDef) return null;
 
-        if (startIndex + 3 >= tokens.length || tokens[startIndex + 1] !== "(" || tokens[startIndex + 3] !== ")") {
+        if (startIndex + 2 >= tokens.length || tokens[startIndex + 1] !== "(") {
             throw new RavlykError("FUNCTION_CALL_SYNTAX", functionName);
         }
 
-        const parsedArgument = this.parseStrictNumberOrThrow(
-            tokens[startIndex + 2],
+        const parsedArgument = this.parseNumberExpressionOrThrow(
+            tokens,
+            startIndex + 2,
             substitutions,
             "FUNCTION_ARGUMENT_INVALID",
             functionName
         );
+        if (parsedArgument.nextIndex >= tokens.length || tokens[parsedArgument.nextIndex] !== ")") {
+            throw new RavlykError("FUNCTION_CALL_SYNTAX", functionName);
+        }
         const localSubstitutions = { ...substitutions, [functionDef.paramName]: parsedArgument.value };
         const expandedCommands = this.parseTokens(functionDef.bodyTokens, depth + 1, localSubstitutions);
 
         return {
             commands: expandedCommands,
-            nextIndex: startIndex + 4,
+            nextIndex: parsedArgument.nextIndex + 1,
         };
     }
 
     parseMoveCommand(tokens, startIndex, token, originalToken, substitutions, queue) {
         if (startIndex + 1 >= tokens.length) throw new RavlykError("NO_DISTANCE", originalToken);
-        const distanceToken = this.parseStrictNumberOrThrow(
-            tokens[startIndex + 1],
+        const distanceToken = this.parseNumberExpressionOrThrow(
+            tokens,
+            startIndex + 1,
             substitutions,
             "INVALID_DISTANCE",
             originalToken
@@ -353,13 +437,14 @@ export class RavlykInterpreter {
             value: distanceToken.value,
             original: `${originalToken} ${distanceToken.resolved}`
         });
-        return startIndex + 2;
+        return distanceToken.nextIndex;
     }
 
     parseTurnCommand(tokens, startIndex, token, originalToken, substitutions, queue) {
         if (startIndex + 1 >= tokens.length) throw new RavlykError("NO_ANGLE", originalToken);
-        const angleToken = this.parseStrictNumberOrThrow(
-            tokens[startIndex + 1],
+        const angleToken = this.parseNumberExpressionOrThrow(
+            tokens,
+            startIndex + 1,
             substitutions,
             "INVALID_ANGLE",
             originalToken
@@ -369,7 +454,7 @@ export class RavlykInterpreter {
             value: angleToken.value,
             original: `${originalToken} ${angleToken.resolved}`
         });
-        return startIndex + 2;
+        return angleToken.nextIndex;
     }
 
     parseColorCommand(tokens, startIndex, originalToken, queue) {
@@ -392,16 +477,18 @@ export class RavlykInterpreter {
         }
 
         if (xIndex >= tokens.length) throw new RavlykError("NO_POSITION_X", originalToken);
-        if (xIndex + 1 >= tokens.length) throw new RavlykError("NO_POSITION_Y", originalToken);
 
-        const xToken = this.parseStrictNumberOrThrow(
-            tokens[xIndex],
+        const xToken = this.parseNumberExpressionOrThrow(
+            tokens,
+            xIndex,
             substitutions,
             "INVALID_POSITION_X",
             originalToken
         );
-        const yToken = this.parseStrictNumberOrThrow(
-            tokens[xIndex + 1],
+        if (xToken.nextIndex >= tokens.length) throw new RavlykError("NO_POSITION_Y", originalToken);
+        const yToken = this.parseNumberExpressionOrThrow(
+            tokens,
+            xToken.nextIndex,
             substitutions,
             "INVALID_POSITION_Y",
             originalToken
@@ -414,7 +501,7 @@ export class RavlykInterpreter {
             original: `${originalToken} ${xToken.resolved} ${yToken.resolved}`
         });
 
-        return xIndex + 2;
+        return yToken.nextIndex;
     }
 
     parseSimpleCommand(startIndex, type, originalToken, queue) {
@@ -424,8 +511,9 @@ export class RavlykInterpreter {
 
     parseRepeatCommand(tokens, startIndex, originalToken, depth, substitutions, queue) {
         if (startIndex + 1 >= tokens.length) throw new RavlykError("REPEAT_EXPECT_NUMBER");
-        const repeatCountToken = this.parseStrictIntegerOrThrow(
-            tokens[startIndex + 1],
+        const repeatCountToken = this.parseIntegerExpressionOrThrow(
+            tokens,
+            startIndex + 1,
             substitutions,
             "INVALID_REPEAT_COUNT"
         );
@@ -436,12 +524,12 @@ export class RavlykInterpreter {
         }
         const actualRepeatCount = Math.min(repeatCount, MAX_REPEATS_IN_LOOP);
 
-        if (startIndex + 2 >= tokens.length || tokens[startIndex + 2] !== "(") {
+        if (repeatCountToken.nextIndex >= tokens.length || tokens[repeatCountToken.nextIndex] !== "(") {
             throw new RavlykError("REPEAT_EXPECT_OPEN_PAREN");
         }
 
         let parenBalance = 1;
-        const subTokensStart = startIndex + 3;
+        const subTokensStart = repeatCountToken.nextIndex + 1;
         let subTokensEnd = subTokensStart;
         while (subTokensEnd < tokens.length) {
             if (tokens[subTokensEnd] === "(") parenBalance++;
