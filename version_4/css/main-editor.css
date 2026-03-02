@@ -81,6 +81,8 @@
 }
 
 #code-editor {
+    position: relative;
+    z-index: 2;
     flex-grow: 1; /* Allow textarea to fill code-box */
     padding: 15px;
     resize: none; /* Consider 'vertical' if preferred */
@@ -89,8 +91,46 @@
     font-family: 'Fira Mono', 'Consolas', 'Courier New', monospace;
     font-size: 1.1rem; /* Increased for readability */
     line-height: 1.6;
-    background: #fdfdff; /* Slightly off-white */
+    background: transparent;
     border-top: 1px solid #ddd; /* Separator from header */
+}
+
+.editor-shell {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    background: #fdfdff;
+}
+
+.code-line-numbers {
+    width: 46px;
+    border-top: 1px solid #ddd;
+    border-right: 1px solid #e6e6ef;
+    background: #f2f1fb;
+    color: #6c6f86;
+    font-family: 'Fira Mono', 'Consolas', 'Courier New', monospace;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    text-align: right;
+    padding: 15px 8px 15px 6px;
+    user-select: none;
+    overflow: hidden;
+    white-space: pre;
+    z-index: 3;
+}
+
+.code-active-line {
+    position: absolute;
+    left: 47px;
+    right: 0;
+    height: 1.6em;
+    top: 15px;
+    background: rgba(106, 90, 205, 0.08);
+    border-top: 1px solid rgba(106, 90, 205, 0.18);
+    border-bottom: 1px solid rgba(106, 90, 205, 0.18);
+    pointer-events: none;
+    z-index: 1;
 }
 
 #ravlyk-canvas {

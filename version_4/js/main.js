@@ -17,6 +17,8 @@ import {
 
 document.addEventListener('DOMContentLoaded', () => {
     const codeEditor = document.getElementById("code-editor");
+    const codeLineNumbers = document.getElementById("code-line-numbers");
+    const codeActiveLine = document.getElementById("code-active-line");
     const canvas = document.getElementById("ravlyk-canvas");
     const canvasContainer = document.querySelector(".canvas-box"); // Ravlyk sprite will be appended here
 
@@ -236,6 +238,47 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${message} (рядок ${line})`;
     }
 
+    function toFriendlyErrorMessage(message) {
+        if (!message) return "\u041e\u0439, \u0449\u043e\u0441\u044c \u043f\u0456\u0448\u043b\u043e \u043d\u0435 \u0442\u0430\u043a. \u0421\u043f\u0440\u043e\u0431\u0443\u0439 \u0449\u0435 \u0440\u0430\u0437.";
+        const lineMatch = message.match(/\([^)]*?(\d+)\)\s*$/);
+        if (lineMatch) {
+            return `\u041e\u0439, \u0442\u0443\u0442 \u0454 \u043f\u043e\u043c\u0438\u043b\u043a\u0430: ${message} \u041f\u0435\u0440\u0435\u0432\u0456\u0440 \u043e\u0441\u043e\u0431\u043b\u0438\u0432\u043e \u0443\u0432\u0430\u0436\u043d\u043e \u0440\u044f\u0434\u043e\u043a ${lineMatch[1]}.`;
+        }
+        return `\u041e\u0439, \u0442\u0443\u0442 \u0454 \u043f\u043e\u043c\u0438\u043b\u043a\u0430: ${message}`;
+    }
+
+    function getCurrentEditorLine() {
+        const cursor = codeEditor.selectionStart || 0;
+        const beforeCursor = codeEditor.value.slice(0, cursor);
+        return beforeCursor.split(/\n/).length;
+    }
+
+    function buildLineNumbersText(totalLines) {
+        let lines = "";
+        for (let i = 1; i <= totalLines; i++) {
+            lines += `${i}\n`;
+        }
+        return lines.trimEnd();
+    }
+
+    function updateEditorDecorations() {
+        if (!codeEditor || !codeLineNumbers || !codeActiveLine) return;
+
+        const value = codeEditor.value || "";
+        const totalLines = value ? value.split(/\n/).length : 1;
+        codeLineNumbers.textContent = buildLineNumbersText(totalLines);
+        codeLineNumbers.scrollTop = codeEditor.scrollTop;
+
+        const styles = getComputedStyle(codeEditor);
+        const lineHeight = parseFloat(styles.lineHeight) || 24;
+        const paddingTop = parseFloat(styles.paddingTop) || 0;
+        const currentLine = Math.max(1, getCurrentEditorLine());
+        const top = paddingTop + (currentLine - 1) * lineHeight - codeEditor.scrollTop;
+
+        codeActiveLine.style.height = `${lineHeight}px`;
+        codeActiveLine.style.top = `${Math.max(0, top)}px`;
+    }
+
     async function runCode() {
         const code = codeEditor.value;
         if (code.length > MAX_CODE_LENGTH_CHARS) {
@@ -278,7 +321,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (error.message === ERROR_MESSAGES.EXECUTION_STOPPED_BY_USER) {
                     showInfoMessage(INFO_MESSAGES.EXECUTION_STOPPED);
                 } else {
-                    showError(formatErrorWithLine(code, error.message), 0); // Show parser/runtime errors persistently
+                    const lineAwareMessage = formatErrorWithLine(code, error.message);
+                    showError(toFriendlyErrorMessage(lineAwareMessage), 0); // Show parser/runtime errors persistently
                 }
             } else { // Other unexpected errors
                 showError(`Неочікувана помилка: ${error.message}`, 0);
@@ -370,6 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (clearConfirmBtn) clearConfirmBtn.addEventListener('click', () => {
         codeEditor.value = "";
+        updateEditorDecorations();
         interpreter.reset();
         hideClearConfirmModal();
         showInfoMessage("Полотно та код очищено.");
@@ -412,6 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const code = block.getAttribute("data-code");
             if (code) {
                 codeEditor.value = code;
+                updateEditorDecorations();
                 runCode(); // Run example code immediately
             }
         });
@@ -443,8 +489,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const end = this.selectionEnd;
             this.value = this.value.substring(0, start) + "  " + this.value.substring(end);
             this.selectionStart = this.selectionEnd = start + 2;
+            updateEditorDecorations();
         }
     });
+
+    codeEditor.addEventListener("input", updateEditorDecorations);
+    codeEditor.addEventListener("scroll", updateEditorDecorations);
+    codeEditor.addEventListener("click", updateEditorDecorations);
+    codeEditor.addEventListener("keyup", updateEditorDecorations);
+    codeEditor.addEventListener("focus", updateEditorDecorations);
 
     // --- Initial Setup & Resize ---
     const handleCanvasResize = () => {
@@ -459,6 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
         handleCanvasResize();
         interpreter.reset();
         updateExecutionControls(false);
+        updateEditorDecorations();
         setFooterYear();
     };
     
