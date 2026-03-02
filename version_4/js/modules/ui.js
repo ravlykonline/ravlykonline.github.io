@@ -97,7 +97,8 @@ function toggleModal(modalId, show) {
     const modalOverlay = document.getElementById(modalId);
     // Fix: get direct modalContent id which already contains -content suffix
     const modalContentId = modalId === 'help-modal-overlay' ? 'help-modal-content' : 
-                         (modalId === 'clear-confirm-modal-overlay' ? 'clear-confirm-modal-content' : `${modalId}-content`);
+                         (modalId === 'clear-confirm-modal-overlay' ? 'clear-confirm-modal-content' :
+                         (modalId === 'stop-confirm-modal-overlay' ? 'stop-confirm-modal-content' : `${modalId}-content`));
     const modalContent = document.getElementById(modalContentId);
     
     if (modalOverlay) {
@@ -132,6 +133,14 @@ export function showClearConfirmModal() {
 export function hideClearConfirmModal() {
     toggleModal('clear-confirm-modal-overlay', false);
     document.getElementById('clear-btn')?.focus(); // Return focus
+}
+
+export function showStopConfirmModal() {
+    toggleModal('stop-confirm-modal-overlay', true);
+}
+export function hideStopConfirmModal() {
+    toggleModal('stop-confirm-modal-overlay', false);
+    document.getElementById('stop-btn')?.focus(); // Return focus
 }
 
 

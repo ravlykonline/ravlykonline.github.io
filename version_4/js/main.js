@@ -4,6 +4,7 @@ import {
     showError, showSuccessMessage, showInfoMessage,
     showHelpModal, hideHelpModal,
     showClearConfirmModal, hideClearConfirmModal,
+    showStopConfirmModal, hideStopConfirmModal,
     createRavlykSprite, updateRavlykVisualsOnScreen,
     updateCommandIndicator, resizeCanvas, setFooterYear
 } from './modules/ui.js';
@@ -42,6 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const helpModalToManualBtn = document.getElementById("to-manual-btn-modal");
     const clearConfirmBtn = document.getElementById("confirm-clear-btn");
     const clearCancelBtn = document.getElementById("cancel-clear-btn");
+    const stopConfirmBtn = document.getElementById("confirm-stop-btn");
+    const stopCancelBtn = document.getElementById("cancel-stop-btn");
 
     if (!canvas || typeof canvas.getContext !== 'function') {
         showError(ERROR_MESSAGES.CANVAS_NOT_SUPPORTED, 0);
@@ -543,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (runBtn) runBtn.addEventListener("click", runCode);
     if (stopBtn) stopBtn.addEventListener("click", () => {
         if (interpreter.isExecuting) {
-            interpreter.stopExecution();
+            showStopConfirmModal();
         }
     });
     if (clearBtn) clearBtn.addEventListener("click", () => {
@@ -575,13 +578,26 @@ document.addEventListener('DOMContentLoaded', () => {
         showInfoMessage("Полотно та код очищено.");
     });
     if (clearCancelBtn) clearCancelBtn.addEventListener('click', hideClearConfirmModal);
+    if (stopConfirmBtn) stopConfirmBtn.addEventListener('click', () => {
+        if (interpreter.isExecuting) {
+            interpreter.stopExecution();
+        }
+        hideStopConfirmModal();
+    });
+    if (stopCancelBtn) stopCancelBtn.addEventListener('click', hideStopConfirmModal);
 
     // Close modals on Escape key
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
-            // Якщо виконується код - зупиняємо його
+            const stopModalOpen = !document.getElementById('stop-confirm-modal-overlay').classList.contains('hidden');
+            if (stopModalOpen) {
+                hideStopConfirmModal();
+                return;
+            }
+
+            // Якщо виконується код - просимо підтвердження зупинки
             if (interpreter.isExecuting) {
-                interpreter.stopExecution();
+                showStopConfirmModal();
                 return;
             }
             
@@ -592,6 +608,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!document.getElementById('clear-confirm-modal-overlay').classList.contains('hidden')) {
                 hideClearConfirmModal();
             }
+            if (!document.getElementById('stop-confirm-modal-overlay').classList.contains('hidden')) {
+                hideStopConfirmModal();
+            }
         }
     });
     // Close modals on overlay click
@@ -600,6 +619,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('clear-confirm-modal-overlay')?.addEventListener('click', (event) => {
         if (event.target === event.currentTarget) hideClearConfirmModal();
+    });
+    document.getElementById('stop-confirm-modal-overlay')?.addEventListener('click', (event) => {
+        if (event.target === event.currentTarget) hideStopConfirmModal();
     });
 
 
