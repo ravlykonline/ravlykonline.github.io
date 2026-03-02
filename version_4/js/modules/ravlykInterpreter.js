@@ -35,6 +35,7 @@ export class RavlykInterpreter {
 
         this.isExecuting = false;
         this.shouldStop = false;
+        this.isPaused = false;
         this.animationFrameId = null;
         this.commandQueue = [];
         this.currentCommandIndex = 0;
@@ -63,6 +64,7 @@ export class RavlykInterpreter {
         }
         this.isExecuting = false;
         this.shouldStop = false;
+        this.isPaused = false;
         this.commandQueue = [];
         this.currentCommandIndex = 0;
         this.parser.resetUserState();
@@ -110,6 +112,7 @@ export class RavlykInterpreter {
 
         this.isExecuting = true;
         this.shouldStop = false;
+        this.isPaused = false;
         this.currentCommandIndex = 0;
         this.boundaryWarningShown = false;
         this.parser.resetUserState();
@@ -151,6 +154,12 @@ export class RavlykInterpreter {
                     this.isExecuting = false;
                     this.commandIndicatorUpdater(null, -1);
                     reject(new RavlykError("EXECUTION_STOPPED_BY_USER"));
+                    return;
+                }
+
+                if (this.isPaused) {
+                    lastTimestamp = timestamp;
+                    this.animationFrameId = requestAnimationFrame(processNextCommand);
                     return;
                 }
 
@@ -443,6 +452,17 @@ export class RavlykInterpreter {
 
     stopExecution() {
         this.shouldStop = true;
+        this.isPaused = false;
+    }
+
+    pauseExecution() {
+        if (this.isExecuting) {
+            this.isPaused = true;
+        }
+    }
+
+    resumeExecution() {
+        this.isPaused = false;
     }
     
     wasBoundaryWarningShown() {

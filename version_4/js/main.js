@@ -544,11 +544,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
     if (runBtn) runBtn.addEventListener("click", runCode);
-    if (stopBtn) stopBtn.addEventListener("click", () => {
-        if (interpreter.isExecuting) {
-            showStopConfirmModal();
-        }
-    });
     if (clearBtn) clearBtn.addEventListener("click", () => {
         if (interpreter.isExecuting) return;
         showClearConfirmModal();
@@ -558,6 +553,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (shareBtn) shareBtn.addEventListener('click', shareCodeAsLink);
     if (gridBtn) gridBtn.addEventListener('click', () => setGridVisibility(!isGridVisible));
     if (helpBtn) helpBtn.addEventListener('click', showHelpModal);
+
+    function openStopConfirmDialog() {
+        if (!interpreter.isExecuting) return;
+        interpreter.pauseExecution();
+        showStopConfirmModal();
+    }
+
+    function closeStopConfirmDialog(shouldResumeExecution = true) {
+        hideStopConfirmModal();
+        if (shouldResumeExecution && interpreter.isExecuting && !interpreter.shouldStop) {
+            interpreter.resumeExecution();
+        }
+    }
+
+    if (stopBtn) stopBtn.addEventListener("click", () => {
+        openStopConfirmDialog();
+    });
 
     // Початково кнопка "Зупинити" вимкнена
     if (stopBtn) stopBtn.disabled = true;
@@ -582,22 +594,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (interpreter.isExecuting) {
             interpreter.stopExecution();
         }
-        hideStopConfirmModal();
+        closeStopConfirmDialog(false);
     });
-    if (stopCancelBtn) stopCancelBtn.addEventListener('click', hideStopConfirmModal);
+    if (stopCancelBtn) stopCancelBtn.addEventListener('click', () => closeStopConfirmDialog(true));
 
     // Close modals on Escape key
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
             const stopModalOpen = !document.getElementById('stop-confirm-modal-overlay').classList.contains('hidden');
             if (stopModalOpen) {
-                hideStopConfirmModal();
+                closeStopConfirmDialog(true);
                 return;
             }
 
             // Якщо виконується код - просимо підтвердження зупинки
             if (interpreter.isExecuting) {
-                showStopConfirmModal();
+                openStopConfirmDialog();
                 return;
             }
             
@@ -609,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 hideClearConfirmModal();
             }
             if (!document.getElementById('stop-confirm-modal-overlay').classList.contains('hidden')) {
-                hideStopConfirmModal();
+                closeStopConfirmDialog(true);
             }
         }
     });
@@ -621,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target === event.currentTarget) hideClearConfirmModal();
     });
     document.getElementById('stop-confirm-modal-overlay')?.addEventListener('click', (event) => {
-        if (event.target === event.currentTarget) hideStopConfirmModal();
+        if (event.target === event.currentTarget) closeStopConfirmDialog(true);
     });
 
 
