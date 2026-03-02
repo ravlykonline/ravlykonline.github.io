@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stopBtn = document.getElementById("stop-btn");
     const clearBtn = document.getElementById("clear-btn");
     const saveBtn = document.getElementById("save-btn");
+    const saveCodeBtn = document.getElementById("save-code-btn");
     const gridBtn = document.getElementById("grid-btn");
     const helpBtn = document.getElementById("help-btn");
     const gridCanvas = document.getElementById("ravlyk-grid-canvas");
@@ -192,10 +193,47 @@ document.addEventListener('DOMContentLoaded', () => {
         stopBtn.disabled = !isExecuting;
         clearBtn.disabled = isExecuting;
         saveBtn.disabled = isExecuting;
+        if (saveCodeBtn) saveCodeBtn.disabled = isExecuting;
         if (gridBtn) gridBtn.disabled = isExecuting;
         helpBtn.disabled = isExecuting;
         codeEditor.disabled = isExecuting;
         exampleBlocks.forEach(b => b.classList.toggle('disabled', isExecuting));
+    }
+
+    function detectErrorLine(code, message) {
+        if (!code || !message) return null;
+        const lines = code.split(/\r?\n/);
+        if (!lines.length) return null;
+
+        const candidates = [];
+        const quotedMatches = [...message.matchAll(/"([^"]+)"/g)];
+        quotedMatches.forEach((m) => {
+            if (m[1] && m[1].trim()) candidates.push(m[1].trim());
+        });
+
+        const colonMatch = message.match(/:\s*([^\s"].+)$/);
+        if (colonMatch && colonMatch[1]) candidates.push(colonMatch[1].trim());
+
+        if (message.toLowerCase().includes("повторити")) candidates.push("повторити");
+        if (message.toLowerCase().includes("створити")) candidates.push("створити");
+        if (message.toLowerCase().includes("колір")) candidates.push("колір");
+        if (message.toLowerCase().includes("перейти")) candidates.push("перейти");
+
+        const uniqueCandidates = [...new Set(candidates.map((c) => c.toLowerCase()))];
+
+        for (const candidate of uniqueCandidates) {
+            const lineIndex = lines.findIndex((line) => line.toLowerCase().includes(candidate));
+            if (lineIndex >= 0) return lineIndex + 1;
+        }
+
+        return null;
+    }
+
+    function formatErrorWithLine(code, message) {
+        if (!message || /\(рядок\s+\d+\)\s*$/i.test(message)) return message;
+        const line = detectErrorLine(code, message);
+        if (!line) return message;
+        return `${message} (рядок ${line})`;
     }
 
     async function runCode() {
@@ -240,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (error.message === ERROR_MESSAGES.EXECUTION_STOPPED_BY_USER) {
                     showInfoMessage(INFO_MESSAGES.EXECUTION_STOPPED);
                 } else {
-                    showError(error.message, 0); // Show Ravlyk-specific errors persistently
+                    showError(formatErrorWithLine(code, error.message), 0); // Show parser/runtime errors persistently
                 }
             } else { // Other unexpected errors
                 showError(`Неочікувана помилка: ${error.message}`, 0);
@@ -286,6 +324,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function saveCodeToFile() {
+        try {
+            const code = codeEditor.value || '';
+            const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.download = `ravlyk-code-${Date.now()}.txt`;
+            link.href = URL.createObjectURL(blob);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+            showSuccessMessage("Код збережено!");
+        } catch (error) {
+            showError(`Не вдалося зберегти код: ${error.message}`, 0);
+        }
+    }
+
     // --- Event Listeners ---
     if (runBtn) runBtn.addEventListener("click", runCode);
     if (stopBtn) stopBtn.addEventListener("click", () => {
@@ -298,6 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showClearConfirmModal();
     });
     if (saveBtn) saveBtn.addEventListener('click', saveDrawing);
+    if (saveCodeBtn) saveCodeBtn.addEventListener('click', saveCodeToFile);
     if (gridBtn) gridBtn.addEventListener('click', () => setGridVisibility(!isGridVisible));
     if (helpBtn) helpBtn.addEventListener('click', showHelpModal);
 

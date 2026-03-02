@@ -63,6 +63,10 @@ export const ERROR_MESSAGES = {
     NO_ANGLE: (command) => `Не вказано кут для команди "${command}"`,
     INVALID_ANGLE: (command, value) => `Некоректний кут "${value}" для команди "${command}"`,
     NO_COLOR_NAME: (command) => `Не вказано колір для команди "${command}"`,
+    NO_POSITION_X: (command) => `Не вказано X-координату для команди "${command}"`,
+    NO_POSITION_Y: (command) => `Не вказано Y-координату для команди "${command}"`,
+    INVALID_POSITION_X: (command, value) => `Некоректна X-координата "${value}" для команди "${command}"`,
+    INVALID_POSITION_Y: (command, value) => `Некоректна Y-координата "${value}" для команди "${command}"`,
     UNKNOWN_COMMAND: (command) => `Не розумію команду: ${command}`,
     UNKNOWN_COLOR: (colorName) => `Невідомий колір: ${colorName}`,
     REPEAT_EXPECT_NUMBER: 'Помилка в "повторити": очікується число повторень.',
@@ -106,7 +110,7 @@ export const INFO_MESSAGES = {
     EXECUTION_STOPPED: "Виконання зупинено."
 };
 
-export const RAVLYK_SVG_DATA_URL = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,0 15,85 85,85" fill="%234a6fa5"/></svg>'; // Носик у (50,0)
+export const RAVLYK_SVG_DATA_URL = 'data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,0 15,85 85,85" fill="%234a6fa5"/></svg>'; // Носик у (50,0)
 
 export const HELP_MODAL_CONTENT_ID = 'ravlyk-help-modal-content';
 export const CLEAR_CONFIRM_MODAL_ID = 'clear-confirm-modal-content';

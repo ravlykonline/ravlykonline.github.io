@@ -14,6 +14,7 @@ const RESERVED_COMMAND_NAMES = new Set([
     "підняти", "penup",
     "опустити", "pendown",
     "очистити", "clear",
+    "перейти", "goto",
     "повторити", "повтори", "repeat",
     "створити", "create",
 ]);
@@ -47,7 +48,7 @@ export class RavlykInterpreter {
             isRainbow: false,
             rainbowHue: 0,
             isStuck: false,
-            scale: 1.0 // Новий параметр для анімації масштабу
+            scale: 1.0 // Animation scale factor
         };
 
         this.config = {
@@ -339,6 +340,149 @@ export class RavlykInterpreter {
         };
     }
 
+    parseMoveCommand(tokens, startIndex, token, originalToken, substitutions, queue) {
+        if (startIndex + 1 >= tokens.length) throw new RavlykError("NO_DISTANCE", originalToken);
+        const distanceToken = this.parseStrictNumberOrThrow(
+            tokens[startIndex + 1],
+            substitutions,
+            "INVALID_DISTANCE",
+            originalToken
+        );
+        queue.push({
+            type: (token === "вперед" || token === "forward") ? "MOVE" : "MOVE_BACK",
+            value: distanceToken.value,
+            original: `${originalToken} ${distanceToken.resolved}`
+        });
+        return startIndex + 2;
+    }
+
+    parseTurnCommand(tokens, startIndex, token, originalToken, substitutions, queue) {
+        if (startIndex + 1 >= tokens.length) throw new RavlykError("NO_ANGLE", originalToken);
+        const angleToken = this.parseStrictNumberOrThrow(
+            tokens[startIndex + 1],
+            substitutions,
+            "INVALID_ANGLE",
+            originalToken
+        );
+        queue.push({
+            type: (token === "праворуч" || token === "right") ? "TURN" : "TURN_LEFT",
+            value: angleToken.value,
+            original: `${originalToken} ${angleToken.resolved}`
+        });
+        return startIndex + 2;
+    }
+
+    parseColorCommand(tokens, startIndex, originalToken, queue) {
+        if (startIndex + 1 >= tokens.length) throw new RavlykError("NO_COLOR_NAME", originalToken);
+        const colorName = tokens[startIndex + 1].toLowerCase();
+        if (!COLOR_MAP[colorName]) throw new RavlykError("UNKNOWN_COLOR", tokens[startIndex + 1]);
+        queue.push({
+            type: "COLOR",
+            value: colorName,
+            original: `${originalToken} ${tokens[startIndex + 1]}`
+        });
+        return startIndex + 2;
+    }
+
+    parseGotoCommand(tokens, startIndex, originalToken, substitutions, queue) {
+        let xIndex = startIndex + 1;
+        const maybePreposition = tokens[xIndex]?.toLowerCase();
+        if (maybePreposition === "в" || maybePreposition === "to") {
+            xIndex++;
+        }
+
+        if (xIndex >= tokens.length) throw new RavlykError("NO_POSITION_X", originalToken);
+        if (xIndex + 1 >= tokens.length) throw new RavlykError("NO_POSITION_Y", originalToken);
+
+        const xToken = this.parseStrictNumberOrThrow(
+            tokens[xIndex],
+            substitutions,
+            "INVALID_POSITION_X",
+            originalToken
+        );
+        const yToken = this.parseStrictNumberOrThrow(
+            tokens[xIndex + 1],
+            substitutions,
+            "INVALID_POSITION_Y",
+            originalToken
+        );
+
+        queue.push({
+            type: "GOTO",
+            x: xToken.value,
+            y: yToken.value,
+            original: `${originalToken} ${xToken.resolved} ${yToken.resolved}`
+        });
+
+        return xIndex + 2;
+    }
+
+    parseSimpleCommand(startIndex, type, originalToken, queue) {
+        queue.push({ type, original: originalToken });
+        return startIndex + 1;
+    }
+
+    parseRepeatCommand(tokens, startIndex, originalToken, depth, substitutions, queue) {
+        if (startIndex + 1 >= tokens.length) throw new RavlykError("REPEAT_EXPECT_NUMBER");
+        const repeatCountToken = this.parseStrictIntegerOrThrow(
+            tokens[startIndex + 1],
+            substitutions,
+            "INVALID_REPEAT_COUNT"
+        );
+        const repeatCount = repeatCountToken.value;
+        if (repeatCount < 0) throw new RavlykError("INVALID_REPEAT_COUNT", repeatCountToken.resolved);
+        if (repeatCount > MAX_REPEATS_IN_LOOP) {
+            console.warn(`Warning: Repeat count ${repeatCount} exceeds maximum ${MAX_REPEATS_IN_LOOP}. Clamping to max.`);
+        }
+        const actualRepeatCount = Math.min(repeatCount, MAX_REPEATS_IN_LOOP);
+
+        if (startIndex + 2 >= tokens.length || tokens[startIndex + 2] !== "(") {
+            throw new RavlykError("REPEAT_EXPECT_OPEN_PAREN");
+        }
+
+        let parenBalance = 1;
+        const subTokensStart = startIndex + 3;
+        let subTokensEnd = subTokensStart;
+        while (subTokensEnd < tokens.length) {
+            if (tokens[subTokensEnd] === "(") parenBalance++;
+            else if (tokens[subTokensEnd] === ")") parenBalance--;
+            if (parenBalance === 0) break;
+            subTokensEnd++;
+        }
+
+        if (parenBalance !== 0) {
+            throw new RavlykError("REPEAT_EXPECT_CLOSE_PAREN");
+        }
+
+        const commandsToRepeatTokens = tokens.slice(subTokensStart, subTokensEnd);
+        const nestedCommands = this.parseTokens(commandsToRepeatTokens, depth + 1, substitutions);
+
+        if (actualRepeatCount > 0 && nestedCommands.length > 0) {
+            queue.push({
+                type: "REPEAT",
+                count: actualRepeatCount,
+                commands: nestedCommands,
+                original: `${originalToken} ${repeatCountToken.resolved} (...)`
+            });
+        }
+
+        return subTokensEnd + 1;
+    }
+
+    parseDefaultCommand(tokens, startIndex, depth, substitutions, queue, originalToken) {
+        if (this.isValidIdentifier(originalToken) && startIndex + 1 < tokens.length && tokens[startIndex + 1] === "=") {
+            return this.parseVariableAssignment(tokens, startIndex, substitutions, false);
+        }
+
+        const functionCall = this.tryParseFunctionCall(tokens, startIndex, depth, substitutions);
+        if (functionCall) {
+            queue.push(...functionCall.commands);
+            return functionCall.nextIndex;
+        }
+
+        throw new RavlykError("UNKNOWN_COMMAND", originalToken);
+    }
+
     parseTokens(tokens, depth = 0, substitutions = {}) {
         if (depth > MAX_RECURSION_DEPTH) {
             throw new RavlykError("TOO_MANY_NESTED_REPEATS");
@@ -356,125 +500,50 @@ export class RavlykInterpreter {
                     break;
                 case "вперед": case "forward":
                 case "назад": case "backward":
-                    if (i + 1 >= tokens.length) throw new RavlykError("NO_DISTANCE", originalToken);
-                    const distanceToken = this.parseStrictNumberOrThrow(
-                        tokens[i + 1],
-                        substitutions,
-                        "INVALID_DISTANCE",
-                        originalToken
-                    );
-                    queue.push({
-                        type: (token === "вперед" || token === "forward") ? "MOVE" : "MOVE_BACK",
-                        value: distanceToken.value,
-                        original: `${originalToken} ${distanceToken.resolved}`
-                    });
-                    i += 2;
+                    i = this.parseMoveCommand(tokens, i, token, originalToken, substitutions, queue);
                     break;
 
                 case "праворуч": case "right":
                 case "ліворуч": case "left":
-                    if (i + 1 >= tokens.length) throw new RavlykError("NO_ANGLE", originalToken);
-                    const angleToken = this.parseStrictNumberOrThrow(
-                        tokens[i + 1],
-                        substitutions,
-                        "INVALID_ANGLE",
-                        originalToken
-                    );
-                     queue.push({
-                        type: (token === "праворуч" || token === "right") ? "TURN" : "TURN_LEFT",
-                        value: angleToken.value,
-                        original: `${originalToken} ${angleToken.resolved}`
-                    });
-                    i += 2;
+                    i = this.parseTurnCommand(tokens, i, token, originalToken, substitutions, queue);
                     break;
 
                 case "колір": case "color":
-                    if (i + 1 >= tokens.length) throw new RavlykError("NO_COLOR_NAME", originalToken);
-                    const colorName = tokens[i + 1].toLowerCase();
-                    if (!COLOR_MAP[colorName]) throw new RavlykError("UNKNOWN_COLOR", tokens[i + 1]);
-                     queue.push({
-                        type: "COLOR",
-                        value: colorName,
-                        original: `${originalToken} ${tokens[i+1]}`
-                    });
-                    i += 2;
+                    i = this.parseColorCommand(tokens, i, originalToken, queue);
+                    break;
+                case "перейти": case "goto":
+                    i = this.parseGotoCommand(tokens, i, originalToken, substitutions, queue);
                     break;
                 case "підняти": case "penup":
-                    queue.push({ type: "PEN_UP", original: originalToken });
-                    i += 1;
+                    i = this.parseSimpleCommand(i, "PEN_UP", originalToken, queue);
                     break;
                 case "опустити": case "pendown":
-                    queue.push({ type: "PEN_DOWN", original: originalToken });
-                    i += 1;
+                    i = this.parseSimpleCommand(i, "PEN_DOWN", originalToken, queue);
                     break;
                 case "очистити": case "clear":
-                    queue.push({ type: "CLEAR", original: originalToken });
-                    i += 1;
+                    i = this.parseSimpleCommand(i, "CLEAR", originalToken, queue);
                     break;
                 case "повторити": case "повтори": case "repeat":
-                    if (i + 1 >= tokens.length) throw new RavlykError("REPEAT_EXPECT_NUMBER");
-                    const repeatCountToken = this.parseStrictIntegerOrThrow(
-                        tokens[i + 1],
-                        substitutions,
-                        "INVALID_REPEAT_COUNT"
-                    );
-                    const repeatCount = repeatCountToken.value;
-                    if (repeatCount < 0) throw new RavlykError("INVALID_REPEAT_COUNT", repeatCountToken.resolved);
-                    if (repeatCount > MAX_REPEATS_IN_LOOP) {
-                        console.warn(`Warning: Repeat count ${repeatCount} exceeds maximum ${MAX_REPEATS_IN_LOOP}. Clamping to max.`);
-                    }
-                    const actualRepeatCount = Math.min(repeatCount, MAX_REPEATS_IN_LOOP);
-
-                    if (i + 2 >= tokens.length || tokens[i + 2] !== "(") {
-                        throw new RavlykError("REPEAT_EXPECT_OPEN_PAREN");
-                    }
-
-                    let parenBalance = 1;
-                    let subTokensStart = i + 3;
-                    let subTokensEnd = subTokensStart;
-                    while (subTokensEnd < tokens.length) {
-                        if (tokens[subTokensEnd] === "(") parenBalance++;
-                        else if (tokens[subTokensEnd] === ")") parenBalance--;
-                        if (parenBalance === 0) break;
-                        subTokensEnd++;
-                    }
-
-                    if (parenBalance !== 0) {
-                        throw new RavlykError("REPEAT_EXPECT_CLOSE_PAREN");
-                    }
-
-                    const commandsToRepeatTokens = tokens.slice(subTokensStart, subTokensEnd);
-                    const nestedCommands = this.parseTokens(commandsToRepeatTokens, depth + 1, substitutions);
-
-                    if (actualRepeatCount > 0 && nestedCommands.length > 0) {
-                         queue.push({
-                            type: "REPEAT",
-                            count: actualRepeatCount,
-                            commands: nestedCommands,
-                            original: `${originalToken} ${repeatCountToken.resolved} (...)`
-                        });
-                    }
-                    i = subTokensEnd + 1;
+                    i = this.parseRepeatCommand(tokens, i, originalToken, depth, substitutions, queue);
                     break;
                 case "(": case ")":
                     throw new RavlykError("UNKNOWN_COMMAND", `${originalToken} (неочікувана дужка)`);
                 default:
-                    if (this.isValidIdentifier(originalToken) && i + 1 < tokens.length && tokens[i + 1] === "=") {
-                        i = this.parseVariableAssignment(tokens, i, substitutions, false);
-                        break;
-                    }
-                    {
-                        const functionCall = this.tryParseFunctionCall(tokens, i, depth, substitutions);
-                        if (functionCall) {
-                            queue.push(...functionCall.commands);
-                            i = functionCall.nextIndex;
-                            break;
-                        }
-                    }
-                    throw new RavlykError("UNKNOWN_COMMAND", originalToken);
+                    i = this.parseDefaultCommand(tokens, i, depth, substitutions, queue, originalToken);
             }
         }
         return queue;
+    }
+    cloneCommand(command) {
+        const cloned = { ...command };
+        if (Array.isArray(command.commands)) {
+            cloned.commands = command.commands.map((nestedCommand) => this.cloneCommand(nestedCommand));
+        }
+        delete cloned.remainingDistance;
+        delete cloned.remainingAngle;
+        delete cloned.animationProgress;
+        delete cloned.startScale;
+        return cloned;
     }
 
     async runCommandQueue() {
@@ -531,15 +600,34 @@ export class RavlykInterpreter {
                         case "COLOR":
                             this.setColor(currentCommandObject.value);
                             break;
+                        case "GOTO":
+                            this.performGoto(currentCommandObject.x, currentCommandObject.y);
+                            break;
                         case "CLEAR":
                             this.clearScreen();
                             break;
                         case "REPEAT":
-                            const expandedCommands = [];
-                            for (let k = 0; k < currentCommandObject.count; k++) {
-                                expandedCommands.push(...JSON.parse(JSON.stringify(currentCommandObject.commands)));
+                            if (currentCommandObject.count <= 0 || !currentCommandObject.commands?.length) {
+                                commandDone = true;
+                                break;
                             }
-                            this.commandQueue.splice(this.currentCommandIndex, 1, ...expandedCommands);
+
+                            const oneIteration = currentCommandObject.commands.map((cmd) => this.cloneCommand(cmd));
+                            if (currentCommandObject.count > 1) {
+                                this.commandQueue.splice(
+                                    this.currentCommandIndex,
+                                    1,
+                                    ...oneIteration,
+                                    {
+                                        type: "REPEAT",
+                                        count: currentCommandObject.count - 1,
+                                        commands: currentCommandObject.commands,
+                                        original: currentCommandObject.original
+                                    }
+                                );
+                            } else {
+                                this.commandQueue.splice(this.currentCommandIndex, 1, ...oneIteration);
+                            }
                             commandDone = false;
                             break;
                         default:
@@ -567,7 +655,7 @@ export class RavlykInterpreter {
     }
 
     animatePen(commandObject, targetScale, deltaTime) {
-        const DURATION = 0.2; // Тривалість анімації в секундах
+        const DURATION = 0.2; // Animation duration in seconds
         if (!this.config.animationEnabled) {
             this.state.scale = targetScale;
             return true;
@@ -581,7 +669,7 @@ export class RavlykInterpreter {
         commandObject.animationProgress += deltaTime;
         const progress = Math.min(commandObject.animationProgress / DURATION, 1);
 
-        // Лінійна інтерполяція для плавної зміни
+        // Linear interpolation for smooth scale transition
         this.state.scale = commandObject.startScale + (targetScale - commandObject.startScale) * progress;
 
         if (progress >= 1) {
@@ -712,6 +800,32 @@ export class RavlykInterpreter {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
+    performGoto(logicalX, logicalY) {
+        const oldX = this.state.x;
+        const oldY = this.state.y;
+
+        const canvasTargetX = (this.canvas.width / 2) + logicalX;
+        const canvasTargetY = (this.canvas.height / 2) - logicalY;
+        const boundedX = Math.max(CANVAS_BOUNDARY_PADDING, Math.min(canvasTargetX, this.canvas.width - CANVAS_BOUNDARY_PADDING));
+        const boundedY = Math.max(CANVAS_BOUNDARY_PADDING, Math.min(canvasTargetY, this.canvas.height - CANVAS_BOUNDARY_PADDING));
+        const boundaryHit = (canvasTargetX !== boundedX || canvasTargetY !== boundedY);
+
+        this.state.x = boundedX;
+        this.state.y = boundedY;
+
+        if (this.state.isPenDown) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(oldX, oldY);
+            this.ctx.lineTo(this.state.x, this.state.y);
+            this.ctx.stroke();
+        }
+
+        if (boundaryHit && this.infoNotifier && !this.boundaryWarningShown) {
+            this.infoNotifier(ERROR_MESSAGES.CANVAS_OUT_OF_BOUNDS, 5000);
+            this.boundaryWarningShown = true;
+        }
+    }
+
     handleCanvasResize(resizeMeta = null) {
         if (
             resizeMeta &&
@@ -732,3 +846,4 @@ export class RavlykInterpreter {
         return this.boundaryWarningShown;
     }
 }
+

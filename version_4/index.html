@@ -40,6 +40,7 @@
         <button id="stop-btn" class="btn btn-warning" title="Зупинити програму (Esc)" aria-label="Зупинити програму"><i class="fas fa-stop-circle" aria-hidden="true"></i>Зупинити</button>
         <button id="clear-btn" class="btn btn-danger" title="Очистити малюнок та код" aria-label="Очистити малюнок та код"><i class="fas fa-broom" aria-hidden="true"></i>Очистити</button>
         <button id="save-btn" class="btn btn-info" title="Зберегти малюнок" aria-label="Зберегти малюнок"><i class="fas fa-save" aria-hidden="true"></i>Зберегти</button>
+        <button id="save-code-btn" class="btn btn-info" title="Зберегти код у TXT" aria-label="Зберегти код у TXT"><i class="fas fa-file-download" aria-hidden="true"></i>Зберегти код</button>
         <button id="grid-btn" class="btn btn-primary" title="Увімкнути або вимкнути координатну сітку" aria-label="Перемкнути сітку" aria-pressed="false"><i class="fas fa-th" aria-hidden="true"></i>Сітка</button>
         <button id="help-btn" class="btn btn-primary" title="Пояснення команд" aria-label="Пояснення команд"><i class="fas fa-question-circle" aria-hidden="true"></i>Довідка</button>
       </div>
@@ -73,6 +74,7 @@
             <div class="command-item"><div class="command-name">праворуч N</div><div class="command-desc">Поворот праворуч на N градусів</div></div>
             <div class="command-item"><div class="command-name">ліворуч N</div><div class="command-desc">Поворот ліворуч на N градусів</div></div>
             <div class="command-item"><div class="command-name">колір [назва]</div><div class="command-desc">Зміна кольору (напр. червоний, веселка)</div></div>
+            <div class="command-item"><div class="command-name">перейти в X Y</div><div class="command-desc">Перемістити Равлика у точку (X, Y) від центру полотна</div></div>
             <div class="command-item"><div class="command-name">підняти</div><div class="command-desc">Підняти олівець (рух без малювання)</div></div>
             <div class="command-item"><div class="command-name">опустити</div><div class="command-desc">Опустити олівець (рух з малюванням)</div></div>
             <div class="command-item"><div class="command-name">очистити</div><div class="command-desc">Очистити полотно</div></div>
@@ -149,6 +151,7 @@
               <li><b>ліворуч N</b> — повернути ліворуч на N градусів</li>
               <li><b>праворуч N</b> — повернути праворуч на N градусів</li>
               <li><b>колір [назва]</b> — змінити колір (напр. червоний, синій, веселка)</li>
+              <li><b>перейти в X Y</b> — перейти у точку (X, Y) від центру полотна</li>
               <li><b>підняти</b> — підняти олівець (не малювати при русі)</li>
               <li><b>опустити</b> — опустити олівець (малювати при русі)</li>
               <li><b>очистити</b> — очистити малюнок</li>
@@ -179,7 +182,7 @@
     <script type="module" src="js/modules/constants.js"></script>
     <script type="module" src="js/modules/ui.js"></script>
     <script type="module" src="js/modules/ravlykInterpreter.js"></script>
-    <script src="js/accessibility.js"></script>
+    <script type="module" src="js/accessibility.js"></script>
     <script type="module" src="js/main.js"></script>
   </body>
 </html>

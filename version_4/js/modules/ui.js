@@ -230,8 +230,8 @@ export function resizeCanvas(canvas, ctx, onResizeCallback) {
     }
     canvas.height = boxHeight > 0 ? Math.round(boxHeight) : 400; // Fallback height
 
-    const deltaX = Math.round((canvas.width - oldWidth) / 2);
-    const deltaY = Math.round((canvas.height - oldHeight) / 2);
+    const deltaX = (canvas.width - oldWidth) / 2;
+    const deltaY = (canvas.height - oldHeight) / 2;
 
     if (prevCanvas) {
         try {

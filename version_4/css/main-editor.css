@@ -49,6 +49,18 @@
     overflow: hidden; /* To contain the sprite if it's slightly off */
 }
 
+@media (max-width: 767px) {
+    .code-box {
+        min-height: 260px;
+    }
+
+    .canvas-box {
+        height: clamp(320px, 55vh, 480px);
+        max-height: none;
+        min-height: 320px;
+    }
+}
+
 
 .area-header { /* Common style for code-header and canvas-header */
     color: white;
