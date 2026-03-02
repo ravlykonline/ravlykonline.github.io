@@ -174,6 +174,32 @@ runTest('throws on undefined variable', () => {
     );
 });
 
+runTest('parser error exposes line and column metadata', () => {
+    const interpreter = createInterpreter();
+    const tokens = interpreter.tokenize('forward 10\nright bad_angle');
+    assert.throws(
+        () => interpreter.parseTokens(tokens),
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.line === 2
+            && error.column === 1
+            && error.token === 'right'
+    );
+});
+
+runTest('parser keeps source line metadata in repeat body', () => {
+    const interpreter = createInterpreter();
+    const tokens = interpreter.tokenize('repeat 2 (\n  forward 10\n  fly 3\n)');
+    assert.throws(
+        () => interpreter.parseTokens(tokens),
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.line === 3
+            && error.column === 3
+            && error.token === 'fly'
+    );
+});
+
 runTest('throws on division by zero in expression', () => {
     const interpreter = createInterpreter();
     assert.throws(

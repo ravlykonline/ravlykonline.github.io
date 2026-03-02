@@ -8,6 +8,7 @@ const ACCESSIBILITY_OPTIONS = {
   'sans-serif-font': { className: 'a11y-sans-serif-font', defaultValue: false, label: 'Простий шрифт' },
   'increased-spacing': { className: 'a11y-increased-spacing', defaultValue: false, label: 'Збільшені інтервали' }
 };
+let accessibilityInitialized = false;
 
 function showAccessibilityNotification(message) {
     // Очищаємо будь-які існуючі повідомлення про доступність
@@ -126,6 +127,7 @@ function resetAccessibilitySettings() {
 }
 
 function initAccessibilityControls() {
+  if (accessibilityInitialized) return;
   const toggleButton = document.getElementById('accessibility-toggle');
   const panel = document.getElementById('accessibility-panel');
   const closeButton = document.getElementById('close-accessibility-panel-btn'); // Updated ID
@@ -135,6 +137,8 @@ function initAccessibilityControls() {
       console.warn("Accessibility toggle or panel not found. Controls will not be initialized.");
       return;
   }
+
+  accessibilityInitialized = true;
 
   const savedSettings = loadAccessibilitySettings();
   applyAccessibilitySettings(savedSettings);
@@ -195,4 +199,8 @@ window.ravlykAccessibility = {
   // interpreterInstance is now set by main.js directly on window
 };
 
-document.addEventListener('DOMContentLoaded', initAccessibilityControls);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAccessibilityControls, { once: true });
+} else {
+  initAccessibilityControls();
+}

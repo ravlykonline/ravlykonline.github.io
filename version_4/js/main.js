@@ -1,4 +1,4 @@
-// js/main.js
+﻿// js/main.js
 import { RavlykInterpreter } from './modules/ravlykInterpreter.js';
 import {
     showError, showSuccessMessage, showInfoMessage,
@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const codeEditor = document.getElementById("code-editor");
     const codeLineNumbers = document.getElementById("code-line-numbers");
     const codeActiveLine = document.getElementById("code-active-line");
+    const codeErrorLine = document.getElementById("code-error-line");
     const canvas = document.getElementById("ravlyk-canvas");
     const canvasContainer = document.querySelector(".canvas-box"); // Ravlyk sprite will be appended here
 
@@ -53,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridCtx = gridCanvas ? gridCanvas.getContext("2d") : null;
     const GRID_STORAGE_KEY = 'ravlyk_grid_visible_v1';
     let isGridVisible = false;
+    let editorErrorLine = null;
 
     function loadGridPreference() {
         try {
@@ -231,16 +233,27 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-    function formatErrorWithLine(code, message) {
-        if (!message || /\(рядок\s+\d+\)\s*$/i.test(message)) return message;
-        const line = detectErrorLine(code, message);
-        if (!line) return message;
+    function getErrorLocation(code, error) {
+        if (!error) return { line: null, column: null };
+        if (typeof error.line === "number" && error.line > 0) {
+            return {
+                line: error.line,
+                column: (typeof error.column === "number" && error.column > 0) ? error.column : null,
+            };
+        }
+        return { line: detectErrorLine(code, error.message), column: null };
+    }
+
+    function formatErrorWithLine(message, line, column) {
+        if (!message || !line) return message;
+        if (/\(рядок\s+\d+(?:,\s*позиція\s+\d+)?\)\s*$/i.test(message)) return message;
+        if (column) return `${message} (рядок ${line}, позиція ${column})`;
         return `${message} (рядок ${line})`;
     }
 
     function toFriendlyErrorMessage(message) {
         if (!message) return "\u041e\u0439, \u0449\u043e\u0441\u044c \u043f\u0456\u0448\u043b\u043e \u043d\u0435 \u0442\u0430\u043a. \u0421\u043f\u0440\u043e\u0431\u0443\u0439 \u0449\u0435 \u0440\u0430\u0437.";
-        const lineMatch = message.match(/\([^)]*?(\d+)\)\s*$/);
+        const lineMatch = message.match(/рядок\s+(\d+)/i);
         if (lineMatch) {
             return `\u041e\u0439, \u0442\u0443\u0442 \u0454 \u043f\u043e\u043c\u0438\u043b\u043a\u0430: ${message} \u041f\u0435\u0440\u0435\u0432\u0456\u0440 \u043e\u0441\u043e\u0431\u043b\u0438\u0432\u043e \u0443\u0432\u0430\u0436\u043d\u043e \u0440\u044f\u0434\u043e\u043a ${lineMatch[1]}.`;
         }
@@ -261,6 +274,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return lines.trimEnd();
     }
 
+    function setEditorErrorLine(line) {
+        editorErrorLine = Number.isInteger(line) && line > 0 ? line : null;
+        updateEditorDecorations();
+    }
+
+    function focusEditorLine(line) {
+        if (!Number.isInteger(line) || line < 1) return;
+        const lines = (codeEditor.value || "").split(/\n/);
+        const safeLine = Math.min(line, Math.max(1, lines.length));
+        let start = 0;
+        for (let i = 1; i < safeLine; i++) {
+            start += lines[i - 1].length + 1;
+        }
+        codeEditor.focus();
+        codeEditor.setSelectionRange(start, start);
+    }
+
     function updateEditorDecorations() {
         if (!codeEditor || !codeLineNumbers || !codeActiveLine) return;
 
@@ -277,10 +307,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         codeActiveLine.style.height = `${lineHeight}px`;
         codeActiveLine.style.top = `${Math.max(0, top)}px`;
+
+        if (codeErrorLine) {
+            if (editorErrorLine && editorErrorLine <= totalLines) {
+                const errorTop = paddingTop + (editorErrorLine - 1) * lineHeight - codeEditor.scrollTop;
+                codeErrorLine.classList.remove('hidden');
+                codeErrorLine.style.height = `${lineHeight}px`;
+                codeErrorLine.style.top = `${Math.max(0, errorTop)}px`;
+            } else {
+                codeErrorLine.classList.add('hidden');
+            }
+        }
     }
 
     async function runCode() {
         const code = codeEditor.value;
+        setEditorErrorLine(null);
         if (code.length > MAX_CODE_LENGTH_CHARS) {
             showError(ERROR_MESSAGES.CODE_TOO_LONG);
             return;
@@ -321,8 +363,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (error.message === ERROR_MESSAGES.EXECUTION_STOPPED_BY_USER) {
                     showInfoMessage(INFO_MESSAGES.EXECUTION_STOPPED);
                 } else {
-                    const lineAwareMessage = formatErrorWithLine(code, error.message);
+                    const { line, column } = getErrorLocation(code, error);
+                    const lineAwareMessage = formatErrorWithLine(error.message, line, column);
                     showError(toFriendlyErrorMessage(lineAwareMessage), 0); // Show parser/runtime errors persistently
+                    if (line) {
+                        setEditorErrorLine(line);
+                        focusEditorLine(line);
+                    }
                 }
             } else { // Other unexpected errors
                 showError(`Неочікувана помилка: ${error.message}`, 0);
@@ -493,7 +540,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    codeEditor.addEventListener("input", updateEditorDecorations);
+    codeEditor.addEventListener("input", () => {
+        if (editorErrorLine !== null) setEditorErrorLine(null);
+        updateEditorDecorations();
+    });
     codeEditor.addEventListener("scroll", updateEditorDecorations);
     codeEditor.addEventListener("click", updateEditorDecorations);
     codeEditor.addEventListener("keyup", updateEditorDecorations);
@@ -516,12 +566,19 @@ document.addEventListener('DOMContentLoaded', () => {
         setFooterYear();
     };
     
-    // Debounce resize a bit
+    // Observe container size changes (flex/layout changes + viewport resize).
     let resizeTimeout;
-    window.addEventListener("resize", () => {
+    const scheduleResize = () => {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(handleCanvasResize, 150);
-    });
+        resizeTimeout = setTimeout(handleCanvasResize, 100);
+    };
+
+    if (typeof ResizeObserver === 'function' && canvasContainer) {
+        const resizeObserver = new ResizeObserver(() => scheduleResize());
+        resizeObserver.observe(canvasContainer);
+    } else {
+        window.addEventListener("resize", scheduleResize);
+    }
     
     isGridVisible = loadGridPreference();
     updateGridButtonState();
@@ -534,3 +591,4 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!codeEditor.value) codeEditor.setAttribute('placeholder', defaultPlaceholder);
     });
 });
+

@@ -53,8 +53,11 @@ export const CANVAS_BOUNDARY_PADDING = 5; // Зменшено, бо равлик
 export const DEFAULT_ANIMATION_FRAME_DURATION_MS = 16; // Приблизно 60 FPS
 export const DEFAULT_MOVE_PIXELS_PER_SECOND = 200; // Швидкість руху
 export const DEFAULT_TURN_DEGREES_PER_SECOND = 360; // Швидкість повороту
-export const GRID_ALIGN_OFFSET_X = -3; // Калібрування сітки по X відносно траєкторії
-export const GRID_ALIGN_OFFSET_Y = -3; // Калібрування сітки по Y відносно траєкторії
+// Grid/canvas alignment calibration.
+// Small fixed offsets keep axes/labels aligned with the actual drawing origin
+// on zoom levels and DPR combinations that introduce half-pixel layout shifts.
+export const GRID_ALIGN_OFFSET_X = -3;
+export const GRID_ALIGN_OFFSET_Y = -3;
 
 export const ERROR_MESSAGES = {
     EXECUTION_IN_PROGRESS: 'Зачекай трішки: попередній запуск ще триває.',

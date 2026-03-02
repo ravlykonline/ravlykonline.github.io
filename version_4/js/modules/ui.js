@@ -2,6 +2,34 @@
 import { RAVLYK_SVG_DATA_URL, CURRENT_YEAR } from './constants.js';
 
 let messageTimeout;
+let errorAudioContext = null;
+
+function playErrorBeep() {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+
+    if (!errorAudioContext) {
+        errorAudioContext = new AudioCtx();
+    }
+    if (errorAudioContext.state === 'suspended') {
+        errorAudioContext.resume().catch(() => {});
+    }
+
+    const now = errorAudioContext.currentTime;
+    const oscillator = errorAudioContext.createOscillator();
+    const gain = errorAudioContext.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(720, now);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.08, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+
+    oscillator.connect(gain);
+    gain.connect(errorAudioContext.destination);
+    oscillator.start(now);
+    oscillator.stop(now + 0.16);
+}
 
 function showMessage(message, type = 'info', duration = 3000) {
     clearTimeout(messageTimeout);
@@ -40,12 +68,10 @@ function showMessage(message, type = 'info', duration = 3000) {
     if (duration > 0) {
         messageTimeout = setTimeout(removeMessage, duration);
     }
-     // Play sound for errors
+    // Play sound for errors
     if (type === 'error') {
         try {
-            // Short beep, replace with a less intrusive sound if needed
-            const audio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=');
-            audio.play().catch(() => {}); // Ignore play errors
+            playErrorBeep();
         } catch (e) { /* ignore */ }
     }
 }
