@@ -38,6 +38,7 @@
 .code-box {
     border: 3px solid #6a5acd; /* Purple border */
     min-height: 300px; /* Minimum height for code editor area */
+    overflow: hidden;
 }
 
 .canvas-box {
@@ -58,6 +59,14 @@
         height: clamp(320px, 55vh, 480px);
         max-height: none;
         min-height: 320px;
+    }
+}
+
+@media (min-width: 768px) {
+    .code-box {
+        height: 600px;
+        max-height: 70vh;
+        min-height: 400px;
     }
 }
 
@@ -84,6 +93,8 @@
     position: relative;
     z-index: 2;
     flex-grow: 1; /* Allow textarea to fill code-box */
+    min-height: 0;
+    height: 100%;
     padding: 15px;
     resize: none; /* Consider 'vertical' if preferred */
     border: none;
@@ -93,6 +104,7 @@
     line-height: 1.6;
     background: transparent;
     border-top: 1px solid #ddd; /* Separator from header */
+    overflow: auto;
 }
 
 .editor-shell {
@@ -101,6 +113,7 @@
     flex: 1 1 auto;
     min-height: 0;
     background: #fdfdff;
+    overflow: hidden;
 }
 
 .code-line-numbers {
