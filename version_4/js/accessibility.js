@@ -9,6 +9,7 @@ const ACCESSIBILITY_OPTIONS = {
   'increased-spacing': { className: 'a11y-increased-spacing', defaultValue: false, label: 'Збільшені інтервали' }
 };
 let accessibilityInitialized = false;
+let lastFocusedBeforePanel = null;
 
 function showAccessibilityNotification(message) {
     // Очищаємо будь-які існуючі повідомлення про доступність
@@ -20,6 +21,8 @@ function showAccessibilityNotification(message) {
     messageDiv.id = 'global-message-display';
     messageDiv.className = 'message-global message-a11y-global'; // Спеціальний клас для повідомлень доступності
     messageDiv.setAttribute('role', 'status');
+    messageDiv.setAttribute('aria-live', 'polite');
+    messageDiv.setAttribute('aria-atomic', 'true');
     
     // Вибираємо відповідну іконку на основі змісту повідомлення
     let iconClass = 'fa-universal-access'; // Стандартна іконка доступності
@@ -48,7 +51,7 @@ function showAccessibilityNotification(message) {
     document.body.appendChild(messageDiv);
     
     // Автоматично закриваємо повідомлення через 2 секунди
-    const closeTimeout = setTimeout(() => messageDiv.remove(), 2000);
+    const closeTimeout = setTimeout(() => messageDiv.remove(), 6000);
     
     // Додаємо функціональність кнопки закриття
     const closeBtn = messageDiv.querySelector('.message-close-btn-global');
@@ -60,6 +63,23 @@ function showAccessibilityNotification(message) {
     }
 }
 
+function getDefaultAccessibilitySettings() {
+  const defaults = {};
+  for (const key in ACCESSIBILITY_OPTIONS) {
+    defaults[key] = ACCESSIBILITY_OPTIONS[key].defaultValue;
+  }
+
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      defaults['reduce-animations'] = true;
+    }
+  } catch (error) {
+    console.error('Error checking prefers-reduced-motion:', error);
+  }
+
+  return defaults;
+}
+
 function loadAccessibilitySettings() {
   try {
     const stored = localStorage.getItem(ACCESSIBILITY_STORAGE_KEY);
@@ -67,11 +87,7 @@ function loadAccessibilitySettings() {
   } catch (error) {
     console.error('Error loading accessibility settings:', error);
   }
-  const defaults = {};
-  for (const key in ACCESSIBILITY_OPTIONS) {
-    defaults[key] = ACCESSIBILITY_OPTIONS[key].defaultValue;
-  }
-  return defaults;
+  return getDefaultAccessibilitySettings();
 }
 
 function saveAccessibilitySettings(settings) {
@@ -138,26 +154,50 @@ function initAccessibilityControls() {
       return;
   }
 
+  if (!panel.hasAttribute('tabindex')) {
+    panel.setAttribute('tabindex', '-1');
+  }
+
   accessibilityInitialized = true;
 
   const savedSettings = loadAccessibilitySettings();
   applyAccessibilitySettings(savedSettings);
   updateAccessibilityCheckboxes(savedSettings);
 
+  const getFocusableInPanel = () =>
+    Array.from(
+      panel.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(el => el.offsetParent !== null);
+
+  const closePanel = () => {
+    panel.classList.add('hidden');
+    toggleButton.setAttribute('aria-expanded', 'false');
+    if (lastFocusedBeforePanel && typeof lastFocusedBeforePanel.focus === 'function') {
+      lastFocusedBeforePanel.focus();
+    } else {
+      toggleButton.focus();
+    }
+  };
+
+  const openPanel = () => {
+    lastFocusedBeforePanel = document.activeElement;
+    panel.classList.remove('hidden');
+    toggleButton.setAttribute('aria-expanded', 'true');
+    const focusable = getFocusableInPanel();
+    (focusable[0] || panel).focus();
+  };
+
   toggleButton.addEventListener('click', () => {
     const isHidden = panel.classList.contains('hidden');
-    panel.classList.toggle('hidden', !isHidden);
-    toggleButton.setAttribute('aria-expanded', isHidden.toString());
-    if (isHidden) {
-        panel.querySelector('input[data-setting], button')?.focus();
-    }
+    if (isHidden) openPanel();
+    else closePanel();
   });
 
   if (closeButton) {
     closeButton.addEventListener('click', () => {
-        panel.classList.add('hidden');
-        toggleButton.setAttribute('aria-expanded', 'false');
-        toggleButton.focus();
+        closePanel();
     });
   }
 
@@ -176,18 +216,28 @@ function initAccessibilityControls() {
 
   // Close panel on Escape key
   panel.addEventListener('keydown', (event) => {
+    if (event.key === 'Tab' && !panel.classList.contains('hidden')) {
+        const focusable = getFocusableInPanel();
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    }
     if (event.key === 'Escape' && !panel.classList.contains('hidden')) {
-        panel.classList.add('hidden');
-        toggleButton.setAttribute('aria-expanded', 'false');
-        toggleButton.focus();
+        closePanel();
     }
   });
   
   // Close on outside click
   document.addEventListener('click', (event) => {
     if (!panel.classList.contains('hidden') && !panel.contains(event.target) && !toggleButton.contains(event.target)) {
-        panel.classList.add('hidden');
-        toggleButton.setAttribute('aria-expanded', 'false');
+        closePanel();
     }
   });
 }

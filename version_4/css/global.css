@@ -234,6 +234,26 @@ a:hover {
   border-radius: 4px; /* Optional: to match button/element radius */
 }
 
+.skip-link {
+    position: absolute;
+    left: 10px;
+    top: -60px;
+    background: #111;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 2px solid #ffb300;
+    z-index: 30000;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+    top: 10px;
+    outline: 3px solid #7dd3ff;
+}
+
 /* Utility classes */
 .hidden {
     display: none !important;
@@ -457,6 +477,19 @@ body #global-message-display.message-a11y-global .message-close-btn-global:hover
 .modal-content p {
     margin-bottom: 20px;
     line-height: 1.6;
+}
+
+.modal-content,
+.modal-content p,
+.modal-content li,
+.modal-content label,
+.modal-content strong,
+.modal-content small {
+    color: #1f2937;
+}
+
+.modal-content .modal-title {
+    color: #2f1364;
 }
 .modal-actions {
     display: flex;

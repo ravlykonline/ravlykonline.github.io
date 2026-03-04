@@ -124,6 +124,7 @@ html.a11y-reduce-animations .accessibility-toggle i {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    min-height: 44px;
 }
 
 .accessibility-option label {
@@ -136,7 +137,7 @@ html.a11y-reduce-animations .accessibility-toggle i {
     position: relative;
     display: inline-block;
     width: 50px;
-    height: 24px;
+    height: 28px;
 }
 
 .toggle-switch input {
@@ -174,7 +175,7 @@ html.a11y-reduce-animations .accessibility-toggle i {
     height: 18px;
     width: 18px;
     left: 3px;
-    bottom: 3px;
+    bottom: 5px;
     background-color: white;
     transition: .4s;
     border-radius: 50%;
@@ -342,12 +343,59 @@ input:checked + .toggle-slider:before {
 }
 
 /* Простий шрифт */
-.a11y-sans-serif-font,
-.a11y-sans-serif-font * {
+.a11y-sans-serif-font body,
+.a11y-sans-serif-font p,
+.a11y-sans-serif-font span,
+.a11y-sans-serif-font div,
+.a11y-sans-serif-font a,
+.a11y-sans-serif-font button,
+.a11y-sans-serif-font input,
+.a11y-sans-serif-font textarea,
+.a11y-sans-serif-font select,
+.a11y-sans-serif-font label,
+.a11y-sans-serif-font li,
+.a11y-sans-serif-font dt,
+.a11y-sans-serif-font dd,
+.a11y-sans-serif-font th,
+.a11y-sans-serif-font td,
+.a11y-sans-serif-font h1,
+.a11y-sans-serif-font h2,
+.a11y-sans-serif-font h3,
+.a11y-sans-serif-font h4,
+.a11y-sans-serif-font h5,
+.a11y-sans-serif-font h6 {
     font-family: Arial, Helvetica, sans-serif !important;
 }
 .a11y-sans-serif-font #code-editor {
     font-family: 'Courier New', monospace !important;
+}
+
+/* Keep Font Awesome icons visible when "Simple font" is enabled */
+.a11y-sans-serif-font .fas,
+.a11y-sans-serif-font .fa,
+.a11y-sans-serif-font i[class^="fa"],
+.a11y-sans-serif-font i[class*=" fa-"],
+.a11y-sans-serif-font .fas::before,
+.a11y-sans-serif-font .fa::before,
+.a11y-sans-serif-font i[class^="fa"]::before,
+.a11y-sans-serif-font i[class*=" fa-"]::before {
+    font-family: "Font Awesome 5 Free" !important;
+    font-weight: 900 !important;
+    font-style: normal !important;
+}
+
+.a11y-sans-serif-font .far,
+.a11y-sans-serif-font .far::before {
+    font-family: "Font Awesome 5 Free" !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+}
+
+.a11y-sans-serif-font .fab,
+.a11y-sans-serif-font .fab::before {
+    font-family: "Font Awesome 5 Brands" !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
 }
 
 /* Повідомлення поверх сайту */
@@ -497,6 +545,14 @@ input:checked + .toggle-slider:before {
     color: #000 !important;
 }
 
+.a11y-high-contrast .btn:disabled,
+.a11y-high-contrast .btn[disabled] {
+    opacity: 1 !important;
+    color: #9aa0a6 !important;
+    border-color: #666 !important;
+    background: #111 !important;
+}
+
 .a11y-high-contrast :focus-visible {
     outline: 3px solid #7dd3ff !important;
     outline-offset: 2px;
@@ -530,6 +586,45 @@ input:checked + .toggle-slider:before {
     border-top: 1px solid #fff !important;
 }
 
+/* Ensure all modal variants are readable in high-contrast mode */
+.a11y-high-contrast .modal-overlay .modal-content,
+.a11y-high-contrast .modal-content,
+.a11y-high-contrast #clear-confirm-modal-content,
+.a11y-high-contrast #stop-confirm-modal-content,
+.a11y-high-contrast #help-modal-content {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
+    box-shadow: none !important;
+}
+
+.a11y-high-contrast .modal-overlay .modal-content h2,
+.a11y-high-contrast .modal-overlay .modal-content p,
+.a11y-high-contrast .modal-overlay .modal-content strong,
+.a11y-high-contrast .modal-overlay .modal-content li {
+    color: #fff !important;
+}
+.a11y-high-contrast .modal-content,
+.a11y-high-contrast .modal-content * {
+    color: #fff !important;
+}
+
+.a11y-high-contrast .modal-content .modal-title {
+    color: #ffe082 !important;
+}
+
+.a11y-high-contrast .modal-content .btn {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
+}
+
+.a11y-high-contrast .modal-content .btn:hover,
+.a11y-high-contrast .modal-content .btn:focus-visible {
+    background: #fff !important;
+    color: #000 !important;
+}
+
 .a11y-larger-text .accessibility-panel {
     width: min(92vw, 380px);
 }
@@ -549,8 +644,8 @@ input:checked + .toggle-slider:before {
     margin-bottom: 1.1em !important;
 }
 
-.a11y-reduce-animations html,
-.a11y-reduce-animations body {
+html.a11y-reduce-animations,
+html.a11y-reduce-animations body {
     scroll-behavior: auto !important;
 }
 
