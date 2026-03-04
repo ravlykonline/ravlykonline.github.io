@@ -1,7 +1,7 @@
 ﻿// js/modules/ravlykInterpreter.js
 import {
     COLOR_MAP, DEFAULT_PEN_COLOR, DEFAULT_PEN_SIZE, RAVLYK_INITIAL_ANGLE,
-    CANVAS_BOUNDARY_PADDING, ERROR_MESSAGES,
+    CANVAS_BOUNDARY_PADDING, ERROR_MESSAGES, MAX_REPEATS_IN_LOOP,
     DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND,
 } from './constants.js';
 import { RavlykParser, RavlykError } from './ravlykParser.js';
@@ -46,9 +46,15 @@ export class RavlykInterpreter {
         this.boundaryWarningShown = false;
         this.parser = new RavlykParser();
         this.pressedKeys = new Set();
+        this.scrollControlKeys = new Set(["arrowup", "arrowdown", "arrowleft", "arrowright", " ", "spacebar", "pageup", "pagedown", "home", "end"]);
         this.onKeyDown = (event) => {
             if (!event || typeof event.key !== "string") return;
-            this.pressedKeys.add(event.key.toLowerCase());
+            const key = event.key.toLowerCase();
+            this.pressedKeys.add(key);
+            const isGameLoopActive = this.gameLoopTimerId !== null;
+            if (isGameLoopActive && this.scrollControlKeys.has(key) && event.cancelable) {
+                event.preventDefault();
+            }
         };
         this.onKeyUp = (event) => {
             if (!event || typeof event.key !== "string") return;
@@ -335,7 +341,7 @@ export class RavlykInterpreter {
                 if (!Number.isInteger(countValue) || countValue < 0) {
                     throw new RavlykError("INVALID_REPEAT_COUNT", String(countValue));
                 }
-                const iterations = Math.min(countValue, 100);
+                const iterations = Math.min(countValue, MAX_REPEATS_IN_LOOP);
                 for (let idx = 0; idx < iterations; idx++) {
                     for (const nested of stmt.body || []) {
                         runStmt(nested, env, out, callDepth);
@@ -469,7 +475,7 @@ export class RavlykInterpreter {
                 if (!Number.isInteger(countValue) || countValue < 0) {
                     throw new RavlykError("INVALID_REPEAT_COUNT", String(countValue));
                 }
-                const iterations = Math.min(countValue, 100);
+                const iterations = Math.min(countValue, MAX_REPEATS_IN_LOOP);
                 for (let i = 0; i < iterations; i++) {
                     for (const nested of stmt.body || []) runStmt(nested, envCtx, callDepth);
                 }

@@ -474,4 +474,29 @@ runTest('lesson baseline snippets still parse and build executable queue', () =>
     }
 });
 
+runTest('game mode blocks page-scroll keys but normal mode does not', () => {
+    const interpreter = createInterpreter();
+
+    let preventedInNormalMode = false;
+    interpreter.onKeyDown({
+        key: 'ArrowDown',
+        cancelable: true,
+        preventDefault() {
+            preventedInNormalMode = true;
+        },
+    });
+    assert.equal(preventedInNormalMode, false);
+
+    interpreter.gameLoopTimerId = 123;
+    let preventedInGameMode = false;
+    interpreter.onKeyDown({
+        key: 'ArrowDown',
+        cancelable: true,
+        preventDefault() {
+            preventedInGameMode = true;
+        },
+    });
+    assert.equal(preventedInGameMode, true);
+});
+
 console.log('Parser tests completed.');

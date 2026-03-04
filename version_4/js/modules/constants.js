@@ -44,7 +44,7 @@ export const DEFAULT_PEN_SIZE = 3;
 export const RAVLYK_INITIAL_ANGLE = -90; // Upwards
 
 export const MAX_RECURSION_DEPTH = 20;
-export const MAX_REPEATS_IN_LOOP = 100;
+export const MAX_REPEATS_IN_LOOP = 500;
 export const MAX_CANVAS_SIZE_PX = 3000; // Не використовується активно в поточній логіці
 export const EXECUTION_TIMEOUT_MS = 180000; // 180 секунд, як зазначено в документації
 export const MAX_CODE_LENGTH_CHARS = 10000;
