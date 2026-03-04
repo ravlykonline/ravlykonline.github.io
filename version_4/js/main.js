@@ -81,6 +81,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setupCommandTabs() {
         if (!commandTabs.length || !commandTabPanels.length) return;
+        const panelsContainer = document.querySelector('.commands-tab-panels');
+
+        const measurePanelHeight = (panel) => {
+            if (!panel.classList.contains('hidden')) {
+                return panel.offsetHeight;
+            }
+
+            const prev = {
+                display: panel.style.display,
+                position: panel.style.position,
+                visibility: panel.style.visibility,
+                pointerEvents: panel.style.pointerEvents,
+                left: panel.style.left,
+                top: panel.style.top,
+                width: panel.style.width,
+            };
+
+            panel.style.display = 'grid';
+            panel.style.position = 'absolute';
+            panel.style.visibility = 'hidden';
+            panel.style.pointerEvents = 'none';
+            panel.style.left = '-9999px';
+            panel.style.top = '0';
+            panel.style.width = panelsContainer ? `${panelsContainer.clientWidth}px` : '100%';
+
+            const measured = panel.offsetHeight;
+
+            panel.style.display = prev.display;
+            panel.style.position = prev.position;
+            panel.style.visibility = prev.visibility;
+            panel.style.pointerEvents = prev.pointerEvents;
+            panel.style.left = prev.left;
+            panel.style.top = prev.top;
+            panel.style.width = prev.width;
+
+            return measured;
+        };
+
+        const syncPanelsHeight = () => {
+            if (!panelsContainer) return;
+            let maxHeight = 0;
+            commandTabPanels.forEach((panel) => {
+                maxHeight = Math.max(maxHeight, measurePanelHeight(panel));
+            });
+            panelsContainer.style.minHeight = `${Math.ceil(maxHeight)}px`;
+        };
 
         const setActiveTab = (tabName) => {
             commandTabs.forEach((tab) => {
@@ -118,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const initiallyActive = Array.from(commandTabs).find((tab) => tab.classList.contains('active')) || commandTabs[0];
         setActiveTab(initiallyActive.dataset.tabTarget);
+        syncPanelsHeight();
 
         // Defensive sync when HTML was server-rendered without active tab class.
         const firstPanel = commandTabPanels[0];
@@ -125,6 +172,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!Array.from(commandTabs).some((tab) => tab.classList.contains('active')) && firstTab) {
             setActiveTab(firstTab.dataset.tabTarget);
         }
+
+        window.addEventListener('resize', syncPanelsHeight);
     }
 
     function updateGridButtonState() {

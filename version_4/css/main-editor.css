@@ -254,27 +254,30 @@
 .commands-tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
     justify-content: center;
     margin-bottom: 16px;
 }
 
 .commands-tab {
-    border: 1px solid #88d1ca;
-    background: #f5fffd;
+    border: 2px solid #88d1ca;
+    background: #eefaf8;
     color: #0a6f66;
-    border-radius: 999px;
-    padding: 8px 14px;
-    font-size: 0.95rem;
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-size: 1.06rem;
     font-weight: 700;
     cursor: pointer;
+    line-height: 1.1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
     transition: all 0.2s ease;
 }
 
 .commands-tab:hover,
 .commands-tab:focus-visible {
     border-color: #4db6ac;
-    background: #ebfbf8;
+    background: #e3f7f3;
+    transform: translateY(-1px);
     outline: none;
 }
 
@@ -283,6 +286,10 @@
     border-color: #0f8d7f;
     color: #fff;
     box-shadow: 0 4px 10px rgba(15, 141, 127, 0.28);
+}
+
+.commands-tab-panels {
+    min-height: 0;
 }
 
 .commands-tab-panels .command-list.hidden {
