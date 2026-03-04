@@ -223,3 +223,65 @@
     .lesson-content p, .lesson-content li { font-size: 0.9rem; }
     .lesson-content .code-example { font-size: 0.85rem; padding: 10px 12px;}
 }
+
+/* --- Accessibility refinements: lessons page --- */
+.a11y-high-contrast .tabs-container,
+.a11y-high-contrast .lesson-content,
+.a11y-high-contrast .lesson-content .why-important,
+.a11y-high-contrast .lesson-content .code-example,
+.a11y-high-contrast .task,
+.a11y-high-contrast .tip {
+    background: #000 !important;
+    color: #fff !important;
+    border-color: #fff !important;
+    box-shadow: none !important;
+}
+
+.a11y-high-contrast .tab-button {
+    color: #fff !important;
+    border: 1px solid #fff !important;
+}
+
+.a11y-high-contrast .tab-button:hover,
+.a11y-high-contrast .tab-button:focus-visible {
+    background: #222 !important;
+    color: #fff !important;
+}
+
+.a11y-high-contrast .tab-button.active {
+    background: #fff !important;
+    color: #000 !important;
+    border-color: #fff !important;
+}
+
+.a11y-high-contrast .lesson-content h2,
+.a11y-high-contrast .lesson-content h3,
+.a11y-high-contrast .lesson-content .why-important h4,
+.a11y-high-contrast .task h4,
+.a11y-high-contrast .tip strong {
+    color: #fff !important;
+    border-color: #fff !important;
+}
+
+.a11y-high-contrast .lesson-image {
+    border: 2px solid #fff !important;
+    box-shadow: none !important;
+}
+
+.a11y-high-contrast .navigation-buttons__btn:disabled {
+    background: #222 !important;
+    color: #aaa !important;
+    border-color: #666 !important;
+    opacity: 1;
+}
+
+.a11y-larger-text .tab-button,
+.a11y-larger-text .lesson-content p,
+.a11y-larger-text .lesson-content li {
+    line-height: 1.5;
+}
+
+.a11y-increased-spacing .lesson-content p,
+.a11y-increased-spacing .lesson-content li {
+    margin-bottom: 0.9em !important;
+}

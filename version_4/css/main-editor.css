@@ -418,6 +418,84 @@
     }
 }
 
+/* --- Accessibility refinements: editor page --- */
+.a11y-high-contrast .code-box,
+.a11y-high-contrast .canvas-box,
+.a11y-high-contrast .examples,
+.a11y-high-contrast .help-box-main,
+.a11y-high-contrast .command-item,
+.a11y-high-contrast .example-block,
+.a11y-high-contrast .commands-tab,
+.a11y-high-contrast .area-header,
+.a11y-high-contrast .editor-shell,
+.a11y-high-contrast .code-line-numbers {
+    background: #000 !important;
+    color: #fff !important;
+    border-color: #fff !important;
+    box-shadow: none !important;
+}
+
+.a11y-high-contrast .code-header,
+.a11y-high-contrast .canvas-header,
+.a11y-high-contrast .commands-tab.active {
+    background: #fff !important;
+    color: #000 !important;
+    border-color: #fff !important;
+}
+
+.a11y-high-contrast .commands-tab:hover,
+.a11y-high-contrast .commands-tab:focus-visible,
+.a11y-high-contrast .example-block:hover,
+.a11y-high-contrast .example-block:focus-visible {
+    background: #222 !important;
+    color: #fff !important;
+    border-color: #7dd3ff !important;
+}
+
+.a11y-high-contrast .examples h2,
+.a11y-high-contrast .help-box-main h3,
+.a11y-high-contrast .command-name,
+.a11y-high-contrast .command-desc {
+    color: #fff !important;
+}
+
+.a11y-high-contrast #code-editor,
+.a11y-high-contrast .code-line-numbers {
+    background: #000 !important;
+    color: #fff !important;
+}
+
+.a11y-high-contrast .code-active-line {
+    background: rgba(125, 211, 255, 0.2) !important;
+    border-top: 1px solid #7dd3ff !important;
+    border-bottom: 1px solid #7dd3ff !important;
+}
+
+.a11y-high-contrast .code-error-line {
+    background: rgba(255, 82, 82, 0.22) !important;
+    border-top: 1px solid #ff5252 !important;
+    border-bottom: 1px solid #ff5252 !important;
+}
+
+.a11y-high-contrast .modal-overlay__help,
+.a11y-high-contrast .modal-overlay__content,
+.a11y-high-contrast .help-content {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
+}
+
+.a11y-larger-text .command-desc,
+.a11y-larger-text .example-block,
+.a11y-larger-text .commands-tab {
+    line-height: 1.45;
+}
+
+.a11y-increased-spacing .command-item,
+.a11y-increased-spacing .example-block {
+    margin-bottom: 0.6rem;
+}
+
 #grid-btn[aria-pressed="true"] {
     background-color: #2f9e44;
     color: #fff;

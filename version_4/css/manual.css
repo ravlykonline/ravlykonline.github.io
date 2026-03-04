@@ -231,6 +231,12 @@
     background: #222 !important;
 }
 
+.a11y-high-contrast .toc-list a.is-active {
+    background: #fff !important;
+    color: #000 !important;
+    font-weight: 800;
+}
+
 
 .toc-list a:hover,
 .toc-list a:focus-visible {
@@ -713,6 +719,13 @@ body.manual-paged-ready .guide-section.is-active {
 .color-palette-manual span[style*="background-color:yellow"] { color: #504000; }
 .color-palette-manual span[style*="background-color:pink"] { color: #7c1f3e; }
 .color-palette-manual span[style*="background:linear-gradient"] { color: #333; border-color: #999;}
+
+.a11y-high-contrast .color-palette-manual span {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
+    text-shadow: none !important;
+}
 
 .a11y-high-contrast .manual-section-toolbar {
     background: #000 !important;
