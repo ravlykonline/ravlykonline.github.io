@@ -141,8 +141,10 @@
 
 @media (min-width: 992px) { /* Apply two-column layout for larger screens */
     .guide-content-area {
-        flex-direction: row;
+        display: grid;
+        grid-template-columns: 300px minmax(0, 1fr);
         align-items: flex-start; /* Align TOC and content to the top */
+        gap: 30px;
     }
     
     .page-wrapper {
@@ -164,6 +166,7 @@
     border: 1px solid #d5cdef; /* Змінюємо колір рамки */
     box-shadow: 0 2px 8px rgba(106, 90, 205, 0.1); /* Тінь з фіолетовим відтінком */
     margin-bottom: 20px; /* Space below TOC on small screens */
+    height: fit-content;
 }
 .a11y-high-contrast .toc-container {
     background: #000 !important;
@@ -174,15 +177,15 @@
 
 @media (min-width: 992px) {
     .toc-container {
-        flex: 0 0 270px; /* Ще менша ширина для TOC */
+        width: 100%;
         position: sticky; /* Залишаємо TOC липким */
         top: 20px; /* Offset from the top */
-        max-height: calc(100vh - 40px); /* Limit height and allow scroll */
-        overflow-y: auto;
+        max-height: none;
+        overflow: visible;
         margin-bottom: 0; /* No margin when side-by-side */
-        margin-left: -30px; /* Значно зсуваємо меню вліво */
-        padding-left: 20px; /* Компенсація відступу для тексту */
-        border-right: 3px solid #6a5acd; /* Додаємо праву межу фіолетового кольору */
+        margin-left: 0;
+        padding-left: 20px;
+        border-right: 3px solid #6a5acd;
     }
 }
 
@@ -203,20 +206,21 @@
 .toc-list {
     list-style-type: none;
     padding-left: 0;
+    margin: 0;
 }
 
 .toc-list li {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .toc-list a {
     color: #6a5acd; /* Lilac */
     text-decoration: none;
     font-size: 1.05rem;
-    transition: color 0.2s, padding-left 0.2s;
+    transition: color 0.2s, background-color 0.2s;
     display: block;
-    padding: 5px;
-    border-radius: 4px;
+    padding: 8px 10px;
+    border-radius: 7px;
 }
 .a11y-high-contrast .toc-list a {
     color: #fff !important;
@@ -232,7 +236,12 @@
 .toc-list a:focus-visible {
     color: #ff6347; /* Tomato */
     background-color: #ede9f9; /* Very light lilac for hover */
-    padding-left: 10px; /* Indent on hover */
+}
+
+.toc-list a.is-active {
+    color: #fff;
+    background-color: #6a5acd;
+    font-weight: 700;
 }
 
 .guide-sections-wrapper {
@@ -243,9 +252,62 @@
 
 @media (min-width: 992px) {
     .guide-sections-wrapper {
-        margin-left: 50px; /* Збільшуємо відступ від TOC для кращої читабельності */
-        max-width: calc(100% - 250px); /* Розширюємо основний контент */
+        margin-left: 0;
+        max-width: 100%;
     }
+}
+
+.manual-section-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #ede9f9;
+    border: 1px solid #d4c8f4;
+    margin-bottom: 14px;
+}
+
+.manual-section-toolbar-bottom {
+    margin-top: 14px;
+}
+
+.manual-page-btn {
+    border: 1px solid #6a5acd;
+    background: #fff;
+    color: #4b0082;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.98rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.manual-page-btn:hover,
+.manual-page-btn:focus-visible {
+    background: #6a5acd;
+    color: #fff;
+}
+
+.manual-page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.manual-section-indicator {
+    margin: 0;
+    font-weight: 700;
+    color: #4b0082;
+    text-align: center;
+}
+
+body.manual-paged-ready .guide-section {
+    display: none;
+}
+
+body.manual-paged-ready .guide-section.is-active {
+    display: block;
 }
 
 .guide-section {
@@ -625,6 +687,28 @@
 .color-palette-manual span[style*="background-color:yellow"] { color: #504000; }
 .color-palette-manual span[style*="background-color:pink"] { color: #7c1f3e; }
 .color-palette-manual span[style*="background:linear-gradient"] { color: #333; border-color: #999;}
+
+.a11y-high-contrast .manual-section-toolbar {
+    background: #000 !important;
+    border: 1px solid #fff !important;
+}
+
+.a11y-high-contrast .manual-section-indicator {
+    color: #fff !important;
+}
+
+.a11y-high-contrast .manual-page-btn {
+    background: #000 !important;
+    color: #fff !important;
+    border: 1px solid #fff !important;
+}
+
+@media (max-width: 991px) {
+    .manual-section-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
 
 
 hr { /* From original manual-style.css, if needed */
