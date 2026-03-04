@@ -85,11 +85,7 @@ export class RavlykInterpreter {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
         }
-        if (this.gameLoopTimerId) {
-            clearInterval(this.gameLoopTimerId);
-            this.gameLoopTimerId = null;
-        }
-        this.gameLoopReject = null;
+        this.stopGameLoop();
         this.isExecuting = false;
         this.shouldStop = false;
         this.isPaused = false;
@@ -130,9 +126,13 @@ export class RavlykInterpreter {
     }
 
     parseTokens(tokens, depth = 0, substitutions = {}, tokenMeta = null) {
-        // Legacy parser path kept for backward compatibility/tests only.
-        // Main execution flow uses parseCodeToAst(...) in executeCommands().
-        return this.parser.parseTokens(tokens, depth, substitutions, tokenMeta);
+        // Compatibility API: parse token list through the AST pipeline,
+        // then adapt to queue format expected by legacy tests/callers.
+        const ast = this.parser.parseTokensToAst(tokens, depth, substitutions, tokenMeta);
+        if (this.hasGameStatement(ast)) {
+            throw new RavlykError("GAME_NOT_SUPPORTED_HERE");
+        }
+        return this.astToLegacyQueue(ast);
     }
 
     parseTokensToAst(tokens, depth = 0, substitutions = {}, tokenMeta = null) {
@@ -186,6 +186,10 @@ export class RavlykInterpreter {
 
         if (stmt.type === "MoveStmt") {
             const value = this.evalAstNumberExpression(stmt.distance, env);
+            if (!Number.isFinite(value)) {
+                const original = stmt.direction === "backward" ? "назад" : "вперед";
+                throw new RavlykError("INVALID_DISTANCE", original, String(value));
+            }
             if (mode === "queue") {
                 outputQueue.push({
                     type: stmt.direction === "backward" ? "MOVE_BACK" : "MOVE",
@@ -200,6 +204,10 @@ export class RavlykInterpreter {
 
         if (stmt.type === "TurnStmt") {
             const value = this.evalAstNumberExpression(stmt.angle, env);
+            if (!Number.isFinite(value)) {
+                const original = stmt.direction === "left" ? "ліворуч" : "праворуч";
+                throw new RavlykError("INVALID_ANGLE", original, String(value));
+            }
             if (mode === "queue") {
                 outputQueue.push({
                     type: stmt.direction === "left" ? "TURN_LEFT" : "TURN",
@@ -224,6 +232,12 @@ export class RavlykInterpreter {
         if (stmt.type === "GotoStmt") {
             const x = this.evalAstNumberExpression(stmt.x, env);
             const y = this.evalAstNumberExpression(stmt.y, env);
+            if (!Number.isFinite(x)) {
+                throw new RavlykError("INVALID_POSITION_X", "перейти", String(x));
+            }
+            if (!Number.isFinite(y)) {
+                throw new RavlykError("INVALID_POSITION_Y", "перейти", String(y));
+            }
             if (mode === "queue") {
                 outputQueue.push({ type: "GOTO", x, y, original: "перейти" });
             } else {
@@ -265,28 +279,46 @@ export class RavlykInterpreter {
         const functionDefs = new Map();
         const rootEnv = new Environment(null);
 
-        const evaluateCondition = (condition, env) => {
-            if (!condition || !condition.type) return false;
-            if (condition.type === "CompareCondition") {
-                const left = this.evalAstNumberExpression(condition.left, env);
-                const right = this.evalAstNumberExpression(condition.right, env);
-                if (!Number.isFinite(left) || !Number.isFinite(right)) {
-                    throw new RavlykError("INVALID_DISTANCE", "якщо", `${left} ${condition.op} ${right}`);
-                }
-                if (condition.op === "=") return left === right;
-                if (condition.op === "!=") return left !== right;
-                if (condition.op === "<") return left < right;
-                if (condition.op === ">") return left > right;
-                if (condition.op === "<=") return left <= right;
-                if (condition.op === ">=") return left >= right;
+        const materializeExprWithEnv = (expr, env) => {
+            if (!expr || !expr.type) return { type: "NumberLiteral", value: NaN };
+            if (expr.type === "NumberLiteral") {
+                return { ...expr };
             }
-            return false;
+            if (expr.type === "Identifier") {
+                return { type: "NumberLiteral", value: env.get(expr.name), span: expr.span || null };
+            }
+            if (expr.type === "UnaryExpr") {
+                return {
+                    type: "UnaryExpr",
+                    op: expr.op,
+                    expr: materializeExprWithEnv(expr.expr, env),
+                    span: expr.span || null,
+                };
+            }
+            if (expr.type === "BinaryExpr") {
+                return {
+                    type: "BinaryExpr",
+                    op: expr.op,
+                    left: materializeExprWithEnv(expr.left, env),
+                    right: materializeExprWithEnv(expr.right, env),
+                    span: expr.span || null,
+                };
+            }
+            return { ...expr };
         };
 
-        const convertConditionToRuntime = (condition) => {
+        const convertConditionToRuntime = (condition, env) => {
             if (!condition || !condition.type) return null;
             if (condition.type === "EdgeCondition") return { type: "EDGE" };
             if (condition.type === "KeyCondition") return { type: "KEY", key: condition.key };
+            if (condition.type === "CompareCondition") {
+                return {
+                    type: "COMPARE_AST",
+                    op: condition.op,
+                    left: materializeExprWithEnv(condition.left, env),
+                    right: materializeExprWithEnv(condition.right, env),
+                };
+            }
             return null;
         };
 
@@ -341,7 +373,10 @@ export class RavlykInterpreter {
                 if (!Number.isInteger(countValue) || countValue < 0) {
                     throw new RavlykError("INVALID_REPEAT_COUNT", String(countValue));
                 }
-                const iterations = Math.min(countValue, MAX_REPEATS_IN_LOOP);
+                if (countValue > MAX_REPEATS_IN_LOOP) {
+                    throw new RavlykError("TOO_MANY_REPEATS_IN_LOOP");
+                }
+                const iterations = countValue;
                 for (let idx = 0; idx < iterations; idx++) {
                     for (const nested of stmt.body || []) {
                         runStmt(nested, env, out, callDepth);
@@ -351,14 +386,6 @@ export class RavlykInterpreter {
             }
 
             if (stmt.type === "IfStmt") {
-                if (stmt.condition?.type === "CompareCondition") {
-                    const selected = evaluateCondition(stmt.condition, env) ? (stmt.thenBody || []) : (stmt.elseBody || []);
-                    for (const nested of selected) {
-                        runStmt(nested, env, out, callDepth);
-                    }
-                    return;
-                }
-
                 const thenCommands = [];
                 const elseCommands = [];
                 const thenEnv = env.clone();
@@ -368,7 +395,7 @@ export class RavlykInterpreter {
 
                 out.push({
                     type: "IF",
-                    condition: convertConditionToRuntime(stmt.condition),
+                    condition: convertConditionToRuntime(stmt.condition, env),
                     thenCommands,
                     elseCommands,
                     original: "якщо",
@@ -398,6 +425,48 @@ export class RavlykInterpreter {
         if (Array.isArray(node.thenBody) && node.thenBody.some((item) => this.hasGameStatement(item))) return true;
         if (Array.isArray(node.elseBody) && node.elseBody.some((item) => this.hasGameStatement(item))) return true;
         return false;
+    }
+
+    validateGameProgramContract(programAst) {
+        if (!programAst || !Array.isArray(programAst.body)) return;
+        const topLevelStatements = programAst.body;
+        const topLevelGameBlocks = topLevelStatements.filter((stmt) => stmt?.type === "GameStmt");
+        if (topLevelGameBlocks.length === 0) return;
+        if (topLevelGameBlocks.length > 1) {
+            throw new RavlykError("GAME_MODE_SINGLE_BLOCK");
+        }
+
+        for (const stmt of topLevelStatements) {
+            if (!stmt || !stmt.type) continue;
+            if (stmt.type === "GameStmt") {
+                if (this.hasGameStatement({ type: "Program", body: stmt.body || [] })) {
+                    throw new RavlykError("GAME_MODE_NESTED_BLOCK");
+                }
+                continue;
+            }
+            if (stmt.type === "AssignmentStmt") continue;
+            if (stmt.type === "FunctionDefStmt") {
+                if (this.hasGameStatement({ type: "Program", body: stmt.body || [] })) {
+                    throw new RavlykError("GAME_MODE_NESTED_BLOCK");
+                }
+                continue;
+            }
+            throw new RavlykError("GAME_MODE_TOP_LEVEL_ONLY");
+        }
+    }
+
+    stopGameLoop(optionalError = undefined) {
+        if (this.gameLoopTimerId) {
+            clearInterval(this.gameLoopTimerId);
+            this.gameLoopTimerId = null;
+        }
+        if (this.gameLoopReject) {
+            const reject = this.gameLoopReject;
+            this.gameLoopReject = null;
+            if (optionalError) {
+                reject(optionalError);
+            }
+        }
     }
 
     executeGameProgram(programAst) {
@@ -475,7 +544,10 @@ export class RavlykInterpreter {
                 if (!Number.isInteger(countValue) || countValue < 0) {
                     throw new RavlykError("INVALID_REPEAT_COUNT", String(countValue));
                 }
-                const iterations = Math.min(countValue, MAX_REPEATS_IN_LOOP);
+                if (countValue > MAX_REPEATS_IN_LOOP) {
+                    throw new RavlykError("TOO_MANY_REPEATS_IN_LOOP");
+                }
+                const iterations = countValue;
                 for (let i = 0; i < iterations; i++) {
                     for (const nested of stmt.body || []) runStmt(nested, envCtx, callDepth);
                 }
@@ -514,11 +586,8 @@ export class RavlykInterpreter {
             this.gameLoopTimerId = setInterval(() => {
                 try {
                     if (this.shouldStop) {
-                        clearInterval(this.gameLoopTimerId);
-                        this.gameLoopTimerId = null;
-                        this.gameLoopReject = null;
                         this.commandIndicatorUpdater(null, -1);
-                        reject(new RavlykError("EXECUTION_STOPPED_BY_USER"));
+                        this.stopGameLoop(new RavlykError("EXECUTION_STOPPED_BY_USER"));
                         return;
                     }
                     if (this.isPaused) {
@@ -531,11 +600,8 @@ export class RavlykInterpreter {
                     }
                     this.updateRavlykVisualState(true);
                 } catch (error) {
-                    clearInterval(this.gameLoopTimerId);
-                    this.gameLoopTimerId = null;
-                    this.gameLoopReject = null;
                     this.commandIndicatorUpdater(null, -1);
-                    reject(error);
+                    this.stopGameLoop(error);
                 }
             }, this.config.gameTickMs);
         });
@@ -555,6 +621,7 @@ export class RavlykInterpreter {
 
         try {
             const programAst = this.parser.parseCodeToAst(commandsString);
+            this.validateGameProgramContract(programAst);
             if (this.hasGameStatement(programAst)) {
                 return await this.executeGameProgram(programAst);
             }
@@ -617,6 +684,18 @@ export class RavlykInterpreter {
         if (condition.type === "KEY") {
             const expected = this.normalizeConditionKey(condition.key);
             return this.pressedKeys.has(expected);
+        }
+        if (condition.type === "COMPARE_AST") {
+            const evalEnv = new Environment(null);
+            const left = this.evalAstNumberExpression(condition.left, evalEnv);
+            const right = this.evalAstNumberExpression(condition.right, evalEnv);
+            if (!Number.isFinite(left) || !Number.isFinite(right)) return false;
+            if (condition.op === "=") return left === right;
+            if (condition.op === "!=") return left !== right;
+            if (condition.op === "<") return left < right;
+            if (condition.op === ">") return left > right;
+            if (condition.op === "<=") return left <= right;
+            if (condition.op === ">=") return left >= right;
         }
         if (condition.type === "COMPARE") {
             const left = Number(condition.left);
@@ -955,15 +1034,7 @@ export class RavlykInterpreter {
     stopExecution() {
         this.shouldStop = true;
         this.isPaused = false;
-        if (this.gameLoopTimerId) {
-            clearInterval(this.gameLoopTimerId);
-            this.gameLoopTimerId = null;
-        }
-        if (this.gameLoopReject) {
-            const reject = this.gameLoopReject;
-            this.gameLoopReject = null;
-            reject(new RavlykError("EXECUTION_STOPPED_BY_USER"));
-        }
+        this.stopGameLoop(new RavlykError("EXECUTION_STOPPED_BY_USER"));
     }
 
     pauseExecution() {

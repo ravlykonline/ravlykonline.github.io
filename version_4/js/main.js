@@ -35,6 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridCanvas = document.getElementById("ravlyk-grid-canvas");
 
     const exampleBlocks = document.querySelectorAll(".example-block");
+    const commandTabs = document.querySelectorAll(".commands-tab");
+    const commandTabPanels = document.querySelectorAll(".commands-tab-panels [data-tab-panel]");
     const toManualBtnMain = document.getElementById("to-manual-btn");
     const toLessonsBtnMain = document.getElementById("to-lessons-btn");
 
@@ -74,6 +76,54 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem(GRID_STORAGE_KEY, value ? '1' : '0');
         } catch (error) {
             // ignore storage errors
+        }
+    }
+
+    function setupCommandTabs() {
+        if (!commandTabs.length || !commandTabPanels.length) return;
+
+        const setActiveTab = (tabName) => {
+            commandTabs.forEach((tab) => {
+                const isActive = tab.dataset.tabTarget === tabName;
+                tab.classList.toggle('active', isActive);
+                tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                tab.setAttribute('tabindex', isActive ? '0' : '-1');
+            });
+            commandTabPanels.forEach((panel) => {
+                const isActive = panel.dataset.tabPanel === tabName;
+                panel.classList.toggle('hidden', !isActive);
+            });
+        };
+
+        const findTabByName = (tabName) => Array.from(commandTabs).find((tab) => tab.dataset.tabTarget === tabName);
+
+        commandTabs.forEach((tab) => {
+            tab.addEventListener('click', () => {
+                setActiveTab(tab.dataset.tabTarget);
+            });
+            tab.addEventListener('keydown', (event) => {
+                const tabsArr = Array.from(commandTabs);
+                const index = tabsArr.indexOf(tab);
+                if (index < 0) return;
+                let targetIndex = null;
+                if (event.key === 'ArrowRight') targetIndex = (index + 1) % tabsArr.length;
+                if (event.key === 'ArrowLeft') targetIndex = (index - 1 + tabsArr.length) % tabsArr.length;
+                if (targetIndex === null) return;
+                event.preventDefault();
+                const targetTab = tabsArr[targetIndex];
+                setActiveTab(targetTab.dataset.tabTarget);
+                targetTab.focus();
+            });
+        });
+
+        const initiallyActive = Array.from(commandTabs).find((tab) => tab.classList.contains('active')) || commandTabs[0];
+        setActiveTab(initiallyActive.dataset.tabTarget);
+
+        // Defensive sync when HTML was server-rendered without active tab class.
+        const firstPanel = commandTabPanels[0];
+        const firstTab = findTabByName(firstPanel?.dataset.tabPanel || '');
+        if (!Array.from(commandTabs).some((tab) => tab.classList.contains('active')) && firstTab) {
+            setActiveTab(firstTab.dataset.tabTarget);
         }
     }
 
@@ -192,6 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     createRavlykSprite(canvasContainer);
     const interpreter = new RavlykInterpreter(ctx, canvas, updateRavlykVisualsOnScreen, updateCommandIndicator, showInfoMessage);
+    setupCommandTabs();
     
     // Make interpreter instance globally accessible for accessibility module if needed (alternative to event bus)
     window.ravlykInterpreterInstance = interpreter;

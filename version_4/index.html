@@ -74,7 +74,16 @@
       </section>
       <section class="help-box-main" aria-labelledby="helpbox-title">
         <h3 id="helpbox-title">Основні команди для равлика</h3>
-        <div class="command-list">
+
+        <div class="commands-tabs" role="tablist" aria-label="Категорії команд">
+          <button class="commands-tab active" id="tab-basic" role="tab" aria-selected="true" aria-controls="panel-basic" data-tab-target="basic">Базові</button>
+          <button class="commands-tab" id="tab-flow" role="tab" aria-selected="false" aria-controls="panel-flow" data-tab-target="flow" tabindex="-1">Цикли та умови</button>
+          <button class="commands-tab" id="tab-vars" role="tab" aria-selected="false" aria-controls="panel-vars" data-tab-target="vars" tabindex="-1">Змінні і функції</button>
+          <button class="commands-tab" id="tab-game" role="tab" aria-selected="false" aria-controls="panel-game" data-tab-target="game" tabindex="-1">Модуль гри</button>
+        </div>
+
+        <div class="commands-tab-panels">
+          <div class="command-list" id="panel-basic" role="tabpanel" aria-labelledby="tab-basic" data-tab-panel="basic">
             <div class="command-item"><div class="command-name">вперед N</div><div class="command-desc">Рух вперед на N кроків</div></div>
             <div class="command-item"><div class="command-name">назад N</div><div class="command-desc">Рух назад на N кроків</div></div>
             <div class="command-item"><div class="command-name">праворуч N</div><div class="command-desc">Поворот праворуч на N градусів</div></div>
@@ -84,16 +93,28 @@
             <div class="command-item"><div class="command-name">підняти</div><div class="command-desc">Підняти олівець (рух без малювання)</div></div>
             <div class="command-item"><div class="command-name">опустити</div><div class="command-desc">Опустити олівець (рух з малюванням)</div></div>
             <div class="command-item"><div class="command-name">очистити</div><div class="command-desc">Очистити тільки полотно (код не змінюється)</div></div>
+          </div>
+
+          <div class="command-list hidden" id="panel-flow" role="tabpanel" aria-labelledby="tab-flow" data-tab-panel="flow">
             <div class="command-item"><div class="command-name">повторити N ( ... )</div><div class="command-desc">Повторити команди в дужках N разів</div></div>
             <div class="command-item"><div class="command-name">якщо умова ( ... )</div><div class="command-desc">Виконати блок, якщо умова істинна</div></div>
             <div class="command-item"><div class="command-name">... інакше ( ... )</div><div class="command-desc">Блок, який виконується, коли умова хибна</div></div>
             <div class="command-item"><div class="command-name">якщо край ( ... )</div><div class="command-desc">Перевірка дотику межі полотна</div></div>
             <div class="command-item"><div class="command-name">якщо клавіша "вгору" ( ... )</div><div class="command-desc">Перевірка натиснутої клавіші</div></div>
-            <div class="command-item"><div class="command-name">грати ( ... )</div><div class="command-desc">Ігровий режим з постійною перевіркою умов</div></div>
+          </div>
+
+          <div class="command-list hidden" id="panel-vars" role="tabpanel" aria-labelledby="tab-vars" data-tab-panel="vars">
+            <div class="command-item"><div class="command-name">створити змінна = число</div><div class="command-desc">Створити нову змінну</div></div>
+            <div class="command-item"><div class="command-name">змінна = число</div><div class="command-desc">Оновити значення змінної</div></div>
             <div class="command-item"><div class="command-name">створити назва(параметр) ( ... )</div><div class="command-desc">Створити власну команду з параметром</div></div>
             <div class="command-item"><div class="command-name">назва(число)</div><div class="command-desc">Викликати власну команду</div></div>
-            <div class="command-item"><div class="command-name">створити змінна = число</div><div class="command-desc">Створити або змінити значення змінної</div></div>
-            <div class="command-item"><div class="command-name">змінна = число</div><div class="command-desc">Оновити значення змінної</div></div>
+          </div>
+
+          <div class="command-list hidden" id="panel-game" role="tabpanel" aria-labelledby="tab-game" data-tab-panel="game">
+            <div class="command-item"><div class="command-name">грати ( ... )</div><div class="command-desc">Ігровий режим з постійною перевіркою умов</div></div>
+            <div class="command-item"><div class="command-name">клавіша "..."</div><div class="command-desc">Керування стрілками або іншими клавішами у блоці гри</div></div>
+            <div class="command-item"><div class="command-name">правило режиму</div><div class="command-desc">Якщо використовуєш <code>грати</code>, команди руху/повороту/кольору пиши всередині блоку</div></div>
+          </div>
         </div>
       </section>
       <nav class="manual-lessons-buttons-main" aria-label="Додаткова навігація">

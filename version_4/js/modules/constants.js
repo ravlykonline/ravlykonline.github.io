@@ -77,7 +77,7 @@ export const ERROR_MESSAGES = {
     REPEAT_EXPECT_OPEN_PAREN: 'Після числа в команді "повторити" потрібна дужка "(".',
     REPEAT_EXPECT_CLOSE_PAREN: 'У команді "повторити" бракує закриваючої дужки ")".',
     TOO_MANY_NESTED_REPEATS: 'Забагато вкладених "повторити". Максимум ' + MAX_RECURSION_DEPTH + ' рівнів.',
-    TOO_MANY_REPEATS_IN_LOOP: 'У цьому циклі забагато повторень. Максимум ' + MAX_REPEATS_IN_LOOP + '.',
+    TOO_MANY_REPEATS_IN_LOOP: 'У цьому циклі забагато повторень. Максимум ' + MAX_REPEATS_IN_LOOP + '. Спробуй зменшити N або збільшити крок руху.',
     EXECUTION_TIMEOUT: 'Програма виконувалась занадто довго (більше ' + (EXECUTION_TIMEOUT_MS / 1000) + ' секунд).',
     EXECUTION_STOPPED_BY_USER: 'Виконання зупинено.',
     CODE_TOO_LONG: 'Код завеликий. Максимальна довжина — ' + MAX_CODE_LENGTH_CHARS + ' символів.',
@@ -102,7 +102,11 @@ export const ERROR_MESSAGES = {
     VARIABLE_NAME_CONFLICT_FUNCTION: (name) => 'Назва "' + name + '" вже використовується як функція.',
     VARIABLE_VALUE_INVALID: (name, value) => 'Для змінної "' + name + '" потрібне число, а не "' + value + '".',
     UNDEFINED_VARIABLE: (name) => 'Я не знайшов змінну "' + name + '". Спочатку створи її: створити ' + name + ' = число.',
-    GAME_NOT_SUPPORTED_HERE: 'Команда "грати" вже розібрана парсером, але виконання режиму гри ще в розробці.',
+    GAME_NOT_SUPPORTED_HERE: 'Команда "грати" не підтримується в цьому режимі запуску.',
+    GAME_MODE_TOP_LEVEL_ONLY: 'Якщо у програмі є "грати (...)", на верхньому рівні дозволені лише "створити ... = ..." та оголошення функцій. Перемісти інші команди всередину блоку "грати".',
+    GAME_MODE_SINGLE_BLOCK: 'У програмі має бути лише один блок "грати (...)".',
+    GAME_MODE_NESTED_BLOCK: 'Блок "грати (...)" не можна вкладати всередину інших блоків або функцій. Розмісти його на верхньому рівні програми.',
+    LEGACY_PARSE_PATH_REMOVED: 'Старий шлях parseTokens вимкнено. Використовуй AST-шлях: parseTokensToAst / parseCodeToAst.',
 };
 
 export const SUCCESS_MESSAGES = {

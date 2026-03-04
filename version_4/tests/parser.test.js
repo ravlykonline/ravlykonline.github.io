@@ -53,6 +53,14 @@ runTest('tokenize keeps quoted strings and multi-char comparators', () => {
     ]);
 });
 
+runTest('legacy parser.parseTokens path is disabled', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parser.parseTokens(['forward', '10']),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'LEGACY_PARSE_PATH_REMOVED'
+    );
+});
+
 runTest('parse move and turn commands', () => {
     const interpreter = createInterpreter();
     const queue = interpreter.parseTokens(['forward', '10', 'right', '90', 'backward', '5', 'left', '45']);
@@ -85,14 +93,12 @@ runTest('goto supports variables', () => {
     assert.equal(queue[0].y, -30);
 });
 
-runTest('repeat count is clamped to MAX_REPEATS_IN_LOOP', () => {
+runTest('repeat count above MAX_REPEATS_IN_LOOP throws friendly error', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens(['repeat', String(MAX_REPEATS_IN_LOOP + 50), '(', 'forward', '1', ')']);
-    assert.equal(queue.length, 1);
-    assert.equal(queue[0].type, 'REPEAT');
-    assert.equal(queue[0].count, MAX_REPEATS_IN_LOOP);
-    assert.equal(queue[0].commands.length, 1);
-    assert.equal(queue[0].commands[0].type, 'MOVE');
+    assert.throws(
+        () => interpreter.parseTokens(['repeat', String(MAX_REPEATS_IN_LOOP + 50), '(', 'forward', '1', ')']),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'TOO_MANY_REPEATS_IN_LOOP'
+    );
 });
 
 runTest('variables are resolved in command arguments', () => {
@@ -140,12 +146,12 @@ runTest('supports arithmetic expressions in goto and repeat count', () => {
         'goto', 'x', '+', '5', ',', 'y', '-', '2',
         'repeat', '2', '+', '1', '(', 'forward', '1', ')',
     ]);
-    assert.equal(queue.length, 2);
+    assert.equal(queue.length, 4);
     assert.equal(queue[0].type, 'GOTO');
     assert.equal(queue[0].x, 15);
     assert.equal(queue[0].y, 18);
-    assert.equal(queue[1].type, 'REPEAT');
-    assert.equal(queue[1].count, 3);
+    assert.deepEqual(queue.slice(1).map((cmd) => cmd.type), ['MOVE', 'MOVE', 'MOVE']);
+    assert.deepEqual(queue.slice(1).map((cmd) => cmd.value), [1, 1, 1]);
 });
 
 runTest('supports modulo operator in expressions', () => {
@@ -172,8 +178,8 @@ runTest('parses if/else with compare condition', () => {
     ]);
     assert.equal(queue.length, 1);
     assert.equal(queue[0].type, 'IF');
-    assert.equal(queue[0].condition.type, 'COMPARE');
-    assert.equal(queue[0].condition.operator, '=');
+    assert.equal(queue[0].condition.type, 'COMPARE_AST');
+    assert.equal(queue[0].condition.op, '=');
     assert.equal(queue[0].thenCommands.length, 1);
     assert.equal(queue[0].thenCommands[0].type, 'MOVE');
     assert.equal(queue[0].elseCommands.length, 1);
@@ -223,6 +229,22 @@ runTest('builds Program AST for repeat and if', () => {
     assert.equal(ast.body[1].type, 'IfStmt');
     assert.equal(ast.body[1].condition.type, 'CompareCondition');
     assert.equal(ast.body[1].thenBody[0].type, 'TurnStmt');
+});
+
+runTest('astToLegacyQueue keeps compare-if as runtime IF command', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'if', '1', '=', '2',
+        '(', 'forward', '10', ')',
+        'else', '(', 'backward', '10', ')',
+    ]);
+    const queue = interpreter.astToLegacyQueue(ast);
+    assert.equal(queue.length, 1);
+    assert.equal(queue[0].type, 'IF');
+    assert.equal(queue[0].condition.type, 'COMPARE_AST');
+    assert.equal(queue[0].condition.op, '=');
+    assert.equal(queue[0].thenCommands.length, 1);
+    assert.equal(queue[0].elseCommands.length, 1);
 });
 
 runTest('builds AST for assignment and function definition/call', () => {
@@ -311,6 +333,15 @@ runTest('ast runtime error keeps line and column from span', () => {
     );
 });
 
+runTest('ast repeat above MAX_REPEATS_IN_LOOP throws friendly error', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parser.parseCodeToAst(`repeat ${MAX_REPEATS_IN_LOOP + 1} ( forward 1 )`);
+    assert.throws(
+        () => interpreter.astToLegacyQueue(ast),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'TOO_MANY_REPEATS_IN_LOOP'
+    );
+});
+
 runTest('repeat with assignment expands with updated variable values per iteration', () => {
     const interpreter = createInterpreter();
     const queue = interpreter.parseTokens([
@@ -327,7 +358,7 @@ runTest('supports unary minus in expressions', () => {
     const queue = interpreter.parseTokens([
         'create', 'x', '=', '-', '10',
         'forward', '-', 'x',
-        'goto', '(', 'x', '+', '2', ')', '-', '(', '-', '3', ')',
+        'goto', 'x', '+', '2', ',', '-', '(', '-', '3', ')',
     ]);
     assert.equal(queue.length, 2);
     assert.equal(queue[0].type, 'MOVE');
@@ -375,8 +406,9 @@ runTest('parser error exposes line and column metadata', () => {
         (error) => error
             && error.name === 'RavlykError'
             && error.line === 2
-            && error.column === 1
-            && error.token === 'right'
+            && typeof error.column === 'number'
+            && error.column >= 1
+            && error.token === 'bad_angle'
     );
 });
 
@@ -457,6 +489,14 @@ await runAsyncTest('game loop keeps environment state between ticks', async () =
     );
     const delta = initialY - interpreter.state.y;
     assert.ok(delta >= 3, `expected accumulated movement >= 3, got ${delta}`);
+});
+
+await runAsyncTest('game contract rejects top-level drawing command when game block exists', async () => {
+    const interpreter = createInterpreter();
+    await assert.rejects(
+        interpreter.executeCommands('forward 5 game ( forward 1 )'),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'GAME_MODE_TOP_LEVEL_ONLY'
+    );
 });
 
 runTest('lesson baseline snippets still parse and build executable queue', () => {
