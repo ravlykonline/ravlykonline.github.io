@@ -821,7 +821,6 @@ export class RavlykInterpreter {
                                     index: 0,
                                     rootIndex: currentFrame.rootIndex ?? currentFrame.index,
                                 });
-                                commandDone = false;
                             }
                             break;
                         }
