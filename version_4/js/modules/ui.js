@@ -254,16 +254,20 @@ export function resizeCanvas(canvas, ctx, onResizeCallback) {
         }
     }
     
-    // Set canvas dimensions based on its container's client size
-    // Ensure canvas-box has explicit or computed dimensions for this to work reliably
-    canvas.width = Math.max(1, Math.round(canvasBox.clientWidth));
-    const computedStyle = getComputedStyle(canvasBox);
-    // canvas.height should not include padding of canvasBox, so use clientHeight or explicit value
-    let boxHeight = parseFloat(computedStyle.height);
-    if (computedStyle.boxSizing === 'border-box') {
-        boxHeight -= (parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom) + parseFloat(computedStyle.borderTopWidth) + parseFloat(computedStyle.borderBottomWidth));
+    // Use the rendered canvas viewport dimensions (not the whole canvas-box with header),
+    // otherwise bottom boundary math can drift outside the visible area.
+    const renderedWidth = Math.round(canvas.clientWidth || canvasBox.clientWidth || 0);
+    let renderedHeight = Math.round(canvas.clientHeight || 0);
+
+    if (renderedHeight <= 0) {
+        const boxHeight = Math.round(canvasBox.clientHeight || 0);
+        const header = canvasBox.querySelector('.area-header');
+        const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 0;
+        renderedHeight = Math.max(1, boxHeight - headerHeight);
     }
-    canvas.height = boxHeight > 0 ? Math.round(boxHeight) : 400; // Fallback height
+
+    canvas.width = Math.max(1, renderedWidth);
+    canvas.height = Math.max(1, renderedHeight);
 
     const deltaX = (canvas.width - oldWidth) / 2;
     const deltaY = (canvas.height - oldHeight) / 2;
