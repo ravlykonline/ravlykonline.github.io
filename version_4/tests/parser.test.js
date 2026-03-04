@@ -557,6 +557,28 @@ runTest('game mode blocks page-scroll keys but normal mode does not', () => {
     assert.equal(preventedInGameMode, true);
 });
 
+runTest('edge detection uses visual margin, not only center point', () => {
+    const interpreter = createInterpreter();
+    const margin = interpreter.getBoundaryMargin();
+    interpreter.state.x = 400;
+    interpreter.state.y = interpreter.canvas.height - margin + 1;
+    assert.equal(interpreter.isAtCanvasEdge(), true);
+});
+
+runTest('performGoto clamps to visual margin bounds', () => {
+    const interpreter = createInterpreter();
+    const margin = interpreter.getBoundaryMargin();
+
+    interpreter.performGoto(10000, 10000);
+
+    assert.equal(interpreter.state.x, interpreter.canvas.width - margin);
+    assert.equal(interpreter.state.y, margin);
+
+    interpreter.performGoto(-10000, -10000);
+    assert.equal(interpreter.state.x, margin);
+    assert.equal(interpreter.state.y, interpreter.canvas.height - margin);
+});
+
 runTest('destroy removes keyboard listeners and clears runtime flags', () => {
     const originalWindow = globalThis.window;
     const listeners = new Map();

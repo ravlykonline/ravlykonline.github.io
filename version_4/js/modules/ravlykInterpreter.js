@@ -7,6 +7,8 @@ import {
 import { RavlykParser, RavlykError } from './ravlykParser.js';
 import { Environment } from './environment.js';
 
+const RAVLYK_VISUAL_BOUNDARY_RADIUS_PX = 30;
+
 export class RavlykInterpreter {
     constructor(context, canvas, ravlykVisualUpdater, commandIndicatorUpdater, infoNotifier) {
         this.ctx = context;
@@ -113,6 +115,26 @@ export class RavlykInterpreter {
         if (this.ravlykVisualUpdater && (this.config.animationEnabled || force)) {
             this.ravlykVisualUpdater(this.state, this.canvas);
         }
+    }
+
+    getBoundaryMargin() {
+        const penMargin = Math.ceil((Number(this.state.penSize) || DEFAULT_PEN_SIZE) / 2);
+        return Math.max(CANVAS_BOUNDARY_PADDING, RAVLYK_VISUAL_BOUNDARY_RADIUS_PX, penMargin);
+    }
+
+    clampToCanvasBounds(x, y) {
+        const margin = this.getBoundaryMargin();
+        const boundedX = Math.max(margin, Math.min(x, this.canvas.width - margin));
+        const boundedY = Math.max(margin, Math.min(y, this.canvas.height - margin));
+        return { boundedX, boundedY };
+    }
+
+    isAtCanvasEdge() {
+        const margin = this.getBoundaryMargin();
+        return this.state.x <= margin
+            || this.state.x >= this.canvas.width - margin
+            || this.state.y <= margin
+            || this.state.y >= this.canvas.height - margin;
     }
 
     setAnimationEnabled(enabled) {
@@ -494,10 +516,7 @@ export class RavlykInterpreter {
                 return false;
             }
             if (condition.type === "EdgeCondition") {
-                return this.state.x <= CANVAS_BOUNDARY_PADDING
-                    || this.state.x >= this.canvas.width - CANVAS_BOUNDARY_PADDING
-                    || this.state.y <= CANVAS_BOUNDARY_PADDING
-                    || this.state.y >= this.canvas.height - CANVAS_BOUNDARY_PADDING;
+                return this.isAtCanvasEdge();
             }
             if (condition.type === "KeyCondition") {
                 const expected = this.normalizeConditionKey(condition.key);
@@ -684,10 +703,7 @@ export class RavlykInterpreter {
     evaluateIfCondition(condition) {
         if (!condition || !condition.type) return false;
         if (condition.type === "EDGE") {
-            return this.state.x <= CANVAS_BOUNDARY_PADDING
-                || this.state.x >= this.canvas.width - CANVAS_BOUNDARY_PADDING
-                || this.state.y <= CANVAS_BOUNDARY_PADDING
-                || this.state.y >= this.canvas.height - CANVAS_BOUNDARY_PADDING;
+            return this.isAtCanvasEdge();
         }
         if (condition.type === "KEY") {
             const expected = this.normalizeConditionKey(condition.key);
@@ -946,8 +962,7 @@ export class RavlykInterpreter {
         let newX = oldX + distance * Math.cos(radians);
         let newY = oldY + distance * Math.sin(radians);
 
-        const boundedX = Math.max(CANVAS_BOUNDARY_PADDING, Math.min(newX, this.canvas.width - CANVAS_BOUNDARY_PADDING));
-        const boundedY = Math.max(CANVAS_BOUNDARY_PADDING, Math.min(newY, this.canvas.height - CANVAS_BOUNDARY_PADDING));
+        const { boundedX, boundedY } = this.clampToCanvasBounds(newX, newY);
         const boundaryHit = (newX !== boundedX || newY !== boundedY);
 
         this.state.x = boundedX;
@@ -1020,8 +1035,7 @@ export class RavlykInterpreter {
 
         const canvasTargetX = (this.canvas.width / 2) + logicalX;
         const canvasTargetY = (this.canvas.height / 2) - logicalY;
-        const boundedX = Math.max(CANVAS_BOUNDARY_PADDING, Math.min(canvasTargetX, this.canvas.width - CANVAS_BOUNDARY_PADDING));
-        const boundedY = Math.max(CANVAS_BOUNDARY_PADDING, Math.min(canvasTargetY, this.canvas.height - CANVAS_BOUNDARY_PADDING));
+        const { boundedX, boundedY } = this.clampToCanvasBounds(canvasTargetX, canvasTargetY);
         const boundaryHit = (canvasTargetX !== boundedX || canvasTargetY !== boundedY);
 
         this.state.x = boundedX;
