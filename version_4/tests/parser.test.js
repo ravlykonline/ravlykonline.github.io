@@ -247,6 +247,24 @@ runTest('astToLegacyQueue keeps compare-if as runtime IF command', () => {
     assert.equal(queue[0].elseCommands.length, 1);
 });
 
+runTest('astToLegacyQueue keeps identifier expressions in IF condition for runtime evaluation', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'create', 'n', '=', '0',
+        'if', 'n', '=', '0',
+        '(', 'forward', '1', ')',
+    ]);
+    const queue = interpreter.astToLegacyQueue(ast, {
+        emitAssignments: true,
+    });
+    assert.equal(queue.length, 2);
+    assert.equal(queue[0].type, 'ASSIGN_AST');
+    assert.equal(queue[1].type, 'IF');
+    assert.equal(queue[1].condition.type, 'COMPARE_AST');
+    assert.equal(queue[1].condition.left.type, 'Identifier');
+    assert.equal(queue[1].condition.left.name, 'n');
+});
+
 runTest('builds AST for assignment and function definition/call', () => {
     const interpreter = createInterpreter();
     const ast = interpreter.parseTokensToAst([
@@ -539,6 +557,51 @@ runTest('game mode blocks page-scroll keys but normal mode does not', () => {
     assert.equal(preventedInGameMode, true);
 });
 
+runTest('destroy removes keyboard listeners and clears runtime flags', () => {
+    const originalWindow = globalThis.window;
+    const listeners = new Map();
+    globalThis.window = {
+        addEventListener(type, handler) {
+            listeners.set(type, handler);
+        },
+        removeEventListener(type, handler) {
+            if (listeners.get(type) === handler) {
+                listeners.delete(type);
+            }
+        },
+    };
+    try {
+        const ctx = {
+            clearRect() {},
+            beginPath() {},
+            moveTo() {},
+            lineTo() {},
+            stroke() {},
+            lineCap: 'round',
+            lineJoin: 'round',
+            lineWidth: 1,
+            strokeStyle: '#000000',
+        };
+        const canvas = { width: 800, height: 600 };
+        const interpreter = new RavlykInterpreter(ctx, canvas, () => {}, () => {}, () => {});
+
+        assert.ok(listeners.has('keydown'));
+        assert.ok(listeners.has('keyup'));
+
+        interpreter.isExecuting = true;
+        interpreter.gameLoopTimerId = 123;
+        interpreter.destroy();
+
+        assert.equal(interpreter.isDestroyed, true);
+        assert.equal(interpreter.isExecuting, false);
+        assert.equal(interpreter.gameLoopTimerId, null);
+        assert.equal(listeners.has('keydown'), false);
+        assert.equal(listeners.has('keyup'), false);
+    } finally {
+        globalThis.window = originalWindow;
+    }
+});
+
 await runAsyncTest('if inside repeat executes sequentially without getting stuck on IF command', async () => {
     const interpreter = createInterpreter();
     interpreter.setAnimationEnabled(false);
@@ -560,6 +623,27 @@ await runAsyncTest('if inside repeat executes sequentially without getting stuck
     assert.equal(interpreter.isExecuting, false);
     assert.equal(interpreter.currentCommandIndex >= 0, true);
     // n ends at 8 => last branch should set color to blue.
+    assert.equal(String(interpreter.state.color).toLowerCase(), '#0000ff');
+});
+
+await runAsyncTest('executeCommands evaluates compare-if against runtime assignment state', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        await interpreter.executeCommands(
+            'створити n = 0 n = n + 2 якщо n = 2 ( колір синій ) інакше ( колір червоний )'
+        );
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+
     assert.equal(String(interpreter.state.color).toLowerCase(), '#0000ff');
 });
 

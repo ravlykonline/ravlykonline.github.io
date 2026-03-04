@@ -289,12 +289,21 @@ document.addEventListener('DOMContentLoaded', () => {
         drawGridOverlay();
     }
 
+    if (window.ravlykInterpreterInstance && typeof window.ravlykInterpreterInstance.destroy === 'function') {
+        window.ravlykInterpreterInstance.destroy();
+    }
+
     createRavlykSprite(canvasContainer);
     const interpreter = new RavlykInterpreter(ctx, canvas, updateRavlykVisualsOnScreen, updateCommandIndicator, showInfoMessage);
     setupCommandTabs();
     
     // Make interpreter instance globally accessible for accessibility module if needed (alternative to event bus)
     window.ravlykInterpreterInstance = interpreter;
+    window.addEventListener('beforeunload', () => {
+        if (window.ravlykInterpreterInstance && typeof window.ravlykInterpreterInstance.destroy === 'function') {
+            window.ravlykInterpreterInstance.destroy();
+        }
+    }, { once: true });
 
 
     function updateExecutionControls(isExecuting) {

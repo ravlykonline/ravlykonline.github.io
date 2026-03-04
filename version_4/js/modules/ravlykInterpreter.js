@@ -44,6 +44,8 @@ export class RavlykInterpreter {
         this.commandQueue = [];
         this.currentCommandIndex = 0;
         this.boundaryWarningShown = false;
+        this.isDestroyed = false;
+        this.executionEnv = null;
         this.parser = new RavlykParser();
         this.pressedKeys = new Set();
         this.scrollControlKeys = new Set(["arrowup", "arrowdown", "arrowleft", "arrowright", " ", "spacebar", "pageup", "pagedown", "home", "end"]);
@@ -91,6 +93,7 @@ export class RavlykInterpreter {
         this.isPaused = false;
         this.commandQueue = [];
         this.currentCommandIndex = 0;
+        this.executionEnv = null;
         this.parser.resetUserState();
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -270,7 +273,8 @@ export class RavlykInterpreter {
         return false;
     }
 
-    astToLegacyQueue(programAst) {
+    astToLegacyQueue(programAst, options = {}) {
+        const emitAssignments = !!options.emitAssignments;
         if (!programAst || programAst.type !== "Program" || !Array.isArray(programAst.body)) {
             return [];
         }
@@ -279,35 +283,28 @@ export class RavlykInterpreter {
         const functionDefs = new Map();
         const rootEnv = new Environment(null);
 
-        const materializeExprWithEnv = (expr, env) => {
-            if (!expr || !expr.type) return { type: "NumberLiteral", value: NaN };
-            if (expr.type === "NumberLiteral") {
+        const cloneAstExpression = (expr) => {
+            if (!expr || !expr.type) return expr;
+            if (expr.type === "NumberLiteral" || expr.type === "Identifier") {
                 return { ...expr };
-            }
-            if (expr.type === "Identifier") {
-                return { type: "NumberLiteral", value: env.get(expr.name), span: expr.span || null };
             }
             if (expr.type === "UnaryExpr") {
                 return {
-                    type: "UnaryExpr",
-                    op: expr.op,
-                    expr: materializeExprWithEnv(expr.expr, env),
-                    span: expr.span || null,
+                    ...expr,
+                    expr: cloneAstExpression(expr.expr),
                 };
             }
             if (expr.type === "BinaryExpr") {
                 return {
-                    type: "BinaryExpr",
-                    op: expr.op,
-                    left: materializeExprWithEnv(expr.left, env),
-                    right: materializeExprWithEnv(expr.right, env),
-                    span: expr.span || null,
+                    ...expr,
+                    left: cloneAstExpression(expr.left),
+                    right: cloneAstExpression(expr.right),
                 };
             }
             return { ...expr };
         };
 
-        const convertConditionToRuntime = (condition, env) => {
+        const convertConditionToRuntime = (condition) => {
             if (!condition || !condition.type) return null;
             if (condition.type === "EdgeCondition") return { type: "EDGE" };
             if (condition.type === "KeyCondition") return { type: "KEY", key: condition.key };
@@ -315,8 +312,8 @@ export class RavlykInterpreter {
                 return {
                     type: "COMPARE_AST",
                     op: condition.op,
-                    left: materializeExprWithEnv(condition.left, env),
-                    right: materializeExprWithEnv(condition.right, env),
+                    left: cloneAstExpression(condition.left),
+                    right: cloneAstExpression(condition.right),
                 };
             }
             return null;
@@ -332,6 +329,14 @@ export class RavlykInterpreter {
                         throw new RavlykError("VARIABLE_VALUE_INVALID", stmt.name, String(value));
                     }
                     env.set(stmt.name, value);
+                    if (emitAssignments) {
+                        out.push({
+                            type: "ASSIGN_AST",
+                            name: stmt.name,
+                            expr: cloneAstExpression(stmt.expr),
+                            original: "=",
+                        });
+                    }
                     return;
                 }
 
@@ -395,7 +400,7 @@ export class RavlykInterpreter {
 
                 out.push({
                     type: "IF",
-                    condition: convertConditionToRuntime(stmt.condition, env),
+                    condition: convertConditionToRuntime(stmt.condition),
                     thenCommands,
                     elseCommands,
                     original: "якщо",
@@ -625,7 +630,10 @@ export class RavlykInterpreter {
             if (this.hasGameStatement(programAst)) {
                 return await this.executeGameProgram(programAst);
             }
-            this.commandQueue = this.astToLegacyQueue(programAst);
+            this.commandQueue = this.astToLegacyQueue(programAst, {
+                emitAssignments: true,
+            });
+            this.executionEnv = new Environment(null);
             return await this.runCommandQueue();
         } catch (error) {
             this.isExecuting = false;
@@ -686,7 +694,7 @@ export class RavlykInterpreter {
             return this.pressedKeys.has(expected);
         }
         if (condition.type === "COMPARE_AST") {
-            const evalEnv = new Environment(null);
+            const evalEnv = this.executionEnv || new Environment(null);
             const left = this.evalAstNumberExpression(condition.left, evalEnv);
             const right = this.evalAstNumberExpression(condition.right, evalEnv);
             if (!Number.isFinite(left) || !Number.isFinite(right)) return false;
@@ -715,12 +723,16 @@ export class RavlykInterpreter {
         return new Promise((resolve, reject) => {
             let lastTimestamp = performance.now();
             const executionStack = [{ commands: this.commandQueue, index: 0 }];
+            if (!this.executionEnv) {
+                this.executionEnv = new Environment(null);
+            }
 
             const processNextCommand = (timestamp) => {
                 if (this.shouldStop) {
                     if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
                     this.isExecuting = false;
                     this.commandIndicatorUpdater(null, -1);
+                    this.executionEnv = null;
                     reject(new RavlykError("EXECUTION_STOPPED_BY_USER"));
                     return;
                 }
@@ -740,6 +752,7 @@ export class RavlykInterpreter {
                 if (executionStack.length === 0) {
                     this.isExecuting = false;
                     this.commandIndicatorUpdater(null, -1);
+                    this.executionEnv = null;
                     resolve();
                     return;
                 }
@@ -756,6 +769,14 @@ export class RavlykInterpreter {
                     let commandDone = true;
 
                     switch (currentCommandObject.type) {
+                        case "ASSIGN_AST": {
+                            const value = this.evalAstNumberExpression(currentCommandObject.expr, this.executionEnv);
+                            if (!Number.isFinite(value)) {
+                                throw new RavlykError("VARIABLE_VALUE_INVALID", currentCommandObject.name, String(value));
+                            }
+                            this.executionEnv.set(currentCommandObject.name, value);
+                            break;
+                        }
                         case "PEN_UP":
                             commandDone = this.animatePen(currentCommandObject, 1.2, deltaTime);
                             if (commandDone) this.state.isPenDown = false;
@@ -839,6 +860,7 @@ export class RavlykInterpreter {
                     if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
                     this.isExecuting = false;
                     this.commandIndicatorUpdater(null, -1);
+                    this.executionEnv = null;
                     reject(err);
                 }
             };
@@ -1034,6 +1056,35 @@ export class RavlykInterpreter {
         this.shouldStop = true;
         this.isPaused = false;
         this.stopGameLoop(new RavlykError("EXECUTION_STOPPED_BY_USER"));
+    }
+
+    destroy() {
+        if (this.isDestroyed) return;
+        this.isDestroyed = true;
+
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+        }
+
+        if (this.gameLoopTimerId) {
+            clearInterval(this.gameLoopTimerId);
+            this.gameLoopTimerId = null;
+        }
+
+        if (typeof window !== "undefined" && window.removeEventListener) {
+            window.removeEventListener("keydown", this.onKeyDown);
+            window.removeEventListener("keyup", this.onKeyUp);
+        }
+
+        this.gameLoopReject = null;
+        this.shouldStop = true;
+        this.isPaused = false;
+        this.isExecuting = false;
+        this.executionEnv = null;
+        this.commandQueue = [];
+        this.currentCommandIndex = 0;
+        this.pressedKeys.clear();
     }
 
     pauseExecution() {
