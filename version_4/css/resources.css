@@ -95,7 +95,7 @@ body {
 .resource-item .resource-link {
     display: inline-block;
     background-color: #32cd32; /* Зелений */
-    color: #111;
+    color: white;
     padding: 8px 15px;
     text-decoration: none;
     border-radius: 5px;
@@ -106,7 +106,6 @@ body {
 
 .resource-item .resource-link:hover {
     background-color: #228b22; /* Темніший зелений */
-    color: #fff;
     transform: scale(1.05);
 }
 
@@ -147,12 +146,11 @@ body {
 
 .nav-buttons-footer .main-btn.editor-btn {
      background-color: #32cd32; /* Зелений */
-     color: #111;
+     color: #fff;
 }
 
 .nav-buttons-footer .main-btn.editor-btn:hover {
      background-color: #228b22; /* Темніший зелений */
-     color: #fff;
 }
 
 footer {

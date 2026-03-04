@@ -186,11 +186,10 @@ footer.main-footer {
 
 .btn-success {
     background-color: #32cd32; /* Зелений */
-    color: #111;
+    color: white;
 }
 .btn-success:hover {
     background-color: #28a428;
-    color: #fff;
 }
 
 .btn-warning {
@@ -210,20 +209,18 @@ footer.main-footer {
 
 .btn-danger {
     background-color: #ff6347; /* Томатний/Червоний */
-    color: #111;
+    color: white;
 }
 .btn-danger:hover {
     background-color: #e05239;
-    color: #fff;
 }
 
 .btn-info {
     background-color: #4a90e2; /* Синій */
-    color: #111;
+    color: white;
 }
 .btn-info:hover {
     background-color: #3a7bc8;
-    color: #fff;
 }
 
 
