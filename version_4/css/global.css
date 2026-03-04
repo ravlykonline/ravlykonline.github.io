@@ -1,5 +1,18 @@
 /* css/global.css */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+:root {
+    --focus-ring-outer: #ffb300;
+    --focus-ring-inner: #ffffff;
+    --focus-ring-outer-hc: #7dd3ff;
+    --focus-ring-inner-hc: #000000;
+}
+
+html.a11y-high-contrast {
+    --focus-ring-outer: var(--focus-ring-outer-hc);
+    --focus-ring-inner: var(--focus-ring-inner-hc);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -173,10 +186,11 @@ footer.main-footer {
 
 .btn-success {
     background-color: #32cd32; /* Зелений */
-    color: white;
+    color: #111;
 }
 .btn-success:hover {
     background-color: #28a428;
+    color: #fff;
 }
 
 .btn-warning {
@@ -196,18 +210,20 @@ footer.main-footer {
 
 .btn-danger {
     background-color: #ff6347; /* Томатний/Червоний */
-    color: white;
+    color: #111;
 }
 .btn-danger:hover {
     background-color: #e05239;
+    color: #fff;
 }
 
 .btn-info {
     background-color: #4a90e2; /* Синій */
-    color: white;
+    color: #111;
 }
 .btn-info:hover {
     background-color: #3a7bc8;
+    color: #fff;
 }
 
 
@@ -229,9 +245,35 @@ a:hover {
 
 /* Accessibility */
 :focus-visible {
-  outline: 3px solid #ffb300;
+  outline: 3px solid var(--focus-ring-outer);
   outline-offset: 2px;
-  border-radius: 4px; /* Optional: to match button/element radius */
+  box-shadow: 0 0 0 2px var(--focus-ring-inner);
+  border-radius: 6px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+    outline: 3px solid var(--focus-ring-outer);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--focus-ring-inner);
+}
+
+.btn:focus-visible,
+.commands-tab:focus-visible,
+.tab-button:focus-visible,
+.example-block:focus-visible,
+.manual-page-btn:focus-visible,
+.main-btn:focus-visible,
+.toc-list a:focus-visible,
+.navigation-buttons__btn:focus-visible {
+    outline: 3px solid var(--focus-ring-outer);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--focus-ring-inner), 0 0 0 5px rgba(0, 0, 0, 0.18);
 }
 
 .skip-link {
