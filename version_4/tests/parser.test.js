@@ -539,4 +539,28 @@ runTest('game mode blocks page-scroll keys but normal mode does not', () => {
     assert.equal(preventedInGameMode, true);
 });
 
+await runAsyncTest('if inside repeat executes sequentially without getting stuck on IF command', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        await interpreter.executeCommands(
+            'створити n = 0 повторити 8 ( n = n + 1 якщо n % 2 = 0 ( колір синій ) інакше ( колір червоний ) вперед 20 праворуч 45 )'
+        );
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+
+    assert.equal(interpreter.isExecuting, false);
+    assert.equal(interpreter.currentCommandIndex >= 0, true);
+    // n ends at 8 => last branch should set color to blue.
+    assert.equal(String(interpreter.state.color).toLowerCase(), '#0000ff');
+});
+
 console.log('Parser tests completed.');
