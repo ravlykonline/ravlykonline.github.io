@@ -42,6 +42,8 @@
             <button id="lesson5-tab" class="tab-button" data-lesson="lesson5" role="tab" aria-selected="false" aria-controls="lesson5" tabindex="-1">Урок 5: Фігури</button>
             <button id="lesson6-tab" class="tab-button" data-lesson="lesson6" role="tab" aria-selected="false" aria-controls="lesson6" tabindex="-1">Урок 6: Олівець</button>
             <button id="lesson7-tab" class="tab-button" data-lesson="lesson7" role="tab" aria-selected="false" aria-controls="lesson7" tabindex="-1">Урок 7: Творчість</button>
+            <button id="lesson8-tab" class="tab-button" data-lesson="lesson8" role="tab" aria-selected="false" aria-controls="lesson8" tabindex="-1">Урок 8: Умови</button>
+            <button id="lesson9-tab" class="tab-button" data-lesson="lesson9" role="tab" aria-selected="false" aria-controls="lesson9" tabindex="-1">Урок 9: Перша гра</button>
         </nav>
 
         <main>
@@ -473,7 +475,88 @@
                 <div class="tip"><strong>Головне – отримуй задоволення!</strong> Програмування – це не тільки логіка, а й великий простір для творчості. Равлик чекає на твої шедеври! Якщо щось не виходить – не засмучуйся, спробуй ще раз або попроси допомоги у посібнику.</div>
                 <nav class="navigation-buttons">
                     <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson6"><i class="fas fa-arrow-left" aria-hidden="true"></i>Попередній урок</button>
-                    <button class="btn btn-primary nav-btn-next" disabled style="visibility: hidden;">Наступний урок<i class="fas fa-arrow-right icon-right" aria-hidden="true"></i></button> 
+                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson8">Наступний урок<i class="fas fa-arrow-right icon-right" aria-hidden="true"></i></button> 
+                </nav>
+            </article>
+
+            <article id="lesson8" class="lesson-content" role="tabpanel" aria-labelledby="lesson8-tab" hidden>
+                <h2>Урок 8: Равлик приймає рішення 🤔</h2>
+                <p>До цього моменту Равлик виконував команди по черзі. А тепер навчимо його <strong>обирати дію</strong> за умовою.</p>
+
+                <h3>Нова команда: <code>якщо</code></h3>
+                <pre class="code-example">якщо край ( праворуч 180 )</pre>
+                <p>Якщо Равлик торкається межі полотна, він повертається. Якщо ні — команда всередині дужок не виконується.</p>
+
+                <h3><code>інакше</code> — запасний план</h3>
+                <pre class="code-example">створити n = 0
+повторити 8 (
+  n = n + 1
+  якщо n % 2 = 0 (
+    колір синій
+  ) інакше (
+    колір червоний
+  )
+  вперед 40
+  праворуч 45
+)</pre>
+                <p>Тут ми використовуємо <code>%</code> для перевірки парності числа.</p>
+
+                <div class="why-important">
+                    <h4>💡 Чому це важливо?</h4>
+                    <ul>
+                        <li><strong>Умови</strong> — це основа “розумної” поведінки програми.</li>
+                        <li>Ти вчишся описувати правила: “якщо сталося X — зроби Y”.</li>
+                        <li>Саме так працюють ігри, роботи та інтерактивні програми.</li>
+                    </ul>
+                </div>
+
+                <div class="task">
+                    <h4>🎯 Завдання</h4>
+                    <p>Спробуй зробити “відбиття від стіни”:</p>
+                    <pre class="code-example">повторити 120 (
+  вперед 5
+  якщо край ( праворуч 91 )
+)</pre>
+                    <a href="index.html" target="_blank" class="btn btn-success">Запустити в редакторі</a>
+                </div>
+
+                <nav class="navigation-buttons">
+                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson7"><i class="fas fa-arrow-left" aria-hidden="true"></i>Попередній урок</button>
+                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson9">Наступний урок<i class="fas fa-arrow-right icon-right" aria-hidden="true"></i></button>
+                </nav>
+            </article>
+
+            <article id="lesson9" class="lesson-content" role="tabpanel" aria-labelledby="lesson9-tab" hidden>
+                <h2>Урок 9: Перша гра з клавіатурою 🎮</h2>
+                <p>Тепер створимо інтерактивну програму, яка реагує на клавіші.</p>
+
+                <h3>Команда <code>грати</code></h3>
+                <p>Усе всередині <code>грати ( ... )</code> повторюється постійно, ніби “пульс” гри.</p>
+                <pre class="code-example">грати (
+  якщо клавіша "вгору" ( вперед 5 )
+  якщо клавіша "вниз" ( назад 5 )
+  якщо клавіша "ліво" ( ліворуч 10 )
+  якщо клавіша "право" ( праворуч 10 )
+)</pre>
+
+                <h3>Додаємо ефекти</h3>
+                <pre class="code-example">грати (
+  якщо клавіша "вгору" ( вперед 4 )
+  якщо клавіша "ліво" ( ліворуч 8 )
+  якщо клавіша "право" ( праворуч 8 )
+  якщо край ( праворуч 180 )
+)</pre>
+
+                <div class="task">
+                    <h4>🚀 Завдання: зроби міні-гру</h4>
+                    <p>Керуй Равликом стрілками та спробуй не врізатися в край. Потім додай власне правило: зміну кольору, прискорення або “траси” з візерунком.</p>
+                    <a href="index.html" target="_blank" class="btn btn-success">Створити гру</a>
+                </div>
+
+                <div class="tip"><strong>Порада:</strong> Для завершення гри використовуй кнопку <strong>Зупинити</strong> або <strong>Esc</strong>.</div>
+                <nav class="navigation-buttons">
+                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson8"><i class="fas fa-arrow-left" aria-hidden="true"></i>Попередній урок</button>
+                    <button class="btn btn-primary nav-btn-next" disabled style="visibility: hidden;">Наступний урок<i class="fas fa-arrow-right icon-right" aria-hidden="true"></i></button>
                 </nav>
             </article>
         </main>

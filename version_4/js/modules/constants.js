@@ -102,6 +102,7 @@ export const ERROR_MESSAGES = {
     VARIABLE_NAME_CONFLICT_FUNCTION: (name) => 'Назва "' + name + '" вже використовується як функція.',
     VARIABLE_VALUE_INVALID: (name, value) => 'Для змінної "' + name + '" потрібне число, а не "' + value + '".',
     UNDEFINED_VARIABLE: (name) => 'Я не знайшов змінну "' + name + '". Спочатку створи її: створити ' + name + ' = число.',
+    GAME_NOT_SUPPORTED_HERE: 'Команда "грати" вже розібрана парсером, але виконання режиму гри ще в розробці.',
 };
 
 export const SUCCESS_MESSAGES = {

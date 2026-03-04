@@ -68,8 +68,8 @@
           <div class="example-block" tabindex="0" role="button" data-code="повторити 36 ( вперед 10 праворуч 10 )">Коло</div>
           <div class="example-block" tabindex="0" role="button" data-code="колір червоний повторити 3 ( вперед 100 праворуч 120 )">Червоний трикутник</div>
           <div class="example-block" tabindex="0" role="button" data-code="колір синій повторити 8 ( вперед 50 праворуч 45 )">Синій восьмикутник</div>
-          <div class="example-block" tabindex="0" role="button" data-code="колір зелений повторити 6 ( вперед 70 праворуч 60 )">Зелений шестикутник</div>
-          <div class="example-block" tabindex="0" role="button" data-code="колір фіолетовий повторити 5 ( вперед 80 праворуч 144 )">Фіолетова зірка</div>
+          <div class="example-block" tabindex="0" role="button" data-code="повторити 100 ( вперед 5 якщо край ( праворуч 91 ) )">Відбиття від стіни</div>
+          <div class="example-block" tabindex="0" role="button" data-code="грати (&#10;  якщо клавіша &quot;вгору&quot; ( вперед 5 )&#10;  якщо клавіша &quot;ліво&quot; ( ліворуч 10 )&#10;  якщо клавіша &quot;право&quot; ( праворуч 10 )&#10;)">Керуй стрілками</div>
         </div>
       </section>
       <section class="help-box-main" aria-labelledby="helpbox-title">
@@ -85,6 +85,11 @@
             <div class="command-item"><div class="command-name">опустити</div><div class="command-desc">Опустити олівець (рух з малюванням)</div></div>
             <div class="command-item"><div class="command-name">очистити</div><div class="command-desc">Очистити тільки полотно (код не змінюється)</div></div>
             <div class="command-item"><div class="command-name">повторити N ( ... )</div><div class="command-desc">Повторити команди в дужках N разів</div></div>
+            <div class="command-item"><div class="command-name">якщо умова ( ... )</div><div class="command-desc">Виконати блок, якщо умова істинна</div></div>
+            <div class="command-item"><div class="command-name">... інакше ( ... )</div><div class="command-desc">Блок, який виконується, коли умова хибна</div></div>
+            <div class="command-item"><div class="command-name">якщо край ( ... )</div><div class="command-desc">Перевірка дотику межі полотна</div></div>
+            <div class="command-item"><div class="command-name">якщо клавіша "вгору" ( ... )</div><div class="command-desc">Перевірка натиснутої клавіші</div></div>
+            <div class="command-item"><div class="command-name">грати ( ... )</div><div class="command-desc">Ігровий режим з постійною перевіркою умов</div></div>
             <div class="command-item"><div class="command-name">створити назва(параметр) ( ... )</div><div class="command-desc">Створити власну команду з параметром</div></div>
             <div class="command-item"><div class="command-name">назва(число)</div><div class="command-desc">Викликати власну команду</div></div>
             <div class="command-item"><div class="command-name">створити змінна = число</div><div class="command-desc">Створити або змінити значення змінної</div></div>
@@ -162,6 +167,11 @@
               <li><b>опустити</b> — опустити олівець (малювати при русі)</li>
               <li><b>очистити</b> — очистити тільки малюнок (код не змінюється)</li>
               <li><b>повторити N ( ... )</b> — повторити команди в дужках N разів</li>
+              <li><b>якщо умова ( ... )</b> — виконати блок за умовою</li>
+              <li><b>... інакше ( ... )</b> — альтернативний блок</li>
+              <li><b>якщо край ( ... )</b> — перевірка межі полотна</li>
+              <li><b>якщо клавіша "..." ( ... )</b> — перевірка клавіші</li>
+              <li><b>грати ( ... )</b> — інтерактивний ігровий режим</li>
               <li><b>створити назва(параметр) ( ... )</b> — створити власну команду</li>
               <li><b>назва(число)</b> — викликати власну команду з числом</li>
               <li><b>створити змінна = число</b> — створити змінну</li>

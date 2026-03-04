@@ -49,6 +49,8 @@
                     <li><a href="#basic-commands">Основні команди</a></li>
                     <li><a href="#repetition">Повторення команд</a></li>
                     <li><a href="#variables-functions">Змінні та функції</a></li>
+                    <li><a href="#conditions">Умови: якщо / інакше</a></li>
+                    <li><a href="#game-mode">Інтерактивний режим: грати</a></li>
                     <li><a href="#pen-control">Керування олівцем</a></li>
                     <li><a href="#colors">Використання кольорів</a></li>
                     <li><a href="#drawing-shapes">Малювання форм</a></li>
@@ -97,6 +99,11 @@
     <div class="command-item-manual"><span class="cmd-name">підняти</span> <span class="cmd-desc">Піднімає олівець — Равлик рухається, але не малює.</span></div>
     <div class="command-item-manual"><span class="cmd-name">опустити</span> <span class="cmd-desc">Опускає олівець — Равлик буде малювати при русі.</span></div>
     <div class="command-item-manual"><span class="cmd-name">очистити</span> <span class="cmd-desc">Очищає тільки полотно від малюнків (код у редакторі не видаляється).</span></div>
+    <div class="command-item-manual"><span class="cmd-name">якщо умова ( ... )</span> <span class="cmd-desc">Виконує команди в дужках, якщо умова істинна.</span></div>
+    <div class="command-item-manual"><span class="cmd-name">... інакше ( ... )</span> <span class="cmd-desc">Виконує інший блок, якщо умова хибна.</span></div>
+    <div class="command-item-manual"><span class="cmd-name">якщо край ( ... )</span> <span class="cmd-desc">Перевіряє, чи Равлик торкається межі полотна.</span></div>
+    <div class="command-item-manual"><span class="cmd-name">якщо клавіша "..." ( ... )</span> <span class="cmd-desc">Перевіряє, чи натиснута конкретна клавіша.</span></div>
+    <div class="command-item-manual"><span class="cmd-name">грати ( ... )</span> <span class="cmd-desc">Безперервний ігровий режим з перевіркою умов на кожному кроці.</span></div>
 </div>
                     <h3>Як користуватися командами</h3>
                     <p><strong>Важливо про напрямок:</strong> Равлик на старті дивиться вгору (кут -90°). Тому команда <code>праворуч 90</code> повертає його праворуч <em>від поточного напряму</em>, а не відносно краю екрана.</p>
@@ -195,7 +202,71 @@
                         <p><strong>Виклики:</strong> <code>зірка(80)</code>, <code>зірка(120)</code></p>
                         <p><strong>Оновлення розміру:</strong> <code>сторона = 200</code></p>
                     </div>
-                </article>                <article id="pen-control" class="guide-section">
+                </article>
+
+                <article id="conditions" class="guide-section">
+                    <h2>Умови: якщо / інакше</h2>
+                    <p>Умова допомагає Равлику <strong>приймати рішення</strong>: виконувати команду лише тоді, коли щось сталося.</p>
+                    <h3>Базовий формат</h3>
+                    <pre class="example-code-manual">якщо умова (
+  команди
+)</pre>
+                    <p>Якщо треба альтернативна дія, додаємо <code>інакше</code>:</p>
+                    <pre class="example-code-manual">якщо умова (
+  команди_1
+) інакше (
+  команди_2
+)</pre>
+
+                    <h3>Умова <code>край</code></h3>
+                    <p>Найзручніша умова для перших задач з рухом:</p>
+                    <pre class="example-code-manual">повторити 120 (
+  вперед 5
+  якщо край ( праворуч 91 )
+)</pre>
+                    <p>Коли Равлик торкається межі полотна, він одразу повертає і рухається далі.</p>
+
+                    <h3>Порівняння чисел</h3>
+                    <p>Можна порівнювати вирази: <code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>.</p>
+                    <pre class="example-code-manual">створити n = 0
+повторити 10 (
+  n = n + 1
+  якщо n % 2 = 0 ( колір синій ) інакше ( колір червоний )
+  вперед 20
+  праворуч 36
+)</pre>
+                    <div class="tips-box">
+                        <h4>Порада:</h4>
+                        <p>Оператор <code>%</code> (остача від ділення) дуже зручний для задач «парне/непарне».</p>
+                    </div>
+                </article>
+
+                <article id="game-mode" class="guide-section">
+                    <h2>Інтерактивний режим: <code>грати</code></h2>
+                    <p>Команда <code>грати ( ... )</code> запускає безперервний цикл перевірки подій. Це основа для простих ігор.</p>
+                    <h3>Керування клавішами</h3>
+                    <pre class="example-code-manual">грати (
+  якщо клавіша "вгору" ( вперед 5 )
+  якщо клавіша "вниз" ( назад 5 )
+  якщо клавіша "ліво" ( ліворуч 10 )
+  якщо клавіша "право" ( праворуч 10 )
+)</pre>
+                    <p>Назви клавіш краще писати в лапках: <code>"вгору"</code>, <code>"вниз"</code>, <code>"ліво"</code>, <code>"право"</code>.</p>
+
+                    <h3>Змінні у режимі гри</h3>
+                    <p>Змінні не скидаються щокроку, тому їх можна змінювати під час гри:</p>
+                    <pre class="example-code-manual">створити крок = 2
+грати (
+  якщо клавіша "вгору" ( вперед крок )
+  крок = крок + 1
+)</pre>
+                    <div class="tips-box">
+                        <h4>Безпека:</h4>
+                        <p>Щоб зупинити гру, використовуй кнопку <strong>Зупинити</strong> або клавішу <strong>Esc</strong>.</p>
+                    </div>
+                </article>
+
+                <article id="pen-control" class="guide-section">
                     <h2>Керування олівцем</h2>
                     <p>Іноді ти хочеш перемістити Равлика в інше місце, не залишивши слідів, або намалювати фігуру з переривчастими лініями. Для цього використовуй команди <code>підняти</code> та <code>опустити</code>.</p>
                     <p>💡 Команда перейти в — це теж рух. Якщо олівець опущений — Равлик намалює лінію по дорозі. Якщо хочеш перемістити Равлика без сліду — підніми олівець перед командою.</p>

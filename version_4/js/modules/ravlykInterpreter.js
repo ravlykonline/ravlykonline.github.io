@@ -1,10 +1,11 @@
-// js/modules/ravlykInterpreter.js
+﻿// js/modules/ravlykInterpreter.js
 import {
     COLOR_MAP, DEFAULT_PEN_COLOR, DEFAULT_PEN_SIZE, RAVLYK_INITIAL_ANGLE,
     CANVAS_BOUNDARY_PADDING, ERROR_MESSAGES,
     DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND,
 } from './constants.js';
 import { RavlykParser, RavlykError } from './ravlykParser.js';
+import { Environment } from './environment.js';
 
 export class RavlykInterpreter {
     constructor(context, canvas, ravlykVisualUpdater, commandIndicatorUpdater, infoNotifier) {
@@ -31,16 +32,32 @@ export class RavlykInterpreter {
             animationEnabled: true,
             moveSpeed: DEFAULT_MOVE_PIXELS_PER_SECOND,
             turnSpeed: DEFAULT_TURN_DEGREES_PER_SECOND,
+            gameTickMs: 50,
         };
 
         this.isExecuting = false;
         this.shouldStop = false;
         this.isPaused = false;
         this.animationFrameId = null;
+        this.gameLoopTimerId = null;
+        this.gameLoopReject = null;
         this.commandQueue = [];
         this.currentCommandIndex = 0;
         this.boundaryWarningShown = false;
         this.parser = new RavlykParser();
+        this.pressedKeys = new Set();
+        this.onKeyDown = (event) => {
+            if (!event || typeof event.key !== "string") return;
+            this.pressedKeys.add(event.key.toLowerCase());
+        };
+        this.onKeyUp = (event) => {
+            if (!event || typeof event.key !== "string") return;
+            this.pressedKeys.delete(event.key.toLowerCase());
+        };
+        if (typeof window !== "undefined" && window.addEventListener) {
+            window.addEventListener("keydown", this.onKeyDown);
+            window.addEventListener("keyup", this.onKeyUp);
+        }
 
         this.reset();
     }
@@ -62,6 +79,11 @@ export class RavlykInterpreter {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
         }
+        if (this.gameLoopTimerId) {
+            clearInterval(this.gameLoopTimerId);
+            this.gameLoopTimerId = null;
+        }
+        this.gameLoopReject = null;
         this.isExecuting = false;
         this.shouldStop = false;
         this.isPaused = false;
@@ -102,7 +124,415 @@ export class RavlykInterpreter {
     }
 
     parseTokens(tokens, depth = 0, substitutions = {}, tokenMeta = null) {
+        // Legacy parser path kept for backward compatibility/tests only.
+        // Main execution flow uses parseCodeToAst(...) in executeCommands().
         return this.parser.parseTokens(tokens, depth, substitutions, tokenMeta);
+    }
+
+    parseTokensToAst(tokens, depth = 0, substitutions = {}, tokenMeta = null) {
+        return this.parser.parseTokensToAst(tokens, depth, substitutions, tokenMeta);
+    }
+    evalAstNumberExpression(expr, env) {
+        try {
+            if (!expr || !expr.type) return NaN;
+            if (expr.type === "NumberLiteral") {
+                return Number(expr.value);
+            }
+            if (expr.type === "Identifier") {
+                return env.get(expr.name);
+            }
+            if (expr.type === "UnaryExpr") {
+                const value = this.evalAstNumberExpression(expr.expr, env);
+                if (expr.op === "+") return +value;
+                if (expr.op === "-") return -value;
+                return NaN;
+            }
+            if (expr.type === "BinaryExpr") {
+                const left = this.evalAstNumberExpression(expr.left, env);
+                const right = this.evalAstNumberExpression(expr.right, env);
+                if (expr.op === "+") return left + right;
+                if (expr.op === "-") return left - right;
+                if (expr.op === "*") return left * right;
+                if (expr.op === "/") return right === 0 ? NaN : left / right;
+                if (expr.op === "%") return right === 0 ? NaN : left % right;
+                return NaN;
+            }
+            return NaN;
+        } catch (error) {
+            this.attachAstErrorLocation(error, expr);
+            throw error;
+        }
+    }
+
+    attachAstErrorLocation(error, node) {
+        if (!error || error.name !== "RavlykError") return;
+        if (typeof error.line === "number" && error.line > 0) return;
+        const span = node?.span;
+        const pos = span?.start;
+        if (!pos) return;
+        error.line = pos.line;
+        error.column = pos.column;
+        error.token = pos.token || null;
+    }
+
+    handlePrimitiveAstStatement(stmt, env, mode, outputQueue = null) {
+        if (!stmt || !stmt.type) return false;
+
+        if (stmt.type === "MoveStmt") {
+            const value = this.evalAstNumberExpression(stmt.distance, env);
+            if (mode === "queue") {
+                outputQueue.push({
+                    type: stmt.direction === "backward" ? "MOVE_BACK" : "MOVE",
+                    value,
+                    original: stmt.direction === "backward" ? "назад" : "вперед"
+                });
+            } else {
+                this._performMove(stmt.direction === "backward" ? -value : value);
+            }
+            return true;
+        }
+
+        if (stmt.type === "TurnStmt") {
+            const value = this.evalAstNumberExpression(stmt.angle, env);
+            if (mode === "queue") {
+                outputQueue.push({
+                    type: stmt.direction === "left" ? "TURN_LEFT" : "TURN",
+                    value,
+                    original: stmt.direction === "left" ? "ліворуч" : "праворуч"
+                });
+            } else {
+                this._performTurn(stmt.direction === "left" ? -value : value);
+            }
+            return true;
+        }
+
+        if (stmt.type === "ColorStmt") {
+            if (mode === "queue") {
+                outputQueue.push({ type: "COLOR", value: stmt.colorName, original: "колір" });
+            } else {
+                this.setColor(stmt.colorName);
+            }
+            return true;
+        }
+
+        if (stmt.type === "GotoStmt") {
+            const x = this.evalAstNumberExpression(stmt.x, env);
+            const y = this.evalAstNumberExpression(stmt.y, env);
+            if (mode === "queue") {
+                outputQueue.push({ type: "GOTO", x, y, original: "перейти" });
+            } else {
+                this.performGoto(x, y);
+            }
+            return true;
+        }
+
+        if (stmt.type === "PenStmt") {
+            if (mode === "queue") {
+                outputQueue.push({
+                    type: stmt.mode === "up" ? "PEN_UP" : "PEN_DOWN",
+                    original: stmt.mode === "up" ? "підняти" : "опустити"
+                });
+            } else {
+                this.state.isPenDown = stmt.mode !== "up";
+            }
+            return true;
+        }
+
+        if (stmt.type === "ClearStmt") {
+            if (mode === "queue") {
+                outputQueue.push({ type: "CLEAR", original: "очистити" });
+            } else {
+                this.clearScreen();
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    astToLegacyQueue(programAst) {
+        if (!programAst || programAst.type !== "Program" || !Array.isArray(programAst.body)) {
+            return [];
+        }
+
+        const output = [];
+        const functionDefs = new Map();
+        const rootEnv = new Environment(null);
+
+        const evaluateCondition = (condition, env) => {
+            if (!condition || !condition.type) return false;
+            if (condition.type === "CompareCondition") {
+                const left = this.evalAstNumberExpression(condition.left, env);
+                const right = this.evalAstNumberExpression(condition.right, env);
+                if (!Number.isFinite(left) || !Number.isFinite(right)) {
+                    throw new RavlykError("INVALID_DISTANCE", "якщо", `${left} ${condition.op} ${right}`);
+                }
+                if (condition.op === "=") return left === right;
+                if (condition.op === "!=") return left !== right;
+                if (condition.op === "<") return left < right;
+                if (condition.op === ">") return left > right;
+                if (condition.op === "<=") return left <= right;
+                if (condition.op === ">=") return left >= right;
+            }
+            return false;
+        };
+
+        const convertConditionToRuntime = (condition) => {
+            if (!condition || !condition.type) return null;
+            if (condition.type === "EdgeCondition") return { type: "EDGE" };
+            if (condition.type === "KeyCondition") return { type: "KEY", key: condition.key };
+            return null;
+        };
+
+        const runStmt = (stmt, env, out, callDepth) => {
+            if (!stmt || !stmt.type) return;
+            try {
+
+                if (stmt.type === "AssignmentStmt") {
+                    const value = this.evalAstNumberExpression(stmt.expr, env);
+                    if (!Number.isFinite(value)) {
+                        throw new RavlykError("VARIABLE_VALUE_INVALID", stmt.name, String(value));
+                    }
+                    env.set(stmt.name, value);
+                    return;
+                }
+
+            if (stmt.type === "FunctionDefStmt") {
+                functionDefs.set(stmt.name, stmt);
+                return;
+            }
+
+            if (stmt.type === "FunctionCallStmt") {
+                const def = functionDefs.get(stmt.name);
+                if (!def) {
+                    throw new RavlykError("UNKNOWN_COMMAND", stmt.name);
+                }
+                if (callDepth > 30) {
+                    throw new RavlykError("TOO_MANY_NESTED_REPEATS");
+                }
+                const localEnv = new Environment(env);
+                for (let idx = 0; idx < def.params.length; idx++) {
+                    const paramName = def.params[idx];
+                    const argExpr = stmt.args[idx];
+                    const argValue = this.evalAstNumberExpression(argExpr, env);
+                    if (!Number.isFinite(argValue)) {
+                        throw new RavlykError("FUNCTION_ARGUMENT_INVALID", stmt.name, String(argValue));
+                    }
+                    localEnv.define(paramName, argValue);
+                }
+                for (const nested of def.body || []) {
+                    runStmt(nested, localEnv, out, callDepth + 1);
+                }
+                return;
+            }
+
+            if (this.handlePrimitiveAstStatement(stmt, env, "queue", out)) {
+                return;
+            }
+
+            if (stmt.type === "RepeatStmt") {
+                const countValue = this.evalAstNumberExpression(stmt.count, env);
+                if (!Number.isInteger(countValue) || countValue < 0) {
+                    throw new RavlykError("INVALID_REPEAT_COUNT", String(countValue));
+                }
+                const iterations = Math.min(countValue, 100);
+                for (let idx = 0; idx < iterations; idx++) {
+                    for (const nested of stmt.body || []) {
+                        runStmt(nested, env, out, callDepth);
+                    }
+                }
+                return;
+            }
+
+            if (stmt.type === "IfStmt") {
+                if (stmt.condition?.type === "CompareCondition") {
+                    const selected = evaluateCondition(stmt.condition, env) ? (stmt.thenBody || []) : (stmt.elseBody || []);
+                    for (const nested of selected) {
+                        runStmt(nested, env, out, callDepth);
+                    }
+                    return;
+                }
+
+                const thenCommands = [];
+                const elseCommands = [];
+                const thenEnv = env.clone();
+                const elseEnv = env.clone();
+                for (const nested of stmt.thenBody || []) runStmt(nested, thenEnv, thenCommands, callDepth);
+                for (const nested of stmt.elseBody || []) runStmt(nested, elseEnv, elseCommands, callDepth);
+
+                out.push({
+                    type: "IF",
+                    condition: convertConditionToRuntime(stmt.condition),
+                    thenCommands,
+                    elseCommands,
+                    original: "якщо",
+                });
+                return;
+            }
+
+                if (stmt.type === "GameStmt") {
+                    throw new RavlykError("GAME_NOT_SUPPORTED_HERE");
+                }
+            } catch (error) {
+                this.attachAstErrorLocation(error, stmt);
+                throw error;
+            }
+        };
+
+        for (const stmt of programAst.body) {
+            runStmt(stmt, rootEnv, output, 0);
+        }
+        return output;
+    }
+
+    hasGameStatement(node) {
+        if (!node || typeof node !== "object") return false;
+        if (node.type === "GameStmt") return true;
+        if (Array.isArray(node.body) && node.body.some((item) => this.hasGameStatement(item))) return true;
+        if (Array.isArray(node.thenBody) && node.thenBody.some((item) => this.hasGameStatement(item))) return true;
+        if (Array.isArray(node.elseBody) && node.elseBody.some((item) => this.hasGameStatement(item))) return true;
+        return false;
+    }
+
+    executeGameProgram(programAst) {
+        const env = new Environment(null);
+        const functionDefs = new Map();
+        const gameBodies = [];
+
+        const evalCondition = (condition, envCtx) => {
+            if (!condition || !condition.type) return false;
+            if (condition.type === "CompareCondition") {
+                const left = this.evalAstNumberExpression(condition.left, envCtx);
+                const right = this.evalAstNumberExpression(condition.right, envCtx);
+                if (!Number.isFinite(left) || !Number.isFinite(right)) return false;
+                if (condition.op === "=") return left === right;
+                if (condition.op === "!=") return left !== right;
+                if (condition.op === "<") return left < right;
+                if (condition.op === ">") return left > right;
+                if (condition.op === "<=") return left <= right;
+                if (condition.op === ">=") return left >= right;
+                return false;
+            }
+            if (condition.type === "EdgeCondition") {
+                return this.state.x <= CANVAS_BOUNDARY_PADDING
+                    || this.state.x >= this.canvas.width - CANVAS_BOUNDARY_PADDING
+                    || this.state.y <= CANVAS_BOUNDARY_PADDING
+                    || this.state.y >= this.canvas.height - CANVAS_BOUNDARY_PADDING;
+            }
+            if (condition.type === "KeyCondition") {
+                const expected = this.normalizeConditionKey(condition.key);
+                return this.pressedKeys.has(expected);
+            }
+            return false;
+        };
+
+        const runStmt = (stmt, envCtx, callDepth = 0) => {
+            if (!stmt || !stmt.type) return;
+            try {
+                if (callDepth > 30) throw new RavlykError("TOO_MANY_NESTED_REPEATS");
+
+            if (stmt.type === "AssignmentStmt") {
+                const value = this.evalAstNumberExpression(stmt.expr, envCtx);
+                if (!Number.isFinite(value)) {
+                    throw new RavlykError("VARIABLE_VALUE_INVALID", stmt.name, String(value));
+                }
+                envCtx.set(stmt.name, value);
+                return;
+            }
+
+            if (stmt.type === "FunctionDefStmt") {
+                functionDefs.set(stmt.name, stmt);
+                return;
+            }
+
+            if (stmt.type === "FunctionCallStmt") {
+                const def = functionDefs.get(stmt.name);
+                if (!def) throw new RavlykError("UNKNOWN_COMMAND", stmt.name);
+                const localEnv = new Environment(envCtx);
+                for (let idx = 0; idx < def.params.length; idx++) {
+                    const argValue = this.evalAstNumberExpression(stmt.args[idx], envCtx);
+                    if (!Number.isFinite(argValue)) {
+                        throw new RavlykError("FUNCTION_ARGUMENT_INVALID", stmt.name, String(argValue));
+                    }
+                    localEnv.define(def.params[idx], argValue);
+                }
+                for (const nested of def.body || []) runStmt(nested, localEnv, callDepth + 1);
+                return;
+            }
+
+            if (this.handlePrimitiveAstStatement(stmt, envCtx, "immediate")) {
+                return;
+            }
+
+            if (stmt.type === "RepeatStmt") {
+                const countValue = this.evalAstNumberExpression(stmt.count, envCtx);
+                if (!Number.isInteger(countValue) || countValue < 0) {
+                    throw new RavlykError("INVALID_REPEAT_COUNT", String(countValue));
+                }
+                const iterations = Math.min(countValue, 100);
+                for (let i = 0; i < iterations; i++) {
+                    for (const nested of stmt.body || []) runStmt(nested, envCtx, callDepth);
+                }
+                return;
+            }
+
+            if (stmt.type === "IfStmt") {
+                const selected = evalCondition(stmt.condition, envCtx) ? (stmt.thenBody || []) : (stmt.elseBody || []);
+                for (const nested of selected) runStmt(nested, envCtx, callDepth);
+                return;
+            }
+
+                if (stmt.type === "GameStmt") {
+                    gameBodies.push(stmt.body || []);
+                    return;
+                }
+            } catch (error) {
+                this.attachAstErrorLocation(error, stmt);
+                throw error;
+            }
+        };
+
+        for (const stmt of programAst.body || []) {
+            runStmt(stmt, env, 0);
+        }
+
+        if (gameBodies.length === 0) {
+            throw new RavlykError("GAME_NOT_SUPPORTED_HERE");
+        }
+
+        this.commandIndicatorUpdater("грати (...)", 0);
+        this.updateRavlykVisualState(true);
+
+        return new Promise((resolve, reject) => {
+            this.gameLoopReject = reject;
+            this.gameLoopTimerId = setInterval(() => {
+                try {
+                    if (this.shouldStop) {
+                        clearInterval(this.gameLoopTimerId);
+                        this.gameLoopTimerId = null;
+                        this.gameLoopReject = null;
+                        this.commandIndicatorUpdater(null, -1);
+                        reject(new RavlykError("EXECUTION_STOPPED_BY_USER"));
+                        return;
+                    }
+                    if (this.isPaused) {
+                        return;
+                    }
+                    for (const body of gameBodies) {
+                        for (const stmt of body) {
+                            runStmt(stmt, env, 0);
+                        }
+                    }
+                    this.updateRavlykVisualState(true);
+                } catch (error) {
+                    clearInterval(this.gameLoopTimerId);
+                    this.gameLoopTimerId = null;
+                    this.gameLoopReject = null;
+                    this.commandIndicatorUpdater(null, -1);
+                    reject(error);
+                }
+            }, this.config.gameTickMs);
+        });
     }
 
     async executeCommands(commandsString) {
@@ -118,8 +548,11 @@ export class RavlykInterpreter {
         this.parser.resetUserState();
 
         try {
-            const tokens = this.tokenize(commandsString);
-            this.commandQueue = this.parseTokens(tokens);
+            const programAst = this.parser.parseCodeToAst(commandsString);
+            if (this.hasGameStatement(programAst)) {
+                return await this.executeGameProgram(programAst);
+            }
+            this.commandQueue = this.astToLegacyQueue(programAst);
             return await this.runCommandQueue();
         } catch (error) {
             this.isExecuting = false;
@@ -136,11 +569,61 @@ export class RavlykInterpreter {
         if (Array.isArray(command.commands)) {
             cloned.commands = command.commands.map((nestedCommand) => this.cloneCommand(nestedCommand));
         }
+        if (Array.isArray(command.thenCommands)) {
+            cloned.thenCommands = command.thenCommands.map((nestedCommand) => this.cloneCommand(nestedCommand));
+        }
+        if (Array.isArray(command.elseCommands)) {
+            cloned.elseCommands = command.elseCommands.map((nestedCommand) => this.cloneCommand(nestedCommand));
+        }
         delete cloned.remainingDistance;
         delete cloned.remainingAngle;
         delete cloned.animationProgress;
         delete cloned.startScale;
+        delete cloned.remainingIterations;
         return cloned;
+    }
+
+    normalizeConditionKey(rawKey) {
+        const value = String(rawKey || "").trim().toLowerCase();
+        const aliases = {
+            "\u0432\u0433\u043e\u0440\u0443": "arrowup",
+            "\u0432\u043d\u0438\u0437": "arrowdown",
+            "\u043b\u0456\u0432\u043e": "arrowleft",
+            "\u043b\u0456\u0432\u043e\u0440\u0443\u0447": "arrowleft",
+            "\u043f\u0440\u0430\u0432\u043e": "arrowright",
+            "\u043f\u0440\u0430\u0432\u043e\u0440\u0443\u0447": "arrowright",
+            "up": "arrowup",
+            "down": "arrowdown",
+            "left": "arrowleft",
+            "right": "arrowright",
+        };
+        return aliases[value] || value;
+    }
+
+    evaluateIfCondition(condition) {
+        if (!condition || !condition.type) return false;
+        if (condition.type === "EDGE") {
+            return this.state.x <= CANVAS_BOUNDARY_PADDING
+                || this.state.x >= this.canvas.width - CANVAS_BOUNDARY_PADDING
+                || this.state.y <= CANVAS_BOUNDARY_PADDING
+                || this.state.y >= this.canvas.height - CANVAS_BOUNDARY_PADDING;
+        }
+        if (condition.type === "KEY") {
+            const expected = this.normalizeConditionKey(condition.key);
+            return this.pressedKeys.has(expected);
+        }
+        if (condition.type === "COMPARE") {
+            const left = Number(condition.left);
+            const right = Number(condition.right);
+            if (!Number.isFinite(left) || !Number.isFinite(right)) return false;
+            if (condition.operator === "=") return left === right;
+            if (condition.operator === "!=") return left !== right;
+            if (condition.operator === "<") return left < right;
+            if (condition.operator === ">") return left > right;
+            if (condition.operator === "<=") return left <= right;
+            if (condition.operator === ">=") return left >= right;
+        }
+        return false;
     }
 
     async runCommandQueue() {
@@ -244,6 +727,19 @@ export class RavlykInterpreter {
                                 commandDone = false;
                             }
                             break;
+                        case "IF": {
+                            const isTrue = this.evaluateIfCondition(currentCommandObject.condition);
+                            const branch = isTrue ? currentCommandObject.thenCommands : currentCommandObject.elseCommands;
+                            if (Array.isArray(branch) && branch.length > 0) {
+                                executionStack.push({
+                                    commands: branch.map((cmd) => this.cloneCommand(cmd)),
+                                    index: 0,
+                                    rootIndex: currentFrame.rootIndex ?? currentFrame.index,
+                                });
+                                commandDone = false;
+                            }
+                            break;
+                        }
                         default:
                             console.error("Unknown command type:", currentCommandObject);
                             commandDone = true;
@@ -453,6 +949,15 @@ export class RavlykInterpreter {
     stopExecution() {
         this.shouldStop = true;
         this.isPaused = false;
+        if (this.gameLoopTimerId) {
+            clearInterval(this.gameLoopTimerId);
+            this.gameLoopTimerId = null;
+        }
+        if (this.gameLoopReject) {
+            const reject = this.gameLoopReject;
+            this.gameLoopReject = null;
+            reject(new RavlykError("EXECUTION_STOPPED_BY_USER"));
+        }
     }
 
     pauseExecution() {
@@ -469,5 +974,6 @@ export class RavlykInterpreter {
         return this.boundaryWarningShown;
     }
 }
+
 
 

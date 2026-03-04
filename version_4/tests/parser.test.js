@@ -28,10 +28,29 @@ function runTest(name, fn) {
     }
 }
 
+async function runAsyncTest(name, fn) {
+    try {
+        await fn();
+        console.log(`PASS: ${name}`);
+    } catch (error) {
+        console.error(`FAIL: ${name}`);
+        throw error;
+    }
+}
+
 runTest('tokenize strips comments and keeps punctuation tokens', () => {
     const interpreter = createInterpreter();
     const tokens = interpreter.tokenize('forward 10 # comment\nx = 5\nrepeat 2 ( left 90 )');
     assert.deepEqual(tokens, ['forward', '10', 'x', '=', '5', 'repeat', '2', '(', 'left', '90', ')']);
+});
+
+runTest('tokenize keeps quoted strings and multi-char comparators', () => {
+    const interpreter = createInterpreter();
+    const tokens = interpreter.tokenize('якщо клавіша "вгору" ( вперед 10 ) x >= 2 y != 3 z <= 4');
+    assert.deepEqual(tokens, [
+        'якщо', 'клавіша', '"вгору"', '(', 'вперед', '10', ')',
+        'x', '>=', '2', 'y', '!=', '3', 'z', '<=', '4'
+    ]);
 });
 
 runTest('parse move and turn commands', () => {
@@ -127,6 +146,169 @@ runTest('supports arithmetic expressions in goto and repeat count', () => {
     assert.equal(queue[0].y, 18);
     assert.equal(queue[1].type, 'REPEAT');
     assert.equal(queue[1].count, 3);
+});
+
+runTest('supports modulo operator in expressions', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens([
+        'create', 'n', '=', '5',
+        'forward', 'n', '%', '2',
+        'right', '10', '%', '3',
+    ]);
+    assert.equal(queue.length, 2);
+    assert.equal(queue[0].type, 'MOVE');
+    assert.equal(queue[0].value, 1);
+    assert.equal(queue[1].type, 'TURN');
+    assert.equal(queue[1].value, 1);
+});
+
+runTest('parses if/else with compare condition', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens([
+        'if', '2', '+', '2', '=', '4',
+        '(', 'forward', '10', ')',
+        'else',
+        '(', 'backward', '10', ')',
+    ]);
+    assert.equal(queue.length, 1);
+    assert.equal(queue[0].type, 'IF');
+    assert.equal(queue[0].condition.type, 'COMPARE');
+    assert.equal(queue[0].condition.operator, '=');
+    assert.equal(queue[0].thenCommands.length, 1);
+    assert.equal(queue[0].thenCommands[0].type, 'MOVE');
+    assert.equal(queue[0].elseCommands.length, 1);
+    assert.equal(queue[0].elseCommands[0].type, 'MOVE_BACK');
+});
+
+runTest('parses edge and key conditions', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens([
+        'if', 'edge', '(', 'right', '180', ')',
+        'if', 'key', '"up"', '(', 'forward', '10', ')',
+    ]);
+    assert.equal(queue.length, 2);
+    assert.equal(queue[0].type, 'IF');
+    assert.deepEqual(queue[0].condition, { type: 'EDGE' });
+    assert.equal(queue[1].type, 'IF');
+    assert.equal(queue[1].condition.type, 'KEY');
+    assert.equal(queue[1].condition.key, 'up');
+});
+
+runTest('builds Program AST for basic commands', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst(['forward', '10', 'right', '90']);
+    assert.equal(ast.type, 'Program');
+    assert.equal(ast.body.length, 2);
+    assert.equal(ast.body[0].type, 'MoveStmt');
+    assert.equal(ast.body[0].direction, 'forward');
+    assert.equal(ast.body[0].distance.type, 'NumberLiteral');
+    assert.equal(ast.body[0].distance.value, 10);
+    assert.equal(ast.body[1].type, 'TurnStmt');
+    assert.equal(ast.body[1].direction, 'right');
+    assert.equal(ast.body[1].angle.value, 90);
+});
+
+runTest('builds Program AST for repeat and if', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'repeat', '2', '(', 'forward', '5', ')',
+        'if', '1', '=', '1', '(', 'left', '30', ')',
+    ]);
+    assert.equal(ast.type, 'Program');
+    assert.equal(ast.body.length, 2);
+    assert.equal(ast.body[0].type, 'RepeatStmt');
+    assert.equal(ast.body[0].count.value, 2);
+    assert.equal(ast.body[0].body.length, 1);
+    assert.equal(ast.body[0].body[0].type, 'MoveStmt');
+    assert.equal(ast.body[1].type, 'IfStmt');
+    assert.equal(ast.body[1].condition.type, 'CompareCondition');
+    assert.equal(ast.body[1].thenBody[0].type, 'TurnStmt');
+});
+
+runTest('builds AST for assignment and function definition/call', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'create', 'step', '=', '5',
+        'create', 'line', '(', 'n', ')', '(', 'forward', 'n', ')',
+        'line', '(', 'step', '+', '2', ')',
+    ]);
+    assert.equal(ast.type, 'Program');
+    assert.equal(ast.body.length, 3);
+    assert.equal(ast.body[0].type, 'AssignmentStmt');
+    assert.equal(ast.body[1].type, 'FunctionDefStmt');
+    assert.deepEqual(ast.body[1].params, ['n']);
+    assert.equal(ast.body[2].type, 'FunctionCallStmt');
+    assert.equal(ast.body[2].args.length, 1);
+});
+
+runTest('astToLegacyQueue resolves variables and function calls', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'create', 'step', '=', '5',
+        'create', 'line', '(', 'n', ')', '(', 'forward', 'n', ')',
+        'line', '(', 'step', '+', '2', ')',
+        'step', '=', 'step', '+', '3',
+        'forward', 'step',
+    ]);
+    const queue = interpreter.astToLegacyQueue(ast);
+    assert.equal(queue.length, 2);
+    assert.equal(queue[0].type, 'MOVE');
+    assert.equal(queue[0].value, 7);
+    assert.equal(queue[1].type, 'MOVE');
+    assert.equal(queue[1].value, 8);
+});
+
+runTest('parseCodeToAst keeps span metadata', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parser.parseCodeToAst('forward 10\nright 90');
+    assert.equal(ast.type, 'Program');
+    assert.ok(ast.span);
+    assert.equal(ast.body[0].type, 'MoveStmt');
+    assert.ok(ast.body[0].span);
+    assert.equal(ast.body[0].span.start.line, 1);
+    assert.equal(ast.body[1].span.start.line, 2);
+});
+
+runTest('parses game statement into AST', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst(['грати', '(', 'forward', '1', ')']);
+    assert.equal(ast.type, 'Program');
+    assert.equal(ast.body.length, 1);
+    assert.equal(ast.body[0].type, 'GameStmt');
+    assert.equal(ast.body[0].body.length, 1);
+    assert.equal(ast.body[0].body[0].type, 'MoveStmt');
+});
+
+runTest('game statement is rejected at execution adapter stage for now', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst(['грати', '(', 'forward', '1', ')']);
+    assert.throws(
+        () => interpreter.astToLegacyQueue(ast),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'GAME_NOT_SUPPORTED_HERE'
+    );
+});
+
+await runAsyncTest('game loop starts and stops via stopExecution', async () => {
+    const interpreter = createInterpreter();
+    const runPromise = interpreter.executeCommands('грати ( вперед 1 )');
+    setTimeout(() => interpreter.stopExecution(), 120);
+    await assert.rejects(
+        runPromise,
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'EXECUTION_STOPPED_BY_USER'
+    );
+});
+
+runTest('ast runtime error keeps line and column from span', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parser.parseCodeToAst('create x = 1\nforward missing');
+    assert.throws(
+        () => interpreter.astToLegacyQueue(ast),
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.messageKey === 'UNDEFINED_VARIABLE'
+            && error.line === 2
+            && typeof error.column === 'number'
+    );
 });
 
 runTest('repeat with assignment expands with updated variable values per iteration', () => {
@@ -249,6 +431,47 @@ runTest('throws on invalid goto syntax', () => {
         () => interpreter.parseTokens(['перейти', 'в', '100']),
         (error) => error && error.name === 'RavlykError'
     );
+});
+
+await runAsyncTest('stopExecution clears game loop timer immediately', async () => {
+    const interpreter = createInterpreter();
+    const runPromise = interpreter.executeCommands('game ( forward 1 )');
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    interpreter.stopExecution();
+    assert.equal(interpreter.gameLoopTimerId, null);
+    await assert.rejects(
+        runPromise,
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'EXECUTION_STOPPED_BY_USER'
+    );
+});
+
+await runAsyncTest('game loop keeps environment state between ticks', async () => {
+    const interpreter = createInterpreter();
+    const initialY = interpreter.state.y;
+    const runPromise = interpreter.executeCommands('create step = 1 game ( forward step step = step + 1 )');
+    await new Promise((resolve) => setTimeout(resolve, 125));
+    interpreter.stopExecution();
+    await assert.rejects(
+        runPromise,
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'EXECUTION_STOPPED_BY_USER'
+    );
+    const delta = initialY - interpreter.state.y;
+    assert.ok(delta >= 3, `expected accumulated movement >= 3, got ${delta}`);
+});
+
+runTest('lesson baseline snippets still parse and build executable queue', () => {
+    const interpreter = createInterpreter();
+    const samples = [
+        'repeat 4 ( forward 100 right 90 )',
+        'repeat 36 ( forward 10 right 10 )',
+        'create square(side) ( repeat 4 ( forward side right 90 ) ) square(80)',
+    ];
+    for (const code of samples) {
+        const ast = interpreter.parser.parseCodeToAst(code);
+        const queue = interpreter.astToLegacyQueue(ast);
+        assert.ok(Array.isArray(queue));
+        assert.ok(queue.length > 0);
+    }
 });
 
 console.log('Parser tests completed.');
