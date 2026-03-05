@@ -38,10 +38,18 @@ Core modules:
 - `manual.html`: full language manual.
 - `lessons.html`: tutorial lessons.
 - `resources.html`: additional resources.
+- `quiz.html`: quiz page with random question selection by topic.
+- `teacher_guidelines.html`: teacher-oriented pedagogical page.
+- `advice_for_parents.html`: parent-oriented pedagogical page.
 - `css/`: page styles (`global.css`, `main-editor.css`, `manual.css`, `lessons.css`, `resources.css`, `accessibility.css`).
+- `css/quiz.css`: quiz page styles.
+- `css/teacher-guidelines.css`: teacher page styles.
+- `css/parents.css`: parents page styles.
 - `js/main.js`: main page orchestration and event wiring.
 - `js/accessibility.js`: accessibility toggles, persistence, focus behavior.
 - `js/common.js`: shared page navigation helpers.
+- `js/quizBank.js`: quiz question banks (30 per topic).
+- `js/quizPage.js`: quiz runtime (topic picker, random 10 questions, option shuffle, scoring).
 - `tests/parser.test.js`: parser/interpreter logic tests.
 - `tests/ui.test.js`: UI utility tests.
 - `tests/e2e/*`: Playwright smoke tests.
@@ -176,6 +184,7 @@ Behavior:
 
 Responsibilities:
 - toolbar actions (run/stop/clear/save/share/grid/help),
+- current short labels: `Запустити`, `Стоп`, `Скинути`, `Сітка`, `Довідка`, `Малюнок`, `Код`, `Поділитися`,
 - editor line numbers and active/error line highlighting,
 - help/confirm modals,
 - examples launcher,
@@ -242,7 +251,8 @@ The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 - help modal (`Esc`, focus return),
 - accessibility panel (focus containment + persistence),
 - arrow-key scroll blocking in `грати`,
-- smoke execution via example block + stop.
+- smoke execution via example block + stop,
+- mobile/tablet workspace tab switching keeps canvas content (no reset on `Редактор` <-> `Полотно` switch).
 
 Projects in `playwright.config.js`:
 - `chromium` (desktop),
