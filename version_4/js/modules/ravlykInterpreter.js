@@ -37,6 +37,7 @@ export class RavlykInterpreter {
             moveSpeed: DEFAULT_MOVE_PIXELS_PER_SECOND,
             turnSpeed: DEFAULT_TURN_DEGREES_PER_SECOND,
             gameTickMs: 50,
+            nonGameExecutionMode: "queue",
         };
 
         this.isExecuting = false;
@@ -456,6 +457,10 @@ export class RavlykInterpreter {
         return false;
     }
 
+    hasGameStatementInBody(body) {
+        return this.hasGameStatement({ type: "Program", body: body || [] });
+    }
+
     validateGameProgramContract(programAst) {
         if (!programAst || !Array.isArray(programAst.body)) return;
         const topLevelStatements = programAst.body;
@@ -468,14 +473,14 @@ export class RavlykInterpreter {
         for (const stmt of topLevelStatements) {
             if (!stmt || !stmt.type) continue;
             if (stmt.type === "GameStmt") {
-                if (this.hasGameStatement({ type: "Program", body: stmt.body || [] })) {
+                if (this.hasGameStatementInBody(stmt.body)) {
                     throw new RavlykError("GAME_MODE_NESTED_BLOCK");
                 }
                 continue;
             }
             if (stmt.type === "AssignmentStmt") continue;
             if (stmt.type === "FunctionDefStmt") {
-                if (this.hasGameStatement({ type: "Program", body: stmt.body || [] })) {
+                if (this.hasGameStatementInBody(stmt.body)) {
                     throw new RavlykError("GAME_MODE_NESTED_BLOCK");
                 }
                 continue;
@@ -647,23 +652,305 @@ export class RavlykInterpreter {
 
         try {
             const programAst = this.parser.parseCodeToAst(commandsString);
-            this.validateGameProgramContract(programAst);
-            if (this.hasGameStatement(programAst)) {
-                return await this.executeGameProgram(programAst);
-            }
-            this.commandQueue = this.astToLegacyQueue(programAst, {
-                emitAssignments: true,
-            });
-            this.executionEnv = new Environment(null);
-            return await this.runCommandQueue();
-        } catch (error) {
-            this.isExecuting = false;
-            this.commandIndicatorUpdater(null, -1);
-            throw error;
+            return await this.executeProgramAst(programAst);
         } finally {
             this.isExecuting = false;
             this.commandIndicatorUpdater(null, -1);
         }
+    }
+
+    async executeProgramAst(programAst) {
+        this.validateGameProgramContract(programAst);
+        if (this.shouldExecuteGameProgram(programAst)) {
+            return await this.executeGameProgram(programAst);
+        }
+        return await this.executeNonGameProgramAst(programAst);
+    }
+
+    shouldExecuteGameProgram(programAst) {
+        return this.hasGameStatement(programAst);
+    }
+
+    async executeNonGameProgramAst(programAst) {
+        const mode = this.getNonGameExecutionMode();
+        if (mode === "queue") {
+            return await this.executeNonGameProgramAstViaQueue(programAst);
+        }
+        if (mode === "ast_experimental") {
+            return await this.executeNonGameProgramAstViaAstExperimental(programAst);
+        }
+        throw new Error(`UNSUPPORTED_NON_GAME_EXECUTION_MODE:${mode}`);
+    }
+
+    evaluateAstCondition(condition, env) {
+        if (!condition || !condition.type) return false;
+        if (condition.type === "EdgeCondition") {
+            return this.isAtCanvasEdge();
+        }
+        if (condition.type === "KeyCondition") {
+            const expected = this.normalizeConditionKey(condition.key);
+            return this.pressedKeys.has(expected);
+        }
+        if (condition.type === "CompareCondition") {
+            const left = this.evalAstNumberExpression(condition.left, env);
+            const right = this.evalAstNumberExpression(condition.right, env);
+            if (!Number.isFinite(left) || !Number.isFinite(right)) return false;
+            if (condition.op === "=") return left === right;
+            if (condition.op === "!=") return left !== right;
+            if (condition.op === "<") return left < right;
+            if (condition.op === ">") return left > right;
+            if (condition.op === "<=") return left <= right;
+            if (condition.op === ">=") return left >= right;
+        }
+        return false;
+    }
+
+    async executeAstStatementsDirect(statements, env, functionDefs, callDepth = 0) {
+        return await this.executeAstStatementsCore(statements, env, functionDefs, "direct", callDepth);
+    }
+
+    buildPrimitiveAstRuntimeCommand(stmt, env) {
+        const output = [];
+        if (!this.handlePrimitiveAstStatement(stmt, env, "queue", output)) {
+            return null;
+        }
+        return output[0] || null;
+    }
+
+    async animateDirectRuntimeCommand(commandObject) {
+        return new Promise((resolve, reject) => {
+            let lastTimestamp = performance.now();
+
+            const processFrame = (timestamp) => {
+                if (this.shouldStop) {
+                    this.commandIndicatorUpdater(null, -1);
+                    this.executionEnv = null;
+                    reject(new RavlykError("EXECUTION_STOPPED_BY_USER"));
+                    return;
+                }
+
+                if (this.isPaused) {
+                    lastTimestamp = timestamp;
+                    this.animationFrameId = requestAnimationFrame(processFrame);
+                    return;
+                }
+
+                try {
+                    const deltaTime = this.config.animationEnabled ? (timestamp - lastTimestamp) / 1000 : Infinity;
+                    lastTimestamp = timestamp;
+                    const primitiveResult = this.executeRuntimePrimitiveCommand(commandObject, deltaTime);
+                    const commandDone = primitiveResult.handled ? primitiveResult.commandDone : true;
+
+                    this.updateRavlykVisualState();
+
+                    if (commandDone) {
+                        this.animationFrameId = null;
+                        resolve();
+                        return;
+                    }
+                    this.animationFrameId = requestAnimationFrame(processFrame);
+                } catch (error) {
+                    this.animationFrameId = null;
+                    reject(error);
+                }
+            };
+
+            this.animationFrameId = requestAnimationFrame(processFrame);
+        });
+    }
+
+    executeRuntimePrimitiveCommand(commandObject, deltaTime) {
+        switch (commandObject.type) {
+            case "PEN_UP": {
+                const commandDone = this.animatePen(commandObject, 1.2, deltaTime);
+                if (commandDone) this.state.isPenDown = false;
+                return { handled: true, commandDone };
+            }
+            case "PEN_DOWN": {
+                this.state.isPenDown = true;
+                const commandDone = this.animatePen(commandObject, 1.0, deltaTime);
+                return { handled: true, commandDone };
+            }
+            case "MOVE":
+                return { handled: true, commandDone: this.animateMove(commandObject, commandObject.value, deltaTime) };
+            case "MOVE_BACK":
+                return { handled: true, commandDone: this.animateMove(commandObject, -commandObject.value, deltaTime) };
+            case "TURN":
+            case "TURN_LEFT": {
+                this.state.isStuck = false;
+                this.boundaryWarningShown = false;
+                const angle = commandObject.type === "TURN" ? commandObject.value : -commandObject.value;
+                return { handled: true, commandDone: this.animateTurn(commandObject, angle, deltaTime) };
+            }
+            case "COLOR":
+                this.setColor(commandObject.value);
+                return { handled: true, commandDone: true };
+            case "GOTO":
+                this.performGoto(commandObject.x, commandObject.y);
+                return { handled: true, commandDone: true };
+            case "CLEAR":
+                this.clearScreen();
+                return { handled: true, commandDone: true };
+            default:
+                return { handled: false, commandDone: true };
+        }
+    }
+
+    async executeAstPrimitiveStatement(stmt, env, executionMode) {
+        if (executionMode === "animated") {
+            const primitiveCommand = this.buildPrimitiveAstRuntimeCommand(stmt, env);
+            if (!primitiveCommand) return false;
+            await this.animateDirectRuntimeCommand(primitiveCommand);
+            return true;
+        }
+        return this.handlePrimitiveAstStatement(stmt, env, "direct");
+    }
+
+    async executeAstStatementsCore(statements, env, functionDefs, executionMode, callDepth = 0) {
+        const astStatements = statements || [];
+        for (let stmtIndex = 0; stmtIndex < astStatements.length; stmtIndex++) {
+            const stmt = astStatements[stmtIndex];
+            if (!stmt || !stmt.type) continue;
+            try {
+                if (executionMode === "direct") {
+                    await this.waitForDirectExecutionResumeOrStop();
+                } else if (this.shouldStop) {
+                    throw new RavlykError("EXECUTION_STOPPED_BY_USER");
+                }
+                this.currentCommandIndex = stmtIndex;
+                this.commandIndicatorUpdater(stmt.type, stmtIndex, astStatements.length);
+
+                if (stmt.type === "AssignmentStmt") {
+                    const value = this.evalAstNumberExpression(stmt.expr, env);
+                    if (!Number.isFinite(value)) {
+                        throw new RavlykError("VARIABLE_VALUE_INVALID", stmt.name, String(value));
+                    }
+                    env.set(stmt.name, value);
+                    continue;
+                }
+
+                if (stmt.type === "FunctionDefStmt") {
+                    functionDefs.set(stmt.name, stmt);
+                    continue;
+                }
+
+                if (stmt.type === "FunctionCallStmt") {
+                    const def = functionDefs.get(stmt.name);
+                    if (!def) {
+                        throw new RavlykError("UNKNOWN_COMMAND", stmt.name);
+                    }
+                    if (callDepth > MAX_RECURSION_DEPTH) {
+                        throw new RavlykError("TOO_MANY_NESTED_REPEATS");
+                    }
+                    const localEnv = new Environment(env);
+                    for (let idx = 0; idx < def.params.length; idx++) {
+                        const paramName = def.params[idx];
+                        const argExpr = stmt.args[idx];
+                        const argValue = this.evalAstNumberExpression(argExpr, env);
+                        if (!Number.isFinite(argValue)) {
+                            throw new RavlykError("FUNCTION_ARGUMENT_INVALID", stmt.name, String(argValue));
+                        }
+                        localEnv.define(paramName, argValue);
+                    }
+                    await this.executeAstStatementsCore(def.body, localEnv, functionDefs, executionMode, callDepth + 1);
+                    continue;
+                }
+
+                if (await this.executeAstPrimitiveStatement(stmt, env, executionMode)) {
+                    continue;
+                }
+
+                if (stmt.type === "RepeatStmt") {
+                    const countValue = this.evalAstNumberExpression(stmt.count, env);
+                    if (!Number.isInteger(countValue) || countValue < 0) {
+                        throw new RavlykError("INVALID_REPEAT_COUNT", String(countValue));
+                    }
+                    if (countValue > MAX_REPEATS_IN_LOOP) {
+                        throw new RavlykError("TOO_MANY_REPEATS_IN_LOOP");
+                    }
+                    for (let idx = 0; idx < countValue; idx++) {
+                        await this.executeAstStatementsCore(stmt.body, env, functionDefs, executionMode, callDepth);
+                    }
+                    continue;
+                }
+
+                if (stmt.type === "IfStmt") {
+                    const isTrue = this.evaluateAstCondition(stmt.condition, env);
+                    const branch = isTrue ? stmt.thenBody : stmt.elseBody;
+                    await this.executeAstStatementsCore(branch, env, functionDefs, executionMode, callDepth);
+                    continue;
+                }
+
+                if (stmt.type === "GameStmt") {
+                    throw new RavlykError("GAME_NOT_SUPPORTED_HERE");
+                }
+            } catch (error) {
+                this.attachAstErrorLocation(error, stmt);
+                throw error;
+            }
+        }
+    }
+
+    async executeAstStatementsDirectAnimated(statements, env, functionDefs, callDepth = 0) {
+        return await this.executeAstStatementsCore(statements, env, functionDefs, "animated", callDepth);
+    }
+
+    async waitForDirectExecutionResumeOrStop() {
+        while (this.isPaused) {
+            if (this.shouldStop) {
+                throw new RavlykError("EXECUTION_STOPPED_BY_USER");
+            }
+            await new Promise((resolve) => setTimeout(resolve, 16));
+        }
+        if (this.shouldStop) {
+            throw new RavlykError("EXECUTION_STOPPED_BY_USER");
+        }
+    }
+
+    getNonGameExecutionMode() {
+        return this.config.nonGameExecutionMode;
+    }
+
+    setNonGameExecutionMode(mode) {
+        if (mode !== "queue" && mode !== "ast_experimental") {
+            throw new Error(`UNSUPPORTED_NON_GAME_EXECUTION_MODE:${mode}`);
+        }
+        this.config.nonGameExecutionMode = mode;
+    }
+
+    async executeNonGameProgramAstViaQueue(programAst) {
+        this.prepareNonGameProgramExecution(programAst);
+        return await this.runCommandQueue();
+    }
+
+    async executeNonGameProgramAstViaAstExperimental(programAst) {
+        // Fallback path for non-browser/unit runtimes without RAF.
+        if (this.config.animationEnabled && typeof requestAnimationFrame !== "function") {
+            return await this.executeNonGameProgramAstViaQueue(programAst);
+        }
+
+        if (this.shouldStop) {
+            throw new RavlykError("EXECUTION_STOPPED_BY_USER");
+        }
+        this.executionEnv = new Environment(null);
+        const functionDefs = new Map();
+        try {
+            if (this.config.animationEnabled) {
+                await this.executeAstStatementsDirectAnimated(programAst?.body, this.executionEnv, functionDefs, 0);
+            } else {
+                await this.executeAstStatementsDirect(programAst?.body, this.executionEnv, functionDefs, 0);
+            }
+            this.updateRavlykVisualState(true);
+        } finally {
+            this.executionEnv = null;
+        }
+    }
+
+    prepareNonGameProgramExecution(programAst) {
+        this.commandQueue = this.astToLegacyQueue(programAst, {
+            emitAssignments: true,
+        });
+        this.executionEnv = new Environment(null);
     }
 
     cloneCommand(command) {
@@ -778,94 +1065,72 @@ export class RavlykInterpreter {
                 const currentFrame = executionStack[executionStack.length - 1];
                 const currentCommandObject = currentFrame.commands[currentFrame.index];
                 this.currentCommandIndex = currentFrame.rootIndex ?? currentFrame.index;
-                this.commandIndicatorUpdater(currentCommandObject.original, this.currentCommandIndex);
+                this.commandIndicatorUpdater(
+                    currentCommandObject.original,
+                    this.currentCommandIndex,
+                    this.commandQueue.length
+                );
 
                 try {
                     const deltaTime = this.config.animationEnabled ? (timestamp - lastTimestamp) / 1000 : Infinity;
                     lastTimestamp = timestamp;
 
                     let commandDone = true;
-
-                    switch (currentCommandObject.type) {
-                        case "ASSIGN_AST": {
-                            const value = this.evalAstNumberExpression(currentCommandObject.expr, this.executionEnv);
-                            if (!Number.isFinite(value)) {
-                                throw new RavlykError("VARIABLE_VALUE_INVALID", currentCommandObject.name, String(value));
-                            }
-                            this.executionEnv.set(currentCommandObject.name, value);
-                            break;
-                        }
-                        case "PEN_UP":
-                            commandDone = this.animatePen(currentCommandObject, 1.2, deltaTime);
-                            if (commandDone) this.state.isPenDown = false;
-                            break;
-                        case "PEN_DOWN":
-                            this.state.isPenDown = true;
-                            commandDone = this.animatePen(currentCommandObject, 1.0, deltaTime);
-                            break;
-                        case "MOVE":
-                            commandDone = this.animateMove(currentCommandObject, currentCommandObject.value, deltaTime);
-                            break;
-                        case "MOVE_BACK":
-                            commandDone = this.animateMove(currentCommandObject, -currentCommandObject.value, deltaTime);
-                            break;
-                        case "TURN":
-                        case "TURN_LEFT":
-                            this.state.isStuck = false;
-                            this.boundaryWarningShown = false;
-                            const angle = currentCommandObject.type === "TURN" ? currentCommandObject.value : -currentCommandObject.value;
-                            commandDone = this.animateTurn(currentCommandObject, angle, deltaTime);
-                            break;
-                        case "COLOR":
-                            this.setColor(currentCommandObject.value);
-                            break;
-                        case "GOTO":
-                            this.performGoto(currentCommandObject.x, currentCommandObject.y);
-                            break;
-                        case "CLEAR":
-                            this.clearScreen();
-                            break;
-                        case "REPEAT":
-                            if (currentCommandObject.count <= 0 || !currentCommandObject.commands?.length) {
-                                commandDone = true;
+                    const primitiveResult = this.executeRuntimePrimitiveCommand(currentCommandObject, deltaTime);
+                    if (primitiveResult.handled) {
+                        commandDone = primitiveResult.commandDone;
+                    } else {
+                        switch (currentCommandObject.type) {
+                            case "ASSIGN_AST": {
+                                const value = this.evalAstNumberExpression(currentCommandObject.expr, this.executionEnv);
+                                if (!Number.isFinite(value)) {
+                                    throw new RavlykError("VARIABLE_VALUE_INVALID", currentCommandObject.name, String(value));
+                                }
+                                this.executionEnv.set(currentCommandObject.name, value);
                                 break;
                             }
+                            case "REPEAT":
+                                if (currentCommandObject.count <= 0 || !currentCommandObject.commands?.length) {
+                                    commandDone = true;
+                                    break;
+                                }
 
-                            if (typeof currentCommandObject.remainingIterations !== 'number') {
-                                currentCommandObject.remainingIterations = currentCommandObject.count;
-                            }
+                                if (typeof currentCommandObject.remainingIterations !== 'number') {
+                                    currentCommandObject.remainingIterations = currentCommandObject.count;
+                                }
 
-                            if (currentCommandObject.remainingIterations <= 0) {
-                                delete currentCommandObject.remainingIterations;
-                                commandDone = true;
-                            } else {
-                                currentCommandObject.remainingIterations -= 1;
-                                const oneIteration = currentCommandObject.commands.map((cmd) => this.cloneCommand(cmd));
-                                if (oneIteration.length > 0) {
+                                if (currentCommandObject.remainingIterations <= 0) {
+                                    delete currentCommandObject.remainingIterations;
+                                    commandDone = true;
+                                } else {
+                                    currentCommandObject.remainingIterations -= 1;
+                                    const oneIteration = currentCommandObject.commands.map((cmd) => this.cloneCommand(cmd));
+                                    if (oneIteration.length > 0) {
+                                        executionStack.push({
+                                            commands: oneIteration,
+                                            index: 0,
+                                            rootIndex: currentFrame.rootIndex ?? currentFrame.index,
+                                        });
+                                    }
+                                    commandDone = false;
+                                }
+                                break;
+                            case "IF": {
+                                const isTrue = this.evaluateIfCondition(currentCommandObject.condition);
+                                const branch = isTrue ? currentCommandObject.thenCommands : currentCommandObject.elseCommands;
+                                if (Array.isArray(branch) && branch.length > 0) {
                                     executionStack.push({
-                                        commands: oneIteration,
+                                        commands: branch.map((cmd) => this.cloneCommand(cmd)),
                                         index: 0,
                                         rootIndex: currentFrame.rootIndex ?? currentFrame.index,
                                     });
                                 }
-                                commandDone = false;
+                                break;
                             }
-                            break;
-                        case "IF": {
-                            const isTrue = this.evaluateIfCondition(currentCommandObject.condition);
-                            const branch = isTrue ? currentCommandObject.thenCommands : currentCommandObject.elseCommands;
-                            if (Array.isArray(branch) && branch.length > 0) {
-                                executionStack.push({
-                                    commands: branch.map((cmd) => this.cloneCommand(cmd)),
-                                    index: 0,
-                                    rootIndex: currentFrame.rootIndex ?? currentFrame.index,
-                                });
-                            }
-                            break;
+                            default:
+                                console.error("Unknown command type:", currentCommandObject);
+                                commandDone = true;
                         }
-                        default:
-                            console.error("Unknown command type:", currentCommandObject);
-                            commandDone = true;
                     }
 
                     this.updateRavlykVisualState();

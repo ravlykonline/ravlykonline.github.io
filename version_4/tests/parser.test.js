@@ -273,6 +273,324 @@ runTest('astToLegacyQueue keeps identifier expressions in IF condition for runti
     assert.equal(queue[1].condition.left.name, 'n');
 });
 
+runTest('prepareNonGameProgramExecution builds execution queue and env', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'create', 'n', '=', '1',
+        'forward', 'n',
+    ]);
+    interpreter.prepareNonGameProgramExecution(ast);
+    assert.ok(Array.isArray(interpreter.commandQueue));
+    assert.equal(interpreter.commandQueue.length, 2);
+    assert.equal(interpreter.commandQueue[0].type, 'ASSIGN_AST');
+    assert.equal(interpreter.commandQueue[1].type, 'MOVE');
+    assert.ok(interpreter.executionEnv);
+    assert.equal(typeof interpreter.executionEnv.get, 'function');
+});
+
+await runAsyncTest('executeProgramAst routes game programs to executeGameProgram', async () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'game', '(',
+            'forward', '1',
+        ')',
+    ]);
+    let gameCalled = false;
+    let prepareCalled = false;
+    let queueCalled = false;
+    interpreter.executeGameProgram = async () => {
+        gameCalled = true;
+        return 'GAME_PATH';
+    };
+    interpreter.prepareNonGameProgramExecution = () => {
+        prepareCalled = true;
+    };
+    interpreter.runCommandQueue = async () => {
+        queueCalled = true;
+        return 'QUEUE_PATH';
+    };
+
+    const result = await interpreter.executeProgramAst(ast);
+    assert.equal(result, 'GAME_PATH');
+    assert.equal(gameCalled, true);
+    assert.equal(prepareCalled, false);
+    assert.equal(queueCalled, false);
+});
+
+await runAsyncTest('executeProgramAst routes non-game programs to queue path', async () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'forward', '2',
+    ]);
+    let gameCalled = false;
+    let prepareCalled = false;
+    let queueCalled = false;
+    interpreter.executeGameProgram = async () => {
+        gameCalled = true;
+        return 'GAME_PATH';
+    };
+    interpreter.prepareNonGameProgramExecution = () => {
+        prepareCalled = true;
+    };
+    interpreter.runCommandQueue = async () => {
+        queueCalled = true;
+        return 'QUEUE_PATH';
+    };
+
+    const result = await interpreter.executeProgramAst(ast);
+    assert.equal(result, 'QUEUE_PATH');
+    assert.equal(gameCalled, false);
+    assert.equal(prepareCalled, true);
+    assert.equal(queueCalled, true);
+});
+
+await runAsyncTest('executeProgramAst delegates non-game flow to executeNonGameProgramAst', async () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'forward', '3',
+    ]);
+    let nonGameCalled = false;
+    let gameCalled = false;
+    interpreter.executeGameProgram = async () => {
+        gameCalled = true;
+        return 'GAME_PATH';
+    };
+    interpreter.executeNonGameProgramAst = async () => {
+        nonGameCalled = true;
+        return 'NON_GAME_PATH';
+    };
+
+    const result = await interpreter.executeProgramAst(ast);
+    assert.equal(result, 'NON_GAME_PATH');
+    assert.equal(nonGameCalled, true);
+    assert.equal(gameCalled, false);
+});
+
+await runAsyncTest('executeNonGameProgramAst dispatches queue mode via executeNonGameProgramAstViaQueue', async () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'forward', '3',
+    ]);
+    interpreter.getNonGameExecutionMode = () => 'queue';
+    let viaQueueCalled = false;
+    interpreter.executeNonGameProgramAstViaQueue = async () => {
+        viaQueueCalled = true;
+        return 'QUEUE_MODE_PATH';
+    };
+
+    const result = await interpreter.executeNonGameProgramAst(ast);
+    assert.equal(result, 'QUEUE_MODE_PATH');
+    assert.equal(viaQueueCalled, true);
+});
+
+await runAsyncTest('executeNonGameProgramAst throws on unsupported execution mode', async () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'forward', '3',
+    ]);
+    interpreter.getNonGameExecutionMode = () => 'ast';
+    await assert.rejects(
+        interpreter.executeNonGameProgramAst(ast),
+        (error) => error instanceof Error && String(error.message).includes('UNSUPPORTED_NON_GAME_EXECUTION_MODE:ast')
+    );
+});
+
+runTest('non-game execution mode can be read and set for supported mode', () => {
+    const interpreter = createInterpreter();
+    assert.equal(interpreter.getNonGameExecutionMode(), 'queue');
+    interpreter.setNonGameExecutionMode('queue');
+    assert.equal(interpreter.getNonGameExecutionMode(), 'queue');
+    interpreter.setNonGameExecutionMode('ast_experimental');
+    assert.equal(interpreter.getNonGameExecutionMode(), 'ast_experimental');
+});
+
+runTest('setNonGameExecutionMode rejects unsupported mode', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.setNonGameExecutionMode('ast'),
+        (error) => error instanceof Error && String(error.message).includes('UNSUPPORTED_NON_GAME_EXECUTION_MODE:ast')
+    );
+});
+
+await runAsyncTest('executeNonGameProgramAst dispatches ast_experimental mode', async () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'forward', '3',
+    ]);
+    interpreter.setNonGameExecutionMode('ast_experimental');
+    let astExperimentalCalled = false;
+    interpreter.executeNonGameProgramAstViaAstExperimental = async () => {
+        astExperimentalCalled = true;
+        return 'AST_EXPERIMENTAL_PATH';
+    };
+
+    const result = await interpreter.executeNonGameProgramAst(ast);
+    assert.equal(result, 'AST_EXPERIMENTAL_PATH');
+    assert.equal(astExperimentalCalled, true);
+});
+
+await runAsyncTest('ast_experimental falls back to queue path when RAF is unavailable', async () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'forward', '4',
+    ]);
+    interpreter.setNonGameExecutionMode('ast_experimental');
+    interpreter.setAnimationEnabled(true);
+    let queueCalled = false;
+    interpreter.executeNonGameProgramAstViaQueue = async () => {
+        queueCalled = true;
+        return 'QUEUE_FALLBACK';
+    };
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = undefined;
+    globalThis.cancelAnimationFrame = undefined;
+
+    try {
+        const result = await interpreter.executeNonGameProgramAstViaAstExperimental(ast);
+        assert.equal(result, 'QUEUE_FALLBACK');
+        assert.equal(queueCalled, true);
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+});
+
+await runAsyncTest('ast_experimental executes direct AST path when animation is disabled', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setNonGameExecutionMode('ast_experimental');
+    interpreter.setAnimationEnabled(false);
+
+    await interpreter.executeCommands('create n = 2 if n = 2 ( color blue ) else ( color red ) forward 3');
+
+    assert.equal(String(interpreter.state.color).toLowerCase(), '#0000ff');
+    assert.equal(interpreter.state.x, 400);
+    assert.equal(interpreter.state.y, 297);
+});
+
+await runAsyncTest('ast_experimental executes direct AST path when animation is enabled', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setNonGameExecutionMode('ast_experimental');
+    interpreter.setAnimationEnabled(true);
+    let queueCalled = false;
+    interpreter.executeNonGameProgramAstViaQueue = async () => {
+        queueCalled = true;
+        return 'QUEUE_FALLBACK';
+    };
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        await interpreter.executeCommands('forward 2');
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+
+    assert.equal(queueCalled, false);
+    assert.equal(interpreter.state.x, 400);
+    assert.ok(Math.abs(interpreter.state.y - 298) < 1e-6);
+});
+
+await runAsyncTest('ast_experimental direct path updates command indicator with progress', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setNonGameExecutionMode('ast_experimental');
+    interpreter.setAnimationEnabled(false);
+    const indicatorCalls = [];
+    interpreter.commandIndicatorUpdater = (command, index, total) => {
+        indicatorCalls.push({ command, index, total });
+    };
+
+    await interpreter.executeCommands('color blue forward 2');
+
+    const withTotal = indicatorCalls.filter((entry) => Number.isInteger(entry.total));
+    assert.ok(withTotal.length >= 2);
+    assert.equal(withTotal[0].index, 0);
+    assert.equal(withTotal[0].total, 2);
+    assert.equal(withTotal[1].index, 1);
+    assert.equal(withTotal[1].total, 2);
+});
+
+await runAsyncTest('ast_experimental direct path respects stop flag before execution', async () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst([
+        'forward', '3',
+    ]);
+    interpreter.setNonGameExecutionMode('ast_experimental');
+    interpreter.setAnimationEnabled(false);
+    interpreter.shouldStop = true;
+
+    await assert.rejects(
+        interpreter.executeNonGameProgramAstViaAstExperimental(ast),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'EXECUTION_STOPPED_BY_USER'
+    );
+});
+
+await runAsyncTest('ast_experimental direct path supports pause and resume', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setNonGameExecutionMode('ast_experimental');
+    interpreter.setAnimationEnabled(false);
+    let pauseScheduled = false;
+    interpreter.commandIndicatorUpdater = (_command, index, total) => {
+        if (!pauseScheduled && index === 0 && total === 2) {
+            pauseScheduled = true;
+            interpreter.isPaused = true;
+            setTimeout(() => interpreter.resumeExecution(), 30);
+        }
+    };
+
+    const runPromise = interpreter.executeCommands('forward 1 forward 1');
+    await runPromise;
+
+    assert.equal(interpreter.state.x, 400);
+    assert.equal(interpreter.state.y, 298);
+});
+
+await runAsyncTest('ast_experimental direct path can be stopped while paused', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setNonGameExecutionMode('ast_experimental');
+    interpreter.setAnimationEnabled(false);
+    let pauseScheduled = false;
+    interpreter.commandIndicatorUpdater = (_command, index, total) => {
+        if (!pauseScheduled && index === 0 && total === 2) {
+            pauseScheduled = true;
+            interpreter.isPaused = true;
+            setTimeout(() => interpreter.stopExecution(), 30);
+        }
+    };
+
+    const runPromise = interpreter.executeCommands('forward 1 forward 1');
+    await assert.rejects(
+        runPromise,
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'EXECUTION_STOPPED_BY_USER'
+    );
+});
+
+runTest('shouldExecuteGameProgram detects game statements in AST', () => {
+    const interpreter = createInterpreter();
+    const gameAst = interpreter.parseTokensToAst([
+        'game', '(',
+            'forward', '1',
+        ')',
+    ]);
+    const nonGameAst = interpreter.parseTokensToAst([
+        'forward', '1',
+    ]);
+    assert.equal(interpreter.shouldExecuteGameProgram(gameAst), true);
+    assert.equal(interpreter.shouldExecuteGameProgram(nonGameAst), false);
+});
+
+await runAsyncTest('executeCommands resets execution state after parse error', async () => {
+    const interpreter = createInterpreter();
+    await assert.rejects(
+        interpreter.executeCommands('abracadabra'),
+        (error) => error && error.name === 'RavlykError'
+    );
+    assert.equal(interpreter.isExecuting, false);
+});
+
 runTest('builds AST for assignment and function definition/call', () => {
     const interpreter = createInterpreter();
     const ast = interpreter.parseTokensToAst([

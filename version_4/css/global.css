@@ -1,16 +1,72 @@
 /* css/global.css */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
-
 :root {
-    --focus-ring-outer: #ffb300;
-    --focus-ring-inner: #ffffff;
-    --focus-ring-outer-hc: #7dd3ff;
-    --focus-ring-inner-hc: #000000;
-}
-
-html.a11y-high-contrast {
-    --focus-ring-outer: var(--focus-ring-outer-hc);
-    --focus-ring-inner: var(--focus-ring-inner-hc);
+    --color-heading: #4b0082;
+    --color-link: #6a5acd;
+    --color-link-hover: #ff6347;
+    --color-focus: #ffb300;
+    --btn-primary-bg: #6a5acd;
+    --btn-primary-bg-hover: #5849a9;
+    --btn-success-bg: #32cd32;
+    --btn-success-bg-hover: #28a428;
+    --btn-warning-bg: #ffb300;
+    --btn-warning-bg-hover: #e6a100;
+    --btn-warning-text: #333333;
+    --btn-secondary-bg: #6c757d;
+    --btn-secondary-bg-hover: #5a6268;
+    --btn-danger-bg: #c0392b;
+    --btn-danger-bg-hover: #a93226;
+    --btn-info-bg: #1f5fa8;
+    --btn-info-bg-hover: #184f8f;
+    --btn-on-solid-text: #ffffff;
+    --msg-info-bg: #fff8e1;
+    --msg-info-fg: #3d2816;
+    --msg-info-accent: #8a3d00;
+    --msg-info-rgb: 138, 61, 0;
+    --msg-success-bg: #e8f5e9;
+    --msg-success-fg: #143018;
+    --msg-success-accent: #1b5e20;
+    --msg-success-rgb: 27, 94, 32;
+    --msg-error-bg: #ffebee;
+    --msg-error-fg: #2f1a1a;
+    --msg-error-accent: #b71c1c;
+    --msg-error-rgb: 255, 0, 0;
+    --surface-white: #ffffff;
+    --surface-editor: #fdfdff;
+    --border-muted: #dddddd;
+    --neutral-100: #f0f0f0;
+    --neutral-200: #e0e0e0;
+    --neutral-300: #cccccc;
+    --text-muted: #555555;
+    --accent-orange: #ffa500;
+    --accent-orange-strong: #ff8c00;
+    --accent-orange-text: #9a6d00;
+    --accent-teal: #4db6ac;
+    --accent-teal-dark: #00897b;
+    --accent-teal-deep: #00796b;
+    --surface-lilac-soft: #e7e3f3;
+    --surface-lilac-soft-strong: #d0c0e0;
+    --text-heading-deep: #300052;
+    --info-blue-bg: #e6f7ff;
+    --info-blue-accent: #1890ff;
+    --info-blue-text: #0050b3;
+    --code-block-bg: #f8f9fa;
+    --task-yellow-bg: #fffbe6;
+    --task-yellow-accent: #ffa500;
+    --task-yellow-text: #ff8c00;
+    --tip-cyan-bg: #e0f7fa;
+    --tip-cyan-accent: #4db6ac;
+    --tip-cyan-text: #00897b;
+    --state-disabled-bg: #cccccc;
+    --border-soft: #eeeeee;
+    --border-lilac-soft: #d1c4e9;
+    --surface-card-alt: #eef2f7;
+    --accent-blue-400: #42a5f5;
+    --accent-blue-600: #1e88e5;
+    --text-slate: #455a64;
+    --text-slate-light: #78909c;
+    --surface-slate-light: #f0f4f8;
+    --border-light: #e0e0e0;
+    --accent-tomato-soft: #ff8a65;
 }
 
 * {
@@ -20,48 +76,7 @@ html.a11y-high-contrast {
 }
 
 .a11y-high-contrast .modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    padding: 15px;
-}
-
-.modal-overlay__content {
-    background: #fff;
-    padding: 25px 30px;
-    border-radius: 12px;
-    min-width: 300px;
-    max-width: 500px;
-    width: 90%;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    text-align: left;
-}
-
-.modal-overlay__help {
-    background: #fff;
-    padding: 25px 30px;
-    border-radius: 12px;
-    min-width: 300px;
-    max-width: 500px;
-    width: 90%;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    text-align: left;
-}
-
-.modal-overlay__help-title {
-    margin-bottom: 20px;
-    color: #4b0082;
-    font-size: 1.6rem;
-}
-
-
-.modal-overlay__btn {
-    margin-top: 10px;
-    margin-right: 10px;
 }
 
 .a11y-high-contrast .modal-overlay .help-content {
@@ -85,7 +100,7 @@ html {
 }
 
 body {
-    font-family: 'Nunito', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
     background-color: #f0f8ff;
     color: #333;
     line-height: 1.6;
@@ -104,11 +119,20 @@ body {
     flex-direction: column;
 }
 
+.manual-lessons-buttons-main,
+.bottom-nav-buttons,
+.nav-buttons-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
 
 header.main-header { /* Змінено для уникнення конфлікту з header в page-wrapper */
     text-align: center;
     margin-bottom: 20px;
-    color: #4b0082;
+    color: var(--color-heading);
 }
 
 header.main-header h1 {
@@ -119,6 +143,22 @@ header.main-header h1 {
 header.main-header h2 {
     font-size: clamp(1rem, 3vw, 1.2rem);
     color: #555;
+}
+
+.course-header {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--color-heading);
+}
+
+.course-header h1 {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    margin-bottom: 5px;
+}
+
+.course-header p {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    color: var(--text-muted);
 }
 
 main.content-container { /* Для index.html, manual.html */
@@ -140,7 +180,8 @@ footer.main-footer {
 }
 
 /* --- Buttons --- */
-.btn {
+.btn,
+.main-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -156,57 +197,75 @@ footer.main-footer {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.btn i {
-    margin-right: 8px;
-}
 
-.btn i.icon-right {
-    margin-right: 0;
-    margin-left: 8px;
-}
-
-
-.btn:hover {
+.btn:hover,
+.main-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-a.btn:hover,
-a.btn:focus-visible {
-    color: inherit;
     text-decoration: none;
 }
 
-.btn:active {
+.btn:active,
+.main-btn:active {
     transform: translateY(0px) scale(0.98);
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
+.main-btn {
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-on-solid-text);
+}
+
+.main-btn:hover {
+    background-color: var(--btn-primary-bg-hover);
+}
+
+.main-btn.editor-btn {
+    background-color: var(--btn-success-bg);
+}
+
+.main-btn.editor-btn:hover {
+    background-color: var(--btn-success-bg-hover);
+}
+
+.main-btn i {
+    margin-right: 8px;
+}
+
 .btn-primary {
-    background-color: #6a5acd; /* Ліловий */
-    color: white;
+    background-color: var(--btn-primary-bg); /* Ліловий */
+    color: var(--btn-on-solid-text);
 }
 .btn-primary:hover {
-    background-color: #5849a9;
+    background-color: var(--btn-primary-bg-hover);
 }
 
 .btn-success {
-    background-color: #32cd32; /* Зелений */
-    color: white;
+    background-color: var(--btn-success-bg); /* Зелений */
+    color: var(--btn-on-solid-text);
 }
 .btn-success:hover {
-    background-color: #28a428;
+    background-color: var(--btn-success-bg-hover);
 }
 
 .btn-warning {
-    background-color: #ffb300; /* Жовтий/Помаранчевий */
-    color: #333;
+    background-color: var(--btn-warning-bg); /* Жовтий/Помаранчевий */
+    color: var(--btn-warning-text);
 }
 .btn-warning:hover {
-    background-color: #e6a100;
+    background-color: var(--btn-warning-bg-hover);
 }
 
-.btn:disabled, .btn[disabled] {
+.btn-secondary {
+    background-color: var(--btn-secondary-bg);
+    color: var(--btn-on-solid-text);
+}
+.btn-secondary:hover {
+    background-color: var(--btn-secondary-bg-hover);
+}
+
+.btn:disabled, .btn[disabled],
+.main-btn:disabled, .main-btn[disabled] {
     opacity: 0.5;
     cursor: not-allowed;
     filter: grayscale(0.2);
@@ -214,89 +273,43 @@ a.btn:focus-visible {
 }
 
 .btn-danger {
-    background-color: #ff6347; /* Томатний/Червоний */
-    color: white;
+    background-color: var(--btn-danger-bg); /* Darker red for AA contrast with white text */
+    color: var(--btn-on-solid-text);
 }
 .btn-danger:hover {
-    background-color: #e05239;
+    background-color: var(--btn-danger-bg-hover);
 }
 
 .btn-info {
-    background-color: #4a90e2; /* Синій */
-    color: white;
+    background-color: var(--btn-info-bg); /* Darker blue for AA contrast with white text */
+    color: var(--btn-on-solid-text);
 }
 .btn-info:hover {
-    background-color: #3a7bc8;
+    background-color: var(--btn-info-bg-hover);
 }
 
 
 /* --- Headings --- */
 h1, h2, h3, h4, h5, h6 {
-    color: #4b0082; /* Фіолетовий за замовчуванням для заголовків */
+    color: var(--color-heading); /* Фіолетовий за замовчуванням для заголовків */
 }
 
 /* --- Links --- */
 a {
-    color: #6a5acd;
+    color: var(--color-link);
     text-decoration: none;
     transition: color 0.2s;
 }
 a:hover {
-    color: #ff6347;
+    color: var(--color-link-hover);
     text-decoration: underline;
 }
 
 /* Accessibility */
 :focus-visible {
-  outline: 3px solid var(--focus-ring-outer);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
-  box-shadow: 0 0 0 2px var(--focus-ring-inner);
-  border-radius: 6px;
-}
-
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-[role="button"]:focus-visible,
-[tabindex]:not([tabindex="-1"]):focus-visible {
-    outline: 3px solid var(--focus-ring-outer);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 2px var(--focus-ring-inner);
-}
-
-.btn:focus-visible,
-.commands-tab:focus-visible,
-.tab-button:focus-visible,
-.example-block:focus-visible,
-.manual-page-btn:focus-visible,
-.main-btn:focus-visible,
-.toc-list a:focus-visible,
-.navigation-buttons__btn:focus-visible {
-    outline: 3px solid var(--focus-ring-outer);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 2px var(--focus-ring-inner), 0 0 0 5px rgba(0, 0, 0, 0.18);
-}
-
-.skip-link {
-    position: absolute;
-    left: 10px;
-    top: -60px;
-    background: #111;
-    color: #fff;
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: 2px solid #ffb300;
-    z-index: 30000;
-    text-decoration: none;
-    font-weight: 700;
-}
-
-.skip-link:focus,
-.skip-link:focus-visible {
-    top: 10px;
-    outline: 3px solid #7dd3ff;
+  border-radius: 4px; /* Optional: to match button/element radius */
 }
 
 /* Utility classes */
@@ -317,18 +330,18 @@ textarea:focus-visible,
 
 /* Specific global styles for Ravlyk if any element is shared across pages and not fitting in components */
 /* Глобальний контейнер для повідомлень - специфічний селектор */
-body > #global-message-display {
-    position: fixed !important;
-    top: 20px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 9999 !important;
-    width: 90% !important;
-    max-width: 500px !important;
-    animation: message-fade-in 0.3s ease-in-out !important;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
-    border-radius: 8px !important;
-    margin: 0 !important;
+#global-message-display {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    width: 90%;
+    max-width: 500px;
+    animation: message-fade-in 0.3s ease-in-out;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin: 0;
 }
 
 @keyframes message-fade-in {
@@ -336,146 +349,145 @@ body > #global-message-display {
     to { opacity: 1; transform: translate(-50%, 0); }
 }
 
+@keyframes section-fade-in-up {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* Стилі для всіх типів повідомлень з високою специфічністю */
-body #global-message-display,
-body #global-message-display.message-global,
-body #global-message-display.message-error-global,
-body #global-message-display.message-success-global,
-body #global-message-display.message-info-global {
-    font-size: 1.1rem !important;
-    font-weight: bold !important;
-    border-radius: 8px !important;
-    padding: 15px 20px !important;
-    border-left-width: 6px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 15px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-    width: 100% !important;
-    letter-spacing: 0.2px !important;
+#global-message-display,
+#global-message-display.message-global,
+#global-message-display.message-error-global,
+#global-message-display.message-success-global,
+#global-message-display.message-info-global {
+    font-size: 1.1rem;
+    border-radius: 8px;
+    padding: 15px 20px;
+    border-left-width: 6px;
+    border-left-style: solid;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    width: 100%;
+    letter-spacing: 0.2px;
+    --message-accent: var(--msg-info-accent);
 }
 
 /* Стилі для повідомлень про помилки */
-body #global-message-display.message-error-global {
-    background: #ffebee !important;
-    color: #d50000 !important;
-    border-left-style: solid !important;
-    border-left-color: #d50000 !important;
-    background-image: linear-gradient(to right, rgba(255, 0, 0, 0.1), rgba(255, 0, 0, 0.02)) !important;
+#global-message-display.message-error-global {
+    background: var(--msg-error-bg);
+    color: var(--msg-error-fg);
+    border-left-color: var(--msg-error-accent);
+    background-image: linear-gradient(to right, rgba(var(--msg-error-rgb), 0.1), rgba(var(--msg-error-rgb), 0.02));
+    --message-accent: var(--msg-error-accent);
 }
 
 /* Стилі для успішних повідомлень */
-body #global-message-display.message-success-global {
-    background: #e8f5e9 !important;
-    color: #00c853 !important;
-    border-left-style: solid !important;
-    border-left-color: #00c853 !important;
-    background-image: linear-gradient(to right, rgba(0, 200, 83, 0.1), rgba(0, 200, 83, 0.02)) !important;
+#global-message-display.message-success-global {
+    background: var(--msg-success-bg);
+    color: var(--msg-success-fg);
+    border-left-color: var(--msg-success-accent);
+    background-image: linear-gradient(to right, rgba(var(--msg-success-rgb), 0.12), rgba(var(--msg-success-rgb), 0.03));
+    --message-accent: var(--msg-success-accent);
 }
 
 /* Стилі для інформаційних повідомлень */
-body #global-message-display.message-info-global {
-    background: #fff8e1 !important;
-    color: #ff6d00 !important;
-    border-left-style: solid !important;
-    border-left-color: #ff6d00 !important;
-    background-image: linear-gradient(to right, rgba(255, 109, 0, 0.1), rgba(255, 109, 0, 0.02)) !important;
+#global-message-display.message-info-global {
+    background: var(--msg-info-bg);
+    color: var(--msg-info-fg);
+    border-left-color: var(--msg-info-accent);
+    background-image: linear-gradient(to right, rgba(var(--msg-info-rgb), 0.12), rgba(var(--msg-info-rgb), 0.03));
+    --message-accent: var(--msg-info-accent);
 }
 
 /* Стилі для повідомлень про доступність */
-body #global-message-display.message-a11y-global {
-    background: #f5f5f5 !important;
-    color: #333333 !important;
-    border-left-style: solid !important;
-    border-left-color: #333333 !important;
-    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02)) !important;
-    font-weight: 500 !important;
+#global-message-display.message-a11y-global {
+    background: #f5f5f5;
+    color: #333333;
+    border-left-color: #333333;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02));
+    --message-accent: #333333;
 }
 
 /* Стилі для тексту повідомлення */
-body #global-message-display .message-text-global {
-    flex: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
+#global-message-display .message-text-global {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+#global-message-display .message-content-global {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    line-height: 1.35;
+}
+
+#global-message-display .message-title-global {
+    color: var(--message-accent);
+    font-size: 0.86rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+}
+
+#global-message-display .message-main-global {
+    color: inherit;
+    font-weight: 600;
+    word-break: break-word;
 }
 
 /* Стилі для іконок з захистом від перезаписування */
-body #global-message-display .message-text-global i,
-html.a11y-high-contrast body #global-message-display .message-text-global i,
-html.a11y-sans-serif-font body #global-message-display .message-text-global i,
-html.a11y-larger-text body #global-message-display .message-text-global i,
-html.a11y-increased-spacing body #global-message-display .message-text-global i,
-html.a11y-reduce-animations body #global-message-display .message-text-global i {
-    font-size: 1.3rem !important;
-    font-family: "Font Awesome 5 Free" !important;
-    font-style: normal !important;
-    font-weight: 900 !important;
-    display: inline-block !important;
-    text-rendering: auto !important;
-    -webkit-font-smoothing: antialiased !important;
-    -moz-osx-font-smoothing: grayscale !important;
-}
-
-/* Іконка для помилок */
-body #global-message-display.message-error-global i {
-    color: #d50000 !important;
-}
-
-/* Іконка для успішних повідомлень */
-body #global-message-display.message-success-global i {
-    color: #00c853 !important;
-}
-
-/* Іконка для інформаційних повідомлень */
-body #global-message-display.message-info-global i {
-    color: #ff6d00 !important;
+#global-message-display .message-text-global i,
+html.a11y-high-contrast #global-message-display .message-text-global i,
+html.a11y-sans-serif-font #global-message-display .message-text-global i,
+html.a11y-larger-text #global-message-display .message-text-global i,
+html.a11y-increased-spacing #global-message-display .message-text-global i,
+html.a11y-reduce-animations #global-message-display .message-text-global i {
+    font-size: 1.05rem;
+    font-family: "Font Awesome 5 Free";
+    font-style: normal;
+    font-weight: 900;
+    display: inline-block;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin-top: 2px;
+    color: var(--message-accent);
 }
 
 /* Стилі для кнопки закриття */
-body #global-message-display .message-close-btn-global {
-    background: transparent !important;
-    color: inherit !important;
-    border: none !important;
-    border-radius: 50% !important;
-    width: 26px !important;
-    height: 26px !important;
-    font-size: 16px !important;
-    font-weight: bold !important;
-    cursor: pointer !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: all 0.2s ease !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    opacity: 0.7 !important;
+#global-message-display .message-icon-global {
+    color: var(--message-accent);
+}
+
+#global-message-display .message-close-btn-global {
+    background: transparent;
+    color: inherit;
+    border: none;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+    margin: 0;
+    opacity: 0.8;
 }
 
 /* Ефект при наведенні на кнопку закриття */
-body #global-message-display .message-close-btn-global:hover {
-    background-color: rgba(0, 0, 0, 0.1) !important;
-    transform: scale(1.1) !important;
-    opacity: 1 !important;
-}
-
-/* Ефекти наведення для кнопок закриття різних типів повідомлень */
-body #global-message-display.message-error-global .message-close-btn-global:hover {
-    background-color: rgba(213, 0, 0, 0.1) !important;
-}
-body #global-message-display.message-success-global .message-close-btn-global:hover {
-    background-color: rgba(0, 200, 83, 0.1) !important;
-}
-body #global-message-display.message-info-global .message-close-btn-global:hover {
-    background-color: rgba(255, 109, 0, 0.1) !important;
-}
-body #global-message-display.message-a11y-global .message-close-btn-global:hover {
-    background-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-.hidden {
-    display: none !important; /* !important is okay for a utility like this */
+#global-message-display .message-close-btn-global:hover {
+    background-color: color-mix(in srgb, var(--message-accent) 12%, transparent);
+    transform: scale(1.1);
+    opacity: 1;
 }
 
 .modal-overlay {
@@ -509,6 +521,24 @@ body #global-message-display.message-a11y-global .message-close-btn-global:hover
     transform: scale(0.95); /* Для анімації появи */
     transition: transform 0.3s ease;
 }
+
+.help-content {
+    background: var(--surface-white);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    padding: 28px 32px 24px 32px;
+}
+
+.modal-overlay .help-content ul {
+    margin-bottom: 25px;
+    padding-left: 25px;
+    list-style-type: '🐌';
+}
+
+.modal-overlay .help-content li {
+    margin-bottom: 8px;
+}
+
 .modal-overlay:not(.hidden) .modal-content {
     transform: scale(1);
 }
@@ -522,19 +552,6 @@ body #global-message-display.message-a11y-global .message-close-btn-global:hover
 .modal-content p {
     margin-bottom: 20px;
     line-height: 1.6;
-}
-
-.modal-content,
-.modal-content p,
-.modal-content li,
-.modal-content label,
-.modal-content strong,
-.modal-content small {
-    color: #1f2937;
-}
-
-.modal-content .modal-title {
-    color: #2f1364;
 }
 .modal-actions {
     display: flex;

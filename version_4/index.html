@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="uk">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Равлик - українська мова програмування для дітей. Навчайтеся програмувати через малювання геометричних фігур." />
-    <meta name="keywords" content="равлик, програмування для дітей, вивчення програмування, українська мова програмування, черепашача графіка, малювання кодом, черепашина графіка, черепашка, програмування черепашка" />
+    <meta name="description" content="Р Р°РІР»РёРє - СѓРєСЂР°С—РЅСЃСЊРєР° РјРѕРІР° РїСЂРѕРіСЂР°РјСѓРІР°РЅРЅСЏ РґР»СЏ РґС–С‚РµР№. РќР°РІС‡Р°Р№С‚РµСЃСЏ РїСЂРѕРіСЂР°РјСѓРІР°С‚Рё С‡РµСЂРµР· РјР°Р»СЋРІР°РЅРЅСЏ РіРµРѕРјРµС‚СЂРёС‡РЅРёС… С„С–РіСѓСЂ." />
+    <meta name="keywords" content="СЂР°РІР»РёРє, РїСЂРѕРіСЂР°РјСѓРІР°РЅРЅСЏ РґР»СЏ РґС–С‚РµР№, РІРёРІС‡РµРЅРЅСЏ РїСЂРѕРіСЂР°РјСѓРІР°РЅРЅСЏ, СѓРєСЂР°С—РЅСЃСЊРєР° РјРѕРІР° РїСЂРѕРіСЂР°РјСѓРІР°РЅРЅСЏ, С‡РµСЂРµРїР°С€Р°С‡Р° РіСЂР°С„С–РєР°, РјР°Р»СЋРІР°РЅРЅСЏ РєРѕРґРѕРј, С‡РµСЂРµРїР°С€РёРЅР° РіСЂР°С„С–РєР°, С‡РµСЂРµРїР°С€РєР°, РїСЂРѕРіСЂР°РјСѓРІР°РЅРЅСЏ С‡РµСЂРµРїР°С€РєР°" />
     <link rel="canonical" href="https://ravlyk.org/" />
-    <meta name="author" content="Равлик" />
+    <meta name="author" content="Р Р°РІР»РёРє" />
     <meta name="robots" content="index, follow" />
-    <title>Равлик - онлайн програмування для дітей</title>
+    <title>Р Р°РІР»РёРє - РѕРЅР»Р°Р№РЅ РїСЂРѕРіСЂР°РјСѓРІР°РЅРЅСЏ РґР»СЏ РґС–С‚РµР№</title>
     <link rel="stylesheet" type="text/css" href="css/global.css" />
     <link rel="stylesheet" type="text/css" href="css/accessibility.css" />
     <link rel="stylesheet" type="text/css" href="css/main-editor.css" />
@@ -30,144 +30,110 @@
   </head>
 
   <body>
-    <a class="skip-link" href="#main-content">Перейти до основного вмісту</a>
     <header class="main-header">
-      <h1>🐌 Малюй з Равликом! 🐌</h1>
-      <h2>РАВЛИК - твоя перша текстова мова програмування!</h2>
+      <h1>рџђЊ РњР°Р»СЋР№ Р· Р Р°РІР»РёРєРѕРј! рџђЊ</h1>
+      <h2>Р РђР’Р›РРљ - С‚РІРѕСЏ РїРµСЂС€Р° С‚РµРєСЃС‚РѕРІР° РјРѕРІР° РїСЂРѕРіСЂР°РјСѓРІР°РЅРЅСЏ!</h2>
     </header>
-    <main id="main-content" class="content-container">
+    <main class="content-container">
       <div class="toolbar">
-        <button id="run-btn" class="btn btn-success" title="Запусти програму (Ctrl/Cmd/Shift + Enter)" aria-label="Запусти програму"><i class="fas fa-play" aria-hidden="true"></i><span class="toolbar-label">Запустити</span></button>
-        <button id="stop-btn" class="btn btn-warning" title="Зупинити програму (Esc)" aria-label="Зупинити програму"><i class="fas fa-stop-circle" aria-hidden="true"></i><span class="toolbar-label">Стоп</span></button>
-        <button id="clear-btn" class="btn btn-danger" title="Скинути полотно і код" aria-label="Скинути полотно і код"><i class="fas fa-trash-alt" aria-hidden="true"></i><span class="toolbar-label">Скинути</span></button>
-        <button id="grid-btn" class="btn btn-primary" title="Увімкнути або вимкнути координатну сітку" aria-label="Перемкнути сітку" aria-pressed="false"><i class="fas fa-th" aria-hidden="true"></i><span class="toolbar-label">Сітка</span></button>
-        <button id="help-btn" class="btn btn-primary" title="Пояснення команд" aria-label="Пояснення команд"><i class="fas fa-question-circle" aria-hidden="true"></i><span class="toolbar-label">Довідка</span></button>
-        <button id="save-btn" class="btn btn-info" title="Зберегти малюнок як PNG" aria-label="Зберегти малюнок як PNG"><i class="fas fa-save" aria-hidden="true"></i><span class="toolbar-label">Малюнок</span></button>
-        <button id="save-code-btn" class="btn btn-info" title="Експортувати код у TXT" aria-label="Експортувати код у TXT"><i class="fas fa-file-download" aria-hidden="true"></i><span class="toolbar-label">Код</span></button>
-        <button id="share-btn" class="btn btn-info" title="Скопіювати посилання з кодом" aria-label="Скопіювати посилання з кодом"><i class="fas fa-link" aria-hidden="true"></i><span class="toolbar-label">Поділитися</span></button>
-      </div>
-      <div class="workspace-tabs" role="tablist" aria-label="Робоча область редактора">
-        <button class="workspace-tab active" id="workspace-editor-tab" role="tab" aria-selected="true" aria-controls="workspace-editor-panel" data-workspace-target="editor">Редактор</button>
-        <button class="workspace-tab" id="workspace-canvas-tab" role="tab" aria-selected="false" aria-controls="workspace-canvas-panel" data-workspace-target="canvas" tabindex="-1">Полотно</button>
+        <button id="run-btn" class="btn btn-success" title="Р—Р°РїСѓСЃС‚Рё РїСЂРѕРіСЂР°РјСѓ (Ctrl/Cmd/Shift + Enter)" aria-label="Р—Р°РїСѓСЃС‚Рё РїСЂРѕРіСЂР°РјСѓ">рџљЂ Р—Р°РїСѓСЃС‚РёС‚Рё</button>
+        <button id="stop-btn" class="btn btn-warning" title="Р—СѓРїРёРЅРёС‚Рё РїСЂРѕРіСЂР°РјСѓ (Esc)" aria-label="Р—СѓРїРёРЅРёС‚Рё РїСЂРѕРіСЂР°РјСѓ">рџ›‘ Р—СѓРїРёРЅРёС‚Рё</button>
+        <button id="clear-btn" class="btn btn-danger" title="РћС‡РёСЃС‚РёС‚Рё РјР°Р»СЋРЅРѕРє С‚Р° РєРѕРґ" aria-label="РћС‡РёСЃС‚РёС‚Рё РјР°Р»СЋРЅРѕРє С‚Р° РєРѕРґ">рџ§№ РћС‡РёСЃС‚РёС‚Рё</button>
+        <button id="save-btn" class="btn btn-info" title="Р—Р±РµСЂРµРіС‚Рё РјР°Р»СЋРЅРѕРє" aria-label="Р—Р±РµСЂРµРіС‚Рё РјР°Р»СЋРЅРѕРє">рџ’ѕ Р—Р±РµСЂРµРіС‚Рё</button>
+        <button id="help-btn" class="btn btn-primary" title="РџРѕСЏСЃРЅРµРЅРЅСЏ РєРѕРјР°РЅРґ" aria-label="РџРѕСЏСЃРЅРµРЅРЅСЏ РєРѕРјР°РЅРґ">рџ›€ Р”РѕРІС–РґРєР°</button>
       </div>
       <div class="main-area">
-        <section class="code-box active-panel" id="workspace-editor-panel" role="tabpanel" aria-labelledby="workspace-editor-tab" data-workspace-panel="editor">
-          <h3 id="code-header" class="area-header code-header">Команди для равлика</h3>
-          <div class="editor-shell">
-            <div id="code-active-line" class="code-active-line" aria-hidden="true"></div>
-            <div id="code-error-line" class="code-error-line hidden" aria-hidden="true"></div>
-            <div id="code-line-numbers" class="code-line-numbers" aria-hidden="true">1</div>
-            <textarea id="code-editor" spellcheck="false" aria-label="Поле для команд" placeholder="Наприклад:&#10;колір синій&#10;вперед 100&#10;праворуч 90&#10;вперед 50"></textarea>
-          </div>
+        <section class="code-box" aria-labelledby="code-header">
+          <h3 id="code-header" class="area-header code-header">РљРѕРјР°РЅРґРё РґР»СЏ СЂР°РІР»РёРєР°</h3>
+          <textarea id="code-editor" spellcheck="false" aria-label="РџРѕР»Рµ РґР»СЏ РєРѕРјР°РЅРґ" placeholder="РќР°РїСЂРёРєР»Р°Рґ:&#10;РєРѕР»С–СЂ СЃРёРЅС–Р№&#10;РІРїРµСЂРµРґ 100&#10;РїСЂР°РІРѕСЂСѓС‡ 90&#10;РІРїРµСЂРµРґ 50"></textarea>
         </section>
-        <section class="canvas-box" id="workspace-canvas-panel" role="tabpanel" aria-labelledby="workspace-canvas-tab" data-workspace-panel="canvas">
-          <h3 id="canvas-header" class="area-header canvas-header">Малюнок равлика</h3>
-          <canvas id="ravlyk-canvas" role="img" aria-label="Полотно для малювання Равлика"></canvas>
-          <canvas id="ravlyk-grid-canvas" aria-hidden="true"></canvas>
+        <section class="canvas-box" aria-labelledby="canvas-header">
+          <h3 id="canvas-header" class="area-header canvas-header">РњР°Р»СЋРЅРѕРє СЂР°РІР»РёРєР°</h3>
+          <canvas id="ravlyk-canvas" role="img" aria-label="РџРѕР»РѕС‚РЅРѕ РґР»СЏ РјР°Р»СЋРІР°РЅРЅСЏ Р Р°РІР»РёРєР°"></canvas>
           </section>
       </div>
       <section class="examples" aria-labelledby="examples-title">
-        <h2 id="examples-title">Спробуй ці приклади!</h2>
-        <p class="examples-swipe-hint">Свайпни вліво або вправо, щоб побачити більше прикладів →</p>
+        <h2 id="examples-title">РЎРїСЂРѕР±СѓР№ С†С– РїСЂРёРєР»Р°РґРё!</h2>
+        <p class="examples-swipe-hint">Свайпни вліво або вправо, або використовуй стрілки нижче, щоб побачити більше прикладів.</p>
+        <div class="examples-nav" aria-label="Навігація прикладів">
+          <button id="examples-prev-btn" class="btn btn-primary examples-nav-btn" type="button" aria-label="Попередній приклад">
+            <i class="fas fa-arrow-left" aria-hidden="true"></i>
+            <span>Назад</span>
+          </button>
+          <button id="examples-next-btn" class="btn btn-primary examples-nav-btn" type="button" aria-label="Наступний приклад">
+            <span>Далі</span>
+            <i class="fas fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
         <div class="example-blocks">
-          <div class="example-block" tabindex="0" role="button" data-code="повторити 4 ( вперед 100 праворуч 90 )">Квадрат</div>
-          <div class="example-block" tabindex="0" role="button" data-code="повторити 36 ( вперед 10 праворуч 10 )">Коло</div>
-          <div class="example-block" tabindex="0" role="button" data-code="колір червоний повторити 3 ( вперед 100 праворуч 120 )">Червоний трикутник</div>
-          <div class="example-block" tabindex="0" role="button" data-code="колір синій повторити 8 ( вперед 50 праворуч 45 )">Синій восьмикутник</div>
-          <div class="example-block" tabindex="0" role="button" data-code="повторити 120 ( вперед 6 якщо край ( назад 8 праворуч 135 ) )">Відбиття від стіни</div>
-          <div class="example-block" tabindex="0" role="button" data-code="грати (&#10;  якщо клавіша &quot;вгору&quot; ( вперед 5 )&#10;  якщо клавіша &quot;ліво&quot; ( ліворуч 10 )&#10;  якщо клавіша &quot;право&quot; ( праворуч 10 )&#10;)">Керуй стрілками</div>
+          <div class="example-block" tabindex="0" role="button" data-code="РїРѕРІС‚РѕСЂРёС‚Рё 4 ( РІРїРµСЂРµРґ 100 РїСЂР°РІРѕСЂСѓС‡ 90 )">РљРІР°РґСЂР°С‚</div>
+          <div class="example-block" tabindex="0" role="button" data-code="РїРѕРІС‚РѕСЂРёС‚Рё 36 ( РІРїРµСЂРµРґ 10 РїСЂР°РІРѕСЂСѓС‡ 10 )">РљРѕР»Рѕ</div>
+          <div class="example-block" tabindex="0" role="button" data-code="РєРѕР»С–СЂ С‡РµСЂРІРѕРЅРёР№ РїРѕРІС‚РѕСЂРёС‚Рё 3 ( РІРїРµСЂРµРґ 100 РїСЂР°РІРѕСЂСѓС‡ 120 )">Р§РµСЂРІРѕРЅРёР№ С‚СЂРёРєСѓС‚РЅРёРє</div>
+          <div class="example-block" tabindex="0" role="button" data-code="РєРѕР»С–СЂ СЃРёРЅС–Р№ РїРѕРІС‚РѕСЂРёС‚Рё 8 ( РІРїРµСЂРµРґ 50 РїСЂР°РІРѕСЂСѓС‡ 45 )">РЎРёРЅС–Р№ РІРѕСЃСЊРјРёРєСѓС‚РЅРёРє</div>
+          <div class="example-block" tabindex="0" role="button" data-code="РєРѕР»С–СЂ Р·РµР»РµРЅРёР№ РїРѕРІС‚РѕСЂРёС‚Рё 6 ( РІРїРµСЂРµРґ 70 РїСЂР°РІРѕСЂСѓС‡ 60 )">Р—РµР»РµРЅРёР№ С€РµСЃС‚РёРєСѓС‚РЅРёРє</div>
+          <div class="example-block" tabindex="0" role="button" data-code="РєРѕР»С–СЂ С„С–РѕР»РµС‚РѕРІРёР№ РїРѕРІС‚РѕСЂРёС‚Рё 5 ( РІРїРµСЂРµРґ 80 РїСЂР°РІРѕСЂСѓС‡ 144 )">Р¤С–РѕР»РµС‚РѕРІР° Р·С–СЂРєР°</div>
         </div>
       </section>
       <section class="help-box-main" aria-labelledby="helpbox-title">
-        <h3 id="helpbox-title">Основні команди для равлика</h3>
-
-        <div class="commands-tabs" role="tablist" aria-label="Категорії команд">
-          <button class="commands-tab active" id="tab-basic" role="tab" aria-selected="true" aria-controls="panel-basic" data-tab-target="basic">Базові</button>
-          <button class="commands-tab" id="tab-flow" role="tab" aria-selected="false" aria-controls="panel-flow" data-tab-target="flow" tabindex="-1">Цикли та умови</button>
-          <button class="commands-tab" id="tab-vars" role="tab" aria-selected="false" aria-controls="panel-vars" data-tab-target="vars" tabindex="-1">Змінні і функції</button>
-          <button class="commands-tab" id="tab-game" role="tab" aria-selected="false" aria-controls="panel-game" data-tab-target="game" tabindex="-1">Модуль гри</button>
-        </div>
-
-        <div class="commands-tab-panels">
-          <div class="command-list" id="panel-basic" role="tabpanel" aria-labelledby="tab-basic" data-tab-panel="basic">
-            <div class="command-item"><div class="command-name">вперед N</div><div class="command-desc">Рух вперед на N кроків</div></div>
-            <div class="command-item"><div class="command-name">назад N</div><div class="command-desc">Рух назад на N кроків</div></div>
-            <div class="command-item"><div class="command-name">праворуч N</div><div class="command-desc">Поворот праворуч на N градусів</div></div>
-            <div class="command-item"><div class="command-name">ліворуч N</div><div class="command-desc">Поворот ліворуч на N градусів</div></div>
-            <div class="command-item"><div class="command-name">колір [назва]</div><div class="command-desc">Зміна кольору (напр. червоний, веселка)</div></div>
-            <div class="command-item"><div class="command-name">перейти в X Y</div><div class="command-desc">Перемістити Равлика у точку (X, Y) від центру полотна</div></div>
-            <div class="command-item"><div class="command-name">підняти</div><div class="command-desc">Підняти олівець (рух без малювання)</div></div>
-            <div class="command-item"><div class="command-name">опустити</div><div class="command-desc">Опустити олівець (рух з малюванням)</div></div>
-            <div class="command-item"><div class="command-name">очистити</div><div class="command-desc">Очистити тільки полотно (код не змінюється)</div></div>
-          </div>
-
-          <div class="command-list hidden" id="panel-flow" role="tabpanel" aria-labelledby="tab-flow" data-tab-panel="flow">
-            <div class="command-item"><div class="command-name">повторити N ( ... )</div><div class="command-desc">Повторити команди в дужках N разів</div></div>
-            <div class="command-item"><div class="command-name">якщо умова ( ... )</div><div class="command-desc">Виконати блок, якщо умова істинна</div></div>
-            <div class="command-item"><div class="command-name">... інакше ( ... )</div><div class="command-desc">Блок, який виконується, коли умова хибна</div></div>
-            <div class="command-item"><div class="command-name">якщо край ( ... )</div><div class="command-desc">Перевірка дотику межі полотна</div></div>
-            <div class="command-item"><div class="command-name">якщо клавіша "вгору" ( ... )</div><div class="command-desc">Перевірка натиснутої клавіші</div></div>
-          </div>
-
-          <div class="command-list hidden" id="panel-vars" role="tabpanel" aria-labelledby="tab-vars" data-tab-panel="vars">
-            <div class="command-item"><div class="command-name">створити змінна = число</div><div class="command-desc">Створити нову змінну</div></div>
-            <div class="command-item"><div class="command-name">змінна = число</div><div class="command-desc">Оновити значення змінної</div></div>
-            <div class="command-item"><div class="command-name">створити назва(параметр) ( ... )</div><div class="command-desc">Створити власну команду з параметром</div></div>
-            <div class="command-item"><div class="command-name">назва(число)</div><div class="command-desc">Викликати власну команду</div></div>
-          </div>
-
-          <div class="command-list hidden" id="panel-game" role="tabpanel" aria-labelledby="tab-game" data-tab-panel="game">
-            <div class="command-item"><div class="command-name">грати ( ... )</div><div class="command-desc">Ігровий режим з постійною перевіркою умов</div></div>
-            <div class="command-item"><div class="command-name">клавіша "..."</div><div class="command-desc">Керування стрілками або іншими клавішами у блоці гри</div></div>
-          </div>
+        <h3 id="helpbox-title">РћСЃРЅРѕРІРЅС– РєРѕРјР°РЅРґРё РґР»СЏ СЂР°РІР»РёРєР°</h3>
+        <div class="command-list">
+            <div class="command-item"><div class="command-name">РІРїРµСЂРµРґ N</div><div class="command-desc">Р СѓС… РІРїРµСЂРµРґ РЅР° N РєСЂРѕРєС–РІ</div></div>
+            <div class="command-item"><div class="command-name">РЅР°Р·Р°Рґ N</div><div class="command-desc">Р СѓС… РЅР°Р·Р°Рґ РЅР° N РєСЂРѕРєС–РІ</div></div>
+            <div class="command-item"><div class="command-name">РїСЂР°РІРѕСЂСѓС‡ N</div><div class="command-desc">РџРѕРІРѕСЂРѕС‚ РїСЂР°РІРѕСЂСѓС‡ РЅР° N РіСЂР°РґСѓСЃС–РІ</div></div>
+            <div class="command-item"><div class="command-name">Р»С–РІРѕСЂСѓС‡ N</div><div class="command-desc">РџРѕРІРѕСЂРѕС‚ Р»С–РІРѕСЂСѓС‡ РЅР° N РіСЂР°РґСѓСЃС–РІ</div></div>
+            <div class="command-item"><div class="command-name">РєРѕР»С–СЂ [РЅР°Р·РІР°]</div><div class="command-desc">Р—РјС–РЅР° РєРѕР»СЊРѕСЂСѓ (РЅР°РїСЂ. С‡РµСЂРІРѕРЅРёР№, РІРµСЃРµР»РєР°)</div></div>
+            <div class="command-item"><div class="command-name">РїС–РґРЅСЏС‚Рё</div><div class="command-desc">РџС–РґРЅСЏС‚Рё РѕР»С–РІРµС†СЊ (СЂСѓС… Р±РµР· РјР°Р»СЋРІР°РЅРЅСЏ)</div></div>
+            <div class="command-item"><div class="command-name">РѕРїСѓСЃС‚РёС‚Рё</div><div class="command-desc">РћРїСѓСЃС‚РёС‚Рё РѕР»С–РІРµС†СЊ (СЂСѓС… Р· РјР°Р»СЋРІР°РЅРЅСЏРј)</div></div>
+            <div class="command-item"><div class="command-name">РѕС‡РёСЃС‚РёС‚Рё</div><div class="command-desc">РћС‡РёСЃС‚РёС‚Рё РїРѕР»РѕС‚РЅРѕ</div></div>
+            <div class="command-item"><div class="command-name">РїРѕРІС‚РѕСЂРёС‚Рё N ( ... )</div><div class="command-desc">РџРѕРІС‚РѕСЂРёС‚Рё РєРѕРјР°РЅРґРё РІ РґСѓР¶РєР°С… N СЂР°Р·С–РІ</div></div>
         </div>
       </section>
-      <nav class="manual-lessons-buttons-main" aria-label="Додаткова навігація">
-        <button id="to-manual-btn" class="btn btn-primary"><i class="fas fa-book-open" aria-hidden="true"></i>Посібник з програмування</button>
-        <button id="to-lessons-btn" class="btn btn-primary"><i class="fas fa-graduation-cap" aria-hidden="true"></i>Уроки Равлика</button>
+      <nav class="manual-lessons-buttons-main" aria-label="Р”РѕРґР°С‚РєРѕРІР° РЅР°РІС–РіР°С†С–СЏ">
+        <button id="to-manual-btn" class="btn btn-primary">рџ“– РџРѕСЃС–Р±РЅРёРє Р· РїСЂРѕРіСЂР°РјСѓРІР°РЅРЅСЏ</button>
+        <button id="to-lessons-btn" class="btn btn-primary">рџ“љ РЈСЂРѕРєРё Р Р°РІР»РёРєР°</button>
       </nav>
     </main>
     <footer class="main-footer">
-      <p>&copy;<span class="current-year">2024</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a></p>
+      <p>&copy;<span class="current-year">2024</span> РњРѕРІР° РїСЂРѕРіСЂР°РјСѓРІР°РЅРЅСЏ Р РђР’Р›РРљ | РђРІС‚РѕСЂ: РїР°РЅ РђСЂС‚РµРј - РІС‡РёС‚РµР»СЊ С–РЅС„РѕСЂРјР°С‚РёРєРё <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a></p>
     </footer>
 
-    <button id="accessibility-toggle" class="accessibility-toggle" aria-expanded="false" aria-controls="accessibility-panel" aria-label="Налаштування доступності"><i class="fas fa-universal-access"></i></button>
+    <button id="accessibility-toggle" class="accessibility-toggle" aria-expanded="false" aria-controls="accessibility-panel" aria-label="РќР°Р»Р°С€С‚СѓРІР°РЅРЅСЏ РґРѕСЃС‚СѓРїРЅРѕСЃС‚С–"><i class="fas fa-universal-access"></i></button>
     <div id="accessibility-panel" class="accessibility-panel hidden" role="dialog" aria-modal="true" aria-labelledby="accessibility-title">
       <div class="accessibility-header">
-        <h3 id="accessibility-title" class="accessibility-panel-title">Налаштування доступності</h3>
-        <button id="close-accessibility-panel-btn" class="close-btn" aria-label="Закрити панель налаштувань доступності">&times;</button>
+        <h3 id="accessibility-title" class="accessibility-panel-title">РќР°Р»Р°С€С‚СѓРІР°РЅРЅСЏ РґРѕСЃС‚СѓРїРЅРѕСЃС‚С–</h3>
+        <button id="close-accessibility-panel-btn" class="close-btn" aria-label="Р—Р°РєСЂРёС‚Рё РїР°РЅРµР»СЊ РЅР°Р»Р°С€С‚СѓРІР°РЅСЊ РґРѕСЃС‚СѓРїРЅРѕСЃС‚С–">&times;</button>
       </div>
       <div class="accessibility-options">
         <div class="accessibility-option">
-          <label for="high-contrast-input">Високий контраст</label>
+          <label for="high-contrast-input">Р’РёСЃРѕРєРёР№ РєРѕРЅС‚СЂР°СЃС‚</label>
           <div class="toggle-switch">
             <input type="checkbox" id="high-contrast-input" class="accessibility-setting-input" data-setting="high-contrast">
             <span class="toggle-slider"></span>
           </div>
         </div>
         <div class="accessibility-option">
-          <label for="larger-text-input">Збільшений текст</label>
+          <label for="larger-text-input">Р—Р±С–Р»СЊС€РµРЅРёР№ С‚РµРєСЃС‚</label>
           <div class="toggle-switch">
             <input type="checkbox" id="larger-text-input" class="accessibility-setting-input" data-setting="larger-text">
             <span class="toggle-slider"></span>
           </div>
         </div>
         <div class="accessibility-option">
-          <label for="reduce-animations-input">Зменшення анімації</label>
+          <label for="reduce-animations-input">Р—РјРµРЅС€РµРЅРЅСЏ Р°РЅС–РјР°С†С–С—</label>
           <div class="toggle-switch">
             <input type="checkbox" id="reduce-animations-input" class="accessibility-setting-input" data-setting="reduce-animations">
             <span class="toggle-slider"></span>
           </div>
         </div>
         <div class="accessibility-option">
-          <label for="sans-serif-font-input">Простий шрифт</label>
+          <label for="sans-serif-font-input">РџСЂРѕСЃС‚РёР№ С€СЂРёС„С‚</label>
           <div class="toggle-switch">
             <input type="checkbox" id="sans-serif-font-input" class="accessibility-setting-input" data-setting="sans-serif-font">
             <span class="toggle-slider"></span>
           </div>
         </div>
         <div class="accessibility-option">
-          <label for="increased-spacing-input">Збільшені інтервали</label>
+          <label for="increased-spacing-input">Р—Р±С–Р»СЊС€РµРЅС– С–РЅС‚РµСЂРІР°Р»Рё</label>
           <div class="toggle-switch">
             <input type="checkbox" id="increased-spacing-input" class="accessibility-setting-input" data-setting="increased-spacing">
             <span class="toggle-slider"></span>
@@ -175,59 +141,49 @@
         </div>
       </div>
       <div class="accessibility-footer">
-        <button id="reset-accessibility-btn" class="btn btn-danger">Скинути налаштування</button>
+        <button id="reset-accessibility-btn" class="btn btn-danger">РЎРєРёРЅСѓС‚Рё РЅР°Р»Р°С€С‚СѓРІР°РЅРЅСЏ</button>
       </div>
     </div>
 
     <div id="help-modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="help-modal-title-static">
         <div id="help-modal-content" class="modal-content help-content">
-            <h2 id="help-modal-title-static" class="modal-title">Довідка: Команди Равлика</h2>
+            <h2 id="help-modal-title-static" class="modal-title">Р”РѕРІС–РґРєР°: РљРѕРјР°РЅРґРё Р Р°РІР»РёРєР°</h2>
             <ul>
-              <li><b>вперед N</b> — рух вперед на N кроків</li>
-              <li><b>назад N</b> — рух назад на N кроків</li>
-              <li><b>ліворуч N</b> — повернути ліворуч на N градусів</li>
-              <li><b>праворуч N</b> — повернути праворуч на N градусів</li>
-              <li><b>колір [назва]</b> — змінити колір (напр. червоний, синій, веселка)</li>
-              <li><b>перейти в X Y</b> — перейти у точку (X, Y) від центру полотна</li>
-              <li><b>підняти</b> — підняти олівець (не малювати при русі)</li>
-              <li><b>опустити</b> — опустити олівець (малювати при русі)</li>
-              <li><b>очистити</b> — очистити тільки малюнок (код не змінюється)</li>
-              <li><b>повторити N ( ... )</b> — повторити команди в дужках N разів</li>
-              <li><b>якщо умова ( ... )</b> — виконати блок за умовою</li>
-              <li><b>... інакше ( ... )</b> — альтернативний блок</li>
-              <li><b>якщо край ( ... )</b> — перевірка межі полотна</li>
-              <li><b>якщо клавіша "..." ( ... )</b> — перевірка клавіші</li>
-              <li><b>грати ( ... )</b> — інтерактивний ігровий режим</li>
-              <li><b>створити назва(параметр) ( ... )</b> — створити власну команду</li>
-              <li><b>назва(число)</b> — викликати власну команду з числом</li>
-              <li><b>створити змінна = число</b> — створити змінну</li>
-              <li><b>змінна = число</b> — змінити значення змінної</li>
+              <li><b>РІРїРµСЂРµРґ N</b> вЂ” СЂСѓС… РІРїРµСЂРµРґ РЅР° N РєСЂРѕРєС–РІ</li>
+              <li><b>РЅР°Р·Р°Рґ N</b> вЂ” СЂСѓС… РЅР°Р·Р°Рґ РЅР° N РєСЂРѕРєС–РІ</li>
+              <li><b>Р»С–РІРѕСЂСѓС‡ N</b> вЂ” РїРѕРІРµСЂРЅСѓС‚Рё Р»С–РІРѕСЂСѓС‡ РЅР° N РіСЂР°РґСѓСЃС–РІ</li>
+              <li><b>РїСЂР°РІРѕСЂСѓС‡ N</b> вЂ” РїРѕРІРµСЂРЅСѓС‚Рё РїСЂР°РІРѕСЂСѓС‡ РЅР° N РіСЂР°РґСѓСЃС–РІ</li>
+              <li><b>РєРѕР»С–СЂ [РЅР°Р·РІР°]</b> вЂ” Р·РјС–РЅРёС‚Рё РєРѕР»С–СЂ (РЅР°РїСЂ. С‡РµСЂРІРѕРЅРёР№, СЃРёРЅС–Р№, РІРµСЃРµР»РєР°)</li>
+              <li><b>РїС–РґРЅСЏС‚Рё</b> вЂ” РїС–РґРЅСЏС‚Рё РѕР»С–РІРµС†СЊ (РЅРµ РјР°Р»СЋРІР°С‚Рё РїСЂРё СЂСѓСЃС–)</li>
+              <li><b>РѕРїСѓСЃС‚РёС‚Рё</b> вЂ” РѕРїСѓСЃС‚РёС‚Рё РѕР»С–РІРµС†СЊ (РјР°Р»СЋРІР°С‚Рё РїСЂРё СЂСѓСЃС–)</li>
+              <li><b>РѕС‡РёСЃС‚РёС‚Рё</b> вЂ” РѕС‡РёСЃС‚РёС‚Рё РјР°Р»СЋРЅРѕРє</li>
+              <li><b>РїРѕРІС‚РѕСЂРёС‚Рё N ( ... )</b> вЂ” РїРѕРІС‚РѕСЂРёС‚Рё РєРѕРјР°РЅРґРё РІ РґСѓР¶РєР°С… N СЂР°Р·С–РІ</li>
             </ul>
             <div class="modal-actions">
-                <button id="to-manual-btn-modal" class="btn btn-info">Повний посібник</button>
-                <button id="close-help-modal-btn" class="btn btn-secondary">Закрити</button>
+                <button id="to-manual-btn-modal" class="btn btn-info">РџРѕРІРЅРёР№ РїРѕСЃС–Р±РЅРёРє</button>
+                <button id="close-help-modal-btn" class="btn btn-secondary">Р—Р°РєСЂРёС‚Рё</button>
             </div>
         </div>
     </div>
 
     <div id="clear-confirm-modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="clear-modal-title-static">
         <div id="clear-confirm-modal-content" class="modal-content">
-            <h2 id="clear-modal-title-static" class="modal-title">Підтвердження очищення</h2>
-            <p>Ви впевнені, що хочете очистити малюнок і поле команд?</p>
+            <h2 id="clear-modal-title-static" class="modal-title">РџС–РґС‚РІРµСЂРґР¶РµРЅРЅСЏ РѕС‡РёС‰РµРЅРЅСЏ</h2>
+            <p>Р’Рё РІРїРµРІРЅРµРЅС–, С‰Рѕ С…РѕС‡РµС‚Рµ РѕС‡РёСЃС‚РёС‚Рё РјР°Р»СЋРЅРѕРє С– РїРѕР»Рµ РєРѕРјР°РЅРґ?</p>
             <div class="modal-actions">
-                <button id="confirm-clear-btn" class="btn btn-danger">Так, очистити</button>
-                <button id="cancel-clear-btn" class="btn btn-secondary">Скасувати</button>
+                <button id="confirm-clear-btn" class="btn btn-danger">РўР°Рє, РѕС‡РёСЃС‚РёС‚Рё</button>
+                <button id="cancel-clear-btn" class="btn btn-secondary">РЎРєР°СЃСѓРІР°С‚Рё</button>
             </div>
         </div>
     </div>
 
     <div id="stop-confirm-modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="stop-modal-title-static">
         <div id="stop-confirm-modal-content" class="modal-content">
-            <h2 id="stop-modal-title-static" class="modal-title">Підтвердження зупинки</h2>
-            <p>Зупинити виконання програми зараз?</p>
+            <h2 id="stop-modal-title-static" class="modal-title">РџС–РґС‚РІРµСЂРґР¶РµРЅРЅСЏ Р·СѓРїРёРЅРєРё</h2>
+            <p>Р’Рё РІРїРµРІРЅРµРЅС–, С‰Рѕ С…РѕС‡РµС‚Рµ Р·СѓРїРёРЅРёС‚Рё РІРёРєРѕРЅР°РЅРЅСЏ РїСЂРѕРіСЂР°РјРё?</p>
             <div class="modal-actions">
-                <button id="confirm-stop-btn" class="btn btn-warning">Так, зупинити</button>
-                <button id="cancel-stop-btn" class="btn btn-secondary">Продовжити</button>
+                <button id="confirm-stop-btn" class="btn btn-warning">РўР°Рє, Р·СѓРїРёРЅРёС‚Рё</button>
+                <button id="cancel-stop-btn" class="btn btn-secondary">РџСЂРѕРґРѕРІР¶РёС‚Рё</button>
             </div>
         </div>
     </div>
@@ -239,3 +195,4 @@
     <script type="module" src="js/main.js"></script>
   </body>
 </html>
+
