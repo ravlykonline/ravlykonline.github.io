@@ -185,6 +185,7 @@ Behavior:
 Responsibilities:
 - toolbar actions (run/stop/clear/save/share/grid/help),
 - current short labels: `Запустити`, `Стоп`, `Скинути`, `Сітка`, `Довідка`, `Малюнок`, `Код`, `Поділитися`,
+- smart idle prefetch of secondary pages (`manual.html`, `lessons.html`, `quiz.html`, `resources.html`) on good connections (skips `Save-Data` and `2g`),
 - editor line numbers and active/error line highlighting,
 - help/confirm modals,
 - examples launcher,
