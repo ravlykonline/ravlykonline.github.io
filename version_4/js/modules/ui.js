@@ -231,6 +231,10 @@ export function updateCommandIndicator(commandText, index) {
 // --- Canvas Resizing ---
 export function resizeCanvas(canvas, ctx, onResizeCallback) {
     if (!canvas || !canvas.parentElement) return;
+    if (typeof canvas.getClientRects === 'function' && canvas.getClientRects().length === 0) {
+        // Do not resize hidden canvas (e.g. inactive mobile tab), otherwise it may collapse to 1x1.
+        return;
+    }
 
     const canvasBox = canvas.closest('.canvas-box') || canvas.parentElement; // Find closest canvas-box
     const oldWidth = canvas.width;
