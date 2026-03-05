@@ -189,9 +189,11 @@ Implemented responsive behavior:
 - compact toolbar on small screens,
 - icon-only toolbar labels on phone widths,
 - workspace tab switching for editor/canvas up to tablet width,
+- command category tabs in the reference block are arranged as a balanced 2x2 grid on phones,
 - optimized examples block:
   - tablet: compact grid,
-  - phone: horizontal scroll cards.
+  - phone: horizontal scroll cards,
+  - visible swipe hint text is shown above examples on phones.
 
 ## 8.3 Manual page mobile TOC
 
