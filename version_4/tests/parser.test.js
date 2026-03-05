@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { RavlykInterpreter } from '../js/modules/ravlykInterpreter.js';
-import { MAX_REPEATS_IN_LOOP } from '../js/modules/constants.js';
+import { MAX_RECURSION_DEPTH, MAX_REPEATS_IN_LOOP } from '../js/modules/constants.js';
 
 function createInterpreter() {
     const ctx = {
@@ -74,6 +74,14 @@ runTest('parse color and pen commands', () => {
     const queue = interpreter.parseTokens(['color', 'red', 'penup', 'pendown', 'clear']);
     assert.deepEqual(queue.map((cmd) => cmd.type), ['COLOR', 'PEN_UP', 'PEN_DOWN', 'CLEAR']);
     assert.equal(queue[0].value, 'red');
+});
+
+runTest('setColor throws on unknown color name', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.setColor('ультрамарин'),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'UNKNOWN_COLOR'
+    );
 });
 
 runTest('parse goto in Ukrainian and English forms', () => {
@@ -406,6 +414,32 @@ runTest('function call accepts expression argument', () => {
     assert.equal(queue.length, 1);
     assert.equal(queue[0].type, 'MOVE');
     assert.equal(queue[0].value, 12);
+});
+
+runTest('function nesting deeper than MAX_RECURSION_DEPTH throws friendly error', () => {
+    const interpreter = createInterpreter();
+    const chainDepth = MAX_RECURSION_DEPTH + 2;
+    const parts = [];
+
+    for (let i = 0; i < chainDepth; i++) {
+        const fnName = `f${i}`;
+        const nextName = `f${i + 1}`;
+        if (i === chainDepth - 1) {
+            parts.push(`create ${fnName}(n) ( forward n )`);
+        } else {
+            parts.push(`create ${fnName}(n) ( ${nextName}(n) )`);
+        }
+    }
+    parts.push('f0(1)');
+
+    const code = parts.join(' ');
+    assert.throws(
+        () => {
+            const ast = interpreter.parser.parseCodeToAst(code);
+            interpreter.astToLegacyQueue(ast);
+        },
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'TOO_MANY_NESTED_REPEATS'
+    );
 });
 
 runTest('throws on undefined variable', () => {

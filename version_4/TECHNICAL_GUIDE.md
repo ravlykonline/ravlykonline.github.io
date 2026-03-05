@@ -257,6 +257,7 @@ Workflow:
 Runs on push/PR affecting `version_4/**`:
 - `npm ci`
 - `npx playwright install --with-deps chromium`
+- `npm run test:unit`
 - `npm run test:e2e`
 - uploads Playwright artifacts on failure.
 
@@ -264,6 +265,7 @@ Runs on push/PR affecting `version_4/**`:
 
 From `version_4`:
 - `npm install`
+- `npm run test:unit`
 - `npm run test:e2e`
 - `npm run test:e2e:headed`
 - `npm run test:e2e:ui`

@@ -7,17 +7,116 @@
     <meta name="robots" content="index, follow" />
     <title>Поради для батьків | РАВЛИК</title>
     <link rel="stylesheet" href="css/global.css" />
+    <style>
+        .parent-grid {
+            display: grid;
+            gap: 12px;
+        }
+        .parent-card {
+            background: #ffffff;
+            border: 1px solid #d7e2f1;
+            border-radius: 12px;
+            padding: 14px;
+        }
+        .parent-card h3 {
+            margin-bottom: 8px;
+        }
+        .parent-card ul {
+            padding-left: 20px;
+        }
+        .parent-card li + li {
+            margin-top: 5px;
+        }
+        .parent-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .phrase {
+            margin-top: 8px;
+            background: #eef4ff;
+            border: 1px dashed #b7c9e8;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 0.95rem;
+        }
+    </style>
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Перейти до основного вмісту</a>
     <div class="page-wrapper">
         <header class="main-header">
             <h1>Поради для батьків</h1>
-            <h2>Матеріал у підготовці</h2>
+            <h2>Як підтримати дитину в навчанні з Равликом</h2>
         </header>
-        <main class="content-container">
-            <p>Ця сторінка скоро буде заповнена порадами щодо підтримки дітей у навчанні програмуванню з Равликом.</p>
-            <p><a class="btn btn-primary" href="resources.html">Повернутися до ресурсів</a></p>
+        <main id="main-content" class="content-container parent-grid">
+            <nav class="parent-nav" aria-label="Швидка навігація">
+                <a class="btn btn-success" href="index.html">До редактора</a>
+                <a class="btn btn-primary" href="lessons.html">До уроків</a>
+                <a class="btn btn-primary" href="resources.html">До ресурсів</a>
+            </nav>
+
+            <section class="parent-card" aria-labelledby="why-support">
+                <h3 id="why-support">Навіщо ваша підтримка важлива</h3>
+                <p>Дитина швидше прогресує, коли поруч дорослий не “виправляє”, а допомагає думати. У Равлику ключова цінність не в ідеальному малюнку, а в умінні пояснити: “чому програма працює саме так”.</p>
+            </section>
+
+            <section class="parent-card" aria-labelledby="home-routine">
+                <h3 id="home-routine">Домашній формат: 20-30 хв</h3>
+                <ul>
+                    <li>5 хв: дитина пояснює, що хоче намалювати.</li>
+                    <li>15 хв: пише код і запускає 2-3 ітерації.</li>
+                    <li>5-10 хв: коротке обговорення “що вийшло / що змінюємо”.</li>
+                </ul>
+                <p>Краще 3 короткі сесії на тиждень, ніж одна довга.</p>
+            </section>
+
+            <section class="parent-card" aria-labelledby="help-right">
+                <h3 id="help-right">Як допомагати без тиску</h3>
+                <ul>
+                    <li>Ставте питання, а не давайте готову відповідь.</li>
+                    <li>Підкреслюйте процес: “ти знайшов помилку сам”.</li>
+                    <li>Дозволяйте експерименти з числами, кольорами, кутами.</li>
+                    <li>Помилка = матеріал для навчання, а не невдача.</li>
+                </ul>
+                <div class="phrase">
+                    Корисна фраза: “Що зміниться, якщо зробити крок удвічі більшим?”
+                </div>
+            </section>
+
+            <section class="parent-card" aria-labelledby="phrases">
+                <h3 id="phrases">Фрази, які добре працюють</h3>
+                <ul>
+                    <li>“Поясни мені свій код, ніби я новачок.”</li>
+                    <li>“Який рядок ти перевіриш першим і чому?”</li>
+                    <li>“Що ти вже зробив правильно?”</li>
+                    <li>“Яку одну змінну ти зміниш у наступній спробі?”</li>
+                </ul>
+            </section>
+
+            <section class="parent-card" aria-labelledby="screen-balance">
+                <h3 id="screen-balance">Баланс екранного часу</h3>
+                <ul>
+                    <li>Після сесії запропонуйте “офлайн продовження”: намалювати фігуру на папері і підписати кроки.</li>
+                    <li>Чергуйте: 20 хв код, 10 хв руханка/відпочинок.</li>
+                    <li>Раз на тиждень влаштовуйте “показ проєкту” для сім'ї на 3 хв.</li>
+                </ul>
+            </section>
+
+            <section class="parent-card" aria-labelledby="safety">
+                <h3 id="safety">Коли варто втрутитися</h3>
+                <ul>
+                    <li>Якщо дитина фрустрована більше 10 хв без прогресу.</li>
+                    <li>Якщо з'являються фрази “я дурний/дурна” або “в мене ніколи не вийде”.</li>
+                    <li>Якщо завдання суттєво складніше поточного рівня.</li>
+                </ul>
+                <p>У цих випадках скоротіть задачу до одного простого кроку й закріпіть маленький успіх.</p>
+            </section>
         </main>
+        <footer class="main-footer">
+            <p>&copy;<span class="current-year">2026</span> РАВЛИК | Поради для батьків</p>
+        </footer>
     </div>
 </body>
 </html>

@@ -98,4 +98,49 @@ test.describe('Ravlyk UI smoke', () => {
 
     await expect(page.locator('#run-btn')).toBeEnabled();
   });
+
+  test('switching mobile workspace tabs keeps drawn canvas content', async ({ page }, testInfo) => {
+    test.skip(!/(mobile|tablet)/i.test(testInfo.project.name), 'Applies to tabbed workspace layouts only.');
+
+    const code = 'повторити 4 ( вперед 80 праворуч 90 )';
+    await page.fill('#code-editor', code);
+    await page.locator('#run-btn').click();
+    await expect(page.locator('#run-btn')).toBeEnabled();
+
+    await page.locator('#workspace-canvas-tab').click();
+    await page.waitForTimeout(150);
+
+    const alphaBeforeSwitch = await page.evaluate(() => {
+      const canvas = document.getElementById('ravlyk-canvas');
+      const ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
+      if (!canvas || !ctx) return 0;
+      const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let colored = 0;
+      for (let i = 3; i < pixels.length; i += 4) {
+        if (pixels[i] > 0) colored++;
+      }
+      return colored;
+    });
+
+    expect(alphaBeforeSwitch).toBeGreaterThan(0);
+
+    await page.locator('#workspace-editor-tab').click();
+    await page.waitForTimeout(100);
+    await page.locator('#workspace-canvas-tab').click();
+    await page.waitForTimeout(150);
+
+    const alphaAfterSwitch = await page.evaluate(() => {
+      const canvas = document.getElementById('ravlyk-canvas');
+      const ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
+      if (!canvas || !ctx) return 0;
+      const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let colored = 0;
+      for (let i = 3; i < pixels.length; i += 4) {
+        if (pixels[i] > 0) colored++;
+      }
+      return colored;
+    });
+
+    expect(alphaAfterSwitch).toBeGreaterThan(0);
+  });
 });

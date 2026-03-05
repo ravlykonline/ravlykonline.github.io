@@ -1,7 +1,7 @@
 ﻿// js/modules/ravlykInterpreter.js
 import {
     COLOR_MAP, DEFAULT_PEN_COLOR, DEFAULT_PEN_SIZE, RAVLYK_INITIAL_ANGLE,
-    CANVAS_BOUNDARY_PADDING, ERROR_MESSAGES, MAX_REPEATS_IN_LOOP,
+    CANVAS_BOUNDARY_PADDING, ERROR_MESSAGES, MAX_RECURSION_DEPTH, MAX_REPEATS_IN_LOOP,
     DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND,
 } from './constants.js';
 import { RavlykParser, RavlykError } from './ravlykParser.js';
@@ -374,7 +374,7 @@ export class RavlykInterpreter {
                 if (!def) {
                     throw new RavlykError("UNKNOWN_COMMAND", stmt.name);
                 }
-                if (callDepth > 30) {
+                if (callDepth > MAX_RECURSION_DEPTH) {
                     throw new RavlykError("TOO_MANY_NESTED_REPEATS");
                 }
                 const localEnv = new Environment(env);
@@ -530,7 +530,7 @@ export class RavlykInterpreter {
         const runStmt = (stmt, envCtx, callDepth = 0) => {
             if (!stmt || !stmt.type) return;
             try {
-                if (callDepth > 30) throw new RavlykError("TOO_MANY_NESTED_REPEATS");
+                if (callDepth > MAX_RECURSION_DEPTH) throw new RavlykError("TOO_MANY_NESTED_REPEATS");
 
             if (stmt.type === "AssignmentStmt") {
                 const value = this.evalAstNumberExpression(stmt.expr, envCtx);
@@ -1018,11 +1018,16 @@ export class RavlykInterpreter {
     }
 
     setColor(colorName) {
-        if (COLOR_MAP[colorName] === "RAINBOW") {
+        const normalized = String(colorName || "").toLowerCase();
+        const mappedColor = COLOR_MAP[normalized];
+        if (!mappedColor) {
+            throw new RavlykError("UNKNOWN_COLOR", colorName);
+        }
+        if (mappedColor === "RAINBOW") {
             this.state.isRainbow = true;
         } else {
             this.state.isRainbow = false;
-            this.state.color = COLOR_MAP[colorName];
+            this.state.color = mappedColor;
         }
         this.applyContextSettings();
     }
