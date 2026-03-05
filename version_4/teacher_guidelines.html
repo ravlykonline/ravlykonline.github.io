@@ -7,53 +7,7 @@
     <meta name="robots" content="index, follow" />
     <title>Матеріали для вчителів | РАВЛИК</title>
     <link rel="stylesheet" href="css/global.css" />
-    <style>
-        .teacher-grid {
-            display: grid;
-            gap: 12px;
-        }
-        .teacher-card {
-            background: #ffffff;
-            border: 1px solid #d7e2f1;
-            border-radius: 12px;
-            padding: 14px;
-        }
-        .teacher-card h3 {
-            margin-bottom: 8px;
-        }
-        .teacher-card p + p {
-            margin-top: 8px;
-        }
-        .teacher-card ul {
-            padding-left: 20px;
-        }
-        .teacher-card li + li {
-            margin-top: 4px;
-        }
-        .teacher-nav {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-        .teacher-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            font-size: 0.95rem;
-            background: #fff;
-        }
-        .teacher-table th,
-        .teacher-table td {
-            border: 1px solid #d7e2f1;
-            padding: 8px;
-            text-align: left;
-            vertical-align: top;
-        }
-        .teacher-table th {
-            background: #eef4ff;
-        }
-    </style>
+    <link rel="stylesheet" href="css/teacher-guidelines.css" />
 </head>
 <body>
     <a class="skip-link" href="#main-content">Перейти до основного вмісту</a>
@@ -68,6 +22,7 @@
                 <a class="btn btn-primary" href="lessons.html">До уроків</a>
                 <a class="btn btn-primary" href="manual.html">До посібника</a>
                 <a class="btn btn-primary" href="resources.html">До ресурсів</a>
+                <button type="button" class="btn btn-info print-actions" onclick="window.print()">Друк матеріалів</button>
             </nav>
 
             <section class="teacher-card" aria-labelledby="teacher-goals">
@@ -183,6 +138,28 @@
                 <p><strong>Вищий рівень:</strong> додати умови або власну функцію для повторюваного фрагмента.</p>
             </section>
 
+            <section class="teacher-card" aria-labelledby="teacher-tracks">
+                <h3 id="teacher-tracks">Вікові треки</h3>
+                <div class="track-grid">
+                    <article class="track-card">
+                        <h4>1-2 класи</h4>
+                        <ul>
+                            <li>Фокус: послідовність, напрямок, прості фігури.</li>
+                            <li>Крок уроку: короткий приклад -> зміна одного параметра.</li>
+                            <li>Оцінювання: чи пояснює дитина, що робить кожна команда.</li>
+                        </ul>
+                    </article>
+                    <article class="track-card">
+                        <h4>3-4 класи</h4>
+                        <ul>
+                            <li>Фокус: цикли, умови, змінні, прості функції.</li>
+                            <li>Крок уроку: задача -> план -> код -> рефлексія.</li>
+                            <li>Оцінювання: правильність + обґрунтування логіки.</li>
+                        </ul>
+                    </article>
+                </div>
+            </section>
+
             <section class="teacher-card" aria-labelledby="teacher-homework">
                 <h3 id="teacher-homework">Ідеї домашніх міні-проєктів</h3>
                 <ul>
@@ -190,6 +167,25 @@
                     <li>“Геометричне місто”: будинки з квадратів/прямокутників і дахом-трикутником.</li>
                     <li>“Міні-гра”: керування стрілками у блоці <code>грати</code> + реакція на <code>край</code>.</li>
                 </ul>
+            </section>
+
+            <section class="teacher-card" aria-labelledby="teacher-printables">
+                <h3 id="teacher-printables">Готові друковані матеріали</h3>
+                <div class="print-block">
+                    <h4>Чекліст перевірки міні-проєкту</h4>
+                    <ul class="print-checklist">
+                        <li>Код запускається без помилок.</li>
+                        <li>Є щонайменше одна конструкція <code>повторити</code> або <code>якщо</code>.</li>
+                        <li>Учень може пояснити 2-3 ключові рядки.</li>
+                        <li>Є щонайменше одна власна зміна відносно зразка.</li>
+                    </ul>
+                </div>
+                <div class="print-block">
+                    <h4>Шаблон короткої рефлексії (для друку)</h4>
+                    <p>1. Сьогодні я навчився/лась _____________________________________</p>
+                    <p>2. У мене виникла складність _____________________________________</p>
+                    <p>3. Наступного разу я спробую _____________________________________</p>
+                </div>
             </section>
         </main>
         <footer class="main-footer">
