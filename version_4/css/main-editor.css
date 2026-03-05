@@ -11,6 +11,25 @@
     min-height: 48px;
 }
 
+@media (min-width: 1025px) {
+    #clear-btn,
+    #help-btn {
+        margin-right: 16px;
+        position: relative;
+    }
+
+    #clear-btn::after,
+    #help-btn::after {
+        content: "";
+        position: absolute;
+        top: 10px;
+        bottom: 10px;
+        right: -9px;
+        width: 1px;
+        background: #c8d5ea;
+    }
+}
+
 .workspace-tabs {
     display: none;
 }
