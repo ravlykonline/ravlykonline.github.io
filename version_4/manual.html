@@ -37,13 +37,20 @@
             <h2>Твоя перша текстова мова програмування!</h2>
         </header>
 
-        <nav class="top-navigation" aria-label="Головна навігація посібника">
+        <nav class="top-navigation site-links-uniform" aria-label="Головна навігація посібника">
             <a href="index.html" id="manual-back-to-editor" class="btn btn-success"><i class="fas fa-arrow-left" aria-hidden="true"></i>Повернутися до редактора</a>
             <a href="lessons.html" id="manual-to-lessons" class="btn btn-primary"><i class="fas fa-graduation-cap" aria-hidden="true"></i>Перейти до уроків</a>
         </nav>
+        <button type="button" id="manual-mobile-menu-btn" class="manual-mobile-menu-btn" aria-expanded="false" aria-controls="manual-toc">
+            <i class="fas fa-bars" aria-hidden="true"></i>Зміст
+        </button>
+        <div id="manual-mobile-backdrop" class="manual-mobile-backdrop hidden" aria-hidden="true"></div>
 
         <main id="main-content" class="guide-content-area">
-            <aside class="toc-container">
+            <aside class="toc-container" id="manual-toc">
+                <button type="button" id="manual-mobile-close-btn" class="manual-mobile-close-btn" aria-label="Закрити зміст">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
                 <h3 class="toc-title">Зміст</h3>
                 <ul class="toc-list">
                     <li><a href="#intro">Що таке РАВЛИК?</a></li>
@@ -640,7 +647,7 @@
             </div>
         </main>
 
-        <nav class="bottom-navigation" aria-label="Нижня навігація посібника">
+        <nav class="bottom-navigation site-links-uniform" aria-label="Нижня навігація посібника">
             <a href="index.html" id="manual-back-to-editor-footer" class="btn btn-success"><i class="fas fa-arrow-left" aria-hidden="true"></i>Повернутися до редактора</a>
             <a href="lessons.html" id="manual-to-lessons-footer" class="btn btn-primary"><i class="fas fa-graduation-cap" aria-hidden="true"></i>Перейти до уроків</a>
         </nav>
@@ -812,6 +819,52 @@
             setActiveIndex(initialHashIndex !== -1 ? initialHashIndex : 0, {
                 replaceHistory: true,
                 keepScroll: true
+            });
+        })();
+
+        (function initManualMobileMenu() {
+            const menuBtn = document.getElementById("manual-mobile-menu-btn");
+            const closeBtn = document.getElementById("manual-mobile-close-btn");
+            const toc = document.getElementById("manual-toc");
+            const backdrop = document.getElementById("manual-mobile-backdrop");
+            const tocLinks = document.querySelectorAll(".toc-list a");
+
+            if (!menuBtn || !closeBtn || !toc || !backdrop) return;
+
+            const closeMenu = () => {
+                document.body.classList.remove("manual-toc-open");
+                menuBtn.setAttribute("aria-expanded", "false");
+                backdrop.classList.add("hidden");
+                backdrop.setAttribute("aria-hidden", "true");
+            };
+
+            const openMenu = () => {
+                document.body.classList.add("manual-toc-open");
+                menuBtn.setAttribute("aria-expanded", "true");
+                backdrop.classList.remove("hidden");
+                backdrop.setAttribute("aria-hidden", "false");
+                closeBtn.focus();
+            };
+
+            menuBtn.addEventListener("click", () => {
+                if (document.body.classList.contains("manual-toc-open")) {
+                    closeMenu();
+                    return;
+                }
+                openMenu();
+            });
+
+            closeBtn.addEventListener("click", closeMenu);
+            backdrop.addEventListener("click", closeMenu);
+            tocLinks.forEach((link) => link.addEventListener("click", closeMenu));
+            window.addEventListener("resize", () => {
+                if (window.innerWidth > 991) closeMenu();
+            });
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape" && document.body.classList.contains("manual-toc-open")) {
+                    closeMenu();
+                    menuBtn.focus();
+                }
             });
         })();
     </script>

@@ -37,17 +37,21 @@
     </header>
     <main id="main-content" class="content-container">
       <div class="toolbar">
-        <button id="run-btn" class="btn btn-success" title="Запусти програму (Ctrl/Cmd/Shift + Enter)" aria-label="Запусти програму"><i class="fas fa-play" aria-hidden="true"></i>Запустити</button>
-        <button id="stop-btn" class="btn btn-warning" title="Зупинити програму (Esc)" aria-label="Зупинити програму"><i class="fas fa-stop-circle" aria-hidden="true"></i>Зупинити</button>
-        <button id="clear-btn" class="btn btn-danger" title="Очистити все: малюнок і код" aria-label="Очистити все: малюнок і код"><i class="fas fa-broom" aria-hidden="true"></i>Очистити все</button>
-        <button id="save-btn" class="btn btn-info" title="Зберегти малюнок" aria-label="Зберегти малюнок"><i class="fas fa-save" aria-hidden="true"></i>Зберегти</button>
-        <button id="save-code-btn" class="btn btn-info" title="Зберегти код у TXT" aria-label="Зберегти код у TXT"><i class="fas fa-file-download" aria-hidden="true"></i>Зберегти код</button>
-        <button id="share-btn" class="btn btn-info" title="Скопіювати посилання з кодом" aria-label="Скопіювати посилання з кодом"><i class="fas fa-link" aria-hidden="true"></i>Поділитися</button>
-        <button id="grid-btn" class="btn btn-primary" title="Увімкнути або вимкнути координатну сітку" aria-label="Перемкнути сітку" aria-pressed="false"><i class="fas fa-th" aria-hidden="true"></i>Сітка</button>
-        <button id="help-btn" class="btn btn-primary" title="Пояснення команд" aria-label="Пояснення команд"><i class="fas fa-question-circle" aria-hidden="true"></i>Довідка</button>
+        <button id="run-btn" class="btn btn-success" title="Запусти програму (Ctrl/Cmd/Shift + Enter)" aria-label="Запусти програму"><i class="fas fa-play" aria-hidden="true"></i><span class="toolbar-label">Запустити</span></button>
+        <button id="stop-btn" class="btn btn-warning" title="Зупинити програму (Esc)" aria-label="Зупинити програму"><i class="fas fa-stop-circle" aria-hidden="true"></i><span class="toolbar-label">Зупинити</span></button>
+        <button id="clear-btn" class="btn btn-danger" title="Очистити все: малюнок і код" aria-label="Очистити все: малюнок і код"><i class="fas fa-trash-alt" aria-hidden="true"></i><span class="toolbar-label">Очистити все</span></button>
+        <button id="save-btn" class="btn btn-info" title="Зберегти малюнок" aria-label="Зберегти малюнок"><i class="fas fa-save" aria-hidden="true"></i><span class="toolbar-label">Зберегти</span></button>
+        <button id="save-code-btn" class="btn btn-info" title="Зберегти код у TXT" aria-label="Зберегти код у TXT"><i class="fas fa-file-download" aria-hidden="true"></i><span class="toolbar-label">Зберегти код</span></button>
+        <button id="share-btn" class="btn btn-info" title="Скопіювати посилання з кодом" aria-label="Скопіювати посилання з кодом"><i class="fas fa-link" aria-hidden="true"></i><span class="toolbar-label">Поділитися</span></button>
+        <button id="grid-btn" class="btn btn-primary" title="Увімкнути або вимкнути координатну сітку" aria-label="Перемкнути сітку" aria-pressed="false"><i class="fas fa-th" aria-hidden="true"></i><span class="toolbar-label">Сітка</span></button>
+        <button id="help-btn" class="btn btn-primary" title="Пояснення команд" aria-label="Пояснення команд"><i class="fas fa-question-circle" aria-hidden="true"></i><span class="toolbar-label">Довідка</span></button>
+      </div>
+      <div class="workspace-tabs" role="tablist" aria-label="Робоча область редактора">
+        <button class="workspace-tab active" id="workspace-editor-tab" role="tab" aria-selected="true" aria-controls="workspace-editor-panel" data-workspace-target="editor">Редактор</button>
+        <button class="workspace-tab" id="workspace-canvas-tab" role="tab" aria-selected="false" aria-controls="workspace-canvas-panel" data-workspace-target="canvas" tabindex="-1">Полотно</button>
       </div>
       <div class="main-area">
-        <section class="code-box" aria-labelledby="code-header">
+        <section class="code-box active-panel" id="workspace-editor-panel" role="tabpanel" aria-labelledby="workspace-editor-tab" data-workspace-panel="editor">
           <h3 id="code-header" class="area-header code-header">Команди для равлика</h3>
           <div class="editor-shell">
             <div id="code-active-line" class="code-active-line" aria-hidden="true"></div>
@@ -56,7 +60,7 @@
             <textarea id="code-editor" spellcheck="false" aria-label="Поле для команд" placeholder="Наприклад:&#10;колір синій&#10;вперед 100&#10;праворуч 90&#10;вперед 50"></textarea>
           </div>
         </section>
-        <section class="canvas-box" aria-labelledby="canvas-header">
+        <section class="canvas-box" id="workspace-canvas-panel" role="tabpanel" aria-labelledby="workspace-canvas-tab" data-workspace-panel="canvas">
           <h3 id="canvas-header" class="area-header canvas-header">Малюнок равлика</h3>
           <canvas id="ravlyk-canvas" role="img" aria-label="Полотно для малювання Равлика"></canvas>
           <canvas id="ravlyk-grid-canvas" aria-hidden="true"></canvas>

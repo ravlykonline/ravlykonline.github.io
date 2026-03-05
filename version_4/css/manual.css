@@ -121,6 +121,17 @@
     border-bottom: none;
 }
 
+.site-links-uniform .btn {
+    min-width: 300px;
+    min-height: 56px;
+}
+
+.manual-mobile-menu-btn,
+.manual-mobile-close-btn,
+.manual-mobile-backdrop {
+    display: none;
+}
+
 /* Прибираємо розкидання кнопок по краях */
 /*
 @media (min-width: 600px) {
@@ -207,6 +218,77 @@
     list-style-type: none;
     padding-left: 0;
     margin: 0;
+}
+
+@media (max-width: 991px) {
+    .site-links-uniform .btn {
+        width: min(100%, 360px);
+    }
+
+    .manual-mobile-menu-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin: 0 auto 14px auto;
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: 2px solid #6a5acd;
+        background: #ede9f9;
+        color: #4b0082;
+        font-size: 1.05rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .manual-mobile-close-btn {
+        display: inline-flex;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 40px;
+        height: 40px;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        border-radius: 8px;
+        background: rgba(106, 90, 205, 0.12);
+        color: #4b0082;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .manual-mobile-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        background: rgba(0, 0, 0, 0.45);
+    }
+
+    .toc-container {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: min(88vw, 360px);
+        z-index: 40;
+        margin: 0;
+        border-radius: 0 14px 14px 0;
+        border-left: 0;
+        padding-top: 62px;
+        overflow-y: auto;
+        transform: translateX(-105%);
+        transition: transform 0.25s ease;
+    }
+
+    body.manual-toc-open .toc-container {
+        transform: translateX(0);
+    }
+
+    body.manual-toc-open {
+        overflow: hidden;
+    }
 }
 
 .toc-list li {
@@ -742,6 +824,13 @@ body.manual-paged-ready .guide-section.is-active {
     border: 1px solid #fff !important;
 }
 
+.a11y-high-contrast .manual-mobile-menu-btn,
+.a11y-high-contrast .manual-mobile-close-btn {
+    background: #000 !important;
+    color: #fff !important;
+    border: 1px solid #fff !important;
+}
+
 @media (max-width: 991px) {
     .manual-section-toolbar {
         flex-direction: column;
@@ -787,6 +876,12 @@ body.manual-paged-ready .guide-section.is-active {
         border-right: none;
         border-left: 3px solid #6a5acd;
         z-index: 20;
+    }
+
+    .manual-mobile-menu-btn,
+    .manual-mobile-close-btn,
+    .manual-mobile-backdrop {
+        display: none !important;
     }
 
     .toc-title {

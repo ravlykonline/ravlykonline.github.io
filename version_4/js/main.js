@@ -37,6 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const exampleBlocks = document.querySelectorAll(".example-block");
     const commandTabs = document.querySelectorAll(".commands-tab");
     const commandTabPanels = document.querySelectorAll(".commands-tab-panels [data-tab-panel]");
+    const workspaceTabs = document.querySelectorAll(".workspace-tab");
+    const workspacePanels = document.querySelectorAll(".main-area [data-workspace-panel]");
     const toManualBtnMain = document.getElementById("to-manual-btn");
     const toLessonsBtnMain = document.getElementById("to-lessons-btn");
 
@@ -62,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const MAX_SHARE_URL_LENGTH_CHARS = 7000;
     let isGridVisible = false;
     let editorErrorLine = null;
+    let scheduleResize = () => {};
 
     function loadGridPreference() {
         try {
@@ -174,6 +177,72 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         window.addEventListener('resize', syncPanelsHeight);
+    }
+
+    function setupWorkspaceTabs() {
+        if (!workspaceTabs.length || !workspacePanels.length) return;
+        const mobileMedia = window.matchMedia('(max-width: 1024px)');
+        let activeTarget = (Array.from(workspaceTabs).find((tab) => tab.classList.contains('active')) || workspaceTabs[0]).dataset.workspaceTarget;
+
+        const setActiveWorkspace = (target) => {
+            if (!mobileMedia.matches) {
+                workspaceTabs.forEach((tab, idx) => {
+                    const isActive = idx === 0;
+                    tab.classList.toggle('active', isActive);
+                    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                    tab.setAttribute('tabindex', isActive ? '0' : '-1');
+                });
+                workspacePanels.forEach((panel) => {
+                    panel.classList.remove('active-panel', 'hidden');
+                    panel.setAttribute('aria-hidden', 'false');
+                });
+                return;
+            }
+
+            activeTarget = target;
+            workspaceTabs.forEach((tab) => {
+                const isActive = tab.dataset.workspaceTarget === target;
+                tab.classList.toggle('active', isActive);
+                tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                tab.setAttribute('tabindex', isActive ? '0' : '-1');
+            });
+
+            workspacePanels.forEach((panel) => {
+                const isActive = panel.dataset.workspacePanel === target;
+                panel.classList.toggle('active-panel', isActive);
+                panel.classList.toggle('hidden', !isActive);
+                panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+            });
+
+            if (target === 'canvas') {
+                scheduleResize();
+            }
+        };
+
+        workspaceTabs.forEach((tab) => {
+            tab.addEventListener('click', () => {
+                setActiveWorkspace(tab.dataset.workspaceTarget);
+            });
+
+            tab.addEventListener('keydown', (event) => {
+                const tabsArr = Array.from(workspaceTabs);
+                const index = tabsArr.indexOf(tab);
+                if (index < 0) return;
+                let targetIndex = null;
+                if (event.key === 'ArrowRight') targetIndex = (index + 1) % tabsArr.length;
+                if (event.key === 'ArrowLeft') targetIndex = (index - 1 + tabsArr.length) % tabsArr.length;
+                if (targetIndex === null) return;
+                event.preventDefault();
+                const targetTab = tabsArr[targetIndex];
+                setActiveWorkspace(targetTab.dataset.workspaceTarget);
+                targetTab.focus();
+            });
+        });
+
+        setActiveWorkspace(activeTarget);
+        mobileMedia.addEventListener('change', () => {
+            setActiveWorkspace(activeTarget);
+        });
     }
 
     function updateGridButtonState() {
@@ -819,7 +888,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Observe container size changes (flex/layout changes + viewport resize).
     let resizeTimeout;
-    const scheduleResize = () => {
+    scheduleResize = () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(handleCanvasResize, 100);
     };
@@ -835,6 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateGridButtonState();
     initialSetup(); // Initial call
     loadCodeFromUrlHash();
+    setupWorkspaceTabs();
 
     // Placeholder logic for textarea
     const defaultPlaceholder = codeEditor.getAttribute('placeholder') || '';
