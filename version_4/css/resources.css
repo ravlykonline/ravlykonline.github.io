@@ -1,132 +1,333 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Nunito', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+    background-color: #f0f8ff;
+    padding: 10px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: #333;
+    line-height: 1.6;
+}
+
+.page-wrapper {
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.course-header {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #4b0082; /* Фіолетовий */
+}
+
+.course-header h1 {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    margin-bottom: 5px;
+}
+
+.course-header p {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    color: #555;
+}
+
 .resource-section {
-    padding: 20px;
-    background-color: var(--surface-white);
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--border-lilac-soft);
-    margin-bottom: 25px;
-    animation: section-fade-in-up 0.5s ease-out;
+    padding: 15px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid #6a5acd; /* Ліловий */
+    margin-bottom: 20px;
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .resource-section h2 {
-    color: var(--color-link-hover);
-    font-size: clamp(1.6rem, 4.5vw, 2rem);
-    margin-bottom: 18px;
-    border-bottom: 2px dashed var(--accent-tomato-soft);
-    padding-bottom: 8px;
+    color: #ff6347; /* Томатний */
+    font-size: clamp(1.5rem, 4vw, 1.8rem);
+    margin-bottom: 15px;
+    border-bottom: 2px dashed #ff6347;
+    padding-bottom: 5px;
 }
 
 .resource-section h3 {
-    color: var(--accent-teal-dark);
-    font-size: clamp(1.3rem, 3.8vw, 1.6rem);
-    margin-top: 25px;
-    margin-bottom: 12px;
+    color: #00796b; /* Темно-бірюзовий */
+    font-size: clamp(1.2rem, 3.5vw, 1.4rem);
+    margin-top: 20px;
+    margin-bottom: 10px;
 }
 
-.resource-section p,
-.resource-section li {
-    font-size: clamp(1rem, 2.8vw, 1.15rem);
-    margin-bottom: 12px;
-    color: var(--text-slate);
+.resource-section p, .resource-section li {
+    font-size: clamp(0.95rem, 2.8vw, 1.1rem);
+    margin-bottom: 10px;
 }
 
 .resource-section ul {
-    list-style-position: outside;
-    list-style-type: disc;
-    padding-left: 30px;
-}
-
-.resource-section ul li {
-    padding-left: 8px;
+    list-style-position: inside;
+    list-style-type: '🐌'; /* Маркер-равлик */
+    padding-left: 10px;
 }
 
 .resource-item {
-    background-color: var(--surface-card-alt);
-    border-left: 6px solid var(--accent-blue-400);
-    padding: 18px 20px;
-    margin: 20px 0;
+    background-color: #e6f7ff; /* Світло-блакитний */
+    border-left: 5px solid #1890ff; /* Синій */
+    padding: 15px;
+    margin: 15px 0;
     border-radius: 8px;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
 }
 
 .resource-item h4 {
-    color: var(--accent-blue-600);
-    font-size: clamp(1.2rem, 3.2vw, 1.45rem);
+    color: #0050b3; /* Темно-синій */
+    font-size: clamp(1.1rem, 3vw, 1.3rem);
     margin-bottom: 10px;
 }
 
 .resource-item .resource-link {
     display: inline-block;
-    background-color: var(--btn-success-bg);
-    color: var(--btn-on-solid-text);
-    padding: 10px 18px;
+    background-color: #32cd32; /* Зелений */
+    color: white;
+    padding: 8px 15px;
     text-decoration: none;
     border-radius: 5px;
     font-weight: bold;
-    font-size: 1.05rem;
     transition: background-color 0.3s, transform 0.2s;
-    margin-top: 10px;
+    margin-top: 5px;
 }
 
 .resource-item .resource-link:hover {
-    background-color: var(--btn-success-bg-hover);
+    background-color: #228b22; /* Темніший зелений */
     transform: scale(1.05);
 }
 
 .coming-soon {
     font-style: italic;
-    color: var(--text-slate-light);
-    font-size: 0.95rem;
-    background-color: var(--surface-slate-light);
-    padding: 5px 10px;
-    border-radius: 4px;
-    display: inline-block;
-    margin-top: 5px;
+    color: #777;
 }
 
 .nav-buttons-footer {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+.nav-buttons-footer .main-btn {
+    background-color: #6a5acd; /* Ліловий */
+    color: #fff;
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.nav-buttons-footer .main-btn i {
+    margin-right: 8px;
+}
+
+.nav-buttons-footer .main-btn:hover {
+    background-color: #4b0082; /* Темніший фіолетовий */
+    transform: scale(1.03);
+}
+
+.nav-buttons-footer .main-btn.editor-btn {
+     background-color: #32cd32; /* Зелений */
+     color: #fff;
+}
+
+.nav-buttons-footer .main-btn.editor-btn:hover {
+     background-color: #228b22; /* Темніший зелений */
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 5px;
+    }
+    .resource-section {
+        padding: 10px;
+    }
+    .nav-buttons-footer {
+        flex-direction: column;
+    }
+    .nav-buttons-footer .main-btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+     .nav-buttons-footer .main-btn:last-child {
+        margin-bottom: 0;
+    }
+}
+
+
+/* Стилі, специфічні для сторінки resources.html */
+/* Базові стилі для .page-wrapper, body, header.course-header, footer.main-footer 
+   мають бути в css/global.css */
+
+   .resource-section {
+    padding: 20px; /* Збільшено відступ для кращої читабельності */
+    background-color: white;
+    border-radius: 12px; /* Більш заокруглені кути */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08); /* Трохи виразніша тінь */
+    border: 1px solid #d1c4e9; /* Світло-ліловий контур, менш нав'язливий */
+    margin-bottom: 25px;
+    animation: fadeIn 0.5s ease-out; /* Використовуємо анімацію з lessons.css */
+}
+
+/* Анімація fadeIn, якщо вона не визначена глобально */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.resource-section h2 {
+    color: #ff6347; /* Томатний - для узгодженості з іншими сторінками */
+    font-size: clamp(1.6rem, 4.5vw, 2rem); /* Трохи більший розмір */
+    margin-bottom: 18px;
+    border-bottom: 2px dashed #ff8a65; /* Світліший томатний для лінії */
+    padding-bottom: 8px;
+}
+
+.resource-section h3 {
+    color: #00897b; /* Темно-бірюзовий, як в lessons */
+    font-size: clamp(1.3rem, 3.8vw, 1.6rem);
+    margin-top: 25px;
+    margin-bottom: 12px;
+}
+
+.resource-section p, 
+.resource-section li {
+    font-size: clamp(1rem, 2.8vw, 1.15rem); /* Збільшено базовий розмір для читабельності */
+    margin-bottom: 12px;
+    color: #455a64; /* Трохи темніший сірий для тексту */
+}
+
+.resource-section ul {
+    list-style-position: outside; /* Стандартне розміщення маркера */
+    list-style-type: '🧩'; /* Маркер-пазл, або можна '💡' чи '✨' */
+    padding-left: 30px; /* Відступ для списку */
+}
+.resource-section ul li {
+    padding-left: 8px; /* Відступ після маркера */
+}
+
+
+.resource-item {
+    background-color: #eef2f7; /* Дуже світло-сіро-блакитний */
+    border-left: 6px solid #42a5f5; /* Яскравий синій акцент */
+    padding: 18px 20px; /* Збільшено відступи */
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+}
+
+.resource-item h4 {
+    color: #1e88e5; /* Насичений синій */
+    font-size: clamp(1.2rem, 3.2vw, 1.45rem);
+    margin-bottom: 10px;
+}
+
+/* Стилі для .resource-link тепер будуть братися з global.css .btn .btn-success */
+/* Якщо потрібні унікальні стилі для resource-link, їх можна додати тут */
+.resource-item .resource-link {
+    /* Наслідує .btn з global.css */
+    /* Приклад застосування глобального стилю в HTML:
+       <a href="..." class="btn btn-success resource-link">Завантажити</a> 
+    */
+    /* Якщо потрібно переписати щось конкретно для resource-link: */
+    margin-top: 10px;
+    padding: 10px 18px; /* Трохи більші кнопки */
+    font-size: 1.05rem;
+}
+
+
+.coming-soon {
+    font-style: italic;
+    color: #78909c; /* Блакитно-сірий */
+    font-size: 0.95rem;
+    background-color: #f0f4f8;
+    padding: 5px 10px;
+    border-radius: 4px;
+    display: inline-block; /* Щоб фон був лише під текстом */
+    margin-top: 5px;
+}
+
+/* Кнопки навігації внизу сторінки */
+/* Клас .nav-buttons-footer тепер може бути .bottom-nav-buttons з lessons.css 
+   або мати власні унікальні стилі, якщо дизайн відрізняється.
+   Припускаємо, що основні стилі для .btn беруться з global.css */
+.nav-buttons-footer {
+    display: flex;
+    flex-wrap: wrap; /* Дозволити кнопкам переноситись на маленьких екранах */
+    gap: 15px;
+    justify-content: center;
     margin-top: 35px;
     margin-bottom: 20px;
     padding-top: 20px;
-    border-top: 1px solid var(--border-light);
+    border-top: 1px solid #e0e0e0; /* Лінія розділювач */
 }
 
+/* Стилізація кнопок в .nav-buttons-footer через глобальні класи .btn */
+/* Наприклад, в HTML:
+   <a href="index.html" class="btn btn-success">🎨 До Редактора</a>
+   <a href="lessons.html" class="btn btn-primary">📚 До Уроків</a>
+*/
+
+
+/* Адаптивність для маленьких екранів */
 @media (max-width: 768px) {
     .resource-section {
         padding: 15px;
     }
-
     .resource-section h2 {
         font-size: clamp(1.5rem, 5vw, 1.8rem);
     }
-
     .resource-section h3 {
         font-size: clamp(1.2rem, 4vw, 1.4rem);
     }
-
-    .resource-item h4 {
+     .resource-item h4 {
         font-size: clamp(1.1rem, 3.5vw, 1.3rem);
     }
-
     .resource-item .resource-link {
-        width: 100%;
+        width: 100%; /* Кнопки на всю ширину */
         text-align: center;
     }
 }
 
 @media (max-width: 600px) {
+    /* body стилі вже є в global.css для адаптивності */
     .nav-buttons-footer {
-        flex-direction: column;
+        flex-direction: column; /* Кнопки одна під одною */
     }
-
-    .nav-buttons-footer .main-btn {
-        width: 90%;
-        max-width: 300px;
+    .nav-buttons-footer .btn { /* Успадковує .btn з global.css */
+        width: 90%; /* Не на всю ширину, щоб був невеликий відступ */
+        max-width: 300px; /* Максимальна ширина для великих телефонів */
         margin-left: auto;
         margin-right: auto;
     }
-
-    .nav-buttons-footer .main-btn:not(:last-child) {
+     .nav-buttons-footer .btn:not(:last-child) { /* Додаємо відступ, якщо не останній */
         margin-bottom: 10px;
     }
 }

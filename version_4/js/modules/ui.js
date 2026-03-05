@@ -40,37 +40,22 @@ function showMessage(message, type = 'info', duration = 3000) {
     messageDiv.id = 'global-message-display';
     messageDiv.className = `message-global message-${type}-global`; // e.g., message-error-global
     messageDiv.setAttribute('role', type === 'error' ? 'alert' : 'status');
-    messageDiv.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
-    messageDiv.setAttribute('aria-atomic', 'true');
 
     let iconClass = 'fa-info-circle';
-    let titleText = 'Інфо';
-    if (type === 'success') {
-        iconClass = 'fa-check-circle';
-        titleText = 'Успіх';
-    }
-    if (type === 'error') {
-        iconClass = 'fa-exclamation-triangle';
-        titleText = 'Помилка';
-    }
-
-    // Keep stop-state message visually grouped with info messages.
+    if (type === 'success') iconClass = 'fa-check-circle';
+    if (type === 'error') iconClass = 'fa-exclamation-triangle';
+    
+    // Форматування повідомлення про зупинку для кращого відображення
     if (message.includes('Виконання зупинено')) {
-        iconClass = 'fa-hand-paper';
-        titleText = 'Інфо';
+        iconClass = 'fa-hand-paper'; // Іконка "зупинки"
     }
 
     messageDiv.innerHTML = `
-        <span class="message-text-global">
-            <i class="fas ${iconClass} message-icon-global" aria-hidden="true"></i>
-            <span class="message-content-global">
-                <strong class="message-title-global">${titleText}</strong>
-                <span class="message-main-global">${message}</span>
-            </span>
-        </span>
+        <span class="message-text-global"><i class="fas ${iconClass}"></i> ${message}</span>
         <button class="message-close-btn-global" aria-label="Закрити повідомлення"><i class="fas fa-times"></i></button>
     `;
 
+    // Вставляємо повідомлення у body замість вставки в потік документа
     document.body.appendChild(messageDiv);
 
     const closeBtn = messageDiv.querySelector('.message-close-btn-global');
@@ -83,6 +68,7 @@ function showMessage(message, type = 'info', duration = 3000) {
     if (duration > 0) {
         messageTimeout = setTimeout(removeMessage, duration);
     }
+    // Play sound for errors
     if (type === 'error') {
         try {
             playErrorBeep();
@@ -107,15 +93,12 @@ export function hideMessage() {
 
 
 // --- Modal Management ---
-function modalOverlayIdToContentId(modalId) {
-    return modalId.endsWith('-overlay')
-        ? `${modalId.slice(0, -'-overlay'.length)}-content`
-        : `${modalId}-content`;
-}
-
 function toggleModal(modalId, show) {
     const modalOverlay = document.getElementById(modalId);
-    const modalContentId = modalOverlayIdToContentId(modalId);
+    // Fix: get direct modalContent id which already contains -content suffix
+    const modalContentId = modalId === 'help-modal-overlay' ? 'help-modal-content' : 
+                         (modalId === 'clear-confirm-modal-overlay' ? 'clear-confirm-modal-content' :
+                         (modalId === 'stop-confirm-modal-overlay' ? 'stop-confirm-modal-content' : `${modalId}-content`));
     const modalContent = document.getElementById(modalContentId);
     
     if (modalOverlay) {
@@ -126,8 +109,6 @@ function toggleModal(modalId, show) {
             if (modalContent) {
                 const focusable = modalContent.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
                 if (focusable) focusable.focus();
-            } else {
-                console.warn(`Modal content with id ${modalContentId} not found for overlay ${modalId}`);
             }
         } else {
             modalOverlay.classList.add('hidden');
@@ -217,7 +198,7 @@ export function updateRavlykVisualsOnScreen(ravlykState, canvasElement) {
 
 // --- Command Indicator ---
 let commandIndicatorElement = null;
-export function updateCommandIndicator(commandText, index, totalCommands = null) {
+export function updateCommandIndicator(commandText, index) {
     if (!commandIndicatorElement) {
         commandIndicatorElement = document.createElement('div');
         commandIndicatorElement.id = 'ravlyk-command-indicator';
@@ -240,9 +221,7 @@ export function updateCommandIndicator(commandText, index, totalCommands = null)
     }
 
     if (commandText && index >= 0) {
-        const hasTotal = Number.isInteger(totalCommands) && totalCommands > 0;
-        const prefix = hasTotal ? `[${index + 1}/${totalCommands}]` : `[${index + 1}]`;
-        commandIndicatorElement.textContent = `${prefix} ${commandText}`;
+        commandIndicatorElement.textContent = `[${index + 1}] ${commandText}`;
         commandIndicatorElement.style.opacity = '1';
     } else {
         commandIndicatorElement.style.opacity = '0';

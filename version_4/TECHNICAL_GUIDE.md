@@ -183,37 +183,29 @@ Behavior:
 ## 8.1 Main page (`index.html` + `js/main.js`)
 
 Responsibilities:
-- toolbar actions (run/stop/clear/save/help) in the current committed template,
+- toolbar actions (run/stop/clear/save/share/grid/help),
+- current short labels: `Запустити`, `Стоп`, `Скинути`, `Сітка`, `Довідка`, `Малюнок`, `Код`, `Поділитися`,
 - smart idle prefetch of secondary pages (`manual.html`, `lessons.html`, `quiz.html`, `resources.html`) on good connections (skips `Save-Data` and `2g`),
-- active/error line highlighting in editor overlays,
+- editor line numbers and active/error line highlighting,
 - help/confirm modals,
 - examples launcher,
-- examples navigation controls (`Назад` / `Далі`) plus keyboard focus navigation (`ArrowLeft`/`ArrowRight`),
-- command indicator with progress format (`[current/total] command`) during queue execution,
-- internal navigation buttons use same-tab transitions (`window.location.assign`) instead of forcing new tabs,
+- command reference tabs,
+- workspace tabs (`Редактор` / `Полотно`) on small and medium screens,
 - state synchronization with interpreter.
 
 ### 8.2 Mobile behavior (current)
 
 Implemented responsive behavior:
-- compact single-page layout (current base template has no required workspace-tab split),
-- examples support horizontal scroll behavior on narrow screens,
-- visible swipe hint text and explicit previous/next controls on examples block,
-- keyboard-safe examples interaction (Enter/Space run; ArrowLeft/ArrowRight move focus).
+- compact toolbar on small screens,
+- icon-only toolbar labels on phone widths,
+- workspace tab switching for editor/canvas up to tablet width,
+- command category tabs in the reference block are arranged as a balanced 2x2 grid on phones,
+- optimized examples block:
+  - tablet: compact grid,
+  - phone: horizontal scroll cards,
+  - visible swipe hint text is shown above examples on phones.
 
-### 8.3 UX message pattern (unified)
-
-Global runtime messages (`success`, `info`, `error`) are standardized through one render + style pattern:
-- single container `#global-message-display` with typed modifier class (`message-success-global`, `message-info-global`, `message-error-global`),
-- unified internal structure: icon + message meta (`title`) + message body + close button,
-- semantic live announcements (`role=status|alert`, `aria-live=polite|assertive`, `aria-atomic=true`),
-- common layout/spacing/interaction; type difference is only accent token (`--message-accent`) and type background,
-- close-button hover also derives from the same accent token for visual consistency.
-
-Implementation references:
-- `js/modules/ui.js` (`showMessage()` markup/ARIA contract),
-- `css/global.css` (shared message geometry + tokenized accent styling).
-## 8.4 Manual page mobile TOC
+## 8.3 Manual page mobile TOC
 
 `manual.html` + `manual.css` now include:
 - mobile TOC toggle button,
@@ -259,15 +251,15 @@ The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 `tests/e2e/index.smoke.spec.js` covers:
 - help modal (`Esc`, focus return),
 - accessibility panel (focus containment + persistence),
-- arrow-key scroll blocking in `РіСЂР°С‚Рё`,
-- smoke execution via game code run/stop path,
-- global UX-message contract (`success/info/error` classes, ARIA semantics, dismiss action),
-- mobile/tablet workspace-tab canvas-preservation check is conditional and skipped when workspace tabs are absent in the active `index.html` template.
+- arrow-key scroll blocking in `грати`,
+- smoke execution via example block + stop,
+- mobile/tablet workspace tab switching keeps canvas content (no reset on `Редактор` <-> `Полотно` switch).
 
 Projects in `playwright.config.js`:
 - `chromium` (desktop),
 - `mobile-chrome` (phone viewport),
 - `tablet-chrome` (tablet viewport).
+
 ## 12. CI
 
 Workflow:
@@ -296,74 +288,15 @@ Parser/UI unit tests:
 ## 14. Known technical debt / open points
 
 1. CSS complexity
-- styles are spread across multiple files with partial overlaps; token extraction is now applied across `global.css`, `main-editor.css`, `lessons.css`, and `resources.css`, modal `help-content` base styling is centralized in `global.css`, `resources.css` duplicate base blocks were removed, and unused legacy modal utility selectors in `global.css` were deleted; broader component-level consolidation is still needed.
+- styles are spread across multiple files with partial overlaps; refactoring into clearer design tokens/components is still desirable.
 
 2. Mixed execution model history
-- decision (2026-03-05): keep `queue` as the production-stable default non-game execution mode; `ast_experimental` is a validated migration candidate (direct AST path for non-animated and animated execution, with queue fallback in environments without RAF). Default switch should be done only in a dedicated rollout step with rollback option.
+- despite parser cleanup, non-game mode still uses queue adaptation for compatibility with existing runtime structure.
 
 3. Documentation drift risk
 - this file should be updated whenever grammar, command contracts, or responsive behavior changes.
 
-4. Template/code feature skew
-- legacy command/workspace tab compatibility branches were removed from `main.js` to match the current simplified `index.html` layout; keep E2E assertions aligned with the active template.
-
-5. UX message styles cleanup
-- message styles are unified, duplicate type-specific rules were reduced, and `!important` usage in the message block (including container positioning layer) was partially reduced; selector specificity for the global message contract was also simplified (`#global-message-display`-based), and remaining cleanup is mostly outside the unified contract.
-
-## 15. Audit recommendations status (as of 2026-03-05)
-
-Implemented:
-- safer same-tab navigation for internal links (no forced new tabs),
-- examples UX improvements (prev/next controls, swipe hint, keyboard flow),
-- command indicator progress (`[current/total]`),
-- contrast hardening for critical controls,
-- unified runtime UX-message pattern (`success/info/error`) with shared semantics and visual structure,
-- unified button/container base styling across pages (`.btn`/`.main-btn` compatibility and shared nav container layout),
-- modal styling consolidation in `global.css` (shared help-modal list styling + explicit `.btn-secondary` variant for modal actions),
-- stop-confirmation modal alignment: restored `index.html` stop modal markup expected by `main.js` (`#stop-confirm-modal-overlay`, `#confirm-stop-btn`, `#cancel-stop-btn`) to avoid run-pause dead-end on Stop action,
-- modal wiring cleanup in `ui.js`: replaced hardcoded modal-id mapping with a deterministic `-overlay -> -content` rule for lower maintenance risk when adding future modals,
-- `main.js` modal handling cleanup: cached modal overlay references and added null-safe `Escape` checks to avoid runtime errors if a modal block is temporarily absent in template variants,
-- `main.js` modal flow cleanup: deduplicated overlay-open checks and backdrop-dismiss wiring via small helpers (`isOverlayOpen`, `bindOverlayDismiss`) to reduce event-flow maintenance risk,
-- E2E coverage extended for stop-flow UX: `Escape` during active execution now has explicit smoke coverage to guarantee stop-confirm modal behavior across desktop/mobile/tablet,
-- E2E modal keyboard coverage expanded: clear/stop confirmation modals now have explicit `Escape` close + focus-return smoke assertions,
-- interpreter boundary prep: extracted `prepareNonGameProgramExecution(programAst)` in `ravlykInterpreter.js` as explicit non-game AST->queue adapter step (behavior preserved, migration surface clarified),
-- interpreter dispatch boundary prep: extracted `executeProgramAst(programAst)` to make game-vs-non-game execution routing explicit and unit-covered for both paths,
-- interpreter lifecycle cleanup: simplified `executeCommands()` error/finalization flow (single `finally` reset path) and added unit coverage that `isExecuting` resets after parse failures,
-- interpreter dispatch prep (phase 2): introduced `shouldExecuteGameProgram(programAst)` as explicit game-path decision hook and covered it with unit tests for game/non-game AST detection,
-- interpreter dispatch prep (phase 3): extracted `executeNonGameProgramAst(programAst)` and covered `executeProgramAst` delegation into this non-game hook for safer future queue-to-AST migration,
-- interpreter dispatch prep (phase 4): extracted `hasGameStatementInBody(body)` helper and reused it in game-contract validation to reduce repeated ad-hoc wrappers,
-- interpreter dispatch prep (phase 5): introduced explicit non-game execution mode strategy hook (`getNonGameExecutionMode`, currently `queue`) and queue-path dispatcher (`executeNonGameProgramAstViaQueue`) with unit checks for supported/unsupported modes,
-- interpreter dispatch prep (phase 6): added explicit non-game mode setter (`setNonGameExecutionMode`) with validation to make future staged AST-mode rollout configurable without touching main execution flow,
-- interpreter dispatch prep (phase 7): `ast_experimental` now executes non-game AST directly when animation is disabled, while preserving safe behavioral parity by falling back to queue path when animation is enabled,
-- interpreter dispatch prep (phase 8): direct-AST experimental path now mirrors control-flow essentials (stop pre-check and command-indicator progress updates per AST statement) to reduce runtime-behavior skew against queue mode,
-- interpreter dispatch prep (phase 9): direct-AST experimental path now waits correctly in paused state and handles stop-while-paused, improving control-flow parity with queue runtime for non-animated execution,
-- interpreter dispatch prep (phase 10): `ast_experimental` now supports animated direct-AST execution (including nested AST control flow) and uses queue fallback only when `requestAnimationFrame` is unavailable,
-- interpreter dispatch prep (phase 11): primitive runtime command execution was unified through a shared helper used by both queue runtime and animated direct-AST path, reducing duplication and parity risk during further migration,
-- interpreter dispatch prep (phase 12): direct and animated AST statement execution now share one core executor (`executeAstStatementsCore`) with mode-specific primitive handling, reducing duplicated control-flow logic (`Assignment/FunctionCall/Repeat/If`) and lowering maintenance risk,
-- accessibility CSS cleanup (phase 13): removed duplicate toggle-focus and obsolete early `a11y-reduce-animations` overrides in `accessibility.css` (later stricter reduce-motion rules remain authoritative), reducing cascade ambiguity without behavior change,
-- accessibility CSS cleanup (phase 14): simplified high-contrast modal overlay override in `global.css` to the actual delta (`background`) and removed duplicated base geometry declarations already provided by shared `.modal-overlay` styles,
-- accessibility CSS cleanup (phase 15): centralized lessons-page high-contrast refinements in `accessibility.css` and removed the duplicated block from `lessons.css`, establishing a single accessibility source of truth for lesson UI states,
-- accessibility CSS cleanup (phase 16): removed duplicated high-contrast declarations in `accessibility.css` by trimming generic block overlap (`tab-button`/`lesson-content`) and deleting redundant header/course/footer color rules already covered by shared text-color selectors,
-- accessibility CSS cleanup (phase 17): normalized high-contrast palette literals into dedicated CSS variables (`--hc-*`) and replaced repeated hardcoded values across links/buttons/focus/messages/modals, reducing color-maintenance fragmentation without visual contract changes,
-- accessibility CSS cleanup (phase 18): completed high-contrast variable adoption for remaining button/modal/lessons/accessibility-panel declarations (`--bg-color/--text-color/--border-color/--hc-*`), eliminating most hardcoded black/white literals in active a11y styles,
-- accessibility regression hardening (phase 19): added Playwright smoke coverage for high-contrast visual contract on index page (button text/border contrast + help-modal high-contrast background/border), so further a11y CSS cleanup is guarded by executable checks,
-- accessibility CSS cleanup: removed obsolete legacy message-style block (`.success-message-global/.error-message-global`) and aligned high-contrast a11y-message selectors to `#global-message-display`,
-- accessibility CSS cleanup (phase 2): removed duplicated high-contrast button/modal rules that were fully overridden later in the same file, keeping effective behavior unchanged,
-- accessibility CSS cleanup (phase 3): narrowed toggle selectors from global `input` to `.toggle-switch input` and removed redundant high-contrast modal ID/button rules already covered by shared selectors,
-- accessibility CSS cleanup (phase 4): removed duplicated early high-contrast coverage for `.btn/.accessibility-header/.accessibility-option` and dropped unused `.code-editor` selector (kept `#code-editor`),
-- CSS consolidation (phase 5): moved shared `.course-header` base typography/colors to `global.css`; `lessons.css` now keeps only page-specific spacing overrides and `resources.css` uses the shared base directly,
-- CSS consolidation (phase 6): unified duplicated page `@keyframes fadeIn` into global `@keyframes section-fade-in-up`, reused by both `lessons.css` and `resources.css`,
-- accessibility CSS cleanup (phase 7): removed unused high-contrast CSS custom properties (`--link-*`, `--btn-*`) from `accessibility.css` after selector simplification,
-- accessibility CSS cleanup (phase 8): removed dead early high-contrast selectors (`.example-section/.panel/.card`) not present in current templates, while preserving active component coverage,
-- regression coverage for current template in unit + Playwright smoke tests.
-
-Partially implemented / in progress:
-- technical documentation alignment is ongoing; this guide is updated, but should stay in lockstep after each UI/template change.
-
-Remaining high-value items from audit direction:
-- CSS architecture consolidation (component boundaries + gradual removal of remaining legacy overlaps),
-
-## 16. Change checklist for contributors
+## 15. Change checklist for contributors
 
 When adding a language feature:
 1. update parser AST generation,
@@ -373,7 +306,7 @@ When adding a language feature:
 5. add/update E2E smoke if UI/interaction changes,
 6. update this document and user docs (`manual.html`, `lessons.html`).
 
-## 17. Single-source principle
+## 16. Single-source principle
 
 For technical orientation, prefer this file over `README.md` if there is mismatch.
 `README.md` can stay short/public-facing; this guide is the detailed engineering source.

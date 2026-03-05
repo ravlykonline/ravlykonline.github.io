@@ -11,7 +11,9 @@ import {
 import {
     ERROR_MESSAGES, SUCCESS_MESSAGES, INFO_MESSAGES,
     MAX_CODE_LENGTH_CHARS, EXECUTION_TIMEOUT_MS,
-    DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND
+    HELP_MODAL_CONTENT_ID, CLEAR_CONFIRM_MODAL_ID,
+    DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND,
+    GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y
 } from './modules/constants.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -26,12 +28,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const stopBtn = document.getElementById("stop-btn");
     const clearBtn = document.getElementById("clear-btn");
     const saveBtn = document.getElementById("save-btn");
+    const saveCodeBtn = document.getElementById("save-code-btn");
+    const shareBtn = document.getElementById("share-btn");
+    const gridBtn = document.getElementById("grid-btn");
     const helpBtn = document.getElementById("help-btn");
+    const gridCanvas = document.getElementById("ravlyk-grid-canvas");
 
     const exampleBlocks = document.querySelectorAll(".example-block");
-    const exampleBlocksContainer = document.querySelector(".example-blocks");
-    const examplesPrevBtn = document.getElementById("examples-prev-btn");
-    const examplesNextBtn = document.getElementById("examples-next-btn");
+    const commandTabs = document.querySelectorAll(".commands-tab");
+    const commandTabPanels = document.querySelectorAll(".commands-tab-panels [data-tab-panel]");
+    const workspaceTabs = document.querySelectorAll(".workspace-tab");
+    const workspacePanels = document.querySelectorAll(".main-area [data-workspace-panel]");
     const toManualBtnMain = document.getElementById("to-manual-btn");
     const toLessonsBtnMain = document.getElementById("to-lessons-btn");
 
@@ -42,9 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearCancelBtn = document.getElementById("cancel-clear-btn");
     const stopConfirmBtn = document.getElementById("confirm-stop-btn");
     const stopCancelBtn = document.getElementById("cancel-stop-btn");
-    const helpModalOverlay = document.getElementById('help-modal-overlay');
-    const clearConfirmModalOverlay = document.getElementById('clear-confirm-modal-overlay');
-    const stopConfirmModalOverlay = document.getElementById('stop-confirm-modal-overlay');
 
     if (!canvas || typeof canvas.getContext !== 'function') {
         showError(ERROR_MESSAGES.CANVAS_NOT_SUPPORTED, 0);
@@ -55,34 +59,303 @@ document.addEventListener('DOMContentLoaded', () => {
         showError(ERROR_MESSAGES.CANVAS_CONTEXT_ERROR, 0);
         return;
     }
+    const gridCtx = gridCanvas ? gridCanvas.getContext("2d") : null;
+    const GRID_STORAGE_KEY = 'ravlyk_grid_visible_v1';
+    const MAX_SHARE_URL_LENGTH_CHARS = 7000;
+    let isGridVisible = false;
     let editorErrorLine = null;
     let scheduleResize = () => {};
-    let activeExampleIndex = 0;
 
-    function updateExampleNavState() {
-        if (!exampleBlocks.length) return;
-        if (activeExampleIndex < 0) activeExampleIndex = 0;
-        if (activeExampleIndex > exampleBlocks.length - 1) activeExampleIndex = exampleBlocks.length - 1;
-
-        if (examplesPrevBtn) examplesPrevBtn.disabled = activeExampleIndex === 0;
-        if (examplesNextBtn) examplesNextBtn.disabled = activeExampleIndex >= exampleBlocks.length - 1;
-    }
-
-    function focusExampleByIndex(index) {
-        if (!exampleBlocks.length) return;
-        const boundedIndex = Math.max(0, Math.min(index, exampleBlocks.length - 1));
-        activeExampleIndex = boundedIndex;
-        const block = exampleBlocks[boundedIndex];
-        block.focus();
-        if (exampleBlocksContainer) {
-            block.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+    function loadGridPreference() {
+        try {
+            return localStorage.getItem(GRID_STORAGE_KEY) === '1';
+        } catch (error) {
+            return false;
         }
-        updateExampleNavState();
     }
 
-    function moveExampleFocus(step) {
-        if (!exampleBlocks.length) return;
-        focusExampleByIndex(activeExampleIndex + step);
+    function saveGridPreference(value) {
+        try {
+            localStorage.setItem(GRID_STORAGE_KEY, value ? '1' : '0');
+        } catch (error) {
+            // ignore storage errors
+        }
+    }
+
+    function setupCommandTabs() {
+        if (!commandTabs.length || !commandTabPanels.length) return;
+        const panelsContainer = document.querySelector('.commands-tab-panels');
+
+        const measurePanelHeight = (panel) => {
+            if (!panel.classList.contains('hidden')) {
+                return panel.offsetHeight;
+            }
+
+            const prev = {
+                display: panel.style.display,
+                position: panel.style.position,
+                visibility: panel.style.visibility,
+                pointerEvents: panel.style.pointerEvents,
+                left: panel.style.left,
+                top: panel.style.top,
+                width: panel.style.width,
+            };
+
+            panel.style.display = 'grid';
+            panel.style.position = 'absolute';
+            panel.style.visibility = 'hidden';
+            panel.style.pointerEvents = 'none';
+            panel.style.left = '-9999px';
+            panel.style.top = '0';
+            panel.style.width = panelsContainer ? `${panelsContainer.clientWidth}px` : '100%';
+
+            const measured = panel.offsetHeight;
+
+            panel.style.display = prev.display;
+            panel.style.position = prev.position;
+            panel.style.visibility = prev.visibility;
+            panel.style.pointerEvents = prev.pointerEvents;
+            panel.style.left = prev.left;
+            panel.style.top = prev.top;
+            panel.style.width = prev.width;
+
+            return measured;
+        };
+
+        const syncPanelsHeight = () => {
+            if (!panelsContainer) return;
+            let maxHeight = 0;
+            commandTabPanels.forEach((panel) => {
+                maxHeight = Math.max(maxHeight, measurePanelHeight(panel));
+            });
+            panelsContainer.style.minHeight = `${Math.ceil(maxHeight)}px`;
+        };
+
+        const setActiveTab = (tabName) => {
+            commandTabs.forEach((tab) => {
+                const isActive = tab.dataset.tabTarget === tabName;
+                tab.classList.toggle('active', isActive);
+                tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                tab.setAttribute('tabindex', isActive ? '0' : '-1');
+            });
+            commandTabPanels.forEach((panel) => {
+                const isActive = panel.dataset.tabPanel === tabName;
+                panel.classList.toggle('hidden', !isActive);
+            });
+        };
+
+        const findTabByName = (tabName) => Array.from(commandTabs).find((tab) => tab.dataset.tabTarget === tabName);
+
+        commandTabs.forEach((tab) => {
+            tab.addEventListener('click', () => {
+                setActiveTab(tab.dataset.tabTarget);
+            });
+            tab.addEventListener('keydown', (event) => {
+                const tabsArr = Array.from(commandTabs);
+                const index = tabsArr.indexOf(tab);
+                if (index < 0) return;
+                let targetIndex = null;
+                if (event.key === 'ArrowRight') targetIndex = (index + 1) % tabsArr.length;
+                if (event.key === 'ArrowLeft') targetIndex = (index - 1 + tabsArr.length) % tabsArr.length;
+                if (targetIndex === null) return;
+                event.preventDefault();
+                const targetTab = tabsArr[targetIndex];
+                setActiveTab(targetTab.dataset.tabTarget);
+                targetTab.focus();
+            });
+        });
+
+        const initiallyActive = Array.from(commandTabs).find((tab) => tab.classList.contains('active')) || commandTabs[0];
+        setActiveTab(initiallyActive.dataset.tabTarget);
+        syncPanelsHeight();
+
+        // Defensive sync when HTML was server-rendered without active tab class.
+        const firstPanel = commandTabPanels[0];
+        const firstTab = findTabByName(firstPanel?.dataset.tabPanel || '');
+        if (!Array.from(commandTabs).some((tab) => tab.classList.contains('active')) && firstTab) {
+            setActiveTab(firstTab.dataset.tabTarget);
+        }
+
+        window.addEventListener('resize', syncPanelsHeight);
+    }
+
+    function setupWorkspaceTabs() {
+        if (!workspaceTabs.length || !workspacePanels.length) return;
+        const mobileMedia = window.matchMedia('(max-width: 1024px)');
+        let activeTarget = (Array.from(workspaceTabs).find((tab) => tab.classList.contains('active')) || workspaceTabs[0]).dataset.workspaceTarget;
+
+        const setActiveWorkspace = (target) => {
+            if (!mobileMedia.matches) {
+                workspaceTabs.forEach((tab, idx) => {
+                    const isActive = idx === 0;
+                    tab.classList.toggle('active', isActive);
+                    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                    tab.setAttribute('tabindex', isActive ? '0' : '-1');
+                });
+                workspacePanels.forEach((panel) => {
+                    panel.classList.remove('active-panel', 'hidden');
+                    panel.setAttribute('aria-hidden', 'false');
+                });
+                return;
+            }
+
+            activeTarget = target;
+            workspaceTabs.forEach((tab) => {
+                const isActive = tab.dataset.workspaceTarget === target;
+                tab.classList.toggle('active', isActive);
+                tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                tab.setAttribute('tabindex', isActive ? '0' : '-1');
+            });
+
+            workspacePanels.forEach((panel) => {
+                const isActive = panel.dataset.workspacePanel === target;
+                panel.classList.toggle('active-panel', isActive);
+                panel.classList.toggle('hidden', !isActive);
+                panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+            });
+
+            if (target === 'canvas') {
+                scheduleResize();
+            }
+        };
+
+        workspaceTabs.forEach((tab) => {
+            tab.addEventListener('click', () => {
+                setActiveWorkspace(tab.dataset.workspaceTarget);
+            });
+
+            tab.addEventListener('keydown', (event) => {
+                const tabsArr = Array.from(workspaceTabs);
+                const index = tabsArr.indexOf(tab);
+                if (index < 0) return;
+                let targetIndex = null;
+                if (event.key === 'ArrowRight') targetIndex = (index + 1) % tabsArr.length;
+                if (event.key === 'ArrowLeft') targetIndex = (index - 1 + tabsArr.length) % tabsArr.length;
+                if (targetIndex === null) return;
+                event.preventDefault();
+                const targetTab = tabsArr[targetIndex];
+                setActiveWorkspace(targetTab.dataset.workspaceTarget);
+                targetTab.focus();
+            });
+        });
+
+        setActiveWorkspace(activeTarget);
+        mobileMedia.addEventListener('change', () => {
+            setActiveWorkspace(activeTarget);
+        });
+    }
+
+    function updateGridButtonState() {
+        if (!gridBtn) return;
+        gridBtn.setAttribute('aria-pressed', String(isGridVisible));
+        gridBtn.classList.toggle('active', isGridVisible);
+    }
+
+    function drawGridOverlay() {
+        if (!gridCanvas || !gridCtx || !canvasContainer) return;
+
+        const canvasRect = canvas.getBoundingClientRect();
+        const containerRect = canvasContainer.getBoundingClientRect();
+        const offsetX = Math.round(canvasRect.left - containerRect.left);
+        const offsetY = Math.round(canvasRect.top - containerRect.top);
+
+        gridCanvas.style.left = `${offsetX}px`;
+        gridCanvas.style.top = `${offsetY}px`;
+        gridCanvas.style.width = `${canvas.clientWidth}px`;
+        gridCanvas.style.height = `${canvas.clientHeight}px`;
+
+        if (gridCanvas.width !== canvas.width) gridCanvas.width = canvas.width;
+        if (gridCanvas.height !== canvas.height) gridCanvas.height = canvas.height;
+
+        gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+        if (!isGridVisible) {
+            gridCanvas.style.display = 'none';
+            return;
+        }
+
+        gridCanvas.style.display = 'block';
+
+        const width = gridCanvas.width;
+        const height = gridCanvas.height;
+        // Important: Ravlyk starts at canvas.width/2 and canvas.height/2 exactly.
+        // Use the same origin math for the grid to avoid half-pixel drift.
+        const centerX = (width / 2) + GRID_ALIGN_OFFSET_X;
+        const centerY = (height / 2) + GRID_ALIGN_OFFSET_Y;
+        const minorStep = 25;
+        const majorStep = 100;
+
+        const drawVerticalLine = (x, isMajor) => {
+            gridCtx.beginPath();
+            gridCtx.strokeStyle = isMajor ? 'rgba(74, 111, 165, 0.3)' : 'rgba(74, 111, 165, 0.15)';
+            gridCtx.lineWidth = isMajor ? 1 : 0.5;
+            gridCtx.moveTo(x, 0);
+            gridCtx.lineTo(x, height);
+            gridCtx.stroke();
+        };
+
+        const drawHorizontalLine = (y, isMajor) => {
+            gridCtx.beginPath();
+            gridCtx.strokeStyle = isMajor ? 'rgba(74, 111, 165, 0.3)' : 'rgba(74, 111, 165, 0.15)';
+            gridCtx.lineWidth = isMajor ? 1 : 0.5;
+            gridCtx.moveTo(0, y);
+            gridCtx.lineTo(width, y);
+            gridCtx.stroke();
+        };
+
+        for (let x = centerX; x <= width; x += minorStep) {
+            drawVerticalLine(x, Math.abs(x - centerX) % majorStep === 0);
+        }
+        for (let x = centerX - minorStep; x >= 0; x -= minorStep) {
+            drawVerticalLine(x, Math.abs(x - centerX) % majorStep === 0);
+        }
+        for (let y = centerY; y <= height; y += minorStep) {
+            drawHorizontalLine(y, Math.abs(y - centerY) % majorStep === 0);
+        }
+        for (let y = centerY - minorStep; y >= 0; y -= minorStep) {
+            drawHorizontalLine(y, Math.abs(y - centerY) % majorStep === 0);
+        }
+
+        // Axes (0, 0) like in Scratch: center is origin, Y grows upwards for labels.
+        gridCtx.beginPath();
+        gridCtx.strokeStyle = 'rgba(255, 99, 71, 0.8)';
+        gridCtx.lineWidth = 1.5;
+        gridCtx.moveTo(centerX, 0);
+        gridCtx.lineTo(centerX, height);
+        gridCtx.stroke();
+
+        gridCtx.beginPath();
+        gridCtx.strokeStyle = 'rgba(50, 205, 50, 0.8)';
+        gridCtx.lineWidth = 1.5;
+        gridCtx.moveTo(0, centerY);
+        gridCtx.lineTo(width, centerY);
+        gridCtx.stroke();
+
+        gridCtx.fillStyle = 'rgba(51, 51, 51, 0.85)';
+        gridCtx.font = '12px Nunito, sans-serif';
+        gridCtx.textBaseline = 'middle';
+
+        for (let x = centerX + majorStep; x <= width; x += majorStep) {
+            gridCtx.fillText(String(Math.round(x - centerX)), x + 4, Math.min(height - 10, centerY + 14));
+        }
+        for (let x = centerX - majorStep; x >= 0; x -= majorStep) {
+            gridCtx.fillText(String(Math.round(x - centerX)), x + 4, Math.min(height - 10, centerY + 14));
+        }
+        for (let y = centerY + majorStep; y <= height; y += majorStep) {
+            gridCtx.fillText(String(Math.round(centerY - y)), Math.min(width - 36, centerX + 6), y - 2);
+        }
+        for (let y = centerY - majorStep; y >= 0; y -= majorStep) {
+            gridCtx.fillText(String(Math.round(centerY - y)), Math.min(width - 36, centerX + 6), y - 2);
+        }
+
+        gridCtx.fillStyle = 'rgba(51, 51, 51, 0.95)';
+        gridCtx.fillText('0, 0', Math.min(width - 36, centerX + 6), Math.max(12, centerY - 10));
+    }
+
+    function setGridVisibility(visible) {
+        isGridVisible = !!visible;
+        updateGridButtonState();
+        saveGridPreference(isGridVisible);
+        drawGridOverlay();
     }
 
     if (window.ravlykInterpreterInstance && typeof window.ravlykInterpreterInstance.destroy === 'function') {
@@ -91,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     createRavlykSprite(canvasContainer);
     const interpreter = new RavlykInterpreter(ctx, canvas, updateRavlykVisualsOnScreen, updateCommandIndicator, showInfoMessage);
+    setupCommandTabs();
     
     // Make interpreter instance globally accessible for accessibility module if needed (alternative to event bus)
     window.ravlykInterpreterInstance = interpreter;
@@ -106,6 +380,9 @@ document.addEventListener('DOMContentLoaded', () => {
         stopBtn.disabled = !isExecuting;
         clearBtn.disabled = isExecuting;
         saveBtn.disabled = isExecuting;
+        if (saveCodeBtn) saveCodeBtn.disabled = isExecuting;
+        if (shareBtn) shareBtn.disabled = isExecuting;
+        if (gridBtn) gridBtn.disabled = isExecuting;
         helpBtn.disabled = isExecuting;
         codeEditor.disabled = isExecuting;
         exampleBlocks.forEach(b => b.classList.toggle('disabled', isExecuting));
@@ -322,6 +599,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function saveCodeToFile() {
+        try {
+            const code = codeEditor.value || '';
+            const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.download = `ravlyk-code-${Date.now()}.txt`;
+            link.href = URL.createObjectURL(blob);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+            showSuccessMessage("Код збережено!");
+        } catch (error) {
+            showError(`Не вдалося зберегти код: ${error.message}`, 0);
+        }
+    }
+
+    function encodeCodeForUrlHash(code) {
+        const bytes = new TextEncoder().encode(code);
+        let binary = "";
+        bytes.forEach((byte) => {
+            binary += String.fromCharCode(byte);
+        });
+        return btoa(binary)
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/g, '');
+    }
+
     function decodeCodeFromUrlHash(encodedValue) {
         const normalized = String(encodedValue || '')
             .replace(/-/g, '+')
@@ -333,6 +639,60 @@ document.addEventListener('DOMContentLoaded', () => {
             bytes[i] = binary.charCodeAt(i);
         }
         return new TextDecoder().decode(bytes);
+    }
+
+    async function copyTextToClipboard(text) {
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            await navigator.clipboard.writeText(text);
+            return;
+        }
+
+        const helper = document.createElement('textarea');
+        helper.value = text;
+        helper.setAttribute('readonly', '');
+        helper.style.position = 'fixed';
+        helper.style.opacity = '0';
+        helper.style.pointerEvents = 'none';
+        document.body.appendChild(helper);
+        helper.focus();
+        helper.select();
+        const copied = document.execCommand('copy');
+        document.body.removeChild(helper);
+        if (!copied) {
+            throw new Error('clipboard copy failed');
+        }
+    }
+
+    function buildShareLink(code) {
+        const encoded = encodeCodeForUrlHash(code);
+        const url = new URL(window.location.href);
+        url.hash = `code=${encoded}`;
+        return url.toString();
+    }
+
+    async function shareCodeAsLink() {
+        const code = codeEditor.value || '';
+        if (!code.trim()) {
+            showInfoMessage('Поле коду порожнє. Додай команди перед поширенням.');
+            return;
+        }
+        if (code.length > MAX_CODE_LENGTH_CHARS) {
+            showError(ERROR_MESSAGES.CODE_TOO_LONG, 0);
+            return;
+        }
+
+        const shareLink = buildShareLink(code);
+        if (shareLink.length > MAX_SHARE_URL_LENGTH_CHARS) {
+            showError('Код завеликий для посилання. Скористайся кнопкою "Код".', 0);
+            return;
+        }
+
+        try {
+            await copyTextToClipboard(shareLink);
+            showSuccessMessage('Посилання з кодом скопійовано!');
+        } catch (error) {
+            showError('Не вдалося скопіювати посилання. Спробуй ще раз.', 0);
+        }
     }
 
     function loadCodeFromUrlHash() {
@@ -393,11 +753,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.setTimeout(startPrefetch, 1200);
     }
 
-    function navigateToInternalPage(url) {
-        if (!url) return;
-        window.location.assign(url);
-    }
-
     // --- Event Listeners ---
     if (runBtn) runBtn.addEventListener("click", runCode);
     if (clearBtn) clearBtn.addEventListener("click", () => {
@@ -405,6 +760,9 @@ document.addEventListener('DOMContentLoaded', () => {
         showClearConfirmModal();
     });
     if (saveBtn) saveBtn.addEventListener('click', saveDrawing);
+    if (saveCodeBtn) saveCodeBtn.addEventListener('click', saveCodeToFile);
+    if (shareBtn) shareBtn.addEventListener('click', shareCodeAsLink);
+    if (gridBtn) gridBtn.addEventListener('click', () => setGridVisibility(!isGridVisible));
     if (helpBtn) helpBtn.addEventListener('click', showHelpModal);
 
     function openStopConfirmDialog() {
@@ -420,16 +778,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function isOverlayOpen(overlayElement) {
-        return Boolean(overlayElement && !overlayElement.classList.contains('hidden'));
-    }
-
-    function bindOverlayDismiss(overlayElement, onDismiss) {
-        overlayElement?.addEventListener('click', (event) => {
-            if (event.target === event.currentTarget) onDismiss();
-        });
-    }
-
     if (stopBtn) stopBtn.addEventListener("click", () => {
         openStopConfirmDialog();
     });
@@ -441,7 +789,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (helpModalCloseBtn) helpModalCloseBtn.addEventListener('click', hideHelpModal);
     if (helpModalToManualBtn) {
         helpModalToManualBtn.addEventListener('click', () => {
-            navigateToInternalPage('manual.html');
+            window.open('manual.html', '_blank');
             hideHelpModal();
         });
     }
@@ -464,7 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close modals on Escape key
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
-            const stopModalOpen = isOverlayOpen(stopConfirmModalOverlay);
+            const stopModalOpen = !document.getElementById('stop-confirm-modal-overlay').classList.contains('hidden');
             if (stopModalOpen) {
                 closeStopConfirmDialog(true);
                 return;
@@ -477,22 +825,31 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // Якщо відкрите модальне вікно - закриваємо його
-            if (isOverlayOpen(helpModalOverlay)) {
+            if (!document.getElementById('help-modal-overlay').classList.contains('hidden')) {
                 hideHelpModal();
             }
-            if (isOverlayOpen(clearConfirmModalOverlay)) {
+            if (!document.getElementById('clear-confirm-modal-overlay').classList.contains('hidden')) {
                 hideClearConfirmModal();
+            }
+            if (!document.getElementById('stop-confirm-modal-overlay').classList.contains('hidden')) {
+                closeStopConfirmDialog(true);
             }
         }
     });
     // Close modals on overlay click
-    bindOverlayDismiss(helpModalOverlay, hideHelpModal);
-    bindOverlayDismiss(clearConfirmModalOverlay, hideClearConfirmModal);
-    bindOverlayDismiss(stopConfirmModalOverlay, () => closeStopConfirmDialog(true));
+    document.getElementById('help-modal-overlay')?.addEventListener('click', (event) => {
+        if (event.target === event.currentTarget) hideHelpModal();
+    });
+    document.getElementById('clear-confirm-modal-overlay')?.addEventListener('click', (event) => {
+        if (event.target === event.currentTarget) hideClearConfirmModal();
+    });
+    document.getElementById('stop-confirm-modal-overlay')?.addEventListener('click', (event) => {
+        if (event.target === event.currentTarget) closeStopConfirmDialog(true);
+    });
 
 
-    if (toManualBtnMain) toManualBtnMain.addEventListener('click', () => navigateToInternalPage('manual.html'));
-    if (toLessonsBtnMain) toLessonsBtnMain.addEventListener('click', () => navigateToInternalPage('lessons.html'));
+    if (toManualBtnMain) toManualBtnMain.addEventListener('click', () => window.open('manual.html', '_blank'));
+    if (toLessonsBtnMain) toLessonsBtnMain.addEventListener('click', () => window.open('lessons.html', '_blank'));
 
     exampleBlocks.forEach((block) => {
         block.addEventListener("click", () => {
@@ -504,10 +861,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 runCode(); // Run example code immediately
             }
         });
-        block.addEventListener('focus', () => {
-            activeExampleIndex = Array.from(exampleBlocks).indexOf(block);
-            updateExampleNavState();
-        });
         // Make examples keyboard accessible
         block.setAttribute('role', 'button');
         block.setAttribute('tabindex', '0');
@@ -516,27 +869,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 block.click();
-                return;
-            }
-            if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                moveExampleFocus(-1);
-                return;
-            }
-            if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                moveExampleFocus(1);
             }
         });
     });
-
-    if (examplesPrevBtn) {
-        examplesPrevBtn.addEventListener('click', () => moveExampleFocus(-1));
-    }
-    if (examplesNextBtn) {
-        examplesNextBtn.addEventListener('click', () => moveExampleFocus(1));
-    }
-    updateExampleNavState();
 
     codeEditor.addEventListener("keydown", function(e) {
         if (interpreter.isExecuting && e.key !== "Escape") { // Allow Escape to try to stop
@@ -573,6 +908,7 @@ document.addEventListener('DOMContentLoaded', () => {
             interpreter.applyContextSettings(); // Re-apply settings as resize might clear them
             interpreter.handleCanvasResize(resizeMeta); // Keep state aligned with moved canvas center
         });
+        drawGridOverlay();
     };
 
     const initialSetup = () => {
@@ -597,8 +933,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener("resize", scheduleResize);
     }
     
+    isGridVisible = loadGridPreference();
+    updateGridButtonState();
     initialSetup(); // Initial call
     loadCodeFromUrlHash();
+    setupWorkspaceTabs();
     scheduleSecondaryPagesPrefetch();
 
     // Placeholder logic for textarea

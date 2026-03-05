@@ -70,7 +70,7 @@ html.a11y-reduce-animations .accessibility-toggle i {
 }
 
 .accessibility-panel.show-panel {
-    display: block !important;
+    display: block;
     animation: slideIn 0.3s forwards;
 }
 
@@ -83,6 +83,10 @@ html.a11y-reduce-animations .accessibility-toggle i {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+}
+
+.accessibility-panel.show-panel {
+    display: block !important;
 }
 
 .accessibility-header {
@@ -177,11 +181,15 @@ html.a11y-reduce-animations .accessibility-toggle i {
     border-radius: 50%;
 }
 
-.toggle-switch input:checked + .toggle-slider {
+input:checked + .toggle-slider {
     background-color: #32cd32;
 }
 
-.toggle-switch input:checked + .toggle-slider:before {
+input:focus + .toggle-slider {
+    box-shadow: 0 0 1px #32cd32;
+}
+
+input:checked + .toggle-slider:before {
     transform: translateX(26px);
 }
 
@@ -197,17 +205,14 @@ html.a11y-reduce-animations .accessibility-toggle i {
 .a11y-high-contrast {
     --bg-color: #000 !important;
     --text-color: #fff !important;
+    --link-color: #00CCFF !important;
+    --link-hover-color: #ff9900 !important;
+    --btn-primary-bg: #3d85c6 !important;
+    --btn-success-bg: #38761d !important;
+    --btn-warning-bg: #e69138 !important;
+    --btn-danger-bg: #cc0000 !important;
+    --btn-info-bg: #3d85c6 !important;
     --border-color: #fff !important;
-    --hc-toggle-off: #555 !important;
-    --hc-link-color: #7dd3ff !important;
-    --hc-link-hover-color: #ffe082 !important;
-    --hc-button-disabled-text: #9aa0a6 !important;
-    --hc-button-disabled-border: #666 !important;
-    --hc-button-disabled-bg: #111 !important;
-    --hc-hover-surface: #222 !important;
-    --hc-toggle-on: #0a7d34 !important;
-    --hc-message-border: #7dd3ff !important;
-    --hc-modal-title: #ffe082 !important;
 }
 
 .a11y-high-contrast body {
@@ -215,10 +220,31 @@ html.a11y-reduce-animations .accessibility-toggle i {
     color: var(--text-color);
 }
 
+.a11y-high-contrast a {
+    color: var(--link-color);
+}
+
+.a11y-high-contrast a:hover {
+    color: var(--link-hover-color);
+}
+
+.a11y-high-contrast .btn-primary {
+    background-color: var(--btn-primary-bg);
+    color: var(--text-color);
+}
+
 /* Додаткові стилі для високого контрасту */
+.a11y-high-contrast .btn,
+.a11y-high-contrast .tab-button,
 .a11y-high-contrast .example-block,
+.a11y-high-contrast .example-section,
 .a11y-high-contrast .accessibility-panel,
+.a11y-high-contrast .accessibility-header,
+.a11y-high-contrast .accessibility-option,
+.a11y-high-contrast .lesson-content,
 .a11y-high-contrast .resource-item,
+.a11y-high-contrast .panel,
+.a11y-high-contrast .card,
 .a11y-high-contrast .main-header,
 .a11y-high-contrast .content-container {
     background-color: var(--bg-color) !important;
@@ -226,9 +252,44 @@ html.a11y-reduce-animations .accessibility-toggle i {
     border-color: var(--border-color) !important;
 }
 
+.a11y-high-contrast .btn-danger,
+.a11y-high-contrast .btn-warning,
+.a11y-high-contrast .btn-info,
+.a11y-high-contrast .btn-success,
+.a11y-high-contrast .btn-primary {
+    color: var(--text-color) !important;
+}
+
 .a11y-high-contrast .accessibility-panel,
-.a11y-high-contrast .resource-item {
+.a11y-high-contrast .lesson-content,
+.a11y-high-contrast .resource-item,
+.a11y-high-contrast .panel,
+.a11y-high-contrast .card {
     box-shadow: 0 0 0 2px var(--border-color) !important;
+}
+
+.a11y-high-contrast .btn-success {
+    background-color: var(--btn-success-bg);
+    color: var(--text-color);
+}
+
+.a11y-high-contrast .btn-warning {
+    background-color: var(--btn-warning-bg);
+    color: #000;
+}
+
+.a11y-high-contrast .btn-danger {
+    background-color: var(--btn-danger-bg);
+    color: var(--text-color);
+}
+
+.a11y-high-contrast .btn-info {
+    background-color: var(--btn-info-bg);
+    color: var(--text-color);
+}
+
+.a11y-high-contrast header.main-header {
+    color: var(--text-color);
 }
 
 .a11y-high-contrast .code-box,
@@ -237,9 +298,10 @@ html.a11y-reduce-animations .accessibility-toggle i {
     background-color: var(--bg-color);
 }
 
+.a11y-high-contrast .code-editor,
 .a11y-high-contrast #code-editor {
-    background-color: var(--hc-button-disabled-bg);
-    color: var(--text-color);
+    background-color: #111;
+    color: #fff;
     border-color: var(--border-color);
 }
 
@@ -267,6 +329,17 @@ html.a11y-reduce-animations .accessibility-toggle i {
 
 .a11y-larger-text #code-editor {
     font-size: 1.2rem !important;
+}
+
+/* Зменшення анімації */
+.a11y-reduce-animations * {
+    animation-duration: 0.001s !important;
+    transition-duration: 0.001s !important;
+}
+
+.a11y-reduce-animations .btn:hover {
+    transform: none !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
 
 /* Простий шрифт */
@@ -325,6 +398,81 @@ html.a11y-reduce-animations .accessibility-toggle i {
     font-style: normal !important;
 }
 
+/* Повідомлення поверх сайту */
+.error-message-global, .success-message-global {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20000;
+    width: max-content;
+    min-width: 320px;
+    max-width: 90vw;
+    pointer-events: auto;
+    opacity: 0.98;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+    margin: 0;
+    transition: opacity 0.2s;
+    padding: 10px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.success-message-global {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+    border-left: 4px solid #4caf50;
+}
+
+.error-message-global {
+    background-color: #ffebee;
+    color: #b71c1c;
+    border-left: 4px solid #f44336;
+}
+
+.message-text-global {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+.message-close-btn-global {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 12px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s, background-color 0.2s;
+}
+
+.message-close-btn-global:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Стилі для Font Awesome іконок */
+.success-message-global .fa-check-circle {
+    color: #4CAF50;
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+.error-message-global .fa-exclamation-circle {
+    color: #f44336;
+    margin-right: 8px;
+    font-size: 18px;
+}
+
 
 /* Збільшені інтервали */
 .a11y-increased-spacing {
@@ -363,156 +511,138 @@ html.a11y-reduce-animations .accessibility-toggle i {
     color: var(--text-color) !important;
 }
 
+.a11y-high-contrast header.main-header,
+.a11y-high-contrast header.main-header h1,
+.a11y-high-contrast header.main-header h2,
+.a11y-high-contrast .course-header,
+.a11y-high-contrast .course-header h1,
+.a11y-high-contrast .course-header p,
+.a11y-high-contrast footer.main-footer,
+.a11y-high-contrast footer.main-footer p {
+    color: #fff !important;
+}
+
 .a11y-high-contrast a {
-    color: var(--hc-link-color) !important;
+    color: #7dd3ff !important;
     text-decoration: underline;
 }
 
 .a11y-high-contrast a:hover,
 .a11y-high-contrast a:focus-visible {
-    color: var(--hc-link-hover-color) !important;
+    color: #ffe082 !important;
 }
 
 .a11y-high-contrast .btn {
-    background: var(--bg-color) !important;
-    color: var(--text-color) !important;
-    border: 2px solid var(--border-color) !important;
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
     box-shadow: none !important;
 }
 
 .a11y-high-contrast .btn:hover,
 .a11y-high-contrast .btn:focus-visible {
-    background: var(--text-color) !important;
-    color: var(--bg-color) !important;
+    background: #fff !important;
+    color: #000 !important;
 }
 
 .a11y-high-contrast .btn:disabled,
 .a11y-high-contrast .btn[disabled] {
     opacity: 1 !important;
-    color: var(--hc-button-disabled-text) !important;
-    border-color: var(--hc-button-disabled-border) !important;
-    background: var(--hc-button-disabled-bg) !important;
+    color: #9aa0a6 !important;
+    border-color: #666 !important;
+    background: #111 !important;
 }
 
 .a11y-high-contrast :focus-visible {
-    outline: 3px solid var(--hc-link-color) !important;
+    outline: 3px solid #7dd3ff !important;
     outline-offset: 2px;
-    box-shadow: 0 0 0 2px var(--bg-color) !important;
+    box-shadow: 0 0 0 2px #000 !important;
     border-radius: 6px;
 }
 
 .a11y-high-contrast .accessibility-header {
-    background: var(--bg-color) !important;
-    color: var(--text-color) !important;
-    border-bottom: 1px solid var(--border-color) !important;
+    background: #000 !important;
+    color: #fff !important;
+    border-bottom: 1px solid #fff !important;
 }
 
 .a11y-high-contrast .accessibility-option {
-    background: var(--bg-color) !important;
-    color: var(--text-color) !important;
+    background: #000 !important;
+    color: #fff !important;
 }
 
 .a11y-high-contrast .toggle-slider {
-    background-color: var(--hc-toggle-off) !important;
-    border: 1px solid var(--border-color) !important;
+    background-color: #555 !important;
+    border: 1px solid #fff !important;
 }
 
 .a11y-high-contrast .toggle-slider:before {
-    background-color: var(--text-color) !important;
+    background-color: #fff !important;
 }
 
 .a11y-high-contrast input:checked + .toggle-slider {
-    background-color: var(--hc-toggle-on) !important;
+    background-color: #0a7d34 !important;
 }
 
 .a11y-high-contrast .accessibility-footer {
-    border-top: 1px solid var(--border-color) !important;
+    border-top: 1px solid #fff !important;
 }
 
 /* Ensure all modal variants are readable in high-contrast mode */
-.a11y-high-contrast .modal-content {
-    background: var(--bg-color) !important;
-    color: var(--text-color) !important;
-    border: 2px solid var(--border-color) !important;
+.a11y-high-contrast .modal-overlay .modal-content,
+.a11y-high-contrast .modal-content,
+.a11y-high-contrast #clear-confirm-modal-content,
+.a11y-high-contrast #stop-confirm-modal-content,
+.a11y-high-contrast #help-modal-content {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
     box-shadow: none !important;
 }
 
+.a11y-high-contrast .modal-overlay .modal-content h2,
+.a11y-high-contrast .modal-overlay .modal-content p,
+.a11y-high-contrast .modal-overlay .modal-content strong,
+.a11y-high-contrast .modal-overlay .modal-content li {
+    color: #fff !important;
+}
 .a11y-high-contrast .modal-content,
 .a11y-high-contrast .modal-content * {
-    color: var(--text-color) !important;
+    color: #fff !important;
 }
 
 .a11y-high-contrast .modal-content .modal-title {
-    color: var(--hc-modal-title) !important;
+    color: #ffe082 !important;
 }
 
-.a11y-high-contrast #global-message-display.message-a11y-global {
-    background: var(--bg-color) !important;
-    color: var(--text-color) !important;
-    border: 2px solid var(--border-color) !important;
-    border-left: 6px solid var(--hc-message-border) !important;
+.a11y-high-contrast .modal-content .btn {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
+}
+
+.a11y-high-contrast .modal-content .btn:hover,
+.a11y-high-contrast .modal-content .btn:focus-visible {
+    background: #fff !important;
+    color: #000 !important;
+}
+
+.a11y-high-contrast body #global-message-display.message-a11y-global {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
+    border-left: 6px solid #7dd3ff !important;
     background-image: none !important;
 }
 
-.a11y-high-contrast #global-message-display.message-a11y-global .message-text-global,
-.a11y-high-contrast #global-message-display.message-a11y-global i,
-.a11y-high-contrast #global-message-display.message-a11y-global .message-close-btn-global {
-    color: var(--text-color) !important;
+.a11y-high-contrast body #global-message-display.message-a11y-global .message-text-global,
+.a11y-high-contrast body #global-message-display.message-a11y-global i,
+.a11y-high-contrast body #global-message-display.message-a11y-global .message-close-btn-global {
+    color: #fff !important;
 }
 
-.a11y-high-contrast #global-message-display.message-a11y-global .message-close-btn-global:hover {
-    background-color: var(--hc-hover-surface) !important;
-}
-
-/* Lessons page: high-contrast refinements centralized here */
-.a11y-high-contrast .tabs-container,
-.a11y-high-contrast .lesson-content,
-.a11y-high-contrast .lesson-content .why-important,
-.a11y-high-contrast .lesson-content .code-example,
-.a11y-high-contrast .task,
-.a11y-high-contrast .tip {
-    background: var(--bg-color) !important;
-    color: var(--text-color) !important;
-    border-color: var(--border-color) !important;
-    box-shadow: none !important;
-}
-
-.a11y-high-contrast .tab-button {
-    color: var(--text-color) !important;
-    border: 1px solid var(--border-color) !important;
-}
-
-.a11y-high-contrast .tab-button:hover,
-.a11y-high-contrast .tab-button:focus-visible {
-    background: var(--hc-hover-surface) !important;
-    color: var(--text-color) !important;
-}
-
-.a11y-high-contrast .tab-button.active {
-    background: var(--text-color) !important;
-    color: var(--bg-color) !important;
-    border-color: var(--border-color) !important;
-}
-
-.a11y-high-contrast .lesson-content h2,
-.a11y-high-contrast .lesson-content h3,
-.a11y-high-contrast .lesson-content .why-important h4,
-.a11y-high-contrast .task h4,
-.a11y-high-contrast .tip strong {
-    color: var(--text-color) !important;
-    border-color: var(--border-color) !important;
-}
-
-.a11y-high-contrast .lesson-image {
-    border: 2px solid var(--border-color) !important;
-    box-shadow: none !important;
-}
-
-.a11y-high-contrast .navigation-buttons__btn:disabled {
-    background: var(--hc-hover-surface) !important;
-    color: var(--hc-button-disabled-text) !important;
-    border-color: var(--hc-button-disabled-border) !important;
-    opacity: 1;
+.a11y-high-contrast body #global-message-display.message-a11y-global .message-close-btn-global:hover {
+    background-color: #222 !important;
 }
 
 .a11y-larger-text .accessibility-panel {

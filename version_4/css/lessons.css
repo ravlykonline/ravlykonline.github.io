@@ -1,27 +1,35 @@
 /* css/lessons.css */
-.course-header {
+.course-header { /* Specific to lessons page, if different from global main-header */
+    text-align: center;
     margin-bottom: 25px;
+    color: #4b0082;
 }
 
 .course-header h1 {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
     margin-bottom: 8px;
+}
+
+.course-header p {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    color: #555;
 }
 
 .tabs-container {
     display: flex;
     flex-wrap: nowrap;
     margin-bottom: 20px;
-    background-color: var(--surface-lilac-soft); /* Lighter purple */
+    background-color: #e7e3f3; /* Lighter purple */
     border-radius: 8px;
     padding: 5px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
-    scrollbar-color: var(--btn-primary-bg) var(--neutral-200);
+    scrollbar-color: #6a5acd #e0e0e0;
 }
 .tabs-container::-webkit-scrollbar { height: 6px; }
-.tabs-container::-webkit-scrollbar-track { background: var(--neutral-200); border-radius: 3px; }
-.tabs-container::-webkit-scrollbar-thumb { background-color: var(--btn-primary-bg); border-radius: 3px; }
+.tabs-container::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 3px; }
+.tabs-container::-webkit-scrollbar-thumb { background-color: #6a5acd; border-radius: 3px; }
 
 .tab-button {
     padding: 10px 15px;
@@ -30,7 +38,7 @@
     background-color: transparent;
     font-size: clamp(0.9rem, 2.5vw, 1rem);
     font-weight: bold;
-    color: var(--color-heading);
+    color: #4b0082;
     border-radius: 5px;
     transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
     flex-shrink: 0;
@@ -39,23 +47,28 @@
 }
 .tab-button:last-child { margin-right: 0; }
 .tab-button:hover, .tab-button:focus-visible {
-    background-color: var(--surface-lilac-soft-strong);
-    color: var(--text-heading-deep);
+    background-color: #d0c0e0;
+    color: #300052;
 }
 .tab-button.active {
-    background-color: var(--btn-primary-bg);
-    color: var(--btn-on-solid-text);
+    background-color: #6a5acd;
+    color: white;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .lesson-content {
     display: none; /* Initially hidden, JS will make it active */
     padding: 20px; /* Increased padding */
-    background-color: var(--surface-white);
+    background-color: white;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border: 2px solid var(--btn-primary-bg);
-    animation: section-fade-in-up 0.4s ease-out;
+    border: 2px solid #6a5acd;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .lesson-content.active {
@@ -63,15 +76,15 @@
 }
 
 .lesson-content h2 {
-    color: var(--color-link-hover); /* Tomato */
+    color: #ff6347; /* Tomato */
     font-size: clamp(1.5rem, 4vw, 2rem); /* Slightly larger */
     margin-bottom: 18px; /* Increased margin */
     padding-bottom: 8px;
-    border-bottom: 2px dashed var(--color-link-hover);
+    border-bottom: 2px dashed #ff6347;
 }
 
 .lesson-content h3 {
-    color: var(--accent-teal-deep); /* Teal */
+    color: #00796b; /* Teal */
     font-size: clamp(1.3rem, 3.5vw, 1.6rem); /* Slightly larger */
     margin-top: 25px;
     margin-bottom: 12px;
@@ -92,14 +105,14 @@
 }
 
 .lesson-content .why-important {
-    background-color: var(--info-blue-bg); /* Light blue */
-    border-left: 5px solid var(--info-blue-accent); /* Blue */
+    background-color: #e6f7ff; /* Light blue */
+    border-left: 5px solid #1890ff; /* Blue */
     padding: 18px; /* Increased padding */
     margin: 25px 0;
     border-radius: 8px;
 }
 .lesson-content .why-important h4 {
-    color: var(--info-blue-text); /* Dark blue */
+    color: #0050b3; /* Dark blue */
     font-size: clamp(1.1rem, 3vw, 1.3rem); /* Slightly larger */
     margin-bottom: 12px;
 }
@@ -108,8 +121,8 @@
 }
 
 .lesson-content .code-example {
-    background-color: var(--code-block-bg);
-    border-left: 5px solid var(--btn-success-bg); /* Green */
+    background-color: #f8f9fa;
+    border-left: 5px solid #32cd32; /* Green */
     padding: 12px 18px; /* Adjusted padding */
     margin: 20px 0;
     font-family: 'Fira Mono', 'Consolas', 'Courier New', monospace;
@@ -121,14 +134,14 @@
 }
 
 .task {
-    background-color: var(--task-yellow-bg); /* Light yellow */
-    border: 2px dashed var(--task-yellow-accent); /* Orange */
+    background-color: #fffbe6; /* Light yellow */
+    border: 2px dashed #ffa500; /* Orange */
     padding: 18px;
     margin-top: 25px;
     border-radius: 8px;
 }
 .task h4 {
-    color: var(--task-yellow-text); /* Dark orange */
+    color: #ff8c00; /* Dark orange */
     font-size: clamp(1.1rem, 3vw, 1.3rem);
     margin-bottom: 10px;
 }
@@ -137,15 +150,15 @@
 }
 
 .tip {
-    background-color: var(--tip-cyan-bg); /* Light cyan */
-    border-left: 5px solid var(--tip-cyan-accent); /* Teal */
+    background-color: #e0f7fa; /* Light cyan */
+    border-left: 5px solid #4db6ac; /* Teal */
     padding: 12px 18px;
     margin-top: 20px;
     border-radius: 6px;
     font-size: clamp(0.9rem, 2.5vw, 1rem);
 }
  .tip strong {
-    color: var(--tip-cyan-text); /* Dark teal */
+    color: #00897b; /* Dark teal */
  }
 
 .navigation-buttons {
@@ -160,7 +173,7 @@
     max-width: calc(50% - 7.5px); /* For two buttons with gap */
 }
 .navigation-buttons__btn:disabled {
-    background-color: var(--state-disabled-bg);
+    background-color: #ccc;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -174,7 +187,7 @@
     margin: 20px auto; /* Centered with more margin */
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border: 1px solid var(--border-soft); /* Subtle border */
+    border: 1px solid #eee; /* Subtle border */
 }
 .lesson-image-fullwidth {
     max-width: 100%; /* Allow full width if specified */
@@ -182,6 +195,10 @@
 }
 
 .bottom-nav-buttons { /* For buttons like "To Editor", "To Manual" at the very bottom */
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping */
+    justify-content: center;
+    gap: 15px;
     margin: 30px auto 10px auto;
 }
 
@@ -210,6 +227,57 @@
     .lesson-content h3 { font-size: 1.3rem; }
     .lesson-content p, .lesson-content li { font-size: 0.9rem; }
     .lesson-content .code-example { font-size: 0.85rem; padding: 10px 12px;}
+}
+
+/* --- Accessibility refinements: lessons page --- */
+.a11y-high-contrast .tabs-container,
+.a11y-high-contrast .lesson-content,
+.a11y-high-contrast .lesson-content .why-important,
+.a11y-high-contrast .lesson-content .code-example,
+.a11y-high-contrast .task,
+.a11y-high-contrast .tip {
+    background: #000 !important;
+    color: #fff !important;
+    border-color: #fff !important;
+    box-shadow: none !important;
+}
+
+.a11y-high-contrast .tab-button {
+    color: #fff !important;
+    border: 1px solid #fff !important;
+}
+
+.a11y-high-contrast .tab-button:hover,
+.a11y-high-contrast .tab-button:focus-visible {
+    background: #222 !important;
+    color: #fff !important;
+}
+
+.a11y-high-contrast .tab-button.active {
+    background: #fff !important;
+    color: #000 !important;
+    border-color: #fff !important;
+}
+
+.a11y-high-contrast .lesson-content h2,
+.a11y-high-contrast .lesson-content h3,
+.a11y-high-contrast .lesson-content .why-important h4,
+.a11y-high-contrast .task h4,
+.a11y-high-contrast .tip strong {
+    color: #fff !important;
+    border-color: #fff !important;
+}
+
+.a11y-high-contrast .lesson-image {
+    border: 2px solid #fff !important;
+    box-shadow: none !important;
+}
+
+.a11y-high-contrast .navigation-buttons__btn:disabled {
+    background: #222 !important;
+    color: #aaa !important;
+    border-color: #666 !important;
+    opacity: 1;
 }
 
 .a11y-larger-text .tab-button,
