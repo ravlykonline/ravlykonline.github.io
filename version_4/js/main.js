@@ -683,7 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const shareLink = buildShareLink(code);
         if (shareLink.length > MAX_SHARE_URL_LENGTH_CHARS) {
-            showError('Код завеликий для посилання. Скористайся кнопкою "Зберегти код".', 0);
+            showError('Код завеликий для посилання. Скористайся кнопкою "Код".', 0);
             return;
         }
 
