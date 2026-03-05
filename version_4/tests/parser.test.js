@@ -565,6 +565,25 @@ runTest('edge detection uses visual margin, not only center point', () => {
     assert.equal(interpreter.isAtCanvasEdge(), true);
 });
 
+runTest('edge detection does not trigger early before margin', () => {
+    const interpreter = createInterpreter();
+    const margin = interpreter.getBoundaryMargin();
+
+    interpreter.state.x = interpreter.canvas.width - margin - 1;
+    interpreter.state.y = interpreter.canvas.height / 2;
+    assert.equal(interpreter.isAtCanvasEdge(), false);
+
+    interpreter.state.x = interpreter.canvas.width - margin;
+    assert.equal(interpreter.isAtCanvasEdge(), true);
+
+    interpreter.state.x = interpreter.canvas.width / 2;
+    interpreter.state.y = margin + 1;
+    assert.equal(interpreter.isAtCanvasEdge(), false);
+
+    interpreter.state.y = margin;
+    assert.equal(interpreter.isAtCanvasEdge(), true);
+});
+
 runTest('performGoto clamps to visual margin bounds', () => {
     const interpreter = createInterpreter();
     const margin = interpreter.getBoundaryMargin();

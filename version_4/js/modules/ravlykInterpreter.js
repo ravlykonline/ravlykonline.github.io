@@ -7,7 +7,9 @@ import {
 import { RavlykParser, RavlykError } from './ravlykParser.js';
 import { Environment } from './environment.js';
 
-const RAVLYK_VISUAL_BOUNDARY_RADIUS_PX = 30;
+// State coordinates track the turtle tip (not sprite center),
+// so a large visual radius causes premature edge triggers.
+const RAVLYK_VISUAL_BOUNDARY_RADIUS_PX = 0;
 
 export class RavlykInterpreter {
     constructor(context, canvas, ravlykVisualUpdater, commandIndicatorUpdater, infoNotifier) {
