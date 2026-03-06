@@ -1,256 +1,195 @@
-// js/accessibility.js
-const ACCESSIBILITY_STORAGE_KEY = 'ravlyk_accessibility_settings_v2'; // v2 to avoid conflicts
+import {
+    ACCESSIBILITY_OPTIONS,
+    getDefaultAccessibilitySettings,
+    loadAccessibilitySettings,
+    saveAccessibilitySettings,
+    applyAccessibilitySettings,
+    updateAccessibilityCheckboxes,
+} from './modules/accessibilitySettings.js';
+import { showAccessibilityNotification } from './modules/accessibilityNotifications.js';
 
-const ACCESSIBILITY_OPTIONS = {
-  'high-contrast': { className: 'a11y-high-contrast', defaultValue: false, label: 'Високий контраст' },
-  'larger-text': { className: 'a11y-larger-text', defaultValue: false, label: 'Збільшений текст' },
-  'reduce-animations': { className: 'a11y-reduce-animations', defaultValue: false, label: 'Зменшення анімації' },
-  'sans-serif-font': { className: 'a11y-sans-serif-font', defaultValue: false, label: 'Простий шрифт' },
-  'increased-spacing': { className: 'a11y-increased-spacing', defaultValue: false, label: 'Збільшені інтервали' }
-};
 let accessibilityInitialized = false;
 let lastFocusedBeforePanel = null;
 
-function showAccessibilityNotification(message) {
-    // Очищаємо будь-які існуючі повідомлення про доступність
-    const existing = document.getElementById('global-message-display');
-    if (existing) existing.remove();
-    
-    // Створюємо нове повідомлення з іконкою
-    const messageDiv = document.createElement('div');
-    messageDiv.id = 'global-message-display';
-    messageDiv.className = 'message-global message-a11y-global'; // Спеціальний клас для повідомлень доступності
-    messageDiv.setAttribute('role', 'status');
-    messageDiv.setAttribute('aria-live', 'polite');
-    messageDiv.setAttribute('aria-atomic', 'true');
-    
-    // Вибираємо відповідну іконку на основі змісту повідомлення
-    let iconClass = 'fa-universal-access'; // Стандартна іконка доступності
-    
-    if (message.includes('контраст')) {
-        iconClass = 'fa-adjust'; // Контраст
-    } else if (message.includes('текст')) {
-        iconClass = 'fa-font'; // Розмір тексту
-    } else if (message.includes('анімації')) {
-        iconClass = 'fa-film'; // Анімації
-    } else if (message.includes('шрифт')) {
-        iconClass = 'fa-text-width'; // Шрифт
-    } else if (message.includes('інтервали')) {
-        iconClass = 'fa-expand'; // Інтервали
-    } else if (message.includes('скинуто')) {
-        iconClass = 'fa-undo'; // Скидання налаштувань
-    }
-    
-    // Генеруємо HTML для повідомлення з іконкою
-    messageDiv.innerHTML = `
-        <span class="message-text-global"><i class="fas ${iconClass}"></i> ${message}</span>
-        <button class="message-close-btn-global" aria-label="Закрити повідомлення"><i class="fas fa-times"></i></button>
-    `;
-    
-    // Вставляємо повідомлення у body
-    document.body.appendChild(messageDiv);
-    
-    // Автоматично закриваємо повідомлення через 2 секунди
-    const closeTimeout = setTimeout(() => messageDiv.remove(), 6000);
-    
-    // Додаємо функціональність кнопки закриття
-    const closeBtn = messageDiv.querySelector('.message-close-btn-global');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            clearTimeout(closeTimeout);
-            messageDiv.remove();
-        }, { once: true });
-    }
+function getWindowRef() {
+    return typeof window !== 'undefined' ? window : null;
 }
 
-function getDefaultAccessibilitySettings() {
-  const defaults = {};
-  for (const key in ACCESSIBILITY_OPTIONS) {
-    defaults[key] = ACCESSIBILITY_OPTIONS[key].defaultValue;
-  }
-
-  try {
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      defaults['reduce-animations'] = true;
-    }
-  } catch (error) {
-    console.error('Error checking prefers-reduced-motion:', error);
-  }
-
-  return defaults;
+function getDocumentRef() {
+    return typeof document !== 'undefined' ? document : null;
 }
 
-function loadAccessibilitySettings() {
-  try {
-    const stored = localStorage.getItem(ACCESSIBILITY_STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
-  } catch (error) {
-    console.error('Error loading accessibility settings:', error);
-  }
-  return getDefaultAccessibilitySettings();
+function loadSettings() {
+    const windowRef = getWindowRef();
+    return loadAccessibilitySettings({
+        storage: windowRef?.localStorage,
+        getDefaults: () => getDefaultAccessibilitySettings({
+            matchMediaFn: windowRef?.matchMedia ? windowRef.matchMedia.bind(windowRef) : null,
+            onError: (error) => console.error('Error checking prefers-reduced-motion:', error),
+        }),
+        onError: (error) => console.error('Error loading accessibility settings:', error),
+    });
 }
 
-function saveAccessibilitySettings(settings) {
-  try {
-    localStorage.setItem(ACCESSIBILITY_STORAGE_KEY, JSON.stringify(settings));
-  } catch (error) {
-    console.error('Error saving accessibility settings:', error);
-  }
+function saveSettings(settings) {
+    const windowRef = getWindowRef();
+    saveAccessibilitySettings(settings, {
+        storage: windowRef?.localStorage,
+        onError: (error) => console.error('Error saving accessibility settings:', error),
+    });
 }
 
-function applyAccessibilitySettings(settings) {
-  const htmlElement = document.documentElement;
-  for (const key in ACCESSIBILITY_OPTIONS) {
-    if (settings[key]) {
-      htmlElement.classList.add(ACCESSIBILITY_OPTIONS[key].className);
-    } else {
-      htmlElement.classList.remove(ACCESSIBILITY_OPTIONS[key].className);
-    }
-  }
-
-  // Inform the interpreter about animation preference
-  if (window.ravlykInterpreterInstance && typeof window.ravlykInterpreterInstance.setAnimationEnabled === 'function') {
-    window.ravlykInterpreterInstance.setAnimationEnabled(!settings['reduce-animations']);
-  }
+function applySettings(settings) {
+    const documentRef = getDocumentRef();
+    const windowRef = getWindowRef();
+    applyAccessibilitySettings(settings, {
+        htmlElement: documentRef?.documentElement || null,
+        accessibilityOptions: ACCESSIBILITY_OPTIONS,
+        interpreter: windowRef?.ravlykInterpreterInstance || null,
+    });
 }
 
-function updateAccessibilityCheckboxes(settings) {
-  for (const key in settings) {
-    const checkbox = document.querySelector(`input[data-setting="${key}"]`);
-    if (checkbox) checkbox.checked = settings[key];
-  }
+function syncAccessibilityCheckboxes(settings) {
+    const documentRef = getDocumentRef();
+    updateAccessibilityCheckboxes(settings, {
+        queryCheckbox: (key) => documentRef?.querySelector?.(`input[data-setting="${key}"]`) || null,
+    });
 }
 
 function updateAccessibilitySetting(settingKey, value) {
-  const settings = loadAccessibilitySettings();
-  settings[settingKey] = value;
-  saveAccessibilitySettings(settings);
-  applyAccessibilitySettings(settings);
+    const settings = loadSettings();
+    settings[settingKey] = value;
+    saveSettings(settings);
+    applySettings(settings);
 
-  const optionLabel = ACCESSIBILITY_OPTIONS[settingKey]?.label || settingKey;
-  showAccessibilityNotification(`${optionLabel} ${value ? 'увімкнено' : 'вимкнено'}`);
+    const optionLabel = ACCESSIBILITY_OPTIONS[settingKey]?.label || settingKey;
+    showAccessibilityNotification(`${optionLabel} ${value ? '\u0443\u0432\u0456\u043c\u043a\u043d\u0435\u043d\u043e' : '\u0432\u0438\u043c\u043a\u043d\u0435\u043d\u043e'}`);
 }
 
 function resetAccessibilitySettings() {
-  const defaults = {};
-  for (const key in ACCESSIBILITY_OPTIONS) {
-    defaults[key] = ACCESSIBILITY_OPTIONS[key].defaultValue;
-  }
-  saveAccessibilitySettings(defaults);
-  applyAccessibilitySettings(defaults);
-  updateAccessibilityCheckboxes(defaults);
-  showAccessibilityNotification('Налаштування доступності скинуто до стандартних.');
+    const defaults = getDefaultAccessibilitySettings({
+        matchMediaFn: null,
+    });
+    saveSettings(defaults);
+    applySettings(defaults);
+    syncAccessibilityCheckboxes(defaults);
+    showAccessibilityNotification('\u041d\u0430\u043b\u0430\u0448\u0442\u0443\u0432\u0430\u043d\u043d\u044f \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u043e\u0441\u0442\u0456 \u0441\u043a\u0438\u043d\u0443\u0442\u043e \u0434\u043e \u0441\u0442\u0430\u043d\u0434\u0430\u0440\u0442\u043d\u0438\u0445.');
 }
 
 function initAccessibilityControls() {
-  if (accessibilityInitialized) return;
-  const toggleButton = document.getElementById('accessibility-toggle');
-  const panel = document.getElementById('accessibility-panel');
-  const closeButton = document.getElementById('close-accessibility-panel-btn'); // Updated ID
-  const resetButton = document.getElementById('reset-accessibility-btn'); // Updated ID
-  
-  if (!toggleButton || !panel) {
-      console.warn("Accessibility toggle or panel not found. Controls will not be initialized.");
-      return;
-  }
+    if (accessibilityInitialized) return;
 
-  if (!panel.hasAttribute('tabindex')) {
-    panel.setAttribute('tabindex', '-1');
-  }
+    const documentRef = getDocumentRef();
+    if (!documentRef) return;
 
-  accessibilityInitialized = true;
+    const toggleButton = documentRef.getElementById('accessibility-toggle');
+    const panel = documentRef.getElementById('accessibility-panel');
+    const closeButton = documentRef.getElementById('close-accessibility-panel-btn');
+    const resetButton = documentRef.getElementById('reset-accessibility-btn');
 
-  const savedSettings = loadAccessibilitySettings();
-  applyAccessibilitySettings(savedSettings);
-  updateAccessibilityCheckboxes(savedSettings);
-
-  const getFocusableInPanel = () =>
-    Array.from(
-      panel.querySelectorAll(
-        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      )
-    ).filter(el => el.offsetParent !== null);
-
-  const closePanel = () => {
-    panel.classList.add('hidden');
-    toggleButton.setAttribute('aria-expanded', 'false');
-    if (lastFocusedBeforePanel && typeof lastFocusedBeforePanel.focus === 'function') {
-      lastFocusedBeforePanel.focus();
-    } else {
-      toggleButton.focus();
+    if (!toggleButton || !panel) {
+        console.warn('Accessibility toggle or panel not found. Controls will not be initialized.');
+        return;
     }
-  };
 
-  const openPanel = () => {
-    lastFocusedBeforePanel = document.activeElement;
-    panel.classList.remove('hidden');
-    toggleButton.setAttribute('aria-expanded', 'true');
-    const focusable = getFocusableInPanel();
-    (focusable[0] || panel).focus();
-  };
+    if (!panel.hasAttribute('tabindex')) {
+        panel.setAttribute('tabindex', '-1');
+    }
 
-  toggleButton.addEventListener('click', () => {
-    const isHidden = panel.classList.contains('hidden');
-    if (isHidden) openPanel();
-    else closePanel();
-  });
+    accessibilityInitialized = true;
 
-  if (closeButton) {
-    closeButton.addEventListener('click', () => {
-        closePanel();
-    });
-  }
+    const savedSettings = loadSettings();
+    applySettings(savedSettings);
+    syncAccessibilityCheckboxes(savedSettings);
 
-  if (resetButton) {
-    resetButton.addEventListener('click', () => {
-        resetAccessibilitySettings();
-        panel.querySelector('input[data-setting], button')?.focus();
-    });
-  }
+    const getFocusableInPanel = () =>
+        Array.from(
+            panel.querySelectorAll(
+                'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            )
+        ).filter((element) => element.offsetParent !== null);
 
-  document.querySelectorAll('.accessibility-setting-input').forEach(input => { // Updated class
-    input.addEventListener('change', function() {
-      updateAccessibilitySetting(this.dataset.setting, this.checked);
-    });
-  });
-
-  // Close panel on Escape key
-  panel.addEventListener('keydown', (event) => {
-    if (event.key === 'Tab' && !panel.classList.contains('hidden')) {
-        const focusable = getFocusableInPanel();
-        if (!focusable.length) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (event.shiftKey && document.activeElement === first) {
-            event.preventDefault();
-            last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-            event.preventDefault();
-            first.focus();
+    const closePanel = () => {
+        panel.classList.add('hidden');
+        toggleButton.setAttribute('aria-expanded', 'false');
+        if (lastFocusedBeforePanel && typeof lastFocusedBeforePanel.focus === 'function') {
+            lastFocusedBeforePanel.focus();
+        } else {
+            toggleButton.focus();
         }
-    }
-    if (event.key === 'Escape' && !panel.classList.contains('hidden')) {
-        closePanel();
-    }
-  });
-  
-  // Close on outside click
-  document.addEventListener('click', (event) => {
-    if (!panel.classList.contains('hidden') && !panel.contains(event.target) && !toggleButton.contains(event.target)) {
-        closePanel();
-    }
-  });
-}
-// Expose to global scope for main.js or other modules
-window.ravlykAccessibility = {
-  init: initAccessibilityControls,
-  load: loadAccessibilitySettings,
-  apply: applyAccessibilitySettings, // If needed externally
-  // interpreterInstance is now set by main.js directly on window
-};
+    };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initAccessibilityControls, { once: true });
-} else {
-  initAccessibilityControls();
+    const openPanel = () => {
+        lastFocusedBeforePanel = documentRef.activeElement;
+        panel.classList.remove('hidden');
+        toggleButton.setAttribute('aria-expanded', 'true');
+        const focusable = getFocusableInPanel();
+        (focusable[0] || panel).focus();
+    };
+
+    toggleButton.addEventListener('click', () => {
+        if (panel.classList.contains('hidden')) openPanel();
+        else closePanel();
+    });
+
+    if (closeButton) {
+        closeButton.addEventListener('click', closePanel);
+    }
+
+    if (resetButton) {
+        resetButton.addEventListener('click', () => {
+            resetAccessibilitySettings();
+            panel.querySelector('input[data-setting], button')?.focus();
+        });
+    }
+
+    documentRef.querySelectorAll('.accessibility-setting-input').forEach((input) => {
+        input.addEventListener('change', function onAccessibilityChange() {
+            updateAccessibilitySetting(this.dataset.setting, this.checked);
+        });
+    });
+
+    panel.addEventListener('keydown', (event) => {
+        if (event.key === 'Tab' && !panel.classList.contains('hidden')) {
+            const focusable = getFocusableInPanel();
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && documentRef.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && documentRef.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        }
+
+        if (event.key === 'Escape' && !panel.classList.contains('hidden')) {
+            closePanel();
+        }
+    });
+
+    documentRef.addEventListener('click', (event) => {
+        if (!panel.classList.contains('hidden') && !panel.contains(event.target) && !toggleButton.contains(event.target)) {
+            closePanel();
+        }
+    });
+}
+
+const windowRef = getWindowRef();
+if (windowRef) {
+    windowRef.ravlykAccessibility = {
+        init: initAccessibilityControls,
+        load: loadSettings,
+        apply: applySettings,
+    };
+}
+
+const documentRef = getDocumentRef();
+if (documentRef) {
+    if (documentRef.readyState === 'loading') {
+        documentRef.addEventListener('DOMContentLoaded', initAccessibilityControls, { once: true });
+    } else {
+        initAccessibilityControls();
+    }
 }

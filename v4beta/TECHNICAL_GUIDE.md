@@ -63,6 +63,10 @@ Core modules:
 - `js/modules/parserMotionStatements.js`
 - `js/modules/parserStateStatements.js`
 - `js/modules/parserStatementHandlers.js`
+- `js/modules/accessibilitySettings.js`
+- `js/modules/accessibilityNotifications.js`
+- `js/modules/lessonsPageController.js`
+- `js/modules/manualPageController.js`
 - `js/main.js`
 
 ## 3. Repository map (v4)
@@ -112,17 +116,26 @@ Core modules:
 - `js/modules/parserMotionStatements.js`: parser helpers for movement/navigation statements (`forward/backward`, `left/right`, `goto`).
 - `js/modules/parserStateStatements.js`: parser helpers for state/call statements (`color`, `pen`, `clear`, assignment, function call).
 - `js/modules/parserStatementHandlers.js`: parser-bound statement handler factory that wires parser callbacks/keywords into the concrete statement helpers.
+- `js/modules/accessibilitySettings.js`: accessibility settings/storage/class-application helpers shared by the accessibility entry script.
+- `js/modules/accessibilityNotifications.js`: accessibility toast/icon-selection helpers used by the accessibility entry script.
+- `js/modules/lessonsPageController.js`: lessons-page tab/navigation/history controller helpers used by the lessons entry script.
+- `js/modules/manualPageController.js`: manual-page section paging, hash/history, top-link, and mobile TOC controller helpers used by the manual entry script.
 - `js/modules/parserStatementDispatcher.js`: parser dispatch helper that routes the current token to the correct statement parser.
 - `js/modules/parserStatementContext.js`: builder for parser statement-helper context/dependencies, used to keep `ravlykParser` thin.
 - `js/modules/parserControlStatements.js`: parser helpers for control-flow statements (`грати`, `повторити`, `якщо`).
 - `js/accessibility.js`: accessibility toggles, persistence, focus behavior.
-- `js/common.js`: shared page navigation helpers.
+- `js/manualPage.js`: manual-page entry script that boots manual navigation/TOC behavior.
 - `js/quizBank.js`: quiz question banks (30 per topic).
+- `js/quizData/*.js`: split quiz datasets by theme (`basic`, `loops`, `vars`) consumed by the quiz bank facade.
 - `js/quizPage.js`: quiz runtime (topic picker, random 10 questions, option shuffle, scoring).
 - `tests/parser.basic.test.js`: parser basics (tokenization/AST/expression paths).
 - `tests/parser.ast-runtime.test.js`: parser + runtime AST/queue integration behavior.
 - `tests/parser.errors-boundary.test.js`: parser/runtime error and boundary scenarios.
 - `tests/parser-helpers.test.js`: parser helper-module contracts.
+- `tests/quiz.test.js`: quiz data-bank shape and theme-contract checks.
+- `tests/accessibility.test.js`: accessibility helper contracts (defaults, class toggles, notification icon mapping).
+- `tests/lessons.test.js`: lessons-page controller contracts (lesson order, URL resolution, prev/next navigation state).
+- `tests/manual.test.js`: manual-page controller contracts (section ids, hash resolution, paging state).
 - `tests/parser-helpers.test.js` also covers statement-dispatch helper routing/error contracts.
 - `tests/parser-helpers.test.js` also covers parser statement-context builder wiring.
 - `tests/ui.dom.test.js`: UI DOM utility tests.
@@ -297,7 +310,6 @@ Responsibilities:
 - parser movement/navigation statement helpers are centralized in `js/modules/parserMotionStatements.js`,
 - parser state/call statement helpers are centralized in `js/modules/parserStateStatements.js`,
 - parser-bound statement handler wiring is centralized in `js/modules/parserStatementHandlers.js`,
-- `js/common.js` also uses centralized `openInNewTab(url)` helper for its `_blank` navigations,
 - Escape-key modal flow in `main.js` is grouped in dedicated `handleEscapeKey` handler to keep keyboard behavior maintainable,
 - examples launcher,
 - command reference tabs,
@@ -413,6 +425,10 @@ Parser/UI unit tests:
 - `node --experimental-default-type=module tests/parser.ast-runtime.test.js`
 - `node --experimental-default-type=module tests/parser.errors-boundary.test.js`
 - `node --experimental-default-type=module tests/parser-helpers.test.js`
+- `node --experimental-default-type=module tests/quiz.test.js`
+- `node --experimental-default-type=module tests/accessibility.test.js`
+- `node --experimental-default-type=module tests/lessons.test.js`
+- `node --experimental-default-type=module tests/manual.test.js`
 - `node --experimental-default-type=module tests/controllers.test.js`
 - `node --experimental-default-type=module tests/interpreter.helpers.core.test.js`
 - `node --experimental-default-type=module tests/interpreter.helpers.runtime.test.js`

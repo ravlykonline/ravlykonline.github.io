@@ -381,7 +381,7 @@ runTest('ui facade re-exports canonical message and modal helpers', () => {
 });
 
 runTest('javascript _blank window.open calls include noopener,noreferrer', () => {
-    const jsFiles = ['js/main.js', 'js/common.js', 'js/modules/navigationPrefetch.js'];
+    const jsFiles = ['js/main.js', 'js/modules/navigationPrefetch.js'];
 
     jsFiles.forEach((path) => {
         const source = fs.readFileSync(path, 'utf8');
