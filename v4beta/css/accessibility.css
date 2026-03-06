@@ -205,13 +205,6 @@ input:checked + .toggle-slider:before {
 .a11y-high-contrast {
     --bg-color: #000 !important;
     --text-color: #fff !important;
-    --link-color: #00CCFF !important;
-    --link-hover-color: #ff9900 !important;
-    --btn-primary-bg: #3d85c6 !important;
-    --btn-success-bg: #38761d !important;
-    --btn-warning-bg: #e69138 !important;
-    --btn-danger-bg: #cc0000 !important;
-    --btn-info-bg: #3d85c6 !important;
     --border-color: #fff !important;
 }
 
@@ -220,16 +213,8 @@ input:checked + .toggle-slider:before {
     color: var(--text-color);
 }
 
-.a11y-high-contrast a {
-    color: var(--link-color);
-}
-
-.a11y-high-contrast a:hover {
-    color: var(--link-hover-color);
-}
-
 .a11y-high-contrast .btn-primary {
-    background-color: var(--btn-primary-bg);
+    background-color: #3d85c6;
     color: var(--text-color);
 }
 
@@ -252,44 +237,12 @@ input:checked + .toggle-slider:before {
     border-color: var(--border-color) !important;
 }
 
-.a11y-high-contrast .btn-danger,
-.a11y-high-contrast .btn-warning,
-.a11y-high-contrast .btn-info,
-.a11y-high-contrast .btn-success,
-.a11y-high-contrast .btn-primary {
-    color: var(--text-color) !important;
-}
-
 .a11y-high-contrast .accessibility-panel,
 .a11y-high-contrast .lesson-content,
 .a11y-high-contrast .resource-item,
 .a11y-high-contrast .panel,
 .a11y-high-contrast .card {
     box-shadow: 0 0 0 2px var(--border-color) !important;
-}
-
-.a11y-high-contrast .btn-success {
-    background-color: var(--btn-success-bg);
-    color: var(--text-color);
-}
-
-.a11y-high-contrast .btn-warning {
-    background-color: var(--btn-warning-bg);
-    color: #000;
-}
-
-.a11y-high-contrast .btn-danger {
-    background-color: var(--btn-danger-bg);
-    color: var(--text-color);
-}
-
-.a11y-high-contrast .btn-info {
-    background-color: var(--btn-info-bg);
-    color: var(--text-color);
-}
-
-.a11y-high-contrast header.main-header {
-    color: var(--text-color);
 }
 
 .a11y-high-contrast .code-box,
@@ -397,82 +350,6 @@ input:checked + .toggle-slider:before {
     font-weight: 400 !important;
     font-style: normal !important;
 }
-
-/* Повідомлення поверх сайту */
-.error-message-global, .success-message-global {
-    position: fixed;
-    top: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 20000;
-    width: max-content;
-    min-width: 320px;
-    max-width: 90vw;
-    pointer-events: auto;
-    opacity: 0.98;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.25);
-    margin: 0;
-    transition: opacity 0.2s;
-    padding: 10px 16px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.success-message-global {
-    background-color: #e8f5e9;
-    color: #1b5e20;
-    border-left: 4px solid #4caf50;
-}
-
-.error-message-global {
-    background-color: #ffebee;
-    color: #b71c1c;
-    border-left: 4px solid #f44336;
-}
-
-.message-text-global {
-    display: flex;
-    align-items: center;
-    font-weight: 500;
-}
-
-.message-close-btn-global {
-    background: none;
-    border: none;
-    color: inherit;
-    cursor: pointer;
-    padding: 0;
-    margin-left: 12px;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.7;
-    transition: opacity 0.2s, background-color 0.2s;
-}
-
-.message-close-btn-global:hover {
-    opacity: 1;
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-/* Стилі для Font Awesome іконок */
-.success-message-global .fa-check-circle {
-    color: #4CAF50;
-    margin-right: 8px;
-    font-size: 18px;
-}
-
-.error-message-global .fa-exclamation-circle {
-    color: #f44336;
-    margin-right: 8px;
-    font-size: 18px;
-}
-
 
 /* Збільшені інтервали */
 .a11y-increased-spacing {
@@ -589,23 +466,13 @@ input:checked + .toggle-slider:before {
 }
 
 /* Ensure all modal variants are readable in high-contrast mode */
-.a11y-high-contrast .modal-overlay .modal-content,
-.a11y-high-contrast .modal-content,
-.a11y-high-contrast #clear-confirm-modal-content,
-.a11y-high-contrast #stop-confirm-modal-content,
-.a11y-high-contrast #help-modal-content {
+.a11y-high-contrast .modal-content {
     background: #000 !important;
     color: #fff !important;
     border: 2px solid #fff !important;
     box-shadow: none !important;
 }
 
-.a11y-high-contrast .modal-overlay .modal-content h2,
-.a11y-high-contrast .modal-overlay .modal-content p,
-.a11y-high-contrast .modal-overlay .modal-content strong,
-.a11y-high-contrast .modal-overlay .modal-content li {
-    color: #fff !important;
-}
 .a11y-high-contrast .modal-content,
 .a11y-high-contrast .modal-content * {
     color: #fff !important;

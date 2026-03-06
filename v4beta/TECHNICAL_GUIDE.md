@@ -55,6 +55,11 @@ Core modules:
 - `tests/encoding.test.js`: UTF-8/mojibake guard checks for key files and UI strings.
 - `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static HTML safety checks for `target="_blank"` (`rel="noopener noreferrer"`).
 - `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static safety checks for external links and toolbar structure (`#download-btn` only, no legacy save buttons).
+- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static safety checks for external links, toolbar structure, and modal ARIA dialog contract in `index.html`.
+- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static safety checks for external links, toolbar structure, modal ARIA dialog contract, and CSS cleanup regression constraints.
+- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static safety checks for external links, toolbar structure, modal ARIA dialog contract, CSS cleanup regression constraints, and canonical modal-helper usage in `js/main.js`.
+- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static safety checks for external links, toolbar structure, modal ARIA dialog contract, CSS cleanup regression constraints, canonical modal-helper usage in `js/main.js`, and canonical global-message architecture usage in `js/modules/ui.js`.
+- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static safety checks for external links, toolbar structure, modal ARIA dialog contract, CSS cleanup regression constraints, canonical modal-helper usage in `js/main.js`, canonical global-message architecture usage, and modal overlay->content mapping guarantees in `js/modules/ui.js`.
 - `tests/e2e/*`: Playwright smoke tests.
 - `playwright.config.js`: E2E config (desktop + mobile + tablet).
 
@@ -253,6 +258,11 @@ The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 - `tests/parser.test.js`: tokenization, AST, expressions, conditions, queue adaptation, limits, error behavior.
 - `tests/ui.test.js`: canvas resize and viewport alignment logic, plus modal helper unit checks (`isModalOpen`, `bindModalOverlayClose`) and modal show/hide focus-contract checks (help/download).
 - `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, and toolbar regression guard for unified download flow.
+- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, toolbar regression guard for unified download flow, and ARIA contract checks for editor modals (`role="dialog"`, `aria-modal`, `aria-labelledby`).
+- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, toolbar regression guard for unified download flow, ARIA contract checks for editor modals (`role="dialog"`, `aria-modal`, `aria-labelledby`), and prevention of removed legacy snippets in `css/accessibility.css`.
+- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, toolbar regression guard for unified download flow, ARIA contract checks for editor modals (`role="dialog"`, `aria-modal`, `aria-labelledby`), prevention of removed legacy snippets in `css/accessibility.css`, and modal-helper architecture guards (`isModalOpen`/`bindModalOverlayClose`).
+- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, toolbar regression guard for unified download flow, ARIA contract checks for editor modals (`role="dialog"`, `aria-modal`, `aria-labelledby`), prevention of removed legacy snippets in `css/accessibility.css`, modal-helper architecture guards (`isModalOpen`/`bindModalOverlayClose`), and global-message architecture guards (`#global-message-display` path only).
+- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, toolbar regression guard for unified download flow, ARIA contract checks for editor modals (`role="dialog"`, `aria-modal`, `aria-labelledby`), prevention of removed legacy snippets in `css/accessibility.css`, modal-helper architecture guards (`isModalOpen`/`bindModalOverlayClose`), global-message architecture guards (`#global-message-display` path only), and modal content mapping guards (`help/clear/stop/download` overlay IDs).
 
 ### 11.2 E2E smoke tests (Playwright)
 
@@ -302,6 +312,11 @@ Parser/UI unit tests:
 - styles are spread across multiple files with partial overlaps; refactoring into clearer design tokens/components is still desirable.
 - note: unused legacy modal selectors (`.modal-overlay__*`) were removed from editor/global styles; continue removing dead selectors incrementally.
 - note: duplicate global utility/modal declarations were reduced (single `.hidden`, simplified high-contrast modal override).
+- note: modal typography overrides were deduplicated by removing redundant editor-level `.modal-content` rules and relying on global modal styles.
+- note: legacy accessibility message classes (`.error-message-global`/`.success-message-global`) were removed; global `#global-message-display` styles are the single source for runtime toasts.
+- note: high-contrast modal CSS in `accessibility.css` was simplified to canonical `.a11y-high-contrast .modal-content` selectors (removed redundant modal id/overlay variants).
+- note: redundant early high-contrast link/button color rules were removed where later hardening selectors already provide the canonical `!important` behavior.
+- note: unused high-contrast CSS variables (`--link-color`, `--link-hover-color`, `--btn-*-bg` except primary usage) were removed; remaining `.btn-primary` color is defined directly.
 
 2. Mixed execution model history
 - despite parser cleanup, non-game mode still uses queue adaptation for compatibility with existing runtime structure.
