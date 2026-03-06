@@ -1,192 +1,43 @@
 // js/modules/ui.js
 import { RAVLYK_SVG_DATA_URL, CURRENT_YEAR } from './constants.js';
 
-let messageTimeout;
-let errorAudioContext = null;
+export {
+    showError,
+    showSuccessMessage,
+    showInfoMessage,
+    hideMessage,
+} from './uiMessages.js';
 
-function playErrorBeep() {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
+export {
+    isModalOpen,
+    bindModalOverlayClose,
+    showHelpModal,
+    hideHelpModal,
+    showClearConfirmModal,
+    hideClearConfirmModal,
+    showStopConfirmModal,
+    hideStopConfirmModal,
+    showDownloadModal,
+    hideDownloadModal,
+} from './uiModals.js';
 
-    if (!errorAudioContext) {
-        errorAudioContext = new AudioCtx();
-    }
-    if (errorAudioContext.state === 'suspended') {
-        errorAudioContext.resume().catch(() => {});
-    }
-
-    const now = errorAudioContext.currentTime;
-    const oscillator = errorAudioContext.createOscillator();
-    const gain = errorAudioContext.createGain();
-
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(720, now);
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.08, now + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
-
-    oscillator.connect(gain);
-    gain.connect(errorAudioContext.destination);
-    oscillator.start(now);
-    oscillator.stop(now + 0.16);
-}
-
-function showMessage(message, type = 'info', duration = 3000) {
-    clearTimeout(messageTimeout);
-    const existingMessage = document.getElementById('global-message-display');
-    if (existingMessage) existingMessage.remove();
-
-    const messageDiv = document.createElement('div');
-    messageDiv.id = 'global-message-display';
-    messageDiv.className = `message-global message-${type}-global`; // e.g., message-error-global
-    messageDiv.setAttribute('role', type === 'error' ? 'alert' : 'status');
-
-    let iconClass = 'fa-info-circle';
-    if (type === 'success') iconClass = 'fa-check-circle';
-    if (type === 'error') iconClass = 'fa-exclamation-triangle';
-    
-    // Форматування повідомлення про зупинку для кращого відображення
-    if (message.includes('Виконання зупинено')) {
-        iconClass = 'fa-hand-paper'; // Іконка "зупинки"
-    }
-
-    messageDiv.innerHTML = `
-        <span class="message-text-global"><i class="fas ${iconClass}"></i> ${message}</span>
-        <button class="message-close-btn-global" aria-label="Закрити повідомлення"><i class="fas fa-times"></i></button>
-    `;
-
-    // Вставляємо повідомлення у body замість вставки в потік документа
-    document.body.appendChild(messageDiv);
-
-    const closeBtn = messageDiv.querySelector('.message-close-btn-global');
-    const removeMessage = () => {
-        messageDiv.remove();
-        clearTimeout(messageTimeout);
-    };
-    closeBtn.addEventListener('click', removeMessage, { once: true });
-
-    if (duration > 0) {
-        messageTimeout = setTimeout(removeMessage, duration);
-    }
-    // Play sound for errors
-    if (type === 'error') {
-        try {
-            playErrorBeep();
-        } catch (e) { /* ignore */ }
-    }
-}
-
-export function showError(message, duration = 0) { // Errors persist by default
-    showMessage(message, 'error', duration);
-}
-export function showSuccessMessage(message, duration = 3000) {
-    showMessage(message, 'success', duration);
-}
-export function showInfoMessage(message, duration = 3000) {
-    showMessage(message, 'info', duration);
-}
-export function hideMessage() {
-    const existingMessage = document.getElementById('global-message-display');
-    if (existingMessage) existingMessage.remove();
-    clearTimeout(messageTimeout);
-}
-
-
-// --- Modal Management ---
-function toggleModal(modalId, show) {
-    const modalOverlay = document.getElementById(modalId);
-    const modalContentByOverlayId = {
-        'help-modal-overlay': 'help-modal-content',
-        'clear-confirm-modal-overlay': 'clear-confirm-modal-content',
-        'stop-confirm-modal-overlay': 'stop-confirm-modal-content',
-        'download-modal-overlay': 'download-modal-content',
-    };
-    const modalContentId = modalContentByOverlayId[modalId] || `${modalId}-content`;
-    const modalContent = document.getElementById(modalContentId);
-    
-    if (modalOverlay) {
-        if (show) {
-            modalOverlay.classList.remove('hidden');
-            modalOverlay.setAttribute('aria-hidden', 'false');
-            // Focus first focusable element in modal or close button if content exists
-            if (modalContent) {
-                const focusable = modalContent.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                if (focusable) focusable.focus();
-            }
-        } else {
-            modalOverlay.classList.add('hidden');
-            modalOverlay.setAttribute('aria-hidden', 'true');
-        }
-    } else {
-        console.error(`Modal overlay with id ${modalId} not found!`);
-    }
-}
-
-export function isModalOpen(modalId) {
-    const modalOverlay = document.getElementById(modalId);
-    if (!modalOverlay) return false;
-    return !modalOverlay.classList.contains('hidden');
-}
-
-export function bindModalOverlayClose(modalId, onClose) {
-    const modalOverlay = document.getElementById(modalId);
-    if (!modalOverlay || typeof onClose !== 'function') return;
-    modalOverlay.addEventListener('click', (event) => {
-        if (event.target === event.currentTarget) onClose();
-    });
-}
-
-export function showHelpModal() {
-    toggleModal('help-modal-overlay', true);
-}
-export function hideHelpModal() {
-    toggleModal('help-modal-overlay', false);
-    document.getElementById('help-btn')?.focus(); // Return focus
-}
-
-export function showClearConfirmModal() {
-    toggleModal('clear-confirm-modal-overlay', true);
-}
-export function hideClearConfirmModal() {
-    toggleModal('clear-confirm-modal-overlay', false);
-    document.getElementById('clear-btn')?.focus(); // Return focus
-}
-
-export function showStopConfirmModal() {
-    toggleModal('stop-confirm-modal-overlay', true);
-}
-export function hideStopConfirmModal() {
-    toggleModal('stop-confirm-modal-overlay', false);
-    document.getElementById('stop-btn')?.focus(); // Return focus
-}
-
-export function showDownloadModal() {
-    toggleModal('download-modal-overlay', true);
-}
-export function hideDownloadModal() {
-    toggleModal('download-modal-overlay', false);
-    document.getElementById('download-btn')?.focus(); // Return focus
-}
-
-
-// --- Ravlyk Sprite Management ---
 let ravlykSpriteElement = null;
+let commandIndicatorElement = null;
 
 export function createRavlykSprite(canvasContainer) {
     if (ravlykSpriteElement) ravlykSpriteElement.remove();
 
-    ravlykSpriteElement = document.createElement("div");
-    ravlykSpriteElement.id = "ravlyk-sprite";
-    ravlykSpriteElement.className = "ravlyk-sprite-global"; // Defined in main-editor.css
+    ravlykSpriteElement = document.createElement('div');
+    ravlykSpriteElement.id = 'ravlyk-sprite';
+    ravlykSpriteElement.className = 'ravlyk-sprite-global';
     ravlykSpriteElement.setAttribute('aria-hidden', 'true');
     ravlykSpriteElement.style.backgroundImage = `url('${RAVLYK_SVG_DATA_URL}')`;
-    
-    // Append to canvas container for easier relative positioning
+
     const container = canvasContainer || document.querySelector('.canvas-box');
     if (container) {
         container.appendChild(ravlykSpriteElement);
     } else {
-        document.body.appendChild(ravlykSpriteElement); // Fallback
+        document.body.appendChild(ravlykSpriteElement);
     }
     return ravlykSpriteElement;
 }
@@ -195,10 +46,9 @@ export function updateRavlykVisualsOnScreen(ravlykState, canvasElement) {
     if (!ravlykSpriteElement || !ravlykState || !canvasElement) return;
 
     const ravlykSize = 30;
-
     const angleRad = (ravlykState.angle - 90) * Math.PI / 180;
     const offsetX = 0;
-    const offsetY = -ravlykSize * 50 / 100;
+    const offsetY = -ravlykSize * 0.5;
     const dx = offsetX * Math.cos(angleRad) - offsetY * Math.sin(angleRad);
     const dy = offsetX * Math.sin(angleRad) + offsetY * Math.cos(angleRad);
     const canvasRect = canvasElement.getBoundingClientRect();
@@ -208,35 +58,26 @@ export function updateRavlykVisualsOnScreen(ravlykState, canvasElement) {
 
     const newLeft = ravlykState.x + dx - ravlykSize / 2 + offsetDomX;
     const newTop = ravlykState.y + dy - ravlykSize / 2 + offsetDomY;
-    
+
     ravlykSpriteElement.style.left = `${newLeft}px`;
     ravlykSpriteElement.style.top = `${newTop}px`;
-
-    // Завжди будуємо повний рядок transform в одному місці
-    const rotation = `rotate(${ravlykState.angle + 90}deg)`;
-    const scale = `scale(${ravlykState.scale})`; // Використовуємо scale зі стану
-    ravlykSpriteElement.style.transform = `${rotation} ${scale}`;
-    
-    // Керуємо тінню через клас
+    ravlykSpriteElement.style.transform = `rotate(${ravlykState.angle + 90}deg) scale(${ravlykState.scale})`;
     ravlykSpriteElement.classList.toggle('lifted', !ravlykState.isPenDown);
 }
 
-// --- Command Indicator ---
-let commandIndicatorElement = null;
 export function updateCommandIndicator(commandText, index) {
     if (!commandIndicatorElement) {
         commandIndicatorElement = document.createElement('div');
         commandIndicatorElement.id = 'ravlyk-command-indicator';
-        // Basic styling (better in CSS)
         commandIndicatorElement.style.position = 'absolute';
         commandIndicatorElement.style.bottom = '5px';
         commandIndicatorElement.style.left = '5px';
-        commandIndicatorElement.style.backgroundColor = 'rgba(74, 111, 165, 0.8)'; // --main-purple with alpha
+        commandIndicatorElement.style.backgroundColor = 'rgba(74, 111, 165, 0.8)';
         commandIndicatorElement.style.color = 'white';
         commandIndicatorElement.style.padding = '3px 8px';
         commandIndicatorElement.style.borderRadius = '4px';
         commandIndicatorElement.style.fontSize = '0.8em';
-        commandIndicatorElement.style.zIndex = '1050'; // Above canvas, below modals
+        commandIndicatorElement.style.zIndex = '1050';
         commandIndicatorElement.style.fontFamily = "'Fira Mono', monospace";
         commandIndicatorElement.style.transition = 'opacity 0.3s';
         commandIndicatorElement.style.opacity = '0';
@@ -253,15 +94,13 @@ export function updateCommandIndicator(commandText, index) {
     }
 }
 
-// --- Canvas Resizing ---
 export function resizeCanvas(canvas, ctx, onResizeCallback) {
     if (!canvas || !canvas.parentElement) return;
     if (typeof canvas.getClientRects === 'function' && canvas.getClientRects().length === 0) {
-        // Do not resize hidden canvas (e.g. inactive mobile tab), otherwise it may collapse to 1x1.
         return;
     }
 
-    const canvasBox = canvas.closest('.canvas-box') || canvas.parentElement; // Find closest canvas-box
+    const canvasBox = canvas.closest('.canvas-box') || canvas.parentElement;
     const oldWidth = canvas.width;
     const oldHeight = canvas.height;
     let prevCanvas = null;
@@ -277,14 +116,12 @@ export function resizeCanvas(canvas, ctx, onResizeCallback) {
             } else {
                 prevCanvas = null;
             }
-        } catch (e) {
-            console.warn("Could not save canvas state before resize:", e);
+        } catch (error) {
+            console.warn('Could not save canvas state before resize:', error);
             prevCanvas = null;
         }
     }
-    
-    // Use the rendered canvas viewport dimensions (not the whole canvas-box with header),
-    // otherwise bottom boundary math can drift outside the visible area.
+
     const renderedWidth = Math.round(canvas.clientWidth || canvasBox.clientWidth || 0);
     let renderedHeight = Math.round(canvas.clientHeight || 0);
 
@@ -304,17 +141,26 @@ export function resizeCanvas(canvas, ctx, onResizeCallback) {
     if (prevCanvas) {
         try {
             ctx.drawImage(prevCanvas, deltaX, deltaY);
-        } catch (e) {
-            console.warn("Could not restore canvas state after resize:", e);
+        } catch (error) {
+            console.warn('Could not restore canvas state after resize:', error);
         }
     }
-    // Interpreter should re-apply its context settings after resize if they are reset
+
     if (onResizeCallback && typeof onResizeCallback === 'function') {
-        onResizeCallback({ deltaX, deltaY, oldWidth, oldHeight, newWidth: canvas.width, newHeight: canvas.height });
+        onResizeCallback({
+            deltaX,
+            deltaY,
+            oldWidth,
+            oldHeight,
+            newWidth: canvas.width,
+            newHeight: canvas.height,
+        });
     }
 }
 
 export function setFooterYear() {
     const yearElements = document.querySelectorAll('.current-year');
-    yearElements.forEach(el => el.textContent = CURRENT_YEAR);
+    yearElements.forEach((element) => {
+        element.textContent = CURRENT_YEAR;
+    });
 }

@@ -304,8 +304,8 @@ runTest('main script uses centralized navigation controller for external tabs', 
     });
 });
 
-runTest('ui module keeps canonical global message system usage', () => {
-    const uiJs = fs.readFileSync('js/modules/ui.js', 'utf8');
+runTest('ui message module keeps canonical global message system usage', () => {
+    const uiMessagesJs = fs.readFileSync('js/modules/uiMessages.js', 'utf8');
 
     const requiredSnippets = [
         "document.getElementById('global-message-display')",
@@ -317,9 +317,9 @@ runTest('ui module keeps canonical global message system usage', () => {
 
     requiredSnippets.forEach((snippet) => {
         assert.equal(
-            uiJs.includes(snippet),
+            uiMessagesJs.includes(snippet),
             true,
-            `js/modules/ui.js should contain canonical message usage snippet: ${snippet}`
+            `js/modules/uiMessages.js should contain canonical message usage snippet: ${snippet}`
         );
     });
 
@@ -332,30 +332,50 @@ runTest('ui module keeps canonical global message system usage', () => {
 
     forbiddenSnippets.forEach((snippet) => {
         assert.equal(
-            uiJs.includes(snippet),
+            uiMessagesJs.includes(snippet),
             false,
-            `js/modules/ui.js should not include legacy message snippet: ${snippet}`
+            `js/modules/uiMessages.js should not include legacy message snippet: ${snippet}`
         );
     });
 });
 
-runTest('ui module keeps canonical modal content mapping', () => {
-    const uiJs = fs.readFileSync('js/modules/ui.js', 'utf8');
+runTest('ui modal module keeps canonical modal content mapping', () => {
+    const uiModalsJs = fs.readFileSync('js/modules/uiModals.js', 'utf8');
 
     const requiredSnippets = [
-        "const modalContentByOverlayId = {",
+        "const MODAL_CONTENT_BY_OVERLAY_ID = {",
         "'help-modal-overlay': 'help-modal-content'",
         "'clear-confirm-modal-overlay': 'clear-confirm-modal-content'",
         "'stop-confirm-modal-overlay': 'stop-confirm-modal-content'",
         "'download-modal-overlay': 'download-modal-content'",
-        'const modalContentId = modalContentByOverlayId[modalId] || `${modalId}-content`;',
+        'const modalContentId = MODAL_CONTENT_BY_OVERLAY_ID[modalId] || `${modalId}-content`;',
+    ];
+
+    requiredSnippets.forEach((snippet) => {
+        assert.equal(
+            uiModalsJs.includes(snippet),
+            true,
+            `js/modules/uiModals.js should contain canonical modal mapping snippet: ${snippet}`
+        );
+    });
+});
+
+runTest('ui facade re-exports canonical message and modal helpers', () => {
+    const uiJs = fs.readFileSync('js/modules/ui.js', 'utf8');
+
+    const requiredSnippets = [
+        "from './uiMessages.js'",
+        "from './uiModals.js'",
+        'showError',
+        'showHelpModal',
+        'hideDownloadModal',
     ];
 
     requiredSnippets.forEach((snippet) => {
         assert.equal(
             uiJs.includes(snippet),
             true,
-            `js/modules/ui.js should contain canonical modal mapping snippet: ${snippet}`
+            `js/modules/ui.js should re-export canonical helper via facade: ${snippet}`
         );
     });
 });

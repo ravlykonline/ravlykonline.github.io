@@ -1,11 +1,9 @@
 ﻿// js/modules/ravlykInterpreter.js
 import {
     COLOR_MAP, DEFAULT_PEN_COLOR, DEFAULT_PEN_SIZE, RAVLYK_INITIAL_ANGLE,
-    ERROR_MESSAGES, MAX_RECURSION_DEPTH, MAX_REPEATS_IN_LOOP,
     DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND,
 } from './constants.js';
 import { RavlykParser, RavlykError } from './ravlykParser.js';
-import { Environment } from './environment.js';
 import {
     getBoundaryMarginForState,
     clampToCanvasBoundsByMargin,
@@ -13,39 +11,15 @@ import {
 } from './interpreterBoundary.js';
 import {
     normalizeConditionKey as normalizeConditionKeyHelper,
-    evaluateAstCondition,
-    evaluateRuntimeIfCondition,
 } from './interpreterConditions.js';
 import {
     stopGameLoopRuntime,
-    startGameLoopRuntime,
 } from './interpreterGameLoop.js';
-import { createGameAstRunner } from './interpreterGameAstRunner.js';
-import { runCommandQueueRuntime } from './interpreterQueueRuntime.js';
-import { executeInterpreterCommand } from './interpreterCommandExecutor.js';
-import { astProgramToLegacyQueue } from './interpreterAstQueueAdapter.js';
-import {
-    hasGameStatement as hasGameStatementHelper,
-    validateGameProgramContract as validateGameProgramContractHelper,
-} from './interpreterGameContract.js';
+import { hasGameStatement as hasGameStatementHelper } from './interpreterGameContract.js';
 import {
     evalAstNumberExpression as evalAstNumberExpressionHelper,
     attachAstErrorLocation as attachAstErrorLocationHelper,
 } from './interpreterAstEval.js';
-import { handlePrimitiveAstStatement as handlePrimitiveAstStatementHelper } from './interpreterPrimitiveStatements.js';
-import {
-    animatePen as animatePenHelper,
-    animateMove as animateMoveHelper,
-    animateTurn as animateTurnHelper,
-} from './interpreterAnimation.js';
-import {
-    performMove as performMoveHelper,
-    performTurn as performTurnHelper,
-    setColor as setColorHelper,
-    clearScreen as clearScreenHelper,
-    performGoto as performGotoHelper,
-} from './interpreterDrawingOps.js';
-import { cloneInterpreterCommand } from './interpreterCommandClone.js';
 import { destroyInterpreterLifecycle } from './interpreterLifecycleCleanup.js';
 import {
     stopExecutionRuntime,
@@ -53,6 +27,21 @@ import {
     resumeExecutionRuntime,
     wasBoundaryWarningShownRuntime,
 } from './interpreterRuntimeState.js';
+import {
+    handlePrimitiveAstStatementRuntime,
+    astToLegacyQueueRuntime,
+    validateGameProgramContractRuntime,
+    executeGameProgramRuntime,
+    executeCommandsRuntime,
+    evaluateIfConditionRuntime,
+    runCommandQueueWithRuntime,
+    animatePenRuntime,
+    animateMoveRuntime,
+    animateTurnRuntime,
+    setColorRuntime,
+    clearScreenRuntime,
+    performGotoRuntime,
+} from './ravlykInterpreterRuntime.js';
 
 // State coordinates track the turtle tip (not sprite center),
 // so a large visual radius causes premature edge triggers.
@@ -217,47 +206,15 @@ export class RavlykInterpreter {
     }
 
     handlePrimitiveAstStatement(stmt, env, mode, outputQueue = null) {
-        return handlePrimitiveAstStatementHelper({
-            stmt,
-            env,
-            mode,
-            outputQueue,
-            state: this.state,
-            evalAstNumberExpression: (expr, envRef) => this.evalAstNumberExpression(expr, envRef),
-            createError: (messageKey, ...params) => new RavlykError(messageKey, ...params),
-            performMove: (distance) => performMoveHelper({
-                distance,
-                state: this.state,
-                ctx: this.ctx,
-                clampToCanvasBounds: (x, y) => this.clampToCanvasBounds(x, y),
-                applyContextSettings: () => this.applyContextSettings(),
-            }),
-            performTurn: (angle) => performTurnHelper({ angle, state: this.state }),
-            setColor: (colorName) => this.setColor(colorName),
-            performGoto: (x, y) => this.performGoto(x, y),
-            clearScreen: () => this.clearScreen(),
-        });
+        return handlePrimitiveAstStatementRuntime(this, stmt, env, mode, outputQueue);
     }
 
     astToLegacyQueue(programAst, options = {}) {
-        return astProgramToLegacyQueue({
-            programAst,
-            emitAssignments: !!options.emitAssignments,
-            EnvironmentCtor: Environment,
-            maxRecursionDepth: MAX_RECURSION_DEPTH,
-            maxRepeatsInLoop: MAX_REPEATS_IN_LOOP,
-            evalAstNumberExpression: (expr, envRef) => this.evalAstNumberExpression(expr, envRef),
-            handlePrimitiveAstStatement: (stmt, envRef, mode, out) => this.handlePrimitiveAstStatement(stmt, envRef, mode, out),
-            attachAstErrorLocation: (error, node) => this.attachAstErrorLocation(error, node),
-            createError: (messageKey, ...params) => new RavlykError(messageKey, ...params),
-        });
+        return astToLegacyQueueRuntime(this, programAst, options);
     }
 
     validateGameProgramContract(programAst) {
-        return validateGameProgramContractHelper(programAst, {
-            createError: (messageKey) => new RavlykError(messageKey),
-            hasGameStatementFn: hasGameStatementHelper,
-        });
+        return validateGameProgramContractRuntime(programAst);
     }
 
     stopGameLoop(optionalError = undefined) {
@@ -265,76 +222,11 @@ export class RavlykInterpreter {
     }
 
     executeGameProgram(programAst) {
-        const gameAstRunner = createGameAstRunner({
-            programAst,
-            EnvironmentCtor: Environment,
-            RavlykErrorCtor: RavlykError,
-            maxRecursionDepth: MAX_RECURSION_DEPTH,
-            maxRepeatsInLoop: MAX_REPEATS_IN_LOOP,
-            evalAstNumberExpression: (expr, envRef) => this.evalAstNumberExpression(expr, envRef),
-            handlePrimitiveAstStatement: (stmt, envCtx, mode) => this.handlePrimitiveAstStatement(stmt, envCtx, mode),
-            evaluateCondition: (condition, envCtx) => evaluateAstCondition(condition, {
-                evalAstNumberExpression: (expr, envRef) => this.evalAstNumberExpression(expr, envRef),
-                env: envCtx,
-                isAtCanvasEdge: () => this.isAtCanvasEdge(),
-                pressedKeys: this.pressedKeys,
-            }),
-            attachAstErrorLocation: (error, stmt) => this.attachAstErrorLocation(error, stmt),
-        });
-
-        this.commandIndicatorUpdater("грати (...)", 0);
-        this.updateRavlykVisualState(true);
-
-        return startGameLoopRuntime(this, {
-            gameTickMs: this.config.gameTickMs,
-            shouldStop: () => this.shouldStop,
-            isPaused: () => this.isPaused,
-            onStopRequested: () => {
-                this.commandIndicatorUpdater(null, -1);
-                this.stopGameLoop(new RavlykError("EXECUTION_STOPPED_BY_USER"));
-            },
-            onTick: () => {
-                gameAstRunner.runGameTick();
-                this.updateRavlykVisualState(true);
-            },
-            onError: (error) => {
-                this.commandIndicatorUpdater(null, -1);
-                this.stopGameLoop(error);
-            },
-        });
+        return executeGameProgramRuntime(this, programAst);
     }
 
     async executeCommands(commandsString) {
-        if (this.isExecuting) {
-            throw new RavlykError("EXECUTION_IN_PROGRESS");
-        }
-
-        this.isExecuting = true;
-        this.shouldStop = false;
-        this.isPaused = false;
-        this.currentCommandIndex = 0;
-        this.boundaryWarningShown = false;
-        this.parser.resetUserState();
-
-        try {
-            const programAst = this.parser.parseCodeToAst(commandsString);
-            this.validateGameProgramContract(programAst);
-            if (hasGameStatementHelper(programAst)) {
-                return await this.executeGameProgram(programAst);
-            }
-            this.commandQueue = this.astToLegacyQueue(programAst, {
-                emitAssignments: true,
-            });
-            this.executionEnv = new Environment(null);
-            return await this.runCommandQueue();
-        } catch (error) {
-            this.isExecuting = false;
-            this.commandIndicatorUpdater(null, -1);
-            throw error;
-        } finally {
-            this.isExecuting = false;
-            this.commandIndicatorUpdater(null, -1);
-        }
+        return executeCommandsRuntime(this, commandsString);
     }
 
     normalizeConditionKey(rawKey) {
@@ -342,151 +234,35 @@ export class RavlykInterpreter {
     }
 
     evaluateIfCondition(condition) {
-        const evalEnv = this.executionEnv || new Environment(null);
-        return evaluateRuntimeIfCondition(condition, {
-            evalAstNumberExpression: (expr, envRef) => this.evalAstNumberExpression(expr, envRef),
-            executionEnv: evalEnv,
-            isAtCanvasEdge: () => this.isAtCanvasEdge(),
-            pressedKeys: this.pressedKeys,
-        });
+        return evaluateIfConditionRuntime(this, condition);
     }
 
     async runCommandQueue() {
-        return runCommandQueueRuntime({
-            commandQueue: this.commandQueue,
-            config: this.config,
-            commandIndicatorUpdater: this.commandIndicatorUpdater,
-            ensureExecutionEnv: () => {
-                if (!this.executionEnv) this.executionEnv = new Environment(null);
-            },
-            createStopError: () => new RavlykError("EXECUTION_STOPPED_BY_USER"),
-            getShouldStop: () => this.shouldStop,
-            getIsPaused: () => this.isPaused,
-            setCurrentCommandIndex: (index) => {
-                this.currentCommandIndex = index;
-            },
-            setAnimationFrameId: (frameId) => {
-                this.animationFrameId = frameId;
-            },
-            getAnimationFrameId: () => this.animationFrameId,
-            cancelAnimationFrameFn: cancelAnimationFrame,
-            requestAnimationFrameFn: requestAnimationFrame,
-            nowFn: () => performance.now(),
-            onExecutionCompleted: () => {
-                this.isExecuting = false;
-                this.commandIndicatorUpdater(null, -1);
-                this.executionEnv = null;
-            },
-            onExecutionError: () => {
-                this.isExecuting = false;
-                this.commandIndicatorUpdater(null, -1);
-                this.executionEnv = null;
-            },
-            executeCurrentCommand: ({ currentCommandObject, currentFrame, executionStack, deltaTime }) => {
-                return executeInterpreterCommand({
-                    currentCommandObject,
-                    currentFrame,
-                    executionStack,
-                    deltaTime,
-                    executionEnv: this.executionEnv,
-                    evalAstNumberExpression: (expr, envRef) => this.evalAstNumberExpression(expr, envRef),
-                    createVariableValueInvalidError: (name, value) => new RavlykError("VARIABLE_VALUE_INVALID", name, value),
-                    animatePen: (cmd, targetScale, dt) => this.animatePen(cmd, targetScale, dt),
-                    animateMove: (cmd, distance, dt) => this.animateMove(cmd, distance, dt),
-                    animateTurn: (cmd, angle, dt) => this.animateTurn(cmd, angle, dt),
-                    setColor: (color) => this.setColor(color),
-                    performGoto: (x, y) => this.performGoto(x, y),
-                    clearScreen: () => this.clearScreen(),
-                    cloneCommand: (cmd) => cloneInterpreterCommand(cmd),
-                    evaluateIfCondition: (condition) => this.evaluateIfCondition(condition),
-                    resetStuckState: () => {
-                        this.state.isStuck = false;
-                        this.boundaryWarningShown = false;
-                    },
-                    state: this.state,
-                });
-            },
-            updateRavlykVisualState: () => this.updateRavlykVisualState(),
-        });
+        return runCommandQueueWithRuntime(this);
     }
 
     animatePen(commandObject, targetScale, deltaTime) {
-        return animatePenHelper({
-            commandObject,
-            targetScale,
-            deltaTime,
-            animationEnabled: this.config.animationEnabled,
-            state: this.state,
-        });
+        return animatePenRuntime(this, commandObject, targetScale, deltaTime);
     }
 
     animateMove(commandObject, totalDistance, deltaTime) {
-        return animateMoveHelper({
-            commandObject,
-            totalDistance,
-            deltaTime,
-            animationEnabled: this.config.animationEnabled,
-            moveSpeed: this.config.moveSpeed,
-            state: this.state,
-            performMove: (distance) => performMoveHelper({
-                distance,
-                state: this.state,
-                ctx: this.ctx,
-                clampToCanvasBounds: (x, y) => this.clampToCanvasBounds(x, y),
-                applyContextSettings: () => this.applyContextSettings(),
-            }),
-            infoNotifier: this.infoNotifier,
-            boundaryWarningShown: this.boundaryWarningShown,
-            setBoundaryWarningShown: (value) => {
-                this.boundaryWarningShown = value;
-            },
-            outOfBoundsMessage: ERROR_MESSAGES.CANVAS_OUT_OF_BOUNDS,
-        });
+        return animateMoveRuntime(this, commandObject, totalDistance, deltaTime);
     }
 
     animateTurn(commandObject, totalAngle, deltaTime) {
-        return animateTurnHelper({
-            commandObject,
-            totalAngle,
-            deltaTime,
-            animationEnabled: this.config.animationEnabled,
-            turnSpeed: this.config.turnSpeed,
-            performTurn: (angle) => performTurnHelper({ angle, state: this.state }),
-        });
+        return animateTurnRuntime(this, commandObject, totalAngle, deltaTime);
     }
 
     setColor(colorName) {
-        setColorHelper({
-            colorName,
-            state: this.state,
-            colorMap: COLOR_MAP,
-            applyContextSettings: () => this.applyContextSettings(),
-            createUnknownColorError: (rawColorName) => new RavlykError("UNKNOWN_COLOR", rawColorName),
-        });
+        return setColorRuntime(this, colorName);
     }
 
     clearScreen() {
-        clearScreenHelper({
-            ctx: this.ctx,
-            canvas: this.canvas,
-        });
+        return clearScreenRuntime(this);
     }
 
     performGoto(logicalX, logicalY) {
-        performGotoHelper({
-            logicalX,
-            logicalY,
-            state: this.state,
-            ctx: this.ctx,
-            canvas: this.canvas,
-            clampToCanvasBounds: (x, y) => this.clampToCanvasBounds(x, y),
-            infoNotifier: this.infoNotifier,
-            boundaryWarningShown: this.boundaryWarningShown,
-            setBoundaryWarningShown: (value) => {
-                this.boundaryWarningShown = value;
-            },
-            outOfBoundsMessage: ERROR_MESSAGES.CANVAS_OUT_OF_BOUNDS,
-        });
+        return performGotoRuntime(this, logicalX, logicalY);
     }
 
     handleCanvasResize(resizeMeta = null) {
