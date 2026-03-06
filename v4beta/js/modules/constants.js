@@ -120,8 +120,6 @@ export const INFO_MESSAGES = {
 
 export const RAVLYK_SVG_DATA_URL = 'data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,0 15,85 85,85" fill="%234a6fa5"/></svg>'; // Носик у (50,0)
 
-export const HELP_MODAL_CONTENT_ID = 'ravlyk-help-modal-content';
-export const CLEAR_CONFIRM_MODAL_ID = 'clear-confirm-modal-content';
 
 
 export const CURRENT_YEAR = new Date().getFullYear(); // Для футера

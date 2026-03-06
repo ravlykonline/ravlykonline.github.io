@@ -12,7 +12,6 @@ import {
 import {
     ERROR_MESSAGES, SUCCESS_MESSAGES, INFO_MESSAGES,
     MAX_CODE_LENGTH_CHARS, EXECUTION_TIMEOUT_MS,
-    HELP_MODAL_CONTENT_ID, CLEAR_CONFIRM_MODAL_ID,
     DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND,
     GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y
 } from './modules/constants.js';
@@ -755,6 +754,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.setTimeout(startPrefetch, 1200);
     }
 
+    function openInNewTab(url) {
+        if (!url) return;
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
     // --- Event Listeners ---
     if (runBtn) runBtn.addEventListener("click", runCode);
     if (clearBtn) clearBtn.addEventListener("click", () => {
@@ -792,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (helpModalCloseBtn) helpModalCloseBtn.addEventListener('click', hideHelpModal);
     if (helpModalToManualBtn) {
         helpModalToManualBtn.addEventListener('click', () => {
-            window.open('manual.html', '_blank', 'noopener,noreferrer');
+            openInNewTab('manual.html');
             hideHelpModal();
         });
     }
@@ -864,8 +868,8 @@ document.addEventListener('DOMContentLoaded', () => {
     bindModalOverlayClose('download-modal-overlay', hideDownloadModal);
 
 
-    if (toManualBtnMain) toManualBtnMain.addEventListener('click', () => window.open('manual.html', '_blank', 'noopener,noreferrer'));
-    if (toLessonsBtnMain) toLessonsBtnMain.addEventListener('click', () => window.open('lessons.html', '_blank', 'noopener,noreferrer'));
+    if (toManualBtnMain) toManualBtnMain.addEventListener('click', () => openInNewTab('manual.html'));
+    if (toLessonsBtnMain) toLessonsBtnMain.addEventListener('click', () => openInNewTab('lessons.html'));
 
     exampleBlocks.forEach((block) => {
         block.addEventListener("click", () => {

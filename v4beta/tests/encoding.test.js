@@ -171,6 +171,38 @@ runTest('main script keeps canonical modal helper usage', () => {
     });
 });
 
+runTest('main script centralizes external tab opening helper', () => {
+    const mainJs = fs.readFileSync('js/main.js', 'utf8');
+
+    const requiredSnippets = [
+        'function openInNewTab(url) {',
+        "window.open(url, '_blank', 'noopener,noreferrer');",
+        "openInNewTab('manual.html')",
+        "openInNewTab('lessons.html')",
+    ];
+
+    requiredSnippets.forEach((snippet) => {
+        assert.equal(
+            mainJs.includes(snippet),
+            true,
+            `js/main.js should contain centralized new-tab helper usage: ${snippet}`
+        );
+    });
+
+    const forbiddenSnippets = [
+        "window.open('manual.html', '_blank', 'noopener,noreferrer')",
+        "window.open('lessons.html', '_blank', 'noopener,noreferrer')",
+    ];
+
+    forbiddenSnippets.forEach((snippet) => {
+        assert.equal(
+            mainJs.includes(snippet),
+            false,
+            `js/main.js should not keep duplicated direct new-tab call: ${snippet}`
+        );
+    });
+});
+
 runTest('ui module keeps canonical global message system usage', () => {
     const uiJs = fs.readFileSync('js/modules/ui.js', 'utf8');
 

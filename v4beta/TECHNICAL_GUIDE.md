@@ -186,6 +186,10 @@ Behavior:
 - movement and goto are clamped to visible canvas bounds,
 - friendly out-of-bounds info message shown once per stuck sequence.
 
+### 7.7 Constants hygiene
+
+- Removed dead UI constants (`HELP_MODAL_CONTENT_ID`, `CLEAR_CONFIRM_MODAL_ID`) that were not referenced by runtime code.
+
 ## 8. UI architecture
 
 ## 8.1 Main page (`index.html` + `js/main.js`)
@@ -200,6 +204,7 @@ Responsibilities:
 - modal open/close behavior is centralized in `js/modules/ui.js` (`toggleModal` + dedicated show/hide wrappers for help/clear/stop/download),
 - modal state checks use shared helper `isModalOpen(modalId)` instead of ad-hoc `classList.contains('hidden')` checks in page scripts,
 - overlay-click close wiring is centralized via `bindModalOverlayClose(modalId, onClose)` helper,
+- external same-site new-tab navigation in `main.js` is centralized via `openInNewTab(url)` helper with `noopener,noreferrer`,
 - examples launcher,
 - command reference tabs,
 - workspace tabs (`Редактор` / `Полотно`) on small and medium screens,
