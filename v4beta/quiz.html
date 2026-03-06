@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Онлайн-вікторина РАВЛИК: перевірка знань команд." />
+    <meta name="robots" content="index, follow" />
+    <title>Вікторина РАВЛИК</title>
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/quiz.css" />
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Перейти до основного вмісту</a>
+    <div class="page-wrapper">
+        <header class="main-header">
+            <h1>Вікторина РАВЛИК</h1>
+            <h2>Перевір знання команд і логіки</h2>
+        </header>
+        <main id="main-content" class="content-container quiz-wrap">
+            <nav class="quiz-nav" aria-label="Швидка навігація">
+                <a class="btn btn-success" href="index.html">До редактора</a>
+                <a class="btn btn-primary" href="lessons.html">До уроків</a>
+                <a class="btn btn-primary" href="manual.html">До посібника</a>
+                <a class="btn btn-primary" href="resources.html">До ресурсів</a>
+            </nav>
+
+            <section class="quiz-card" aria-labelledby="quiz-settings-title">
+                <h3>Правила</h3>
+                <p>Обери тему і натисни “Нова добірка”. Щоразу формується випадковий набір із 10 питань.</p>
+                <div class="quiz-settings">
+                    <h4 id="quiz-settings-title">Налаштування</h4>
+                    <label for="quiz-theme">Тема:</label>
+                    <select id="quiz-theme">
+                        <option value="basic">Основні команди</option>
+                        <option value="loops">Цикли та умови</option>
+                        <option value="vars">Змінні та функції</option>
+                    </select>
+                    <button type="button" id="quiz-new-set-btn" class="btn btn-primary">Нова добірка</button>
+                </div>
+            </section>
+
+            <form id="ravlyk-quiz-form" class="quiz-card" novalidate>
+                <div id="quiz-question-list"></div>
+
+                <div class="quiz-actions">
+                    <button type="button" id="quiz-check-btn" class="btn btn-success">Перевірити результат</button>
+                    <button type="button" id="quiz-reset-btn" class="btn btn-warning">Скинути відповіді</button>
+                </div>
+
+                <div id="quiz-result" class="quiz-result" role="status" aria-live="polite">
+                    Результат ще не обчислено.
+                </div>
+            </form>
+        </main>
+        <footer class="main-footer">
+            <p>&copy;<span class="current-year">2026</span> РАВЛИК | Навчальна вікторина</p>
+        </footer>
+    </div>
+    <script type="module" src="js/quizPage.js"></script>
+</body>
+</html>

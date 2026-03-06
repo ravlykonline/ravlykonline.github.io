@@ -1,0 +1,16 @@
+{
+  "name": "ravlyk-version-4",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test:unit": "node --experimental-default-type=module tests/parser.test.js && node --experimental-default-type=module tests/ui.test.js && node --experimental-default-type=module tests/encoding.test.js",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test": "npm run test:unit && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.2"
+  }
+}
