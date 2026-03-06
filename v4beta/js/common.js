@@ -1,5 +1,10 @@
 // js/common.js
 document.addEventListener('DOMContentLoaded', () => {
+    const openInNewTab = (url) => {
+        if (!url) return;
+        window.open(url, '_blank', 'noopener,noreferrer');
+    };
+
     // --- Handlers for manual.html ---
     const manualBackToEditorBtn = document.getElementById('manual-back-to-editor');
     if (manualBackToEditorBtn) {
@@ -30,12 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const resourcesToLessonsBtn = document.getElementById('resources-to-lessons');
     if (resourcesToLessonsBtn) {
-        resourcesToLessonsBtn.addEventListener('click', () => window.open('lessons.html', '_blank'));
+        resourcesToLessonsBtn.addEventListener('click', () => openInNewTab('lessons.html'));
     }
     
     const resourcesToManualBtn = document.getElementById('resources-to-manual');
     if (resourcesToManualBtn) {
-        resourcesToManualBtn.addEventListener('click', () => window.open('manual.html', '_blank'));
+        resourcesToManualBtn.addEventListener('click', () => openInNewTab('manual.html'));
     }
 
     // --- Smooth scroll for Table of Contents links (if not handled by CSS globally) ---

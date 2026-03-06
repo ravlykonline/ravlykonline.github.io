@@ -113,6 +113,33 @@ test.describe('Ravlyk UI smoke', () => {
     await expect(downloadBtn).toBeFocused();
   });
 
+  test('escape opens and closes stop confirm modal while code is executing', async ({ page }) => {
+    const code = [
+      'грати (',
+      '  якщо клавіша "вгору" ( вперед 3 )',
+      ')',
+    ].join('\n');
+
+    await page.fill('#code-editor', code);
+    await page.locator('#run-btn').click();
+    await expect(page.locator('#stop-btn')).toBeEnabled();
+
+    const stopModal = page.locator('#stop-confirm-modal-overlay');
+    await page.keyboard.press('Escape');
+    await expect(stopModal).not.toHaveClass(/hidden/);
+
+    await page.keyboard.press('Escape');
+    await expect(stopModal).toHaveClass(/hidden/);
+    await expect(page.locator('#stop-btn')).toBeEnabled();
+
+    await page.evaluate(() => {
+      if (window.ravlykInterpreterInstance && typeof window.ravlykInterpreterInstance.stopExecution === 'function') {
+        window.ravlykInterpreterInstance.stopExecution();
+      }
+    });
+    await expect(page.locator('#run-btn')).toBeEnabled();
+  });
+
   test('download modal can export drawing as PNG', async ({ page }) => {
     await page.fill('#code-editor', 'повторити 4 ( вперед 40 праворуч 90 )');
     await page.locator('#run-btn').click();

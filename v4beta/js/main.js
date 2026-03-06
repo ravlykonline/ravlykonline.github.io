@@ -759,6 +759,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(url, '_blank', 'noopener,noreferrer');
     }
 
+    function closeModalIfOpen(overlayId, closeFn) {
+        if (!isModalOpen(overlayId)) return;
+        closeFn();
+    }
+
     // --- Event Listeners ---
     if (runBtn) runBtn.addEventListener("click", runCode);
     if (clearBtn) clearBtn.addEventListener("click", () => {
@@ -829,38 +834,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (closeDownloadModalBtn) closeDownloadModalBtn.addEventListener('click', hideDownloadModal);
 
-    // Close modals on Escape key
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-            if (isDownloadModalOpen()) {
-                hideDownloadModal();
-                return;
-            }
+    function handleEscapeKey(event) {
+        if (event.key !== 'Escape') return;
 
-            const stopModalOpen = isModalOpen('stop-confirm-modal-overlay');
-            if (stopModalOpen) {
-                closeStopConfirmDialog(true);
-                return;
-            }
-
-            // Якщо виконується код - просимо підтвердження зупинки
-            if (interpreter.isExecuting) {
-                openStopConfirmDialog();
-                return;
-            }
-            
-            // Якщо відкрите модальне вікно - закриваємо його
-            if (isModalOpen('help-modal-overlay')) {
-                hideHelpModal();
-            }
-            if (isModalOpen('clear-confirm-modal-overlay')) {
-                hideClearConfirmModal();
-            }
-            if (isModalOpen('stop-confirm-modal-overlay')) {
-                closeStopConfirmDialog(true);
-            }
+        if (isDownloadModalOpen()) {
+            hideDownloadModal();
+            return;
         }
-    });
+
+        const stopModalOpen = isModalOpen('stop-confirm-modal-overlay');
+        if (stopModalOpen) {
+            closeStopConfirmDialog(true);
+            return;
+        }
+
+        // Якщо виконується код - просимо підтвердження зупинки
+        if (interpreter.isExecuting) {
+            openStopConfirmDialog();
+            return;
+        }
+        
+        // Якщо відкрите модальне вікно - закриваємо його
+        closeModalIfOpen('help-modal-overlay', hideHelpModal);
+        closeModalIfOpen('clear-confirm-modal-overlay', hideClearConfirmModal);
+    }
+
+    // Close modals on Escape key
+    document.addEventListener('keydown', handleEscapeKey);
     // Close modals on overlay click
     bindModalOverlayClose('help-modal-overlay', hideHelpModal);
     bindModalOverlayClose('clear-confirm-modal-overlay', hideClearConfirmModal);

@@ -101,3 +101,12 @@
 ### Нотатка для розробки
 - Legacy-шлях `parseTokens()` вимкнено; використовується AST-пайплайн.
 - Нові можливості слід додавати лише через AST-пайплайн.
+## Development Hygiene (static site)
+
+- This project is a static frontend (`HTML/CSS/JS`) with no backend runtime.
+- Repository text policy is enforced by:
+  - `.editorconfig` (`utf-8`, `lf`, final newline, trim trailing spaces),
+  - `.gitattributes` (`* text=auto eol=lf` + binary asset rules).
+- Run tests before release:
+  - `npm run test:unit`
+  - `npm run test:e2e`

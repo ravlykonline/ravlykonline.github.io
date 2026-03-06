@@ -3,7 +3,7 @@
 This document is the primary technical onboarding for this repository.
 If you are an AI agent or a developer joining the project, start here.
 
-Last updated: 2026-03-05
+Last updated: 2026-03-06
 
 ## 1. Project purpose
 
@@ -52,14 +52,7 @@ Core modules:
 - `js/quizPage.js`: quiz runtime (topic picker, random 10 questions, option shuffle, scoring).
 - `tests/parser.test.js`: parser/interpreter logic tests.
 - `tests/ui.test.js`: UI utility tests.
-- `tests/encoding.test.js`: UTF-8/mojibake guard checks for key files and UI strings.
-- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static HTML safety checks for `target="_blank"` (`rel="noopener noreferrer"`).
-- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static safety checks for external links and toolbar structure (`#download-btn` only, no legacy save buttons).
-- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static safety checks for external links, toolbar structure, and modal ARIA dialog contract in `index.html`.
-- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static safety checks for external links, toolbar structure, modal ARIA dialog contract, and CSS cleanup regression constraints.
-- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static safety checks for external links, toolbar structure, modal ARIA dialog contract, CSS cleanup regression constraints, and canonical modal-helper usage in `js/main.js`.
-- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static safety checks for external links, toolbar structure, modal ARIA dialog contract, CSS cleanup regression constraints, canonical modal-helper usage in `js/main.js`, and canonical global-message architecture usage in `js/modules/ui.js`.
-- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static safety checks for external links, toolbar structure, modal ARIA dialog contract, CSS cleanup regression constraints, canonical modal-helper usage in `js/main.js`, canonical global-message architecture usage, and modal overlay->content mapping guarantees in `js/modules/ui.js`.
+- `tests/encoding.test.js`: UTF-8/mojibake and static regression guards (HTML link safety, toolbar/download contract, modal ARIA contract, CSS legacy cleanup constraints, modal/message architecture guards, modal mapping guards, JS `_blank` window.open safety).
 - `tests/e2e/*`: Playwright smoke tests.
 - `playwright.config.js`: E2E config (desktop + mobile + tablet).
 
@@ -205,6 +198,8 @@ Responsibilities:
 - modal state checks use shared helper `isModalOpen(modalId)` instead of ad-hoc `classList.contains('hidden')` checks in page scripts,
 - overlay-click close wiring is centralized via `bindModalOverlayClose(modalId, onClose)` helper,
 - external same-site new-tab navigation in `main.js` is centralized via `openInNewTab(url)` helper with `noopener,noreferrer`,
+- `js/common.js` also uses centralized `openInNewTab(url)` helper for its `_blank` navigations,
+- Escape-key modal flow in `main.js` is grouped in dedicated `handleEscapeKey` handler to keep keyboard behavior maintainable,
 - examples launcher,
 - command reference tabs,
 - workspace tabs (`Редактор` / `Полотно`) on small and medium screens,
@@ -262,12 +257,13 @@ The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 
 - `tests/parser.test.js`: tokenization, AST, expressions, conditions, queue adaptation, limits, error behavior.
 - `tests/ui.test.js`: canvas resize and viewport alignment logic, plus modal helper unit checks (`isModalOpen`, `bindModalOverlayClose`) and modal show/hide focus-contract checks (help/download).
-- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, and toolbar regression guard for unified download flow.
-- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, toolbar regression guard for unified download flow, and ARIA contract checks for editor modals (`role="dialog"`, `aria-modal`, `aria-labelledby`).
-- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, toolbar regression guard for unified download flow, ARIA contract checks for editor modals (`role="dialog"`, `aria-modal`, `aria-labelledby`), and prevention of removed legacy snippets in `css/accessibility.css`.
-- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, toolbar regression guard for unified download flow, ARIA contract checks for editor modals (`role="dialog"`, `aria-modal`, `aria-labelledby`), prevention of removed legacy snippets in `css/accessibility.css`, and modal-helper architecture guards (`isModalOpen`/`bindModalOverlayClose`).
-- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, toolbar regression guard for unified download flow, ARIA contract checks for editor modals (`role="dialog"`, `aria-modal`, `aria-labelledby`), prevention of removed legacy snippets in `css/accessibility.css`, modal-helper architecture guards (`isModalOpen`/`bindModalOverlayClose`), and global-message architecture guards (`#global-message-display` path only).
-- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, toolbar regression guard for unified download flow, ARIA contract checks for editor modals (`role="dialog"`, `aria-modal`, `aria-labelledby`), prevention of removed legacy snippets in `css/accessibility.css`, modal-helper architecture guards (`isModalOpen`/`bindModalOverlayClose`), global-message architecture guards (`#global-message-display` path only), and modal content mapping guards (`help/clear/stop/download` overlay IDs).
+- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` + key Ukrainian snippets), repository policy checks for `.editorconfig`/`.gitattributes`, UTF-8 BOM guards for selected critical text files (with explicit legacy allowlist), external-link safety assertions for `_blank`, unified toolbar/download regression guards, modal ARIA contract checks, CSS legacy-cleanup guards, modal/message architecture guards, modal overlay->content mapping checks, and JS `window.open(..., '_blank', 'noopener,noreferrer')` safety guards.
+
+## 11.3 Encoding and line-ending policy
+
+- `.editorconfig` is the source of truth for editor defaults (`utf-8`, `lf`, final newline, trim trailing whitespace).
+- `.gitattributes` enforces repository normalization (`* text=auto eol=lf`) and marks binary assets as binary.
+- The runtime remains static-site only; these are repository hygiene controls and do not add build/runtime dependencies.
 
 ### 11.2 E2E smoke tests (Playwright)
 
@@ -276,6 +272,7 @@ The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 - accessibility panel (focus containment + persistence),
 - arrow-key scroll blocking in `грати`,
 - smoke execution via example block + stop,
+- stop-confirm modal keyboard flow (`Esc` opens while executing, second `Esc` closes and resumes),
 - download modal interactions (`Esc`, focus return),
 - download exports (PNG drawing + TXT code),
 - workspace switching keeps canvas content (tabbed mobile/tablet and non-tabbed desktop path).

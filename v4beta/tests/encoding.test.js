@@ -30,10 +30,55 @@ const htmlFilesToValidateTargetRel = [
     'advice_for_parents.html',
 ];
 
+runTest('repository defines editor and git encoding/line-ending policy files', () => {
+    const editorConfig = fs.readFileSync('.editorconfig', 'utf8');
+    const gitAttributes = fs.readFileSync('.gitattributes', 'utf8');
+
+    const editorRequired = [
+        'root = true',
+        'charset = utf-8',
+        'end_of_line = lf',
+        'insert_final_newline = true',
+    ];
+    editorRequired.forEach((snippet) => {
+        assert.equal(editorConfig.includes(snippet), true, `.editorconfig missing: ${snippet}`);
+    });
+
+    const attributesRequired = [
+        '* text=auto eol=lf',
+        '*.png binary',
+        '*.woff2 binary',
+    ];
+    attributesRequired.forEach((snippet) => {
+        assert.equal(gitAttributes.includes(snippet), true, `.gitattributes missing: ${snippet}`);
+    });
+});
+
 runTest('critical files are valid UTF-8 text without replacement characters', () => {
     filesToValidate.forEach((path) => {
         const content = fs.readFileSync(path, 'utf8');
         assert.equal(content.includes('\uFFFD'), false, `${path} contains replacement character U+FFFD`);
+    });
+});
+
+runTest('critical text files are saved without UTF-8 BOM', () => {
+    const allowUtf8Bom = new Set([
+        'manual.html',
+        'js/main.js',
+    ]);
+
+    filesToValidate.forEach((path) => {
+        const contentBytes = fs.readFileSync(path);
+        const hasUtf8Bom = contentBytes.length >= 3
+            && contentBytes[0] === 0xef
+            && contentBytes[1] === 0xbb
+            && contentBytes[2] === 0xbf;
+
+        if (allowUtf8Bom.has(path)) {
+            return;
+        }
+
+        assert.equal(hasUtf8Bom, false, `${path} should not contain UTF-8 BOM`);
     });
 });
 
@@ -134,9 +179,11 @@ runTest('main script keeps canonical modal helper usage', () => {
     const mainJs = fs.readFileSync('js/main.js', 'utf8');
 
     const requiredSnippets = [
-        "isModalOpen('help-modal-overlay')",
-        "isModalOpen('clear-confirm-modal-overlay')",
+        'function closeModalIfOpen(overlayId, closeFn) {',
+        'if (!isModalOpen(overlayId)) return;',
         "isModalOpen('stop-confirm-modal-overlay')",
+        "closeModalIfOpen('help-modal-overlay', hideHelpModal)",
+        "closeModalIfOpen('clear-confirm-modal-overlay', hideClearConfirmModal)",
         "bindModalOverlayClose('help-modal-overlay', hideHelpModal)",
         "bindModalOverlayClose('clear-confirm-modal-overlay', hideClearConfirmModal)",
         "bindModalOverlayClose('stop-confirm-modal-overlay', () => closeStopConfirmDialog(true))",
@@ -256,6 +303,24 @@ runTest('ui module keeps canonical modal content mapping', () => {
             true,
             `js/modules/ui.js should contain canonical modal mapping snippet: ${snippet}`
         );
+    });
+});
+
+runTest('javascript _blank window.open calls include noopener,noreferrer', () => {
+    const jsFiles = ['js/main.js', 'js/common.js'];
+
+    jsFiles.forEach((path) => {
+        const source = fs.readFileSync(path, 'utf8');
+        const openCalls = source.match(/window\.open\(([^;]+)\);/g) || [];
+
+        openCalls.forEach((call) => {
+            if (!call.includes("'_blank'")) return;
+            assert.equal(
+                call.includes("'noopener,noreferrer'"),
+                true,
+                `${path} has _blank window.open without noopener,noreferrer: ${call}`
+            );
+        });
     });
 });
 
