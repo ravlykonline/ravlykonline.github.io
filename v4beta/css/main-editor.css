@@ -603,24 +603,11 @@
 
 
 /* Help Modal Styles */
-.modal-overlay__help,
-.modal-overlay__content,
 .help-content {
     background: #fff !important;
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     padding: 28px 32px 24px 32px;
-}
-
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.4); /* Darker backdrop */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000; /* High z-index */
-    padding: 15px; /* Padding for small screens */
 }
 
 /* Стилі для контенту модального вікна підтвердження очищення */
@@ -637,12 +624,6 @@
 }
 
 
-.modal-overlay__help-title {
-    margin-bottom: 20px;
-    color: #4b0082;
-    font-size: 1.6rem;
-}
-
 .modal-overlay .help-content ul {
     margin-bottom: 25px;
     padding-left: 25px; /* Indent list */
@@ -652,10 +633,6 @@
     margin-bottom: 8px;
 }
 
-.modal-overlay__content .modal-overlay__btn {
-    margin-top: 10px;
-    margin-right: 10px;
-}
 .example-block.disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -761,8 +738,6 @@
     border-bottom: 1px solid #ff5252 !important;
 }
 
-.a11y-high-contrast .modal-overlay__help,
-.a11y-high-contrast .modal-overlay__content,
 .a11y-high-contrast .help-content {
     background: #000 !important;
     color: #fff !important;

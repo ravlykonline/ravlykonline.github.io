@@ -256,7 +256,9 @@ The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 - accessibility panel (focus containment + persistence),
 - arrow-key scroll blocking in `грати`,
 - smoke execution via example block + stop,
-- mobile/tablet workspace tab switching keeps canvas content (no reset on `Редактор` <-> `Полотно` switch).
+- download modal interactions (`Esc`, focus return),
+- download exports (PNG drawing + TXT code),
+- workspace switching keeps canvas content (tabbed mobile/tablet and non-tabbed desktop path).
 
 Projects in `playwright.config.js`:
 - `chromium` (desktop),

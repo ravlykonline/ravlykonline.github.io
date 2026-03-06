@@ -99,16 +99,55 @@ test.describe('Ravlyk UI smoke', () => {
     await expect(page.locator('#run-btn')).toBeEnabled();
   });
 
-  test('switching mobile workspace tabs keeps drawn canvas content', async ({ page }, testInfo) => {
-    test.skip(!/(mobile|tablet)/i.test(testInfo.project.name), 'Applies to tabbed workspace layouts only.');
+  test('download modal opens, closes on Escape, and returns focus to download button', async ({ page }) => {
+    const downloadBtn = page.locator('#download-btn');
+    await downloadBtn.click();
 
+    const downloadModal = page.locator('#download-modal-overlay');
+    await expect(downloadModal).not.toHaveClass(/hidden/);
+    await expect(page.locator('#download-image-btn')).toBeVisible();
+    await expect(page.locator('#download-code-btn')).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(downloadModal).toHaveClass(/hidden/);
+    await expect(downloadBtn).toBeFocused();
+  });
+
+  test('download modal can export drawing as PNG', async ({ page }) => {
+    await page.fill('#code-editor', 'повторити 4 ( вперед 40 праворуч 90 )');
+    await page.locator('#run-btn').click();
+    await expect(page.locator('#run-btn')).toBeEnabled();
+
+    await page.locator('#download-btn').click();
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.locator('#download-image-btn').click(),
+    ]);
+    await expect(page.locator('#download-modal-overlay')).toHaveClass(/hidden/);
+
+    const suggestedName = download.suggestedFilename();
+    expect(suggestedName).toMatch(/^ravlyk-малюнок-\d+\.png$/);
+  });
+
+  test('download modal can export code as TXT', async ({ page }) => {
+    await page.fill('#code-editor', 'вперед 25');
+    await page.locator('#download-btn').click();
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.locator('#download-code-btn').click(),
+    ]);
+    await expect(page.locator('#download-modal-overlay')).toHaveClass(/hidden/);
+
+    const suggestedName = download.suggestedFilename();
+    expect(suggestedName).toMatch(/^ravlyk-code-\d+\.txt$/);
+  });
+
+  test('switching mobile workspace tabs keeps drawn canvas content', async ({ page }, testInfo) => {
     const code = 'повторити 4 ( вперед 80 праворуч 90 )';
     await page.fill('#code-editor', code);
     await page.locator('#run-btn').click();
     await expect(page.locator('#run-btn')).toBeEnabled();
-
-    await page.locator('#workspace-canvas-tab').click();
-    await page.waitForTimeout(150);
 
     const alphaBeforeSwitch = await page.evaluate(() => {
       const canvas = document.getElementById('ravlyk-canvas');
@@ -124,10 +163,22 @@ test.describe('Ravlyk UI smoke', () => {
 
     expect(alphaBeforeSwitch).toBeGreaterThan(0);
 
-    await page.locator('#workspace-editor-tab').click();
-    await page.waitForTimeout(100);
-    await page.locator('#workspace-canvas-tab').click();
-    await page.waitForTimeout(150);
+    const isTabbedWorkspace = await page.evaluate(() => {
+      const tabList = document.querySelector('.workspace-tabs');
+      if (!tabList) return false;
+      return getComputedStyle(tabList).display !== 'none';
+    });
+
+    if (isTabbedWorkspace) {
+      await page.locator('#workspace-canvas-tab').click();
+      await page.waitForTimeout(150);
+      await page.locator('#workspace-editor-tab').click();
+      await page.waitForTimeout(100);
+      await page.locator('#workspace-canvas-tab').click();
+      await page.waitForTimeout(150);
+    } else {
+      expect(/mobile|tablet/i.test(testInfo.project.name)).toBe(false);
+    }
 
     const alphaAfterSwitch = await page.evaluate(() => {
       const canvas = document.getElementById('ravlyk-canvas');
