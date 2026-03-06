@@ -56,9 +56,13 @@ Core modules:
 - `js/modules/interpreterLifecycleCleanup.js`
 - `js/modules/interpreterRuntimeState.js`
 - `js/modules/parserTokenizer.js`
+- `js/modules/parserCoreUtils.js`
 - `js/modules/parserExpressions.js`
 - `js/modules/parserBlocksConditions.js`
 - `js/modules/parserCreateStatement.js`
+- `js/modules/parserMotionStatements.js`
+- `js/modules/parserStateStatements.js`
+- `js/modules/parserStatementHandlers.js`
 - `js/main.js`
 
 ## 3. Repository map (v4)
@@ -101,15 +105,30 @@ Core modules:
 - `js/modules/interpreterLifecycleCleanup.js`: interpreter destroy/cleanup helper (animation/timer/listener teardown + runtime state reset).
 - `js/modules/interpreterRuntimeState.js`: runtime state transition helpers (`stop`/`pause`/`resume` and boundary-warning status access).
 - `js/modules/parserTokenizer.js`: tokenizer helper (tokens + source metadata) used by `ravlykParser`.
+- `js/modules/parserCoreUtils.js`: parser utility helpers for identifier normalization/validation, quoted-string parsing, span calculation, and parser error location attachment.
 - `js/modules/parserExpressions.js`: expression parser helper (precedence/unary/primary path) used by `ravlykParser`.
 - `js/modules/parserBlocksConditions.js`: block/condition parsing helpers (`(...)` matching, parsed block extraction, `if` condition AST helper) used by `ravlykParser`.
 - `js/modules/parserCreateStatement.js`: `create` statement helper for parser (`create x = expr`, `create fn(params) (...)`).
+- `js/modules/parserMotionStatements.js`: parser helpers for movement/navigation statements (`forward/backward`, `left/right`, `goto`).
+- `js/modules/parserStateStatements.js`: parser helpers for state/call statements (`color`, `pen`, `clear`, assignment, function call).
+- `js/modules/parserStatementHandlers.js`: parser-bound statement handler factory that wires parser callbacks/keywords into the concrete statement helpers.
+- `js/modules/parserStatementDispatcher.js`: parser dispatch helper that routes the current token to the correct statement parser.
+- `js/modules/parserStatementContext.js`: builder for parser statement-helper context/dependencies, used to keep `ravlykParser` thin.
+- `js/modules/parserControlStatements.js`: parser helpers for control-flow statements (`грати`, `повторити`, `якщо`).
 - `js/accessibility.js`: accessibility toggles, persistence, focus behavior.
 - `js/common.js`: shared page navigation helpers.
 - `js/quizBank.js`: quiz question banks (30 per topic).
 - `js/quizPage.js`: quiz runtime (topic picker, random 10 questions, option shuffle, scoring).
-- `tests/parser.test.js`: parser/interpreter logic tests.
-- `tests/ui.test.js`: UI utility tests.
+- `tests/parser.basic.test.js`: parser basics (tokenization/AST/expression paths).
+- `tests/parser.ast-runtime.test.js`: parser + runtime AST/queue integration behavior.
+- `tests/parser.errors-boundary.test.js`: parser/runtime error and boundary scenarios.
+- `tests/parser-helpers.test.js`: parser helper-module contracts.
+- `tests/parser-helpers.test.js` also covers statement-dispatch helper routing/error contracts.
+- `tests/parser-helpers.test.js` also covers parser statement-context builder wiring.
+- `tests/ui.dom.test.js`: UI DOM utility tests.
+- `tests/controllers.test.js`: controller-level integration tests.
+- `tests/interpreter.helpers.core.test.js`: interpreter helper core contracts.
+- `tests/interpreter.helpers.runtime.test.js`: interpreter helper runtime contracts.
 - `tests/encoding.test.js`: UTF-8/mojibake and static regression guards (HTML link safety, toolbar/download contract, modal ARIA contract, CSS legacy cleanup constraints, modal/message architecture guards, modal mapping guards, JS `_blank` window.open safety).
 - `tests/e2e/*`: Playwright smoke tests.
 - `playwright.config.js`: E2E config (desktop + mobile + tablet).
@@ -273,7 +292,11 @@ Responsibilities:
 - interpreter queue-mode RAF/stack orchestration is centralized in `js/modules/interpreterQueueRuntime.js` and consumed by `ravlykInterpreter.js`,
 - interpreter queue command-dispatch switch is centralized in `js/modules/interpreterCommandExecutor.js` and consumed by `ravlykInterpreter.js`,
 - parser tokenization with metadata is centralized in `js/modules/parserTokenizer.js` and consumed by `ravlykParser.js`,
+- parser identifier/span/error utility logic is centralized in `js/modules/parserCoreUtils.js` and consumed by `ravlykParser.js`,
 - parser expression parsing logic is centralized in `js/modules/parserExpressions.js` and consumed by `ravlykParser.js`,
+- parser movement/navigation statement helpers are centralized in `js/modules/parserMotionStatements.js`,
+- parser state/call statement helpers are centralized in `js/modules/parserStateStatements.js`,
+- parser-bound statement handler wiring is centralized in `js/modules/parserStatementHandlers.js`,
 - `js/common.js` also uses centralized `openInNewTab(url)` helper for its `_blank` navigations,
 - Escape-key modal flow in `main.js` is grouped in dedicated `handleEscapeKey` handler to keep keyboard behavior maintainable,
 - examples launcher,
@@ -331,8 +354,14 @@ The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 
 ### 11.1 Unit/logic tests
 
-- `tests/parser.test.js`: tokenization, AST, expressions, conditions, queue adaptation, limits, error behavior.
-- `tests/ui.test.js`: canvas resize and viewport alignment logic, modal helper unit checks (`isModalOpen`, `bindModalOverlayClose`), modal show/hide focus-contract checks (help/download), editor UI controller checks (line decorations + friendly error formatting contract), grid overlay controller checks (storage init, visibility toggle, draw/hide contract), execution controller checks (toolbar state lock/unlock + stop-confirm pause/resume contract), file actions controller checks (share guard + hash-load callback contract), navigation/prefetch controller checks (`noopener,noreferrer` + idle prefetch link scheduling contract), modal controller checks (clear-confirm gating contract), editor input controller checks (Tab indent + run hotkey contract), lifecycle controller checks (startup + resize fallback contract), interpreter boundary helper checks (margin/clamp/edge contract), interpreter condition helper checks (key normalization + AST/runtime condition evaluation contract), interpreter game-loop helper checks (timer/reject stop contract), interpreter game AST runner checks (missing game block contract), interpreter queue runtime checks (empty queue resolve contract), interpreter command executor checks (assignment dispatch contract), interpreter AST-queue adapter checks (`ASSIGN_AST` emission contract), interpreter game-contract helper checks (nested/top-level `грати` contract), interpreter AST-eval helper checks (expression evaluation + span location mapping contract), interpreter primitive-statement helper checks (queue/runtime primitive statement dispatch contract), interpreter animation helper checks (pen/move/turn completion paths), interpreter drawing-ops helper checks (move/turn/color/goto/clear contracts), interpreter command-clone helper checks (nested clone + transient-field cleanup contract), interpreter lifecycle-cleanup helper checks (idempotent destroy/reset contract), interpreter runtime-state helper checks (`stop`/`pause`/`resume`/status contract), parser block/condition helper checks (`(...)` matching + `if` compare condition parsing contract), and parser create-statement helper checks (`create` assignment parsing contract).
+- `tests/parser.basic.test.js`: parser tokenization and baseline AST behavior.
+- `tests/parser.ast-runtime.test.js`: AST-to-runtime queue integration behavior.
+- `tests/parser.errors-boundary.test.js`: parser/runtime error and boundary scenarios.
+- `tests/parser-helpers.test.js`: parser helper-module contracts.
+- `tests/ui.dom.test.js`: UI DOM utility checks (canvas/modals/editor behavior).
+- `tests/controllers.test.js`: controller-level checks (execution/file/navigation/modal/input/lifecycle).
+- `tests/interpreter.helpers.core.test.js`: interpreter helper core checks (boundary/conditions/game/queue/AST-eval).
+- `tests/interpreter.helpers.runtime.test.js`: interpreter helper runtime checks (primitive/animation/drawing/clone/lifecycle/runtime-state).
 - `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` + key Ukrainian snippets), repository policy checks for `.editorconfig`/`.gitattributes`, UTF-8 BOM guards for selected critical text files (with explicit legacy allowlist), external-link safety assertions for `_blank`, unified toolbar/download regression guards, modal ARIA contract checks, CSS legacy-cleanup guards, modal/message architecture guards, modal overlay->content mapping checks, and JS `window.open(..., '_blank', 'noopener,noreferrer')` safety guards.
 
 ## 11.3 Encoding and line-ending policy
@@ -380,8 +409,14 @@ From `version_4`:
 - `npm run test:e2e:ui`
 
 Parser/UI unit tests:
-- `node --experimental-default-type=module tests/parser.test.js`
-- `node --experimental-default-type=module tests/ui.test.js`
+- `node --experimental-default-type=module tests/parser.basic.test.js`
+- `node --experimental-default-type=module tests/parser.ast-runtime.test.js`
+- `node --experimental-default-type=module tests/parser.errors-boundary.test.js`
+- `node --experimental-default-type=module tests/parser-helpers.test.js`
+- `node --experimental-default-type=module tests/controllers.test.js`
+- `node --experimental-default-type=module tests/interpreter.helpers.core.test.js`
+- `node --experimental-default-type=module tests/interpreter.helpers.runtime.test.js`
+- `node --experimental-default-type=module tests/ui.dom.test.js`
 - `node --experimental-default-type=module tests/encoding.test.js`
 
 ## 14. Known technical debt / open points
@@ -416,3 +451,5 @@ When adding a language feature:
 
 For technical orientation, prefer this file over `README.md` if there is mismatch.
 `README.md` can stay short/public-facing; this guide is the detailed engineering source.
+
+

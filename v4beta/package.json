@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test:unit": "node --experimental-default-type=module tests/parser.basic.test.js && node --experimental-default-type=module tests/parser.ast-runtime.test.js && node --experimental-default-type=module tests/parser.errors-boundary.test.js && node --experimental-default-type=module tests/ui.dom.test.js && node --experimental-default-type=module tests/controllers.test.js && node --experimental-default-type=module tests/interpreter-helpers.test.js && node --experimental-default-type=module tests/parser-helpers.test.js && node --experimental-default-type=module tests/encoding.test.js",
+    "test:unit": "node --experimental-default-type=module tests/parser.basic.test.js && node --experimental-default-type=module tests/parser.ast-runtime.test.js && node --experimental-default-type=module tests/parser.errors-boundary.test.js && node --experimental-default-type=module tests/ui.dom.test.js && node --experimental-default-type=module tests/controllers.test.js && node --experimental-default-type=module tests/interpreter.helpers.core.test.js && node --experimental-default-type=module tests/interpreter.helpers.runtime.test.js && node --experimental-default-type=module tests/parser-helpers.test.js && node --experimental-default-type=module tests/encoding.test.js",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
