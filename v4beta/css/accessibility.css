@@ -531,6 +531,20 @@ input:checked + .toggle-slider:before {
     margin-bottom: 1.1em !important;
 }
 
+.a11y-larger-text .modal-content {
+    width: min(94vw, 560px);
+    min-width: 0;
+}
+
+.a11y-larger-text .modal-title {
+    line-height: 1.2;
+}
+
+.a11y-larger-text .modal-actions .btn {
+    padding: 12px 16px !important;
+    min-height: 56px;
+}
+
 html.a11y-reduce-animations,
 html.a11y-reduce-animations body {
     scroll-behavior: auto !important;

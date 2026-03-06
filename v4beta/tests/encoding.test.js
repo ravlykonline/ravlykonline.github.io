@@ -126,6 +126,31 @@ runTest('editor toolbar keeps unified download button and no legacy save buttons
     assert.equal(mainJs.includes('getElementById("save-code-btn")'), false, 'main.js should not bind legacy #save-code-btn');
 });
 
+runTest('index page keeps a single module bootstrap entry and no duplicate direct module loads', () => {
+    const indexHtml = fs.readFileSync('index.html', 'utf8');
+
+    assert.equal(
+        indexHtml.includes('<script type="module" src="js/main.js"></script>'),
+        true,
+        'index.html must bootstrap through js/main.js'
+    );
+    assert.equal(
+        indexHtml.includes('<script type="module" src="js/modules/constants.js"></script>'),
+        false,
+        'index.html should not directly load js/modules/constants.js'
+    );
+    assert.equal(
+        indexHtml.includes('<script type="module" src="js/modules/ui.js"></script>'),
+        false,
+        'index.html should not directly load js/modules/ui.js'
+    );
+    assert.equal(
+        indexHtml.includes('<script type="module" src="js/modules/ravlykInterpreter.js"></script>'),
+        false,
+        'index.html should not directly load js/modules/ravlykInterpreter.js'
+    );
+});
+
 runTest('index modals keep required ARIA dialog contract', () => {
     const indexHtml = fs.readFileSync('index.html', 'utf8');
     const overlays = [

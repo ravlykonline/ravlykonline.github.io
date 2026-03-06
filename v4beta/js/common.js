@@ -1,10 +1,5 @@
 // js/common.js
 document.addEventListener('DOMContentLoaded', () => {
-    const openInNewTab = (url) => {
-        if (!url) return;
-        window.open(url, '_blank', 'noopener,noreferrer');
-    };
-
     // --- Handlers for manual.html ---
     const manualBackToEditorBtn = document.getElementById('manual-back-to-editor');
     if (manualBackToEditorBtn) {
@@ -24,23 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const manualToLessonsFooterBtn = document.getElementById('manual-to-lessons-footer');
     if (manualToLessonsFooterBtn) {
         manualToLessonsFooterBtn.addEventListener('click', () => window.location.href = 'lessons.html');
-    }
-
-    // --- Handlers for resources.html ---
-    // (Example IDs, you'll need to add these IDs to your buttons in resources.html)
-    const resourcesToEditorBtn = document.getElementById('resources-to-editor');
-    if (resourcesToEditorBtn) {
-        resourcesToEditorBtn.addEventListener('click', () => window.location.href = 'index.html');
-    }
-
-    const resourcesToLessonsBtn = document.getElementById('resources-to-lessons');
-    if (resourcesToLessonsBtn) {
-        resourcesToLessonsBtn.addEventListener('click', () => openInNewTab('lessons.html'));
-    }
-    
-    const resourcesToManualBtn = document.getElementById('resources-to-manual');
-    if (resourcesToManualBtn) {
-        resourcesToManualBtn.addEventListener('click', () => openInNewTab('manual.html'));
     }
 
     // --- Smooth scroll for Table of Contents links (if not handled by CSS globally) ---

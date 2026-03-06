@@ -6,6 +6,36 @@ const GAME_CODE = [
   ')',
 ].join('\n');
 
+async function enableAccessibilityModalStressMode(page) {
+  await page.locator('#accessibility-toggle').click();
+  await page.locator('#high-contrast-input').check({ force: true });
+  await page.locator('#larger-text-input').check({ force: true });
+  await page.locator('#close-accessibility-panel-btn').click();
+}
+
+async function expectButtonsNotToOverflow(page, buttonIds) {
+  const buttonOverflow = await page.evaluate((ids) => {
+    return ids.map((id) => {
+      const element = document.getElementById(id);
+      if (!element) {
+        return { id, missing: true };
+      }
+      return {
+        id,
+        missing: false,
+        widthOverflow: element.scrollWidth > element.clientWidth + 1,
+        heightOverflow: element.scrollHeight > element.clientHeight + 1,
+      };
+    });
+  }, buttonIds);
+
+  for (const result of buttonOverflow) {
+    expect(result.missing).toBe(false);
+    expect(result.widthOverflow).toBe(false);
+    expect(result.heightOverflow).toBe(false);
+  }
+}
+
 test.describe('Ravlyk UI smoke', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/index.html');
@@ -111,6 +141,43 @@ test.describe('Ravlyk UI smoke', () => {
     await page.keyboard.press('Escape');
     await expect(downloadModal).toHaveClass(/hidden/);
     await expect(downloadBtn).toBeFocused();
+  });
+
+  test('download modal buttons do not overflow in high-contrast larger-text mode', async ({ page }) => {
+    await enableAccessibilityModalStressMode(page);
+
+    await page.locator('#download-btn').click();
+    await expect(page.locator('#download-modal-overlay')).not.toHaveClass(/hidden/);
+    await expectButtonsNotToOverflow(page, ['download-image-btn', 'download-code-btn', 'close-download-modal-btn']);
+  });
+
+  test('all modal action buttons stay readable in high-contrast larger-text mode', async ({ page }) => {
+    await enableAccessibilityModalStressMode(page);
+
+    await page.locator('#help-btn').click();
+    await expect(page.locator('#help-modal-overlay')).not.toHaveClass(/hidden/);
+    await expectButtonsNotToOverflow(page, ['to-manual-btn-modal', 'close-help-modal-btn']);
+    await page.keyboard.press('Escape');
+
+    await page.locator('#clear-btn').click();
+    await expect(page.locator('#clear-confirm-modal-overlay')).not.toHaveClass(/hidden/);
+    await expectButtonsNotToOverflow(page, ['confirm-clear-btn', 'cancel-clear-btn']);
+    await page.keyboard.press('Escape');
+
+    await page.fill('#code-editor', GAME_CODE);
+    await page.locator('#run-btn').click();
+    await expect(page.locator('#stop-btn')).toBeEnabled();
+
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#stop-confirm-modal-overlay')).not.toHaveClass(/hidden/);
+    await expectButtonsNotToOverflow(page, ['confirm-stop-btn', 'cancel-stop-btn']);
+    await page.keyboard.press('Escape');
+
+    await page.evaluate(() => {
+      if (window.ravlykInterpreterInstance && typeof window.ravlykInterpreterInstance.stopExecution === 'function') {
+        window.ravlykInterpreterInstance.stopExecution();
+      }
+    });
   });
 
   test('escape opens and closes stop confirm modal while code is executing', async ({ page }) => {

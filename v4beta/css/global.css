@@ -514,3 +514,37 @@ body #global-message-display.message-a11y-global .message-close-btn-global:hover
     margin-left: 8px; /* Removed inline style */
     /* Add other styles if needed */
 }
+
+/* Keep modal actions resilient when accessibility settings increase text size. */
+.modal-content {
+    overflow-wrap: anywhere;
+}
+
+.modal-actions {
+    flex-wrap: wrap;
+}
+
+.modal-actions .btn {
+    flex: 1 1 150px;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.25;
+    text-align: center;
+}
+
+@media (max-width: 560px) {
+    .modal-content {
+        min-width: 0;
+        width: min(92vw, 500px);
+        padding: 22px 18px;
+    }
+
+    .modal-actions {
+        justify-content: stretch;
+    }
+
+    .modal-actions .btn {
+        flex-basis: 100%;
+    }
+}
