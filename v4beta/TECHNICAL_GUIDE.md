@@ -30,6 +30,16 @@ Core modules:
 - `js/modules/ravlykInterpreter.js`
 - `js/modules/ui.js`
 - `js/modules/constants.js`
+- `js/modules/share.js`
+- `js/modules/workspaceTabs.js`
+- `js/modules/editorUi.js`
+- `js/modules/gridOverlay.js`
+- `js/modules/executionController.js`
+- `js/modules/fileActionsController.js`
+- `js/modules/navigationPrefetch.js`
+- `js/modules/modalController.js`
+- `js/modules/editorInputController.js`
+- `js/modules/lifecycleController.js`
 - `js/main.js`
 
 ## 3. Repository map (v4)
@@ -46,6 +56,16 @@ Core modules:
 - `css/teacher-guidelines.css`: teacher page styles.
 - `css/parents.css`: parents page styles.
 - `js/main.js`: main page orchestration and event wiring.
+- `js/modules/share.js`: share-link/hash encoding + clipboard helpers for editor code sharing.
+- `js/modules/workspaceTabs.js`: command/workspace tabs setup and keyboard navigation wiring.
+- `js/modules/editorUi.js`: editor decorations (line numbers/active+error lines) and friendly error formatting helpers.
+- `js/modules/gridOverlay.js`: grid overlay drawing, persistence, and toolbar grid button state.
+- `js/modules/executionController.js`: run/stop execution orchestration, execution timeout handling, and stop-confirm pause/resume flow.
+- `js/modules/fileActionsController.js`: save image/code actions, share-link flow, and code loading from URL hash.
+- `js/modules/navigationPrefetch.js`: secondary-page prefetch scheduling and safe `_blank` navigation helper.
+- `js/modules/modalController.js`: modal button wiring, Escape-key flow, and overlay-close orchestration.
+- `js/modules/editorInputController.js`: editor/example input wiring (hotkeys, indentation, listener setup, placeholder behavior).
+- `js/modules/lifecycleController.js`: startup bootstrap, resize wiring, and initial runtime/UI synchronization.
 - `js/accessibility.js`: accessibility toggles, persistence, focus behavior.
 - `js/common.js`: shared page navigation helpers.
 - `js/quizBank.js`: quiz question banks (30 per topic).
@@ -197,7 +217,17 @@ Responsibilities:
 - modal open/close behavior is centralized in `js/modules/ui.js` (`toggleModal` + dedicated show/hide wrappers for help/clear/stop/download),
 - modal state checks use shared helper `isModalOpen(modalId)` instead of ad-hoc `classList.contains('hidden')` checks in page scripts,
 - overlay-click close wiring is centralized via `bindModalOverlayClose(modalId, onClose)` helper,
-- external same-site new-tab navigation in `main.js` is centralized via `openInNewTab(url)` helper with `noopener,noreferrer`,
+- external same-site new-tab navigation is centralized in `js/modules/navigationPrefetch.js` via `openInNewTab(url)` with `noopener,noreferrer`,
+- code-share hash/clipboard helpers are centralized in `js/modules/share.js` and consumed by `main.js`,
+- command reference tabs and workspace tabs wiring are centralized in `js/modules/workspaceTabs.js` and consumed by `main.js`,
+- editor decorations and parser/runtime error-to-editor mapping are centralized in `js/modules/editorUi.js` and consumed by `main.js`,
+- grid overlay persistence/drawing is centralized in `js/modules/gridOverlay.js` and consumed by `main.js`,
+- execution run/timeout/toolbar-locking and stop-confirm behavior are centralized in `js/modules/executionController.js` and consumed by `main.js`,
+- save/share/hash-load file actions are centralized in `js/modules/fileActionsController.js` and consumed by `main.js`,
+- secondary-page idle prefetch scheduling is centralized in `js/modules/navigationPrefetch.js` and consumed by `main.js`,
+- modal interactions (Escape/open-close behavior/overlay-close wiring) are centralized in `js/modules/modalController.js` and consumed by `main.js`,
+- editor/example keyboard and input listener wiring is centralized in `js/modules/editorInputController.js` and consumed by `main.js`,
+- initial setup/resize lifecycle wiring is centralized in `js/modules/lifecycleController.js` and consumed by `main.js`,
 - `js/common.js` also uses centralized `openInNewTab(url)` helper for its `_blank` navigations,
 - Escape-key modal flow in `main.js` is grouped in dedicated `handleEscapeKey` handler to keep keyboard behavior maintainable,
 - examples launcher,
@@ -256,7 +286,7 @@ The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 ### 11.1 Unit/logic tests
 
 - `tests/parser.test.js`: tokenization, AST, expressions, conditions, queue adaptation, limits, error behavior.
-- `tests/ui.test.js`: canvas resize and viewport alignment logic, plus modal helper unit checks (`isModalOpen`, `bindModalOverlayClose`) and modal show/hide focus-contract checks (help/download).
+- `tests/ui.test.js`: canvas resize and viewport alignment logic, modal helper unit checks (`isModalOpen`, `bindModalOverlayClose`), modal show/hide focus-contract checks (help/download), editor UI controller checks (line decorations + friendly error formatting contract), grid overlay controller checks (storage init, visibility toggle, draw/hide contract), execution controller checks (toolbar state lock/unlock + stop-confirm pause/resume contract), file actions controller checks (share guard + hash-load callback contract), navigation/prefetch controller checks (`noopener,noreferrer` + idle prefetch link scheduling contract), modal controller checks (clear-confirm gating contract), editor input controller checks (Tab indent + run hotkey contract), and lifecycle controller checks (startup + resize fallback contract).
 - `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` + key Ukrainian snippets), repository policy checks for `.editorconfig`/`.gitattributes`, UTF-8 BOM guards for selected critical text files (with explicit legacy allowlist), external-link safety assertions for `_blank`, unified toolbar/download regression guards, modal ARIA contract checks, CSS legacy-cleanup guards, modal/message architecture guards, modal overlay->content mapping checks, and JS `window.open(..., '_blank', 'noopener,noreferrer')` safety guards.
 
 ## 11.3 Encoding and line-ending policy

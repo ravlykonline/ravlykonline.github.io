@@ -175,8 +175,23 @@ runTest('accessibility stylesheet keeps legacy cleanup constraints', () => {
     });
 });
 
-runTest('main script keeps canonical modal helper usage', () => {
+runTest('modal controller keeps canonical modal helper usage', () => {
     const mainJs = fs.readFileSync('js/main.js', 'utf8');
+    const modalControllerJs = fs.readFileSync('js/modules/modalController.js', 'utf8');
+
+    const mainRequiredSnippets = [
+        "createModalController",
+        "modalController.setupModalInteractions({",
+        "modalController.requestClearConfirmation",
+    ];
+
+    mainRequiredSnippets.forEach((snippet) => {
+        assert.equal(
+            mainJs.includes(snippet),
+            true,
+            `js/main.js should contain modal controller wiring: ${snippet}`
+        );
+    });
 
     const requiredSnippets = [
         'function closeModalIfOpen(overlayId, closeFn) {',
@@ -186,15 +201,15 @@ runTest('main script keeps canonical modal helper usage', () => {
         "closeModalIfOpen('clear-confirm-modal-overlay', hideClearConfirmModal)",
         "bindModalOverlayClose('help-modal-overlay', hideHelpModal)",
         "bindModalOverlayClose('clear-confirm-modal-overlay', hideClearConfirmModal)",
-        "bindModalOverlayClose('stop-confirm-modal-overlay', () => closeStopConfirmDialog(true))",
+        "bindModalOverlayClose('stop-confirm-modal-overlay', () => executionController.closeStopConfirmDialog(true))",
         "bindModalOverlayClose('download-modal-overlay', hideDownloadModal)",
     ];
 
     requiredSnippets.forEach((snippet) => {
         assert.equal(
-            mainJs.includes(snippet),
+            modalControllerJs.includes(snippet),
             true,
-            `js/main.js should contain canonical modal helper usage: ${snippet}`
+            `js/modules/modalController.js should contain canonical modal helper usage: ${snippet}`
         );
     });
 
@@ -218,21 +233,35 @@ runTest('main script keeps canonical modal helper usage', () => {
     });
 });
 
-runTest('main script centralizes external tab opening helper', () => {
+runTest('main script uses centralized navigation controller for external tabs', () => {
     const mainJs = fs.readFileSync('js/main.js', 'utf8');
+    const navigationJs = fs.readFileSync('js/modules/navigationPrefetch.js', 'utf8');
 
-    const requiredSnippets = [
-        'function openInNewTab(url) {',
-        "window.open(url, '_blank', 'noopener,noreferrer');",
-        "openInNewTab('manual.html')",
-        "openInNewTab('lessons.html')",
+    const mainRequiredSnippets = [
+        "createNavigationPrefetchController",
+        "navigationPrefetch.openInNewTab('manual.html')",
+        "navigationPrefetch.openInNewTab('lessons.html')",
+        "navigationPrefetch.scheduleSecondaryPagesPrefetch()",
     ];
 
-    requiredSnippets.forEach((snippet) => {
+    mainRequiredSnippets.forEach((snippet) => {
         assert.equal(
             mainJs.includes(snippet),
             true,
-            `js/main.js should contain centralized new-tab helper usage: ${snippet}`
+            `js/main.js should contain navigation controller usage: ${snippet}`
+        );
+    });
+
+    const navigationRequiredSnippets = [
+        'function openInNewTab(url) {',
+        "window.open(url, '_blank', 'noopener,noreferrer');",
+    ];
+
+    navigationRequiredSnippets.forEach((snippet) => {
+        assert.equal(
+            navigationJs.includes(snippet),
+            true,
+            `js/modules/navigationPrefetch.js should contain canonical new-tab helper usage: ${snippet}`
         );
     });
 
@@ -307,7 +336,7 @@ runTest('ui module keeps canonical modal content mapping', () => {
 });
 
 runTest('javascript _blank window.open calls include noopener,noreferrer', () => {
-    const jsFiles = ['js/main.js', 'js/common.js'];
+    const jsFiles = ['js/main.js', 'js/common.js', 'js/modules/navigationPrefetch.js'];
 
     jsFiles.forEach((path) => {
         const source = fs.readFileSync(path, 'utf8');
