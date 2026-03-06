@@ -53,6 +53,8 @@ Core modules:
 - `tests/parser.test.js`: parser/interpreter logic tests.
 - `tests/ui.test.js`: UI utility tests.
 - `tests/encoding.test.js`: UTF-8/mojibake guard checks for key files and UI strings.
+- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static HTML safety checks for `target="_blank"` (`rel="noopener noreferrer"`).
+- `tests/encoding.test.js`: UTF-8/mojibake guard checks plus static safety checks for external links and toolbar structure (`#download-btn` only, no legacy save buttons).
 - `tests/e2e/*`: Playwright smoke tests.
 - `playwright.config.js`: E2E config (desktop + mobile + tablet).
 
@@ -247,7 +249,7 @@ The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 
 - `tests/parser.test.js`: tokenization, AST, expressions, conditions, queue adaptation, limits, error behavior.
 - `tests/ui.test.js`: canvas resize and viewport alignment logic.
-- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets).
+- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, and toolbar regression guard for unified download flow.
 
 ### 11.2 E2E smoke tests (Playwright)
 
@@ -295,6 +297,8 @@ Parser/UI unit tests:
 
 1. CSS complexity
 - styles are spread across multiple files with partial overlaps; refactoring into clearer design tokens/components is still desirable.
+- note: unused legacy modal selectors (`.modal-overlay__*`) were removed from editor/global styles; continue removing dead selectors incrementally.
+- note: duplicate global utility/modal declarations were reduced (single `.hidden`, simplified high-contrast modal override).
 
 2. Mixed execution model history
 - despite parser cleanup, non-game mode still uses queue adaptation for compatibility with existing runtime structure.

@@ -20,48 +20,7 @@ html.a11y-high-contrast {
 }
 
 .a11y-high-contrast .modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    padding: 15px;
-}
-
-.modal-overlay__content {
-    background: #fff;
-    padding: 25px 30px;
-    border-radius: 12px;
-    min-width: 300px;
-    max-width: 500px;
-    width: 90%;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    text-align: left;
-}
-
-.modal-overlay__help {
-    background: #fff;
-    padding: 25px 30px;
-    border-radius: 12px;
-    min-width: 300px;
-    max-width: 500px;
-    width: 90%;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    text-align: left;
-}
-
-.modal-overlay__help-title {
-    margin-bottom: 20px;
-    color: #4b0082;
-    font-size: 1.6rem;
-}
-
-
-.modal-overlay__btn {
-    margin-top: 10px;
-    margin-right: 10px;
 }
 
 .a11y-high-contrast .modal-overlay .help-content {
@@ -472,10 +431,6 @@ body #global-message-display.message-info-global .message-close-btn-global:hover
 }
 body #global-message-display.message-a11y-global .message-close-btn-global:hover {
     background-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-.hidden {
-    display: none !important; /* !important is okay for a utility like this */
 }
 
 .modal-overlay {
