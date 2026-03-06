@@ -40,6 +40,25 @@ Core modules:
 - `js/modules/modalController.js`
 - `js/modules/editorInputController.js`
 - `js/modules/lifecycleController.js`
+- `js/modules/interpreterBoundary.js`
+- `js/modules/interpreterConditions.js`
+- `js/modules/interpreterGameLoop.js`
+- `js/modules/interpreterGameAstRunner.js`
+- `js/modules/interpreterQueueRuntime.js`
+- `js/modules/interpreterCommandExecutor.js`
+- `js/modules/interpreterAstQueueAdapter.js`
+- `js/modules/interpreterGameContract.js`
+- `js/modules/interpreterAstEval.js`
+- `js/modules/interpreterPrimitiveStatements.js`
+- `js/modules/interpreterAnimation.js`
+- `js/modules/interpreterDrawingOps.js`
+- `js/modules/interpreterCommandClone.js`
+- `js/modules/interpreterLifecycleCleanup.js`
+- `js/modules/interpreterRuntimeState.js`
+- `js/modules/parserTokenizer.js`
+- `js/modules/parserExpressions.js`
+- `js/modules/parserBlocksConditions.js`
+- `js/modules/parserCreateStatement.js`
 - `js/main.js`
 
 ## 3. Repository map (v4)
@@ -66,6 +85,25 @@ Core modules:
 - `js/modules/modalController.js`: modal button wiring, Escape-key flow, and overlay-close orchestration.
 - `js/modules/editorInputController.js`: editor/example input wiring (hotkeys, indentation, listener setup, placeholder behavior).
 - `js/modules/lifecycleController.js`: startup bootstrap, resize wiring, and initial runtime/UI synchronization.
+- `js/modules/interpreterBoundary.js`: boundary margin/clamp/edge helper math extracted from interpreter for safer incremental decomposition.
+- `js/modules/interpreterConditions.js`: key normalization and condition evaluation helpers shared by game-mode and queue IF evaluation paths.
+- `js/modules/interpreterGameLoop.js`: start/stop helpers for game-loop runtime timer/reject orchestration.
+- `js/modules/interpreterGameAstRunner.js`: AST runner for game-mode statements (top-level prep + per-tick execution callback).
+- `js/modules/interpreterQueueRuntime.js`: RAF/stack orchestration helper for queue-mode command execution loop.
+- `js/modules/interpreterCommandExecutor.js`: queue command-dispatch helper (`ASSIGN_AST`, move/turn/pen/color/goto/clear/repeat/if).
+- `js/modules/interpreterAstQueueAdapter.js`: AST -> legacy queue adapter helper (function/assignment/repeat/if expansion and runtime IF payload conversion).
+- `js/modules/interpreterGameContract.js`: game-mode contract helpers (`hasGameStatement`, top-level/nested `грати` validation).
+- `js/modules/interpreterAstEval.js`: AST number-expression evaluation and AST span -> runtime error-location mapping helpers.
+- `js/modules/interpreterPrimitiveStatements.js`: primitive AST statement helper for queue/runtime modes (move/turn/color/goto/pen/clear).
+- `js/modules/interpreterAnimation.js`: animation helpers for pen/move/turn command progression and boundary-warning signaling.
+- `js/modules/interpreterDrawingOps.js`: drawing/state operation helpers (move/turn/color/goto/clear) used by the interpreter runtime.
+- `js/modules/interpreterCommandClone.js`: recursive command-clone helper for runtime queue branches (removes transient animation/execution fields).
+- `js/modules/interpreterLifecycleCleanup.js`: interpreter destroy/cleanup helper (animation/timer/listener teardown + runtime state reset).
+- `js/modules/interpreterRuntimeState.js`: runtime state transition helpers (`stop`/`pause`/`resume` and boundary-warning status access).
+- `js/modules/parserTokenizer.js`: tokenizer helper (tokens + source metadata) used by `ravlykParser`.
+- `js/modules/parserExpressions.js`: expression parser helper (precedence/unary/primary path) used by `ravlykParser`.
+- `js/modules/parserBlocksConditions.js`: block/condition parsing helpers (`(...)` matching, parsed block extraction, `if` condition AST helper) used by `ravlykParser`.
+- `js/modules/parserCreateStatement.js`: `create` statement helper for parser (`create x = expr`, `create fn(params) (...)`).
 - `js/accessibility.js`: accessibility toggles, persistence, focus behavior.
 - `js/common.js`: shared page navigation helpers.
 - `js/quizBank.js`: quiz question banks (30 per topic).
@@ -177,7 +215,7 @@ Important architectural point:
 
 ### 7.4 Game contract restrictions
 
-Validated by `validateGameProgramContract()`:
+Validated by `validateGameProgramContract()` from `js/modules/interpreterGameContract.js`:
 - max one top-level `грати` block,
 - no nested `грати`,
 - if `грати` is present, only specific top-level statements are allowed (assignments and function defs besides `GameStmt`).
@@ -228,6 +266,14 @@ Responsibilities:
 - modal interactions (Escape/open-close behavior/overlay-close wiring) are centralized in `js/modules/modalController.js` and consumed by `main.js`,
 - editor/example keyboard and input listener wiring is centralized in `js/modules/editorInputController.js` and consumed by `main.js`,
 - initial setup/resize lifecycle wiring is centralized in `js/modules/lifecycleController.js` and consumed by `main.js`,
+- interpreter boundary math is centralized in `js/modules/interpreterBoundary.js` and consumed by `ravlykInterpreter.js`,
+- interpreter condition evaluation/key normalization is centralized in `js/modules/interpreterConditions.js` and consumed by `ravlykInterpreter.js`,
+- interpreter game-loop timer orchestration is centralized in `js/modules/interpreterGameLoop.js` and consumed by `ravlykInterpreter.js`,
+- interpreter game-mode AST execution scaffolding is centralized in `js/modules/interpreterGameAstRunner.js` and consumed by `ravlykInterpreter.js`,
+- interpreter queue-mode RAF/stack orchestration is centralized in `js/modules/interpreterQueueRuntime.js` and consumed by `ravlykInterpreter.js`,
+- interpreter queue command-dispatch switch is centralized in `js/modules/interpreterCommandExecutor.js` and consumed by `ravlykInterpreter.js`,
+- parser tokenization with metadata is centralized in `js/modules/parserTokenizer.js` and consumed by `ravlykParser.js`,
+- parser expression parsing logic is centralized in `js/modules/parserExpressions.js` and consumed by `ravlykParser.js`,
 - `js/common.js` also uses centralized `openInNewTab(url)` helper for its `_blank` navigations,
 - Escape-key modal flow in `main.js` is grouped in dedicated `handleEscapeKey` handler to keep keyboard behavior maintainable,
 - examples launcher,
@@ -286,7 +332,7 @@ The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 ### 11.1 Unit/logic tests
 
 - `tests/parser.test.js`: tokenization, AST, expressions, conditions, queue adaptation, limits, error behavior.
-- `tests/ui.test.js`: canvas resize and viewport alignment logic, modal helper unit checks (`isModalOpen`, `bindModalOverlayClose`), modal show/hide focus-contract checks (help/download), editor UI controller checks (line decorations + friendly error formatting contract), grid overlay controller checks (storage init, visibility toggle, draw/hide contract), execution controller checks (toolbar state lock/unlock + stop-confirm pause/resume contract), file actions controller checks (share guard + hash-load callback contract), navigation/prefetch controller checks (`noopener,noreferrer` + idle prefetch link scheduling contract), modal controller checks (clear-confirm gating contract), editor input controller checks (Tab indent + run hotkey contract), and lifecycle controller checks (startup + resize fallback contract).
+- `tests/ui.test.js`: canvas resize and viewport alignment logic, modal helper unit checks (`isModalOpen`, `bindModalOverlayClose`), modal show/hide focus-contract checks (help/download), editor UI controller checks (line decorations + friendly error formatting contract), grid overlay controller checks (storage init, visibility toggle, draw/hide contract), execution controller checks (toolbar state lock/unlock + stop-confirm pause/resume contract), file actions controller checks (share guard + hash-load callback contract), navigation/prefetch controller checks (`noopener,noreferrer` + idle prefetch link scheduling contract), modal controller checks (clear-confirm gating contract), editor input controller checks (Tab indent + run hotkey contract), lifecycle controller checks (startup + resize fallback contract), interpreter boundary helper checks (margin/clamp/edge contract), interpreter condition helper checks (key normalization + AST/runtime condition evaluation contract), interpreter game-loop helper checks (timer/reject stop contract), interpreter game AST runner checks (missing game block contract), interpreter queue runtime checks (empty queue resolve contract), interpreter command executor checks (assignment dispatch contract), interpreter AST-queue adapter checks (`ASSIGN_AST` emission contract), interpreter game-contract helper checks (nested/top-level `грати` contract), interpreter AST-eval helper checks (expression evaluation + span location mapping contract), interpreter primitive-statement helper checks (queue/runtime primitive statement dispatch contract), interpreter animation helper checks (pen/move/turn completion paths), interpreter drawing-ops helper checks (move/turn/color/goto/clear contracts), interpreter command-clone helper checks (nested clone + transient-field cleanup contract), interpreter lifecycle-cleanup helper checks (idempotent destroy/reset contract), interpreter runtime-state helper checks (`stop`/`pause`/`resume`/status contract), parser block/condition helper checks (`(...)` matching + `if` compare condition parsing contract), and parser create-statement helper checks (`create` assignment parsing contract).
 - `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` + key Ukrainian snippets), repository policy checks for `.editorconfig`/`.gitattributes`, UTF-8 BOM guards for selected critical text files (with explicit legacy allowlist), external-link safety assertions for `_blank`, unified toolbar/download regression guards, modal ARIA contract checks, CSS legacy-cleanup guards, modal/message architecture guards, modal overlay->content mapping checks, and JS `window.open(..., '_blank', 'noopener,noreferrer')` safety guards.
 
 ## 11.3 Encoding and line-ending policy

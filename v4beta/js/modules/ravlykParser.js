@@ -2,8 +2,18 @@
 import {
     ERROR_MESSAGES,
 } from './constants.js';
+import { tokenizeWithMetadata } from './parserTokenizer.js';
+import {
+    getOperatorPrecedence as getOperatorPrecedenceHelper,
+    parseAstExpressionOrThrow as parseAstExpressionOrThrowHelper,
+} from './parserExpressions.js';
+import {
+    findClosingParenIndex as findClosingParenIndexHelper,
+    parseAstBlockOrThrow as parseAstBlockOrThrowHelper,
+    parseAstConditionOrThrow as parseAstConditionOrThrowHelper,
+} from './parserBlocksConditions.js';
+import { parseCreateStatementToAst as parseCreateStatementToAstHelper } from './parserCreateStatement.js';
 
-const STRICT_NUMBER_REGEX = /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?$/;
 const COMPARISON_OPERATORS = new Set(["=", "!=", "<", ">", "<=", ">="]);
 const KEYWORD_IF = "\u044f\u043a\u0449\u043e";
 const KEYWORD_ELSE = "\u0456\u043d\u0430\u043a\u0448\u0435";
@@ -40,30 +50,7 @@ export class RavlykParser {
     }
 
     tokenizeWithMetadata(codeStr) {
-        const tokens = [];
-        const meta = [];
-        const lines = String(codeStr ?? "").split(/\r?\n/);
-
-        for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-            const sourceLine = lines[lineIndex];
-            const commentIndex = sourceLine.indexOf('#');
-            const lineWithoutComment = commentIndex >= 0 ? sourceLine.slice(0, commentIndex) : sourceLine;
-            const tokenRegex = /"[^"\r\n]*"|>=|<=|!=|[(),=<>+\-*/%]|[^\s(),=<>+\-*/%"]+/g;
-
-            let match;
-            while ((match = tokenRegex.exec(lineWithoutComment)) !== null) {
-                const value = match[0];
-                if (!value.trim()) continue;
-                tokens.push(value);
-                meta.push({
-                    line: lineIndex + 1,
-                    column: match.index + 1,
-                    token: value,
-                });
-            }
-        }
-
-        return { tokens, meta };
+        return tokenizeWithMetadata(codeStr);
     }
 
     attachErrorLocation(error, tokenIndex, tokenMeta) {
@@ -92,9 +79,7 @@ export class RavlykParser {
 
 
     getOperatorPrecedence(operator) {
-        if (operator === "+" || operator === "-") return 1;
-        if (operator === "*" || operator === "/" || operator === "%") return 2;
-        return -1;
+        return getOperatorPrecedenceHelper(operator);
     }
 
 
@@ -122,16 +107,7 @@ export class RavlykParser {
 
 
     findClosingParenIndex(tokens, openParenIndex) {
-        if (openParenIndex < 0 || openParenIndex >= tokens.length || tokens[openParenIndex] !== "(") {
-            return -1;
-        }
-        let parenBalance = 1;
-        for (let i = openParenIndex + 1; i < tokens.length; i++) {
-            if (tokens[i] === "(") parenBalance++;
-            else if (tokens[i] === ")") parenBalance--;
-            if (parenBalance === 0) return i;
-        }
-        return -1;
+        return findClosingParenIndexHelper(tokens, openParenIndex);
     }
 
 
@@ -163,75 +139,21 @@ export class RavlykParser {
     }
 
     parseAstExpressionPrimaryOrThrow(tokens, tokenMeta, startIndex) {
-        if (startIndex >= tokens.length) throw new RavlykError("UNKNOWN_COMMAND", "expression");
-        const token = tokens[startIndex];
-        if (token === "(") {
-            const inner = this.parseAstExpressionWithPrecedenceOrThrow(tokens, tokenMeta, startIndex + 1, 0);
-            if (inner.nextIndex >= tokens.length || tokens[inner.nextIndex] !== ")") {
-                throw new RavlykError("UNKNOWN_COMMAND", token);
-            }
-            return {
-                expr: { ...inner.expr, span: this.spanFromMeta(tokenMeta, startIndex, inner.nextIndex + 1) || inner.expr.span || null },
-                nextIndex: inner.nextIndex + 1,
-                startIndex,
-            };
-        }
-        if (STRICT_NUMBER_REGEX.test(token)) {
-            return {
-                expr: { type: "NumberLiteral", value: Number(token), span: this.spanFromMeta(tokenMeta, startIndex, startIndex + 1) },
-                nextIndex: startIndex + 1,
-                startIndex,
-            };
-        }
-        if (this.isValidIdentifier(token)) {
-            return {
-                expr: { type: "Identifier", name: this.normalizeIdentifier(token), span: this.spanFromMeta(tokenMeta, startIndex, startIndex + 1) },
-                nextIndex: startIndex + 1,
-                startIndex,
-            };
-        }
-        throw new RavlykError("UNKNOWN_COMMAND", token);
+        return parseAstExpressionOrThrowHelper(tokens, tokenMeta, startIndex, {
+            isValidIdentifier: (identifier) => this.isValidIdentifier(identifier),
+            normalizeIdentifier: (identifier) => this.normalizeIdentifier(identifier),
+            spanFromMeta: (meta, from, to) => this.spanFromMeta(meta, from, to),
+            createUnknownCommandError: (token) => new RavlykError("UNKNOWN_COMMAND", token),
+        });
     }
 
     parseAstExpressionUnaryOrThrow(tokens, tokenMeta, startIndex) {
-        if (startIndex >= tokens.length) throw new RavlykError("UNKNOWN_COMMAND", "expression");
-        const token = tokens[startIndex];
-        if (token === "+" || token === "-") {
-            const operand = this.parseAstExpressionUnaryOrThrow(tokens, tokenMeta, startIndex + 1);
-            return {
-                expr: {
-                    type: "UnaryExpr",
-                    op: token,
-                    expr: operand.expr,
-                    span: this.spanFromMeta(tokenMeta, startIndex, operand.nextIndex),
-                },
-                nextIndex: operand.nextIndex,
-                startIndex,
-            };
-        }
         return this.parseAstExpressionPrimaryOrThrow(tokens, tokenMeta, startIndex);
     }
 
     parseAstExpressionWithPrecedenceOrThrow(tokens, tokenMeta, startIndex, minPrecedence) {
-        let left = this.parseAstExpressionUnaryOrThrow(tokens, tokenMeta, startIndex);
-        while (left.nextIndex < tokens.length) {
-            const operator = tokens[left.nextIndex];
-            const precedence = this.getOperatorPrecedence(operator);
-            if (precedence < minPrecedence) break;
-            const right = this.parseAstExpressionWithPrecedenceOrThrow(tokens, tokenMeta, left.nextIndex + 1, precedence + 1);
-            left = {
-                expr: {
-                    type: "BinaryExpr",
-                    op: operator,
-                    left: left.expr,
-                    right: right.expr,
-                    span: this.spanFromMeta(tokenMeta, left.startIndex, right.nextIndex),
-                },
-                nextIndex: right.nextIndex,
-                startIndex: left.startIndex,
-            };
-        }
-        return left;
+        void minPrecedence;
+        return this.parseAstExpressionUnaryOrThrow(tokens, tokenMeta, startIndex);
     }
 
     parseAstExpressionOrThrow(tokens, tokenMeta, startIndex) {
@@ -239,107 +161,49 @@ export class RavlykParser {
     }
 
     parseAstBlockOrThrow(tokens, tokenMeta, openParenIndex) {
-        if (openParenIndex >= tokens.length || tokens[openParenIndex] !== "(") throw new RavlykError("REPEAT_EXPECT_OPEN_PAREN");
-        const closeParenIndex = this.findClosingParenIndex(tokens, openParenIndex);
-        if (closeParenIndex === -1) throw new RavlykError("REPEAT_EXPECT_CLOSE_PAREN");
-        const innerTokens = tokens.slice(openParenIndex + 1, closeParenIndex);
-        const innerMeta = tokenMeta ? tokenMeta.slice(openParenIndex + 1, closeParenIndex) : null;
-        const body = this.parseTokensToAst(innerTokens, 0, {}, innerMeta).body;
-        return { body, nextIndex: closeParenIndex + 1, span: this.spanFromMeta(tokenMeta, openParenIndex, closeParenIndex + 1) };
+        return parseAstBlockOrThrowHelper({
+            tokens,
+            tokenMeta,
+            openParenIndex,
+            findClosingParenIndexFn: (inputTokens, inputOpenParenIndex) => this.findClosingParenIndex(inputTokens, inputOpenParenIndex),
+            parseTokensToAst: (inputTokens, inputDepth, inputSubstitutions, inputTokenMeta) =>
+                this.parseTokensToAst(inputTokens, inputDepth, inputSubstitutions, inputTokenMeta),
+            spanFromMeta: (meta, startIndex, endIndex) => this.spanFromMeta(meta, startIndex, endIndex),
+            createError: (messageKey) => new RavlykError(messageKey),
+        });
     }
 
     parseAstConditionOrThrow(tokens, tokenMeta, startIndex) {
-        if (startIndex >= tokens.length) throw new RavlykError("UNKNOWN_COMMAND", KEYWORD_IF);
-        const firstLower = tokens[startIndex].toLowerCase();
-        if (firstLower === KEYWORD_EDGE || firstLower === "edge") {
-            return {
-                condition: { type: "EdgeCondition", span: this.spanFromMeta(tokenMeta, startIndex, startIndex + 1) },
-                nextIndex: startIndex + 1,
-            };
-        }
-        if (firstLower === KEYWORD_KEY || firstLower === "key") {
-            const keyToken = tokens[startIndex + 1];
-            const keyValue = this.parseQuotedStringOrThrow(keyToken).toLowerCase();
-            return {
-                condition: { type: "KeyCondition", key: keyValue, span: this.spanFromMeta(tokenMeta, startIndex, startIndex + 2) },
-                nextIndex: startIndex + 2,
-            };
-        }
-        const left = this.parseAstExpressionOrThrow(tokens, tokenMeta, startIndex);
-        const operator = tokens[left.nextIndex];
-        if (!COMPARISON_OPERATORS.has(operator)) throw new RavlykError("UNKNOWN_COMMAND", operator || KEYWORD_IF);
-        const right = this.parseAstExpressionOrThrow(tokens, tokenMeta, left.nextIndex + 1);
-        return {
-            condition: {
-                type: "CompareCondition",
-                op: operator,
-                left: left.expr,
-                right: right.expr,
-                span: this.spanFromMeta(tokenMeta, startIndex, right.nextIndex),
-            },
-            nextIndex: right.nextIndex,
-        };
+        return parseAstConditionOrThrowHelper({
+            tokens,
+            tokenMeta,
+            startIndex,
+            keywordIf: KEYWORD_IF,
+            keywordEdge: KEYWORD_EDGE,
+            keywordKey: KEYWORD_KEY,
+            comparisonOperators: COMPARISON_OPERATORS,
+            parseQuotedStringOrThrow: (rawToken) => this.parseQuotedStringOrThrow(rawToken),
+            parseAstExpressionOrThrow: (inputTokens, inputMeta, inputStartIndex) =>
+                this.parseAstExpressionOrThrow(inputTokens, inputMeta, inputStartIndex),
+            spanFromMeta: (meta, from, to) => this.spanFromMeta(meta, from, to),
+            createUnknownCommandError: (token) => new RavlykError("UNKNOWN_COMMAND", token),
+        });
     }
 
     parseCreateStatementToAst(tokens, tokenMeta, startIndex) {
-        if (startIndex + 2 >= tokens.length) {
-            throw new RavlykError("FUNCTION_DECLARATION_SYNTAX");
-        }
-        const name = tokens[startIndex + 1];
-        if (!this.isValidIdentifier(name)) {
-            throw new RavlykError("FUNCTION_NAME_INVALID", name);
-        }
-
-        if (tokens[startIndex + 2] === "=") {
-            const valueExpr = this.parseAstExpressionOrThrow(tokens, tokenMeta, startIndex + 3);
-            return {
-                stmt: {
-                    type: "AssignmentStmt",
-                    name: this.normalizeIdentifier(name),
-                    expr: valueExpr.expr,
-                    declaredWithCreate: true,
-                    span: this.spanFromMeta(tokenMeta, startIndex, valueExpr.nextIndex),
-                },
-                nextIndex: valueExpr.nextIndex,
-            };
-        }
-
-        if (tokens[startIndex + 2] === "(") {
-            const params = [];
-            let i = startIndex + 3;
-            while (i < tokens.length && tokens[i] !== ")") {
-                const param = tokens[i];
-                if (!this.isValidIdentifier(param)) {
-                    throw new RavlykError("FUNCTION_PARAM_INVALID", param);
-                }
-                params.push(this.normalizeIdentifier(param));
-                i++;
-                if (tokens[i] === ",") {
-                    i++;
-                } else if (tokens[i] !== ")") {
-                    throw new RavlykError("FUNCTION_DECLARATION_SYNTAX");
-                }
-            }
-            if (i >= tokens.length || tokens[i] !== ")") {
-                throw new RavlykError("FUNCTION_DECLARATION_SYNTAX");
-            }
-            if (i + 1 >= tokens.length || tokens[i + 1] !== "(") {
-                throw new RavlykError("FUNCTION_DECLARATION_SYNTAX");
-            }
-            const parsedBody = this.parseAstBlockOrThrow(tokens, tokenMeta, i + 1);
-            return {
-                stmt: {
-                    type: "FunctionDefStmt",
-                    name: this.normalizeIdentifier(name),
-                    params,
-                    body: parsedBody.body,
-                    span: this.spanFromMeta(tokenMeta, startIndex, parsedBody.nextIndex),
-                },
-                nextIndex: parsedBody.nextIndex,
-            };
-        }
-
-        throw new RavlykError("FUNCTION_DECLARATION_SYNTAX");
+        return parseCreateStatementToAstHelper({
+            tokens,
+            tokenMeta,
+            startIndex,
+            isValidIdentifier: (identifier) => this.isValidIdentifier(identifier),
+            normalizeIdentifier: (identifier) => this.normalizeIdentifier(identifier),
+            parseAstExpressionOrThrow: (inputTokens, inputMeta, inputStartIndex) =>
+                this.parseAstExpressionOrThrow(inputTokens, inputMeta, inputStartIndex),
+            parseAstBlockOrThrow: (inputTokens, inputMeta, inputOpenParenIndex) =>
+                this.parseAstBlockOrThrow(inputTokens, inputMeta, inputOpenParenIndex),
+            spanFromMeta: (meta, from, to) => this.spanFromMeta(meta, from, to),
+            createError: (messageKey, ...params) => new RavlykError(messageKey, ...params),
+        });
     }
 
     parseTokensToAst(tokens, depth = 0, substitutions = {}, tokenMeta = null) {
@@ -549,4 +413,3 @@ export class RavlykParser {
 }
 
 export { RavlykError };
-
