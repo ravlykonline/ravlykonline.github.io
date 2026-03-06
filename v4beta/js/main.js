@@ -5,6 +5,7 @@ import {
     showHelpModal, hideHelpModal,
     showClearConfirmModal, hideClearConfirmModal,
     showStopConfirmModal, hideStopConfirmModal,
+    showDownloadModal, hideDownloadModal, isModalOpen, bindModalOverlayClose,
     createRavlykSprite, updateRavlykVisualsOnScreen,
     updateCommandIndicator, resizeCanvas, setFooterYear
 } from './modules/ui.js';
@@ -760,7 +761,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (interpreter.isExecuting) return;
         showClearConfirmModal();
     });
-    if (downloadBtn) downloadBtn.addEventListener('click', openDownloadModal);
+    if (downloadBtn) downloadBtn.addEventListener('click', showDownloadModal);
     if (shareBtn) shareBtn.addEventListener('click', shareCodeAsLink);
     if (gridBtn) gridBtn.addEventListener('click', () => setGridVisibility(!isGridVisible));
     if (helpBtn) helpBtn.addEventListener('click', showHelpModal);
@@ -771,26 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showStopConfirmModal();
     }
 
-    const downloadModalOverlay = document.getElementById('download-modal-overlay');
-    const isDownloadModalOpen = () => downloadModalOverlay && !downloadModalOverlay.classList.contains('hidden');
-
-    function openDownloadModal() {
-        if (!downloadModalOverlay) return;
-        downloadModalOverlay.classList.remove('hidden');
-        downloadModalOverlay.setAttribute('aria-hidden', 'false');
-        if (downloadImageBtn) {
-            downloadImageBtn.focus();
-        }
-    }
-
-    function closeDownloadModal() {
-        if (!downloadModalOverlay) return;
-        downloadModalOverlay.classList.add('hidden');
-        downloadModalOverlay.setAttribute('aria-hidden', 'true');
-        if (downloadBtn) {
-            downloadBtn.focus();
-        }
-    }
+    const isDownloadModalOpen = () => isModalOpen('download-modal-overlay');
 
     function closeStopConfirmDialog(shouldResumeExecution = true) {
         hideStopConfirmModal();
@@ -832,26 +814,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (downloadImageBtn) {
         downloadImageBtn.addEventListener('click', () => {
             saveDrawing();
-            closeDownloadModal();
+            hideDownloadModal();
         });
     }
     if (downloadCodeBtn) {
         downloadCodeBtn.addEventListener('click', () => {
             saveCodeToFile();
-            closeDownloadModal();
+            hideDownloadModal();
         });
     }
-    if (closeDownloadModalBtn) closeDownloadModalBtn.addEventListener('click', closeDownloadModal);
+    if (closeDownloadModalBtn) closeDownloadModalBtn.addEventListener('click', hideDownloadModal);
 
     // Close modals on Escape key
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
             if (isDownloadModalOpen()) {
-                closeDownloadModal();
+                hideDownloadModal();
                 return;
             }
 
-            const stopModalOpen = !document.getElementById('stop-confirm-modal-overlay').classList.contains('hidden');
+            const stopModalOpen = isModalOpen('stop-confirm-modal-overlay');
             if (stopModalOpen) {
                 closeStopConfirmDialog(true);
                 return;
@@ -864,30 +846,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // Якщо відкрите модальне вікно - закриваємо його
-            if (!document.getElementById('help-modal-overlay').classList.contains('hidden')) {
+            if (isModalOpen('help-modal-overlay')) {
                 hideHelpModal();
             }
-            if (!document.getElementById('clear-confirm-modal-overlay').classList.contains('hidden')) {
+            if (isModalOpen('clear-confirm-modal-overlay')) {
                 hideClearConfirmModal();
             }
-            if (!document.getElementById('stop-confirm-modal-overlay').classList.contains('hidden')) {
+            if (isModalOpen('stop-confirm-modal-overlay')) {
                 closeStopConfirmDialog(true);
             }
         }
     });
     // Close modals on overlay click
-    document.getElementById('help-modal-overlay')?.addEventListener('click', (event) => {
-        if (event.target === event.currentTarget) hideHelpModal();
-    });
-    document.getElementById('clear-confirm-modal-overlay')?.addEventListener('click', (event) => {
-        if (event.target === event.currentTarget) hideClearConfirmModal();
-    });
-    document.getElementById('stop-confirm-modal-overlay')?.addEventListener('click', (event) => {
-        if (event.target === event.currentTarget) closeStopConfirmDialog(true);
-    });
-    document.getElementById('download-modal-overlay')?.addEventListener('click', (event) => {
-        if (event.target === event.currentTarget) closeDownloadModal();
-    });
+    bindModalOverlayClose('help-modal-overlay', hideHelpModal);
+    bindModalOverlayClose('clear-confirm-modal-overlay', hideClearConfirmModal);
+    bindModalOverlayClose('stop-confirm-modal-overlay', () => closeStopConfirmDialog(true));
+    bindModalOverlayClose('download-modal-overlay', hideDownloadModal);
 
 
     if (toManualBtnMain) toManualBtnMain.addEventListener('click', () => window.open('manual.html', '_blank', 'noopener,noreferrer'));

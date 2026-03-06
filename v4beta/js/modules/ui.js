@@ -95,10 +95,13 @@ export function hideMessage() {
 // --- Modal Management ---
 function toggleModal(modalId, show) {
     const modalOverlay = document.getElementById(modalId);
-    // Fix: get direct modalContent id which already contains -content suffix
-    const modalContentId = modalId === 'help-modal-overlay' ? 'help-modal-content' : 
-                         (modalId === 'clear-confirm-modal-overlay' ? 'clear-confirm-modal-content' :
-                         (modalId === 'stop-confirm-modal-overlay' ? 'stop-confirm-modal-content' : `${modalId}-content`));
+    const modalContentByOverlayId = {
+        'help-modal-overlay': 'help-modal-content',
+        'clear-confirm-modal-overlay': 'clear-confirm-modal-content',
+        'stop-confirm-modal-overlay': 'stop-confirm-modal-content',
+        'download-modal-overlay': 'download-modal-content',
+    };
+    const modalContentId = modalContentByOverlayId[modalId] || `${modalId}-content`;
     const modalContent = document.getElementById(modalContentId);
     
     if (modalOverlay) {
@@ -117,6 +120,20 @@ function toggleModal(modalId, show) {
     } else {
         console.error(`Modal overlay with id ${modalId} not found!`);
     }
+}
+
+export function isModalOpen(modalId) {
+    const modalOverlay = document.getElementById(modalId);
+    if (!modalOverlay) return false;
+    return !modalOverlay.classList.contains('hidden');
+}
+
+export function bindModalOverlayClose(modalId, onClose) {
+    const modalOverlay = document.getElementById(modalId);
+    if (!modalOverlay || typeof onClose !== 'function') return;
+    modalOverlay.addEventListener('click', (event) => {
+        if (event.target === event.currentTarget) onClose();
+    });
 }
 
 export function showHelpModal() {
@@ -141,6 +158,14 @@ export function showStopConfirmModal() {
 export function hideStopConfirmModal() {
     toggleModal('stop-confirm-modal-overlay', false);
     document.getElementById('stop-btn')?.focus(); // Return focus
+}
+
+export function showDownloadModal() {
+    toggleModal('download-modal-overlay', true);
+}
+export function hideDownloadModal() {
+    toggleModal('download-modal-overlay', false);
+    document.getElementById('download-btn')?.focus(); // Return focus
 }
 
 

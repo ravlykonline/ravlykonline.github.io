@@ -192,6 +192,9 @@ Responsibilities:
 - smart idle prefetch of secondary pages (`manual.html`, `lessons.html`, `quiz.html`, `resources.html`) on good connections (skips `Save-Data` and `2g`),
 - editor line numbers and active/error line highlighting,
 - help/confirm modals,
+- modal open/close behavior is centralized in `js/modules/ui.js` (`toggleModal` + dedicated show/hide wrappers for help/clear/stop/download),
+- modal state checks use shared helper `isModalOpen(modalId)` instead of ad-hoc `classList.contains('hidden')` checks in page scripts,
+- overlay-click close wiring is centralized via `bindModalOverlayClose(modalId, onClose)` helper,
 - examples launcher,
 - command reference tabs,
 - workspace tabs (`Редактор` / `Полотно`) on small and medium screens,
@@ -248,7 +251,7 @@ The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 ### 11.1 Unit/logic tests
 
 - `tests/parser.test.js`: tokenization, AST, expressions, conditions, queue adaptation, limits, error behavior.
-- `tests/ui.test.js`: canvas resize and viewport alignment logic.
+- `tests/ui.test.js`: canvas resize and viewport alignment logic, plus modal helper unit checks (`isModalOpen`, `bindModalOverlayClose`) and modal show/hide focus-contract checks (help/download).
 - `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` guard + required Ukrainian UI snippets), external-link safety assertions for `_blank` links, and toolbar regression guard for unified download flow.
 
 ### 11.2 E2E smoke tests (Playwright)

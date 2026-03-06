@@ -1,5 +1,13 @@
 import assert from 'node:assert/strict';
-import { resizeCanvas } from '../js/modules/ui.js';
+import {
+    resizeCanvas,
+    isModalOpen,
+    bindModalOverlayClose,
+    showHelpModal,
+    hideHelpModal,
+    showDownloadModal,
+    hideDownloadModal,
+} from '../js/modules/ui.js';
 
 function runTest(name, fn) {
     try {
@@ -71,6 +79,208 @@ runTest('resizeCanvas falls back to canvas-box minus header when canvas clientHe
 
     assert.equal(canvas.width, 900);
     assert.equal(canvas.height, 592);
+});
+
+runTest('isModalOpen returns false when modal is missing', () => {
+    const previousDocument = global.document;
+    global.document = {
+        getElementById() {
+            return null;
+        },
+    };
+
+    assert.equal(isModalOpen('missing-modal'), false);
+
+    global.document = previousDocument;
+});
+
+runTest('isModalOpen returns true only when hidden class is absent', () => {
+    const previousDocument = global.document;
+    const overlays = {
+        open: {
+            classList: {
+                contains(className) {
+                    return className === 'other';
+                },
+            },
+        },
+        closed: {
+            classList: {
+                contains(className) {
+                    return className === 'hidden';
+                },
+            },
+        },
+    };
+
+    global.document = {
+        getElementById(id) {
+            return overlays[id] || null;
+        },
+    };
+
+    assert.equal(isModalOpen('open'), true);
+    assert.equal(isModalOpen('closed'), false);
+
+    global.document = previousDocument;
+});
+
+runTest('bindModalOverlayClose triggers callback only on overlay click', () => {
+    const previousDocument = global.document;
+    const listeners = {};
+    const overlay = {
+        addEventListener(eventName, handler) {
+            listeners[eventName] = handler;
+        },
+    };
+    let closeCalls = 0;
+
+    global.document = {
+        getElementById(id) {
+            return id === 'test-modal-overlay' ? overlay : null;
+        },
+    };
+
+    bindModalOverlayClose('test-modal-overlay', () => {
+        closeCalls += 1;
+    });
+
+    assert.equal(typeof listeners.click, 'function');
+
+    listeners.click({ target: {}, currentTarget: {} });
+    assert.equal(closeCalls, 0);
+
+    const sameTarget = {};
+    listeners.click({ target: sameTarget, currentTarget: sameTarget });
+    assert.equal(closeCalls, 1);
+
+    global.document = previousDocument;
+});
+
+runTest('bindModalOverlayClose ignores invalid inputs', () => {
+    const previousDocument = global.document;
+    global.document = {
+        getElementById() {
+            return null;
+        },
+    };
+
+    assert.doesNotThrow(() => bindModalOverlayClose('missing-overlay', () => {}));
+    assert.doesNotThrow(() => bindModalOverlayClose('missing-overlay', null));
+
+    global.document = previousDocument;
+});
+
+runTest('showHelpModal and hideHelpModal update visibility and return focus', () => {
+    const previousDocument = global.document;
+    let focusedElementId = null;
+    const hiddenClasses = new Set(['hidden']);
+
+    const helpOverlay = {
+        classList: {
+            add(className) { hiddenClasses.add(className); },
+            remove(className) { hiddenClasses.delete(className); },
+            contains(className) { return hiddenClasses.has(className); },
+        },
+        setAttribute(name, value) {
+            this[name] = value;
+        },
+    };
+
+    const focusTarget = {
+        focus() {
+            focusedElementId = 'help-modal-focus-target';
+        },
+    };
+
+    const helpContent = {
+        querySelector() {
+            return focusTarget;
+        },
+    };
+
+    const helpBtn = {
+        focus() {
+            focusedElementId = 'help-btn';
+        },
+    };
+
+    global.document = {
+        getElementById(id) {
+            if (id === 'help-modal-overlay') return helpOverlay;
+            if (id === 'help-modal-content') return helpContent;
+            if (id === 'help-btn') return helpBtn;
+            return null;
+        },
+    };
+
+    showHelpModal();
+    assert.equal(helpOverlay.classList.contains('hidden'), false);
+    assert.equal(helpOverlay['aria-hidden'], 'false');
+    assert.equal(focusedElementId, 'help-modal-focus-target');
+
+    hideHelpModal();
+    assert.equal(helpOverlay.classList.contains('hidden'), true);
+    assert.equal(helpOverlay['aria-hidden'], 'true');
+    assert.equal(focusedElementId, 'help-btn');
+
+    global.document = previousDocument;
+});
+
+runTest('showDownloadModal and hideDownloadModal use mapped content id and return focus', () => {
+    const previousDocument = global.document;
+    let focusedElementId = null;
+    const hiddenClasses = new Set(['hidden']);
+
+    const downloadOverlay = {
+        classList: {
+            add(className) { hiddenClasses.add(className); },
+            remove(className) { hiddenClasses.delete(className); },
+            contains(className) { return hiddenClasses.has(className); },
+        },
+        setAttribute(name, value) {
+            this[name] = value;
+        },
+    };
+
+    const firstFocusable = {
+        focus() {
+            focusedElementId = 'download-modal-focus-target';
+        },
+    };
+
+    const downloadContent = {
+        querySelector() {
+            return firstFocusable;
+        },
+    };
+
+    const downloadBtn = {
+        focus() {
+            focusedElementId = 'download-btn';
+        },
+    };
+
+    global.document = {
+        getElementById(id) {
+            if (id === 'download-modal-overlay') return downloadOverlay;
+            if (id === 'download-modal-content') return downloadContent;
+            if (id === 'download-btn') return downloadBtn;
+            return null;
+        },
+    };
+
+    showDownloadModal();
+    assert.equal(downloadOverlay.classList.contains('hidden'), false);
+    assert.equal(downloadOverlay['aria-hidden'], 'false');
+    assert.equal(focusedElementId, 'download-modal-focus-target');
+
+    hideDownloadModal();
+    assert.equal(downloadOverlay.classList.contains('hidden'), true);
+    assert.equal(downloadOverlay['aria-hidden'], 'true');
+    assert.equal(focusedElementId, 'download-btn');
+
+    global.document = previousDocument;
 });
 
 console.log('UI tests completed.');
