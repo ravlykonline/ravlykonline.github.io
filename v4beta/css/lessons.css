@@ -236,6 +236,29 @@
     margin-top: 10px;
 }
 
+.lesson-manual-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 10px;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border-radius: 999px;
+}
+.lesson-manual-link::before {
+    content: "\f02d";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 0.9em;
+}
+.lesson-manual-link-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
 .tip {
     background-color: #d9edf0;
     border-left: 6px solid #57c2bd;
@@ -377,6 +400,10 @@
     .lesson-content .code-example { font-size: 0.85rem; padding: 10px 12px;}
     .lesson-path-section { padding: 14px 12px; }
     .lesson-path-table { table-layout: auto; }
+    .lesson-manual-link-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
     .lesson-path-table thead th:nth-child(1),
     .lesson-path-table thead th:nth-child(2) { width: auto; }
     .lesson-path-dot { width: 18px; height: 18px; }
