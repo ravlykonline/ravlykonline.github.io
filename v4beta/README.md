@@ -56,6 +56,7 @@
 ## 💻 Для розробників
 
 Технічна документація щодо архітектури, парсера та інтерпретатора міститься у [`TECHNICAL_GUIDE.md`](TECHNICAL_GUIDE.md).
+Візуальна та UI-стильова документація міститься у [`DESIGN_GUIDE.md`](DESIGN_GUIDE.md).
 
 - **Стек:** Pure JavaScript (ES Modules), HTML5 Canvas, CSS3.
 - **Тестування:** Unit-тести на `Vitest` та E2E-тести на `Playwright`.

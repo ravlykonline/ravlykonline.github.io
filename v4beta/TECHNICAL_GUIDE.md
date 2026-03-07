@@ -5,6 +5,9 @@ If you are an AI agent or a developer joining the project, start here.
 
 Last updated: 2026-03-07
 
+Related:
+- `DESIGN_GUIDE.md` is the visual/style reference for UI work.
+
 ## 1. Project purpose
 
 RAVLYK is a browser-based educational programming language (Ukrainian syntax) for kids.
