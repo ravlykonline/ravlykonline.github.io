@@ -87,7 +87,7 @@
                 <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson0-home-title">
                     <h3 id="lesson0-home-title">Дім Равлика</h3>
                     <p>А це місце, де живе та працює наш герой - онлайн-редактор! Саме тут ми будемо давати нашому Равлику команди, які він буде виконувати та створювати зображення.</p>
-                    <img src="assets/images/editor.jpg" alt="Інтерфейс онлайн-редактора Равлик з полем для коду та полотном для малювання" class="lesson-image lesson-image-fullwidth" loading="lazy">
+                    <img src="assets/images/editor.jpg" alt="Інтерфейс онлайн-редактора Равлик з полем для коду та полотном для малювання" class="lesson-image lesson-image-wide" loading="lazy">
                     <p>Тут ти зможеш помилятися, перевіряти здогадки, змінювати числа, шукати кращі рішення і створювати власні проєкти.</p>
                     <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Зазирнути до редактора</a>
                 </section>
@@ -172,10 +172,11 @@
 
             <article id="lesson1" class="lesson-content" role="tabpanel" aria-labelledby="lesson1-tab" hidden>
                 <h2>Урок 1: Перша команда 🚀</h2>
-                <p><strong>Велика ідея:</strong> команда. Равлик робить рівно те, що ти написав.</p>
+                <p><strong>Велика ідея:</strong> Команда. Равлик робить саме те, що ти написав.</p>
 
                 <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson1-goal-title">
                     <h3 id="lesson1-goal-title">Що сьогодні важливо зрозуміти</h3>
+                    <p><strong>Ти вже знаєш:</strong> що таке програмування та хто такий Равлик.</p>
                     <p><strong>Ти вже вмієш:</strong> поки що нічого, і це нормально.</p>
                     <p><strong>Сьогодні навчишся:</strong> рухати Равлика і бачити, як код перетворюється на лінію.</p>
                     <p><strong>Головне питання уроку:</strong> як дати комп'ютеру настільки точну команду, щоб він не здогадувався, а виконував?</p>
@@ -192,15 +193,16 @@
                     <h3 id="lesson1-command-title">Нова команда: <code>вперед</code></h3>
                     <pre class="code-example">вперед 100</pre>
                     <p>Равлик пройде вперед на 100 кроків і намалює лінію.</p>
+                    <img src="assets/images/lesson_01_01.jpg" alt="Результат команди 'вперед 100' - пряма вертикальна лінія вгору на полотні" class="lesson-image lesson-image-wide" loading="lazy">
                     <p><a href="manual.html#movement" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: команди руху</a></p>
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson1-predict-title">
-                    <h3 id="lesson1-predict-title">🔮 Передбач</h3>
+                    <h3 id="lesson1-predict-title">🔮 Спробуй передбачити</h3>
                     <p>Не запускай одразу. Спершу подивись на код, намалюй результат на папері і лише тоді перевір.</p>
                     <pre class="code-example">вперед 50
-вперед 100
-вперед 25</pre>
+                    вперед 100
+                    вперед 25</pre>
                     <p>Скільки ліній вийде? Яка з них найдовша? Чи справді це три окремі лінії, чи одна доріжка з трьох кроків?</p>
                 </section>
 
@@ -292,11 +294,12 @@
                     <pre class="code-example">праворуч 90
 ліворуч 45</pre>
                     <p>Поворот завжди від поточного напряму Равлика.</p>
+                    <img src="assets/images/lesson_02_01.jpg" alt="Схема повороту Равлика праворуч на 90 градусів" class="lesson-image lesson-image-wide" loading="lazy">
                     <p><a href="manual.html#rotation" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: команди повороту</a></p>
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson2-predict-title">
-                    <h3 id="lesson2-predict-title">🔮 Передбач</h3>
+                    <h3 id="lesson2-predict-title">🔮 Спробуй передбачити</h3>
                     <pre class="code-example">вперед 80
 праворуч 90
 вперед 80
@@ -387,7 +390,7 @@
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson3-predict-title">
-                    <h3 id="lesson3-predict-title">🔮 Передбач</h3>
+                    <h3 id="lesson3-predict-title">🔮 Спробуй передбачити</h3>
                     <pre class="code-example">колір червоний
 вперед 60
 колір синій
@@ -395,6 +398,7 @@
 колір червоний
 вперед 60</pre>
                     <p>Скільки ліній? Якого кольору кожна? Що буде, якщо прибрати останню команду <code>колір червоний</code>?</p>
+                    <img src="assets/images/lesson_03_01.jpg" alt="Равлик малює три лінії різними кольорами: червоним, зеленим, синім" class="lesson-image lesson-image-wide" loading="lazy">
                 </section>
 
                 <div class="why-important lesson-support-block lesson-why-block">
@@ -480,11 +484,12 @@
   праворуч 90
 )</pre>
                     <p>Між числом і <code>(</code> має бути пробіл. Закривальна <code>)</code> обов'язкова.</p>
+                    <img src="assets/images/lesson_04_01.jpg" alt="Равлик малює квадрат за допомогою команди 'повторити'" class="lesson-image lesson-image-wide" loading="lazy">
                     <p><a href="manual.html#repetition" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: повторення</a></p>
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson4-predict-title">
-                    <h3 id="lesson4-predict-title">🔮 Передбач</h3>
+                    <h3 id="lesson4-predict-title">🔮 Спробуй передбачити</h3>
                     <pre class="code-example">повторити 3 (
   вперед 80
   праворуч 120
@@ -576,10 +581,11 @@
   праворуч 10
 )</pre>
                     <p>Равлик робить багато маленьких кроків і багато маленьких поворотів. Разом це дає повне коло: 36 × 10° = 360°.</p>
+                    <img src="assets/images/lesson_05_01.jpg" alt="Равлик малює жовте коло за допомогою команди 'повторити'" class="lesson-image lesson-image-wide" loading="lazy">
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson5-predict-title">
-                    <h3 id="lesson5-predict-title">🔮 Передбач</h3>
+                    <h3 id="lesson5-predict-title">🔮 Спробуй передбачити</h3>
                     <p>Порівняй два коди. Не запускай одразу - спершу спробуй уявити результат.</p>
                     <pre class="code-example">повторити 36 ( вперед 10 праворуч 10 )</pre>
                     <pre class="code-example">повторити 12 ( вперед 10 праворуч 30 )</pre>
@@ -598,13 +604,14 @@
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson5-lab-title">
                     <h3 id="lesson5-lab-title">🔬 Лабораторія</h3>
-                    <p>Працюй як дослідник: змінюй лише одне число за раз у коді <code>повторити 36 ( вперед 10 праворуч 10 )</code>. Спочатку передбач, потім перевір, а потім сформулюй висновок.</p>
+                    <p>Працюй як дослідник: змінюй лише одне число за раз у коді <code>повторити 36 ( вперед 10 праворуч 10 )</code>. Спочатку спробуй передбачити, потім перевір, а потім сформулюй висновок.</p>
                 </section>
 
                 <div class="task lesson-support-block lesson-task-block">
                     <h3>⭐ Відкрий зірку сам</h3>
                     <pre class="code-example">повторити 5 ( вперед 100 праворуч 72 )</pre>
                     <p>Спочатку вийде правильний п'ятикутник. А що станеться, якщо замінити <code>72</code> на <code>144</code>? Чому лінія раптом почне "перестрибувати" через вершини?</p>
+                    <img src="assets/images/lesson_05_02.jpg" alt="Равлик малює зелену п'ятикутну зірку" class="lesson-image lesson-image-wide" loading="lazy">
                     <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Дослідити в редакторі</a>
                 </div>
 
@@ -667,11 +674,12 @@
 перейти в 150 0
 опустити</pre>
                     <p><code>підняти</code> - рух без сліду, <code>опустити</code> - малювання знову вмикається, <code>перейти в X Y</code> переміщує Равлика в точку.</p>
+                    <img src="assets/images/lesson_06_01.jpg" alt="Схема: Равлик малює лінію, потім піднімає олівець, рухається, опускає олівець і малює ще одну лінію" class="lesson-image lesson-image-wide" loading="lazy">
                     <p><a href="manual.html#pen" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: олівець і переміщення</a></p>
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson6-predict-title">
-                    <h3 id="lesson6-predict-title">🔮 Передбач</h3>
+                    <h3 id="lesson6-predict-title">🔮 Спробуй передбачити</h3>
                     <pre class="code-example">вперед 60
 підняти
 вперед 40
@@ -790,7 +798,7 @@
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson7-predict-title">
-                    <h3 id="lesson7-predict-title">🔮 Передбач</h3>
+                    <h3 id="lesson7-predict-title">🔮 Спробуй передбачити</h3>
                     <pre class="code-example">створити крок = 20
 повторити 5 (
   вперед крок
@@ -895,7 +903,7 @@
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson8-predict-title">
-                    <h3 id="lesson8-predict-title">🔮 Передбач</h3>
+                    <h3 id="lesson8-predict-title">🔮 Спробуй передбачити</h3>
                     <pre class="code-example">створити n = 0
 повторити 6 (
   n = n + 1
@@ -1034,7 +1042,7 @@
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson9-predict-title">
-                    <h3 id="lesson9-predict-title">🔮 Передбач</h3>
+                    <h3 id="lesson9-predict-title">🔮 Спробуй передбачити</h3>
                     <pre class="code-example">створити швидкість = 2
 грати (
   якщо клавіша "вгору" (

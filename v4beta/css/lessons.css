@@ -340,8 +340,7 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     border: 1px solid #eee; /* Subtle border */
 }
-/* Archive-only: remove after deleting lessons_old.html. */
-.lesson-image-fullwidth {
+.lesson-image-wide {
     max-width: 100%; /* Allow full width if specified */
     width: 100%;
 }
