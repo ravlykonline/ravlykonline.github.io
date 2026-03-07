@@ -120,6 +120,93 @@
     list-style-type: '💡'; /* Custom bullet */
 }
 
+.lesson-path-section {
+    background: #f8faf9;
+    border: 1px solid #d9e8e2;
+    border-radius: 10px;
+    padding: 18px 20px;
+}
+
+.lesson-path-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 0;
+    color: #00796b;
+    font-size: clamp(1.4rem, 3.6vw, 1.8rem);
+}
+
+.lesson-path-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 10px;
+    table-layout: fixed;
+}
+
+.lesson-path-table thead th {
+    text-align: left;
+    color: #1f2937;
+    font-size: clamp(1rem, 2.8vw, 1.15rem);
+    font-weight: 800;
+    padding: 0 0 10px;
+    border: 0;
+}
+
+.lesson-path-table thead th:nth-child(1) {
+    width: 20%;
+}
+
+.lesson-path-table thead th:nth-child(2) {
+    width: 32%;
+}
+
+.lesson-path-table tbody td {
+    padding: 6px 0;
+    border: 0;
+    vertical-align: middle;
+    font-size: clamp(1rem, 2.8vw, 1.1rem);
+}
+
+.lesson-path-table tbody td:nth-child(2) {
+    font-weight: 800;
+    font-size: clamp(1.05rem, 3vw, 1.2rem);
+    color: #1f2937;
+}
+
+.lesson-path-table tbody td:nth-child(3) {
+    font-family: 'Fira Mono', 'Consolas', 'Courier New', monospace;
+    font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+}
+
+.lesson-path-index {
+    display: inline-block;
+    min-width: 1ch;
+    margin-right: 10px;
+    color: #111827;
+    font-size: clamp(1rem, 2.8vw, 1.1rem);
+}
+
+.lesson-path-dot {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #111827;
+    vertical-align: middle;
+}
+
+.lesson-path-dot-green {
+    background: #32cd32;
+}
+
+.lesson-path-dot-yellow {
+    background: #ffd400;
+}
+
+.lesson-path-dot-red {
+    background: #ff3040;
+}
+
 .lesson-content .code-example {
     background-color: #f8f9fa;
     border-left: 5px solid #32cd32; /* Green */
@@ -150,16 +237,18 @@
 }
 
 .tip {
-    background-color: #e0f7fa; /* Light cyan */
-    border-left: 5px solid #4db6ac; /* Teal */
-    padding: 12px 18px;
+    background-color: #d9edf0;
+    border-left: 6px solid #57c2bd;
+    padding: 16px 22px;
     margin-top: 20px;
-    border-radius: 6px;
-    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    border-radius: 8px;
+    font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+    line-height: 1.55;
 }
- .tip strong {
-    color: #00897b; /* Dark teal */
- }
+.tip strong {
+    color: #00796b;
+    font-weight: 800;
+}
 
 .navigation-buttons {
     display: flex;
@@ -227,6 +316,11 @@
     .lesson-content h3 { font-size: 1.3rem; }
     .lesson-content p, .lesson-content li { font-size: 0.9rem; }
     .lesson-content .code-example { font-size: 0.85rem; padding: 10px 12px;}
+    .lesson-path-section { padding: 14px 12px; }
+    .lesson-path-table { table-layout: auto; }
+    .lesson-path-table thead th:nth-child(1),
+    .lesson-path-table thead th:nth-child(2) { width: auto; }
+    .lesson-path-dot { width: 18px; height: 18px; }
 }
 
 /* --- Accessibility refinements: lessons page --- */
