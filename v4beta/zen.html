@@ -135,14 +135,16 @@
 
         .zen-copy-btn {
             flex: 0 0 auto;
-            padding: 6px 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
             border: 1px solid rgba(23, 48, 66, 0.14);
-            border-radius: 999px;
+            border-radius: 50%;
             background: #f7fafc;
             color: #49616f;
             font: inherit;
-            font-size: 0.9rem;
-            font-weight: 600;
             line-height: 1;
             cursor: pointer;
         }
@@ -156,6 +158,10 @@
             background: #e7f6ea;
             border-color: rgba(91, 191, 122, 0.4);
             color: #24553a;
+        }
+
+        .zen-copy-btn i {
+            font-size: 0.95rem;
         }
 
         .zen-footer {
@@ -220,7 +226,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Спочатку думай — потім запускай.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 1">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Хвилина роздумів перед запуском коштує десяти хвилин пошуку помилки після.</div>
                         </div>
@@ -231,7 +239,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Равлик робить тільки те, що написано. Не більше. Не менше.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 2">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Це не вада — це його сила. Якщо результат не той, що очікував — питання не до Равлика.</div>
                         </div>
@@ -242,7 +252,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Стань Равликом — і зрозумієш.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 3">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Найкраще пояснення кутів і напрямків — встати і повернутися самому. Тіло розуміє те, що очі ще не бачать.</div>
                         </div>
@@ -253,7 +265,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Мала команда. Великий малюнок.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 4">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment"><code>вперед 5 праворуч 10</code> повторені 36 разів — малюють коло. Сила програмування — у повторенні простого.</div>
                         </div>
@@ -265,8 +279,10 @@
                         <span class="zen-num">5</span>
                         <div>
                             <div class="zen-principle-header">
-                                <div class="zen-principle-text">Якщо пишеш одне й те саме двічі — час для <code>повторити</code>.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <div class="zen-principle-text">Якщо пишеш одне й те саме двічі — час використати <code>повторити</code>.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 5">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Дублювання коду — запрошення до циклу. Якщо копіюєш рядки — зупинись і подумай.</div>
                         </div>
@@ -277,7 +293,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Назви речі так, щоб через тиждень зрозумів.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 6">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment"><code>сторона</code> краще за <code>с</code>. <code>крок_руху</code> краще за <code>к</code>. Код читають люди — в тому числі ти сам, пізніше.</div>
                         </div>
@@ -288,7 +306,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Простий код краще за складний.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 7">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Якщо тобі складно пояснити, що робить цей рядок — скоріш за все, його можна написати простіше.</div>
                         </div>
@@ -298,10 +318,12 @@
                         <span class="zen-num">8</span>
                         <div>
                             <div class="zen-principle-header">
-                                <div class="zen-principle-text">Функція — це слово, яке ти додав у мову Равлика.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <div class="zen-principle-text">Функція — це нове слово для Равлика.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 8">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
-                            <div class="zen-principle-comment">Коли ти пишеш <code>квадрат(100)</code> — ти розширюєш мову. Наступного разу Равлик розумітиме більше.</div>
+                            <div class="zen-principle-comment">Коли ти пишеш <code>квадрат(100)</code> — ти розширюєш мову Равлика. Наступного разу він розумітиме більше.</div>
                         </div>
                     </article>
 
@@ -310,7 +332,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Коментар — лист майбутньому собі.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 9">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Пиши <code># малюємо дах</code> не для Равлика — він це не читає. Пиши для себе, для вчителя, для друга.</div>
                         </div>
@@ -323,7 +347,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Помилка — це запрошення до відкриття.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 10">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Равлик не каже «ти поганий програміст». Він каже «я не зрозумів — поясни інакше». Помилки — це діалог.</div>
                         </div>
@@ -334,7 +360,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Читай повідомлення про помилку. Воно підказує.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 11">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Повідомлення — не вирок. Це підказка. «рядок 5» означає: почни шукати тут.</div>
                         </div>
@@ -344,10 +372,12 @@
                         <span class="zen-num">12</span>
                         <div>
                             <div class="zen-principle-header">
-                                <div class="zen-principle-text">Змінюй одне — і дивись, що змінилось.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <div class="zen-principle-text">Змінюй одне — і дивись, що змінилося.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 12">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
-                            <div class="zen-principle-comment">Найкращий спосіб зрозуміти програму — змінити одне число і подивитись на результат.</div>
+                            <div class="zen-principle-comment">Найкращий спосіб зрозуміти програму — змінити одне число і подивитися на результат.</div>
                         </div>
                     </article>
 
@@ -356,7 +386,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Несподіваний результат — найцікавіша частина уроку.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 13">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Коли Равлик намалював щось інше, ніж ти очікував — не виправляй одразу. Спитай себе: чому?</div>
                         </div>
@@ -366,10 +398,12 @@
                         <span class="zen-num">14</span>
                         <div>
                             <div class="zen-principle-header">
-                                <div class="zen-principle-text">Малюнок — це доказ. Код — це аргумент.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <div class="zen-principle-text">Малюнок — це доказ. Код — це пояснення.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 14">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
-                            <div class="zen-principle-comment">Якщо на полотні з'явилось те, що ти замислив — код правильний. Якщо ні — десь є помилка в міркуванні.</div>
+                            <div class="zen-principle-comment">Якщо на полотні з’явилося те, що ти замислив — код правильний. Якщо ні — десь є помилка в міркуванні.</div>
                         </div>
                     </article>
 
@@ -380,7 +414,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Передбачай. Перевіряй. Дивуйся. Повторюй.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 15">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Це не просто алгоритм навчання. Це спосіб жити з будь-якою ідеєю — в програмуванні, математиці, науці.</div>
                         </div>
@@ -391,7 +427,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">«Не виходить» — це початок, а не кінець.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 16">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Равлик ніколи не засуджує. Він чекає наступної команди. Ти теж можеш почати ще раз — в будь-який момент.</div>
                         </div>
@@ -402,7 +440,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Пояснити другу — значить зрозуміти самому.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 17">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Якщо можеш пояснити <code>повторити</code> молодшому брату або сестрі — ти справді це розумієш.</div>
                         </div>
@@ -413,9 +453,11 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Равлик говорить українською. Думай так само.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 18">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
-                            <div class="zen-principle-comment">Назви змінних, функцій, коментарі — пиши так, щоб було зрозуміло тобі і твоєму однокласнику. Мова коду — це теж вибір.</div>
+                            <div class="zen-principle-comment">Назви змінних і функцій, а також коментарі — пиши так, щоб було зрозуміло тобі і твоєму однокласнику. Мова коду — це теж вибір.</div>
                         </div>
                     </article>
 
@@ -424,7 +466,9 @@
                         <div>
                             <div class="zen-principle-header">
                                 <div class="zen-principle-text">Твій найкращий малюнок — той, що ти ще не намалював.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 19">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Кожен запуск — це нова можливість. Зберігай, що тобі подобається. І ділись цим з іншими.</div>
                         </div>
@@ -434,8 +478,10 @@
                         <span class="zen-num">20</span>
                         <div>
                             <div class="zen-principle-header">
-                                <div class="zen-principle-text">Равлик — це лише початок. Але який слід він залишає.</div>
-                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                                <div class="zen-principle-text">Равлик — це лише початок. Але який слід він залишає!</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 20">
+                                    <i class="far fa-copy" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="zen-principle-comment">Все, що ти навчився тут — живе в кожній мові програмування. Ти вже думаєш як програміст. Равлик зробив свою справу.</div>
                         </div>
@@ -460,8 +506,8 @@
     <script>
         (() => {
             const copyButtons = document.querySelectorAll(".zen-copy-btn");
-            const defaultLabel = "Копіювати";
-            const successLabel = "Скопійовано";
+            const defaultIcon = "far fa-copy";
+            const successIcon = "fas fa-check";
 
             copyButtons.forEach((button) => {
                 button.addEventListener("click", async () => {
@@ -477,16 +523,26 @@
 
                     try {
                         await navigator.clipboard.writeText(payload);
-                        button.textContent = successLabel;
+                        const icon = button.querySelector("i");
+                        if (icon) {
+                            icon.className = successIcon;
+                        }
                         button.classList.add("copied");
                         window.setTimeout(() => {
-                            button.textContent = defaultLabel;
+                            if (icon) {
+                                icon.className = defaultIcon;
+                            }
                             button.classList.remove("copied");
                         }, 1400);
                     } catch {
-                        button.textContent = "Не вийшло";
+                        const icon = button.querySelector("i");
+                        if (icon) {
+                            icon.className = "fas fa-times";
+                        }
                         window.setTimeout(() => {
-                            button.textContent = defaultLabel;
+                            if (icon) {
+                                icon.className = defaultIcon;
+                            }
                         }, 1400);
                     }
                 });
