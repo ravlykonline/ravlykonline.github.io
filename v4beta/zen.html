@@ -45,23 +45,15 @@
             background: linear-gradient(90deg, #5bbf7a 0%, #5aa9e6 50%, #f2b134 100%);
         }
 
-        .zen-intro,
-        .zen-hover-hint,
-        .zen-footer-note {
+        .zen-intro {
             text-align: center;
         }
 
         .zen-intro {
             max-width: 760px;
-            margin: 0 auto 16px;
+            margin: 0 auto 28px;
             font-size: 1.05rem;
             line-height: 1.7;
-        }
-
-        .zen-hover-hint {
-            margin: 0 0 28px;
-            color: #4d6a79;
-            font-size: 0.95rem;
         }
 
         .zen-principles {
@@ -100,14 +92,6 @@
             background: #fff;
             border: 1px solid rgba(23, 48, 66, 0.1);
             box-shadow: 0 12px 28px rgba(26, 46, 59, 0.08);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-        }
-
-        .zen-principle:hover,
-        .zen-principle:focus-within {
-            transform: translateY(-2px);
-            border-color: rgba(90, 169, 230, 0.35);
-            box-shadow: 0 16px 36px rgba(26, 46, 59, 0.12);
         }
 
         .zen-num {
@@ -140,18 +124,6 @@
             margin-top: 8px;
             color: #49616f;
             line-height: 1.65;
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(-4px);
-            transition: max-height 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
-        }
-
-        .zen-principle:hover .zen-principle-comment,
-        .zen-principle:focus-within .zen-principle-comment {
-            max-height: 180px;
-            opacity: 1;
-            transform: translateY(0);
         }
 
         .zen-footer {
@@ -159,49 +131,14 @@
             text-align: center;
         }
 
-        .zen-footer-snail {
-            display: inline-block;
-            font-size: 2rem;
-            margin-bottom: 12px;
-        }
-
-        .zen-easter-egg {
-            display: inline-block;
-            text-align: left;
-            padding: 18px 20px;
-            margin-bottom: 24px;
-            border-radius: 18px;
-            background: #173042;
-            color: #e8f1fb;
-            box-shadow: 0 16px 36px rgba(26, 46, 59, 0.18);
-        }
-
-        .zen-easter-code {
-            font-family: "Courier New", Courier, monospace;
-            font-size: 0.98rem;
-            line-height: 1.8;
-        }
-
-        .zen-cursor {
-            display: inline-block;
-            width: 0.65ch;
-            margin-left: 2px;
-            border-bottom: 2px solid #f2b134;
-            animation: zen-blink 1s steps(1, end) infinite;
-        }
-
         .zen-footer-text {
+            margin-top: 20px;
             line-height: 1.8;
             color: #49616f;
         }
 
         .zen-footer-text a {
             font-weight: 600;
-        }
-
-        @keyframes zen-blink {
-            0%, 50% { opacity: 1; }
-            50.01%, 100% { opacity: 0; }
         }
 
         @media (max-width: 720px) {
@@ -217,20 +154,6 @@
             .zen-num {
                 width: 36px;
                 height: 36px;
-            }
-
-            .zen-easter-egg {
-                width: 100%;
-                overflow-x: auto;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .zen-principle,
-            .zen-principle-comment,
-            .zen-cursor {
-                transition: none;
-                animation: none;
             }
         }
     </style>
@@ -248,14 +171,8 @@
             <section class="lesson-content active" aria-labelledby="zen-intro-title">
                 <h2 id="zen-intro-title" class="sr-only">Вступ до Дзену Равлика</h2>
                 <div class="zen-intro">
-                    Наведи курсор на будь-який принцип — побачиш пояснення.<br />
                     Ці правила — не інструкція. Це спосіб думати.<br />
-                    Вони написані для дітей. Але дорослим теж читати корисно.<br /><br />
-                    Натхнення: <code>import this</code> — Тім Пітерс, 1999. Рональд Байлер та Сеймур Пеперт — завжди.
-                </div>
-
-                <div class="zen-hover-hint">
-                    <span>↓ наведи курсор, щоб дізнатися більше</span>
+                    Вони написані для дітей. Але дорослим теж читати корисно.
                 </div>
 
                 <div class="zen-principles" aria-label="Принципи Дзену Равлика">
@@ -430,18 +347,14 @@
             </section>
 
             <footer class="zen-footer">
-                <span class="zen-footer-snail" aria-hidden="true">🐌</span>
-
-                <div class="zen-easter-egg" aria-label="Жартівливий код Дзену Равлика">
-                    <span class="zen-easter-code">створити дзен() (</span><br />
-                    <span class="zen-easter-code">&nbsp;&nbsp;повторити 20 ( читати праворуч 18 )</span><br />
-                    <span class="zen-easter-code">)</span><br />
-                    <span class="zen-easter-code">дзен()<span class="zen-cursor" aria-hidden="true"></span></span>
-                </div>
+                <nav class="bottom-nav-buttons" aria-label="Навігація Дзену Равлика">
+                    <a href="manual.html" class="btn btn-primary"><i class="fas fa-book-open" aria-hidden="true"></i>Посібник</a>
+                    <a href="lessons.html" class="btn btn-primary"><i class="fas fa-graduation-cap" aria-hidden="true"></i>Уроки</a>
+                    <a href="index.html" class="btn btn-success"><i class="fas fa-paint-brush" aria-hidden="true"></i>Редактор</a>
+                </nav>
 
                 <div class="zen-footer-text">
-                    Натхнення: <em>The Zen of Python</em> — Тім Пітерс (1999)<br />
-                    <a href="manual.html">Посібник</a> · <a href="lessons.html">Уроки</a> · <a href="index.html">Редактор</a><br /><br />
+                    Натхнення: <em>The Zen of Python</em> — Тім Пітерс (1999)<br /><br />
                     ©2025 Мова програмування РАВЛИК<br />
                     Автор: пан Артем — вчитель інформатики
                 </div>
