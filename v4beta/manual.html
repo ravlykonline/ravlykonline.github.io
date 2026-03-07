@@ -97,9 +97,9 @@
                     <p class="manual-section-indicator" id="manual-section-indicator">Розділ 1 з 1</p>
                     <button type="button" class="manual-page-btn" id="manual-next-section">Наступний розділ →</button>
                 </div>
-                <article id="intro" class="guide-section">
-                    <h2>Що таке РАВЛИК?</h2>
-                    <div class="concept-box">
+                <article id="intro" class="guide-section" aria-labelledby="manual-section-intro">
+                    <h2 id="manual-section-intro">Що таке РАВЛИК?</h2>
+                    <div class="concept-box" role="region" aria-label="Пояснення, що таке РАВЛИК">
                         <div class="concept-image">
                             <img src="assets/images/ravlyk.png" alt="Зображення Равлик" loading="lazy" />
                         </div>
@@ -110,8 +110,8 @@
                                 наказати йому рухатися вперед, повертати, змінювати колір і повторювати якісь дії!</p>
                         </div>
                     </div>
-                    <div class="tips-box">
-                        <h4>Чому РАВЛИК корисний для дітей:</h4>
+                    <div class="tips-box" role="region" aria-labelledby="manual-intro-benefits-title">
+                        <h4 id="manual-intro-benefits-title">Чому РАВЛИК корисний для дітей:</h4>
                         <ul>
                             <li>Він простий і зрозумілий — не потрібно вивчати складні правила.</li>
                             <li>Ти одразу бачиш результат своїх команд на екрані.</li>
@@ -122,50 +122,50 @@
                     </div>
                 </article>
 
-                <article id="basic-commands" class="guide-section">
-                    <h2>Основні команди</h2>
+                <article id="basic-commands" class="guide-section" aria-labelledby="manual-section-basic-commands">
+                    <h2 id="manual-section-basic-commands">Основні команди</h2>
                     <p>Для керування Равликом існують прості команди, які ти можеш використовувати:</p>
-                    <div class="command-list-manual">
-                        <div class="command-item-manual"><span class="cmd-name">вперед N</span> <span
+                    <ul class="command-list-manual" aria-label="Основні команди РАВЛИКа">
+                        <li class="command-item-manual"><span class="cmd-name">вперед N</span> <span
                                 class="cmd-desc">Рухає Равлика вперед на N кроків (наприклад,
-                                <code>вперед 100</code>).</span></div>
-                        <div class="command-item-manual"><span class="cmd-name">назад N</span> <span
+                                <code>вперед 100</code>).</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">назад N</span> <span
                                 class="cmd-desc">Рухає Равлика назад на N кроків (наприклад,
-                                <code>назад 50</code>).</span></div>
-                        <div class="command-item-manual"><span class="cmd-name">праворуч N</span> <span
+                                <code>назад 50</code>).</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">праворуч N</span> <span
                                 class="cmd-desc">Повертає Равлика на N градусів праворуч (наприклад,
-                                <code>праворуч 90</code>).</span></div>
-                        <div class="command-item-manual"><span class="cmd-name">ліворуч N</span> <span
+                                <code>праворуч 90</code>).</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">ліворуч N</span> <span
                                 class="cmd-desc">Повертає Равлика на N градусів ліворуч (наприклад,
-                                <code>ліворуч 45</code>).</span></div>
-                        <div class="command-item-manual"><span class="cmd-name">колір [назва]</span> <span
+                                <code>ліворуч 45</code>).</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">колір [назва]</span> <span
                                 class="cmd-desc">Змінює колір олівця, яким малює Равлик (наприклад,
-                                <code>колір синій</code>, <code>колір веселка</code>).</span></div>
-                        <div class="command-item-manual"><span class="cmd-name">перейти в X Y</span> <span
+                                <code>колір синій</code>, <code>колір веселка</code>).</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">перейти в X Y</span> <span
                                 class="cmd-desc">Переміщує Равлика у точку (X, Y) від центру полотна. Працюють обидва
-                                формати: <code>перейти в 100 50</code> і <code>перейти в -80, -40</code>.</span></div>
-                        <div class="command-item-manual"><span class="cmd-name">підняти</span> <span
-                                class="cmd-desc">Піднімає олівець — Равлик рухається, але не малює.</span></div>
-                        <div class="command-item-manual"><span class="cmd-name">опустити</span> <span
-                                class="cmd-desc">Опускає олівець — Равлик буде малювати при русі.</span></div>
-                        <div class="command-item-manual"><span class="cmd-name">очистити</span> <span
+                                формати: <code>перейти в 100 50</code> і <code>перейти в -80, -40</code>.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">підняти</span> <span
+                                class="cmd-desc">Піднімає олівець — Равлик рухається, але не малює.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">опустити</span> <span
+                                class="cmd-desc">Опускає олівець — Равлик буде малювати при русі.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">очистити</span> <span
                                 class="cmd-desc">Очищає тільки полотно від малюнків (код у редакторі не
-                                видаляється).</span></div>
-                        <div class="command-item-manual"><span class="cmd-name"># коментар</span> <span
+                                видаляється).</span></li>
+                        <li class="command-item-manual"><span class="cmd-name"># коментар</span> <span
                                 class="cmd-desc">Рядок-коментар для пояснень у коді. Після символу <code>#</code> Равлик
-                                текст не виконує.</span></div>
-                        <div class="command-item-manual"><span class="cmd-name">якщо умова ( ... )</span> <span
-                                class="cmd-desc">Виконує команди в дужках, якщо умова істинна.</span></div>
-                        <div class="command-item-manual"><span class="cmd-name">... інакше ( ... )</span> <span
-                                class="cmd-desc">Виконує інший блок, якщо умова хибна.</span></div>
-                        <div class="command-item-manual"><span class="cmd-name">якщо край ( ... )</span> <span
-                                class="cmd-desc">Перевіряє, чи Равлик торкається межі полотна.</span></div>
-                        <div class="command-item-manual"><span class="cmd-name">якщо клавіша "..." ( ... )</span> <span
-                                class="cmd-desc">Перевіряє, чи натиснута конкретна клавіша.</span></div>
-                        <div class="command-item-manual"><span class="cmd-name">грати ( ... )</span> <span
+                                текст не виконує.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">якщо умова ( ... )</span> <span
+                                class="cmd-desc">Виконує команди в дужках, якщо умова істинна.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">... інакше ( ... )</span> <span
+                                class="cmd-desc">Виконує інший блок, якщо умова хибна.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">якщо край ( ... )</span> <span
+                                class="cmd-desc">Перевіряє, чи Равлик торкається межі полотна.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">якщо клавіша "..." ( ... )</span> <span
+                                class="cmd-desc">Перевіряє, чи натиснута конкретна клавіша.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">грати ( ... )</span> <span
                                 class="cmd-desc">Безперервний ігровий режим з перевіркою умов на кожному кроці.</span>
-                        </div>
-                    </div>
+                        </li>
+                    </ul>
                     <h3>Як користуватися командами</h3>
                     <p><strong>Важливо про напрямок:</strong> Равлик на старті дивиться вгору (кут -90°). Тому команда
                         <code>праворуч 90</code> повертає його праворуч <em>від поточного напряму</em>, а не відносно
@@ -180,14 +180,14 @@
                     <pre class="example-code-manual">вперед 100
 праворуч 90
 вперед 50</pre>
-                    <div class="example-result-manual">
+                    <div class="example-result-manual" role="region" aria-label="Результат прикладу з базовими командами">
                         <img src="assets/images/manual_01.jpg"
                             alt="Результат програми: Равлик малює кут, рухаючись вперед, потім праворуч, потім знову вперед."
                             loading="lazy" />
                         <p>Равлик пройде вперед, повернеться праворуч і знову піде вперед, утворюючи кут.</p>
                     </div>
-                    <div class="tips-box">
-                        <h4>Поради для початківців:</h4>
+                    <div class="tips-box" role="region" aria-labelledby="manual-basic-commands-tips-title">
+                        <h4 id="manual-basic-commands-tips-title">Поради для початківців:</h4>
                         <ul>
                             <li>Почни з простих команд, щоб зрозуміти, як рухається Равлик.</li>
                             <li>Числа в командах (кроки, градуси) можуть бути різними - експериментуй!</li>
@@ -197,8 +197,8 @@
                     </div>
                 </article>
 
-                <article id="repetition" class="guide-section">
-                    <h2>Повторення команд (Цикли)</h2>
+                <article id="repetition" class="guide-section" aria-labelledby="manual-section-repetition">
+                    <h2 id="manual-section-repetition">Повторення команд (Цикли)</h2>
                     <p>Уяви, що ти хочеш намалювати квадрат. Для цього потрібно чотири рази повторити дві дії: "вперед"
                         і "праворуч". Щоб не писати одне й те саме багато разів, ми можемо використовувати команду
                         <code>повторити</code>.
@@ -207,7 +207,7 @@
   вперед 100
   праворуч 90
 )</pre>
-                    <div class="example-result-manual">
+                    <div class="example-result-manual" role="region" aria-label="Результат прикладу з повторенням">
                         <img src="assets/images/manual_02.jpg"
                             alt="Равлик малює квадрат за допомогою команди повторити." loading="lazy" />
                         <p>Равлик намалює повний квадрат.</p>
@@ -219,48 +219,51 @@
                         відкриваючу дужку після числа і закриваючу в кінці команд, які треба повторити. Між числом та
                         відкриваючою дужкою має бути пробіл. Команди всередині дужок пишуться з нового рядка або через
                         пробіл.</p>
-                    <div class="interactive-example-manual">
-                        <h4>Спробуй різні повторення:</h4>
+                    <div class="interactive-example-manual" role="region" aria-labelledby="manual-repetition-examples-title">
+                        <h4 id="manual-repetition-examples-title">Спробуй різні повторення:</h4>
                         <p><strong>Трикутник:</strong> <code>повторити 3 ( вперед 100 праворуч 120 )</code></p>
                         <p><strong>П'ятикутник:</strong> <code>повторити 5 ( вперед 80 праворуч 72 )</code></p>
                         <p><strong>Восьмикутник:</strong> <code>повторити 8 ( вперед 50 праворуч 45 )</code></p>
                     </div>
                 </article>
 
-                <article id="variables-functions" class="guide-section">
-                    <h2>Змінні та функції</h2>
+                <article id="variables-functions" class="guide-section" aria-labelledby="manual-section-variables-functions">
+                    <h2 id="manual-section-variables-functions">Змінні та функції</h2>
                     <p>У РАВЛИКу ти можеш <strong>зберігати числа у змінних</strong> та <strong>створювати власні
                             команди (функції)</strong>. Це робить код коротшим, зрозумілішим і зручнішим для змін.</p>
 
-                    <h3>1) Змінні</h3>
-                    <p><strong>Змінна</strong> — це ім'я, під яким зберігається число.</p>
-                    <p><strong>Створення:</strong> <code>створити назва = число</code></p>
-                    <p><strong>Оновлення:</strong> <code>назва = число</code> (або знову
-                        <code>створити назва = число</code>)
-                    </p>
-                    <pre class="example-code-manual">створити сторона = 100
+                    <section aria-labelledby="manual-variables-subsection-variables">
+                        <h3 id="manual-variables-subsection-variables">1) Змінні</h3>
+                        <p><strong>Змінна</strong> — це ім'я, під яким зберігається число.</p>
+                        <p><strong>Створення:</strong> <code>створити назва = число</code></p>
+                        <p><strong>Оновлення:</strong> <code>назва = число</code> (або знову
+                            <code>створити назва = число</code>)
+                        </p>
+                        <pre class="example-code-manual">створити сторона = 100
 вперед сторона
 сторона = 150
 праворуч 90
 вперед сторона</pre>
-                    <div class="tips-box">
-                        <h4>Правила для змінних:</h4>
-                        <ul>
-                            <li>Назва змінної має бути унікальною і не може збігатися з вбудованою командою
-                                (<code>вперед</code>, <code>праворуч</code>, <code>повторити</code>,
-                                <code>створити</code> тощо).
-                            </li>
-                            <li>Регістр не важливий: <code>Сторона</code> і <code>сторона</code> — це одне й те саме
-                                ім'я.</li>
-                            <li>Якщо написати невідому змінну, з'явиться підказка, що її треба спочатку створити.</li>
-                        </ul>
-                    </div>
+                        <div class="tips-box" role="region" aria-labelledby="manual-variables-rules-title">
+                            <h4 id="manual-variables-rules-title">Правила для змінних:</h4>
+                            <ul>
+                                <li>Назва змінної має бути унікальною і не може збігатися з вбудованою командою
+                                    (<code>вперед</code>, <code>праворуч</code>, <code>повторити</code>,
+                                    <code>створити</code> тощо).
+                                </li>
+                                <li>Регістр не важливий: <code>Сторона</code> і <code>сторона</code> — це одне й те саме
+                                    ім'я.</li>
+                                <li>Якщо написати невідому змінну, з'явиться підказка, що її треба спочатку створити.</li>
+                            </ul>
+                        </div>
+                    </section>
 
-                    <h3>2) Власні функції</h3>
-                    <p><strong>Функція</strong> — це твоя власна команда з параметром.</p>
-                    <p><strong>Оголошення:</strong> <code>створити назва(параметр) ( команди )</code></p>
-                    <p><strong>Виклик:</strong> <code>назва(значення)</code> або <code>назва (значення)</code></p>
-                    <pre class="example-code-manual">створити квадрат(сторона) (
+                    <section aria-labelledby="manual-variables-subsection-functions">
+                        <h3 id="manual-variables-subsection-functions">2) Власні функції</h3>
+                        <p><strong>Функція</strong> — це твоя власна команда з параметром.</p>
+                        <p><strong>Оголошення:</strong> <code>створити назва(параметр) ( команди )</code></p>
+                        <p><strong>Виклик:</strong> <code>назва(значення)</code> або <code>назва (значення)</code></p>
+                        <pre class="example-code-manual">створити квадрат(сторона) (
   повторити 4 (
     вперед сторона
     праворуч 90
@@ -269,115 +272,128 @@
 квадрат(40)
 праворуч 45
 квадрат(80)</pre>
-                    <p>Одна функція <code>квадрат</code> може малювати квадрати різного розміру — ти просто передаєш
-                        інше число.</p>
+                        <p>Одна функція <code>квадрат</code> може малювати квадрати різного розміру — ти просто передаєш
+                            інше число.</p>
+                    </section>
 
-                    <h3>3) Змінні + функції разом</h3>
-                    <pre class="example-code-manual">створити сторона = 100
+                    <section aria-labelledby="manual-variables-subsection-combined">
+                        <h3 id="manual-variables-subsection-combined">3) Змінні + функції разом</h3>
+                        <pre class="example-code-manual">створити сторона = 100
 створити квадрат(сторона) ( повторити 4 ( вперед сторона праворуч 90 ) )
 квадрат(сторона)</pre>
-                    <p>У цьому прикладі глобальна змінна <code>сторона</code> передається у функцію як аргумент.</p>
+                        <p>У цьому прикладі глобальна змінна <code>сторона</code> передається у функцію як аргумент.</p>
 
-                    <div class="tips-box">
-                        <h4>Важливе правило області видимості (scope):</h4>
-                        <p>Якщо ім'я параметра функції збігається з глобальною змінною, <strong>всередині функції
-                                пріоритет має параметр</strong>.</p>
-                    </div>
+                        <div class="tips-box" role="region" aria-labelledby="manual-variables-scope-title">
+                            <h4 id="manual-variables-scope-title">Важливе правило області видимості (scope):</h4>
+                            <p>Якщо ім'я параметра функції збігається з глобальною змінною, <strong>всередині функції
+                                    пріоритет має параметр</strong>.</p>
+                        </div>
 
-                    <div class="interactive-example-manual">
-                        <h4>Корисні шаблони:</h4>
-                        <p><strong>Зірка:</strong>
-                            <code>створити зірка(довжина) ( повторити 5 ( вперед довжина праворуч 144 ) )</code>
-                        </p>
-                        <p><strong>Виклики:</strong> <code>зірка(80)</code>, <code>зірка(120)</code></p>
-                        <p><strong>Оновлення розміру:</strong> <code>сторона = 200</code></p>
-                    </div>
+                        <div class="interactive-example-manual" role="region" aria-labelledby="manual-variables-patterns-title">
+                            <h4 id="manual-variables-patterns-title">Корисні шаблони:</h4>
+                            <p><strong>Зірка:</strong>
+                                <code>створити зірка(довжина) ( повторити 5 ( вперед довжина праворуч 144 ) )</code>
+                            </p>
+                            <p><strong>Виклики:</strong> <code>зірка(80)</code>, <code>зірка(120)</code></p>
+                            <p><strong>Оновлення розміру:</strong> <code>сторона = 200</code></p>
+                        </div>
+                    </section>
                 </article>
 
-                <article id="conditions" class="guide-section">
-                    <h2>Умови: якщо / інакше</h2>
+                <article id="conditions" class="guide-section" aria-labelledby="manual-section-conditions">
+                    <h2 id="manual-section-conditions">Умови: якщо / інакше</h2>
                     <p>Умова допомагає Равлику <strong>приймати рішення</strong>: виконувати команду лише тоді, коли
                         щось сталося.</p>
-                    <h3>Базовий формат</h3>
-                    <pre class="example-code-manual">якщо умова (
+                    <section aria-labelledby="manual-conditions-subsection-basic">
+                        <h3 id="manual-conditions-subsection-basic">Базовий формат</h3>
+                        <pre class="example-code-manual">якщо умова (
   команди
 )</pre>
-                    <p>Якщо треба альтернативна дія, додаємо <code>інакше</code>:</p>
-                    <pre class="example-code-manual">якщо умова (
+                        <p>Якщо треба альтернативна дія, додаємо <code>інакше</code>:</p>
+                        <pre class="example-code-manual">якщо умова (
   команди_1
 ) інакше (
   команди_2
 )</pre>
+                    </section>
 
-                    <h3>Умова <code>край</code></h3>
-                    <p>Найзручніша умова для перших задач з рухом:</p>
-                    <pre class="example-code-manual">повторити 120 (
+                    <section aria-labelledby="manual-conditions-subsection-edge">
+                        <h3 id="manual-conditions-subsection-edge">Умова <code>край</code></h3>
+                        <p>Найзручніша умова для перших задач з рухом:</p>
+                        <pre class="example-code-manual">повторити 120 (
   вперед 5
   якщо край ( праворуч 91 )
 )</pre>
-                    <p>Коли Равлик торкається межі полотна, він одразу повертає і рухається далі.</p>
+                        <p>Коли Равлик торкається межі полотна, він одразу повертає і рухається далі.</p>
+                    </section>
 
-                    <h3>Порівняння чисел</h3>
-                    <p>Можна порівнювати вирази: <code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>,
-                        <code>&lt;=</code>, <code>&gt;=</code>.
-                    </p>
-                    <pre class="example-code-manual">створити n = 0
+                    <section aria-labelledby="manual-conditions-subsection-comparisons">
+                        <h3 id="manual-conditions-subsection-comparisons">Порівняння чисел</h3>
+                        <p>Можна порівнювати вирази: <code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>,
+                            <code>&lt;=</code>, <code>&gt;=</code>.
+                        </p>
+                        <pre class="example-code-manual">створити n = 0
 повторити 10 (
   n = n + 1
   якщо n % 2 = 0 ( колір синій ) інакше ( колір червоний )
   вперед 20
   праворуч 36
 )</pre>
-                    <div class="tips-box">
-                        <h4>Порада:</h4>
-                        <p>Оператор <code>%</code> (остача від ділення) дуже зручний для задач «парне/непарне».</p>
-                    </div>
+                        <div class="tips-box" role="region" aria-labelledby="manual-conditions-tip-title">
+                            <h4 id="manual-conditions-tip-title">Порада:</h4>
+                            <p>Оператор <code>%</code> (остача від ділення) дуже зручний для задач «парне/непарне».</p>
+                        </div>
+                    </section>
                 </article>
 
-                <article id="game-mode" class="guide-section">
-                    <h2>Інтерактивний режим: <code>грати</code></h2>
+                <article id="game-mode" class="guide-section" aria-labelledby="manual-section-game-mode">
+                    <h2 id="manual-section-game-mode">Інтерактивний режим: <code>грати</code></h2>
                     <p>Команда <code>грати ( ... )</code> запускає безперервний цикл перевірки подій. Це основа для
                         простих ігор.</p>
-                    <h3>Керування клавішами</h3>
-                    <pre class="example-code-manual">грати (
+                    <section aria-labelledby="manual-game-mode-subsection-keys">
+                        <h3 id="manual-game-mode-subsection-keys">Керування клавішами</h3>
+                        <pre class="example-code-manual">грати (
   якщо клавіша "вгору" ( вперед 5 )
   якщо клавіша "вниз" ( назад 5 )
   якщо клавіша "ліво" ( ліворуч 10 )
   якщо клавіша "право" ( праворуч 10 )
 )</pre>
-                    <p>Назви клавіш краще писати в лапках: <code>"вгору"</code>, <code>"вниз"</code>,
-                        <code>"ліво"</code>, <code>"право"</code>.
-                    </p>
-                    <div class="tips-box">
-                        <h4>Правило режиму <code>грати</code>:</h4>
-                        <ul>
-                            <li>У програмі має бути лише один блок <code>грати ( ... )</code>.</li>
-                            <li>Блок <code>грати</code> не можна вкладати у функції чи інші блоки.</li>
-                            <li>Якщо використовуєш <code>грати</code>, команди руху/повороту/кольору пиши всередині
-                                цього блоку.</li>
-                            <li>Поза <code>грати</code> на верхньому рівні залишай лише підготовку:
-                                <code>створити ...</code> та оголошення функцій.
-                            </li>
-                        </ul>
-                    </div>
+                        <p>Назви клавіш краще писати в лапках: <code>"вгору"</code>, <code>"вниз"</code>,
+                            <code>"ліво"</code>, <code>"право"</code>.
+                        </p>
+                        <div class="tips-box" role="region" aria-labelledby="manual-game-mode-rule-title">
+                            <h4 id="manual-game-mode-rule-title">Правило режиму <code>грати</code>:</h4>
+                            <ul>
+                                <li>У програмі має бути лише один блок <code>грати ( ... )</code>.</li>
+                                <li>Блок <code>грати</code> не можна вкладати у функції чи інші блоки.</li>
+                                <li>Якщо використовуєш <code>грати</code>, команди руху/повороту/кольору пиши всередині
+                                    цього блоку.</li>
+                                <li>Поза <code>грати</code> на верхньому рівні залишай лише підготовку:
+                                    <code>створити ...</code> та оголошення функцій.
+                                </li>
+                            </ul>
+                        </div>
+                    </section>
 
-                    <h3>Змінні у режимі гри</h3>
-                    <p>Змінні не скидаються щокроку, тому їх можна змінювати під час гри:</p>
-                    <pre class="example-code-manual">створити крок = 2
+                    <section aria-labelledby="manual-game-mode-subsection-variables">
+                        <h3 id="manual-game-mode-subsection-variables">Змінні у режимі гри</h3>
+                        <p>Змінні не скидаються щокроку, тому їх можна змінювати під час гри:</p>
+                        <pre class="example-code-manual">створити крок = 2
 грати (
   якщо клавіша "вгору" ( вперед крок )
   крок = крок + 1
 )</pre>
-                    <div class="tips-box">
-                        <h4>Безпека:</h4>
-                        <p>Щоб зупинити гру, використовуй кнопку <strong>Зупинити</strong> або клавішу
-                            <strong>Esc</strong>.
-                        </p>
-                    </div>
+                        <div class="tips-box" role="region" aria-labelledby="manual-game-mode-safety-title">
+                            <h4 id="manual-game-mode-safety-title">Безпека:</h4>
+                            <p>Щоб зупинити гру, використовуй кнопку <strong>Зупинити</strong> або клавішу
+                                <strong>Esc</strong>.
+                            </p>
+                        </div>
+                    </section>
                 </article>
 
-                <article id="pen-control" class="guide-section">
-                    <h2>Керування олівцем</h2>
+                <article id="pen-control" class="guide-section" aria-labelledby="manual-section-pen-control">
+                    <h2 id="manual-section-pen-control">Керування олівцем</h2>
                     <p>Іноді ти хочеш перемістити Равлика в інше місце, не залишивши слідів, або намалювати фігуру з
                         переривчастими лініями. Для цього використовуй команди <code>підняти</code> та
                         <code>опустити</code>.
@@ -393,7 +409,7 @@
 вперед 50  # Рухається без малювання
 опустити  # Равлик опустив олівець
 вперед 50</pre>
-                    <div class="example-result-manual">
+                    <div class="example-result-manual" role="region" aria-label="Результат прикладу з керуванням олівцем">
                         <img src="assets/images/manual_03.jpg"
                             alt="Переривчаста лінія, створена за допомогою команд підняти та опустити."
                             loading="lazy" />
@@ -401,8 +417,8 @@
                     </div>
                 </article>
 
-                <article id="colors" class="guide-section">
-                    <h2>Використання кольорів</h2>
+                <article id="colors" class="guide-section" aria-labelledby="manual-section-colors">
+                    <h2 id="manual-section-colors">Використання кольорів</h2>
                     <p>Твої малюнки можуть бути різнокольоровими! Використовуй команду <code>колір</code>, щоб змінювати
                         колір лінії, яку малює Равлик.</p>
                     <h3>Доступні кольори:</h3>
@@ -432,13 +448,13 @@
 праворуч 90
 колір жовтий
 вперед 100</pre>
-                    <div class="example-result-manual">
+                    <div class="example-result-manual" role="region" aria-label="Результат прикладу з кольорами">
                         <img src="assets/images/manual_04.jpg"
                             alt="Різнокольоровий квадрат, кожна сторона якого має інший колір." loading="lazy" />
                         <p>Квадрат, де кожна сторона має свій колір.</p>
                     </div>
-                    <div class="tips-box">
-                        <h4>Поради про кольори:</h4>
+                    <div class="tips-box" role="region" aria-labelledby="manual-colors-tips-title">
+                        <h4 id="manual-colors-tips-title">Поради про кольори:</h4>
                         <ul>
                             <li>Зміни колір перед початком малювання нової частини малюнка.</li>
                             <li>Спробуй команду <code>колір веселка</code> для створення ліній, що переливаються всіма
@@ -451,8 +467,8 @@
                     </div>
                 </article>
 
-                <article id="drawing-shapes" class="guide-section">
-                    <h2>Малювання форм</h2>
+                <article id="drawing-shapes" class="guide-section" aria-labelledby="manual-section-drawing-shapes">
+                    <h2 id="manual-section-drawing-shapes">Малювання форм</h2>
                     <p>З Равликом ти можеш малювати різні форми і фігури. Давай розглянемо кілька цікавих прикладів:</p>
                     <h3>Коло</h3>
                     <p>Щоб намалювати коло, потрібно багато разів трохи пройти вперед і трохи повернути:</p>
@@ -460,7 +476,7 @@
   вперед 10
   праворуч 10
 )</pre>
-                    <div class="example-result-manual">
+                    <div class="example-result-manual" role="region" aria-label="Результат прикладу з колом">
                         <img src="assets/images/manual_05.jpg" alt="Коло, намальоване Равликом." loading="lazy" />
                         <p>Равлик намалює коло, повторюючи маленькі кроки і повороти.</p>
                     </div>
@@ -470,13 +486,13 @@
   вперед 100
   праворуч 144
 )</pre>
-                    <div class="example-result-manual">
+                    <div class="example-result-manual" role="region" aria-label="Результат прикладу із зіркою">
                         <img src="assets/images/manual_06.jpg" alt="П'ятикутна зірка, намальована Равликом."
                             loading="lazy" />
                         <p>П'ятикутна зірка з гострими кутами.</p>
                     </div>
-                    <div class="tips-box">
-                        <h4>Секрети малювання форм:</h4>
+                    <div class="tips-box" role="region" aria-labelledby="manual-shapes-secrets-title">
+                        <h4 id="manual-shapes-secrets-title">Секрети малювання форм:</h4>
                         <ul>
                             <li>Для правильних багатокутників кут повороту = 360 ÷ кількість сторін.</li>
                             <li>Для зірок використовуй кути, які не є дільниками 360 (наприклад, для 5-кутної зірки це
@@ -487,18 +503,19 @@
                     </div>
                 </article>
 
-                <article id="errors" class="guide-section">
-                    <h2>Типи повідомлень та їх значення</h2>
+                <article id="errors" class="guide-section" aria-labelledby="manual-section-errors">
+                    <h2 id="manual-section-errors">Типи повідомлень та їх значення</h2>
                     <p>В редакторі Равлика ти можеш бачити різні повідомлення: помилки, успішні операції та інформаційні
                         повідомлення. Вони допомагають зрозуміти, що відбувається під час виконання твоєї програми.</p>
                     <p>У більшості випадків повідомлення про помилку також підкаже номер рядка у форматі
                         <code>(рядок N)</code>. Це допомагає швидше знайти місце, де треба виправити код.
                     </p>
 
-                    <h3 class="message-group-title success-title"><i class="fas fa-check-circle" aria-hidden="true"></i>
+                    <section aria-labelledby="manual-errors-success-title">
+                    <h3 class="message-group-title success-title" id="manual-errors-success-title"><i class="fas fa-check-circle" aria-hidden="true"></i>
                         Повідомлення про успіх</h3>
                     <p>Ці повідомлення показують, що все спрацювало правильно:</p>
-                    <div class="message-list-manual success-list-manual">
+                    <div class="message-list-manual success-list-manual" role="region" aria-labelledby="manual-errors-success-title">
                         <p><code>Малюнок збережено!</code><br><strong>Значення:</strong> Малюнок успішно збережено як
                             файл зображення.<br><strong>Що робити далі:</strong> Можеш відкрити файл, поділитися ним або
                             продовжити малювати.</p>
@@ -506,11 +523,13 @@
                             помилок.<br><strong>Що робити далі:</strong> Спробуй змінити числа/кольори/цикли і подивись,
                             як зміниться результат.</p>
                     </div>
+                    </section>
 
-                    <h3 class="message-group-title info-title"><i class="fas fa-info-circle" aria-hidden="true"></i>
+                    <section aria-labelledby="manual-errors-info-title">
+                    <h3 class="message-group-title info-title" id="manual-errors-info-title"><i class="fas fa-info-circle" aria-hidden="true"></i>
                         Інформаційні повідомлення</h3>
                     <p>Це не помилки, а підказки про поточний стан програми:</p>
-                    <div class="message-list-manual info-list-manual">
+                    <div class="message-list-manual info-list-manual" role="region" aria-labelledby="manual-errors-info-title">
                         <p><code>Виконання зупинено.</code><br><strong>Значення:</strong> Програма зупинена кнопкою
                             <strong>Зупинити</strong> або клавішею <strong>Esc</strong>.<br><strong>Що робити
                                 далі:</strong> За потреби натисни запуск ще раз.
@@ -520,14 +539,17 @@
                                 далі:</strong> Зменш крок, зміни кут або додай перевірку <code>якщо край ( ... )</code>.
                         </p>
                     </div>
+                    </section>
 
-                    <h3 class="message-group-title error-title"><i class="fas fa-exclamation-triangle"
+                    <section aria-labelledby="manual-errors-group-title">
+                    <h3 class="message-group-title error-title" id="manual-errors-group-title"><i class="fas fa-exclamation-triangle"
                             aria-hidden="true"></i> Повідомлення про помилки</h3>
                     <p>Справжні програмісти не бояться помилок. Нижче всі повідомлення згруповані за темами, і для
                         кожного є пояснення та порада, як виправити.</p>
 
-                    <h4>1) Рух, поворот, колір, координати</h4>
-                    <div class="message-list-manual error-list-manual">
+                    <section aria-labelledby="manual-errors-motion-title">
+                    <h4 id="manual-errors-motion-title">1) Рух, поворот, колір, координати</h4>
+                    <div class="message-list-manual error-list-manual" role="region" aria-labelledby="manual-errors-motion-title">
                         <p><code>Після команди "КОМАНДА" треба вказати число кроків.</code><br><strong>Значення:</strong>
                             Ти написав команду руху без числа відстані.<br><strong>Як виправити:</strong> Додай число
                             після команди, наприклад <code>вперед 100</code>.</p> <!-- NO_DISTANCE -->
@@ -557,9 +579,11 @@
                             Y-координата записана неправильно.<br><strong>Як виправити:</strong> Для Y використовуй
                             число, наприклад <code>перейти в -120 40</code>.</p> <!-- INVALID_POSITION_Y -->
                     </div>
+                    </section>
 
-                    <h4>2) Невідомі команди та кольори</h4>
-                    <div class="message-list-manual error-list-manual">
+                    <section aria-labelledby="manual-errors-unknown-title">
+                    <h4 id="manual-errors-unknown-title">2) Невідомі команди та кольори</h4>
+                    <div class="message-list-manual error-list-manual" role="region" aria-labelledby="manual-errors-unknown-title">
                         <p><code>Я не знаю команди: КОМАНДА. Перевір написання.</code><br><strong>Значення:</strong>
                             Равлик не розпізнав назву команди.<br><strong>Як виправити:</strong> Перевір орфографію і
                             звірся зі списком команд у посібнику.</p> <!-- UNKNOWN_COMMAND -->
@@ -567,9 +591,11 @@
                             Вказано колір, якого немає у словнику Равлика.<br><strong>Як виправити:</strong> Використай
                             підтримувану назву кольору з розділу про кольори.</p> <!-- UNKNOWN_COLOR -->
                     </div>
+                    </section>
 
-                    <h4>3) Помилки в циклі повторити</h4>
-                    <div class="message-list-manual error-list-manual">
+                    <section aria-labelledby="manual-errors-repeat-title">
+                    <h4 id="manual-errors-repeat-title">3) Помилки в циклі повторити</h4>
+                    <div class="message-list-manual error-list-manual" role="region" aria-labelledby="manual-errors-repeat-title">
                         <p><code>Після "повторити" треба вказати, скільки разів повторювати.</code><br><strong>Значення:</strong>
                             Після <code>повторити</code> пропущено число ітерацій.<br><strong>Як виправити:</strong>
                             Напиши формат <code>повторити N ( ... )</code>, наприклад <code>повторити 4 ( ... )</code>.
@@ -593,9 +619,11 @@
                             Зменш N або збільш кроки руху, щоб досягти того ж результату.</p>
                         <!-- TOO_MANY_REPEATS_IN_LOOP -->
                     </div>
+                    </section>
 
-                    <h4>4) Виконання програми та обмеження</h4>
-                    <div class="message-list-manual error-list-manual">
+                    <section aria-labelledby="manual-errors-runtime-title">
+                    <h4 id="manual-errors-runtime-title">4) Виконання програми та обмеження</h4>
+                    <div class="message-list-manual error-list-manual" role="region" aria-labelledby="manual-errors-runtime-title">
                         <p><code>Зачекай трішки: попередній запуск ще триває.</code><br><strong>Значення:</strong> Ти
                             натиснув запуск, поки попереднє виконання ще не завершилося.<br><strong>Як
                                 виправити:</strong> Дочекайся завершення або натисни <strong>Зупинити</strong>, потім
@@ -619,9 +647,11 @@
                             У програмі додано кілька блоків гри.<br><strong>Як виправити:</strong> Об'єднай логіку в
                             один блок <code>грати</code>.</p> <!-- GAME_MODE_SINGLE_BLOCK -->
                     </div>
+                    </section>
 
-                    <h4>5) Полотно (Canvas) і збереження</h4>
-                    <div class="message-list-manual error-list-manual">
+                    <section aria-labelledby="manual-errors-canvas-title">
+                    <h4 id="manual-errors-canvas-title">5) Полотно (Canvas) і збереження</h4>
+                    <div class="message-list-manual error-list-manual" role="region" aria-labelledby="manual-errors-canvas-title">
                         <p><code>Равлик намагається вийти за межі полотна!</code><br><strong>Значення:</strong> Команди
                             ведуть Равлика за межі області малювання.<br><strong>Як виправити:</strong> Зміни
                             траєкторію: крок, кут або умови повороту біля краю.</p> <!-- CANVAS_OUT_OF_BOUNDS -->
@@ -640,9 +670,11 @@
                             Сталася помилка ініціалізації Canvas.<br><strong>Як виправити:</strong> Перезавантаж
                             сторінку, онови браузер або спробуй інший.</p> <!-- CANVAS_CONTEXT_ERROR -->
                     </div>
+                    </section>
 
-                    <h4>6) Функції</h4>
-                    <div class="message-list-manual error-list-manual">
+                    <section aria-labelledby="manual-errors-functions-title">
+                    <h4 id="manual-errors-functions-title">6) Функції</h4>
+                    <div class="message-list-manual error-list-manual" role="region" aria-labelledby="manual-errors-functions-title">
                         <p><code>Назва "ІМ'Я" вже зайнята командою. Обери іншу.</code><br><strong>Значення:</strong> Ти
                             дав функції ім'я, яке вже використовується вбудованою командою.<br><strong>Як
                                 виправити:</strong> Обери іншу унікальну назву функції.</p>
@@ -678,9 +710,11 @@
                             Переданий аргумент не є числом або змінною з числом.<br><strong>Як виправити:</strong>
                             Передай число або коректну числову змінну.</p> <!-- FUNCTION_ARGUMENT_INVALID -->
                     </div>
+                    </section>
 
-                    <h4>7) Змінні</h4>
-                    <div class="message-list-manual error-list-manual">
+                    <section aria-labelledby="manual-errors-variables-title">
+                    <h4 id="manual-errors-variables-title">7) Змінні</h4>
+                    <div class="message-list-manual error-list-manual" role="region" aria-labelledby="manual-errors-variables-title">
                         <p><code>Я не зрозумів створення змінної. Використай формат: створити назва = число.</code><br><strong>Значення:</strong>
                             Створення змінної записане неправильно.<br><strong>Як виправити:</strong> Використовуй
                             формат <code>створити ім'я = значення</code>.</p> <!-- VARIABLE_DECLARATION_SYNTAX -->
@@ -700,22 +734,27 @@
                             Змінна використана до того, як була створена.<br><strong>Як виправити:</strong> Спочатку
                             оголоси змінну командою <code>створити</code>.</p> <!-- UNDEFINED_VARIABLE -->
                     </div>
+                    </section>
                     <p>Уважно читай повідомлення про помилки, вони часто підказують, де саме проблема. Перевіряй
                         написання команд, правильність чисел та дужок.</p>
+                    </section>
                 </article>
 
-                <article id="limitations" class="guide-section">
-                    <h2>Обмеження та особливості</h2>
+                <article id="limitations" class="guide-section" aria-labelledby="manual-section-limitations">
+                    <h2 id="manual-section-limitations">Обмеження та особливості</h2>
                     <p>При роботі з Равликом важливо знати про деякі обмеження та особливості, які допоможуть тобі
                         створювати кращі програми:</p>
-                    <div class="tips-box">
-                        <h4>Межі полотна:</h4>
+                    <section aria-labelledby="manual-limitations-subsection-canvas">
+                    <div class="tips-box" role="region" aria-labelledby="manual-limitations-canvas-title">
+                        <h4 id="manual-limitations-canvas-title">Межі полотна:</h4>
                         <p>Равлик не може вийти за межі полотна для малювання. Якщо він спробує це зробити, ти побачиш
                             повідомлення: <strong>"Равлик намагається вийти за межі полотна!"</strong>. Полотно не
                             розширюється автоматично, а Равлик зупиниться біля краю.</p>
                     </div>
-                    <div class="tips-box">
-                        <h4>Обмеження виконання:</h4>
+                    </section>
+                    <section aria-labelledby="manual-limitations-subsection-execution">
+                    <div class="tips-box" role="region" aria-labelledby="manual-limitations-execution-title">
+                        <h4 id="manual-limitations-execution-title">Обмеження виконання:</h4>
                         <ul>
                             <li><strong>Довжина коду:</strong> Максимальна довжина коду, який можна ввести –
                                 <code>10000</code> символів.
@@ -740,15 +779,19 @@
                         <p>Ці обмеження введені, щоб запобігти зависанню браузера через дуже складні або нескінченні
                             програми.</p>
                     </div>
-                    <div class="tips-box">
-                        <h4>Швидкість анімації:</h4>
+                    </section>
+                    <section aria-labelledby="manual-limitations-subsection-animation">
+                    <div class="tips-box" role="region" aria-labelledby="manual-limitations-animation-title">
+                        <h4 id="manual-limitations-animation-title">Швидкість анімації:</h4>
                         <p>Равлик виконує команди не миттєво, а з невеликою затримкою, щоб ти міг бачити процес
                             малювання. Ти можеш налаштувати швидкість анімації в розділі "Налаштування доступності"
                             (кнопка <i class="fas fa-universal-access"></i>), якщо ця панель доступна на сторінці. Режим
                             "Зменшення анімації" може прискорити виконання.</p>
                     </div>
-                    <div class="tips-box">
-                        <h4>Збереження малюнка:</h4>
+                    </section>
+                    <section aria-labelledby="manual-limitations-subsection-download">
+                    <div class="tips-box" role="region" aria-labelledby="manual-limitations-download-title">
+                        <h4 id="manual-limitations-download-title">Збереження малюнка:</h4>
                         <p>Натисни кнопку "Завантажити", щоб відкрити вибір формату та зберегти малюнок як PNG.</p>
                         <p>У цьому ж вікні ти можеш зберегти сам код у текстовий файл (TXT), щоб повернутися до своєї
                             програми пізніше.</p>
@@ -756,22 +799,26 @@
                             а не з веб-сервера), можуть виникати проблеми зі збереженням. У такому випадку, ти завжди
                             можеш зробити скріншот (знімок екрана) свого творіння.</p>
                     </div>
-                    <div class="tips-box">
-                        <h4>Комбінації клавіш в редакторі:</h4>
+                    </section>
+                    <section aria-labelledby="manual-limitations-subsection-shortcuts">
+                    <div class="tips-box" role="region" aria-labelledby="manual-limitations-shortcuts-title">
+                        <h4 id="manual-limitations-shortcuts-title">Комбінації клавіш в редакторі:</h4>
                         <ul>
                             <li><strong>Ctrl+Enter</strong> або <strong>Shift+Enter</strong>: Запустити код.</li>
                             <li><strong>Tab</strong>: Вставити два пробіли для відступу (допомагає структурувати код,
                                 особливо в циклах <code>повторити</code>).</li>
                         </ul>
                     </div>
+                    </section>
                 </article>
 
-                <article id="challenges" class="guide-section">
-                    <h2>Цікаві завдання</h2>
+                <article id="challenges" class="guide-section" aria-labelledby="manual-section-challenges">
+                    <h2 id="manual-section-challenges">Цікаві завдання</h2>
                     <p>Готовий випробувати свої навички? Спробуй виконати ці завдання в редакторі мови програмування
                         РАВЛИК:</p>
-                    <div class="challenge-box">
-                        <h4>Завдання 1: Будиночок</h4>
+                    <section aria-labelledby="manual-challenge-house-title">
+                    <div class="challenge-box" role="region" aria-labelledby="manual-challenge-house-title">
+                        <h4 id="manual-challenge-house-title">Завдання 1: Будиночок</h4>
                         <p>Намалюй простий будиночок: квадрат (стіни) і трикутний дах зверху. Зроби дах іншого кольору.
                         </p>
                         <details>
@@ -785,8 +832,10 @@
 повторити 3 ( вперед 100 праворуч 120 )</pre>
                         </details>
                     </div>
-                    <div class="challenge-box">
-                        <h4>Завдання 2: Квітка</h4>
+                    </section>
+                    <section aria-labelledby="manual-challenge-flower-title">
+                    <div class="challenge-box" role="region" aria-labelledby="manual-challenge-flower-title">
+                        <h4 id="manual-challenge-flower-title">Завдання 2: Квітка</h4>
                         <p>Намалюй квітку з кількох пелюсток (наприклад, 6). Кожна пелюстка може бути колом або двома
                             дугами. Використовуй команду <code>повторити</code> та різні кольори.</p>
                         <details>
@@ -798,8 +847,10 @@
 )</pre>
                         </details>
                     </div>
-                    <div class="challenge-box">
-                        <h4>Завдання 3: Спіраль</h4>
+                    </section>
+                    <section aria-labelledby="manual-challenge-spiral-title">
+                    <div class="challenge-box" role="region" aria-labelledby="manual-challenge-spiral-title">
+                        <h4 id="manual-challenge-spiral-title">Завдання 3: Спіраль</h4>
                         <p>Намалюй спіраль, що поступово збільшується. Для цього у блоці з повторенням змінюй довжину
                             руху Равлика. Тепер можна використовувати змінні: спробуй створити змінну для кроку,
                             оновлювати її значення і будувати серію все більших відрізків.</p>
@@ -816,8 +867,10 @@
 вперед 80 праворуч 90</pre>
                         </details>
                     </div>
-                    <div class="challenge-box">
-                        <h4>Завдання 4: Пунктирний шлях та фігури</h4>
+                    </section>
+                    <section aria-labelledby="manual-challenge-path-title">
+                    <div class="challenge-box" role="region" aria-labelledby="manual-challenge-path-title">
+                        <h4 id="manual-challenge-path-title">Завдання 4: Пунктирний шлях та фігури</h4>
                         <p>Намалюй дорогу з пунктирними лініями, використовуючи команди <code>підняти</code> та
                             <code>опустити</code>. Потім, використовуючи ці ж команди для переміщення, додай кілька
                             фігур (наприклад, маленькі квадратики-будинки) обабіч дороги.
@@ -842,13 +895,15 @@
 повторити 3 ( вперед 30 праворуч 120 ) # Трикутний будинок</pre>
                         </details>
                     </div>
+                    </section>
                 </article>
 
-                <article id="projects" class="guide-section">
-                    <h2>Твої проєкти</h2>
+                <article id="projects" class="guide-section" aria-labelledby="manual-section-projects">
+                    <h2 id="manual-section-projects">Твої проєкти</h2>
                     <p>Тепер ти знаєш всі основні команди для Равлика! Що ж далі? Час для творчості!</p>
-                    <div class="tips-box">
-                        <h4>Ідеї для власних проєктів:</h4>
+                    <section aria-labelledby="manual-projects-ideas-title">
+                    <div class="tips-box" role="region" aria-labelledby="manual-projects-ideas-title">
+                        <h4 id="manual-projects-ideas-title">Ідеї для власних проєктів:</h4>
                         <ul>
                             <li>Намалюй пейзаж: будинок, дерева, сонце, хмаринки.</li>
                             <li>Створи складний геометричний орнамент або мозаїку.</li>
@@ -857,7 +912,9 @@
                             <li>Намалюй прапор України або іншої країни.</li>
                         </ul>
                     </div>
-                    <div class="concept-box">
+                    </section>
+                    <section aria-label="Порада про те, як ділитися своїми досягненнями">
+                    <div class="concept-box" role="region" aria-label="Порада про те, як ділитися своїми досягненнями">
                         <div class="concept-text">
                             <h3>Поділись своїми досягненнями!</h3>
                             <p>Коли створиш щось цікаве, обов'язково зберігай свій результат через кнопку "Завантажити"
@@ -871,11 +928,12 @@
                                 alt="Абстрактний малюнок з концентричних кіл різного кольору." loading="lazy" />
                         </div>
                     </div>
+                    </section>
                 </article>
 
-                <article id="next-steps" class="guide-section">
-                    <h2>Наступні кроки</h2>
-                    <div class="tips-box">
+                <article id="next-steps" class="guide-section" aria-labelledby="manual-section-next-steps">
+                    <h2 id="manual-section-next-steps">Наступні кроки</h2>
+                    <div class="tips-box" role="region" aria-label="Підсумок вивченого">
                         <h4>Програмування Равлика — це лише початок твоєї подорожі у світ програмування. Мова РАВЛИК –
                             це міст між візуальним і текстовим програмуванням.</h4>
                         <p>РАВЛИК допомагає дітям зробити перші кроки в текстовому програмуванні без стресу. Ти вже
@@ -889,6 +947,8 @@
                         </ul>
                         <p>Ці навички дуже важливі та стануть чудовою основою для вивчення більш "дорослих" мов
                             програмування у майбутньому!</p>
+                    </div>
+                    <div class="tips-box" role="region" aria-label="Наступні кроки після мануалу">
                         <h4>Куди рухатись далі:</h4>
                         <ul>
                             <li><strong>Scratch:</strong> Популярна візуальна мова програмування для дітей, де ти зможеш
@@ -901,7 +961,9 @@
                                 потужна, але відносно проста для початківців текстова мова програмування. Існують
                                 спеціальні бібліотеки (наприклад, Turtle), які схожі на Равлика!</li>
                         </ul>
-                        <div class="concept-box">
+                    </div>
+                    <section aria-label="Пам'ятка для наступних кроків">
+                        <div class="concept-box" role="region" aria-label="Пам'ятка для наступних кроків">
                             <div class="concept-text">
                                 <h4>Пам'ятай:</h4>
                                 <p>Найголовніше – це зацікавленість та практика. Помилки – це частина навчання. Не бійся
@@ -910,7 +972,7 @@
                                     творчість та логіку!</p>
                             </div>
                         </div>
-                    </div>
+                    </section>
                 </article>
                 <div class="manual-section-toolbar manual-section-toolbar-bottom">
                     <button type="button" class="manual-page-btn" id="manual-prev-section-bottom">← Попередній

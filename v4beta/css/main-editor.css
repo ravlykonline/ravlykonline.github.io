@@ -1,4 +1,47 @@
 /* css/main-editor.css */
+:root {
+    --editor-surface-base: #fff;
+    --editor-surface-muted: #f0f0f0;
+    --editor-surface-code: #fdfdff;
+    --editor-surface-line-numbers: #f2f1fb;
+    --editor-border-soft: #ddd;
+    --editor-border-muted: #ccc;
+    --editor-shadow-panel: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --editor-shadow-soft: 0 2px 5px rgba(0, 0, 0, 0.08);
+    --editor-radius-panel: 10px;
+    --editor-accent-code: #6a5acd;
+    --editor-accent-canvas: #ff6347;
+    --editor-accent-examples: #ffa500;
+    --editor-accent-help-border: #4db6ac;
+    --editor-accent-help-title: #00897b;
+    --editor-accent-help-tab-border: #88d1ca;
+    --editor-accent-help-tab-bg: #eefaf8;
+    --editor-accent-help-tab-text: #0a6f66;
+    --editor-accent-help-tab-hover-bg: #e3f7f3;
+    --editor-accent-help-tab-active: #0f8d7f;
+    --editor-shadow-help-active: 0 4px 10px rgba(15, 141, 127, 0.28);
+    --editor-shadow-command: 0 2px 6px rgba(0, 0, 0, 0.07);
+    --editor-shadow-modal: 0 8px 24px rgba(0, 0, 0, 0.15);
+    --editor-text-muted: #555;
+    --editor-text-subtle: #6c6f86;
+    --editor-border-subtle: #e6e6ef;
+    --editor-surface-hover: #e0e0e0;
+    --editor-accent-examples-title: #ff8c00;
+    --editor-accent-examples-hint: #9a6d00;
+    --editor-accent-grid-active: #2f9e44;
+    --editor-active-line-bg: rgba(106, 90, 205, 0.08);
+    --editor-active-line-border: rgba(106, 90, 205, 0.18);
+    --editor-error-line-bg: rgba(244, 67, 54, 0.12);
+    --editor-error-line-border: rgba(244, 67, 54, 0.5);
+    --editor-hc-active-line-bg: rgba(125, 211, 255, 0.2);
+    --editor-hc-error-line-bg: rgba(255, 82, 82, 0.22);
+    --editor-hc-surface: #000;
+    --editor-hc-text: #fff;
+    --editor-hc-hover: #222;
+    --editor-hc-accent: #7dd3ff;
+    --editor-hc-error: #ff5252;
+}
+
 .toolbar {
     display: flex;
     flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
@@ -56,20 +99,20 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    background-color: var(--editor-surface-base);
+    border-radius: var(--editor-radius-panel);
+    box-shadow: var(--editor-shadow-panel); /* Softer shadow */
     overflow: hidden; /* Important for child elements like headers */
 }
 
 .code-box {
-    border: 3px solid #6a5acd; /* Purple border */
+    border: 3px solid var(--editor-accent-code); /* Purple border */
     min-height: 300px; /* Minimum height for code editor area */
     overflow: hidden;
 }
 
 .canvas-box {
-    border: 3px solid #ff6347; /* Tomato border */
+    border: 3px solid var(--editor-accent-canvas); /* Tomato border */
     min-height: 400px; /* Minimum height for canvas area */
     height: 600px; /* Default fixed height as in original */
     max-height: 70vh; /* Max height relative to viewport */
@@ -89,7 +132,7 @@
         min-width: 0;
         min-height: 44px;
         padding: 9px 6px;
-        border-radius: 10px;
+        border-radius: var(--editor-radius-panel);
     }
 
     .workspace-tabs {
@@ -103,7 +146,7 @@
         border: 2px solid #8da9dc;
         background: #eef3ff;
         color: #2f4d7a;
-        border-radius: 10px;
+        border-radius: var(--editor-radius-panel);
         padding: 10px 12px;
         font-size: 1rem;
         font-weight: 700;
@@ -249,7 +292,7 @@
 
 
 .area-header { /* Common style for code-header and canvas-header */
-    color: white;
+    color: var(--editor-surface-base);
     padding: 8px; /* Increased padding */
     text-align: center;
     font-size: 1.2rem; /* Increased font size */
@@ -259,11 +302,11 @@
 }
 
 .code-header {
-    background-color: #6a5acd; /* Purple */
+    background-color: var(--editor-accent-code); /* Purple */
 }
 
 .canvas-header {
-    background-color: #ff6347; /* Tomato */
+    background-color: var(--editor-accent-canvas); /* Tomato */
 }
 
 #code-editor {
@@ -280,7 +323,7 @@
     font-size: 1.1rem; /* Increased for readability */
     line-height: 1.6;
     background: transparent;
-    border-top: 1px solid #ddd; /* Separator from header */
+    border-top: 1px solid var(--editor-border-soft); /* Separator from header */
     overflow: auto;
 }
 
@@ -289,16 +332,16 @@
     display: flex;
     flex: 1 1 auto;
     min-height: 0;
-    background: #fdfdff;
+    background: var(--editor-surface-code);
     overflow: hidden;
 }
 
 .code-line-numbers {
     width: 46px;
-    border-top: 1px solid #ddd;
-    border-right: 1px solid #e6e6ef;
-    background: #f2f1fb;
-    color: #6c6f86;
+    border-top: 1px solid var(--editor-border-soft);
+    border-right: 1px solid var(--editor-border-subtle);
+    background: var(--editor-surface-line-numbers);
+    color: var(--editor-text-subtle);
     font-family: 'Fira Mono', 'Consolas', 'Courier New', monospace;
     font-size: 1.1rem;
     line-height: 1.6;
@@ -316,9 +359,9 @@
     right: 0;
     height: 1.6em;
     top: 15px;
-    background: rgba(106, 90, 205, 0.08);
-    border-top: 1px solid rgba(106, 90, 205, 0.18);
-    border-bottom: 1px solid rgba(106, 90, 205, 0.18);
+    background: var(--editor-active-line-bg);
+    border-top: 1px solid var(--editor-active-line-border);
+    border-bottom: 1px solid var(--editor-active-line-border);
     pointer-events: none;
     z-index: 1;
 }
@@ -329,9 +372,9 @@
     right: 0;
     height: 1.6em;
     top: 15px;
-    background: rgba(244, 67, 54, 0.12);
-    border-top: 1px solid rgba(244, 67, 54, 0.5);
-    border-bottom: 1px solid rgba(244, 67, 54, 0.5);
+    background: var(--editor-error-line-bg);
+    border-top: 1px solid var(--editor-error-line-border);
+    border-bottom: 1px solid var(--editor-error-line-border);
     pointer-events: none;
     z-index: 1;
 }
@@ -342,7 +385,7 @@
     min-height: 0;
     height: auto;
     display: block; /* Remove extra space below canvas */
-    background-color: white;
+    background-color: var(--editor-surface-base);
     position: relative;
     z-index: 1;
 }
@@ -375,16 +418,16 @@
 
 
 .examples {
-    background-color: white;
-    border-radius: 10px;
+    background-color: var(--editor-surface-base);
+    border-radius: var(--editor-radius-panel);
     padding: 20px; /* Increased padding */
     margin-top: 20px; /* Increased margin */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border: 3px solid #ffa500; /* Orange border */
+    box-shadow: var(--editor-shadow-panel);
+    border: 3px solid var(--editor-accent-examples); /* Orange border */
 }
 
 .examples h2 {
-    color: #ff8c00; /* Darker orange for heading */
+    color: var(--editor-accent-examples-title); /* Darker orange for heading */
     margin-bottom: 15px;
     text-align: center;
     font-size: 1.5rem;
@@ -394,7 +437,7 @@
     display: none;
     margin: -4px 0 10px 0;
     text-align: center;
-    color: #9a6d00;
+    color: var(--editor-accent-examples-hint);
     font-size: 0.92rem;
     font-weight: 700;
 }
@@ -407,21 +450,21 @@
 }
 
 .example-block {
-    background-color: #f0f0f0;
+    background-color: var(--editor-surface-muted);
     border-radius: 8px;
     padding: 12px 15px; /* Adjusted padding */
     cursor: pointer;
-    border: 2px solid #ccc;
+    border: 2px solid var(--editor-border-muted);
     font-weight: bold;
     transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
     text-align: center;
 }
 
 .example-block:hover, .example-block:focus-visible {
-    background-color: #e0e0e0;
+    background-color: var(--editor-surface-hover);
     transform: translateY(-2px) scale(1.03); /* Enhanced hover effect */
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-color: #ffa500; /* Highlight border on hover/focus */
+    border-color: var(--editor-accent-examples); /* Highlight border on hover/focus */
 }
 
 @media (max-width: 1024px) {
@@ -510,15 +553,15 @@
 }
 
 .help-box-main { /* Specific for main page help section */
-    background-color: #fff; /* Білий фон */
-    border-radius: 10px;
+    background-color: var(--editor-surface-base); /* Білий фон */
+    border-radius: var(--editor-radius-panel);
     padding: 20px;
     margin-top: 20px;
-    border: 3px dashed #4db6ac; /* Teal dashed border */
+    border: 3px dashed var(--editor-accent-help-border); /* Teal dashed border */
 }
 
 .help-box-main h3 {
-    color: #00897b; /* Darker teal for heading */
+    color: var(--editor-accent-help-title); /* Darker teal for heading */
     margin-bottom: 15px;
     text-align: center;
     font-size: 1.5rem;
@@ -533,32 +576,32 @@
 }
 
 .commands-tab {
-    border: 2px solid #88d1ca;
-    background: #eefaf8;
-    color: #0a6f66;
-    border-radius: 10px;
+    border: 2px solid var(--editor-accent-help-tab-border);
+    background: var(--editor-accent-help-tab-bg);
+    color: var(--editor-accent-help-tab-text);
+    border-radius: var(--editor-radius-panel);
     padding: 11px 18px;
     font-size: 1.06rem;
     font-weight: 700;
     cursor: pointer;
     line-height: 1.1;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--editor-shadow-soft);
     transition: all 0.2s ease;
 }
 
 .commands-tab:hover,
 .commands-tab:focus-visible {
-    border-color: #4db6ac;
-    background: #e3f7f3;
+    border-color: var(--editor-accent-help-border);
+    background: var(--editor-accent-help-tab-hover-bg);
     transform: translateY(-1px);
     outline: none;
 }
 
 .commands-tab.active {
-    background: #0f8d7f;
-    border-color: #0f8d7f;
+    background: var(--editor-accent-help-tab-active);
+    border-color: var(--editor-accent-help-tab-active);
     color: #fff;
-    box-shadow: 0 4px 10px rgba(15, 141, 127, 0.28);
+    box-shadow: var(--editor-shadow-help-active);
 }
 
 .commands-tab-panels {
@@ -576,22 +619,22 @@
 }
 
 .command-item {
-    background-color: white;
+    background-color: var(--editor-surface-base);
     padding: 15px; /* Increased padding */
     border-radius: 8px;
-    border-left: 5px solid #4db6ac; /* Teal left border */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.07); /* Subtle shadow */
+    border-left: 5px solid var(--editor-accent-help-border); /* Teal left border */
+    box-shadow: var(--editor-shadow-command);
 }
 
 .command-name {
     font-weight: bold;
-    color: #00796b; /* Dark teal for command name */
+    color: var(--editor-accent-help-title); /* Dark teal for command name */
     margin-bottom: 5px; /* Space between name and description */
     font-size: 1.1rem;
 }
 .command-desc {
     font-size: 0.95rem;
-    color: #555;
+    color: var(--editor-text-muted);
 }
 
 .manual-lessons-buttons-main {
@@ -604,9 +647,9 @@
 
 /* Help Modal Styles */
 .help-content {
-    background: #fff !important;
+    background: var(--editor-surface-base) !important;
     border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    box-shadow: var(--editor-shadow-modal);
     padding: 28px 32px 24px 32px;
 }
 
@@ -622,12 +665,12 @@
 .example-block.disabled {
     opacity: 0.6;
     cursor: not-allowed;
-    background-color: #e0e0e0; /* Або інший колір для неактивного стану */
+    background-color: var(--editor-surface-hover); /* Або інший колір для неактивного стану */
     transform: none;
     box-shadow: none;
 }
 .example-block.disabled:hover {
-    border-color: #ccc; /* Залишити стандартний бордер */
+    border-color: var(--editor-border-muted); /* Залишити стандартний бордер */
 }
 
 /* Make only Help modal wider and reduce vertical overflow. */
@@ -665,69 +708,69 @@
 .a11y-high-contrast .area-header,
 .a11y-high-contrast .editor-shell,
 .a11y-high-contrast .code-line-numbers {
-    background: #000 !important;
-    color: #fff !important;
-    border-color: #fff !important;
+    background: var(--editor-hc-surface) !important;
+    color: var(--editor-hc-text) !important;
+    border-color: var(--editor-hc-text) !important;
     box-shadow: none !important;
 }
 
 .a11y-high-contrast .code-header,
 .a11y-high-contrast .canvas-header,
 .a11y-high-contrast .commands-tab.active {
-    background: #fff !important;
-    color: #000 !important;
-    border-color: #fff !important;
+    background: var(--editor-hc-text) !important;
+    color: var(--editor-hc-surface) !important;
+    border-color: var(--editor-hc-text) !important;
 }
 
 .a11y-high-contrast .workspace-tab {
-    background: #000 !important;
-    color: #fff !important;
-    border-color: #fff !important;
+    background: var(--editor-hc-surface) !important;
+    color: var(--editor-hc-text) !important;
+    border-color: var(--editor-hc-text) !important;
 }
 
 .a11y-high-contrast .workspace-tab.active {
-    background: #fff !important;
-    color: #000 !important;
+    background: var(--editor-hc-text) !important;
+    color: var(--editor-hc-surface) !important;
 }
 
 .a11y-high-contrast .commands-tab:hover,
 .a11y-high-contrast .commands-tab:focus-visible,
 .a11y-high-contrast .example-block:hover,
 .a11y-high-contrast .example-block:focus-visible {
-    background: #222 !important;
-    color: #fff !important;
-    border-color: #7dd3ff !important;
+    background: var(--editor-hc-hover) !important;
+    color: var(--editor-hc-text) !important;
+    border-color: var(--editor-hc-accent) !important;
 }
 
 .a11y-high-contrast .examples h2,
 .a11y-high-contrast .help-box-main h3,
 .a11y-high-contrast .command-name,
 .a11y-high-contrast .command-desc {
-    color: #fff !important;
+    color: var(--editor-hc-text) !important;
 }
 
 .a11y-high-contrast #code-editor,
 .a11y-high-contrast .code-line-numbers {
-    background: #000 !important;
-    color: #fff !important;
+    background: var(--editor-hc-surface) !important;
+    color: var(--editor-hc-text) !important;
 }
 
 .a11y-high-contrast .code-active-line {
-    background: rgba(125, 211, 255, 0.2) !important;
-    border-top: 1px solid #7dd3ff !important;
-    border-bottom: 1px solid #7dd3ff !important;
+    background: var(--editor-hc-active-line-bg) !important;
+    border-top: 1px solid var(--editor-hc-accent) !important;
+    border-bottom: 1px solid var(--editor-hc-accent) !important;
 }
 
 .a11y-high-contrast .code-error-line {
-    background: rgba(255, 82, 82, 0.22) !important;
-    border-top: 1px solid #ff5252 !important;
-    border-bottom: 1px solid #ff5252 !important;
+    background: var(--editor-hc-error-line-bg) !important;
+    border-top: 1px solid var(--editor-hc-error) !important;
+    border-bottom: 1px solid var(--editor-hc-error) !important;
 }
 
 .a11y-high-contrast .help-content {
-    background: #000 !important;
-    color: #fff !important;
-    border: 2px solid #fff !important;
+    background: var(--editor-hc-surface) !important;
+    color: var(--editor-hc-text) !important;
+    border: 2px solid var(--editor-hc-text) !important;
 }
 
 .a11y-larger-text .command-desc,
@@ -742,6 +785,6 @@
 }
 
 #grid-btn[aria-pressed="true"] {
-    background-color: #2f9e44;
+    background-color: var(--editor-accent-grid-active);
     color: #fff;
 }

@@ -3,7 +3,7 @@
 This document is the primary technical onboarding for this repository.
 If you are an AI agent or a developer joining the project, start here.
 
-Last updated: 2026-03-06
+Last updated: 2026-03-07
 
 ## 1. Project purpose
 
@@ -337,6 +337,14 @@ Implemented responsive behavior:
 - close on `Esc` and link click,
 - desktop docs-like fixed sidebar for wide screens.
 
+## 8.4 Static-layer status snapshot
+
+Current practical state of the static layer:
+- `manual.html` is no longer a mostly flat document; large sections were split into clearer semantic subsections and repeated content blocks now have more explicit structure/labels.
+- `css/manual.css` is partially normalized around shared tokens for panels/content blocks/high-contrast states; the highest-value remaining work is now in smaller cleanup clusters rather than broad emergency refactors.
+- `css/main-editor.css` is largely tokenized for editor surfaces, accents, shadows, responsive controls, and high-contrast variants; remaining work there is mostly cosmetic follow-up, not structural risk.
+- the project's biggest maintainability risk still sits in static HTML/CSS, not in the interpreter/runtime core.
+
 ## 9. Accessibility subsystem
 
 `js/accessibility.js` + `css/accessibility.css` provide:
@@ -437,21 +445,29 @@ Parser/UI unit tests:
 
 ## 14. Known technical debt / open points
 
-1. CSS complexity
-- styles are spread across multiple files with partial overlaps; refactoring into clearer design tokens/components is still desirable.
-- note: unused legacy modal selectors (`.modal-overlay__*`) were removed from editor/global styles; continue removing dead selectors incrementally.
-- note: duplicate global utility/modal declarations were reduced (single `.hidden`, simplified high-contrast modal override).
-- note: modal typography overrides were deduplicated by removing redundant editor-level `.modal-content` rules and relying on global modal styles.
-- note: legacy accessibility message classes (`.error-message-global`/`.success-message-global`) were removed; global `#global-message-display` styles are the single source for runtime toasts.
-- note: high-contrast modal CSS in `accessibility.css` was simplified to canonical `.a11y-high-contrast .modal-content` selectors (removed redundant modal id/overlay variants).
-- note: redundant early high-contrast link/button color rules were removed where later hardening selectors already provide the canonical `!important` behavior.
-- note: unused high-contrast CSS variables (`--link-color`, `--link-hover-color`, `--btn-*-bg` except primary usage) were removed; remaining `.btn-primary` color is defined directly.
+1. Static CSS complexity remains the primary debt
+- `css/manual.css` is substantially cleaner than before, but still carries some cascade noise in lower-level content/a11y fragments.
+- `css/main-editor.css` is close to a "good enough" state after tokenization and deduplication, but still has a few follow-up cosmetic literals and could be flattened further if desired.
+- styles are still page-local rather than componentized, so maintainability depends on continuing small, verified cleanups instead of large rewrites.
 
-2. Mixed execution model history
+2. Large static documents are still expensive to maintain
+- `manual.html` is much more structured now, but it is still a large hand-maintained static document.
+- `lessons.html` remains a major untouched static-content debt area and is the next likely HTML maintainability hotspot after manual/static CSS work.
+
+3. Mixed execution model history
 - despite parser cleanup, non-game mode still uses queue adaptation for compatibility with existing runtime structure.
 
-3. Documentation drift risk
-- this file should be updated whenever grammar, command contracts, or responsive behavior changes.
+4. Documentation drift risk
+- this file and any debt/status docs should be updated whenever grammar, command contracts, responsive behavior, or debt priorities materially change.
+
+## 14.1 Current debt priority order
+
+Recommended practical order at this snapshot:
+1. finish any last high-signal cleanup in `css/manual.css`,
+2. treat `css/main-editor.css` as near-done and only revisit for narrow cosmetic follow-up,
+3. move to static content structure debt in `lessons.html`,
+4. revisit `manual.html` only for deeper content-structure refactors if there is a clear payoff,
+5. keep JS-core/test cleanup as lower priority hygiene work unless a new bug changes that assessment.
 
 ## 15. Change checklist for contributors
 
