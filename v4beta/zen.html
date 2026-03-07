@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Дзен Равлика: двадцять іронічно-серйозних принципів про код, помилки, мислення і творчість." />
+    <meta name="keywords" content="Равлик, дзен програмування, програмування для дітей, інформатика, мислення, уроки Равлик" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Дзен Равлика</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/lessons.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+    <style>
+        .zen-page {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 32px 20px 56px;
+        }
+
+        .zen-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .zen-snail-icon {
+            display: inline-block;
+            font-size: 3rem;
+            margin-bottom: 8px;
+        }
+
+        .zen-title {
+            margin-bottom: 12px;
+        }
+
+        .zen-divider {
+            width: 120px;
+            height: 4px;
+            margin: 0 auto;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #5bbf7a 0%, #5aa9e6 50%, #f2b134 100%);
+        }
+
+        .zen-intro,
+        .zen-hover-hint,
+        .zen-footer-note {
+            text-align: center;
+        }
+
+        .zen-intro {
+            max-width: 760px;
+            margin: 0 auto 16px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .zen-hover-hint {
+            margin: 0 0 28px;
+            color: #4d6a79;
+            font-size: 0.95rem;
+        }
+
+        .zen-principles {
+            display: grid;
+            gap: 14px;
+        }
+
+        .zen-section-label {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: lowercase;
+            color: #173042;
+            background: #e8f1f8;
+            border: 1px solid rgba(23, 48, 66, 0.1);
+            margin-top: 14px;
+        }
+
+        .zen-section-label.green { background: #e7f6ea; }
+        .zen-section-label.blue { background: #e8f1fb; }
+        .zen-section-label.yellow { background: #fff4d8; }
+        .zen-section-label.pink { background: #fde8ef; }
+
+        .zen-principle {
+            display: grid;
+            grid-template-columns: 56px 1fr;
+            gap: 16px;
+            align-items: start;
+            padding: 18px 20px;
+            border-radius: 18px;
+            background: #fff;
+            border: 1px solid rgba(23, 48, 66, 0.1);
+            box-shadow: 0 12px 28px rgba(26, 46, 59, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .zen-principle:hover,
+        .zen-principle:focus-within {
+            transform: translateY(-2px);
+            border-color: rgba(90, 169, 230, 0.35);
+            box-shadow: 0 16px 36px rgba(26, 46, 59, 0.12);
+        }
+
+        .zen-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #173042;
+            background: #f2f6f9;
+            border: 1px solid rgba(23, 48, 66, 0.1);
+        }
+
+        .zen-principle[data-type="core"] .zen-num { background: #e7f6ea; }
+        .zen-principle[data-type="process"] .zen-num { background: #e8f1fb; }
+        .zen-principle[data-type="wisdom"] .zen-num { background: #fff4d8; }
+        .zen-principle[data-type="meta"] .zen-num { background: #fde8ef; }
+
+        .zen-principle-text {
+            font-size: 1.08rem;
+            font-weight: 700;
+            line-height: 1.5;
+            color: #173042;
+        }
+
+        .zen-principle-comment {
+            margin-top: 8px;
+            color: #49616f;
+            line-height: 1.65;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-4px);
+            transition: max-height 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .zen-principle:hover .zen-principle-comment,
+        .zen-principle:focus-within .zen-principle-comment {
+            max-height: 180px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .zen-footer {
+            margin-top: 36px;
+            text-align: center;
+        }
+
+        .zen-footer-snail {
+            display: inline-block;
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .zen-easter-egg {
+            display: inline-block;
+            text-align: left;
+            padding: 18px 20px;
+            margin-bottom: 24px;
+            border-radius: 18px;
+            background: #173042;
+            color: #e8f1fb;
+            box-shadow: 0 16px 36px rgba(26, 46, 59, 0.18);
+        }
+
+        .zen-easter-code {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.98rem;
+            line-height: 1.8;
+        }
+
+        .zen-cursor {
+            display: inline-block;
+            width: 0.65ch;
+            margin-left: 2px;
+            border-bottom: 2px solid #f2b134;
+            animation: zen-blink 1s steps(1, end) infinite;
+        }
+
+        .zen-footer-text {
+            line-height: 1.8;
+            color: #49616f;
+        }
+
+        .zen-footer-text a {
+            font-weight: 600;
+        }
+
+        @keyframes zen-blink {
+            0%, 50% { opacity: 1; }
+            50.01%, 100% { opacity: 0; }
+        }
+
+        @media (max-width: 720px) {
+            .zen-page {
+                padding: 24px 16px 48px;
+            }
+
+            .zen-principle {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .zen-num {
+                width: 36px;
+                height: 36px;
+            }
+
+            .zen-easter-egg {
+                width: 100%;
+                overflow-x: auto;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .zen-principle,
+            .zen-principle-comment,
+            .zen-cursor {
+                transition: none;
+                animation: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Перейти до основного вмісту</a>
+    <div class="page-wrapper">
+        <main id="main-content" class="zen-page">
+            <header class="course-header zen-header">
+                <span class="zen-snail-icon" aria-hidden="true">🐌</span>
+                <h1 class="zen-title">Дзен Равлика</h1>
+                <div class="zen-divider" aria-hidden="true"></div>
+            </header>
+
+            <section class="lesson-content active" aria-labelledby="zen-intro-title">
+                <h2 id="zen-intro-title" class="sr-only">Вступ до Дзену Равлика</h2>
+                <div class="zen-intro">
+                    Наведи курсор на будь-який принцип — побачиш пояснення.<br />
+                    Ці правила — не інструкція. Це спосіб думати.<br />
+                    Вони написані для дітей. Але дорослим теж читати корисно.<br /><br />
+                    Натхнення: <code>import this</code> — Тім Пітерс, 1999. Рональд Байлер та Сеймур Пеперт — завжди.
+                </div>
+
+                <div class="zen-hover-hint">
+                    <span>↓ наведи курсор, щоб дізнатися більше</span>
+                </div>
+
+                <div class="zen-principles" aria-label="Принципи Дзену Равлика">
+                    <div class="zen-section-label green">рух і команда</div>
+
+                    <article class="zen-principle" data-type="core">
+                        <span class="zen-num">1</span>
+                        <div>
+                            <div class="zen-principle-text">Спочатку думай — потім запускай.</div>
+                            <div class="zen-principle-comment">Хвилина роздумів перед запуском коштує десяти хвилин пошуку помилки після. Намалюй у голові — або на папері.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="core">
+                        <span class="zen-num">2</span>
+                        <div>
+                            <div class="zen-principle-text">Равлик робить рівно те, що написано. Не більше. Не менше.</div>
+                            <div class="zen-principle-comment">Це не вада — це сила. Якщо результат не той, що очікував — питання не до Равлика.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="core">
+                        <span class="zen-num">3</span>
+                        <div>
+                            <div class="zen-principle-text">Стань Равликом — і зрозумієш.</div>
+                            <div class="zen-principle-comment">Найкраще пояснення кутів і напрямків — встати і повернутися самому. Тіло розуміє те, що очі ще не бачать.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="core">
+                        <span class="zen-num">4</span>
+                        <div>
+                            <div class="zen-principle-text">Мала команда. Великий малюнок.</div>
+                            <div class="zen-principle-comment"><code>вперед 5 праворуч 10</code> — три слова. Повторені 36 разів — вони малюють коло. Сила програмування — у повторенні простого.</div>
+                        </div>
+                    </article>
+
+                    <div class="zen-section-label blue">код і структура</div>
+
+                    <article class="zen-principle" data-type="process">
+                        <span class="zen-num">5</span>
+                        <div>
+                            <div class="zen-principle-text">Якщо пишеш одне й те саме двічі — час для <code>повторити</code>.</div>
+                            <div class="zen-principle-comment">Дублювання коду — запрошення до циклу. Якщо копіюєш рядки — зупинись і подумай: яке тут правило?</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="process">
+                        <span class="zen-num">6</span>
+                        <div>
+                            <div class="zen-principle-text">Назви речі так, щоб через тиждень зрозумів.</div>
+                            <div class="zen-principle-comment"><code>сторона</code> краще за <code>с</code>. <code>крок_руху</code> краще за <code>к</code>. Код читають люди — в тому числі ти сам, потім.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="process">
+                        <span class="zen-num">7</span>
+                        <div>
+                            <div class="zen-principle-text">Простий код краще за хитрий.</div>
+                            <div class="zen-principle-comment">Якщо тобі складно пояснити, що робить цей рядок — скоріш за все, його можна написати простіше.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="process">
+                        <span class="zen-num">8</span>
+                        <div>
+                            <div class="zen-principle-text">Функція — це слово, яке ти додав у мову Равлика.</div>
+                            <div class="zen-principle-comment">Коли ти пишеш <code>квадрат(100)</code> — ти розширюєш мову. Наступного разу Равлик розумітиме більше.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="process">
+                        <span class="zen-num">9</span>
+                        <div>
+                            <div class="zen-principle-text">Коментар — лист майбутньому собі.</div>
+                            <div class="zen-principle-comment">Пиши <code># малюємо дах</code> не для Равлика — він це не читає. Пиши для себе, для вчителя, для друга.</div>
+                        </div>
+                    </article>
+
+                    <div class="zen-section-label yellow">помилки і відкриття</div>
+
+                    <article class="zen-principle" data-type="wisdom">
+                        <span class="zen-num">10</span>
+                        <div>
+                            <div class="zen-principle-text">Помилка — це запрошення до відкриття.</div>
+                            <div class="zen-principle-comment">Равлик не каже «ти поганий програміст». Він каже «я не зрозумів — поясни інакше». Помилки — це діалог.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="wisdom">
+                        <span class="zen-num">11</span>
+                        <div>
+                            <div class="zen-principle-text">Читай повідомлення про помилку. Воно підказує.</div>
+                            <div class="zen-principle-comment">Повідомлення — не вирок. Це підказка. «рядок 5» означає: почни шукати тут.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="wisdom">
+                        <span class="zen-num">12</span>
+                        <div>
+                            <div class="zen-principle-text">Змінюй одне — і дивись, що змінилось.</div>
+                            <div class="zen-principle-comment">Найкращий спосіб зрозуміти програму — змінити одне число і подивитись на результат. Це і є наукове мислення.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="wisdom">
+                        <span class="zen-num">13</span>
+                        <div>
+                            <div class="zen-principle-text">Несподіваний результат — найцікавіша частина уроку.</div>
+                            <div class="zen-principle-comment">Коли Равлик намалював щось інше, ніж ти очікував — не виправляй одразу. Спитай себе: чому? Це і є відкриття.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="wisdom">
+                        <span class="zen-num">14</span>
+                        <div>
+                            <div class="zen-principle-text">Малюнок — це доказ. Код — це аргумент.</div>
+                            <div class="zen-principle-comment">Якщо на полотні з'явилось те, що ти замислив — код правильний. Якщо ні — десь є помилка в міркуванні.</div>
+                        </div>
+                    </article>
+
+                    <div class="zen-section-label pink">навчання і творчість</div>
+
+                    <article class="zen-principle" data-type="meta">
+                        <span class="zen-num">15</span>
+                        <div>
+                            <div class="zen-principle-text">Передбачай. Перевіряй. Дивуйся. Повторюй.</div>
+                            <div class="zen-principle-comment">Це не просто алгоритм навчання. Це спосіб жити з будь-якою ідеєю — в програмуванні, математиці, науці.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="meta">
+                        <span class="zen-num">16</span>
+                        <div>
+                            <div class="zen-principle-text">«Не виходить» — це початок, а не кінець.</div>
+                            <div class="zen-principle-comment">Равлик ніколи не засуджує. Він чекає наступної команди. Ти теж можеш почати ще раз — в будь-який момент.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="meta">
+                        <span class="zen-num">17</span>
+                        <div>
+                            <div class="zen-principle-text">Пояснити другу — значить зрозуміти самому.</div>
+                            <div class="zen-principle-comment">Якщо можеш пояснити <code>повторити</code> молодшому брату або сестрі — ти справді це розумієш. Якщо ні — поясни ще раз собі.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="meta">
+                        <span class="zen-num">18</span>
+                        <div>
+                            <div class="zen-principle-text">Равлик говорить українською. Думай так само.</div>
+                            <div class="zen-principle-comment">Назви змінних, функцій, коментарі — пиши так, щоб було зрозуміло тобі і твоєму однокласнику. Мова коду — це теж вибір.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="meta">
+                        <span class="zen-num">19</span>
+                        <div>
+                            <div class="zen-principle-text">Твій найкращий малюнок — той, що ти ще не намалював.</div>
+                            <div class="zen-principle-comment">Кожен запуск — це нова можливість. Зберігай, що тобі подобається. І завжди є куди рухатися далі.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="meta">
+                        <span class="zen-num">20</span>
+                        <div>
+                            <div class="zen-principle-text">Равлик — це лише початок. Але які кроки він залишає.</div>
+                            <div class="zen-principle-comment">Все, що ти навчився тут — живе в кожній мові програмування. Ти вже думаєш як програміст. Равлик зробив свою справу.</div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <footer class="zen-footer">
+                <span class="zen-footer-snail" aria-hidden="true">🐌</span>
+
+                <div class="zen-easter-egg" aria-label="Жартівливий код Дзену Равлика">
+                    <span class="zen-easter-code">створити дзен() (</span><br />
+                    <span class="zen-easter-code">&nbsp;&nbsp;повторити 20 ( читати праворуч 18 )</span><br />
+                    <span class="zen-easter-code">)</span><br />
+                    <span class="zen-easter-code">дзен()<span class="zen-cursor" aria-hidden="true"></span></span>
+                </div>
+
+                <div class="zen-footer-text">
+                    Натхнення: <em>The Zen of Python</em> — Тім Пітерс (1999)<br />
+                    <a href="manual.html">Посібник</a> · <a href="lessons.html">Уроки</a> · <a href="index.html">Редактор</a><br /><br />
+                    ©2025 Мова програмування РАВЛИК<br />
+                    Автор: пан Артем — вчитель інформатики
+                </div>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>
