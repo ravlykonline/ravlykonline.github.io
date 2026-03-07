@@ -14,8 +14,10 @@ function runTest(name, fn) {
 const filesToValidate = [
     'index.html',
     'manual.html',
+    'lessons.html',
     'js/main.js',
     'css/global.css',
+    'css/lessons.css',
     'css/main-editor.css',
     'README.md',
     'TECHNICAL_GUIDE.md',

@@ -111,6 +111,7 @@
     margin: 25px 0;
     border-radius: 8px;
 }
+/* Archive-only: remove after deleting lessons_old.html. */
 .lesson-content .why-important h4 {
     color: #0050b3; /* Dark blue */
     font-size: clamp(1.1rem, 3vw, 1.3rem); /* Slightly larger */
@@ -227,13 +228,11 @@
     margin-top: 25px;
     border-radius: 8px;
 }
+/* Archive-only: remove after deleting lessons_old.html. */
 .task h4 {
     color: #ff8c00; /* Dark orange */
     font-size: clamp(1.1rem, 3vw, 1.3rem);
     margin-bottom: 10px;
-}
-.task__btn {
-    margin-top: 10px;
 }
 
 .lesson-manual-link {
@@ -332,18 +331,6 @@
     gap: 15px;
 }
 
-.navigation-buttons__btn {
-    flex-grow: 1;
-    max-width: calc(50% - 7.5px); /* For two buttons with gap */
-}
-.navigation-buttons__btn:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-    opacity: 0.7;
-}
-
 .lesson-image {
     display: block;
     max-width: clamp(200px, 50vw, 350px); /* Responsive max-width */
@@ -353,6 +340,7 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     border: 1px solid #eee; /* Subtle border */
 }
+/* Archive-only: remove after deleting lessons_old.html. */
 .lesson-image-fullwidth {
     max-width: 100%; /* Allow full width if specified */
     width: 100%;
@@ -441,6 +429,7 @@
 
 .a11y-high-contrast .lesson-content h2,
 .a11y-high-contrast .lesson-content h3,
+/* Archive-only: remove after deleting lessons_old.html. */
 .a11y-high-contrast .lesson-content .why-important h4,
 .a11y-high-contrast .task h4,
 .a11y-high-contrast .tip strong {
@@ -459,13 +448,6 @@
 .a11y-high-contrast .lesson-image {
     border: 2px solid #fff !important;
     box-shadow: none !important;
-}
-
-.a11y-high-contrast .navigation-buttons__btn:disabled {
-    background: #222 !important;
-    color: #aaa !important;
-    border-color: #666 !important;
-    opacity: 1;
 }
 
 .a11y-larger-text .tab-button,
