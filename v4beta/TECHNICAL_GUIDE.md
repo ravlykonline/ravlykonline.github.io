@@ -341,7 +341,8 @@ Implemented responsive behavior:
 
 Current practical state of the static layer:
 - `manual.html` is no longer a mostly flat document; large sections were split into clearer semantic subsections and repeated content blocks now have more explicit structure/labels.
-- `css/manual.css` is partially normalized around shared tokens for panels/content blocks/high-contrast states; the highest-value remaining work is now in smaller cleanup clusters rather than broad emergency refactors.
+- `manual.html` also now uses more consistent subsection wrapper classes across error groups, challenge items, callout-heavy sections, the remaining intro/basic/repetition/next-step support blocks, and the `errors` overview intro, reducing one-off markup patterns inside the large document.
+- `css/manual.css` is partially normalized around shared tokens for panels/content blocks/high-contrast states; recent follow-up cleanup also removed smaller duplicate example/result/challenge/error fragments and folded a few remaining low-level content literals into shared manual tokens, so the highest-value remaining work is now in narrower cleanup clusters rather than broad emergency refactors.
 - `css/main-editor.css` is largely tokenized for editor surfaces, accents, shadows, responsive controls, and high-contrast variants; remaining work there is mostly cosmetic follow-up, not structural risk.
 - the project's biggest maintainability risk still sits in static HTML/CSS, not in the interpreter/runtime core.
 
@@ -446,18 +447,22 @@ Parser/UI unit tests:
 ## 14. Known technical debt / open points
 
 1. Static CSS complexity remains the primary debt
-- `css/manual.css` is substantially cleaner than before, but still carries some cascade noise in lower-level content/a11y fragments.
+- `css/manual.css` is substantially cleaner than before, but still carries some cascade noise in lower-level content/a11y fragments and selector organization.
 - `css/main-editor.css` is close to a "good enough" state after tokenization and deduplication, but still has a few follow-up cosmetic literals and could be flattened further if desired.
 - styles are still page-local rather than componentized, so maintainability depends on continuing small, verified cleanups instead of large rewrites.
 
 2. Large static documents are still expensive to maintain
 - `manual.html` is much more structured now, but it is still a large hand-maintained static document.
-- `lessons.html` remains a major untouched static-content debt area and is the next likely HTML maintainability hotspot after manual/static CSS work.
+- `lessons.html` is still a large static file, but its repeated support blocks now share structural classes and lessons 1-9 use explicit subsection wrappers, so it is no longer the next urgent HTML hotspot.
 
 3. Mixed execution model history
 - despite parser cleanup, non-game mode still uses queue adaptation for compatibility with existing runtime structure.
 
-4. Documentation drift risk
+4. Test stability remains important
+- the previous timing-sensitive flake in `tests/parser.ast-runtime.test.js` was reduced by making the game-loop state test wait for observed progress instead of assuming a fixed wall-clock schedule.
+- the full `npm test` suite currently passes, including Playwright smoke coverage, so test reliability is in a better state than before.
+
+5. Documentation drift risk
 - this file and any debt/status docs should be updated whenever grammar, command contracts, responsive behavior, or debt priorities materially change.
 
 ## 14.1 Current debt priority order
@@ -465,8 +470,9 @@ Parser/UI unit tests:
 Recommended practical order at this snapshot:
 1. finish any last high-signal cleanup in `css/manual.css`,
 2. treat `css/main-editor.css` as near-done and only revisit for narrow cosmetic follow-up,
-3. move to static content structure debt in `lessons.html`,
+3. keep `lessons.html` in watch-mode rather than active refactor mode unless new content changes make another pass worthwhile,
 4. revisit `manual.html` only for deeper content-structure refactors if there is a clear payoff,
+5. keep test-suite reliability under observation, but not as the main active debt item right now,
 5. keep JS-core/test cleanup as lower priority hygiene work unless a new bug changes that assessment.
 
 ## 15. Change checklist for contributors

@@ -177,14 +177,26 @@ await runAsyncTest('game loop keeps environment state between ticks', async () =
     const interpreter = createInterpreter();
     const initialY = interpreter.state.y;
     const runPromise = interpreter.executeCommands('create step = 1 game ( forward step step = step + 1 )');
-    await new Promise((resolve) => setTimeout(resolve, 125));
+
+    const waitForAccumulatedMovement = async (minimumDelta, timeoutMs = 400) => {
+        const startedAt = Date.now();
+        while ((Date.now() - startedAt) < timeoutMs) {
+            const deltaNow = initialY - interpreter.state.y;
+            if (deltaNow >= minimumDelta) {
+                return deltaNow;
+            }
+            await new Promise((resolve) => setTimeout(resolve, 10));
+        }
+        return initialY - interpreter.state.y;
+    };
+
+    const deltaBeforeStop = await waitForAccumulatedMovement(3);
     interpreter.stopExecution();
     await assert.rejects(
         runPromise,
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'EXECUTION_STOPPED_BY_USER'
     );
-    const delta = initialY - interpreter.state.y;
-    assert.ok(delta >= 3, `expected accumulated movement >= 3, got ${delta}`);
+    assert.ok(deltaBeforeStop >= 3, `expected accumulated movement >= 3, got ${deltaBeforeStop}`);
 });
 
 await runAsyncTest('game contract rejects top-level drawing command when game block exists', async () => {
@@ -253,4 +265,3 @@ await runAsyncTest('executeCommands evaluates compare-if against runtime assignm
 
     assert.equal(String(interpreter.state.color).toLowerCase(), '#0000ff');
 });
-

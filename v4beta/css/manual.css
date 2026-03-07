@@ -28,6 +28,7 @@
     --manual-palette-bg: #f0f0f0;
     --manual-text-strong: #222;
     --manual-text-body-strong: #333;
+    --manual-rule-accent: #ff6347;
     --manual-state-success-bg: #e8f5e9;
     --manual-state-success-accent: #4caf50;
     --manual-state-success-border: #a5d6a7;
@@ -58,6 +59,9 @@
     --manual-concept-bg: #f5f5f5;
     --manual-palette-chip-border: rgba(0, 0, 0, 0.1);
     --manual-palette-gradient-border: #999;
+    --manual-palette-yellow-text: #504000;
+    --manual-palette-pink-text: #7c1f3e;
+    --manual-palette-gradient-text: #333;
 }
 
 /* --- Message Highlighting for Manual --- */
@@ -659,7 +663,7 @@ body.manual-paged-ready .guide-section.is-active {
     --manual-example-code-bg: #f8f9fa;
     --manual-example-code-border: #32cd32;
     background-color: var(--manual-example-code-bg);
-    border-left: 5px solid #32cd32; /* Зелений */
+    border-left: var(--manual-accent-border-width) solid var(--manual-example-code-border);
     padding: 12px 18px;
     margin: 20px 0;
     font-family: 'Fira Mono', 'Consolas', 'Courier New', monospace;
@@ -668,7 +672,7 @@ body.manual-paged-ready .guide-section.is-active {
     white-space: pre-wrap;
     overflow-x: auto;
     box-shadow: var(--manual-card-shadow);
-    color: #333; /* Темний текст на світлому фоні */
+    color: var(--manual-example-code-text);
 }
 
 
@@ -677,14 +681,6 @@ body.manual-paged-ready .guide-section.is-active {
     color: var(--manual-high-contrast-text) !important;
     border: 1px solid var(--manual-high-contrast-border) !important;
 }
-
-.example-code-manual {
-    border-left-width: var(--manual-accent-border-width);
-    border-left-color: var(--manual-example-code-border);
-    color: var(--manual-example-code-text);
-}
-
-
 
 .example-result-manual {
     --manual-example-result-bg: #fff9e6;
@@ -715,13 +711,9 @@ body.manual-paged-ready .guide-section.is-active {
 
 .example-result-manual p {
     font-style: italic;
-    color: #d97706; /* Darker yellow/orange */
+    color: var(--manual-example-result-text);
     font-size: 1rem;
     margin-bottom: 0;
-}
-
-.example-result-manual p {
-    color: var(--manual-example-result-text);
 }
 
 /* --- Specialized Boxes --- */
@@ -795,18 +787,11 @@ body.manual-paged-ready .guide-section.is-active {
 .challenge-box summary {
     cursor: pointer;
     font-weight: bold;
-    color: #00796b;
+    color: var(--manual-challenge-summary-text);
     padding: 5px;
     border-radius: 4px;
     display: inline-block; /* To prevent full width click area */
     transition: background-color 0.2s;
-}
-
-.challenge-box summary {
-    color: var(--manual-challenge-summary-text);
-}
-.challenge-box summary:hover {
-    background-color: rgba(0, 121, 107, 0.1);
 }
 
 .challenge-box summary:hover {
@@ -822,18 +807,10 @@ body.manual-paged-ready .guide-section.is-active {
     margin-bottom: 10px;
 }
 .error-list-manual p strong {
-    color: #c62828; /* Dark red */
+    color: var(--manual-state-error-strong);
 }
 .error-list-manual em { /* For messages like "Не вказано..." */
     font-family: 'Fira Mono', 'Consolas', monospace;
-    color: #d32f2f;
-}
-
-.error-list-manual p strong {
-    color: var(--manual-state-error-strong);
-}
-
-.error-list-manual em {
     color: var(--manual-state-error-text);
 }
 
@@ -905,9 +882,9 @@ body.manual-paged-ready .guide-section.is-active {
     box-shadow: var(--manual-content-block-shadow-soft);
 }
 /* Specific text colors for better contrast on certain backgrounds */
-.color-palette-manual span[style*="background-color:yellow"] { color: #504000; }
-.color-palette-manual span[style*="background-color:pink"] { color: #7c1f3e; }
-.color-palette-manual span[style*="background:linear-gradient"] { color: #333; border-color: var(--manual-palette-gradient-border);}
+.color-palette-manual span[style*="background-color:yellow"] { color: var(--manual-palette-yellow-text); }
+.color-palette-manual span[style*="background-color:pink"] { color: var(--manual-palette-pink-text); }
+.color-palette-manual span[style*="background:linear-gradient"] { color: var(--manual-palette-gradient-text); border-color: var(--manual-palette-gradient-border);}
 
 .a11y-high-contrast .color-palette-manual span {
     background: var(--manual-high-contrast-bg) !important;
@@ -1003,6 +980,6 @@ body.manual-paged-ready .guide-section.is-active {
 hr { /* From original manual-style.css, if needed */
     border: 0;
     height: 1px;
-    background-color: #ff6347; /* Tomato color */
+    background-color: var(--manual-rule-accent); /* Tomato color */
     margin: 20px 0;
 }
