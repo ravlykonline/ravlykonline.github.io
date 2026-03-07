@@ -120,10 +120,42 @@
             color: #173042;
         }
 
+        .zen-principle-header {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
         .zen-principle-comment {
             margin-top: 8px;
             color: #49616f;
             line-height: 1.65;
+        }
+
+        .zen-copy-btn {
+            flex: 0 0 auto;
+            padding: 6px 10px;
+            border: 1px solid rgba(23, 48, 66, 0.14);
+            border-radius: 999px;
+            background: #f7fafc;
+            color: #49616f;
+            font: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .zen-copy-btn:hover {
+            background: #eef4f8;
+            color: #173042;
+        }
+
+        .zen-copy-btn.copied {
+            background: #e7f6ea;
+            border-color: rgba(91, 191, 122, 0.4);
+            color: #24553a;
         }
 
         .zen-footer {
@@ -155,6 +187,11 @@
                 width: 36px;
                 height: 36px;
             }
+
+            .zen-principle-header {
+                flex-direction: column;
+                align-items: start;
+            }
         }
     </style>
 </head>
@@ -172,174 +209,234 @@
                 <h2 id="zen-intro-title" class="sr-only">Вступ до Дзену Равлика</h2>
                 <div class="zen-intro">
                     Ці правила — не інструкція. Це спосіб думати.<br />
-                    Вони написані для дітей. Але дорослим теж читати корисно.
+                    Вони написані для дітей. Але дорослим теж буде корисно прочитати.
                 </div>
 
                 <div class="zen-principles" aria-label="Принципи Дзену Равлика">
                     <div class="zen-section-label green">рух і команда</div>
 
-                    <article class="zen-principle" data-type="core">
+                    <article class="zen-principle" data-type="core" data-rule-number="1">
                         <span class="zen-num">1</span>
                         <div>
-                            <div class="zen-principle-text">Спочатку думай — потім запускай.</div>
-                            <div class="zen-principle-comment">Хвилина роздумів перед запуском коштує десяти хвилин пошуку помилки після. Намалюй у голові — або на папері.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Спочатку думай — потім запускай.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
+                            <div class="zen-principle-comment">Хвилина роздумів перед запуском коштує десяти хвилин пошуку помилки після.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="core">
+                    <article class="zen-principle" data-type="core" data-rule-number="2">
                         <span class="zen-num">2</span>
                         <div>
-                            <div class="zen-principle-text">Равлик робить рівно те, що написано. Не більше. Не менше.</div>
-                            <div class="zen-principle-comment">Це не вада — це сила. Якщо результат не той, що очікував — питання не до Равлика.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Равлик робить тільки те, що написано. Не більше. Не менше.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
+                            <div class="zen-principle-comment">Це не вада — це його сила. Якщо результат не той, що очікував — питання не до Равлика.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="core">
+                    <article class="zen-principle" data-type="core" data-rule-number="3">
                         <span class="zen-num">3</span>
                         <div>
-                            <div class="zen-principle-text">Стань Равликом — і зрозумієш.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Стань Равликом — і зрозумієш.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
                             <div class="zen-principle-comment">Найкраще пояснення кутів і напрямків — встати і повернутися самому. Тіло розуміє те, що очі ще не бачать.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="core">
+                    <article class="zen-principle" data-type="core" data-rule-number="4">
                         <span class="zen-num">4</span>
                         <div>
-                            <div class="zen-principle-text">Мала команда. Великий малюнок.</div>
-                            <div class="zen-principle-comment"><code>вперед 5 праворуч 10</code> — три слова. Повторені 36 разів — вони малюють коло. Сила програмування — у повторенні простого.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Мала команда. Великий малюнок.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
+                            <div class="zen-principle-comment"><code>вперед 5 праворуч 10</code> повторені 36 разів — малюють коло. Сила програмування — у повторенні простого.</div>
                         </div>
                     </article>
 
                     <div class="zen-section-label blue">код і структура</div>
 
-                    <article class="zen-principle" data-type="process">
+                    <article class="zen-principle" data-type="process" data-rule-number="5">
                         <span class="zen-num">5</span>
                         <div>
-                            <div class="zen-principle-text">Якщо пишеш одне й те саме двічі — час для <code>повторити</code>.</div>
-                            <div class="zen-principle-comment">Дублювання коду — запрошення до циклу. Якщо копіюєш рядки — зупинись і подумай: яке тут правило?</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Якщо пишеш одне й те саме двічі — час для <code>повторити</code>.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
+                            <div class="zen-principle-comment">Дублювання коду — запрошення до циклу. Якщо копіюєш рядки — зупинись і подумай.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="process">
+                    <article class="zen-principle" data-type="process" data-rule-number="6">
                         <span class="zen-num">6</span>
                         <div>
-                            <div class="zen-principle-text">Назви речі так, щоб через тиждень зрозумів.</div>
-                            <div class="zen-principle-comment"><code>сторона</code> краще за <code>с</code>. <code>крок_руху</code> краще за <code>к</code>. Код читають люди — в тому числі ти сам, потім.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Назви речі так, щоб через тиждень зрозумів.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
+                            <div class="zen-principle-comment"><code>сторона</code> краще за <code>с</code>. <code>крок_руху</code> краще за <code>к</code>. Код читають люди — в тому числі ти сам, пізніше.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="process">
+                    <article class="zen-principle" data-type="process" data-rule-number="7">
                         <span class="zen-num">7</span>
                         <div>
-                            <div class="zen-principle-text">Простий код краще за хитрий.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Простий код краще за складний.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
                             <div class="zen-principle-comment">Якщо тобі складно пояснити, що робить цей рядок — скоріш за все, його можна написати простіше.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="process">
+                    <article class="zen-principle" data-type="process" data-rule-number="8">
                         <span class="zen-num">8</span>
                         <div>
-                            <div class="zen-principle-text">Функція — це слово, яке ти додав у мову Равлика.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Функція — це слово, яке ти додав у мову Равлика.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
                             <div class="zen-principle-comment">Коли ти пишеш <code>квадрат(100)</code> — ти розширюєш мову. Наступного разу Равлик розумітиме більше.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="process">
+                    <article class="zen-principle" data-type="process" data-rule-number="9">
                         <span class="zen-num">9</span>
                         <div>
-                            <div class="zen-principle-text">Коментар — лист майбутньому собі.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Коментар — лист майбутньому собі.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
                             <div class="zen-principle-comment">Пиши <code># малюємо дах</code> не для Равлика — він це не читає. Пиши для себе, для вчителя, для друга.</div>
                         </div>
                     </article>
 
                     <div class="zen-section-label yellow">помилки і відкриття</div>
 
-                    <article class="zen-principle" data-type="wisdom">
+                    <article class="zen-principle" data-type="wisdom" data-rule-number="10">
                         <span class="zen-num">10</span>
                         <div>
-                            <div class="zen-principle-text">Помилка — це запрошення до відкриття.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Помилка — це запрошення до відкриття.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
                             <div class="zen-principle-comment">Равлик не каже «ти поганий програміст». Він каже «я не зрозумів — поясни інакше». Помилки — це діалог.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="wisdom">
+                    <article class="zen-principle" data-type="wisdom" data-rule-number="11">
                         <span class="zen-num">11</span>
                         <div>
-                            <div class="zen-principle-text">Читай повідомлення про помилку. Воно підказує.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Читай повідомлення про помилку. Воно підказує.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
                             <div class="zen-principle-comment">Повідомлення — не вирок. Це підказка. «рядок 5» означає: почни шукати тут.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="wisdom">
+                    <article class="zen-principle" data-type="wisdom" data-rule-number="12">
                         <span class="zen-num">12</span>
                         <div>
-                            <div class="zen-principle-text">Змінюй одне — і дивись, що змінилось.</div>
-                            <div class="zen-principle-comment">Найкращий спосіб зрозуміти програму — змінити одне число і подивитись на результат. Це і є наукове мислення.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Змінюй одне — і дивись, що змінилось.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
+                            <div class="zen-principle-comment">Найкращий спосіб зрозуміти програму — змінити одне число і подивитись на результат.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="wisdom">
+                    <article class="zen-principle" data-type="wisdom" data-rule-number="13">
                         <span class="zen-num">13</span>
                         <div>
-                            <div class="zen-principle-text">Несподіваний результат — найцікавіша частина уроку.</div>
-                            <div class="zen-principle-comment">Коли Равлик намалював щось інше, ніж ти очікував — не виправляй одразу. Спитай себе: чому? Це і є відкриття.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Несподіваний результат — найцікавіша частина уроку.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
+                            <div class="zen-principle-comment">Коли Равлик намалював щось інше, ніж ти очікував — не виправляй одразу. Спитай себе: чому?</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="wisdom">
+                    <article class="zen-principle" data-type="wisdom" data-rule-number="14">
                         <span class="zen-num">14</span>
                         <div>
-                            <div class="zen-principle-text">Малюнок — це доказ. Код — це аргумент.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Малюнок — це доказ. Код — це аргумент.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
                             <div class="zen-principle-comment">Якщо на полотні з'явилось те, що ти замислив — код правильний. Якщо ні — десь є помилка в міркуванні.</div>
                         </div>
                     </article>
 
                     <div class="zen-section-label pink">навчання і творчість</div>
 
-                    <article class="zen-principle" data-type="meta">
+                    <article class="zen-principle" data-type="meta" data-rule-number="15">
                         <span class="zen-num">15</span>
                         <div>
-                            <div class="zen-principle-text">Передбачай. Перевіряй. Дивуйся. Повторюй.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Передбачай. Перевіряй. Дивуйся. Повторюй.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
                             <div class="zen-principle-comment">Це не просто алгоритм навчання. Це спосіб жити з будь-якою ідеєю — в програмуванні, математиці, науці.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="meta">
+                    <article class="zen-principle" data-type="meta" data-rule-number="16">
                         <span class="zen-num">16</span>
                         <div>
-                            <div class="zen-principle-text">«Не виходить» — це початок, а не кінець.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">«Не виходить» — це початок, а не кінець.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
                             <div class="zen-principle-comment">Равлик ніколи не засуджує. Він чекає наступної команди. Ти теж можеш почати ще раз — в будь-який момент.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="meta">
+                    <article class="zen-principle" data-type="meta" data-rule-number="17">
                         <span class="zen-num">17</span>
                         <div>
-                            <div class="zen-principle-text">Пояснити другу — значить зрозуміти самому.</div>
-                            <div class="zen-principle-comment">Якщо можеш пояснити <code>повторити</code> молодшому брату або сестрі — ти справді це розумієш. Якщо ні — поясни ще раз собі.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Пояснити другу — значить зрозуміти самому.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
+                            <div class="zen-principle-comment">Якщо можеш пояснити <code>повторити</code> молодшому брату або сестрі — ти справді це розумієш.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="meta">
+                    <article class="zen-principle" data-type="meta" data-rule-number="18">
                         <span class="zen-num">18</span>
                         <div>
-                            <div class="zen-principle-text">Равлик говорить українською. Думай так само.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Равлик говорить українською. Думай так само.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
                             <div class="zen-principle-comment">Назви змінних, функцій, коментарі — пиши так, щоб було зрозуміло тобі і твоєму однокласнику. Мова коду — це теж вибір.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="meta">
+                    <article class="zen-principle" data-type="meta" data-rule-number="19">
                         <span class="zen-num">19</span>
                         <div>
-                            <div class="zen-principle-text">Твій найкращий малюнок — той, що ти ще не намалював.</div>
-                            <div class="zen-principle-comment">Кожен запуск — це нова можливість. Зберігай, що тобі подобається. І завжди є куди рухатися далі.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Твій найкращий малюнок — той, що ти ще не намалював.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
+                            <div class="zen-principle-comment">Кожен запуск — це нова можливість. Зберігай, що тобі подобається. І ділись цим з іншими.</div>
                         </div>
                     </article>
 
-                    <article class="zen-principle" data-type="meta">
+                    <article class="zen-principle" data-type="meta" data-rule-number="20">
                         <span class="zen-num">20</span>
                         <div>
-                            <div class="zen-principle-text">Равлик — це лише початок. Але які кроки він залишає.</div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Равлик — це лише початок. Але який слід він залишає.</div>
+                                <button class="zen-copy-btn" type="button">Копіювати</button>
+                            </div>
                             <div class="zen-principle-comment">Все, що ти навчився тут — живе в кожній мові програмування. Ти вже думаєш як програміст. Равлик зробив свою справу.</div>
                         </div>
                     </article>
@@ -355,11 +452,46 @@
 
                 <div class="zen-footer-text">
                     Натхнення: <em>The Zen of Python</em> — Тім Пітерс (1999)<br /><br />
-                    ©2025 Мова програмування РАВЛИК<br />
-                    Автор: пан Артем — вчитель інформатики
+                    ©2026 Мова програмування РАВЛИК<br />
                 </div>
             </footer>
         </main>
     </div>
+    <script>
+        (() => {
+            const copyButtons = document.querySelectorAll(".zen-copy-btn");
+            const defaultLabel = "Копіювати";
+            const successLabel = "Скопійовано";
+
+            copyButtons.forEach((button) => {
+                button.addEventListener("click", async () => {
+                    const principle = button.closest(".zen-principle");
+                    if (!principle) {
+                        return;
+                    }
+
+                    const ruleNumber = principle.dataset.ruleNumber;
+                    const title = principle.querySelector(".zen-principle-text")?.innerText.trim() ?? "";
+                    const comment = principle.querySelector(".zen-principle-comment")?.innerText.trim() ?? "";
+                    const payload = `Правило ${ruleNumber}\n${title}\n${comment}\nДзен Равлика 🐌`;
+
+                    try {
+                        await navigator.clipboard.writeText(payload);
+                        button.textContent = successLabel;
+                        button.classList.add("copied");
+                        window.setTimeout(() => {
+                            button.textContent = defaultLabel;
+                            button.classList.remove("copied");
+                        }, 1400);
+                    } catch {
+                        button.textContent = "Не вийшло";
+                        window.setTimeout(() => {
+                            button.textContent = defaultLabel;
+                        }, 1400);
+                    }
+                });
+            });
+        })();
+    </script>
 </body>
 </html>
