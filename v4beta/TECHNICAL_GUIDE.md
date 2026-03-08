@@ -77,7 +77,6 @@ Core modules:
 - `index.html`: main editor page.
 - `manual.html`: full language manual.
 - `lessons.html`: current production tutorial lessons.
-- `lessons_old.html`: archived pre-migration lessons page kept temporarily for rollback/reference.
 - `resources.html`: additional resources.
 - `quiz.html`: quiz page with random question selection by topic.
 - `teacher_guidelines.html`: teacher-oriented pedagogical page.
@@ -349,8 +348,7 @@ Current practical state of the static layer:
 - `css/manual.css` is partially normalized around shared tokens for panels/content blocks/high-contrast states; recent follow-up cleanup also removed smaller duplicate example/result/challenge/error fragments and folded a few remaining low-level content literals into shared manual tokens, so the highest-value remaining work is now in narrower cleanup clusters rather than broad emergency refactors.
 - `css/main-editor.css` is largely tokenized for editor surfaces, accents, shadows, responsive controls, and high-contrast variants; remaining work there is mostly cosmetic follow-up, not structural risk.
 - `lessons.html` has already been promoted to the new production lesson structure: lesson0 intro, explicit subsection wrappers across lessons 1-9, CTA-style manual deep links, reflection blocks, path table, and bottom navigation are all part of the live page.
-- `lessons_old.html` now exists only as an archive/rollback copy of the previous lessons page.
-- `css/lessons.css` mostly serves the production lessons page now; only a small archive-only tail remains for `lessons_old.html` (`why-important h4`, `task h4`, `lesson-image-fullwidth`, and matching high-contrast rules).
+- `css/lessons.css` now serves only the production lessons page; the archive-only rollback selectors were removed.
 - the project's biggest maintainability risk still sits in static HTML/CSS, not in the interpreter/runtime core.
 
 ## 9. Accessibility subsystem
@@ -456,13 +454,12 @@ Parser/UI unit tests:
 1. Static CSS complexity remains the primary debt
 - `css/manual.css` is substantially cleaner than before, but still carries some cascade noise in lower-level content/a11y fragments and selector organization.
 - `css/main-editor.css` is close to a "good enough" state after tokenization and deduplication, but still has a few follow-up cosmetic literals and could be flattened further if desired.
-- `css/lessons.css` is mostly in good shape for the production lessons page; the remaining debt there is a small archive-only selector tail that should disappear together with `lessons_old.html`.
+- `css/lessons.css` is in good shape for the production lessons page; remaining work there is ordinary stylistic cleanup rather than structural debt.
 - styles are still page-local rather than componentized, so maintainability depends on continuing small, verified cleanups instead of large rewrites.
 
 2. Large static documents are still expensive to maintain
 - `manual.html` is much more structured now, but it is still a large hand-maintained static document.
 - `lessons.html` is now the production version of the reworked course and is no longer an active refactor target; remaining work there is smoke-test growth and ordinary content maintenance.
-- `lessons_old.html` is temporary archive debt only. Once rollback is no longer needed, it should be deleted together with the small archive-only selector tail in `css/lessons.css`.
 
 3. Mixed execution model history
 - despite parser cleanup, non-game mode still uses queue adaptation for compatibility with existing runtime structure.
@@ -479,11 +476,10 @@ Parser/UI unit tests:
 Recommended practical order at this snapshot:
 1. finish any last high-signal cleanup in `css/manual.css`,
 2. treat `css/main-editor.css` as near-done and only revisit for narrow cosmetic follow-up,
-3. delete `lessons_old.html` when rollback is no longer needed and remove the archive-only `css/lessons.css` tail in the same batch,
-4. keep `lessons.html` in watch-mode with small smoke-test growth as the course evolves,
-5. revisit `manual.html` only for deeper content-structure refactors if there is a clear payoff,
-6. keep test-suite reliability under observation, but not as the main active debt item right now,
-7. keep JS-core/test cleanup as lower priority hygiene work unless a new bug changes that assessment.
+3. keep `lessons.html` in watch-mode with small smoke-test growth as the course evolves,
+4. revisit `manual.html` only for deeper content-structure refactors if there is a clear payoff,
+5. keep test-suite reliability under observation, but not as the main active debt item right now,
+6. keep JS-core/test cleanup as lower priority hygiene work unless a new bug changes that assessment.
 
 ## 15. Change checklist for contributors
 

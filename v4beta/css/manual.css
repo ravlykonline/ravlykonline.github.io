@@ -615,6 +615,9 @@ body.manual-paged-ready .guide-section.is-active {
     padding: 0;
     list-style: none;
 }
+.command-list-manual > li::marker {
+    content: '';
+}
 .a11y-high-contrast .command-list-manual {
     background: var(--manual-high-contrast-bg) !important;
     color: var(--manual-high-contrast-text) !important;
@@ -622,11 +625,23 @@ body.manual-paged-ready .guide-section.is-active {
 
 
 .command-item-manual {
+    position: relative;
+    display: flex;
+    flex-direction: column;
     background-color: var(--manual-example-code-bg);
     padding: var(--manual-content-block-padding);
+    padding-left: 56px;
     border-radius: var(--manual-content-block-radius);
     border-left: var(--manual-accent-border-width) solid var(--manual-command-accent); /* Lilac */
     box-shadow: var(--manual-card-shadow);
+}
+.command-item-manual::before {
+    content: '🐌';
+    position: absolute;
+    left: 14px;
+    top: 20px;
+    font-size: 1.4rem;
+    line-height: 1;
 }
 .a11y-high-contrast .command-item-manual {
     background: var(--manual-high-contrast-bg) !important;

@@ -59,7 +59,7 @@
 Візуальна та UI-стильова документація міститься у [`DESIGN_GUIDE.md`](DESIGN_GUIDE.md).
 
 - **Стек:** Pure JavaScript (ES Modules), HTML5 Canvas, CSS3.
-- **Тестування:** Unit-тести на `Vitest` та E2E-тести на `Playwright`.
+- **Тестування:** Unit-тести на `node`-скриптах репозиторію та E2E-тести на `Playwright`.
 - **Запуск тестів:** 
   - `npm run test:unit`
   - `npm run test:e2e`

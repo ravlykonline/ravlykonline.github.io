@@ -108,14 +108,10 @@
     background-color: #e6f7ff; /* Light blue */
     border-left: 5px solid #1890ff; /* Blue */
     padding: 18px; /* Increased padding */
-    margin: 25px 0;
+    width: min(100%, 760px);
+    box-sizing: border-box;
+    margin: 25px auto 0;
     border-radius: 8px;
-}
-/* Archive-only: remove after deleting lessons_old.html. */
-.lesson-content .why-important h4 {
-    color: #0050b3; /* Dark blue */
-    font-size: clamp(1.1rem, 3vw, 1.3rem); /* Slightly larger */
-    margin-bottom: 12px;
 }
 .lesson-content .why-important ul {
     list-style-type: '💡'; /* Custom bullet */
@@ -154,7 +150,8 @@
 }
 
 .lesson-path-table thead th:nth-child(1) {
-    width: 20%;
+    width: 12%;
+    text-align: center;
 }
 
 .lesson-path-table thead th:nth-child(2) {
@@ -166,6 +163,10 @@
     border: 0;
     vertical-align: middle;
     font-size: clamp(1rem, 2.8vw, 1.1rem);
+}
+
+.lesson-path-table tbody td:nth-child(1) {
+    text-align: center;
 }
 
 .lesson-path-table tbody td:nth-child(2) {
@@ -180,32 +181,13 @@
 }
 
 .lesson-path-index {
-    display: inline-block;
-    min-width: 1ch;
-    margin-right: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2ch;
     color: #111827;
     font-size: clamp(1rem, 2.8vw, 1.1rem);
-}
-
-.lesson-path-dot {
-    display: inline-block;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    border: 2px solid #111827;
-    vertical-align: middle;
-}
-
-.lesson-path-dot-green {
-    background: #32cd32;
-}
-
-.lesson-path-dot-yellow {
-    background: #ffd400;
-}
-
-.lesson-path-dot-red {
-    background: #ff3040;
+    font-weight: 800;
 }
 
 .lesson-content .code-example {
@@ -225,14 +207,10 @@
     background-color: #fffbe6; /* Light yellow */
     border: 2px dashed #ffa500; /* Orange */
     padding: 18px;
-    margin-top: 25px;
+    width: min(100%, 760px);
+    box-sizing: border-box;
+    margin: 25px auto 0;
     border-radius: 8px;
-}
-/* Archive-only: remove after deleting lessons_old.html. */
-.task h4 {
-    color: #ff8c00; /* Dark orange */
-    font-size: clamp(1.1rem, 3vw, 1.3rem);
-    margin-bottom: 10px;
 }
 
 .lesson-manual-link {
@@ -244,6 +222,11 @@
     font-size: 0.95rem;
     text-decoration: none;
     border-radius: 999px;
+}
+.lesson-content a.lesson-manual-link:hover,
+.lesson-content a.lesson-manual-link:focus-visible {
+    color: #fff;
+    text-decoration: none;
 }
 .lesson-manual-link::before {
     content: "\f02d";
@@ -262,7 +245,9 @@
     background-color: #d9edf0;
     border-left: 6px solid #57c2bd;
     padding: 16px 22px;
-    margin-top: 20px;
+    width: min(100%, 760px);
+    box-sizing: border-box;
+    margin: 20px auto 0;
     border-radius: 8px;
     font-size: clamp(0.95rem, 2.5vw, 1.05rem);
     line-height: 1.55;
@@ -280,7 +265,8 @@
 }
 
 .lesson-content details {
-    margin-top: 12px;
+    width: min(100%, 100%);
+    margin: 12px auto 0;
     border: 1px solid #d9dfef;
     border-radius: 10px;
     background: #f8fbff;
@@ -393,7 +379,6 @@
     }
     .lesson-path-table thead th:nth-child(1),
     .lesson-path-table thead th:nth-child(2) { width: auto; }
-    .lesson-path-dot { width: 18px; height: 18px; }
 }
 
 /* --- Accessibility refinements: lessons page --- */
@@ -428,9 +413,6 @@
 
 .a11y-high-contrast .lesson-content h2,
 .a11y-high-contrast .lesson-content h3,
-/* Archive-only: remove after deleting lessons_old.html. */
-.a11y-high-contrast .lesson-content .why-important h4,
-.a11y-high-contrast .task h4,
 .a11y-high-contrast .tip strong {
     color: #fff !important;
     border-color: #fff !important;

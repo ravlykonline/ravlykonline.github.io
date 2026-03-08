@@ -202,6 +202,24 @@ runTest('accessibility stylesheet keeps legacy cleanup constraints', () => {
     });
 });
 
+runTest('lessons stylesheet no longer contains archive-only selectors', () => {
+    const lessonsCss = fs.readFileSync('css/lessons.css', 'utf8');
+    const forbiddenSnippets = [
+        '.lesson-content .why-important h4',
+        '.task h4',
+        'Archive-only: remove after deleting lessons_old.html.',
+        '.lesson-path-dot',
+    ];
+
+    forbiddenSnippets.forEach((snippet) => {
+        assert.equal(
+            lessonsCss.includes(snippet),
+            false,
+            `css/lessons.css should not include archive-only lessons snippet: ${snippet}`
+        );
+    });
+});
+
 runTest('modal controller keeps canonical modal helper usage', () => {
     const mainJs = fs.readFileSync('js/main.js', 'utf8');
     const modalControllerJs = fs.readFileSync('js/modules/modalController.js', 'utf8');

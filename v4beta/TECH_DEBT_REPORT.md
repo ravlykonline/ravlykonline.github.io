@@ -1,6 +1,6 @@
 # Technical Debt Report
 
-Snapshot date: 2026-03-07
+Snapshot date: 2026-03-08
 
 ## Overall assessment
 
@@ -82,27 +82,26 @@ That means tests currently support refactoring rather than block it.
 
 Progress made:
 - the reworked lessons page was promoted to production `lessons.html`,
-- `lessons_old.html` now holds the previous course structure as a temporary archive/rollback copy,
 - repeated support blocks (`why-important`, `task`, `tip`) now share consistent structural lesson-specific classes,
 - lessons 1-9 now also use explicit subsection wrappers for intro/example clusters instead of relying only on a flat stream of headings and blocks,
 - the file is still large, but repeated lesson patterns are easier to target without one-off selectors or manual scanning,
-- production smoke tests now cover lesson0, deep links, path table, grouped lesson7 manual links, reflection blocks, bottom navigation, and archive-independence guards.
+- production smoke tests now cover lesson0, deep links, path table, grouped lesson7 manual links, reflection blocks, bottom navigation, archive-independence guards, and the absence of the old rollback page.
 
 Current status:
 - now the production course page,
 - no longer the next urgent structural target after the subsection-wrapper cleanup completed across lessons 1-9,
-- remaining debt is mostly a small archive tail in `css/lessons.css` plus the temporary presence of `lessons_old.html`.
+- remaining debt is normal content maintenance and optional smoke-test growth, not archive residue.
 
 ### `css/lessons.css`
 
 Progress made:
 - dead selectors were already removed (`task__btn`, `navigation-buttons__btn` and related variants),
-- archive-only selectors are now explicitly marked for later deletion together with `lessons_old.html`,
-- the live page no longer depends on archive-only hooks such as `h4` support-block headings or `lesson-image-fullwidth`.
+- the last archive-only selectors tied to rollback markup were removed,
+- the live page no longer depends on archive-only hooks such as `h4` support-block headings.
 
 Current status:
-- low-priority cleanup tail only,
-- ready for a final small removal batch once `lessons_old.html` is deleted.
+- no longer carries the archive cleanup tail,
+- back to ordinary low-priority stylistic maintenance.
 
 ### test stability
 
@@ -118,10 +117,9 @@ Current status:
 
 1. Finish the remaining high-signal cleanup in `css/manual.css`.
 2. Treat `css/main-editor.css` as near-complete and revisit only for narrow cosmetic follow-up.
-3. Delete `lessons_old.html` when rollback is no longer needed and remove the archive-only `css/lessons.css` tail in the same batch.
-4. Keep `lessons.html` in watch-mode instead of active refactor mode unless new content changes justify another pass.
-5. Revisit `manual.html` only if there is a clear payoff from deeper content-structure refactoring.
-6. Keep broader JS hygiene and test-suite observation as lower-priority maintenance work.
+3. Keep `lessons.html` in watch-mode instead of active refactor mode unless new content changes justify another pass.
+4. Revisit `manual.html` only if there is a clear payoff from deeper content-structure refactoring.
+5. Keep broader JS hygiene and test-suite observation as lower-priority maintenance work.
 
 ## Practical conclusion
 
@@ -130,7 +128,7 @@ The repository is now in a better state not because debt disappeared, but becaus
 - the biggest debt areas are clearer,
 - the riskiest CSS files are less chaotic,
 - the main HTML hotspots are more structured and less expensive to modify safely,
-- the lessons migration is complete and the remaining lessons debt is now archival rather than architectural,
+- the lessons migration is complete and the archive rollback residue is gone,
 - the remaining near-term risk is now more about CSS residue and test-suite reliability than about gross HTML monoliths.
 - the manual page is less structurally monolithic,
 - refactoring can continue in smaller, verified steps.
