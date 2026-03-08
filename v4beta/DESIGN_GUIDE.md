@@ -276,6 +276,7 @@ Use it as the reference for:
 - toolbar behavior,
 - modal patterns,
 - workspace/control density,
+- low-priority SEO/support text placement near secondary navigation rather than in the primary hero/workspace focus path,
 - cross-page navigation buttons.
 
 ### 9.2 Manual (`manual.html`)

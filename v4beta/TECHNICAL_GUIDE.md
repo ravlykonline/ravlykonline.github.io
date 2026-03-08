@@ -281,6 +281,7 @@ Behavior:
 ## 8.1 Main page (`index.html` + `js/main.js`)
 
 Responsibilities:
+- visual reading order on desktop: title -> toolbar -> editor/canvas workspace -> examples -> command reference -> low-priority SEO subtitle -> `Посібник` / `Уроки` CTA buttons,
 - toolbar actions (run/stop/clear/download/share/grid/help),
 - current short labels: `Запустити`, `Стоп`, `Скинути`, `Сітка`, `Довідка`, `Завантажити`, `Поділитися`,
 - unified download flow: `Завантажити` opens modal with `Завантажити як малюнок` / `Завантажити як код`,
@@ -317,6 +318,7 @@ Responsibilities:
 - Escape-key modal flow in `main.js` is grouped in dedicated `handleEscapeKey` handler to keep keyboard behavior maintainable,
 - examples launcher,
 - command reference tabs,
+- the `РАВЛИК - твоя перша текстова мова програмування!` subtitle is intentionally placed near the bottom of the main page, directly above the manual/lessons CTA block, so semantic SEO text remains present without competing with the primary editor workflow,
 - workspace tabs (`Редактор` / `Полотно`) on small and medium screens,
 - state synchronization with interpreter.
 
@@ -326,6 +328,7 @@ Implemented responsive behavior:
 - compact toolbar on small screens,
 - icon-only toolbar labels on phone widths,
 - workspace tab switching for editor/canvas up to tablet width,
+- desktop/tablet workspace panels keep `height: 600px`, `min-height: 400px`, and `max-height: 78vh`,
 - command category tabs in the reference block are arranged as a balanced 2x2 grid on phones,
 - optimized examples block:
   - tablet: compact grid,
