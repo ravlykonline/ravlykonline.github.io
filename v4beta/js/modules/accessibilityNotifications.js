@@ -26,19 +26,30 @@ export function showAccessibilityNotification(message, options = {}) {
     messageDiv.setAttribute('aria-atomic', 'true');
 
     const iconClass = getAccessibilityNotificationIconClass(message);
-    messageDiv.innerHTML = `
-        <span class="message-text-global"><i class="fas ${iconClass}"></i> ${message}</span>
-        <button class="message-close-btn-global" aria-label="\u0417\u0430\u043a\u0440\u0438\u0442\u0438 \u043f\u043e\u0432\u0456\u0434\u043e\u043c\u043b\u0435\u043d\u043d\u044f"><i class="fas fa-times"></i></button>
-    `;
 
+    const textSpan = documentRef.createElement('span');
+    textSpan.className = 'message-text-global';
+
+    const icon = documentRef.createElement('i');
+    icon.className = `fas ${iconClass}`;
+    textSpan.appendChild(icon);
+    textSpan.appendChild(documentRef.createTextNode(` ${message}`));
+
+    const closeBtn = documentRef.createElement('button');
+    closeBtn.className = 'message-close-btn-global';
+    closeBtn.setAttribute('aria-label', '\u0417\u0430\u043a\u0440\u0438\u0442\u0438 \u043f\u043e\u0432\u0456\u0434\u043e\u043c\u043b\u0435\u043d\u043d\u044f');
+
+    const closeIcon = documentRef.createElement('i');
+    closeIcon.className = 'fas fa-times';
+    closeBtn.appendChild(closeIcon);
+
+    messageDiv.appendChild(textSpan);
+    messageDiv.appendChild(closeBtn);
     documentRef.body.appendChild(messageDiv);
 
     const closeTimeout = setTimeout(() => messageDiv.remove(), removeAfterMs);
-    const closeBtn = messageDiv.querySelector('.message-close-btn-global');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            clearTimeout(closeTimeout);
-            messageDiv.remove();
-        }, { once: true });
-    }
+    closeBtn.addEventListener('click', () => {
+        clearTimeout(closeTimeout);
+        messageDiv.remove();
+    }, { once: true });
 }

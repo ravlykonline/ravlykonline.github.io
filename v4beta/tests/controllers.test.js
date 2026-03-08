@@ -204,6 +204,8 @@ runTest('file actions controller loads code from hash and invokes callback', () 
 
     let loadedCalls = 0;
     let infoCalls = 0;
+    let infoMessage = null;
+    let infoDuration = null;
     let errorCalls = 0;
     const codeEditor = { value: '' };
 
@@ -220,7 +222,11 @@ runTest('file actions controller loads code from hash and invokes callback', () 
         successMessages: { IMAGE_SAVED: 'ok' },
         showError() { errorCalls += 1; },
         showSuccessMessage() {},
-        showInfoMessage() { infoCalls += 1; },
+        showInfoMessage(message, duration) {
+            infoCalls += 1;
+            infoMessage = message;
+            infoDuration = duration;
+        },
         onCodeLoaded() { loadedCalls += 1; },
     });
 
@@ -229,6 +235,8 @@ runTest('file actions controller loads code from hash and invokes callback', () 
     assert.equal(codeEditor.value.length > 0, true);
     assert.equal(loadedCalls, 1);
     assert.equal(infoCalls, 1);
+    assert.equal(infoMessage, 'Код завантажено з посилання. Переглянь його перед запуском.');
+    assert.equal(infoDuration, 0);
     assert.equal(errorCalls, 0);
 
     global.window = previousWindow;

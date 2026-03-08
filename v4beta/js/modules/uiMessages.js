@@ -1,6 +1,29 @@
 let messageTimeout;
 let errorAudioContext = null;
 
+function appendMessageContent(messageDiv, iconClass, message) {
+    const textSpan = document.createElement('span');
+    textSpan.className = 'message-text-global';
+
+    const icon = document.createElement('i');
+    icon.className = `fas ${iconClass}`;
+    textSpan.appendChild(icon);
+    textSpan.appendChild(document.createTextNode(` ${message}`));
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'message-close-btn-global';
+    closeBtn.setAttribute('aria-label', 'Закрити повідомлення');
+
+    const closeIcon = document.createElement('i');
+    closeIcon.className = 'fas fa-times';
+    closeBtn.appendChild(closeIcon);
+
+    messageDiv.appendChild(textSpan);
+    messageDiv.appendChild(closeBtn);
+
+    return closeBtn;
+}
+
 function playErrorBeep() {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return;
@@ -45,11 +68,7 @@ function showMessage(message, type = 'info', duration = 3000) {
         iconClass = 'fa-hand-paper';
     }
 
-    messageDiv.innerHTML = `
-        <span class="message-text-global"><i class="fas ${iconClass}"></i> ${message}</span>
-        <button class="message-close-btn-global" aria-label="Закрити повідомлення"><i class="fas fa-times"></i></button>
-    `;
-
+    appendMessageContent(messageDiv, iconClass, message);
     document.body.appendChild(messageDiv);
 
     const closeBtn = messageDiv.querySelector('.message-close-btn-global');
@@ -57,7 +76,7 @@ function showMessage(message, type = 'info', duration = 3000) {
         messageDiv.remove();
         clearTimeout(messageTimeout);
     };
-    closeBtn.addEventListener('click', removeMessage, { once: true });
+    closeBtn?.addEventListener('click', removeMessage, { once: true });
 
     if (duration > 0) {
         messageTimeout = setTimeout(removeMessage, duration);

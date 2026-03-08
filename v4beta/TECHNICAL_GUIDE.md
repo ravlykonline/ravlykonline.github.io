@@ -3,7 +3,7 @@
 This document is the primary technical onboarding for this repository.
 If you are an AI agent or a developer joining the project, start here.
 
-Last updated: 2026-03-07
+Last updated: 2026-03-08
 
 Related:
 - `DESIGN_GUIDE.md` is the visual/style reference for UI work.
@@ -91,7 +91,7 @@ Core modules:
 - `js/modules/editorUi.js`: editor decorations (line numbers/active+error lines) and friendly error formatting helpers.
 - `js/modules/gridOverlay.js`: grid overlay drawing, persistence, and toolbar grid button state.
 - `js/modules/executionController.js`: run/stop execution orchestration, execution timeout handling, and stop-confirm pause/resume flow.
-- `js/modules/fileActionsController.js`: save image/code actions, share-link flow, and code loading from URL hash.
+- `js/modules/fileActionsController.js`: save image/code actions, share-link flow, URL-hash code loading, and the shared-project safety notice shown after hash import.
 - `js/modules/navigationPrefetch.js`: secondary-page prefetch scheduling and safe `_blank` navigation helper.
 - `js/modules/modalController.js`: modal button wiring, Escape-key flow, and overlay-close orchestration.
 - `js/modules/editorInputController.js`: editor/example input wiring (hotkeys, indentation, listener setup, placeholder behavior).
@@ -120,7 +120,7 @@ Core modules:
 - `js/modules/parserStateStatements.js`: parser helpers for state/call statements (`color`, `pen`, `clear`, assignment, function call).
 - `js/modules/parserStatementHandlers.js`: parser-bound statement handler factory that wires parser callbacks/keywords into the concrete statement helpers.
 - `js/modules/accessibilitySettings.js`: accessibility settings/storage/class-application helpers shared by the accessibility entry script.
-- `js/modules/accessibilityNotifications.js`: accessibility toast/icon-selection helpers used by the accessibility entry script.
+- `js/modules/accessibilityNotifications.js`: accessibility toast/icon-selection helpers used by the accessibility entry script; dynamic message DOM is assembled without `innerHTML`.
 - `js/modules/lessonsPageController.js`: lessons-page tab/navigation/history controller helpers used by the lessons entry script.
 - `js/modules/manualPageController.js`: manual-page section paging, hash/history, top-link, and mobile TOC controller helpers used by the manual entry script.
 - `js/modules/parserStatementDispatcher.js`: parser dispatch helper that routes the current token to the correct statement parser.
@@ -145,7 +145,7 @@ Core modules:
 - `tests/controllers.test.js`: controller-level integration tests.
 - `tests/interpreter.helpers.core.test.js`: interpreter helper core contracts.
 - `tests/interpreter.helpers.runtime.test.js`: interpreter helper runtime contracts.
-- `tests/encoding.test.js`: UTF-8/mojibake and static regression guards (HTML link safety, toolbar/download contract, modal ARIA contract, CSS legacy cleanup constraints, modal/message architecture guards, modal mapping guards, JS `_blank` window.open safety).
+- `tests/encoding.test.js`: UTF-8/mojibake and static regression guards (HTML link safety, toolbar/download contract, modal ARIA contract, CSS legacy cleanup constraints, modal/message architecture guards, modal mapping guards, JS `_blank` window.open safety, and targeted UTF-8 guards for critical controller/message modules).
 - `tests/e2e/*`: Playwright smoke tests.
 - `playwright.config.js`: E2E config (desktop + mobile + tablet).
 
@@ -297,6 +297,7 @@ Responsibilities:
 - grid overlay persistence/drawing is centralized in `js/modules/gridOverlay.js` and consumed by `main.js`,
 - execution run/timeout/toolbar-locking and stop-confirm behavior are centralized in `js/modules/executionController.js` and consumed by `main.js`,
 - save/share/hash-load file actions are centralized in `js/modules/fileActionsController.js` and consumed by `main.js`,
+- share-link imports still auto-load editor code from `#code=...`, but the UI now shows an explicit non-expiring notice telling the user the code came from a link and should be reviewed before running,
 - secondary-page idle prefetch scheduling is centralized in `js/modules/navigationPrefetch.js` and consumed by `main.js`,
 - modal interactions (Escape/open-close behavior/overlay-close wiring) are centralized in `js/modules/modalController.js` and consumed by `main.js`,
 - editor/example keyboard and input listener wiring is centralized in `js/modules/editorInputController.js` and consumed by `main.js`,
@@ -376,6 +377,11 @@ Current key limits:
 
 The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 
+Additional current UI-side safety hardening:
+- share-link code is never auto-executed; it is only loaded into the editor,
+- after URL-hash import, the editor shows a persistent "review before running" info message,
+- global message rendering in `js/modules/uiMessages.js` and `js/modules/accessibilityNotifications.js` avoids `innerHTML` for dynamic text, reducing DOM-XSS exposure from message content.
+
 ## 11. Testing strategy
 
 ### 11.1 Unit/logic tests
@@ -388,7 +394,7 @@ The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 - `tests/controllers.test.js`: controller-level checks (execution/file/navigation/modal/input/lifecycle).
 - `tests/interpreter.helpers.core.test.js`: interpreter helper core checks (boundary/conditions/game/queue/AST-eval).
 - `tests/interpreter.helpers.runtime.test.js`: interpreter helper runtime checks (primitive/animation/drawing/clone/lifecycle/runtime-state).
-- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` + key Ukrainian snippets), repository policy checks for `.editorconfig`/`.gitattributes`, UTF-8 BOM guards for selected critical text files (with explicit legacy allowlist), external-link safety assertions for `_blank`, unified toolbar/download regression guards, modal ARIA contract checks, CSS legacy-cleanup guards, modal/message architecture guards, modal overlay->content mapping checks, and JS `window.open(..., '_blank', 'noopener,noreferrer')` safety guards.
+- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` + key Ukrainian snippets), repository policy checks for `.editorconfig`/`.gitattributes`, UTF-8 BOM guards for selected critical text files (with explicit legacy allowlist), external-link safety assertions for `_blank`, unified toolbar/download regression guards, modal ARIA contract checks, CSS legacy-cleanup guards, modal/message architecture guards, modal overlay->content mapping checks, JS `window.open(..., '_blank', 'noopener,noreferrer')` safety guards, and direct coverage for the share/message modules most exposed to mojibake regressions.
 
 ## 11.3 Encoding and line-ending policy
 

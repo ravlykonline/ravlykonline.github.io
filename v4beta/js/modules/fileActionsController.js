@@ -106,7 +106,7 @@ export function createFileActionsController({
             }
             codeEditor.value = decodedCode;
             onCodeLoaded?.();
-            showInfoMessage('Код завантажено з посилання.');
+            showInfoMessage('Код завантажено з посилання. Переглянь його перед запуском.', 0);
         } catch (error) {
             showError('Посилання з кодом пошкоджене або неповне.', 0);
         }
