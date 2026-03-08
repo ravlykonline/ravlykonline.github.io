@@ -47,7 +47,7 @@
     flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
     justify-content: center;
     gap: 10px; /* Reduced gap for tighter packing */
-    margin-bottom: 10px; /* Increased bottom margin */
+    margin-bottom: 0;
 }
 
 .toolbar .btn {
@@ -126,7 +126,7 @@
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 8px;
-        margin-bottom: 8px;
+        margin-bottom: 0;
     }
 
     .toolbar .btn {
@@ -285,15 +285,15 @@
 
 @media (min-width: 768px) {
     .code-box {
-        height: clamp(640px, 74vh, 860px);
-        max-height: none;
-        min-height: 480px;
+        height: 600px;
+        max-height: 70vh;
+        min-height: 400px;
     }
 
     .canvas-box {
-        height: clamp(640px, 74vh, 860px);
-        max-height: none;
-        min-height: 480px;
+        height: 600px;
+        max-height: 70vh;
+        min-height: 400px;
     }
 }
 
@@ -433,11 +433,10 @@
     border: 3px solid var(--editor-accent-examples); /* Orange border */
 }
 
-.examples-intro {
-    margin: 0 0 10px;
+.editor-subtitle {
+    margin: 0;
     text-align: center;
-    font-size: 1.1rem;
-    font-weight: 800;
+    font-size: clamp(1rem, 3vw, 1.2rem);
     color: #555;
 }
 
@@ -487,10 +486,6 @@
         padding: 16px;
     }
 
-    .examples-intro {
-        font-size: 1.02rem;
-    }
-
     .examples h2 {
         margin-bottom: 12px;
         font-size: 1.35rem;
@@ -521,8 +516,7 @@
         padding: 14px 10px;
     }
 
-    .examples-intro {
-        margin-bottom: 8px;
+    .editor-subtitle {
         font-size: 0.98rem;
     }
 
