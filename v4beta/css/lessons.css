@@ -136,6 +136,10 @@
     border-collapse: collapse;
     margin: 14px 0 10px;
     table-layout: fixed;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
 }
 
 .lesson-path-table thead th {
@@ -143,8 +147,9 @@
     color: #1f2937;
     font-size: clamp(1rem, 2.8vw, 1.15rem);
     font-weight: 800;
-    padding: 0 0 10px;
-    border: 0;
+    padding: 14px 16px;
+    border: 1px solid #cbd5e1;
+    background: #eef4f7;
 }
 
 .lesson-path-table thead th:nth-child(1) {
@@ -156,8 +161,8 @@
 }
 
 .lesson-path-table tbody td {
-    padding: 6px 0;
-    border: 0;
+    padding: 12px 16px;
+    border: 1px solid #cbd5e1;
     vertical-align: middle;
     font-size: clamp(1rem, 2.8vw, 1.1rem);
 }
@@ -233,6 +238,13 @@
     text-decoration: none;
     border-radius: 999px;
 }
+.lesson-content .lesson-manual-link:hover,
+.lesson-content .lesson-manual-link:focus-visible,
+.lesson-content .task .btn:hover,
+.lesson-content .task .btn:focus-visible {
+    color: #fff;
+    text-decoration: none;
+}
 .lesson-manual-link::before {
     content: "\f02d";
     font-family: "Font Awesome 5 Free";
@@ -254,6 +266,9 @@
     border-radius: 8px;
     font-size: clamp(0.95rem, 2.5vw, 1.05rem);
     line-height: 1.55;
+}
+.tip > :last-child {
+    margin-bottom: 0;
 }
 .tip strong {
     color: #00796b;
