@@ -22,7 +22,7 @@ export function createNavigationPrefetchController() {
         if (!shouldPrefetchSecondaryPages()) return;
         if (document.visibilityState === 'hidden') return;
 
-        const prefetchTargets = ['manual.html', 'lessons.html', 'quiz.html', 'resources.html'];
+        const prefetchTargets = ['manual.html', 'lessons.html', 'quiz.html'];
         const startPrefetch = () => prefetchTargets.forEach(prefetchDocument);
 
         if ('requestIdleCallback' in window) {

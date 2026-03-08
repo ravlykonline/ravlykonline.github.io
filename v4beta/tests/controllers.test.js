@@ -283,7 +283,7 @@ runTest('navigation prefetch controller schedules document prefetch links', () =
     const navigation = createNavigationPrefetchController();
     navigation.scheduleSecondaryPagesPrefetch();
 
-    assert.equal(appended.length, 4);
+    assert.equal(appended.length, 3);
     assert.equal(appended.every((link) => link.rel === 'prefetch' && link.as === 'document'), true);
 
     global.window = previousWindow;

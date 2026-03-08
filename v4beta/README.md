@@ -18,7 +18,6 @@
 | **🎨 Редактор** | [ravlyk.org](https://ravlyk.org/) |
 | **📖 Посібник** | [ravlyk.org/manual.html](https://ravlyk.org/manual.html) |
 | **🎓 Уроки** | [ravlyk.org/lessons.html](https://ravlyk.org/lessons.html) |
-| **🧩 Ресурси** | [ravlyk.org/resources.html](https://ravlyk.org/resources.html) |
 
 ## 📐 Основні команди та можливості
 

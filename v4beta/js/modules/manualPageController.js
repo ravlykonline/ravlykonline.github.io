@@ -2,8 +2,24 @@ export function getManualSectionIds(sections) {
     return Array.from(sections).map((section) => section.id).filter(Boolean);
 }
 
+export function resolveManualSectionId(sectionIds, id) {
+    const normalizedId = String(id || '').trim();
+    if (!normalizedId) return normalizedId;
+    if (sectionIds.includes(normalizedId)) return normalizedId;
+
+    const aliasMap = {
+        movement: 'basic-commands',
+        rotation: 'basic-commands',
+        pen: 'pen-control',
+        variables: 'variables-functions',
+        functions: 'variables-functions',
+    };
+
+    return aliasMap[normalizedId] || normalizedId;
+}
+
 export function findManualSectionIndexById(sectionIds, id) {
-    return sectionIds.indexOf(id);
+    return sectionIds.indexOf(resolveManualSectionId(sectionIds, id));
 }
 
 export function getInitialManualSectionIndex(sectionIds, hash) {

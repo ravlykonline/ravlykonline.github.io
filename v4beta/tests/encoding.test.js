@@ -115,6 +115,19 @@ runTest('all target="_blank" links explicitly declare rel="noopener noreferrer"'
     });
 });
 
+runTest('primary public pages do not link to unfinished additional resources page', () => {
+    const files = ['index.html', 'manual.html', 'lessons.html', 'README.md', 'sitemap.xml', 'js/modules/navigationPrefetch.js'];
+
+    files.forEach((path) => {
+        const content = fs.readFileSync(path, 'utf8');
+        assert.equal(
+            content.includes('resources.html'),
+            false,
+            `${path} should not link to unfinished resources.html`
+        );
+    });
+});
+
 runTest('editor toolbar keeps unified download button and no legacy save buttons', () => {
     const indexHtml = fs.readFileSync('index.html', 'utf8');
     const mainJs = fs.readFileSync('js/main.js', 'utf8');
