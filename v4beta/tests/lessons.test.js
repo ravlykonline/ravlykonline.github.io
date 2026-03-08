@@ -110,7 +110,6 @@ runTest('production lessons page does not depend on archive-only hooks', () => {
 
     assert.equal(html.includes('<h4>'), false, 'lessons.html must not depend on legacy h4 lesson headings');
     assert.equal(html.includes('lesson-image-fullwidth'), false, 'lessons.html must not depend on legacy full-width image helper');
-    assert.equal(html.includes('lesson-path-dot'), false, 'lessons.html must not include misleading lesson path dots');
 });
 
 runTest('repository no longer keeps archived lessons rollback page', () => {

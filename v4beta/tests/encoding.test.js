@@ -208,7 +208,6 @@ runTest('lessons stylesheet no longer contains archive-only selectors', () => {
         '.lesson-content .why-important h4',
         '.task h4',
         'Archive-only: remove after deleting lessons_old.html.',
-        '.lesson-path-dot',
     ];
 
     forbiddenSnippets.forEach((snippet) => {

@@ -108,9 +108,7 @@
     background-color: #e6f7ff; /* Light blue */
     border-left: 5px solid #1890ff; /* Blue */
     padding: 18px; /* Increased padding */
-    width: min(100%, 760px);
-    box-sizing: border-box;
-    margin: 25px auto 0;
+    margin: 25px 0;
     border-radius: 8px;
 }
 .lesson-content .why-important ul {
@@ -150,8 +148,7 @@
 }
 
 .lesson-path-table thead th:nth-child(1) {
-    width: 12%;
-    text-align: center;
+    width: 20%;
 }
 
 .lesson-path-table thead th:nth-child(2) {
@@ -163,10 +160,6 @@
     border: 0;
     vertical-align: middle;
     font-size: clamp(1rem, 2.8vw, 1.1rem);
-}
-
-.lesson-path-table tbody td:nth-child(1) {
-    text-align: center;
 }
 
 .lesson-path-table tbody td:nth-child(2) {
@@ -181,13 +174,32 @@
 }
 
 .lesson-path-index {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 2ch;
+    display: inline-block;
+    min-width: 1ch;
+    margin-right: 10px;
     color: #111827;
     font-size: clamp(1rem, 2.8vw, 1.1rem);
-    font-weight: 800;
+}
+
+.lesson-path-dot {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #111827;
+    vertical-align: middle;
+}
+
+.lesson-path-dot-green {
+    background: #32cd32;
+}
+
+.lesson-path-dot-yellow {
+    background: #ffd400;
+}
+
+.lesson-path-dot-red {
+    background: #ff3040;
 }
 
 .lesson-content .code-example {
@@ -207,9 +219,7 @@
     background-color: #fffbe6; /* Light yellow */
     border: 2px dashed #ffa500; /* Orange */
     padding: 18px;
-    width: min(100%, 760px);
-    box-sizing: border-box;
-    margin: 25px auto 0;
+    margin-top: 25px;
     border-radius: 8px;
 }
 
@@ -222,11 +232,6 @@
     font-size: 0.95rem;
     text-decoration: none;
     border-radius: 999px;
-}
-.lesson-content a.lesson-manual-link:hover,
-.lesson-content a.lesson-manual-link:focus-visible {
-    color: #fff;
-    text-decoration: none;
 }
 .lesson-manual-link::before {
     content: "\f02d";
@@ -245,9 +250,7 @@
     background-color: #d9edf0;
     border-left: 6px solid #57c2bd;
     padding: 16px 22px;
-    width: min(100%, 760px);
-    box-sizing: border-box;
-    margin: 20px auto 0;
+    margin-top: 20px;
     border-radius: 8px;
     font-size: clamp(0.95rem, 2.5vw, 1.05rem);
     line-height: 1.55;
@@ -265,8 +268,7 @@
 }
 
 .lesson-content details {
-    width: min(100%, 100%);
-    margin: 12px auto 0;
+    margin-top: 12px;
     border: 1px solid #d9dfef;
     border-radius: 10px;
     background: #f8fbff;
@@ -379,6 +381,7 @@
     }
     .lesson-path-table thead th:nth-child(1),
     .lesson-path-table thead th:nth-child(2) { width: auto; }
+    .lesson-path-dot { width: 18px; height: 18px; }
 }
 
 /* --- Accessibility refinements: lessons page --- */
