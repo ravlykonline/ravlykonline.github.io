@@ -11,4 +11,5 @@ export {
     parseColorStatementToAst,
     parseFunctionCallStatementToAst,
     parsePenStatementToAst,
+    parseThicknessStatementToAst,
 } from './parserStateStatements.js';

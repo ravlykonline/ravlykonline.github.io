@@ -1,3 +1,5 @@
+import { MAX_PEN_SIZE, MIN_PEN_SIZE } from './constants.js';
+
 function createNamedColorArg(value) {
     return {
         kind: 'named',
@@ -79,6 +81,52 @@ export function parseClearStatementToAst({
             span: spanFromMeta(tokenMeta, startIndex, startIndex + 1),
         },
         nextIndex: startIndex + 1,
+    };
+}
+
+function isUnsignedIntegerToken(token) {
+    return /^\d+$/.test(String(token || ''));
+}
+
+export function parseThicknessStatementToAst({
+    tokens,
+    tokenMeta,
+    startIndex,
+    spanFromMeta,
+    createError,
+}) {
+    const firstArg = tokens[startIndex + 1];
+    const secondArg = tokens[startIndex + 2];
+    const hasExplicitNegativeNumber = firstArg === '-' && isUnsignedIntegerToken(secondArg);
+
+    if (typeof firstArg === 'undefined') {
+        throw createError('NO_THICKNESS_VALUE');
+    }
+
+    if (hasExplicitNegativeNumber) {
+        throw createError('THICKNESS_OUT_OF_RANGE');
+    }
+
+    if (!isUnsignedIntegerToken(firstArg)) {
+        throw createError('INVALID_THICKNESS_VALUE');
+    }
+
+    const thickness = Number(firstArg);
+    if (!Number.isInteger(thickness)) {
+        throw createError('INVALID_THICKNESS_VALUE');
+    }
+
+    if (thickness < MIN_PEN_SIZE || thickness > MAX_PEN_SIZE) {
+        throw createError('THICKNESS_OUT_OF_RANGE');
+    }
+
+    return {
+        stmt: {
+            type: 'ThicknessStmt',
+            thickness,
+            span: spanFromMeta(tokenMeta, startIndex, startIndex + 2),
+        },
+        nextIndex: startIndex + 2,
     };
 }
 

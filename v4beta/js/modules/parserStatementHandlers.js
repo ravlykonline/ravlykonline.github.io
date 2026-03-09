@@ -8,6 +8,7 @@ import {
     parseGotoStatementToAst as parseGotoStatementToAstHelper,
     parseMoveStatementToAst as parseMoveStatementToAstHelper,
     parsePenStatementToAst as parsePenStatementToAstHelper,
+    parseThicknessStatementToAst as parseThicknessStatementToAstHelper,
     parseTurnStatementToAst as parseTurnStatementToAstHelper,
 } from './parserStatements.js';
 import {
@@ -111,6 +112,14 @@ export function createParserStatementHandlers({
                 tokenMeta,
                 startIndex,
                 spanFromMeta: bindings.spanFromMeta,
+            }),
+        parseThicknessStatementToAst: (tokens, tokenMeta, startIndex) =>
+            parseThicknessStatementToAstHelper({
+                tokens,
+                tokenMeta,
+                startIndex,
+                spanFromMeta: bindings.spanFromMeta,
+                createError,
             }),
         parseGotoStatementToAst: (tokens, tokenMeta, startIndex) =>
             parseGotoStatementToAstHelper({

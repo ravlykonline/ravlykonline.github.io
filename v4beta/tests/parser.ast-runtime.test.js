@@ -27,6 +27,14 @@ runTest('builds explicit color/background argument objects in AST', () => {
     assert.deepEqual(ast.body[1].colorArg, { kind: 'named', value: 'бежевий' });
 });
 
+runTest('builds thickness statement in AST', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst(['товщина', '7']);
+
+    assert.equal(ast.body[0].type, 'ThicknessStmt');
+    assert.equal(ast.body[0].thickness, 7);
+});
+
 runTest('builds random color/background arguments in AST', () => {
     const interpreter = createInterpreter();
     const ast = interpreter.parseTokensToAst(['колір', 'випадково', 'фон', 'random']);
@@ -155,15 +163,62 @@ await runAsyncTest('executeCommands applies random goto target using injected rn
     }
 });
 
+await runAsyncTest('executeCommands applies thickness and resets it on clear', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        await interpreter.executeCommands('товщина 7');
+        assert.equal(interpreter.state.penSize, 7);
+        assert.equal(interpreter.ctx.lineWidth, 7);
+
+        await interpreter.executeCommands('очистити');
+        assert.equal(interpreter.state.penSize, 1);
+        assert.equal(interpreter.ctx.lineWidth, 1);
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+});
+
+await runAsyncTest('executeCommands uses thickness when clamping to canvas bounds', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        await interpreter.executeCommands('товщина 50\nперейти в 10000 10000');
+        assert.equal(interpreter.state.x, interpreter.canvas.width - 25);
+        assert.equal(interpreter.state.y, 25);
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+});
+
 runTest('reset restores default background color after custom background', () => {
     const interpreter = createInterpreter();
     interpreter.setBackgroundColor('бежевий');
+    interpreter.state.penSize = 9;
+    interpreter.applyContextSettings();
     assert.equal(String(interpreter.state.backgroundColor).toLowerCase(), String(COLOR_MAP['бежевий']).toLowerCase());
     assert.equal(String(interpreter.backgroundCanvas.style.backgroundColor).toLowerCase(), String(COLOR_MAP['бежевий']).toLowerCase());
+    assert.equal(interpreter.state.penSize, 9);
 
     interpreter.reset();
     assert.equal(String(interpreter.state.backgroundColor).toLowerCase(), '#ffffff');
     assert.equal(String(interpreter.backgroundCanvas.style.backgroundColor).toLowerCase(), '#ffffff');
+    assert.equal(interpreter.state.penSize, 1);
+    assert.equal(interpreter.ctx.lineWidth, 1);
 });
 
 runTest('custom background survives technical resize redraw until clear or reset', () => {

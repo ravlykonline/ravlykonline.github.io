@@ -101,6 +101,39 @@ runTest('throws on duplicated random goto syntax', () => {
     );
 });
 
+runTest('throws on thickness without value', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parseTokens(['товщина']),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'NO_THICKNESS_VALUE'
+    );
+});
+
+runTest('throws on invalid thickness forms', () => {
+    const interpreter = createInterpreter();
+
+    assert.throws(
+        () => interpreter.parseTokens(['товщина', '2.5']),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'INVALID_THICKNESS_VALUE'
+    );
+    assert.throws(
+        () => interpreter.parseTokens(['товщина', 'синя']),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'INVALID_THICKNESS_VALUE'
+    );
+    assert.throws(
+        () => interpreter.parseTokens(['товщина', '0']),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'THICKNESS_OUT_OF_RANGE'
+    );
+    assert.throws(
+        () => interpreter.parseTokens(['товщина', '-', '3']),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'THICKNESS_OUT_OF_RANGE'
+    );
+    assert.throws(
+        () => interpreter.parseTokens(['товщина', '100']),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'THICKNESS_OUT_OF_RANGE'
+    );
+});
+
 runTest('game mode blocks page-scroll keys but normal mode does not', () => {
     const interpreter = createInterpreter();
 

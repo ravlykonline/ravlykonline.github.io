@@ -10,6 +10,7 @@ export function handlePrimitiveAstStatement({
     performTurn,
     setColor,
     setBackgroundColor,
+    setThickness,
     pickRandomColorName = null,
     pickRandomBackgroundColorName = null,
     pickSafeRandomDistance = null,
@@ -104,6 +105,15 @@ export function handlePrimitiveAstStatement({
             outputQueue.push({ type: 'BACKGROUND', value: colorName, original: 'фон' });
         } else {
             setBackgroundColor(colorName);
+        }
+        return true;
+    }
+
+    if (stmt.type === 'ThicknessStmt') {
+        if (mode === 'queue') {
+            outputQueue.push({ type: 'THICKNESS', value: stmt.thickness, original: 'товщина' });
+        } else {
+            setThickness(stmt.thickness);
         }
         return true;
     }

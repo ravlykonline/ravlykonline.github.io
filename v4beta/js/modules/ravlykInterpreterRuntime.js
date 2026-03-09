@@ -1,6 +1,7 @@
 import {
     COLOR_MAP,
     DEFAULT_CANVAS_BACKGROUND,
+    DEFAULT_PEN_SIZE,
     ERROR_MESSAGES,
     MAX_RECURSION_DEPTH,
     MAX_REPEATS_IN_LOOP,
@@ -50,6 +51,10 @@ export function handlePrimitiveAstStatementRuntime(runtime, stmt, env, mode, out
         performTurn: (angle) => performTurn({ angle, state: runtime.state }),
         setColor: (colorName) => runtime.setColor(colorName),
         setBackgroundColor: (colorName) => runtime.setBackgroundColor(colorName),
+        setThickness: (thickness) => {
+            runtime.state.penSize = thickness;
+            runtime.applyContextSettings();
+        },
         pickRandomColorName: () => runtime.randomResolver.pickRandomColorName(),
         pickRandomBackgroundColorName: () => runtime.randomResolver.pickRandomBackgroundColorName(),
         pickSafeRandomDistance: (direction) => runtime.randomResolver.pickSafeRandomDistance({
@@ -224,6 +229,10 @@ export function runCommandQueueWithRuntime(runtime) {
                 animateTurn: (cmd, angle, dt) => runtime.animateTurn(cmd, angle, dt),
                 setColor: (color) => runtime.setColor(color),
                 setBackgroundColor: (color) => runtime.setBackgroundColor(color),
+                setThickness: (thickness) => {
+                    runtime.state.penSize = thickness;
+                    runtime.applyContextSettings();
+                },
                 performGoto: (x, y) => runtime.performGoto(x, y),
                 clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
                 cloneCommand: (cmd) => cloneInterpreterCommand(cmd),
@@ -324,6 +333,7 @@ export function clearScreenRuntime(runtime) {
 
 export function clearToDefaultSheetRuntime(runtime) {
     runtime.state.backgroundColor = DEFAULT_CANVAS_BACKGROUND;
+    runtime.state.penSize = DEFAULT_PEN_SIZE;
     applyBackgroundLayer({
         canvas: runtime.canvas,
         backgroundCanvas: runtime.backgroundCanvas,

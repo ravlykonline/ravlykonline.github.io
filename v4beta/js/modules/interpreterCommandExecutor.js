@@ -11,6 +11,7 @@ export function executeInterpreterCommand({
     animateTurn,
     setColor,
     setBackgroundColor,
+    setThickness,
     performGoto,
     clearToDefaultSheet,
     cloneCommand,
@@ -57,6 +58,9 @@ export function executeInterpreterCommand({
             break;
         case 'BACKGROUND':
             setBackgroundColor(currentCommandObject.value);
+            break;
+        case 'THICKNESS':
+            setThickness(currentCommandObject.value);
             break;
         case 'GOTO':
             performGoto(currentCommandObject.x, currentCommandObject.y);

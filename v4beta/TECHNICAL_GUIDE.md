@@ -9,6 +9,38 @@ Related:
 - `DESIGN_GUIDE.md` is the visual/style reference for UI work.
 - `FEATURE_COLOR_BACKGROUND_RANDOM_SPEC.md` is the staged implementation spec for expanded color support, `С„РѕРЅ`, and future `РІРёРїР°РґРєРѕРІРѕ` commands.
 
+## 0. High-value future backlog
+
+This project should keep a short explicit list of missing but important language capabilities.
+Current pedagogical/product priority order:
+
+1. Filled shapes / fill semantics
+2. Showing variable values (`показати`, `надрукувати`, or equivalent)
+3. Line thickness (`товщина N`)
+4. Compound conditions (`і`, `або`, `не`)
+5. Reading turtle state (`x`, `y`, `кут`)
+6. Recursion (important for older learners, but not required for the youngest audience)
+
+Why these matter:
+- `fill` is a major visual gap for a drawing language and is strongly felt by children immediately.
+- variable output is a learning/debugging gap because learners currently cannot directly inspect changing state.
+- line thickness significantly improves visual expressiveness with a very small syntax surface.
+- compound conditions are the first real ceiling for richer game logic and range checks.
+- turtle-state reads unlock adaptive geometry and coordinate-based reasoning tasks.
+- recursion is strategically important for long-term growth, but not urgent for the core elementary-school experience.
+
+Recommended implementation priority for the next version:
+- realistic / low-risk: `товщина N`
+- realistic / low-risk to medium-risk: `показати змінну`
+- realistic but requires a dedicated spec: `заливка`
+- defer until after that: compound conditions and turtle-state reads
+- keep in long-term roadmap: recursion
+
+Important product note:
+- If only one visual feature is taken next, `заливка` has the strongest child-visible payoff.
+- If only one teaching/debugging feature is taken next, `показати змінну` has the strongest learning payoff.
+- If the goal is the safest next release, `товщина N` is the best first candidate.
+
 ## 1. Project purpose
 
 RAVLYK is a browser-based educational programming language (Ukrainian syntax) for kids.
@@ -107,7 +139,7 @@ Core modules:
 - `js/modules/interpreterAstQueueAdapter.js`: AST -> legacy queue adapter helper (function/assignment/repeat/if expansion and runtime IF payload conversion).
 - `js/modules/interpreterGameContract.js`: game-mode contract helpers (`hasGameStatement`, top-level/nested `РіСЂР°С‚Рё` validation).
 - `js/modules/interpreterAstEval.js`: AST number-expression evaluation and AST span -> runtime error-location mapping helpers.
-- `js/modules/interpreterPrimitiveStatements.js`: primitive AST statement helper for queue/runtime modes (move/turn/color/goto/pen/clear).
+- `js/modules/interpreterPrimitiveStatements.js`: primitive AST statement helper for queue/runtime modes (move/turn/color/background/thickness/goto/pen/clear).
 - `js/modules/interpreterAnimation.js`: animation helpers for pen/move/turn command progression and boundary-warning signaling.
 - `js/modules/interpreterDrawingOps.js`: drawing/state operation helpers (move/turn/color/goto/clear) used by the interpreter runtime.
 - `js/modules/backgroundLayer.js`: canonical helper for background-underlay application and background+drawing export composition.
@@ -162,6 +194,7 @@ Implemented AST statement types:
 - `TurnStmt` (`РїСЂР°РІРѕСЂСѓС‡`, `Р»С–РІРѕСЂСѓС‡`)
 - `ColorStmt` (`РєРѕР»С–СЂ`)
 - `BackgroundStmt` (`С„РѕРЅ`)
+- `ThicknessStmt` (`С‚РѕРІС‰РёРЅР°`)
 - `GotoStmt` (`РїРµСЂРµР№С‚Рё РІ X Y`)
 - `PenStmt` (`РїС–РґРЅСЏС‚Рё`, `РѕРїСѓСЃС‚РёС‚Рё`)
 - `ClearStmt` (`РѕС‡РёСЃС‚РёС‚Рё`)

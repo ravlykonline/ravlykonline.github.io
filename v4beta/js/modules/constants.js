@@ -84,7 +84,9 @@ export const CORE_COLOR_NAMES = COLOR_REGISTRY
 
 export const DEFAULT_PEN_COLOR = "#000000";
 export const DEFAULT_CANVAS_BACKGROUND = "#FFFFFF";
-export const DEFAULT_PEN_SIZE = 3;
+export const DEFAULT_PEN_SIZE = 1;
+export const MIN_PEN_SIZE = 1;
+export const MAX_PEN_SIZE = 50;
 export const RAVLYK_INITIAL_ANGLE = -90; // Upwards
 
 export const MAX_RECURSION_DEPTH = 20;
@@ -112,6 +114,9 @@ export const ERROR_MESSAGES = {
     NO_ANGLE: (command) => 'Після команди "' + command + '" треба вказати кут у градусах.',
     INVALID_ANGLE: (command, value) => 'Для "' + command + '" потрібне число, а не "' + value + '".',
     NO_COLOR_NAME: (command) => 'Після команди "' + command + '" треба написати назву кольору.',
+    NO_THICKNESS_VALUE: () => 'Після команди "товщина" треба вказати ціле число від ' + MIN_PEN_SIZE + ' до ' + MAX_PEN_SIZE + '.',
+    INVALID_THICKNESS_VALUE: () => 'Для команди "товщина" потрібне ціле число від ' + MIN_PEN_SIZE + ' до ' + MAX_PEN_SIZE + '.',
+    THICKNESS_OUT_OF_RANGE: () => 'Товщина лінії має бути від ' + MIN_PEN_SIZE + ' до ' + MAX_PEN_SIZE + '.',
     NO_POSITION_X: (command) => 'Після команди "' + command + '" не вистачає X-координати.',
     NO_POSITION_Y: (command) => 'Після команди "' + command + '" не вистачає Y-координати.',
     INVALID_POSITION_X: (command, value) => 'X-координата для "' + command + '" має бути числом, а не "' + value + '".',

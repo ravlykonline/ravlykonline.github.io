@@ -239,6 +239,54 @@ runTest('interpreter primitive-statement helper resolves random goto target thro
     ]);
 });
 
+runTest('interpreter primitive-statement helper handles thickness statement in queue and runtime modes', () => {
+    const queue = [];
+    const state = { penSize: 1 };
+    let appliedThickness = null;
+
+    handlePrimitiveAstStatement({
+        stmt: { type: 'ThicknessStmt', thickness: 9 },
+        env: {},
+        mode: 'queue',
+        outputQueue: queue,
+        state,
+        evalAstNumberExpression: () => 0,
+        createError: (code) => new Error(code),
+        performMove: () => {},
+        performTurn: () => {},
+        setColor: () => {},
+        setBackgroundColor: () => {},
+        setThickness: () => {},
+        performGoto: () => {},
+        clearToDefaultSheet: () => {},
+    });
+    handlePrimitiveAstStatement({
+        stmt: { type: 'ThicknessStmt', thickness: 11 },
+        env: {},
+        mode: 'runtime',
+        outputQueue: queue,
+        state,
+        evalAstNumberExpression: () => 0,
+        createError: (code) => new Error(code),
+        performMove: () => {},
+        performTurn: () => {},
+        setColor: () => {},
+        setBackgroundColor: () => {},
+        setThickness: (value) => {
+            state.penSize = value;
+            appliedThickness = value;
+        },
+        performGoto: () => {},
+        clearToDefaultSheet: () => {},
+    });
+
+    assert.deepEqual(queue, [
+        { type: 'THICKNESS', value: 9, original: 'товщина' },
+    ]);
+    assert.equal(state.penSize, 11);
+    assert.equal(appliedThickness, 11);
+});
+
 runTest('interpreter animation helper handles pen/move/turn completion paths', () => {
     const state = { scale: 1, isStuck: false, isPenDown: true };
     const penCmd = {};

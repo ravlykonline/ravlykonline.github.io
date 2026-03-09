@@ -41,6 +41,15 @@ runTest('parse color and pen commands', () => {
     assert.equal(queue[0].value, 'red');
 });
 
+runTest('parse thickness command', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens(['товщина', '5', 'thickness', '7']);
+    assert.deepEqual(queue, [
+        { type: 'THICKNESS', value: 5, original: 'товщина' },
+        { type: 'THICKNESS', value: 7, original: 'товщина' },
+    ]);
+});
+
 runTest('parse background command in Ukrainian and English forms', () => {
     const interpreter = createInterpreter();
     const queue = interpreter.parseTokens(['фон', 'синій', 'background', 'gold']);

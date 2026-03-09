@@ -13,6 +13,7 @@ export function parseNextStatementToAst({
     parseBackgroundStatementToAst,
     parsePenStatementToAst,
     parseClearStatementToAst,
+    parseThicknessStatementToAst,
     parseGotoStatementToAst,
     parseRepeatStatementToAst,
     parseIfStatementToAst,
@@ -56,6 +57,10 @@ export function parseNextStatementToAst({
 
     if (tokenLower === 'очистити' || tokenLower === 'clear') {
         return parseClearStatementToAst(tokenMeta, index);
+    }
+
+    if (tokenLower === 'товщина' || tokenLower === 'thickness') {
+        return parseThicknessStatementToAst(tokens, tokenMeta, index);
     }
 
     if (tokenLower === 'перейти' || tokenLower === 'goto') {
