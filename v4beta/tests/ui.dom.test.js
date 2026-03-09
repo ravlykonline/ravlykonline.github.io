@@ -456,10 +456,13 @@ runTest('grid overlay controller draws when enabled and hides when disabled', ()
     };
     const gridCtx = {
         clearRectCalls: 0,
+        fillCalls: 0,
         beginPath() {},
         moveTo() {},
         lineTo() {},
+        closePath() {},
         stroke() {},
+        fill() { this.fillCalls += 1; },
         fillText() {},
         clearRect() { this.clearRectCalls += 1; },
     };
@@ -482,6 +485,79 @@ runTest('grid overlay controller draws when enabled and hides when disabled', ()
     assert.equal(gridCanvas.width, 200);
     assert.equal(gridCanvas.height, 120);
     assert.equal(gridCtx.clearRectCalls > 0, true);
+    assert.equal(gridCtx.fillCalls, 2);
+
+    global.localStorage = previousLocalStorage;
+});
+
+runTest('grid overlay keeps axis arrows anchored to the resized top and right edges', () => {
+    const previousLocalStorage = global.localStorage;
+    global.localStorage = {
+        getItem() { return null; },
+        setItem() {},
+    };
+
+    const moveToCalls = [];
+    const gridCanvas = {
+        style: {},
+        width: 0,
+        height: 0,
+    };
+    const canvas = {
+        width: 200,
+        height: 120,
+        clientWidth: 200,
+        clientHeight: 120,
+        getBoundingClientRect() {
+            return { left: 20, top: 10 };
+        },
+    };
+    const canvasContainer = {
+        getBoundingClientRect() {
+            return { left: 0, top: 0 };
+        },
+    };
+    const gridCtx = {
+        beginPath() {},
+        moveTo(x, y) { moveToCalls.push([x, y]); },
+        lineTo() {},
+        closePath() {},
+        stroke() {},
+        fill() {},
+        fillText() {},
+        clearRect() {},
+    };
+
+    const gridOverlay = createGridOverlayController({
+        canvas,
+        canvasContainer,
+        gridCanvas,
+        gridCtx,
+        gridBtn: null,
+        gridAlignOffsetX: 0,
+        gridAlignOffsetY: 0,
+    });
+
+    gridOverlay.setGridVisibility(true);
+
+    canvas.width = 320;
+    canvas.height = 180;
+    canvas.clientWidth = 320;
+    canvas.clientHeight = 180;
+    moveToCalls.length = 0;
+
+    gridOverlay.drawGridOverlay();
+
+    assert.equal(gridCanvas.width, 320);
+    assert.equal(gridCanvas.height, 180);
+    assert.equal(
+        moveToCalls.some(([x, y]) => x === 160 && y === 3.5),
+        true
+    );
+    assert.equal(
+        moveToCalls.some(([x, y]) => x === 316.5 && y === 90),
+        true
+    );
 
     global.localStorage = previousLocalStorage;
 });

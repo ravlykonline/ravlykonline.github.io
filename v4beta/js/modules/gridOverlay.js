@@ -63,6 +63,7 @@ export function createGridOverlayController({
         const centerY = (height / 2) + gridAlignOffsetY;
         const minorStep = 25;
         const majorStep = 100;
+        const axisArrowSize = 10;
 
         const drawVerticalLine = (x, isMajor) => {
             gridCtx.beginPath();
@@ -80,6 +81,22 @@ export function createGridOverlayController({
             gridCtx.moveTo(0, y);
             gridCtx.lineTo(width, y);
             gridCtx.stroke();
+        };
+
+        const drawAxisArrow = ({ points, color }) => {
+            if (typeof gridCtx.fill !== 'function') return;
+            gridCtx.beginPath();
+            gridCtx.fillStyle = color;
+            gridCtx.moveTo(points[0][0], points[0][1]);
+            for (let index = 1; index < points.length; index += 1) {
+                gridCtx.lineTo(points[index][0], points[index][1]);
+            }
+            if (typeof gridCtx.closePath === 'function') {
+                gridCtx.closePath();
+            } else {
+                gridCtx.lineTo(points[0][0], points[0][1]);
+            }
+            gridCtx.fill();
         };
 
         for (let x = centerX; x <= width; x += minorStep) {
@@ -108,6 +125,23 @@ export function createGridOverlayController({
         gridCtx.moveTo(0, centerY);
         gridCtx.lineTo(width, centerY);
         gridCtx.stroke();
+
+        drawAxisArrow({
+            color: 'rgba(255, 99, 71, 0.95)',
+            points: [
+                [centerX, axisArrowSize * 0.35],
+                [centerX - (axisArrowSize * 0.75), axisArrowSize + 2],
+                [centerX + (axisArrowSize * 0.75), axisArrowSize + 2],
+            ],
+        });
+        drawAxisArrow({
+            color: 'rgba(50, 205, 50, 0.95)',
+            points: [
+                [width - (axisArrowSize * 0.35), centerY],
+                [width - (axisArrowSize + 2), centerY - (axisArrowSize * 0.75)],
+                [width - (axisArrowSize + 2), centerY + (axisArrowSize * 0.75)],
+            ],
+        });
 
         gridCtx.fillStyle = 'rgba(51, 51, 51, 0.85)';
         gridCtx.font = '12px Nunito, sans-serif';

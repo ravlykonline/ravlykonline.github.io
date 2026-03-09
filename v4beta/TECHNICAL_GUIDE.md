@@ -91,7 +91,7 @@ Core modules:
 - `js/modules/share.js`: share-link/hash encoding + clipboard helpers for editor code sharing.
 - `js/modules/workspaceTabs.js`: command/workspace tabs setup and keyboard navigation wiring.
 - `js/modules/editorUi.js`: editor decorations (line numbers/active+error lines) and friendly error formatting helpers.
-- `js/modules/gridOverlay.js`: grid overlay drawing, persistence, and toolbar grid button state.
+- `js/modules/gridOverlay.js`: grid overlay drawing, persistence, toolbar grid button state, and positive-axis arrow rendering (`+X` right, `+Y` up).
 - `js/modules/executionController.js`: run/stop execution orchestration, execution timeout handling, and stop-confirm pause/resume flow.
 - `js/modules/fileActionsController.js`: save image/code actions, share-link flow, URL-hash code loading, and the shared-project safety notice shown after hash import.
 - `js/modules/navigationPrefetch.js`: secondary-page prefetch scheduling and safe `_blank` navigation helper.
