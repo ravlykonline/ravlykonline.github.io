@@ -492,6 +492,21 @@
                                 ти хочеш "стерти" частину малюнка, замалювавши її кольором фону.</li>
                         </ul>
                     </div>
+                    <section class="manual-subsection manual-callout-subsection" aria-labelledby="manual-colors-background-title">
+                    <div class="tips-box" role="region" aria-labelledby="manual-colors-background-title">
+                        <h4 id="manual-colors-background-title">Колір лінії та фон</h4>
+                        <p><code>колір</code> змінює, чим малює Равлик, а <code>фон</code> змінює підкладку, на якій він малює.</p>
+                        <ul>
+                            <li>Команда <code>фон</code> не стирає вже намальовані лінії.</li>
+                            <li>Якщо написати кілька команд <code>фон ...</code> підряд без пауз, зазвичай буде видно лише останній колір.</li>
+                            <li>Команда <code>очистити</code> повертає чистий білий аркуш: стирає малюнок і скидає фон до білого.</li>
+                        </ul>
+                        <pre class="example-code-manual">фон блакитний
+колір червоний
+вперед 100</pre>
+                        <p>У цьому прикладі полотно стане блакитним, а Равлик намалює червону лінію поверх нього.</p>
+                    </div>
+                    </section>
                 </article>
 
                 <article id="drawing-shapes" class="guide-section" aria-labelledby="manual-section-drawing-shapes">
