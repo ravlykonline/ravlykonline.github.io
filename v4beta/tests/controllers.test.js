@@ -198,6 +198,181 @@ runAsyncTest('file actions controller blocks share for empty code', async () => 
     assert.equal(successCalls, 0);
 });
 
+runTest('file actions controller uses runtime background color for image export', () => {
+    const previousDocument = global.document;
+    const previousGetComputedStyle = global.getComputedStyle;
+
+    let fillStyleUsed = null;
+    let fillRectCalls = 0;
+    let drawImageCalls = 0;
+    const drawnSources = [];
+    let clicked = 0;
+    let appended = 0;
+    let removed = 0;
+    let successCalls = 0;
+
+    const tempCtx = {
+        fillStyle: '',
+        fillRect() {
+            fillStyleUsed = this.fillStyle;
+            fillRectCalls += 1;
+        },
+        drawImage() {
+            drawImageCalls += 1;
+            drawnSources.push(arguments[0]);
+        },
+    };
+
+    const backgroundCanvas = { id: 'background-layer' };
+    const drawingCanvas = { width: 120, height: 80, parentElement: {} };
+
+    global.getComputedStyle = () => ({ backgroundColor: 'rgb(255, 255, 255)' });
+    global.document = {
+        createElement(tag) {
+            if (tag === 'canvas') {
+                return {
+                    width: 0,
+                    height: 0,
+                    getContext() {
+                        return tempCtx;
+                    },
+                    toDataURL() {
+                        return 'data:image/png;base64,abc';
+                    },
+                };
+            }
+            if (tag === 'a') {
+                return {
+                    download: '',
+                    href: '',
+                    click() {
+                        clicked += 1;
+                    },
+                };
+            }
+            return null;
+        },
+        body: {
+            appendChild() { appended += 1; },
+            removeChild() { removed += 1; },
+        },
+    };
+
+    const controller = createFileActionsController({
+        canvas: drawingCanvas,
+        backgroundCanvas,
+        codeEditor: { value: '' },
+        maxCodeLengthChars: 1000,
+        maxShareUrlLengthChars: 7000,
+        errorMessages: {
+            CODE_TOO_LONG: 'too long',
+            SAVE_IMAGE_SECURITY_ERROR: 'sec',
+            SAVE_IMAGE_ERROR: (msg) => msg,
+        },
+        successMessages: { IMAGE_SAVED: 'ok' },
+        showError() {},
+        showSuccessMessage() { successCalls += 1; },
+        showInfoMessage() {},
+        onCodeLoaded() {},
+        getCanvasBackgroundColor: () => '#D4AF37',
+    });
+
+    controller.saveDrawing();
+
+    assert.equal(fillStyleUsed, '#D4AF37');
+    assert.equal(fillRectCalls, 1);
+    assert.equal(drawImageCalls, 2);
+    assert.deepEqual(drawnSources, [backgroundCanvas, drawingCanvas]);
+    assert.equal(clicked, 1);
+    assert.equal(appended, 1);
+    assert.equal(removed, 1);
+    assert.equal(successCalls, 1);
+
+    global.document = previousDocument;
+    global.getComputedStyle = previousGetComputedStyle;
+});
+
+runTest('file actions controller exports white background after clear-sheet state', () => {
+    const previousDocument = global.document;
+    const previousGetComputedStyle = global.getComputedStyle;
+
+    let fillStyleUsed = null;
+    let drawImageCalls = 0;
+    const drawnSources = [];
+
+    const tempCtx = {
+        fillStyle: '',
+        fillRect() {
+            fillStyleUsed = this.fillStyle;
+        },
+        drawImage() {
+            drawImageCalls += 1;
+            drawnSources.push(arguments[0]);
+        },
+    };
+
+    const backgroundCanvas = { id: 'background-layer-after-clear' };
+    const drawingCanvas = { width: 120, height: 80, parentElement: {} };
+
+    global.getComputedStyle = () => ({ backgroundColor: 'rgb(255, 255, 255)' });
+    global.document = {
+        createElement(tag) {
+            if (tag === 'canvas') {
+                return {
+                    width: 0,
+                    height: 0,
+                    getContext() {
+                        return tempCtx;
+                    },
+                    toDataURL() {
+                        return 'data:image/png;base64,abc';
+                    },
+                };
+            }
+            if (tag === 'a') {
+                return {
+                    download: '',
+                    href: '',
+                    click() {},
+                };
+            }
+            return null;
+        },
+        body: {
+            appendChild() {},
+            removeChild() {},
+        },
+    };
+
+    const controller = createFileActionsController({
+        canvas: drawingCanvas,
+        backgroundCanvas,
+        codeEditor: { value: '' },
+        maxCodeLengthChars: 1000,
+        maxShareUrlLengthChars: 7000,
+        errorMessages: {
+            CODE_TOO_LONG: 'too long',
+            SAVE_IMAGE_SECURITY_ERROR: 'sec',
+            SAVE_IMAGE_ERROR: (msg) => msg,
+        },
+        successMessages: { IMAGE_SAVED: 'ok' },
+        showError() {},
+        showSuccessMessage() {},
+        showInfoMessage() {},
+        onCodeLoaded() {},
+        getCanvasBackgroundColor: () => '#FFFFFF',
+    });
+
+    controller.saveDrawing();
+
+    assert.equal(fillStyleUsed, '#FFFFFF');
+    assert.equal(drawImageCalls, 2);
+    assert.deepEqual(drawnSources, [backgroundCanvas, drawingCanvas]);
+
+    global.document = previousDocument;
+    global.getComputedStyle = previousGetComputedStyle;
+});
+
 runTest('file actions controller loads code from hash and invokes callback', () => {
     const previousWindow = global.window;
     global.window = { location: { hash: '#code=YWJj' } };
@@ -406,9 +581,12 @@ runTest('lifecycle controller initializes runtime and registers resize fallback'
     let resizeCalls = 0;
     let applyContextCalls = 0;
     let canvasResizeMetaCalls = 0;
+    let linkedCanvasCount = 0;
+    const backgroundCanvas = {};
 
     const lifecycle = createLifecycleController({
         canvas: {},
+        backgroundCanvas,
         ctx: {},
         canvasContainer: null,
         interpreter: {
@@ -426,8 +604,9 @@ runTest('lifecycle controller initializes runtime and registers resize fallback'
         editorUi: {
             updateEditorDecorations() { decorationsCalls += 1; },
         },
-        resizeCanvas(_canvas, _ctx, onResize) {
+        resizeCanvas(_canvas, _ctx, onResize, options) {
             resizeCalls += 1;
+            linkedCanvasCount = Array.isArray(options?.linkedCanvases) ? options.linkedCanvases.length : 0;
             onResize?.({});
         },
         setFooterYear() { footerCalls += 1; },
@@ -438,6 +617,7 @@ runTest('lifecycle controller initializes runtime and registers resize fallback'
     assert.equal(resizeListenerEvent, 'resize');
     assert.equal(gridInitCalls, 1);
     assert.equal(resizeCalls, 1);
+    assert.equal(linkedCanvasCount, 1);
     assert.equal(applyContextCalls, 1);
     assert.equal(canvasResizeMetaCalls, 1);
     assert.equal(gridDrawCalls, 1);

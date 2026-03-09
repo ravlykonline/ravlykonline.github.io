@@ -3,11 +3,11 @@
 This document is the primary technical onboarding for this repository.
 If you are an AI agent or a developer joining the project, start here.
 
-Last updated: 2026-03-08
+Last updated: 2026-03-09
 
 Related:
 - `DESIGN_GUIDE.md` is the visual/style reference for UI work.
-- `FEATURE_COLOR_BACKGROUND_RANDOM_SPEC.md` is the staged implementation spec for expanded color support, `фон`, and future `випадково` commands.
+- `FEATURE_COLOR_BACKGROUND_RANDOM_SPEC.md` is the staged implementation spec for expanded color support, `С„РѕРЅ`, and future `РІРёРїР°РґРєРѕРІРѕ` commands.
 
 ## 1. Project purpose
 
@@ -56,6 +56,7 @@ Core modules:
 - `js/modules/interpreterPrimitiveStatements.js`
 - `js/modules/interpreterAnimation.js`
 - `js/modules/interpreterDrawingOps.js`
+- `js/modules/backgroundLayer.js`
 - `js/modules/interpreterCommandClone.js`
 - `js/modules/interpreterLifecycleCleanup.js`
 - `js/modules/interpreterRuntimeState.js`
@@ -104,11 +105,12 @@ Core modules:
 - `js/modules/interpreterQueueRuntime.js`: RAF/stack orchestration helper for queue-mode command execution loop.
 - `js/modules/interpreterCommandExecutor.js`: queue command-dispatch helper (`ASSIGN_AST`, move/turn/pen/color/goto/clear/repeat/if).
 - `js/modules/interpreterAstQueueAdapter.js`: AST -> legacy queue adapter helper (function/assignment/repeat/if expansion and runtime IF payload conversion).
-- `js/modules/interpreterGameContract.js`: game-mode contract helpers (`hasGameStatement`, top-level/nested `грати` validation).
+- `js/modules/interpreterGameContract.js`: game-mode contract helpers (`hasGameStatement`, top-level/nested `РіСЂР°С‚Рё` validation).
 - `js/modules/interpreterAstEval.js`: AST number-expression evaluation and AST span -> runtime error-location mapping helpers.
 - `js/modules/interpreterPrimitiveStatements.js`: primitive AST statement helper for queue/runtime modes (move/turn/color/goto/pen/clear).
 - `js/modules/interpreterAnimation.js`: animation helpers for pen/move/turn command progression and boundary-warning signaling.
 - `js/modules/interpreterDrawingOps.js`: drawing/state operation helpers (move/turn/color/goto/clear) used by the interpreter runtime.
+- `js/modules/backgroundLayer.js`: canonical helper for background-underlay application and background+drawing export composition.
 - `js/modules/interpreterCommandClone.js`: recursive command-clone helper for runtime queue branches (removes transient animation/execution fields).
 - `js/modules/interpreterLifecycleCleanup.js`: interpreter destroy/cleanup helper (animation/timer/listener teardown + runtime state reset).
 - `js/modules/interpreterRuntimeState.js`: runtime state transition helpers (`stop`/`pause`/`resume` and boundary-warning status access).
@@ -126,7 +128,7 @@ Core modules:
 - `js/modules/manualPageController.js`: manual-page section paging, hash/history, top-link, and mobile TOC controller helpers used by the manual entry script.
 - `js/modules/parserStatementDispatcher.js`: parser dispatch helper that routes the current token to the correct statement parser.
 - `js/modules/parserStatementContext.js`: builder for parser statement-helper context/dependencies, used to keep `ravlykParser` thin.
-- `js/modules/parserControlStatements.js`: parser helpers for control-flow statements (`грати`, `повторити`, `якщо`).
+- `js/modules/parserControlStatements.js`: parser helpers for control-flow statements (`РіСЂР°С‚Рё`, `РїРѕРІС‚РѕСЂРёС‚Рё`, `СЏРєС‰Рѕ`).
 - `js/accessibility.js`: accessibility toggles, persistence, focus behavior.
 - `js/manualPage.js`: manual-page entry script that boots manual navigation/TOC behavior.
 - `js/quizBank.js`: quiz question banks (30 per topic).
@@ -155,24 +157,33 @@ Core modules:
 ### 4.1 Statements
 
 Implemented AST statement types:
-- `MoveStmt` (`вперед`, `назад`)
-- `TurnStmt` (`праворуч`, `ліворуч`)
-- `ColorStmt` (`колір`)
-- `GotoStmt` (`перейти в X Y`)
-- `PenStmt` (`підняти`, `опустити`)
-- `ClearStmt` (`очистити`)
-- `AssignmentStmt` (`створити x = ...` and `x = ...`)
-- `RepeatStmt` (`повторити N ( ... )`)
-- `IfStmt` (`якщо ... ( ... ) [інакше ( ... )]`)
-- `FunctionDefStmt` (`створити name(params) ( ... )`)
+- `MoveStmt` (`РІРїРµСЂРµРґ`, `РЅР°Р·Р°Рґ`)
+- `TurnStmt` (`РїСЂР°РІРѕСЂСѓС‡`, `Р»С–РІРѕСЂСѓС‡`)
+- `ColorStmt` (`РєРѕР»С–СЂ`)
+- `BackgroundStmt` (`С„РѕРЅ`)
+- `GotoStmt` (`РїРµСЂРµР№С‚Рё РІ X Y`)
+- `PenStmt` (`РїС–РґРЅСЏС‚Рё`, `РѕРїСѓСЃС‚РёС‚Рё`)
+- `ClearStmt` (`РѕС‡РёСЃС‚РёС‚Рё`)
+- `AssignmentStmt` (`СЃС‚РІРѕСЂРёС‚Рё x = ...` and `x = ...`)
+- `RepeatStmt` (`РїРѕРІС‚РѕСЂРёС‚Рё N ( ... )`)
+- `IfStmt` (`СЏРєС‰Рѕ ... ( ... ) [С–РЅР°РєС€Рµ ( ... )]`)
+- `FunctionDefStmt` (`СЃС‚РІРѕСЂРёС‚Рё name(params) ( ... )`)
 - `FunctionCallStmt` (`name(args)`)
-- `GameStmt` (`грати ( ... )`)
+- `GameStmt` (`РіСЂР°С‚Рё ( ... )`)
+
+Background-related semantic target:
+- `фон` changes the background/underlay, not the already drawn lines.
+- `очистити` is the learner-facing "clean sheet" action: clear drawing + restore default white background.
+- `reset` is the broader full-state reset on top of that semantic model.
+- Runtime ownership is now split intentionally: `backgroundLayer.js` owns underlay fill/export composition, while interpreter runtime owns state transitions.
+- Keep `FEATURE_COLOR_BACKGROUND_RANDOM_SPEC.md` as the source of truth if implementation and docs are being aligned in phases.
+
 
 ### 4.2 Conditions
 
 Implemented condition node types:
-- `EdgeCondition` (`край`)
-- `KeyCondition` (`клавіша "..."`)
+- `EdgeCondition` (`РєСЂР°Р№`)
+- `KeyCondition` (`РєР»Р°РІС–С€Р° "..."`)
 - `CompareCondition` (`expr comparator expr`, comparators: `= != < > <= >=`)
 
 ### 4.3 Expressions
@@ -225,7 +236,7 @@ Methods:
 
 `executeCommands(code)`:
 1. parse code to AST,
-2. validate `грати` contract,
+2. validate `РіСЂР°С‚Рё` contract,
 3. if game AST exists -> `executeGameProgram()`,
 4. else -> AST to runtime queue (`astToLegacyQueue`) and run queue (`runCommandQueue()`).
 
@@ -234,6 +245,7 @@ Methods:
 Queue command types include:
 - `MOVE`, `MOVE_BACK`, `TURN`, `TURN_LEFT`,
 - `COLOR`, `GOTO`, `PEN_UP`, `PEN_DOWN`, `CLEAR`,
+- `BACKGROUND`,
 - `ASSIGN_AST`,
 - `IF` (with runtime-evaluated condition),
 - `REPEAT` (legacy format support kept for compatibility).
@@ -252,9 +264,9 @@ Important architectural point:
 ### 7.4 Game contract restrictions
 
 Validated by `validateGameProgramContract()` from `js/modules/interpreterGameContract.js`:
-- max one top-level `грати` block,
-- no nested `грати`,
-- if `грати` is present, only specific top-level statements are allowed (assignments and function defs besides `GameStmt`).
+- max one top-level `РіСЂР°С‚Рё` block,
+- no nested `РіСЂР°С‚Рё`,
+- if `РіСЂР°С‚Рё` is present, only specific top-level statements are allowed (assignments and function defs besides `GameStmt`).
 
 ### 7.5 Input handling and cleanup
 
@@ -282,10 +294,10 @@ Behavior:
 ## 8.1 Main page (`index.html` + `js/main.js`)
 
 Responsibilities:
-- visual reading order on desktop: title -> toolbar -> editor/canvas workspace -> examples -> command reference -> low-priority SEO subtitle -> `Посібник` / `Уроки` CTA buttons,
+- visual reading order on desktop: title -> toolbar -> editor/canvas workspace -> examples -> command reference -> low-priority SEO subtitle -> `РџРѕСЃС–Р±РЅРёРє` / `РЈСЂРѕРєРё` CTA buttons,
 - toolbar actions (run/stop/clear/download/share/grid/help),
-- current short labels: `Запустити`, `Стоп`, `Скинути`, `Сітка`, `Довідка`, `Завантажити`, `Поділитися`,
-- unified download flow: `Завантажити` opens modal with `Завантажити як малюнок` / `Завантажити як код`,
+- current short labels: `Р—Р°РїСѓСЃС‚РёС‚Рё`, `РЎС‚РѕРї`, `РЎРєРёРЅСѓС‚Рё`, `РЎС–С‚РєР°`, `Р”РѕРІС–РґРєР°`, `Р—Р°РІР°РЅС‚Р°Р¶РёС‚Рё`, `РџРѕРґС–Р»РёС‚РёСЃСЏ`,
+- unified download flow: `Р—Р°РІР°РЅС‚Р°Р¶РёС‚Рё` opens modal with `Р—Р°РІР°РЅС‚Р°Р¶РёС‚Рё СЏРє РјР°Р»СЋРЅРѕРє` / `Р—Р°РІР°РЅС‚Р°Р¶РёС‚Рё СЏРє РєРѕРґ`,
 - smart idle prefetch of secondary pages (`manual.html`, `lessons.html`, `quiz.html`, `resources.html`) on good connections (skips `Save-Data` and `2g`),
 - editor line numbers and active/error line highlighting,
 - help/confirm modals,
@@ -319,8 +331,8 @@ Responsibilities:
 - Escape-key modal flow in `main.js` is grouped in dedicated `handleEscapeKey` handler to keep keyboard behavior maintainable,
 - examples launcher,
 - command reference tabs,
-- the `РАВЛИК - твоя перша текстова мова програмування!` subtitle is intentionally placed near the bottom of the main page, directly above the manual/lessons CTA block, so semantic SEO text remains present without competing with the primary editor workflow,
-- workspace tabs (`Редактор` / `Полотно`) on small and medium screens,
+- the `Р РђР’Р›РРљ - С‚РІРѕСЏ РїРµСЂС€Р° С‚РµРєСЃС‚РѕРІР° РјРѕРІР° РїСЂРѕРіСЂР°РјСѓРІР°РЅРЅСЏ!` subtitle is intentionally placed near the bottom of the main page, directly above the manual/lessons CTA block, so semantic SEO text remains present without competing with the primary editor workflow,
+- workspace tabs (`Р РµРґР°РєС‚РѕСЂ` / `РџРѕР»РѕС‚РЅРѕ`) on small and medium screens,
 - state synchronization with interpreter.
 
 ### 8.2 Mobile behavior (current)
@@ -411,7 +423,7 @@ Additional current UI-side safety hardening:
 `tests/e2e/index.smoke.spec.js` covers:
 - help modal (`Esc`, focus return),
 - accessibility panel (focus containment + persistence),
-- arrow-key scroll blocking in `грати`,
+- arrow-key scroll blocking in `РіСЂР°С‚Рё`,
 - smoke execution via example block + stop,
 - stop-confirm modal keyboard flow (`Esc` opens while executing, second `Esc` closes and resumes),
 - download modal interactions (`Esc`, focus return),

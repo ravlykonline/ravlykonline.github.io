@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { COLOR_MAP, COLOR_REGISTRY, UKRAINIAN_COLOR_NAMES } from '../js/modules/constants.js';
+import { COLOR_MAP, COLOR_REGISTRY, DEFAULT_CANVAS_BACKGROUND, UKRAINIAN_COLOR_NAMES } from '../js/modules/constants.js';
 import { handlePrimitiveAstStatement } from '../js/modules/interpreterPrimitiveStatements.js';
 import {
     animatePen,
@@ -12,7 +12,12 @@ import {
     setColor,
     clearScreen,
     performGoto,
+    setBackgroundColor,
 } from '../js/modules/interpreterDrawingOps.js';
+import {
+    applyBackgroundLayer,
+    composeCanvasLayersForExport,
+} from '../js/modules/backgroundLayer.js';
 import { cloneInterpreterCommand } from '../js/modules/interpreterCommandClone.js';
 import { destroyInterpreterLifecycle } from '../js/modules/interpreterLifecycleCleanup.js';
 import {
@@ -77,7 +82,7 @@ runTest('interpreter primitive-statement helper handles queue and runtime branch
         performTurn: () => {},
         setColor: () => {},
         performGoto: () => {},
-        clearScreen: () => {},
+        clearToDefaultSheet: () => {},
     });
     assert.equal(handledMove, true);
     assert.equal(queue[0].type, 'MOVE');
@@ -95,12 +100,29 @@ runTest('interpreter primitive-statement helper handles queue and runtime branch
         performTurn: () => {},
         setColor: () => {},
         performGoto: () => {},
-        clearScreen: () => { cleared += 1; },
+        clearToDefaultSheet: () => { cleared += 1; },
     });
     assert.equal(handledPen, true);
     assert.equal(state.isPenDown, false);
     assert.equal(movedDistance, null);
     assert.equal(cleared, 0);
+
+    const handledClear = handlePrimitiveAstStatement({
+        stmt: { type: 'ClearStmt' },
+        env: {},
+        mode: 'runtime',
+        outputQueue: queue,
+        state,
+        evalAstNumberExpression: () => 0,
+        createError: (code) => new Error(code),
+        performMove: () => {},
+        performTurn: () => {},
+        setColor: () => {},
+        performGoto: () => {},
+        clearToDefaultSheet: () => { cleared += 1; },
+    });
+    assert.equal(handledClear, true);
+    assert.equal(cleared, 1);
 });
 
 runTest('interpreter animation helper handles pen/move/turn completion paths', () => {
@@ -159,15 +181,25 @@ runTest('interpreter drawing-ops helper handles move/turn/color/goto/clear contr
         isRainbow: false,
         rainbowHue: 0,
         color: '#000000',
+        backgroundColor: DEFAULT_CANVAS_BACKGROUND,
     };
-    const canvas = { width: 100, height: 100 };
+    const canvas = { width: 100, height: 100, style: {} };
+    const backgroundCanvas = { width: 0, height: 0, style: {} };
     const calls = [];
+    const backgroundCalls = [];
     const ctx = {
         beginPath() { calls.push('begin'); },
         moveTo() { calls.push('moveTo'); },
         lineTo() { calls.push('lineTo'); },
         stroke() { calls.push('stroke'); },
         clearRect() { calls.push('clearRect'); },
+        fillRect() { calls.push('fillRect'); },
+        fillStyle: '#ffffff',
+    };
+    const backgroundCtx = {
+        clearRect() { backgroundCalls.push('clearRect'); },
+        fillRect() { backgroundCalls.push('fillRect'); },
+        fillStyle: '#ffffff',
     };
 
     const boundaryHit = performMove({
@@ -195,6 +227,23 @@ runTest('interpreter drawing-ops helper handles move/turn/color/goto/clear contr
     assert.equal(state.color, '#00ff00');
     assert.equal(appliedColor, 1);
 
+    setBackgroundColor({
+        colorName: 'gold',
+        state,
+        canvas,
+        backgroundCanvas,
+        backgroundCtx,
+        colorMap: { gold: '#d4af37', rainbow: 'RAINBOW' },
+        applyContextSettings: () => { appliedColor += 1; },
+        createUnknownColorError: (raw) => new Error(`bad:${raw}`),
+    });
+    assert.equal(state.backgroundColor, '#d4af37');
+    assert.equal(canvas.style.backgroundColor, 'transparent');
+    assert.equal(backgroundCanvas.style.backgroundColor, '#d4af37');
+    assert.equal(backgroundCanvas.width, 100);
+    assert.equal(backgroundCanvas.height, 100);
+    assert.deepEqual(backgroundCalls, ['clearRect', 'fillRect']);
+
     let notifyCount = 0;
     let warningShown = false;
     performGoto({
@@ -214,8 +263,72 @@ runTest('interpreter drawing-ops helper handles move/turn/color/goto/clear contr
     assert.equal(notifyCount, 1);
     assert.equal(warningShown, true);
 
-    clearScreen({ ctx, canvas });
+    clearScreen({ ctx, canvas, backgroundColor: state.backgroundColor });
     assert.equal(calls.includes('clearRect'), true);
+    assert.equal(calls.includes('fillRect'), false);
+});
+
+runTest('background helper rejects rainbow background mode', () => {
+    assert.throws(
+        () => setBackgroundColor({
+            colorName: 'rainbow',
+            state: { backgroundColor: '#ffffff' },
+            canvas: { style: {} },
+            colorMap: { rainbow: 'RAINBOW' },
+            applyContextSettings: () => {},
+            createUnknownColorError: (raw) => new Error(`bad:${raw}`),
+        }),
+        /bad:rainbow/
+    );
+});
+
+runTest('background layer helper applies underlay styling and export composition in one place', () => {
+    const canvas = { width: 120, height: 80, style: {} };
+    const backgroundCanvas = { width: 0, height: 0, style: {} };
+    const backgroundCalls = [];
+    const backgroundCtx = {
+        fillStyle: '#ffffff',
+        clearRect() { backgroundCalls.push('clearRect'); },
+        fillRect() { backgroundCalls.push('fillRect'); },
+    };
+
+    applyBackgroundLayer({
+        canvas,
+        backgroundCanvas,
+        backgroundCtx,
+        backgroundColor: '#123456',
+    });
+
+    assert.equal(canvas.style.backgroundColor, 'transparent');
+    assert.equal(backgroundCanvas.style.backgroundColor, '#123456');
+    assert.equal(backgroundCanvas.width, 120);
+    assert.equal(backgroundCanvas.height, 80);
+    assert.deepEqual(backgroundCalls, ['clearRect', 'fillRect']);
+
+    const exportCalls = [];
+    const tempCtx = {
+        fillStyle: '',
+        fillRect() {
+            exportCalls.push(['fillRect', this.fillStyle]);
+        },
+        drawImage(source) {
+            exportCalls.push(['drawImage', source]);
+        },
+    };
+
+    composeCanvasLayersForExport({
+        tempCtx,
+        tempCanvas: { width: 120, height: 80 },
+        canvas,
+        backgroundCanvas,
+        canvasBackgroundColor: '#ffffff',
+    });
+
+    assert.deepEqual(exportCalls, [
+        ['fillRect', '#ffffff'],
+        ['drawImage', backgroundCanvas],
+        ['drawImage', canvas],
+    ]);
 });
 
 runTest('interpreter command clone helper deep-clones nested commands and strips runtime fields', () => {

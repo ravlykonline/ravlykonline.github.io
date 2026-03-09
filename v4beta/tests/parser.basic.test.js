@@ -41,6 +41,13 @@ runTest('parse color and pen commands', () => {
     assert.equal(queue[0].value, 'red');
 });
 
+runTest('parse background command in Ukrainian and English forms', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens(['фон', 'синій', 'background', 'gold']);
+    assert.deepEqual(queue.map((cmd) => cmd.type), ['BACKGROUND', 'BACKGROUND']);
+    assert.deepEqual(queue.map((cmd) => cmd.value), ['синій', 'gold']);
+});
+
 runTest('setColor throws on unknown color name', () => {
     const interpreter = createInterpreter();
     assert.throws(

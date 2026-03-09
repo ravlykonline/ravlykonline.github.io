@@ -188,7 +188,7 @@ runTest('interpreter command executor assigns numeric value for ASSIGN_AST', () 
         animateTurn: () => true,
         setColor() {},
         performGoto() {},
-        clearScreen() {},
+        clearToDefaultSheet() {},
         cloneCommand: (cmd) => cmd,
         evaluateIfCondition: () => false,
         resetStuckState() {},

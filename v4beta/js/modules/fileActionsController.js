@@ -3,9 +3,11 @@ import {
     buildShareLink,
     copyTextToClipboard,
 } from './share.js';
+import { composeCanvasLayersForExport } from './backgroundLayer.js';
 
 export function createFileActionsController({
     canvas,
+    backgroundCanvas,
     codeEditor,
     maxCodeLengthChars,
     maxShareUrlLengthChars,
@@ -15,6 +17,7 @@ export function createFileActionsController({
     showSuccessMessage,
     showInfoMessage,
     onCodeLoaded,
+    getCanvasBackgroundColor,
 }) {
     function saveDrawing() {
         try {
@@ -22,13 +25,25 @@ export function createFileActionsController({
             tempCanvas.width = canvas.width;
             tempCanvas.height = canvas.height;
             const tempCtx = tempCanvas.getContext('2d');
+            if (!tempCtx) {
+                throw new Error('Canvas 2D context is unavailable for export');
+            }
 
-            const canvasBgColor = getComputedStyle(canvas).backgroundColor
-                || getComputedStyle(canvas.parentElement).backgroundColor
+            const parentBgColor = canvas.parentElement
+                ? getComputedStyle(canvas.parentElement).backgroundColor
+                : '';
+
+            const canvasBgColor = getCanvasBackgroundColor?.()
+                || getComputedStyle(canvas).backgroundColor
+                || parentBgColor
                 || 'white';
-            tempCtx.fillStyle = canvasBgColor;
-            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-            tempCtx.drawImage(canvas, 0, 0);
+            composeCanvasLayersForExport({
+                tempCtx,
+                tempCanvas,
+                canvas,
+                backgroundCanvas,
+                canvasBackgroundColor: canvasBgColor,
+            });
 
             const link = document.createElement('a');
             link.download = `ravlyk-малюнок-${Date.now()}.png`;

@@ -1,5 +1,6 @@
 export function createLifecycleController({
     canvas,
+    backgroundCanvas,
     ctx,
     canvasContainer,
     interpreter,
@@ -13,6 +14,8 @@ export function createLifecycleController({
         resizeCanvas(canvas, ctx, (resizeMeta) => {
             interpreter.applyContextSettings();
             interpreter.handleCanvasResize(resizeMeta);
+        }, {
+            linkedCanvases: [backgroundCanvas].filter(Boolean),
         });
         gridOverlay.drawGridOverlay();
     };

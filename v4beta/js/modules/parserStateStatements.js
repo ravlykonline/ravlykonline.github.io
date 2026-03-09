@@ -17,6 +17,25 @@ export function parseColorStatementToAst({
     };
 }
 
+export function parseBackgroundStatementToAst({
+    tokens,
+    tokenMeta,
+    startIndex,
+    token,
+    spanFromMeta,
+    createError,
+}) {
+    if (startIndex + 1 >= tokens.length) throw createError('NO_COLOR_NAME', token);
+    return {
+        stmt: {
+            type: 'BackgroundStmt',
+            colorName: tokens[startIndex + 1].toLowerCase(),
+            span: spanFromMeta(tokenMeta, startIndex, startIndex + 2),
+        },
+        nextIndex: startIndex + 2,
+    };
+}
+
 export function parsePenStatementToAst({
     tokenMeta,
     startIndex,

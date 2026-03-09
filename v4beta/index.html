@@ -118,8 +118,11 @@
       <section class="canvas-box" id="workspace-canvas-panel" role="tabpanel" aria-labelledby="workspace-canvas-tab"
         data-workspace-panel="canvas">
         <h3 id="canvas-header" class="area-header canvas-header">Малюнок равлика</h3>
-        <canvas id="ravlyk-canvas" role="img" aria-label="Полотно для малювання Равлика"></canvas>
-        <canvas id="ravlyk-grid-canvas" aria-hidden="true"></canvas>
+        <div class="canvas-stage">
+          <canvas id="ravlyk-background-canvas" aria-hidden="true"></canvas>
+          <canvas id="ravlyk-canvas" role="img" aria-label="Полотно для малювання Равлика"></canvas>
+          <canvas id="ravlyk-grid-canvas" aria-hidden="true"></canvas>
+        </div>
       </section>
     </div>
     <section class="examples" aria-labelledby="examples-title">
@@ -174,11 +177,15 @@
             <div class="command-desc">Поворот ліворуч на N градусів</div>
           </div>
           <div class="command-item">
-            <div class="command-name">колір [назва]</div>
-            <div class="command-desc">Зміна кольору (напр. червоний, веселка)</div>
+            <div class="command-name">колір назва</div>
+            <div class="command-desc">Зміна кольору лінії (напр. червоний, веселка)</div>
           </div>
           <div class="command-item">
-            <div class="command-name">перейти в X Y</div>
+            <div class="command-name">фон назва кольору</div>
+            <div class="command-desc">Зміна підкладки полотна (напр. бежевий, синій)</div>
+          </div>
+          <div class="command-item">
+            <div class="command-name">перейти в X, Y</div>
             <div class="command-desc">Перемістити Равлика у точку (X, Y) від центру полотна</div>
           </div>
           <div class="command-item">
@@ -191,7 +198,7 @@
           </div>
           <div class="command-item">
             <div class="command-name">очистити</div>
-            <div class="command-desc">Очистити тільки полотно (код не змінюється)</div>
+            <div class="command-desc">Очистити малюнок і повернути білий фон (код не змінюється)</div>
           </div>
         </div>
 
@@ -331,11 +338,12 @@
         <li><b>назад N</b> — рух назад на N кроків</li>
         <li><b>ліворуч N</b> — повернути ліворуч на N градусів</li>
         <li><b>праворуч N</b> — повернути праворуч на N градусів</li>
-        <li><b>колір [назва]</b> — змінити колір (напр. червоний, синій, веселка)</li>
+        <li><b>колір [назва]</b> — змінити колір лінії (напр. червоний, синій, веселка)</li>
+        <li><b>фон [назва]</b> — змінити підкладку полотна без стирання ліній (напр. бежевий, синій)</li>
         <li><b>перейти в X Y</b> — перейти у точку (X, Y) від центру полотна</li>
         <li><b>підняти</b> — підняти олівець (не малювати при русі)</li>
         <li><b>опустити</b> — опустити олівець (малювати при русі)</li>
-        <li><b>очистити</b> — очистити тільки малюнок (код не змінюється)</li>
+        <li><b>очистити</b> — очистити малюнок і повернути білий фон (код не змінюється)</li>
         <li><b>повторити N ( ... )</b> — повторити команди в дужках N разів</li>
         <li><b>якщо умова ( ... )</b> — виконати блок за умовою</li>
         <li><b>... інакше ( ... )</b> — альтернативний блок</li>
@@ -358,7 +366,7 @@
     aria-labelledby="clear-modal-title-static">
     <div id="clear-confirm-modal-content" class="modal-content">
       <h2 id="clear-modal-title-static" class="modal-title">Підтвердження очищення</h2>
-      <p>Ви впевнені, що хочете очистити малюнок і поле команд?</p>
+      <p>Ви впевнені, що хочете очистити малюнок, повернути білий фон і стерти поле команд?</p>
       <div class="modal-actions">
         <button id="confirm-clear-btn" class="btn btn-danger">Так, очистити</button>
         <button id="cancel-clear-btn" class="btn btn-secondary">Скасувати</button>

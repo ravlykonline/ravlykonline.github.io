@@ -74,6 +74,38 @@ runTest('resizeCanvas falls back to canvas-box minus header when canvas clientHe
     assert.equal(canvas.height, 592);
 });
 
+runTest('resizeCanvas keeps linked canvas layers in sync with the drawing canvas', () => {
+    const canvasBox = {
+        clientWidth: 900,
+        clientHeight: 640,
+        querySelector() {
+            return null;
+        },
+    };
+    const canvas = {
+        width: 0,
+        height: 0,
+        clientWidth: 860,
+        clientHeight: 580,
+        parentElement: canvasBox,
+        closest(selector) {
+            return selector === '.canvas-box' ? canvasBox : null;
+        },
+    };
+    const linkedCanvas = {
+        width: 0,
+        height: 0,
+    };
+    const ctx = { drawImage() {} };
+
+    resizeCanvas(canvas, ctx, null, { linkedCanvases: [linkedCanvas] });
+
+    assert.equal(canvas.width, 860);
+    assert.equal(canvas.height, 580);
+    assert.equal(linkedCanvas.width, 860);
+    assert.equal(linkedCanvas.height, 580);
+});
+
 runTest('isModalOpen returns false when modal is missing', () => {
     const previousDocument = global.document;
     global.document = {

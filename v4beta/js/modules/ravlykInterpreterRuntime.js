@@ -1,5 +1,6 @@
 import {
     COLOR_MAP,
+    DEFAULT_CANVAS_BACKGROUND,
     ERROR_MESSAGES,
     MAX_RECURSION_DEPTH,
     MAX_REPEATS_IN_LOOP,
@@ -23,9 +24,11 @@ import {
     performMove,
     performTurn,
     setColor as setColorHelper,
+    setBackgroundColor as setBackgroundColorHelper,
     clearScreen as clearScreenHelper,
     performGoto as performGotoHelper,
 } from './interpreterDrawingOps.js';
+import { applyBackgroundLayer } from './backgroundLayer.js';
 import { cloneInterpreterCommand } from './interpreterCommandClone.js';
 
 export function handlePrimitiveAstStatementRuntime(runtime, stmt, env, mode, outputQueue = null) {
@@ -46,8 +49,9 @@ export function handlePrimitiveAstStatementRuntime(runtime, stmt, env, mode, out
         }),
         performTurn: (angle) => performTurn({ angle, state: runtime.state }),
         setColor: (colorName) => runtime.setColor(colorName),
+        setBackgroundColor: (colorName) => runtime.setBackgroundColor(colorName),
         performGoto: (x, y) => runtime.performGoto(x, y),
-        clearScreen: () => runtime.clearScreen(),
+        clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
     });
 }
 
@@ -199,8 +203,9 @@ export function runCommandQueueWithRuntime(runtime) {
                 animateMove: (cmd, distance, dt) => runtime.animateMove(cmd, distance, dt),
                 animateTurn: (cmd, angle, dt) => runtime.animateTurn(cmd, angle, dt),
                 setColor: (color) => runtime.setColor(color),
+                setBackgroundColor: (color) => runtime.setBackgroundColor(color),
                 performGoto: (x, y) => runtime.performGoto(x, y),
-                clearScreen: () => runtime.clearScreen(),
+                clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
                 cloneCommand: (cmd) => cloneInterpreterCommand(cmd),
                 evaluateIfCondition: (condition) => runtime.evaluateIfCondition(condition),
                 resetStuckState: () => {
@@ -269,11 +274,48 @@ export function setColorRuntime(runtime, colorName) {
     });
 }
 
+export function setBackgroundColorRuntime(runtime, colorName) {
+    setBackgroundColorHelper({
+        colorName,
+        state: runtime.state,
+        canvas: runtime.canvas,
+        backgroundCanvas: runtime.backgroundCanvas,
+        backgroundCtx: runtime.backgroundCtx,
+        colorMap: COLOR_MAP,
+        applyContextSettings: () => runtime.applyContextSettings(),
+        createUnknownColorError: (rawColorName) => new RavlykError("UNKNOWN_COLOR", rawColorName),
+    });
+}
+
 export function clearScreenRuntime(runtime) {
+    applyBackgroundLayer({
+        canvas: runtime.canvas,
+        backgroundCanvas: runtime.backgroundCanvas,
+        backgroundCtx: runtime.backgroundCtx,
+        backgroundColor: runtime.state.backgroundColor,
+    });
     clearScreenHelper({
         ctx: runtime.ctx,
         canvas: runtime.canvas,
+        backgroundColor: runtime.state.backgroundColor,
     });
+    runtime.applyContextSettings();
+}
+
+export function clearToDefaultSheetRuntime(runtime) {
+    runtime.state.backgroundColor = DEFAULT_CANVAS_BACKGROUND;
+    applyBackgroundLayer({
+        canvas: runtime.canvas,
+        backgroundCanvas: runtime.backgroundCanvas,
+        backgroundCtx: runtime.backgroundCtx,
+        backgroundColor: runtime.state.backgroundColor,
+    });
+    clearScreenHelper({
+        ctx: runtime.ctx,
+        canvas: runtime.canvas,
+        backgroundColor: runtime.state.backgroundColor,
+    });
+    runtime.applyContextSettings();
 }
 
 export function performGotoRuntime(runtime, logicalX, logicalY) {

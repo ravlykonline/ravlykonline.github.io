@@ -10,8 +10,9 @@ export function executeInterpreterCommand({
     animateMove,
     animateTurn,
     setColor,
+    setBackgroundColor,
     performGoto,
-    clearScreen,
+    clearToDefaultSheet,
     cloneCommand,
     evaluateIfCondition,
     resetStuckState,
@@ -54,11 +55,14 @@ export function executeInterpreterCommand({
         case 'COLOR':
             setColor(currentCommandObject.value);
             break;
+        case 'BACKGROUND':
+            setBackgroundColor(currentCommandObject.value);
+            break;
         case 'GOTO':
             performGoto(currentCommandObject.x, currentCommandObject.y);
             break;
         case 'CLEAR':
-            clearScreen();
+            clearToDefaultSheet();
             break;
         case 'REPEAT':
             if (currentCommandObject.count <= 0 || !currentCommandObject.commands?.length) {

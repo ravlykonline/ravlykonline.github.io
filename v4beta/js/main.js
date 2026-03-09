@@ -49,8 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const codeLineNumbers = document.getElementById("code-line-numbers");
     const codeActiveLine = document.getElementById("code-active-line");
     const codeErrorLine = document.getElementById("code-error-line");
+    const backgroundCanvas = document.getElementById("ravlyk-background-canvas");
     const canvas = document.getElementById("ravlyk-canvas");
-    const canvasContainer = document.querySelector(".canvas-box"); // Ravlyk sprite will be appended here
+    const canvasContainer = document.querySelector(".canvas-stage") || document.querySelector(".canvas-box");
 
     const runBtn = document.getElementById("run-btn");
     const stopBtn = document.getElementById("stop-btn");
@@ -89,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showError(ERROR_MESSAGES.CANVAS_CONTEXT_ERROR, 0);
         return;
     }
+    const backgroundCtx = backgroundCanvas ? backgroundCanvas.getContext("2d") : null;
     const gridCtx = gridCanvas ? gridCanvas.getContext("2d") : null;
     const MAX_SHARE_URL_LENGTH_CHARS = 7000;
     const editorUi = createEditorUiController({
@@ -103,7 +105,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     createRavlykSprite(canvasContainer);
-    const interpreter = new RavlykInterpreter(ctx, canvas, updateRavlykVisualsOnScreen, updateCommandIndicator, showInfoMessage);
+    const interpreter = new RavlykInterpreter(
+        ctx,
+        canvas,
+        updateRavlykVisualsOnScreen,
+        updateCommandIndicator,
+        showInfoMessage,
+        {
+            backgroundCanvas,
+            backgroundCtx,
+        }
+    );
     const gridOverlay = createGridOverlayController({
         canvas,
         canvasContainer,
@@ -164,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fileActions = createFileActionsController({
         canvas,
+        backgroundCanvas,
         codeEditor,
         maxCodeLengthChars: MAX_CODE_LENGTH_CHARS,
         maxShareUrlLengthChars: MAX_SHARE_URL_LENGTH_CHARS,
@@ -172,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showError,
         showSuccessMessage,
         showInfoMessage,
+        getCanvasBackgroundColor: () => interpreter.getCanvasBackgroundColor(),
         onCodeLoaded: () => {
             editorUi.setEditorErrorLine(null);
             editorUi.updateEditorDecorations();
@@ -199,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const lifecycleController = createLifecycleController({
         canvas,
+        backgroundCanvas,
         ctx,
         canvasContainer,
         interpreter,

@@ -7,8 +7,8 @@ Snapshot date: 2026-03-09
 This document fixes the agreed staged plan for the next language/runtime expansion:
 
 - more available colors,
-- a `фон` command for canvas background color,
-- `випадково` support for colors and selected numeric commands,
+- a `РЎвЂћР С•Р Р…` command for canvas background color,
+- `Р Р†Р С‘Р С—Р В°Р Т‘Р С”Р С•Р Р†Р С•` support for colors and selected numeric commands,
 - safer random behavior near canvas boundaries.
 
 These changes are intentionally not scheduled as one large delivery.
@@ -37,15 +37,15 @@ This is the current recommended implementation slice.
 Scope:
 - increase the number of supported colors,
 - organize color definitions into a cleaner single-source structure,
-- keep current `колір <назва>` behavior stable,
+- keep current `Р С”Р С•Р В»РЎвЂ“РЎР‚ <Р Р…Р В°Р В·Р Р†Р В°>` behavior stable,
 - avoid changing language grammar beyond color-name support,
-- prepare the codebase for later `фон` and `випадково` work.
+- prepare the codebase for later `РЎвЂћР С•Р Р…` and `Р Р†Р С‘Р С—Р В°Р Т‘Р С”Р С•Р Р†Р С•` work.
 
 Required engineering outcomes:
 - replace ad hoc color-list maintenance with a canonical color registry,
 - derive runtime color map and canonical Ukrainian labels from that registry,
 - preserve existing aliases such as English names and current Ukrainian names,
-- keep `веселка` as a special supported color mode,
+- keep `Р Р†Р ВµРЎРѓР ВµР В»Р С”Р В°` as a special supported color mode,
 - avoid duplicating color knowledge across runtime and docs where practical.
 
 Recommended data-model rule for this phase:
@@ -63,7 +63,7 @@ Required tests:
 - documentation update checks where existing tests already validate static content.
 
 Definition of done:
-- new colors are accepted by `колір`,
+- new colors are accepted by `Р С”Р С•Р В»РЎвЂ“РЎР‚`,
 - old supported colors still work,
 - no runtime behavior changes outside color resolution,
 - technical and user-facing docs list the supported palette consistently enough to avoid drift.
@@ -74,11 +74,11 @@ Recommended registry shape:
 
 ```js
 {
-  name: "жовтогарячий",
+  name: "Р В¶Р С•Р Р†РЎвЂљР С•Р С–Р В°РЎР‚РЎРЏРЎвЂЎР С‘Р в„–",
   hex: "#FF8C00",
-  group: "Помаранчеві",
+  group: "Р СџР С•Р СР В°РЎР‚Р В°Р Р…РЎвЂЎР ВµР Р†РЎвЂ“",
   core: true,
-  aliases: ["помаранчевий", "orange"]
+  aliases: ["Р С—Р С•Р СР В°РЎР‚Р В°Р Р…РЎвЂЎР ВµР Р†Р С‘Р в„–", "orange"]
 }
 ```
 
@@ -93,61 +93,61 @@ Recommended interpretation:
 The following decisions are currently recommended for implementation prep:
 
 1. Keep these as canonical core colors:
-- `білий`
-- `чорний`
-- `червоний`
-- `рожевий`
-- `жовтий`
-- `жовтогарячий`
-- `зелений`
-- `синій`
-- `фіолетовий`
-- `коричневий`
+- `Р В±РЎвЂ“Р В»Р С‘Р в„–`
+- `РЎвЂЎР С•РЎР‚Р Р…Р С‘Р в„–`
+- `РЎвЂЎР ВµРЎР‚Р Р†Р С•Р Р…Р С‘Р в„–`
+- `РЎР‚Р С•Р В¶Р ВµР Р†Р С‘Р в„–`
+- `Р В¶Р С•Р Р†РЎвЂљР С‘Р в„–`
+- `Р В¶Р С•Р Р†РЎвЂљР С•Р С–Р В°РЎР‚РЎРЏРЎвЂЎР С‘Р в„–`
+- `Р В·Р ВµР В»Р ВµР Р…Р С‘Р в„–`
+- `РЎРѓР С‘Р Р…РЎвЂ“Р в„–`
+- `РЎвЂћРЎвЂ“Р С•Р В»Р ВµРЎвЂљР С•Р Р†Р С‘Р в„–`
+- `Р С”Р С•РЎР‚Р С‘РЎвЂЎР Р…Р ВµР Р†Р С‘Р в„–`
 
 2. Keep these as useful extended colors:
-- `світло-сірий`
-- `сірий`
-- `темно-сірий`
-- `кораловий`
-- `малиновий`
-- `бордовий`
-- `персиковий`
-- `теракотовий`
-- `кремовий`
-- `лимонний`
-- `золотий`
-- `гірчичний`
-- `салатовий`
-- `смарагдовий`
-- `темно-зелений`
-- `оливковий`
-- `хакі`
-- `блакитний`
-- `небесний`
-- `темно-синій`
-- `індиго`
-- `морський`
-- `бузковий`
-- `ліловий`
-- `пурпуровий`
-- `сливовий`
-- `пісочний`
-- `шоколадний`
-- `каштановий`
-- `бежевий`
+- `РЎРѓР Р†РЎвЂ“РЎвЂљР В»Р С•-РЎРѓРЎвЂ“РЎР‚Р С‘Р в„–`
+- `РЎРѓРЎвЂ“РЎР‚Р С‘Р в„–`
+- `РЎвЂљР ВµР СР Р…Р С•-РЎРѓРЎвЂ“РЎР‚Р С‘Р в„–`
+- `Р С”Р С•РЎР‚Р В°Р В»Р С•Р Р†Р С‘Р в„–`
+- `Р СР В°Р В»Р С‘Р Р…Р С•Р Р†Р С‘Р в„–`
+- `Р В±Р С•РЎР‚Р Т‘Р С•Р Р†Р С‘Р в„–`
+- `Р С—Р ВµРЎР‚РЎРѓР С‘Р С”Р С•Р Р†Р С‘Р в„–`
+- `РЎвЂљР ВµРЎР‚Р В°Р С”Р С•РЎвЂљР С•Р Р†Р С‘Р в„–`
+- `Р С”РЎР‚Р ВµР СР С•Р Р†Р С‘Р в„–`
+- `Р В»Р С‘Р СР С•Р Р…Р Р…Р С‘Р в„–`
+- `Р В·Р С•Р В»Р С•РЎвЂљР С‘Р в„–`
+- `Р С–РЎвЂ“РЎР‚РЎвЂЎР С‘РЎвЂЎР Р…Р С‘Р в„–`
+- `РЎРѓР В°Р В»Р В°РЎвЂљР С•Р Р†Р С‘Р в„–`
+- `РЎРѓР СР В°РЎР‚Р В°Р С–Р Т‘Р С•Р Р†Р С‘Р в„–`
+- `РЎвЂљР ВµР СР Р…Р С•-Р В·Р ВµР В»Р ВµР Р…Р С‘Р в„–`
+- `Р С•Р В»Р С‘Р Р†Р С”Р С•Р Р†Р С‘Р в„–`
+- `РЎвЂ¦Р В°Р С”РЎвЂ“`
+- `Р В±Р В»Р В°Р С”Р С‘РЎвЂљР Р…Р С‘Р в„–`
+- `Р Р…Р ВµР В±Р ВµРЎРѓР Р…Р С‘Р в„–`
+- `РЎвЂљР ВµР СР Р…Р С•-РЎРѓР С‘Р Р…РЎвЂ“Р в„–`
+- `РЎвЂ“Р Р…Р Т‘Р С‘Р С–Р С•`
+- `Р СР С•РЎР‚РЎРѓРЎРЉР С”Р С‘Р в„–`
+- `Р В±РЎС“Р В·Р С”Р С•Р Р†Р С‘Р в„–`
+- `Р В»РЎвЂ“Р В»Р С•Р Р†Р С‘Р в„–`
+- `Р С—РЎС“РЎР‚Р С—РЎС“РЎР‚Р С•Р Р†Р С‘Р в„–`
+- `РЎРѓР В»Р С‘Р Р†Р С•Р Р†Р С‘Р в„–`
+- `Р С—РЎвЂ“РЎРѓР С•РЎвЂЎР Р…Р С‘Р в„–`
+- `РЎв‚¬Р С•Р С”Р С•Р В»Р В°Р Т‘Р Р…Р С‘Р в„–`
+- `Р С”Р В°РЎв‚¬РЎвЂљР В°Р Р…Р С•Р Р†Р С‘Р в„–`
+- `Р В±Р ВµР В¶Р ВµР Р†Р С‘Р в„–`
 
 3. Prefer aliases over near-duplicate standalone colors where meaning overlaps strongly.
 
 Current recommendations:
-- canonical `жовтогарячий`, alias `помаранчевий`
-- decide whether `голубий` should be a canonical separate color or an alias of `блакитний`
+- canonical `Р В¶Р С•Р Р†РЎвЂљР С•Р С–Р В°РЎР‚РЎРЏРЎвЂЎР С‘Р в„–`, alias `Р С—Р С•Р СР В°РЎР‚Р В°Р Р…РЎвЂЎР ВµР Р†Р С‘Р в„–`
+- decide whether `Р С–Р С•Р В»РЎС“Р В±Р С‘Р в„–` should be a canonical separate color or an alias of `Р В±Р В»Р В°Р С”Р С‘РЎвЂљР Р…Р С‘Р в„–`
 - avoid long beginner-hostile command names where a shorter equivalent exists
-- prefer `бежевий` over `кремово-бежевий` as a command name
+- prefer `Р В±Р ВµР В¶Р ВµР Р†Р С‘Р в„–` over `Р С”РЎР‚Р ВµР СР С•Р Р†Р С•-Р В±Р ВµР В¶Р ВµР Р†Р С‘Р в„–` as a command name
 
 4. Re-check a few color/value choices before implementation.
 
 Current cautions:
-- `золотий` should not reuse the same value as ordinary orange if we want the name to stay trustworthy
+- `Р В·Р С•Р В»Р С•РЎвЂљР С‘Р в„–` should not reuse the same value as ordinary orange if we want the name to stay trustworthy
 - blue-family names should be semantically separated clearly enough to be understandable in manual/examples
 - every canonical Ukrainian color should keep an English alias only if backward compatibility or tests benefit from it
 
@@ -158,61 +158,61 @@ It is not yet a promise that every entry must be shown equally in the public man
 
 ```js
 export const COLOR_REGISTRY = [
-  { name: "білий",         hex: "#FFFFFF", group: "Ахроматичні",           core: true,  aliases: ["white"] },
-  { name: "світло-сірий",  hex: "#D0D3DC", group: "Ахроматичні",           core: false, aliases: ["light-gray", "light-grey"] },
-  { name: "сірий",         hex: "#8A8F9E", group: "Ахроматичні",           core: false, aliases: ["gray", "grey"] },
-  { name: "темно-сірий",   hex: "#4A4E5C", group: "Ахроматичні",           core: false, aliases: ["dark-gray", "dark-grey"] },
-  { name: "чорний",        hex: "#1A1A1A", group: "Ахроматичні",           core: true,  aliases: ["black"] },
+  { name: "Р В±РЎвЂ“Р В»Р С‘Р в„–",         hex: "#FFFFFF", group: "Р С’РЎвЂ¦РЎР‚Р С•Р СР В°РЎвЂљР С‘РЎвЂЎР Р…РЎвЂ“",           core: true,  aliases: ["white"] },
+  { name: "РЎРѓР Р†РЎвЂ“РЎвЂљР В»Р С•-РЎРѓРЎвЂ“РЎР‚Р С‘Р в„–",  hex: "#D0D3DC", group: "Р С’РЎвЂ¦РЎР‚Р С•Р СР В°РЎвЂљР С‘РЎвЂЎР Р…РЎвЂ“",           core: false, aliases: ["light-gray", "light-grey"] },
+  { name: "РЎРѓРЎвЂ“РЎР‚Р С‘Р в„–",         hex: "#8A8F9E", group: "Р С’РЎвЂ¦РЎР‚Р С•Р СР В°РЎвЂљР С‘РЎвЂЎР Р…РЎвЂ“",           core: false, aliases: ["gray", "grey"] },
+  { name: "РЎвЂљР ВµР СР Р…Р С•-РЎРѓРЎвЂ“РЎР‚Р С‘Р в„–",   hex: "#4A4E5C", group: "Р С’РЎвЂ¦РЎР‚Р С•Р СР В°РЎвЂљР С‘РЎвЂЎР Р…РЎвЂ“",           core: false, aliases: ["dark-gray", "dark-grey"] },
+  { name: "РЎвЂЎР С•РЎР‚Р Р…Р С‘Р в„–",        hex: "#1A1A1A", group: "Р С’РЎвЂ¦РЎР‚Р С•Р СР В°РЎвЂљР С‘РЎвЂЎР Р…РЎвЂ“",           core: true,  aliases: ["black"] },
 
-  { name: "рожевий",       hex: "#FF82AC", group: "Червоні",               core: true,  aliases: ["pink"] },
-  { name: "кораловий",     hex: "#FF6B5B", group: "Червоні",               core: false, aliases: ["coral"] },
-  { name: "червоний",      hex: "#E8302A", group: "Червоні",               core: true,  aliases: ["red"] },
-  { name: "малиновий",     hex: "#C0183A", group: "Червоні",               core: false, aliases: ["crimson"] },
-  { name: "бордовий",      hex: "#7A1030", group: "Червоні",               core: false, aliases: ["burgundy", "maroon"] },
-  { name: "вишневий",      hex: "#5C0E28", group: "Червоні",               core: false, aliases: ["cherry"] },
+  { name: "РЎР‚Р С•Р В¶Р ВµР Р†Р С‘Р в„–",       hex: "#FF82AC", group: "Р В§Р ВµРЎР‚Р Р†Р С•Р Р…РЎвЂ“",               core: true,  aliases: ["pink"] },
+  { name: "Р С”Р С•РЎР‚Р В°Р В»Р С•Р Р†Р С‘Р в„–",     hex: "#FF6B5B", group: "Р В§Р ВµРЎР‚Р Р†Р С•Р Р…РЎвЂ“",               core: false, aliases: ["coral"] },
+  { name: "РЎвЂЎР ВµРЎР‚Р Р†Р С•Р Р…Р С‘Р в„–",      hex: "#E8302A", group: "Р В§Р ВµРЎР‚Р Р†Р С•Р Р…РЎвЂ“",               core: true,  aliases: ["red"] },
+  { name: "Р СР В°Р В»Р С‘Р Р…Р С•Р Р†Р С‘Р в„–",     hex: "#C0183A", group: "Р В§Р ВµРЎР‚Р Р†Р С•Р Р…РЎвЂ“",               core: false, aliases: ["crimson"] },
+  { name: "Р В±Р С•РЎР‚Р Т‘Р С•Р Р†Р С‘Р в„–",      hex: "#7A1030", group: "Р В§Р ВµРЎР‚Р Р†Р С•Р Р…РЎвЂ“",               core: false, aliases: ["burgundy", "maroon"] },
+  { name: "Р Р†Р С‘РЎв‚¬Р Р…Р ВµР Р†Р С‘Р в„–",      hex: "#5C0E28", group: "Р В§Р ВµРЎР‚Р Р†Р С•Р Р…РЎвЂ“",               core: false, aliases: ["cherry"] },
 
-  { name: "персиковий",    hex: "#FFBD9B", group: "Помаранчеві",           core: false, aliases: ["peach"] },
-  { name: "жовтогарячий",  hex: "#FF8C00", group: "Помаранчеві",           core: true,  aliases: ["помаранчевий", "orange"] },
-  { name: "теракотовий",   hex: "#C45830", group: "Помаранчеві",           core: false, aliases: ["terracotta"] },
+  { name: "Р С—Р ВµРЎР‚РЎРѓР С‘Р С”Р С•Р Р†Р С‘Р в„–",    hex: "#FFBD9B", group: "Р СџР С•Р СР В°РЎР‚Р В°Р Р…РЎвЂЎР ВµР Р†РЎвЂ“",           core: false, aliases: ["peach"] },
+  { name: "Р В¶Р С•Р Р†РЎвЂљР С•Р С–Р В°РЎР‚РЎРЏРЎвЂЎР С‘Р в„–",  hex: "#FF8C00", group: "Р СџР С•Р СР В°РЎР‚Р В°Р Р…РЎвЂЎР ВµР Р†РЎвЂ“",           core: true,  aliases: ["Р С—Р С•Р СР В°РЎР‚Р В°Р Р…РЎвЂЎР ВµР Р†Р С‘Р в„–", "orange"] },
+  { name: "РЎвЂљР ВµРЎР‚Р В°Р С”Р С•РЎвЂљР С•Р Р†Р С‘Р в„–",   hex: "#C45830", group: "Р СџР С•Р СР В°РЎР‚Р В°Р Р…РЎвЂЎР ВµР Р†РЎвЂ“",           core: false, aliases: ["terracotta"] },
 
-  { name: "кремовий",      hex: "#FFF8DC", group: "Жовті",                 core: false, aliases: ["cream"] },
-  { name: "лимонний",      hex: "#FFF44F", group: "Жовті",                 core: false, aliases: ["lemon"] },
-  { name: "жовтий",        hex: "#FFD600", group: "Жовті",                 core: true,  aliases: ["yellow"] },
-  { name: "золотий",       hex: "#D4AF37", group: "Жовті",                 core: false, aliases: ["gold", "golden"] },
-  { name: "гірчичний",     hex: "#C8900A", group: "Жовті",                 core: false, aliases: ["mustard"] },
+  { name: "Р С”РЎР‚Р ВµР СР С•Р Р†Р С‘Р в„–",      hex: "#FFF8DC", group: "Р вЂ“Р С•Р Р†РЎвЂљРЎвЂ“",                 core: false, aliases: ["cream"] },
+  { name: "Р В»Р С‘Р СР С•Р Р…Р Р…Р С‘Р в„–",      hex: "#FFF44F", group: "Р вЂ“Р С•Р Р†РЎвЂљРЎвЂ“",                 core: false, aliases: ["lemon"] },
+  { name: "Р В¶Р С•Р Р†РЎвЂљР С‘Р в„–",        hex: "#FFD600", group: "Р вЂ“Р С•Р Р†РЎвЂљРЎвЂ“",                 core: true,  aliases: ["yellow"] },
+  { name: "Р В·Р С•Р В»Р С•РЎвЂљР С‘Р в„–",       hex: "#D4AF37", group: "Р вЂ“Р С•Р Р†РЎвЂљРЎвЂ“",                 core: false, aliases: ["gold", "golden"] },
+  { name: "Р С–РЎвЂ“РЎР‚РЎвЂЎР С‘РЎвЂЎР Р…Р С‘Р в„–",     hex: "#C8900A", group: "Р вЂ“Р С•Р Р†РЎвЂљРЎвЂ“",                 core: false, aliases: ["mustard"] },
 
-  { name: "салатовий",     hex: "#A8E063", group: "Зелені",                core: false, aliases: ["lime"] },
-  { name: "зелений",       hex: "#2ECC40", group: "Зелені",                core: true,  aliases: ["green"] },
-  { name: "смарагдовий",   hex: "#00A878", group: "Зелені",                core: false, aliases: ["emerald"] },
-  { name: "темно-зелений", hex: "#1A7A3C", group: "Зелені",                core: false, aliases: ["dark-green"] },
-  { name: "оливковий",     hex: "#6B7C3A", group: "Зелені",                core: false, aliases: ["olive"] },
-  { name: "хакі",          hex: "#8B8B4E", group: "Зелені",                core: false, aliases: ["khaki"] },
+  { name: "РЎРѓР В°Р В»Р В°РЎвЂљР С•Р Р†Р С‘Р в„–",     hex: "#A8E063", group: "Р вЂ”Р ВµР В»Р ВµР Р…РЎвЂ“",                core: false, aliases: ["lime"] },
+  { name: "Р В·Р ВµР В»Р ВµР Р…Р С‘Р в„–",       hex: "#2ECC40", group: "Р вЂ”Р ВµР В»Р ВµР Р…РЎвЂ“",                core: true,  aliases: ["green"] },
+  { name: "РЎРѓР СР В°РЎР‚Р В°Р С–Р Т‘Р С•Р Р†Р С‘Р в„–",   hex: "#00A878", group: "Р вЂ”Р ВµР В»Р ВµР Р…РЎвЂ“",                core: false, aliases: ["emerald"] },
+  { name: "РЎвЂљР ВµР СР Р…Р С•-Р В·Р ВµР В»Р ВµР Р…Р С‘Р в„–", hex: "#1A7A3C", group: "Р вЂ”Р ВµР В»Р ВµР Р…РЎвЂ“",                core: false, aliases: ["dark-green"] },
+  { name: "Р С•Р В»Р С‘Р Р†Р С”Р С•Р Р†Р С‘Р в„–",     hex: "#6B7C3A", group: "Р вЂ”Р ВµР В»Р ВµР Р…РЎвЂ“",                core: false, aliases: ["olive"] },
+  { name: "РЎвЂ¦Р В°Р С”РЎвЂ“",          hex: "#8B8B4E", group: "Р вЂ”Р ВµР В»Р ВµР Р…РЎвЂ“",                core: false, aliases: ["khaki"] },
 
-  { name: "блакитний",     hex: "#87CEEB", group: "Блакитні та сині",      core: false, aliases: ["голубий", "sky-blue", "light-blue"] },
-  { name: "небесний",      hex: "#4FC3F7", group: "Блакитні та сині",      core: false, aliases: ["azure", "sky"] },
-  { name: "синій",         hex: "#1A56DB", group: "Блакитні та сині",      core: true,  aliases: ["blue"] },
-  { name: "темно-синій",   hex: "#0A2472", group: "Блакитні та сині",      core: false, aliases: ["dark-blue", "navy"] },
-  { name: "індиго",        hex: "#3F0080", group: "Блакитні та сині",      core: false, aliases: ["indigo"] },
-  { name: "морський",      hex: "#006994", group: "Блакитні та сині",      core: false, aliases: ["sea-blue", "teal-blue"] },
+  { name: "Р В±Р В»Р В°Р С”Р С‘РЎвЂљР Р…Р С‘Р в„–",     hex: "#87CEEB", group: "Р вЂР В»Р В°Р С”Р С‘РЎвЂљР Р…РЎвЂ“ РЎвЂљР В° РЎРѓР С‘Р Р…РЎвЂ“",      core: false, aliases: ["Р С–Р С•Р В»РЎС“Р В±Р С‘Р в„–", "sky-blue", "light-blue"] },
+  { name: "Р Р…Р ВµР В±Р ВµРЎРѓР Р…Р С‘Р в„–",      hex: "#4FC3F7", group: "Р вЂР В»Р В°Р С”Р С‘РЎвЂљР Р…РЎвЂ“ РЎвЂљР В° РЎРѓР С‘Р Р…РЎвЂ“",      core: false, aliases: ["azure", "sky"] },
+  { name: "РЎРѓР С‘Р Р…РЎвЂ“Р в„–",         hex: "#1A56DB", group: "Р вЂР В»Р В°Р С”Р С‘РЎвЂљР Р…РЎвЂ“ РЎвЂљР В° РЎРѓР С‘Р Р…РЎвЂ“",      core: true,  aliases: ["blue"] },
+  { name: "РЎвЂљР ВµР СР Р…Р С•-РЎРѓР С‘Р Р…РЎвЂ“Р в„–",   hex: "#0A2472", group: "Р вЂР В»Р В°Р С”Р С‘РЎвЂљР Р…РЎвЂ“ РЎвЂљР В° РЎРѓР С‘Р Р…РЎвЂ“",      core: false, aliases: ["dark-blue", "navy"] },
+  { name: "РЎвЂ“Р Р…Р Т‘Р С‘Р С–Р С•",        hex: "#3F0080", group: "Р вЂР В»Р В°Р С”Р С‘РЎвЂљР Р…РЎвЂ“ РЎвЂљР В° РЎРѓР С‘Р Р…РЎвЂ“",      core: false, aliases: ["indigo"] },
+  { name: "Р СР С•РЎР‚РЎРѓРЎРЉР С”Р С‘Р в„–",      hex: "#006994", group: "Р вЂР В»Р В°Р С”Р С‘РЎвЂљР Р…РЎвЂ“ РЎвЂљР В° РЎРѓР С‘Р Р…РЎвЂ“",      core: false, aliases: ["sea-blue", "teal-blue"] },
 
-  { name: "бузковий",      hex: "#DDA0DD", group: "Фіолетові",             core: false, aliases: ["lavender"] },
-  { name: "ліловий",       hex: "#B57BDC", group: "Фіолетові",             core: false, aliases: ["lilac"] },
-  { name: "фіолетовий",    hex: "#7B2FBE", group: "Фіолетові",             core: true,  aliases: ["purple", "violet"] },
-  { name: "пурпуровий",    hex: "#9B0060", group: "Фіолетові",             core: false, aliases: ["magenta"] },
-  { name: "сливовий",      hex: "#5C0F5C", group: "Фіолетові",             core: false, aliases: ["plum"] },
+  { name: "Р В±РЎС“Р В·Р С”Р С•Р Р†Р С‘Р в„–",      hex: "#DDA0DD", group: "Р В¤РЎвЂ“Р С•Р В»Р ВµРЎвЂљР С•Р Р†РЎвЂ“",             core: false, aliases: ["lavender"] },
+  { name: "Р В»РЎвЂ“Р В»Р С•Р Р†Р С‘Р в„–",       hex: "#B57BDC", group: "Р В¤РЎвЂ“Р С•Р В»Р ВµРЎвЂљР С•Р Р†РЎвЂ“",             core: false, aliases: ["lilac"] },
+  { name: "РЎвЂћРЎвЂ“Р С•Р В»Р ВµРЎвЂљР С•Р Р†Р С‘Р в„–",    hex: "#7B2FBE", group: "Р В¤РЎвЂ“Р С•Р В»Р ВµРЎвЂљР С•Р Р†РЎвЂ“",             core: true,  aliases: ["purple", "violet"] },
+  { name: "Р С—РЎС“РЎР‚Р С—РЎС“РЎР‚Р С•Р Р†Р С‘Р в„–",    hex: "#9B0060", group: "Р В¤РЎвЂ“Р С•Р В»Р ВµРЎвЂљР С•Р Р†РЎвЂ“",             core: false, aliases: ["magenta"] },
+  { name: "РЎРѓР В»Р С‘Р Р†Р С•Р Р†Р С‘Р в„–",      hex: "#5C0F5C", group: "Р В¤РЎвЂ“Р С•Р В»Р ВµРЎвЂљР С•Р Р†РЎвЂ“",             core: false, aliases: ["plum"] },
 
-  { name: "бежевий",       hex: "#F5DEB3", group: "Коричневі та земляні",  core: false, aliases: ["beige", "кремово-бежевий"] },
-  { name: "пісочний",      hex: "#D4A855", group: "Коричневі та земляні",  core: false, aliases: ["sand", "sandy"] },
-  { name: "коричневий",    hex: "#8B4513", group: "Коричневі та земляні",  core: true,  aliases: ["brown"] },
-  { name: "шоколадний",    hex: "#5C2C0A", group: "Коричневі та земляні",  core: false, aliases: ["chocolate"] },
-  { name: "каштановий",    hex: "#954535", group: "Коричневі та земляні",  core: false, aliases: ["chestnut"] },
+  { name: "Р В±Р ВµР В¶Р ВµР Р†Р С‘Р в„–",       hex: "#F5DEB3", group: "Р С™Р С•РЎР‚Р С‘РЎвЂЎР Р…Р ВµР Р†РЎвЂ“ РЎвЂљР В° Р В·Р ВµР СР В»РЎРЏР Р…РЎвЂ“",  core: false, aliases: ["beige", "Р С”РЎР‚Р ВµР СР С•Р Р†Р С•-Р В±Р ВµР В¶Р ВµР Р†Р С‘Р в„–"] },
+  { name: "Р С—РЎвЂ“РЎРѓР С•РЎвЂЎР Р…Р С‘Р в„–",      hex: "#D4A855", group: "Р С™Р С•РЎР‚Р С‘РЎвЂЎР Р…Р ВµР Р†РЎвЂ“ РЎвЂљР В° Р В·Р ВµР СР В»РЎРЏР Р…РЎвЂ“",  core: false, aliases: ["sand", "sandy"] },
+  { name: "Р С”Р С•РЎР‚Р С‘РЎвЂЎР Р…Р ВµР Р†Р С‘Р в„–",    hex: "#8B4513", group: "Р С™Р С•РЎР‚Р С‘РЎвЂЎР Р…Р ВµР Р†РЎвЂ“ РЎвЂљР В° Р В·Р ВµР СР В»РЎРЏР Р…РЎвЂ“",  core: true,  aliases: ["brown"] },
+  { name: "РЎв‚¬Р С•Р С”Р С•Р В»Р В°Р Т‘Р Р…Р С‘Р в„–",    hex: "#5C2C0A", group: "Р С™Р С•РЎР‚Р С‘РЎвЂЎР Р…Р ВµР Р†РЎвЂ“ РЎвЂљР В° Р В·Р ВµР СР В»РЎРЏР Р…РЎвЂ“",  core: false, aliases: ["chocolate"] },
+  { name: "Р С”Р В°РЎв‚¬РЎвЂљР В°Р Р…Р С•Р Р†Р С‘Р в„–",    hex: "#954535", group: "Р С™Р С•РЎР‚Р С‘РЎвЂЎР Р…Р ВµР Р†РЎвЂ“ РЎвЂљР В° Р В·Р ВµР СР В»РЎРЏР Р…РЎвЂ“",  core: false, aliases: ["chestnut"] },
 
-  { name: "веселка",       hex: "RAINBOW", group: "Спеціальні",            core: true,  aliases: ["rainbow"] }
+  { name: "Р Р†Р ВµРЎРѓР ВµР В»Р С”Р В°",       hex: "RAINBOW", group: "Р РЋР С—Р ВµРЎвЂ РЎвЂ“Р В°Р В»РЎРЉР Р…РЎвЂ“",            core: true,  aliases: ["rainbow"] }
 ];
 ```
 
 Implementation-prep notes:
-- `веселка` should stay in the registry only as a special-case mode marker, not a normal hex color.
+- `Р Р†Р ВµРЎРѓР ВµР В»Р С”Р В°` should stay in the registry only as a special-case mode marker, not a normal hex color.
 - alias lookup should be normalized to lowercase before resolution.
 - the runtime-facing `COLOR_MAP` can be generated from `COLOR_REGISTRY`.
 - the doc-facing list of beginner colors can be generated from `core: true`.
@@ -223,16 +223,16 @@ Implementation-prep notes:
 When Phase 1 is implemented from the draft above:
 
 1. Existing commands must keep working:
-- `колір червоний`
-- `колір синій`
-- `колір зелений`
-- `колір жовтий`
-- `колір чорний`
-- `колір білий`
-- `колір рожевий`
-- `колір коричневий`
-- `колір фіолетовий`
-- `колір веселка`
+- `Р С”Р С•Р В»РЎвЂ“РЎР‚ РЎвЂЎР ВµРЎР‚Р Р†Р С•Р Р…Р С‘Р в„–`
+- `Р С”Р С•Р В»РЎвЂ“РЎР‚ РЎРѓР С‘Р Р…РЎвЂ“Р в„–`
+- `Р С”Р С•Р В»РЎвЂ“РЎР‚ Р В·Р ВµР В»Р ВµР Р…Р С‘Р в„–`
+- `Р С”Р С•Р В»РЎвЂ“РЎР‚ Р В¶Р С•Р Р†РЎвЂљР С‘Р в„–`
+- `Р С”Р С•Р В»РЎвЂ“РЎР‚ РЎвЂЎР С•РЎР‚Р Р…Р С‘Р в„–`
+- `Р С”Р С•Р В»РЎвЂ“РЎР‚ Р В±РЎвЂ“Р В»Р С‘Р в„–`
+- `Р С”Р С•Р В»РЎвЂ“РЎР‚ РЎР‚Р С•Р В¶Р ВµР Р†Р С‘Р в„–`
+- `Р С”Р С•Р В»РЎвЂ“РЎР‚ Р С”Р С•РЎР‚Р С‘РЎвЂЎР Р…Р ВµР Р†Р С‘Р в„–`
+- `Р С”Р С•Р В»РЎвЂ“РЎР‚ РЎвЂћРЎвЂ“Р С•Р В»Р ВµРЎвЂљР С•Р Р†Р С‘Р в„–`
+- `Р С”Р С•Р В»РЎвЂ“РЎР‚ Р Р†Р ВµРЎРѓР ВµР В»Р С”Р В°`
 
 2. Existing English compatibility should remain where already supported or obviously helpful:
 - `red`
@@ -251,32 +251,55 @@ When Phase 1 is implemented from the draft above:
 
 ### Phase 2. Add canvas background state and `фон`
 
+Status:
+- Implemented in the current codebase as a staged underlay-based background feature.
+- `фон` now targets a background layer, `очистити` restores a default white sheet, and export/resize use the same background source of truth.
+- `фон випадково` remains intentionally deferred to a later phase.
+
 Scope:
 - add a language command `фон <колір>`,
 - allow `фон випадково` in the same phase only if the background-state infrastructure is already complete,
 - introduce persistent canvas background state in interpreter/runtime.
 
+Agreed semantic decision for this phase:
+- `фон` changes the canvas underlay/background layer and must not repaint or destroy already drawn lines.
+- Sequential background commands are valid, but without pauses the learner will usually perceive only the final background color.
+- `очистити` should clear the drawing and restore the background to the default beginner state (white canvas).
+- `reset` should remain the broader full-state reset: default background, cleared drawing, default turtle position/direction, and default drawing state.
+
+Recommended mental model for users:
+- `колір` = what the snail draws with.
+- `фон` = what the snail draws on.
+- `очистити` = return the canvas to a clean sheet.
+- `reset` = return the whole interpreter/session state to its starting point.
+
 Required engineering outcomes:
 - background color must live in runtime state, not only in CSS,
 - `reset`, `clear`, resize restore, and image export must all use the same background source of truth,
 - parser/runtime should treat background changes as an explicit statement type, not as a hidden branch of `колір`.
+- the runtime architecture should move toward a true background-underlay model rather than a repaint-over-drawing model,
+- `очистити` must have explicit default-background behavior instead of inheriting the last custom background.
 
 Required tests:
 - parser AST coverage for `фон`,
-- runtime tests for background persistence across clear/reset flows,
+- runtime tests proving that background changes do not erase existing drawing content,
+- runtime tests proving that `очистити` restores the default background,
+- runtime tests proving that `reset` restores the full default state,
 - export/save regression test coverage,
 - E2E smoke confirming the visible canvas background changes.
 
 Definition of done:
 - `фон синій` reliably changes the canvas background,
-- background remains coherent after `очистити`, resize, and download,
+- existing drawing remains visible after `фон синій`,
+- `очистити` returns the user to a default clean white sheet,
+- background remains coherent after resize and download,
 - no duplicated background state across CSS/runtime/export paths.
 
-### Phase 3. Add controlled `випадково` for colors
+### Phase 3. Add controlled `Р Р†Р С‘Р С—Р В°Р Т‘Р С”Р С•Р Р†Р С•` for colors
 
 Scope:
-- support `колір випадково`,
-- support `фон випадково` after Phase 2 is complete.
+- support `Р С”Р С•Р В»РЎвЂ“РЎР‚ Р Р†Р С‘Р С—Р В°Р Т‘Р С”Р С•Р Р†Р С•`,
+- support `РЎвЂћР С•Р Р… Р Р†Р С‘Р С—Р В°Р Т‘Р С”Р С•Р Р†Р С•` after Phase 2 is complete.
 
 Required engineering outcomes:
 - random color selection must use the canonical color registry,
@@ -292,12 +315,12 @@ Definition of done:
 - random color commands are testable and deterministic under test control,
 - runtime does not depend on unmocked randomness in unit tests.
 
-### Phase 4. Add controlled `випадково` for numeric movement/position
+### Phase 4. Add controlled `Р Р†Р С‘Р С—Р В°Р Т‘Р С”Р С•Р Р†Р С•` for numeric movement/position
 
 Scope:
-- support `вперед випадково`,
-- support `назад випадково`,
-- support `перейти в випадково`.
+- support `Р Р†Р С—Р ВµРЎР‚Р ВµР Т‘ Р Р†Р С‘Р С—Р В°Р Т‘Р С”Р С•Р Р†Р С•`,
+- support `Р Р…Р В°Р В·Р В°Р Т‘ Р Р†Р С‘Р С—Р В°Р Т‘Р С”Р С•Р Р†Р С•`,
+- support `Р С—Р ВµРЎР‚Р ВµР в„–РЎвЂљР С‘ Р Р† Р Р†Р С‘Р С—Р В°Р Т‘Р С”Р С•Р Р†Р С•`.
 
 Non-goal for this phase:
 - broad random-expression support in all arithmetic expressions.
@@ -313,7 +336,7 @@ Safety rule agreed for this feature:
 - the purpose is user safety and fewer frustrating boundary warnings, not mathematically maximum movement.
 
 Implementation note:
-- `перейти в випадково` should be treated as a dedicated semantic form, not as two missing numeric arguments,
+- `Р С—Р ВµРЎР‚Р ВµР в„–РЎвЂљР С‘ Р Р† Р Р†Р С‘Р С—Р В°Р Т‘Р С”Р С•Р Р†Р С•` should be treated as a dedicated semantic form, not as two missing numeric arguments,
 - movement randomness must consider current position, current direction, and canvas-safe margins.
 
 Required tests:
@@ -339,7 +362,7 @@ Definition of done:
 - Any new syntax must keep the existing standard of understandable parser/runtime errors.
 
 4. Avoid silent semantic overload.
-- `фон` should remain distinct from `колір`.
+- `РЎвЂћР С•Р Р…` should remain distinct from `Р С”Р С•Р В»РЎвЂ“РЎР‚`.
 - Random forms should be explicit and testable, not implicit parser magic.
 
 5. Keep documentation truthful.
@@ -354,4 +377,4 @@ The next code batch should be limited to Phase 1:
 - add tests for the expanded palette,
 - update docs only for the new palette structure and supported names.
 
-`фон` and all `випадково` behavior remain intentionally deferred until the supporting runtime and test structure is ready.
+`РЎвЂћР С•Р Р…` and all `Р Р†Р С‘Р С—Р В°Р Т‘Р С”Р С•Р Р†Р С•` behavior remain intentionally deferred until the supporting runtime and test structure is ready.

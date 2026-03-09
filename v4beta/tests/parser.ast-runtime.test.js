@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict';
+﻿import assert from 'node:assert/strict';
 import { COLOR_MAP, MAX_REPEATS_IN_LOOP } from '../js/modules/constants.js';
 import { createInterpreter } from './parserTestUtils.js';
 import { runTest, runAsyncTest } from './testUtils.js';
@@ -15,6 +15,74 @@ runTest('builds Program AST for basic commands', () => {
     assert.equal(ast.body[1].type, 'TurnStmt');
     assert.equal(ast.body[1].direction, 'right');
     assert.equal(ast.body[1].angle.value, 90);
+});
+
+await runAsyncTest('executeCommands rejects rainbow background as unsupported background color', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        await assert.rejects(
+            interpreter.executeCommands('фон веселка'),
+            (error) => error && error.name === 'RavlykError' && error.messageKey === 'UNKNOWN_COLOR'
+        );
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+});
+
+runTest('reset restores default background color after custom background', () => {
+    const interpreter = createInterpreter();
+    interpreter.setBackgroundColor('бежевий');
+    assert.equal(String(interpreter.state.backgroundColor).toLowerCase(), String(COLOR_MAP['бежевий']).toLowerCase());
+    assert.equal(String(interpreter.backgroundCanvas.style.backgroundColor).toLowerCase(), String(COLOR_MAP['бежевий']).toLowerCase());
+
+    interpreter.reset();
+    assert.equal(String(interpreter.state.backgroundColor).toLowerCase(), '#ffffff');
+    assert.equal(String(interpreter.backgroundCanvas.style.backgroundColor).toLowerCase(), '#ffffff');
+});
+
+runTest('custom background survives technical resize redraw until clear or reset', () => {
+    const interpreter = createInterpreter();
+    interpreter.setBackgroundColor('синій');
+
+    interpreter.handleCanvasResize({
+        deltaX: 20,
+        deltaY: -10,
+        oldWidth: 800,
+        oldHeight: 600,
+        newWidth: 840,
+        newHeight: 620,
+    });
+
+    assert.equal(String(interpreter.state.backgroundColor).toLowerCase(), String(COLOR_MAP['синій']).toLowerCase());
+    assert.equal(String(interpreter.backgroundCanvas.style.backgroundColor).toLowerCase(), String(COLOR_MAP['синій']).toLowerCase());
+});
+
+runTest('sequential background commands keep only the final background color in state', () => {
+    const interpreter = createInterpreter();
+    interpreter.setBackgroundColor('червоний');
+    interpreter.setBackgroundColor('зелений');
+    interpreter.setBackgroundColor('білий');
+
+    assert.equal(String(interpreter.state.backgroundColor).toLowerCase(), String(COLOR_MAP['білий']).toLowerCase());
+    assert.equal(String(interpreter.backgroundCanvas.style.backgroundColor).toLowerCase(), String(COLOR_MAP['білий']).toLowerCase());
+});
+
+runTest('clearToDefaultSheet resets custom background to white immediately', () => {
+    const interpreter = createInterpreter();
+    interpreter.setBackgroundColor('фіолетовий');
+
+    interpreter.clearToDefaultSheet();
+
+    assert.equal(String(interpreter.state.backgroundColor).toLowerCase(), '#ffffff');
+    assert.equal(String(interpreter.backgroundCanvas.style.backgroundColor).toLowerCase(), '#ffffff');
 });
 
 runTest('builds Program AST for repeat and if', () => {
@@ -112,7 +180,7 @@ runTest('parseCodeToAst keeps span metadata', () => {
 
 runTest('parses game statement into AST', () => {
     const interpreter = createInterpreter();
-    const ast = interpreter.parseTokensToAst(['грати', '(', 'forward', '1', ')']);
+    const ast = interpreter.parseTokensToAst(['game', '(', 'forward', '1', ')']);
     assert.equal(ast.type, 'Program');
     assert.equal(ast.body.length, 1);
     assert.equal(ast.body[0].type, 'GameStmt');
@@ -122,7 +190,7 @@ runTest('parses game statement into AST', () => {
 
 runTest('game statement is rejected at execution adapter stage for now', () => {
     const interpreter = createInterpreter();
-    const ast = interpreter.parseTokensToAst(['грати', '(', 'forward', '1', ')']);
+    const ast = interpreter.parseTokensToAst(['game', '(', 'forward', '1', ')']);
     assert.throws(
         () => interpreter.astToLegacyQueue(ast),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'GAME_NOT_SUPPORTED_HERE'
@@ -131,7 +199,7 @@ runTest('game statement is rejected at execution adapter stage for now', () => {
 
 await runAsyncTest('game loop starts and stops via stopExecution', async () => {
     const interpreter = createInterpreter();
-    const runPromise = interpreter.executeCommands('грати ( вперед 1 )');
+    const runPromise = interpreter.executeCommands('game ( forward 1 )');
     setTimeout(() => interpreter.stopExecution(), 120);
     await assert.rejects(
         runPromise,
@@ -264,4 +332,24 @@ await runAsyncTest('executeCommands evaluates compare-if against runtime assignm
     }
 
     assert.equal(String(interpreter.state.color).toLowerCase(), String(COLOR_MAP['синій']).toLowerCase());
+});
+
+await runAsyncTest('executeCommands restores default white sheet after clear command', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        await interpreter.executeCommands('фон золотий вперед 10 очистити');
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+
+    assert.equal(String(interpreter.state.backgroundColor).toLowerCase(), '#ffffff');
+    assert.equal(String(interpreter.backgroundCanvas.style.backgroundColor).toLowerCase(), '#ffffff');
 });

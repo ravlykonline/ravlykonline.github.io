@@ -10,6 +10,7 @@ export function parseNextStatementToAst({
     parseMoveStatementToAst,
     parseTurnStatementToAst,
     parseColorStatementToAst,
+    parseBackgroundStatementToAst,
     parsePenStatementToAst,
     parseClearStatementToAst,
     parseGotoStatementToAst,
@@ -43,6 +44,10 @@ export function parseNextStatementToAst({
 
     if (tokenLower === 'колір' || tokenLower === 'color') {
         return parseColorStatementToAst(tokens, tokenMeta, index, token);
+    }
+
+    if (tokenLower === 'фон' || tokenLower === 'background') {
+        return parseBackgroundStatementToAst(tokens, tokenMeta, index, token);
     }
 
     if (tokenLower === keywordPenUp || tokenLower === 'penup' || tokenLower === 'опустити' || tokenLower === 'pendown') {

@@ -1,6 +1,6 @@
 ﻿// js/modules/ravlykInterpreter.js
 import {
-    COLOR_MAP, DEFAULT_PEN_COLOR, DEFAULT_PEN_SIZE, RAVLYK_INITIAL_ANGLE,
+    COLOR_MAP, DEFAULT_CANVAS_BACKGROUND, DEFAULT_PEN_COLOR, DEFAULT_PEN_SIZE, RAVLYK_INITIAL_ANGLE,
     DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND,
 } from './constants.js';
 import { RavlykParser, RavlykError } from './ravlykParser.js';
@@ -39,7 +39,9 @@ import {
     animateMoveRuntime,
     animateTurnRuntime,
     setColorRuntime,
+    setBackgroundColorRuntime,
     clearScreenRuntime,
+    clearToDefaultSheetRuntime,
     performGotoRuntime,
 } from './ravlykInterpreterRuntime.js';
 
@@ -48,9 +50,11 @@ import {
 const RAVLYK_VISUAL_BOUNDARY_RADIUS_PX = 0;
 
 export class RavlykInterpreter {
-    constructor(context, canvas, ravlykVisualUpdater, commandIndicatorUpdater, infoNotifier) {
+    constructor(context, canvas, ravlykVisualUpdater, commandIndicatorUpdater, infoNotifier, options = {}) {
         this.ctx = context;
         this.canvas = canvas;
+        this.backgroundCanvas = options.backgroundCanvas || null;
+        this.backgroundCtx = options.backgroundCtx || null;
         this.ravlykVisualUpdater = ravlykVisualUpdater;
         this.commandIndicatorUpdater = commandIndicatorUpdater;
         this.infoNotifier = infoNotifier;
@@ -61,6 +65,7 @@ export class RavlykInterpreter {
             angle: RAVLYK_INITIAL_ANGLE,
             isPenDown: true,
             color: DEFAULT_PEN_COLOR,
+            backgroundColor: DEFAULT_CANVAS_BACKGROUND,
             penSize: DEFAULT_PEN_SIZE,
             isRainbow: false,
             rainbowHue: 0,
@@ -116,6 +121,7 @@ export class RavlykInterpreter {
         this.state.angle = RAVLYK_INITIAL_ANGLE;
         this.state.isPenDown = true;
         this.state.color = DEFAULT_PEN_COLOR;
+        this.state.backgroundColor = DEFAULT_CANVAS_BACKGROUND;
         this.state.penSize = DEFAULT_PEN_SIZE;
         this.state.isRainbow = false;
         this.state.rainbowHue = 0;
@@ -136,7 +142,12 @@ export class RavlykInterpreter {
         this.executionEnv = null;
         this.parser.resetUserState();
 
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if (this.backgroundCanvas && this.backgroundCanvas.style) {
+            this.backgroundCanvas.style.backgroundColor = this.state.backgroundColor;
+        } else if (this.canvas && this.canvas.style) {
+            this.canvas.style.backgroundColor = this.state.backgroundColor;
+        }
+        this.clearScreen();
         this.applyContextSettings();
         this.updateRavlykVisualState(true);
         this.commandIndicatorUpdater(null, -1);
@@ -257,8 +268,16 @@ export class RavlykInterpreter {
         return setColorRuntime(this, colorName);
     }
 
+    setBackgroundColor(colorName) {
+        return setBackgroundColorRuntime(this, colorName);
+    }
+
     clearScreen() {
         return clearScreenRuntime(this);
+    }
+
+    clearToDefaultSheet() {
+        return clearToDefaultSheetRuntime(this);
     }
 
     performGoto(logicalX, logicalY) {
@@ -274,6 +293,7 @@ export class RavlykInterpreter {
             this.state.x += resizeMeta.deltaX;
             this.state.y += resizeMeta.deltaY;
         }
+        this.clearScreen();
         this.updateRavlykVisualState(true);
     }
 
@@ -304,5 +324,13 @@ export class RavlykInterpreter {
     
     wasBoundaryWarningShown() {
         return wasBoundaryWarningShownRuntime({ runtime: this });
+    }
+
+    getCanvasBackgroundColor() {
+        return this.state.backgroundColor;
+    }
+
+    getBackgroundCanvas() {
+        return this.backgroundCanvas;
     }
 }

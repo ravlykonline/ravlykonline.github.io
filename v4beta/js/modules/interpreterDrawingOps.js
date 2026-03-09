@@ -1,3 +1,5 @@
+import { applyBackgroundLayer } from './backgroundLayer.js';
+
 export function performMove({
     distance,
     state,
@@ -58,7 +60,27 @@ export function setColor({
     applyContextSettings();
 }
 
-export function clearScreen({ ctx, canvas }) {
+export function setBackgroundColor({
+    colorName,
+    state,
+    canvas,
+    backgroundCanvas,
+    backgroundCtx,
+    colorMap,
+    applyContextSettings,
+    createUnknownColorError,
+}) {
+    const normalized = String(colorName || '').toLowerCase();
+    const mappedColor = colorMap[normalized];
+    if (!mappedColor || mappedColor === 'RAINBOW') {
+        throw createUnknownColorError(colorName);
+    }
+    state.backgroundColor = mappedColor;
+    applyBackgroundLayer({ canvas, backgroundCanvas, backgroundCtx, backgroundColor: mappedColor });
+    applyContextSettings();
+}
+
+export function clearScreen({ ctx, canvas, backgroundColor }) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 

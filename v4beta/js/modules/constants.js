@@ -83,6 +83,7 @@ export const CORE_COLOR_NAMES = COLOR_REGISTRY
     .map((entry) => entry.name);
 
 export const DEFAULT_PEN_COLOR = "#000000";
+export const DEFAULT_CANVAS_BACKGROUND = "#FFFFFF";
 export const DEFAULT_PEN_SIZE = 3;
 export const RAVLYK_INITIAL_ANGLE = -90; // Upwards
 

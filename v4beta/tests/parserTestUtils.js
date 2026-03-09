@@ -12,7 +12,15 @@ export function createInterpreter() {
         lineWidth: 1,
         strokeStyle: '#000000',
     };
+    const backgroundCtx = {
+        clearRect() {},
+        fillRect() {},
+        fillStyle: '#ffffff',
+    };
     const canvas = { width: 800, height: 600 };
-    return new RavlykInterpreter(ctx, canvas, () => {}, () => {}, () => {});
+    const backgroundCanvas = { width: 800, height: 600, style: {} };
+    return new RavlykInterpreter(ctx, canvas, () => {}, () => {}, () => {}, {
+        backgroundCanvas,
+        backgroundCtx,
+    });
 }
-

@@ -1,6 +1,7 @@
 import { parseCreateStatementToAst as parseCreateStatementToAstHelper } from './parserCreateStatement.js';
 import {
     parseAssignmentStatementToAst as parseAssignmentStatementToAstHelper,
+    parseBackgroundStatementToAst as parseBackgroundStatementToAstHelper,
     parseClearStatementToAst as parseClearStatementToAstHelper,
     parseColorStatementToAst as parseColorStatementToAstHelper,
     parseFunctionCallStatementToAst as parseFunctionCallStatementToAstHelper,
@@ -81,6 +82,15 @@ export function createParserStatementHandlers({
             }),
         parseColorStatementToAst: (tokens, tokenMeta, startIndex, token) =>
             parseColorStatementToAstHelper({
+                tokens,
+                tokenMeta,
+                startIndex,
+                token,
+                spanFromMeta: bindings.spanFromMeta,
+                createError,
+            }),
+        parseBackgroundStatementToAst: (tokens, tokenMeta, startIndex, token) =>
+            parseBackgroundStatementToAstHelper({
                 tokens,
                 tokenMeta,
                 startIndex,

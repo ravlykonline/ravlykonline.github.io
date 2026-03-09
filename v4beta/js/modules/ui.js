@@ -94,11 +94,13 @@ export function updateCommandIndicator(commandText, index) {
     }
 }
 
-export function resizeCanvas(canvas, ctx, onResizeCallback) {
+export function resizeCanvas(canvas, ctx, onResizeCallback, options = {}) {
     if (!canvas || !canvas.parentElement) return;
     if (typeof canvas.getClientRects === 'function' && canvas.getClientRects().length === 0) {
         return;
     }
+
+    const linkedCanvases = Array.isArray(options.linkedCanvases) ? options.linkedCanvases : [];
 
     const canvasBox = canvas.closest('.canvas-box') || canvas.parentElement;
     const oldWidth = canvas.width;
@@ -134,6 +136,11 @@ export function resizeCanvas(canvas, ctx, onResizeCallback) {
 
     canvas.width = Math.max(1, renderedWidth);
     canvas.height = Math.max(1, renderedHeight);
+    for (const linkedCanvas of linkedCanvases) {
+        if (!linkedCanvas) continue;
+        linkedCanvas.width = canvas.width;
+        linkedCanvas.height = canvas.height;
+    }
 
     const deltaX = (canvas.width - oldWidth) / 2;
     const deltaY = (canvas.height - oldHeight) / 2;

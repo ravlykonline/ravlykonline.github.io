@@ -9,8 +9,9 @@ export function handlePrimitiveAstStatement({
     performMove,
     performTurn,
     setColor,
+    setBackgroundColor,
     performGoto,
-    clearScreen,
+    clearToDefaultSheet,
 }) {
     if (!stmt || !stmt.type) return false;
 
@@ -59,6 +60,15 @@ export function handlePrimitiveAstStatement({
         return true;
     }
 
+    if (stmt.type === 'BackgroundStmt') {
+        if (mode === 'queue') {
+            outputQueue.push({ type: 'BACKGROUND', value: stmt.colorName, original: 'фон' });
+        } else {
+            setBackgroundColor(stmt.colorName);
+        }
+        return true;
+    }
+
     if (stmt.type === 'GotoStmt') {
         const x = evalAstNumberExpression(stmt.x, env);
         const y = evalAstNumberExpression(stmt.y, env);
@@ -92,7 +102,7 @@ export function handlePrimitiveAstStatement({
         if (mode === 'queue') {
             outputQueue.push({ type: 'CLEAR', original: 'очистити' });
         } else {
-            clearScreen();
+            clearToDefaultSheet();
         }
         return true;
     }

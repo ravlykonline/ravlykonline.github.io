@@ -6,6 +6,7 @@ export {
 
 export {
     parseAssignmentStatementToAst,
+    parseBackgroundStatementToAst,
     parseClearStatementToAst,
     parseColorStatementToAst,
     parseFunctionCallStatementToAst,
