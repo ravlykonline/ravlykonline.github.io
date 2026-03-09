@@ -40,6 +40,7 @@
     --editor-hc-hover: #222;
     --editor-hc-accent: #7dd3ff;
     --editor-hc-error: #ff5252;
+    --editor-mobile-workspace-height: clamp(320px, 54vh, 420px);
 }
 
 .toolbar {
@@ -139,7 +140,7 @@
     .workspace-tabs {
         display: flex;
         gap: 10px;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
     }
 
     .workspace-tab {
@@ -182,19 +183,24 @@
     }
 
     .code-box {
-        min-height: 260px;
+        min-height: var(--editor-mobile-workspace-height);
+        height: var(--editor-mobile-workspace-height);
     }
 
     .canvas-box {
-        height: clamp(320px, 55vh, 480px);
+        height: var(--editor-mobile-workspace-height);
         max-height: none;
-        min-height: 320px;
+        min-height: var(--editor-mobile-workspace-height);
     }
 }
 
 @media (max-width: 767px) {
     .main-header h1 {
-        font-size: clamp(1.85rem, 8vw, 2.35rem);
+        font-size: clamp(1.58rem, 7.2vw, 2.15rem);
+    }
+
+    .toolbar {
+        gap: 7px;
     }
 
     .toolbar .btn {
@@ -227,16 +233,24 @@
         white-space: nowrap;
         text-align: center;
     }
+
+    .workspace-tabs {
+        margin-bottom: 8px;
+    }
+
+    .main-area {
+        gap: 12px;
+    }
 }
 
 @media (max-width: 430px) {
     .main-header h1 {
-        font-size: clamp(1.72rem, 8vw, 2.1rem);
+        font-size: clamp(1.38rem, 6.9vw, 1.82rem);
         letter-spacing: 0;
     }
 
     .toolbar {
-        gap: 6px;
+        gap: 5px;
     }
 
     .toolbar .btn {
@@ -249,8 +263,8 @@
     }
 
     .workspace-tabs {
-        gap: 8px;
-        margin-bottom: 10px;
+        gap: 7px;
+        margin-bottom: 8px;
     }
 
     .workspace-tab {
@@ -259,12 +273,13 @@
     }
 
     .code-box {
-        min-height: 250px;
+        min-height: var(--editor-mobile-workspace-height);
+        height: var(--editor-mobile-workspace-height);
     }
 
     .canvas-box {
-        height: clamp(300px, 52vh, 440px);
-        min-height: 300px;
+        height: var(--editor-mobile-workspace-height);
+        min-height: var(--editor-mobile-workspace-height);
     }
 }
 
@@ -526,7 +541,7 @@
 @media (max-width: 767px) {
     .examples {
         position: relative;
-        margin-top: 14px;
+        margin-top: 10px;
         padding: 14px 10px;
     }
 
