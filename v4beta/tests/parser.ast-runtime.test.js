@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { MAX_REPEATS_IN_LOOP } from '../js/modules/constants.js';
+import { COLOR_MAP, MAX_REPEATS_IN_LOOP } from '../js/modules/constants.js';
 import { createInterpreter } from './parserTestUtils.js';
 import { runTest, runAsyncTest } from './testUtils.js';
 
@@ -242,7 +242,7 @@ await runAsyncTest('if inside repeat executes sequentially without getting stuck
 
     assert.equal(interpreter.isExecuting, false);
     assert.equal(interpreter.currentCommandIndex >= 0, true);
-    assert.equal(String(interpreter.state.color).toLowerCase(), '#0000ff');
+    assert.equal(String(interpreter.state.color).toLowerCase(), String(COLOR_MAP['синій']).toLowerCase());
 });
 
 await runAsyncTest('executeCommands evaluates compare-if against runtime assignment state', async () => {
@@ -263,5 +263,5 @@ await runAsyncTest('executeCommands evaluates compare-if against runtime assignm
         globalThis.cancelAnimationFrame = oldCAF;
     }
 
-    assert.equal(String(interpreter.state.color).toLowerCase(), '#0000ff');
+    assert.equal(String(interpreter.state.color).toLowerCase(), String(COLOR_MAP['синій']).toLowerCase());
 });

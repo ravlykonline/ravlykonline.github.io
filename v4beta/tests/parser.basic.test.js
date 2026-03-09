@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { MAX_RECURSION_DEPTH, MAX_REPEATS_IN_LOOP } from '../js/modules/constants.js';
+import { COLOR_MAP, CORE_COLOR_NAMES, MAX_RECURSION_DEPTH, MAX_REPEATS_IN_LOOP, UKRAINIAN_COLOR_NAMES } from '../js/modules/constants.js';
 import { createInterpreter } from './parserTestUtils.js';
 import { runTest } from './testUtils.js';
 
@@ -47,6 +47,32 @@ runTest('setColor throws on unknown color name', () => {
         () => interpreter.setColor('ультрамарин'),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'UNKNOWN_COLOR'
     );
+});
+
+runTest('expanded palette keeps old aliases and accepts new color names', () => {
+    const interpreter = createInterpreter();
+    interpreter.setColor('помаранчевий');
+    assert.equal(String(interpreter.state.color).toLowerCase(), '#ff8c00');
+
+    interpreter.setColor('кораловий');
+    assert.equal(String(interpreter.state.color).toLowerCase(), '#ff6b5b');
+
+    interpreter.setColor('gold');
+    assert.equal(String(interpreter.state.color).toLowerCase(), '#d4af37');
+
+    interpreter.setColor('голубий');
+    assert.equal(String(interpreter.state.color).toLowerCase(), '#87ceeb');
+});
+
+runTest('color constants expose canonical names and alias lookups', () => {
+    assert.equal(COLOR_MAP['жовтогарячий'], '#FF8C00');
+    assert.equal(COLOR_MAP['помаранчевий'], '#FF8C00');
+    assert.equal(COLOR_MAP['оранжевий'], '#FF8C00');
+    assert.equal(COLOR_MAP['голубий'], '#87CEEB');
+    assert.equal(COLOR_MAP['rainbow'], 'RAINBOW');
+    assert.equal(UKRAINIAN_COLOR_NAMES['#D4AF37'], 'золотий');
+    assert.equal(CORE_COLOR_NAMES.includes('синій'), true);
+    assert.equal(CORE_COLOR_NAMES.includes('веселка'), true);
 });
 
 runTest('parse goto in Ukrainian and English forms', () => {
@@ -245,4 +271,3 @@ runTest('function nesting deeper than MAX_RECURSION_DEPTH throws friendly error'
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'TOO_MANY_NESTED_REPEATS'
     );
 });
-

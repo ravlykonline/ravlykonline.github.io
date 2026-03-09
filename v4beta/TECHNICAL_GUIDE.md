@@ -7,6 +7,7 @@ Last updated: 2026-03-08
 
 Related:
 - `DESIGN_GUIDE.md` is the visual/style reference for UI work.
+- `FEATURE_COLOR_BACKGROUND_RANDOM_SPEC.md` is the staged implementation spec for expanded color support, `фон`, and future `випадково` commands.
 
 ## 1. Project purpose
 
@@ -498,7 +499,8 @@ When adding a language feature:
 3. add/extend friendly errors in `constants.js`,
 4. add parser/unit tests,
 5. add/update E2E smoke if UI/interaction changes,
-6. update this document and user docs (`manual.html`, `lessons.html`).
+6. update this document and user docs (`manual.html`, `lessons.html`),
+7. if the feature is part of the staged color/background/random expansion, keep `FEATURE_COLOR_BACKGROUND_RANDOM_SPEC.md` aligned with the actual phase and scope.
 
 ## 16. Single-source principle
 

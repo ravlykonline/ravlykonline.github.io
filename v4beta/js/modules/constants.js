@@ -1,43 +1,86 @@
 // js/modules/constants.js
-export const COLOR_MAP = {
-    червоний: "#FF0000",
-    зелений: "#00FF00",
-    синій: "#0000FF",
-    чорний: "#000000",
-    жовтий: "#FFFF00",
-    жовтогарячий: "#FFA500",
-    оранжевий: "#FFA500", // Alias
-    фіолетовий: "#800080",
-    рожевий: "#FFC0CB",
-    коричневий: "#A52A2A",
-    білий: "#FFFFFF",
-    веселка: "RAINBOW",
-    rainbow: "RAINBOW",
-    // English aliases
-    red: "#FF0000",
-    green: "#00FF00",
-    blue: "#0000FF",
-    black: "#000000",
-    yellow: "#FFFF00",
-    orange: "#FFA500",
-    purple: "#800080",
-    pink: "#FFC0CB",
-    brown: "#A52A2A",
-    white: "#FFFFFF",
-};
+export const COLOR_REGISTRY = [
+    { name: "білий", hex: "#FFFFFF", group: "Ахроматичні", core: true, aliases: ["white"] },
+    { name: "світло-сірий", hex: "#D0D3DC", group: "Ахроматичні", core: false, aliases: ["light-gray", "light-grey"] },
+    { name: "сірий", hex: "#8A8F9E", group: "Ахроматичні", core: false, aliases: ["gray", "grey"] },
+    { name: "темно-сірий", hex: "#4A4E5C", group: "Ахроматичні", core: false, aliases: ["dark-gray", "dark-grey"] },
+    { name: "чорний", hex: "#1A1A1A", group: "Ахроматичні", core: true, aliases: ["black"] },
 
-export const UKRAINIAN_COLOR_NAMES = {
-    "#FF0000": "червоний",
-    "#00FF00": "зелений",
-    "#0000FF": "синій",
-    "#000000": "чорний",
-    "#FFFF00": "жовтий",
-    "#FFA500": "жовтогарячий",
-    "#800080": "фіолетовий",
-    "#FFC0CB": "рожевий",
-    "#A52A2A": "коричневий",
-    "#FFFFFF": "білий",
-};
+    { name: "рожевий", hex: "#FF82AC", group: "Червоні", core: true, aliases: ["pink"] },
+    { name: "кораловий", hex: "#FF6B5B", group: "Червоні", core: false, aliases: ["coral"] },
+    { name: "червоний", hex: "#E8302A", group: "Червоні", core: true, aliases: ["red"] },
+    { name: "малиновий", hex: "#C0183A", group: "Червоні", core: false, aliases: ["crimson"] },
+    { name: "бордовий", hex: "#7A1030", group: "Червоні", core: false, aliases: ["burgundy", "maroon"] },
+    { name: "вишневий", hex: "#5C0E28", group: "Червоні", core: false, aliases: ["cherry"] },
+
+    { name: "персиковий", hex: "#FFBD9B", group: "Помаранчеві", core: false, aliases: ["peach"] },
+    { name: "жовтогарячий", hex: "#FF8C00", group: "Помаранчеві", core: true, aliases: ["помаранчевий", "оранжевий", "orange"] },
+    { name: "теракотовий", hex: "#C45830", group: "Помаранчеві", core: false, aliases: ["terracotta"] },
+
+    { name: "кремовий", hex: "#FFF8DC", group: "Жовті", core: false, aliases: ["cream"] },
+    { name: "лимонний", hex: "#FFF44F", group: "Жовті", core: false, aliases: ["lemon"] },
+    { name: "жовтий", hex: "#FFD600", group: "Жовті", core: true, aliases: ["yellow"] },
+    { name: "золотий", hex: "#D4AF37", group: "Жовті", core: false, aliases: ["gold", "golden"] },
+    { name: "гірчичний", hex: "#C8900A", group: "Жовті", core: false, aliases: ["mustard"] },
+
+    { name: "салатовий", hex: "#A8E063", group: "Зелені", core: false, aliases: ["lime"] },
+    { name: "зелений", hex: "#2ECC40", group: "Зелені", core: true, aliases: ["green"] },
+    { name: "смарагдовий", hex: "#00A878", group: "Зелені", core: false, aliases: ["emerald"] },
+    { name: "темно-зелений", hex: "#1A7A3C", group: "Зелені", core: false, aliases: ["dark-green"] },
+    { name: "оливковий", hex: "#6B7C3A", group: "Зелені", core: false, aliases: ["olive"] },
+    { name: "хакі", hex: "#8B8B4E", group: "Зелені", core: false, aliases: ["khaki"] },
+
+    { name: "блакитний", hex: "#87CEEB", group: "Блакитні та сині", core: false, aliases: ["голубий", "sky-blue", "light-blue"] },
+    { name: "небесний", hex: "#4FC3F7", group: "Блакитні та сині", core: false, aliases: ["azure", "sky"] },
+    { name: "синій", hex: "#1A56DB", group: "Блакитні та сині", core: true, aliases: ["blue"] },
+    { name: "темно-синій", hex: "#0A2472", group: "Блакитні та сині", core: false, aliases: ["dark-blue", "navy"] },
+    { name: "індиго", hex: "#3F0080", group: "Блакитні та сині", core: false, aliases: ["indigo"] },
+    { name: "морський", hex: "#006994", group: "Блакитні та сині", core: false, aliases: ["sea-blue", "teal-blue"] },
+
+    { name: "бузковий", hex: "#DDA0DD", group: "Фіолетові", core: false, aliases: ["lavender"] },
+    { name: "ліловий", hex: "#B57BDC", group: "Фіолетові", core: false, aliases: ["lilac"] },
+    { name: "фіолетовий", hex: "#7B2FBE", group: "Фіолетові", core: true, aliases: ["purple", "violet"] },
+    { name: "пурпуровий", hex: "#9B0060", group: "Фіолетові", core: false, aliases: ["magenta"] },
+    { name: "сливовий", hex: "#5C0F5C", group: "Фіолетові", core: false, aliases: ["plum"] },
+
+    { name: "бежевий", hex: "#F5DEB3", group: "Коричневі та земляні", core: false, aliases: ["beige", "кремово-бежевий"] },
+    { name: "пісочний", hex: "#D4A855", group: "Коричневі та земляні", core: false, aliases: ["sand", "sandy"] },
+    { name: "коричневий", hex: "#8B4513", group: "Коричневі та земляні", core: true, aliases: ["brown"] },
+    { name: "шоколадний", hex: "#5C2C0A", group: "Коричневі та земляні", core: false, aliases: ["chocolate"] },
+    { name: "каштановий", hex: "#954535", group: "Коричневі та земляні", core: false, aliases: ["chestnut"] },
+
+    { name: "веселка", hex: "RAINBOW", group: "Спеціальні", core: true, aliases: ["rainbow"] },
+];
+
+function buildColorMap(registry) {
+    const colorMap = {};
+    for (const entry of registry) {
+        colorMap[entry.name.toLowerCase()] = entry.hex;
+        for (const alias of entry.aliases || []) {
+            colorMap[String(alias).toLowerCase()] = entry.hex;
+        }
+    }
+    return colorMap;
+}
+
+function buildUkrainianColorNames(registry) {
+    const namesByHex = {};
+    for (const entry of registry) {
+        if (entry.hex === "RAINBOW") continue;
+        if (!namesByHex[entry.hex]) {
+            namesByHex[entry.hex] = entry.name;
+        }
+    }
+    return namesByHex;
+}
+
+export const COLOR_MAP = buildColorMap(COLOR_REGISTRY);
+
+export const UKRAINIAN_COLOR_NAMES = buildUkrainianColorNames(COLOR_REGISTRY);
+
+export const CORE_COLOR_NAMES = COLOR_REGISTRY
+    .filter((entry) => entry.core)
+    .map((entry) => entry.name);
 
 export const DEFAULT_PEN_COLOR = "#000000";
 export const DEFAULT_PEN_SIZE = 3;

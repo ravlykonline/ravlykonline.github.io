@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { COLOR_MAP, COLOR_REGISTRY, UKRAINIAN_COLOR_NAMES } from '../js/modules/constants.js';
 import { handlePrimitiveAstStatement } from '../js/modules/interpreterPrimitiveStatements.js';
 import {
     animatePen,
@@ -21,6 +22,42 @@ import {
     wasBoundaryWarningShownRuntime,
 } from '../js/modules/interpreterRuntimeState.js';
 import { runTest } from './testUtils.js';
+
+runTest('color registry generates stable runtime lookup data', () => {
+    assert.equal(Array.isArray(COLOR_REGISTRY), true);
+    assert.equal(COLOR_REGISTRY.length > 10, true);
+    assert.equal(COLOR_MAP['смарагдовий'], '#00A878');
+    assert.equal(COLOR_MAP['brown'], '#8B4513');
+    assert.equal(COLOR_MAP['кремово-бежевий'], '#F5DEB3');
+    assert.equal(UKRAINIAN_COLOR_NAMES['#1A56DB'], 'синій');
+    assert.equal(UKRAINIAN_COLOR_NAMES['#1A1A1A'], 'чорний');
+});
+
+runTest('color registry keeps unique canonical names and aliases do not collide across colors', () => {
+    const canonicalNames = new Set();
+    const aliasOwner = new Map();
+
+    for (const entry of COLOR_REGISTRY) {
+        const canonical = String(entry.name || '').toLowerCase();
+        assert.ok(canonical, 'each color entry must have a canonical name');
+        assert.equal(canonicalNames.has(canonical), false, `duplicate canonical color name: ${canonical}`);
+        canonicalNames.add(canonical);
+
+        const aliases = Array.isArray(entry.aliases) ? entry.aliases : [];
+        for (const alias of aliases) {
+            const normalizedAlias = String(alias || '').toLowerCase();
+            assert.ok(normalizedAlias, `empty alias for color: ${canonical}`);
+            assert.notEqual(normalizedAlias, canonical, `alias duplicates canonical name for: ${canonical}`);
+
+            const previousOwner = aliasOwner.get(normalizedAlias);
+            assert.ok(
+                !previousOwner || previousOwner === canonical,
+                `alias "${normalizedAlias}" is shared by ${previousOwner} and ${canonical}`
+            );
+            aliasOwner.set(normalizedAlias, canonical);
+        }
+    }
+});
 
 runTest('interpreter primitive-statement helper handles queue and runtime branches', () => {
     const queue = [];
