@@ -254,7 +254,7 @@ When Phase 1 is implemented from the draft above:
 Status:
 - Implemented in the current codebase as a staged underlay-based background feature.
 - `фон` now targets a background layer, `очистити` restores a default white sheet, and export/resize use the same background source of truth.
-- `фон випадково` remains intentionally deferred to a later phase.
+- `фон випадково` is now implemented together with controlled random color selection.
 
 Scope:
 - add a language command `фон <колір>`,
@@ -315,6 +315,11 @@ Definition of done:
 - random color commands are testable and deterministic under test control,
 - runtime does not depend on unmocked randomness in unit tests.
 
+Status:
+- Implemented in the current codebase.
+- `колір випадково` and `фон випадково` resolve through a centralized helper backed by `COLOR_REGISTRY`.
+- `веселка` remains explicit-only and is not part of ordinary random color selection.
+
 ### Phase 4. Add controlled `Р Р†Р С‘Р С—Р В°Р Т‘Р С”Р С•Р Р†Р С•` for numeric movement/position
 
 Scope:
@@ -349,6 +354,12 @@ Definition of done:
 - random movement and goto behave safely for typical classroom/editor usage,
 - random behavior is still predictable enough to explain in docs and tests,
 - boundary regressions remain covered.
+
+Status:
+- Implemented in the current codebase.
+- `вперед випадково` and `назад випадково` resolve through a centralized safe-distance helper.
+- `перейти в випадково` resolves through a centralized safe-point helper.
+- The current implementation keeps random movement/position inside a boundary-aware safe zone instead of relying only on raw canvas clamping.
 
 ## Architecture rules for all phases
 

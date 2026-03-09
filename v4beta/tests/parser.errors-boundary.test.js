@@ -77,6 +77,30 @@ runTest('throws on invalid goto syntax', () => {
     );
 });
 
+runTest('throws on invalid random move syntax with trailing token', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parseTokens(['вперед', 'випадково', '10']),
+        (error) => error && error.name === 'RavlykError'
+    );
+});
+
+runTest('throws on invalid random goto syntax with trailing coordinate', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parseTokens(['перейти', 'в', 'випадково', '20']),
+        (error) => error && error.name === 'RavlykError'
+    );
+});
+
+runTest('throws on duplicated random goto syntax', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parseTokens(['перейти', 'в', 'випадково', 'випадково']),
+        (error) => error && error.name === 'RavlykError'
+    );
+});
+
 runTest('game mode blocks page-scroll keys but normal mode does not', () => {
     const interpreter = createInterpreter();
 
@@ -175,4 +199,3 @@ runTest('destroy removes keyboard listeners and clears runtime flags', () => {
         globalThis.window = originalWindow;
     }
 });
-

@@ -10,13 +10,50 @@ export function handlePrimitiveAstStatement({
     performTurn,
     setColor,
     setBackgroundColor,
+    pickRandomColorName = null,
+    pickRandomBackgroundColorName = null,
+    pickSafeRandomDistance = null,
+    pickSafeRandomPoint = null,
     performGoto,
     clearToDefaultSheet,
 }) {
     if (!stmt || !stmt.type) return false;
 
+    const resolveColorArg = (colorArg, randomPicker) => {
+        if (!colorArg) {
+            throw createError('UNKNOWN_COLOR', '');
+        }
+        if (colorArg.kind === 'named') {
+            return colorArg.value;
+        }
+        if (colorArg.kind === 'random' && typeof randomPicker === 'function') {
+            return randomPicker();
+        }
+        if (colorArg.kind !== 'named') {
+            throw createError('UNKNOWN_COLOR', String(colorArg && colorArg.value ? colorArg.value : ''));
+        }
+        return colorArg.value;
+    };
+
+    const resolveMoveDistance = (distanceArg, direction) => {
+        if (distanceArg && distanceArg.kind === 'random' && typeof pickSafeRandomDistance === 'function') {
+            return pickSafeRandomDistance(direction);
+        }
+        return evalAstNumberExpression(distanceArg, env);
+    };
+
+    const resolveGotoTarget = (gotoStmt) => {
+        if (gotoStmt && gotoStmt.target && gotoStmt.target.kind === 'random' && typeof pickSafeRandomPoint === 'function') {
+            return pickSafeRandomPoint();
+        }
+        return {
+            x: evalAstNumberExpression(gotoStmt.x, env),
+            y: evalAstNumberExpression(gotoStmt.y, env),
+        };
+    };
+
     if (stmt.type === 'MoveStmt') {
-        const value = evalAstNumberExpression(stmt.distance, env);
+        const value = resolveMoveDistance(stmt.distance, stmt.direction);
         if (!Number.isFinite(value)) {
             const original = stmt.direction === 'backward' ? 'назад' : 'вперед';
             throw createError('INVALID_DISTANCE', original, String(value));
@@ -52,26 +89,27 @@ export function handlePrimitiveAstStatement({
     }
 
     if (stmt.type === 'ColorStmt') {
+        const colorName = resolveColorArg(stmt.colorArg, pickRandomColorName);
         if (mode === 'queue') {
-            outputQueue.push({ type: 'COLOR', value: stmt.colorName, original: 'колір' });
+            outputQueue.push({ type: 'COLOR', value: colorName, original: 'колір' });
         } else {
-            setColor(stmt.colorName);
+            setColor(colorName);
         }
         return true;
     }
 
     if (stmt.type === 'BackgroundStmt') {
+        const colorName = resolveColorArg(stmt.colorArg, pickRandomBackgroundColorName);
         if (mode === 'queue') {
-            outputQueue.push({ type: 'BACKGROUND', value: stmt.colorName, original: 'фон' });
+            outputQueue.push({ type: 'BACKGROUND', value: colorName, original: 'фон' });
         } else {
-            setBackgroundColor(stmt.colorName);
+            setBackgroundColor(colorName);
         }
         return true;
     }
 
     if (stmt.type === 'GotoStmt') {
-        const x = evalAstNumberExpression(stmt.x, env);
-        const y = evalAstNumberExpression(stmt.y, env);
+        const { x, y } = resolveGotoTarget(stmt);
         if (!Number.isFinite(x)) {
             throw createError('INVALID_POSITION_X', 'перейти', String(x));
         }

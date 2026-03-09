@@ -92,6 +92,8 @@ export const MAX_REPEATS_IN_LOOP = 500;
 export const MAX_CANVAS_SIZE_PX = 3000; // Не використовується активно в поточній логіці
 export const EXECUTION_TIMEOUT_MS = 180000; // 180 секунд, як зазначено в документації
 export const MAX_CODE_LENGTH_CHARS = 10000;
+export const RANDOM_SAFE_MARGIN_PX = 100;
+export const RANDOM_MIN_DISTANCE_PX = 20;
 export const CANVAS_BOUNDARY_PADDING = 5; // Зменшено, бо равлик тепер не виходить за межі
 
 export const DEFAULT_ANIMATION_FRAME_DURATION_MS = 16; // Приблизно 60 FPS

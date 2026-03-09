@@ -50,6 +50,26 @@ export function handlePrimitiveAstStatementRuntime(runtime, stmt, env, mode, out
         performTurn: (angle) => performTurn({ angle, state: runtime.state }),
         setColor: (colorName) => runtime.setColor(colorName),
         setBackgroundColor: (colorName) => runtime.setBackgroundColor(colorName),
+        pickRandomColorName: () => runtime.randomResolver.pickRandomColorName(),
+        pickRandomBackgroundColorName: () => runtime.randomResolver.pickRandomBackgroundColorName(),
+        pickSafeRandomDistance: (direction) => runtime.randomResolver.pickSafeRandomDistance({
+            canvasWidth: runtime.canvas.width,
+            canvasHeight: runtime.canvas.height,
+            x: runtime.state.x,
+            y: runtime.state.y,
+            angle: runtime.state.angle,
+            direction,
+        }),
+        pickSafeRandomPoint: () => {
+            const point = runtime.randomResolver.pickSafeRandomPoint({
+                canvasWidth: runtime.canvas.width,
+                canvasHeight: runtime.canvas.height,
+            });
+            return {
+                x: point.logicalX,
+                y: point.logicalY,
+            };
+        },
         performGoto: (x, y) => runtime.performGoto(x, y),
         clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
     });

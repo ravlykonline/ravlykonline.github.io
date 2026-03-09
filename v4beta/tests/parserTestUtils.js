@@ -1,6 +1,6 @@
 import { RavlykInterpreter } from '../js/modules/ravlykInterpreter.js';
 
-export function createInterpreter() {
+export function createInterpreter(options = {}) {
     const ctx = {
         clearRect() {},
         beginPath() {},
@@ -22,5 +22,6 @@ export function createInterpreter() {
     return new RavlykInterpreter(ctx, canvas, () => {}, () => {}, () => {}, {
         backgroundCanvas,
         backgroundCtx,
+        rng: options.rng,
     });
 }

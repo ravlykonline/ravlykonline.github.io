@@ -82,6 +82,7 @@
                     <li><a href="#game-mode">Інтерактивний режим: грати</a></li>
                     <li><a href="#pen-control">Керування олівцем</a></li>
                     <li><a href="#colors">Використання кольорів</a></li>
+                    <li><a href="#randomness">Випадковість</a></li>
                     <li><a href="#drawing-shapes">Малювання форм</a></li>
                     <li><a href="#errors">Можливі помилки та їх значення</a></li>
                     <li><a href="#limitations">Обмеження та особливості</a></li>
@@ -131,26 +132,26 @@
                     <p>Для керування Равликом існують прості команди, які ти можеш використовувати:</p>
                     <ul class="command-list-manual" aria-label="Основні команди РАВЛИКа">
                         <li class="command-item-manual"><span class="cmd-name">вперед N</span> <span
-                                class="cmd-desc">Рухає Равлика вперед на N кроків (наприклад,
-                                <code>вперед 100</code>).</span></li>
+                                class="cmd-desc">Рухає Равлика вперед на N кроків або на безпечну випадкову відстань (наприклад,
+                                <code>вперед 100</code>, <code>вперед випадково</code>).</span></li>
                         <li class="command-item-manual"><span class="cmd-name">назад N</span> <span
-                                class="cmd-desc">Рухає Равлика назад на N кроків (наприклад,
-                                <code>назад 50</code>).</span></li>
+                                class="cmd-desc">Рухає Равлика назад на N кроків або на безпечну випадкову відстань (наприклад,
+                                <code>назад 50</code>, <code>назад випадково</code>).</span></li>
                         <li class="command-item-manual"><span class="cmd-name">праворуч N</span> <span
                                 class="cmd-desc">Повертає Равлика на N градусів праворуч (наприклад,
                                 <code>праворуч 90</code>).</span></li>
                         <li class="command-item-manual"><span class="cmd-name">ліворуч N</span> <span
                                 class="cmd-desc">Повертає Равлика на N градусів ліворуч (наприклад,
                                 <code>ліворуч 45</code>).</span></li>
-                        <li class="command-item-manual"><span class="cmd-name">колір [назва]</span> <span
+                        <li class="command-item-manual"><span class="cmd-name">колір [назва|випадково]</span> <span
                                 class="cmd-desc">Змінює колір олівця, яким малює Равлик (наприклад,
-                                <code>колір синій</code>, <code>колір кораловий</code>, <code>колір веселка</code>).</span></li>
-                        <li class="command-item-manual"><span class="cmd-name">фон [назва]</span> <span
+                                <code>колір синій</code>, <code>колір кораловий</code>, <code>колір веселка</code>, <code>колір випадково</code>).</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">фон [назва|випадково]</span> <span
                                 class="cmd-desc">Змінює підкладку полотна для малювання, не стираючи вже намальовані лінії (наприклад,
-                                <code>фон блакитний</code>).</span></li>
+                                <code>фон блакитний</code>, <code>фон випадково</code>).</span></li>
                         <li class="command-item-manual"><span class="cmd-name">перейти в X Y</span> <span
-                                class="cmd-desc">Переміщує Равлика у точку (X, Y) від центру полотна. Працюють обидва
-                                формати: <code>перейти в 100 50</code> і <code>перейти в -80, -40</code>.</span></li>
+                                class="cmd-desc">Переміщує Равлика у точку (X, Y) від центру полотна. Працюють формати:
+                                <code>перейти в 100 50</code>, <code>перейти в -80, -40</code> і <code>перейти в випадково</code>.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">підняти</span> <span
                                 class="cmd-desc">Піднімає олівець — Равлик рухається, але не малює.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">опустити</span> <span
@@ -506,6 +507,78 @@
 колір червоний
 вперед 100</pre>
                         <p>У цьому прикладі полотно стане блакитним, а Равлик намалює червону лінію поверх нього.</p>
+                    </div>
+                    </section>
+                </article>
+
+                <article id="randomness" class="guide-section" aria-labelledby="manual-section-randomness">
+                    <h2 id="manual-section-randomness">Випадковість</h2>
+                    <p>Іноді результат неможливо вгадати наперед. Саме це і називають <strong>випадковістю</strong>. Ти знаєш, що щось станеться, але не знаєш точно, що саме.</p>
+                    <section class="manual-subsection manual-concept-subsection" aria-labelledby="manual-randomness-life-title">
+                    <div class="concept-box" role="region" aria-labelledby="manual-randomness-life-title">
+                        <div class="concept-text">
+                            <h3 id="manual-randomness-life-title">Де випадковість є у реальному житті</h3>
+                            <p>Випадковість трапляється дуже часто. Наприклад, коли кидають кубик, тасують карти, вибирають приз із коробки-сюрпризу або коли сніжинки падають трохи по-різному.</p>
+                            <p>Навіть якщо правила однакові, результат може щоразу бути іншим. Саме тому випадковість робить ігри, малюнки та експерименти цікавішими.</p>
+                        </div>
+                    </div>
+                    </section>
+                    <section class="manual-subsection manual-callout-subsection" aria-labelledby="manual-randomness-why-title">
+                    <div class="tips-box" role="region" aria-labelledby="manual-randomness-why-title">
+                        <h4 id="manual-randomness-why-title">Навіщо вона потрібна в Равлику</h4>
+                        <ul>
+                            <li>Щоб малюнок щоразу виглядав трохи по-новому.</li>
+                            <li>Щоб швидко отримувати сюрпризи: новий колір, інше місце або іншу довжину кроку.</li>
+                            <li>Щоб робити живіші візерунки, феєрверки, конфетті, зорі та ігрові сцени.</li>
+                            <li>Щоб вчитися спостерігати: одна й та сама програма може давати різні результати.</li>
+                        </ul>
+                    </div>
+                    </section>
+                    <h3>Як використовувати випадковість у Равлику</h3>
+                    <p>У Равлику можна попросити випадковий колір, випадковий фон, безпечний випадковий крок або безпечну випадкову точку на полотні.</p>
+                    <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-randomness-colors-title">
+                    <h4 id="manual-randomness-colors-title">1. Випадковий колір і фон</h4>
+                    <pre class="example-code-manual">фон випадково
+колір випадково
+вперед 120</pre>
+                    <p>Равлик вибере випадковий фон і випадковий колір лінії. Якщо запустити програму ще раз, поєднання кольорів може бути іншим.</p>
+                    </section>
+                    <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-randomness-motion-title">
+                    <h4 id="manual-randomness-motion-title">2. Випадковий рух</h4>
+                    <pre class="example-code-manual">повторити 8 (
+  колір випадково
+  вперед випадково
+  праворуч 45
+)</pre>
+                    <p>Тут довжина кожного кроку буде іншою. Через це візерунок вийде нерівним і більш живим.</p>
+                    </section>
+                    <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-randomness-goto-title">
+                    <h4 id="manual-randomness-goto-title">3. Випадкова точка</h4>
+                    <pre class="example-code-manual">повторити 12 (
+  перейти в випадково
+  колір випадково
+  вперед 20
+)</pre>
+                    <p>Равлик щоразу стрибатиме в інше безпечне місце на полотні. Так зручно малювати конфетті, короткі промінці або розсип зірочок.</p>
+                    </section>
+                    <section class="manual-subsection manual-callout-subsection" aria-labelledby="manual-randomness-note-title">
+                    <div class="tips-box" role="region" aria-labelledby="manual-randomness-note-title">
+                        <h4 id="manual-randomness-note-title">Важливо пам'ятати</h4>
+                        <ul>
+                            <li>Випадковість не означає безлад. У Равлику вона все одно працює за правилами команди.</li>
+                            <li>Команди <code>вперед випадково</code>, <code>назад випадково</code> і <code>перейти в випадково</code> намагаються обирати безпечні значення, щоб Равлик не тікав за край полотна.</li>
+                            <li>Якщо тобі потрібен точно однаковий малюнок щоразу, краще використовуй звичайні числа та конкретні кольори.</li>
+                        </ul>
+                    </div>
+                    </section>
+                    <section class="manual-subsection manual-callout-subsection" aria-labelledby="manual-randomness-challenge-title">
+                    <div class="tips-box" role="region" aria-labelledby="manual-randomness-challenge-title">
+                        <h4 id="manual-randomness-challenge-title">Спробуй сам</h4>
+                        <ul>
+                            <li>Зроби святковий феєрверк: багато коротких ліній випадкових кольорів із різних місць.</li>
+                            <li>Намалюй поле конфетті: багато маленьких штрихів у випадкових точках.</li>
+                            <li>Запусти одну й ту саму програму тричі й порівняй, чим малюнки відрізняються.</li>
+                        </ul>
                     </div>
                     </section>
                 </article>

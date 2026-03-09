@@ -2,6 +2,7 @@
 import {
     COLOR_MAP, DEFAULT_CANVAS_BACKGROUND, DEFAULT_PEN_COLOR, DEFAULT_PEN_SIZE, RAVLYK_INITIAL_ANGLE,
     DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND,
+    COLOR_REGISTRY,
 } from './constants.js';
 import { RavlykParser, RavlykError } from './ravlykParser.js';
 import {
@@ -44,6 +45,7 @@ import {
     clearToDefaultSheetRuntime,
     performGotoRuntime,
 } from './ravlykInterpreterRuntime.js';
+import { createRandomResolver } from './randomResolver.js';
 
 // State coordinates track the turtle tip (not sprite center),
 // so a large visual radius causes premature edge triggers.
@@ -78,7 +80,12 @@ export class RavlykInterpreter {
             moveSpeed: DEFAULT_MOVE_PIXELS_PER_SECOND,
             turnSpeed: DEFAULT_TURN_DEGREES_PER_SECOND,
             gameTickMs: 50,
+            rng: typeof options.rng === 'function' ? options.rng : Math.random,
         };
+        this.randomResolver = createRandomResolver({
+            rng: this.config.rng,
+            colorRegistry: COLOR_REGISTRY,
+        });
 
         this.isExecuting = false;
         this.shouldStop = false;

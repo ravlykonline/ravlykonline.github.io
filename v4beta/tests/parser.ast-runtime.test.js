@@ -17,6 +17,42 @@ runTest('builds Program AST for basic commands', () => {
     assert.equal(ast.body[1].angle.value, 90);
 });
 
+runTest('builds explicit color/background argument objects in AST', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst(['колір', 'синій', 'фон', 'бежевий']);
+
+    assert.equal(ast.body[0].type, 'ColorStmt');
+    assert.deepEqual(ast.body[0].colorArg, { kind: 'named', value: 'синій' });
+    assert.equal(ast.body[1].type, 'BackgroundStmt');
+    assert.deepEqual(ast.body[1].colorArg, { kind: 'named', value: 'бежевий' });
+});
+
+runTest('builds random color/background arguments in AST', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst(['колір', 'випадково', 'фон', 'random']);
+
+    assert.equal(ast.body[0].type, 'ColorStmt');
+    assert.deepEqual(ast.body[0].colorArg, { kind: 'random' });
+    assert.equal(ast.body[1].type, 'BackgroundStmt');
+    assert.deepEqual(ast.body[1].colorArg, { kind: 'random' });
+});
+
+runTest('builds random move and goto arguments in AST', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parseTokensToAst(['вперед', 'випадково', 'назад', 'random', 'перейти', 'в', 'випадково']);
+
+    assert.equal(ast.body[0].type, 'MoveStmt');
+    assert.deepEqual(ast.body[0].distance, { kind: 'random' });
+    assert.equal(ast.body[0].direction, 'forward');
+
+    assert.equal(ast.body[1].type, 'MoveStmt');
+    assert.deepEqual(ast.body[1].distance, { kind: 'random' });
+    assert.equal(ast.body[1].direction, 'backward');
+
+    assert.equal(ast.body[2].type, 'GotoStmt');
+    assert.deepEqual(ast.body[2].target, { kind: 'random' });
+});
+
 await runAsyncTest('executeCommands rejects rainbow background as unsupported background color', async () => {
     const interpreter = createInterpreter();
     interpreter.setAnimationEnabled(false);
@@ -31,6 +67,88 @@ await runAsyncTest('executeCommands rejects rainbow background as unsupported ba
             interpreter.executeCommands('фон веселка'),
             (error) => error && error.name === 'RavlykError' && error.messageKey === 'UNKNOWN_COLOR'
         );
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+});
+
+await runAsyncTest('executeCommands applies random pen color using injected rng', async () => {
+    const interpreter = createInterpreter({ rng: () => 0 });
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        await interpreter.executeCommands('колір випадково');
+        assert.equal(String(interpreter.state.color).toLowerCase(), String(COLOR_MAP['білий']).toLowerCase());
+        assert.equal(interpreter.state.isRainbow, false);
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+});
+
+await runAsyncTest('executeCommands applies random background color using injected rng', async () => {
+    const interpreter = createInterpreter({ rng: () => 0 });
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        await interpreter.executeCommands('фон випадково');
+        assert.equal(String(interpreter.state.backgroundColor).toLowerCase(), String(COLOR_MAP['білий']).toLowerCase());
+        assert.equal(String(interpreter.backgroundCanvas.style.backgroundColor).toLowerCase(), String(COLOR_MAP['білий']).toLowerCase());
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+});
+
+await runAsyncTest('executeCommands applies random move distance using injected rng', async () => {
+    const interpreter = createInterpreter({ rng: () => 0.5 });
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        const startX = interpreter.state.x;
+        const startY = interpreter.state.y;
+        await interpreter.executeCommands('вперед випадково');
+        assert.equal(interpreter.state.x, startX);
+        assert.notEqual(interpreter.state.y, startY);
+        assert.equal(interpreter.wasBoundaryWarningShown(), false);
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+});
+
+await runAsyncTest('executeCommands applies random goto target using injected rng', async () => {
+    const interpreter = createInterpreter({ rng: () => 0.25 });
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        const startX = interpreter.state.x;
+        const startY = interpreter.state.y;
+        await interpreter.executeCommands('перейти в випадково');
+        assert.notEqual(interpreter.state.x, startX);
+        assert.notEqual(interpreter.state.y, startY);
+        assert.equal(interpreter.wasBoundaryWarningShown(), false);
     } finally {
         globalThis.requestAnimationFrame = oldRAF;
         globalThis.cancelAnimationFrame = oldCAF;

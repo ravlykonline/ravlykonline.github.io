@@ -26,6 +26,8 @@ import {
     resumeExecutionRuntime,
     wasBoundaryWarningShownRuntime,
 } from '../js/modules/interpreterRuntimeState.js';
+import { createRandomResolver } from '../js/modules/randomResolver.js';
+import { createInterpreter } from './parserTestUtils.js';
 import { runTest } from './testUtils.js';
 
 runTest('color registry generates stable runtime lookup data', () => {
@@ -123,6 +125,118 @@ runTest('interpreter primitive-statement helper handles queue and runtime branch
     });
     assert.equal(handledClear, true);
     assert.equal(cleared, 1);
+});
+
+runTest('interpreter creates random resolver from injected rng', () => {
+    const interpreter = createInterpreter({ rng: () => 0 });
+    const resolver = createRandomResolver({
+        rng: interpreter.config.rng,
+        colorRegistry: COLOR_REGISTRY,
+    });
+
+    assert.equal(typeof interpreter.randomResolver.pickRandomColorName, 'function');
+    assert.equal(interpreter.config.rng(), 0);
+    assert.equal(interpreter.randomResolver.pickRandomColorName(), resolver.pickRandomColorName());
+});
+
+runTest('interpreter primitive-statement helper resolves random color/background arguments through injected pickers', () => {
+    const queue = [];
+    handlePrimitiveAstStatement({
+        stmt: { type: 'ColorStmt', colorArg: { kind: 'random' } },
+        env: {},
+        mode: 'queue',
+        outputQueue: queue,
+        state: {},
+        evalAstNumberExpression: () => 0,
+        createError: (code) => new Error(code),
+        performMove: () => {},
+        performTurn: () => {},
+        setColor: () => {},
+        setBackgroundColor: () => {},
+        pickRandomColorName: () => 'синій',
+        pickRandomBackgroundColorName: () => 'бежевий',
+        performGoto: () => {},
+        clearToDefaultSheet: () => {},
+    });
+    handlePrimitiveAstStatement({
+        stmt: { type: 'BackgroundStmt', colorArg: { kind: 'random' } },
+        env: {},
+        mode: 'queue',
+        outputQueue: queue,
+        state: {},
+        evalAstNumberExpression: () => 0,
+        createError: (code) => new Error(code),
+        performMove: () => {},
+        performTurn: () => {},
+        setColor: () => {},
+        setBackgroundColor: () => {},
+        pickRandomColorName: () => 'синій',
+        pickRandomBackgroundColorName: () => 'бежевий',
+        performGoto: () => {},
+        clearToDefaultSheet: () => {},
+    });
+
+    assert.deepEqual(queue, [
+        { type: 'COLOR', value: 'синій', original: 'колір' },
+        { type: 'BACKGROUND', value: 'бежевий', original: 'фон' },
+    ]);
+});
+
+runTest('interpreter primitive-statement helper resolves random move distance through injected picker', () => {
+    const queue = [];
+    handlePrimitiveAstStatement({
+        stmt: { type: 'MoveStmt', direction: 'forward', distance: { kind: 'random' } },
+        env: {},
+        mode: 'queue',
+        outputQueue: queue,
+        state: {},
+        evalAstNumberExpression: () => {
+            throw new Error('should not evaluate numeric expression for random move');
+        },
+        createError: (code) => new Error(code),
+        performMove: () => {},
+        performTurn: () => {},
+        setColor: () => {},
+        setBackgroundColor: () => {},
+        pickRandomColorName: () => 'синій',
+        pickRandomBackgroundColorName: () => 'бежевий',
+        pickSafeRandomDistance: () => 42,
+        performGoto: () => {},
+        clearToDefaultSheet: () => {},
+    });
+
+    assert.deepEqual(queue, [
+        { type: 'MOVE', value: 42, original: 'вперед' },
+    ]);
+});
+
+runTest('interpreter primitive-statement helper resolves random goto target through injected picker', () => {
+    const queue = [];
+    handlePrimitiveAstStatement({
+        stmt: { type: 'GotoStmt', target: { kind: 'random' } },
+        env: {},
+        mode: 'queue',
+        outputQueue: queue,
+        state: {},
+        evalAstNumberExpression: () => {
+            throw new Error('should not evaluate numeric expression for random goto');
+        },
+        createError: (code) => new Error(code),
+        performMove: () => {},
+        performTurn: () => {},
+        setColor: () => {},
+        setBackgroundColor: () => {},
+        pickRandomColorName: () => 'синій',
+        pickRandomBackgroundColorName: () => 'бежевий',
+        pickSafeRandomDistance: () => 42,
+        pickSafeRandomPoint: () => ({ x: 12, y: -18 }),
+        performGoto: () => {},
+        clearToDefaultSheet: () => {},
+    });
+
+    assert.deepEqual(queue, [
+        { type: 'GOTO', x: 12, y: -18, original: 'перейти' },
+    ]);
 });
 
 runTest('interpreter animation helper handles pen/move/turn completion paths', () => {

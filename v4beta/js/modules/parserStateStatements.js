@@ -1,3 +1,18 @@
+function createNamedColorArg(value) {
+    return {
+        kind: 'named',
+        value: String(value || '').toLowerCase(),
+    };
+}
+
+function createColorArg(rawValue) {
+    const normalized = String(rawValue || '').toLowerCase();
+    if (normalized === 'випадково' || normalized === 'random') {
+        return { kind: 'random' };
+    }
+    return createNamedColorArg(normalized);
+}
+
 export function parseColorStatementToAst({
     tokens,
     tokenMeta,
@@ -10,7 +25,7 @@ export function parseColorStatementToAst({
     return {
         stmt: {
             type: 'ColorStmt',
-            colorName: tokens[startIndex + 1].toLowerCase(),
+            colorArg: createColorArg(tokens[startIndex + 1]),
             span: spanFromMeta(tokenMeta, startIndex, startIndex + 2),
         },
         nextIndex: startIndex + 2,
@@ -29,7 +44,7 @@ export function parseBackgroundStatementToAst({
     return {
         stmt: {
             type: 'BackgroundStmt',
-            colorName: tokens[startIndex + 1].toLowerCase(),
+            colorArg: createColorArg(tokens[startIndex + 1]),
             span: spanFromMeta(tokenMeta, startIndex, startIndex + 2),
         },
         nextIndex: startIndex + 2,

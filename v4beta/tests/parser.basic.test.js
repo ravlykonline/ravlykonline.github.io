@@ -48,6 +48,41 @@ runTest('parse background command in Ukrainian and English forms', () => {
     assert.deepEqual(queue.map((cmd) => cmd.value), ['синій', 'gold']);
 });
 
+runTest('parse random color/background commands into concrete queue values using injected rng', () => {
+    const interpreter = createInterpreter({ rng: () => 0 });
+    const queue = interpreter.parseTokens(['колір', 'випадково', 'фон', 'random']);
+    const canonicalNames = new Set(
+        Object.keys(COLOR_MAP).filter((name) => COLOR_MAP[name] !== 'RAINBOW')
+    );
+
+    assert.deepEqual(queue.map((cmd) => cmd.type), ['COLOR', 'BACKGROUND']);
+    assert.equal(canonicalNames.has(queue[0].value), true);
+    assert.equal(canonicalNames.has(queue[1].value), true);
+    assert.notEqual(COLOR_MAP[queue[0].value], 'RAINBOW');
+    assert.notEqual(COLOR_MAP[queue[1].value], 'RAINBOW');
+    assert.equal(queue[0].value, queue[1].value);
+});
+
+runTest('parse random move command into concrete queue value using injected rng', () => {
+    const interpreter = createInterpreter({ rng: () => 0.5 });
+    const queue = interpreter.parseTokens(['вперед', 'випадково']);
+
+    assert.deepEqual(queue.map((cmd) => cmd.type), ['MOVE']);
+    assert.equal(Number.isFinite(queue[0].value), true);
+    assert.equal(queue[0].value >= 20, true);
+});
+
+runTest('parse random goto command into concrete queue values using injected rng', () => {
+    const interpreter = createInterpreter({ rng: () => 0.5 });
+    const queue = interpreter.parseTokens(['перейти', 'в', 'випадково']);
+
+    assert.deepEqual(queue.map((cmd) => cmd.type), ['GOTO']);
+    assert.equal(Number.isFinite(queue[0].x), true);
+    assert.equal(Number.isFinite(queue[0].y), true);
+    assert.equal(Math.abs(queue[0].x) <= 300, true);
+    assert.equal(Math.abs(queue[0].y) <= 200, true);
+});
+
 runTest('setColor throws on unknown color name', () => {
     const interpreter = createInterpreter();
     assert.throws(

@@ -1,3 +1,8 @@
+function isRandomToken(token) {
+    const normalized = String(token || '').toLowerCase();
+    return normalized === 'випадково' || normalized === 'random';
+}
+
 export function parseMoveStatementToAst({
     tokens,
     tokenMeta,
@@ -7,6 +12,19 @@ export function parseMoveStatementToAst({
     spanFromMeta,
     backwardKeyword,
 }) {
+    const moveArgToken = tokens[startIndex + 1];
+    if (isRandomToken(moveArgToken)) {
+        return {
+            stmt: {
+                type: 'MoveStmt',
+                direction: (tokenLower === backwardKeyword || tokenLower === 'backward') ? 'backward' : 'forward',
+                distance: { kind: 'random' },
+                span: spanFromMeta(tokenMeta, startIndex, startIndex + 2),
+            },
+            nextIndex: startIndex + 2,
+        };
+    }
+
     const parsedExpr = parseAstExpressionOrThrow(tokens, tokenMeta, startIndex + 1);
     return {
         stmt: {
@@ -52,6 +70,16 @@ export function parseGotoStatementToAst({
     const maybePrep = tokens[xStart]?.toLowerCase();
     if (maybePrep === gotoPrepositionKeyword || maybePrep === 'to') {
         xStart += 1;
+    }
+    if (isRandomToken(tokens[xStart])) {
+        return {
+            stmt: {
+                type: 'GotoStmt',
+                target: { kind: 'random' },
+                span: spanFromMeta(tokenMeta, startIndex, xStart + 1),
+            },
+            nextIndex: xStart + 1,
+        };
     }
     const xExpr = parseAstExpressionOrThrow(tokens, tokenMeta, xStart);
     let yStart = xExpr.nextIndex;

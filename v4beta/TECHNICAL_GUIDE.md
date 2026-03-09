@@ -111,6 +111,7 @@ Core modules:
 - `js/modules/interpreterAnimation.js`: animation helpers for pen/move/turn command progression and boundary-warning signaling.
 - `js/modules/interpreterDrawingOps.js`: drawing/state operation helpers (move/turn/color/goto/clear) used by the interpreter runtime.
 - `js/modules/backgroundLayer.js`: canonical helper for background-underlay application and background+drawing export composition.
+- `js/modules/randomResolver.js`: canonical helper for deterministic random color/background selection built on the shared color registry and injected RNG.
 - `js/modules/interpreterCommandClone.js`: recursive command-clone helper for runtime queue branches (removes transient animation/execution fields).
 - `js/modules/interpreterLifecycleCleanup.js`: interpreter destroy/cleanup helper (animation/timer/listener teardown + runtime state reset).
 - `js/modules/interpreterRuntimeState.js`: runtime state transition helpers (`stop`/`pause`/`resume` and boundary-warning status access).
