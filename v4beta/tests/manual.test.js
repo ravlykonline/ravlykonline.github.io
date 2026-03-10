@@ -143,6 +143,15 @@ runTest('manual_v2 keeps advanced-only sections for full mode', () => {
     assert.match(manualV2Html, /<article id="projects" class="guide-section advanced-only"/);
 });
 
+runTest('manual_v2 separates basic and advanced commands in the basic-commands section', () => {
+    const manualV2Html = fs.readFileSync('manual_v2.html', 'utf8');
+
+    assert.match(manualV2Html, /Базові команди для старту/);
+    assert.match(manualV2Html, /повторити N \(\s*\.\.\.\s*\)/);
+    assert.match(manualV2Html, /<section class="manual-subsection advanced-only" aria-labelledby="manual-basic-advanced-title">/);
+    assert.match(manualV2Html, /Просунуті команди/);
+});
+
 runTest('manual_v2 uses a neutral loading placeholder for pagination indicators', () => {
     const manualV2Html = fs.readFileSync('manual_v2.html', 'utf8');
 

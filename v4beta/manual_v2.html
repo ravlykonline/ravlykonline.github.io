@@ -169,7 +169,8 @@
                     </div>
                     </section>
                     <p>Для керування Равликом існують прості команди, які ти можеш використовувати:</p>
-                    <ul class="command-list-manual" aria-label="Основні команди РАВЛИКа">
+                    <h3>Базові команди для старту</h3>
+                    <ul class="command-list-manual" aria-label="Базові команди РАВЛИКа">
                         <li class="command-item-manual"><span class="cmd-name">вперед N</span> <span
                                 class="cmd-desc">Рухає Равлика вперед на N кроків або на безпечну випадкову відстань (наприклад,
                                 <code>вперед 100</code>, <code>вперед випадково</code>).</span></li>
@@ -182,6 +183,15 @@
                         <li class="command-item-manual"><span class="cmd-name">ліворуч N</span> <span
                                 class="cmd-desc">Повертає Равлика на N градусів ліворуч (наприклад,
                                 <code>ліворуч 45</code>).</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">повторити N ( ... )</span> <span
+                                class="cmd-desc">Повторює блок команд кілька разів. Це одна з найкорисніших базових команд для квадратів, трикутників і візерунків.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">підняти</span> <span
+                                class="cmd-desc">Піднімає олівець — Равлик рухається, але не малює.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">опустити</span> <span
+                                class="cmd-desc">Опускає олівець — Равлик буде малювати при русі.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">очистити</span> <span
+                                class="cmd-desc">Очищає малюнок, повертає білий фон полотна (код у редакторі не
+                                видаляється).</span></li>
                         <li class="command-item-manual"><span class="cmd-name">колір червоний</span> або <span class="cmd-name">колір випадково</span> <span
                                 class="cmd-desc">Змінює колір олівця, яким малює Равлик (наприклад,
                                 <code>колір синій</code>, <code>колір кораловий</code>, <code>колір веселка</code>, <code>колір випадково</code>).</span></li>
@@ -194,16 +204,14 @@
                         <li class="command-item-manual"><span class="cmd-name">перейти в X Y</span> <span
                                 class="cmd-desc">Переміщує Равлика у точку (X, Y) від центру полотна. Працюють формати:
                                 <code>перейти в 100 50</code>, <code>перейти в -80, -40</code> і <code>перейти в випадково</code>.</span></li>
-                        <li class="command-item-manual"><span class="cmd-name">підняти</span> <span
-                                class="cmd-desc">Піднімає олівець — Равлик рухається, але не малює.</span></li>
-                        <li class="command-item-manual"><span class="cmd-name">опустити</span> <span
-                                class="cmd-desc">Опускає олівець — Равлик буде малювати при русі.</span></li>
-                        <li class="command-item-manual"><span class="cmd-name">очистити</span> <span
-                                class="cmd-desc">Очищає малюнок, повертає білий фон полотна (код у редакторі не
-                                видаляється).</span></li>
                         <li class="command-item-manual"><span class="cmd-name"># коментар</span> <span
                                 class="cmd-desc">пояснення в коді, яке Равлик не виконує. Після символу <code>#</code> Равлик
                                 текст не виконує.</span></li>
+                    </ul>
+                    <section class="manual-subsection advanced-only" aria-labelledby="manual-basic-advanced-title">
+                    <h3 id="manual-basic-advanced-title">Просунуті команди</h3>
+                    <p>Ці команди потрібні не для першого запуску, а коли ти вже впевнено працюєш з рухом і повторенням.</p>
+                    <ul class="command-list-manual" aria-label="Просунуті команди РАВЛИКа">
                         <li class="command-item-manual"><span class="cmd-name">якщо умова ( ... )</span> <span
                                 class="cmd-desc">Виконує команди в дужках, якщо умова істинна.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">якщо умова ( ... ) інакше ( ... )</span> <span
@@ -216,6 +224,7 @@
                                 class="cmd-desc">Безперервний ігровий режим з перевіркою умов на кожному кроці.</span>
                         </li>
                     </ul>
+                    </section>
                     <h3>Як користуватися командами</h3>
                     <p>Напиши команду в редакторі, натисни кнопку "🚀 Запустити", і Равлик виконає твої інструкції!
                         Можеш написати кілька команд одна під одною, і Равлик виконає їх по черзі. Будь уважним! Команди
@@ -245,7 +254,7 @@
                         <details>
                             <summary id="manual-basic-more-title">Дізнатись більше про команди</summary>
                             <p><strong>вперед</strong> і <strong>назад</strong> рухають Равлика. <strong>праворуч</strong> і <strong>ліворуч</strong> змінюють напрям. Команди <strong>підняти</strong> і <strong>опустити</strong> керують олівцем, а <strong>очистити</strong> стирає малюнок з полотна.</p>
-                            <p>Якщо хочеш спершу просто малювати, тобі достатньо знати ці шість команд: <code>вперед</code>, <code>назад</code>, <code>праворуч</code>, <code>ліворуч</code>, <code>підняти</code>, <code>опустити</code>.</p>
+                            <p>Якщо хочеш спершу просто малювати, тобі достатньо знати ці сім команд: <code>вперед</code>, <code>назад</code>, <code>праворуч</code>, <code>ліворуч</code>, <code>повторити</code>, <code>підняти</code>, <code>опустити</code>.</p>
                         </details>
                     </section>
                 </article>
