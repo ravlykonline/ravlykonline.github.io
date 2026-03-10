@@ -46,6 +46,7 @@ import {
     performGotoRuntime,
 } from './ravlykInterpreterRuntime.js';
 import { createRandomResolver } from './randomResolver.js';
+import { applyBackgroundLayer } from './backgroundLayer.js';
 
 // State coordinates track the turtle tip (not sprite center),
 // so a large visual radius causes premature edge triggers.
@@ -300,7 +301,13 @@ export class RavlykInterpreter {
             this.state.x += resizeMeta.deltaX;
             this.state.y += resizeMeta.deltaY;
         }
-        this.clearScreen();
+        applyBackgroundLayer({
+            canvas: this.canvas,
+            backgroundCanvas: this.backgroundCanvas,
+            backgroundCtx: this.backgroundCtx,
+            backgroundColor: this.state.backgroundColor,
+        });
+        this.applyContextSettings();
         this.updateRavlykVisualState(true);
     }
 

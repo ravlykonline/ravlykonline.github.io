@@ -1,6 +1,15 @@
 /* Стилі для функцій доступності */
 
 /* Кнопка доступності */
+.accessibility-floating-layer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    z-index: 12000;
+}
+
 .accessibility-toggle {
     position: fixed;
     bottom: 20px;
@@ -14,7 +23,7 @@
     border: none;
     cursor: pointer;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
+    z-index: 12001;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -58,7 +67,7 @@ html.a11y-reduce-animations .accessibility-toggle i {
     background-color: #fff;
     border-radius: 12px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
+    z-index: 12001;
     padding: 0;
     overflow: hidden;
     transition: transform 0.3s, opacity 0.3s;
@@ -93,6 +102,8 @@ html.a11y-reduce-animations .accessibility-toggle i {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
+    min-height: 60px;
     padding: 15px 20px;
     background-color: #4a6fa5;
     color: white;
@@ -100,19 +111,35 @@ html.a11y-reduce-animations .accessibility-toggle i {
 }
 
 .accessibility-header h3 {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: calc(100% - 56px);
     margin: 0;
     color: white;
     font-size: 1.2rem;
+    line-height: 1.2;
+    pointer-events: none;
 }
 
 .close-btn {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 44px;
+    align-self: flex-start;
+    margin-left: auto;
+    pointer-events: auto;
     background: transparent;
     border: none;
     color: white;
     font-size: 24px;
     cursor: pointer;
-    padding: 0 5px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .accessibility-options {
@@ -516,6 +543,10 @@ input:checked + .toggle-slider:before {
     width: min(92vw, 380px);
 }
 
+.a11y-larger-text .accessibility-panel-title {
+    font-size: 1.35rem !important;
+}
+
 .a11y-larger-text .accessibility-option label,
 .a11y-larger-text .toc-list a,
 .a11y-larger-text .guide-section p,
@@ -555,4 +586,30 @@ html.a11y-reduce-animations body {
 .a11y-reduce-animations *::after {
     animation: none !important;
     transition: none !important;
+}
+
+@media (max-width: 767px) {
+    body {
+        padding-bottom: max(88px, calc(32px + env(safe-area-inset-bottom)));
+    }
+
+    .accessibility-toggle {
+        top: calc(16px + env(safe-area-inset-top));
+        bottom: auto;
+        left: auto;
+        right: 16px;
+    }
+
+    .accessibility-panel {
+        top: calc(74px + env(safe-area-inset-top));
+        bottom: auto;
+        left: auto;
+        right: 12px;
+        width: min(92vw, 320px);
+        transform-origin: bottom right;
+    }
+
+    .a11y-larger-text .accessibility-panel {
+        width: min(94vw, 360px);
+    }
 }

@@ -146,6 +146,7 @@
     </section>
     <section class="help-box-main" aria-labelledby="helpbox-title">
       <h3 id="helpbox-title">Основні команди для равлика</h3>
+      <p class="help-box-intro">Равлик вміє малювати лінії, повторювати дії, перевіряти умови і навіть грати завдяки таким командам:</p>
 
       <div class="commands-tabs" role="tablist" aria-label="Категорії команд">
         <button class="commands-tab active" id="tab-basic" role="tab" aria-selected="true" aria-controls="panel-basic"
@@ -162,34 +163,34 @@
         <div class="command-list" id="panel-basic" role="tabpanel" aria-labelledby="tab-basic" data-tab-panel="basic">
           <div class="command-item">
             <div class="command-name">вперед N</div>
-            <div class="command-desc">Рух вперед на N кроків</div>
+            <div class="command-desc">Рухатися вперед на N кроків</div>
           </div>
           <div class="command-item">
             <div class="command-name">назад N</div>
-            <div class="command-desc">Рух назад на N кроків</div>
+            <div class="command-desc">Рухатися назад на N кроків</div>
           </div>
           <div class="command-item">
             <div class="command-name">праворуч N</div>
-            <div class="command-desc">Поворот праворуч на N градусів</div>
+            <div class="command-desc">Повернути праворуч на N градусів</div>
           </div>
           <div class="command-item">
             <div class="command-name">ліворуч N</div>
-            <div class="command-desc">Поворот ліворуч на N градусів</div>
+            <div class="command-desc">Повернути ліворуч на N градусів</div>
           </div>
           <div class="command-item">
             <div class="command-name">колір назва</div>
-            <div class="command-desc">Зміна кольору лінії (напр. червоний, веселка)</div>
+            <div class="command-desc">Змінити колір лінії (напр. червоний, веселка)</div>
           </div>
           <div class="command-item">
-            <div class="command-name">фон назва кольору</div>
-            <div class="command-desc">Зміна підкладки полотна (напр. бежевий, синій)</div>
+            <div class="command-name">фон назва</div>
+            <div class="command-desc">Змінити фон полотна (напр. бежевий, синій)</div>
           </div>
           <div class="command-item">
             <div class="command-name">товщина N</div>
-            <div class="command-desc">Зміна товщини лінії від 1 до 50 (напр. товщина 5)</div>
+            <div class="command-desc">Змінити товщину лінії від 1 до 50 (напр. товщина 5)</div>
           </div>
           <div class="command-item">
-            <div class="command-name">перейти в X, Y</div>
+            <div class="command-name">перейти в X Y</div>
             <div class="command-desc">Перемістити Равлика у точку (X, Y) від центру полотна</div>
           </div>
           <div class="command-item">
@@ -204,6 +205,10 @@
             <div class="command-name">очистити</div>
             <div class="command-desc">Очистити малюнок і повернути білий фон (код не змінюється)</div>
           </div>
+          <div class="command-item">
+            <div class="command-name"># текст</div>
+            <div class="command-desc">Додати коментар, який Равлик не виконує</div>
+          </div>
         </div>
 
         <div class="command-list hidden" id="panel-flow" role="tabpanel" aria-labelledby="tab-flow"
@@ -217,16 +222,20 @@
             <div class="command-desc">Виконати блок, якщо умова істинна</div>
           </div>
           <div class="command-item">
-            <div class="command-name">... інакше ( ... )</div>
-            <div class="command-desc">Блок, який виконується, коли умова хибна</div>
+            <div class="command-name">якщо умова ( ... ) інакше ( ... )</div>
+            <div class="command-desc">Виконати один із двох блоків залежно від умови</div>
           </div>
           <div class="command-item">
             <div class="command-name">якщо край ( ... )</div>
-            <div class="command-desc">Перевірка дотику межі полотна</div>
+            <div class="command-desc">Перевірити дотик межі полотна</div>
           </div>
           <div class="command-item">
             <div class="command-name">якщо клавіша "вгору" ( ... )</div>
-            <div class="command-desc">Перевірка натиснутої клавіші</div>
+            <div class="command-desc">Перевірити натиснуту клавішу</div>
+          </div>
+          <div class="command-item">
+            <div class="command-name">= != &lt; &gt; &lt;= &gt;= %</div>
+            <div class="command-desc">Порівнювати значення в умовах</div>
           </div>
         </div>
 
@@ -254,11 +263,7 @@
           data-tab-panel="game">
           <div class="command-item">
             <div class="command-name">грати ( ... )</div>
-            <div class="command-desc">Ігровий режим з постійною перевіркою умов</div>
-          </div>
-          <div class="command-item">
-            <div class="command-name">клавіша "..."</div>
-            <div class="command-desc">Керування стрілками або іншими клавішами у блоці гри</div>
+            <div class="command-desc">Запустити інтерактивний режим гри</div>
           </div>
         </div>
       </div>
@@ -277,59 +282,61 @@
         class="footer-link">(Facebook)</a></p>
   </footer>
 
-  <button id="accessibility-toggle" class="accessibility-toggle" aria-expanded="false"
-    aria-controls="accessibility-panel" aria-label="Налаштування доступності"><i
-      class="fas fa-universal-access"></i></button>
-  <div id="accessibility-panel" class="accessibility-panel hidden" role="dialog" aria-modal="true"
-    aria-labelledby="accessibility-title">
-    <div class="accessibility-header">
-      <h3 id="accessibility-title" class="accessibility-panel-title">Налаштування доступності</h3>
-      <button id="close-accessibility-panel-btn" class="close-btn"
-        aria-label="Закрити панель налаштувань доступності">&times;</button>
-    </div>
-    <div class="accessibility-options">
-      <div class="accessibility-option">
-        <label for="high-contrast-input">Високий контраст</label>
-        <div class="toggle-switch">
-          <input type="checkbox" id="high-contrast-input" class="accessibility-setting-input"
-            data-setting="high-contrast">
-          <span class="toggle-slider"></span>
+  <div class="accessibility-floating-layer">
+    <button id="accessibility-toggle" class="accessibility-toggle" aria-expanded="false"
+      aria-controls="accessibility-panel" aria-label="Налаштування доступності"><i
+        class="fas fa-universal-access"></i></button>
+    <div id="accessibility-panel" class="accessibility-panel hidden" role="dialog" aria-modal="true"
+      aria-labelledby="accessibility-title">
+      <div class="accessibility-header">
+        <h3 id="accessibility-title" class="accessibility-panel-title">Налаштування доступності</h3>
+        <button id="close-accessibility-panel-btn" class="close-btn"
+          aria-label="Закрити панель налаштувань доступності">&times;</button>
+      </div>
+      <div class="accessibility-options">
+        <div class="accessibility-option">
+          <label for="high-contrast-input">Високий контраст</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="high-contrast-input" class="accessibility-setting-input"
+              data-setting="high-contrast">
+            <span class="toggle-slider"></span>
+          </div>
+        </div>
+        <div class="accessibility-option">
+          <label for="larger-text-input">Збільшений текст</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="larger-text-input" class="accessibility-setting-input" data-setting="larger-text">
+            <span class="toggle-slider"></span>
+          </div>
+        </div>
+        <div class="accessibility-option">
+          <label for="reduce-animations-input">Зменшення анімації</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="reduce-animations-input" class="accessibility-setting-input"
+              data-setting="reduce-animations">
+            <span class="toggle-slider"></span>
+          </div>
+        </div>
+        <div class="accessibility-option">
+          <label for="sans-serif-font-input">Простий шрифт</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="sans-serif-font-input" class="accessibility-setting-input"
+              data-setting="sans-serif-font">
+            <span class="toggle-slider"></span>
+          </div>
+        </div>
+        <div class="accessibility-option">
+          <label for="increased-spacing-input">Збільшені інтервали</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="increased-spacing-input" class="accessibility-setting-input"
+              data-setting="increased-spacing">
+            <span class="toggle-slider"></span>
+          </div>
         </div>
       </div>
-      <div class="accessibility-option">
-        <label for="larger-text-input">Збільшений текст</label>
-        <div class="toggle-switch">
-          <input type="checkbox" id="larger-text-input" class="accessibility-setting-input" data-setting="larger-text">
-          <span class="toggle-slider"></span>
-        </div>
+      <div class="accessibility-footer">
+        <button id="reset-accessibility-btn" class="btn btn-danger">Скинути налаштування</button>
       </div>
-      <div class="accessibility-option">
-        <label for="reduce-animations-input">Зменшення анімації</label>
-        <div class="toggle-switch">
-          <input type="checkbox" id="reduce-animations-input" class="accessibility-setting-input"
-            data-setting="reduce-animations">
-          <span class="toggle-slider"></span>
-        </div>
-      </div>
-      <div class="accessibility-option">
-        <label for="sans-serif-font-input">Простий шрифт</label>
-        <div class="toggle-switch">
-          <input type="checkbox" id="sans-serif-font-input" class="accessibility-setting-input"
-            data-setting="sans-serif-font">
-          <span class="toggle-slider"></span>
-        </div>
-      </div>
-      <div class="accessibility-option">
-        <label for="increased-spacing-input">Збільшені інтервали</label>
-        <div class="toggle-switch">
-          <input type="checkbox" id="increased-spacing-input" class="accessibility-setting-input"
-            data-setting="increased-spacing">
-          <span class="toggle-slider"></span>
-        </div>
-      </div>
-    </div>
-    <div class="accessibility-footer">
-      <button id="reset-accessibility-btn" class="btn btn-danger">Скинути налаштування</button>
     </div>
   </div>
 
@@ -337,28 +344,31 @@
     aria-labelledby="help-modal-title-static">
     <div id="help-modal-content" class="modal-content help-content">
       <h2 id="help-modal-title-static" class="modal-title">Довідка: Команди Равлика</h2>
+      <p>Равлик вміє малювати лінії, повторювати дії, перевіряти умови і навіть грати завдяки таким командам:</p>
       <ul>
         <li><b>вперед N</b> / <b>вперед випадково</b> — рух вперед на N кроків або на безпечну випадкову відстань</li>
         <li><b>назад N</b> / <b>назад випадково</b> — рух назад на N кроків або на безпечну випадкову відстань</li>
         <li><b>ліворуч N</b> — повернути ліворуч на N градусів</li>
         <li><b>праворуч N</b> — повернути праворуч на N градусів</li>
-        <li><b>колір [назва|випадково]</b> — змінити колір лінії (напр. червоний, синій, веселка або випадково)</li>
-        <li><b>фон [назва|випадково]</b> — змінити підкладку полотна без стирання ліній (напр. бежевий, синій або випадково)</li>
+        <li><b>колір червоний</b> або <b>колір випадково</b> — змінити колір лінії</li>
+        <li><b>фон бежевий</b> або <b>фон випадково</b> — змінити фон полотна без стирання ліній</li>
         <li><b>товщина N</b> — змінити товщину лінії. Працюють цілі значення від 1 до 50</li>
         <li><b>перейти в X Y</b> / <b>перейти в випадково</b> — перейти у точку (X, Y) від центру полотна або в безпечну випадкову точку</li>
         <li><b>підняти</b> — підняти олівець (не малювати при русі)</li>
         <li><b>опустити</b> — опустити олівець (малювати при русі)</li>
         <li><b>очистити</b> — очистити малюнок і повернути білий фон (код не змінюється)</li>
+        <li><b># текст</b> — коментар: Равлик цей рядок не виконує</li>
         <li><b>повторити N ( ... )</b> — повторити команди в дужках N разів</li>
         <li><b>якщо умова ( ... )</b> — виконати блок за умовою</li>
-        <li><b>... інакше ( ... )</b> — альтернативний блок</li>
+        <li><b>якщо умова ( ... ) інакше ( ... )</b> — виконати один із двох блоків залежно від умови</li>
         <li><b>якщо край ( ... )</b> — перевірка межі полотна</li>
-        <li><b>якщо клавіша "..." ( ... )</b> — перевірка клавіші</li>
+        <li><b>якщо клавіша "вгору" ( ... )</b> — перевірка натиснутої клавіші у блоці <b>грати</b></li>
         <li><b>грати ( ... )</b> — інтерактивний ігровий режим</li>
         <li><b>створити назва(параметр) ( ... )</b> — створити власну команду</li>
         <li><b>назва(число)</b> — викликати власну команду з числом</li>
         <li><b>створити змінна = число</b> — створити змінну</li>
         <li><b>змінна = число</b> — змінити значення змінної</li>
+        <li><b>Умови:</b> <code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>%</code> — для порівнянь у <b>якщо</b></li>
       </ul>
       <div class="modal-actions">
         <button id="to-manual-btn-modal" class="btn btn-info">Повний посібник</button>

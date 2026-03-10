@@ -143,11 +143,11 @@
                         <li class="command-item-manual"><span class="cmd-name">ліворуч N</span> <span
                                 class="cmd-desc">Повертає Равлика на N градусів ліворуч (наприклад,
                                 <code>ліворуч 45</code>).</span></li>
-                        <li class="command-item-manual"><span class="cmd-name">колір [назва|випадково]</span> <span
+                        <li class="command-item-manual"><span class="cmd-name">колір червоний</span> або <span class="cmd-name">колір випадково</span> <span
                                 class="cmd-desc">Змінює колір олівця, яким малює Равлик (наприклад,
                                 <code>колір синій</code>, <code>колір кораловий</code>, <code>колір веселка</code>, <code>колір випадково</code>).</span></li>
-                        <li class="command-item-manual"><span class="cmd-name">фон [назва|випадково]</span> <span
-                                class="cmd-desc">Змінює підкладку полотна для малювання, не стираючи вже намальовані лінії (наприклад,
+                        <li class="command-item-manual"><span class="cmd-name">фон блакитний</span> або <span class="cmd-name">фон випадково</span> <span
+                                class="cmd-desc">Змінює фон полотна для малювання, не стираючи вже намальовані лінії (наприклад,
                                 <code>фон блакитний</code>, <code>фон випадково</code>).</span></li>
                         <li class="command-item-manual"><span class="cmd-name">товщина N</span> <span
                                 class="cmd-desc">Змінює товщину лінії. Поки що працюють лише цілі значення від <code>1</code> до <code>50</code> (наприклад,
@@ -167,12 +167,12 @@
                                 текст не виконує.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">якщо умова ( ... )</span> <span
                                 class="cmd-desc">Виконує команди в дужках, якщо умова істинна.</span></li>
-                        <li class="command-item-manual"><span class="cmd-name">... інакше ( ... )</span> <span
-                                class="cmd-desc">Виконує інший блок, якщо умова хибна.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">якщо умова ( ... ) інакше ( ... )</span> <span
+                                class="cmd-desc">Виконує один із двох блоків залежно від умови.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">якщо край ( ... )</span> <span
                                 class="cmd-desc">Перевіряє, чи Равлик торкається межі полотна.</span></li>
-                        <li class="command-item-manual"><span class="cmd-name">якщо клавіша "..." ( ... )</span> <span
-                                class="cmd-desc">Перевіряє, чи натиснута конкретна клавіша.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">якщо клавіша "вгору" ( ... )</span> <span
+                                class="cmd-desc">Перевіряє, чи натиснута конкретна клавіша у блоці <code>грати</code>.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">грати ( ... )</span> <span
                                 class="cmd-desc">Безперервний ігровий режим з перевіркою умов на кожному кроці.</span>
                         </li>
@@ -330,7 +330,7 @@
                         <pre class="example-code-manual">якщо умова (
   команди
 )</pre>
-                        <p>Якщо треба альтернативна дія, додаємо <code>інакше</code>:</p>
+                        <p>Якщо треба альтернативна дія, додаємо <code>інакше</code> після повної умови:</p>
                         <pre class="example-code-manual">якщо умова (
   команди_1
 ) інакше (
@@ -351,7 +351,7 @@
                     <section class="manual-subsection" aria-labelledby="manual-conditions-subsection-comparisons">
                         <h3 id="manual-conditions-subsection-comparisons">Порівняння чисел</h3>
                         <p>Можна порівнювати вирази: <code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>,
-                            <code>&lt;=</code>, <code>&gt;=</code>.
+                            <code>&lt;=</code>, <code>&gt;=</code>, <code>%</code>.
                         </p>
                         <pre class="example-code-manual">створити n = 0
 повторити 10 (
@@ -488,7 +488,7 @@
                         <h4 id="manual-colors-tips-title">Поради про кольори:</h4>
                         <ul>
                             <li>Зміни колір перед початком малювання нової частини малюнка.</li>
-                            <li>Якщо хочеш змінити не лінію, а саме полотно, скористайся командою <code>фон</code>, наприклад <code>фон бежевий</code>.</li>
+                            <li>Якщо хочеш змінити не лінію, а саме фон полотна, скористайся командою <code>фон</code>, наприклад <code>фон бежевий</code>.</li>
                             <li>Спробуй команду <code>колір веселка</code> для створення ліній, що переливаються всіма
                                 кольорами!</li>
                             <li>Використовуй різні кольори для різних частин складного малюнка, щоб зробити його
@@ -501,7 +501,7 @@
                     <section class="manual-subsection manual-callout-subsection" aria-labelledby="manual-colors-background-title">
                     <div class="tips-box" role="region" aria-labelledby="manual-colors-background-title">
                         <h4 id="manual-colors-background-title">Колір лінії та фон</h4>
-                        <p><code>колір</code> змінює, чим малює Равлик, а <code>фон</code> змінює підкладку, на якій він малює.</p>
+                        <p><code>колір</code> змінює, чим малює Равлик, а <code>фон</code> змінює фон полотна, на якому він малює.</p>
                         <ul>
                             <li>Команда <code>фон</code> не стирає вже намальовані лінії.</li>
                             <li>Якщо написати кілька команд <code>фон ...</code> підряд без пауз, зазвичай буде видно лише останній колір.</li>
@@ -1080,7 +1080,7 @@
                             <li>Писати команди текстом.</li>
                             <li>Розуміти послідовність виконання дій (алгоритми).</li>
                             <li>Використовувати повторення (цикли).</li>
-                            <li>Знаходити і виправляти помилки (дебаггінг).</li>
+                            <li>Знаходити і виправляти помилки (дебагінг).</li>
                             <li>Планувати свої дії для досягнення результату.</li>
                         </ul>
                         <p>Ці навички дуже важливі та стануть чудовою основою для вивчення більш "дорослих" мов

@@ -10,7 +10,7 @@ async function enableAccessibilityModalStressMode(page) {
   await page.locator('#accessibility-toggle').click();
   await page.locator('#high-contrast-input').check({ force: true });
   await page.locator('#larger-text-input').check({ force: true });
-  await page.locator('#close-accessibility-panel-btn').click();
+  await page.keyboard.press('Escape');
 }
 
 async function expectButtonsNotToOverflow(page, buttonIds) {
