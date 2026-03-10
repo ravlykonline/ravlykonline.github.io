@@ -10,7 +10,7 @@ export function getManualExampleCodeText(rawCode) {
         .replace(/\n+$/u, '');
 }
 
-export function buildManualEditorLink(code, editorHref = 'index.html', currentUrl = 'https://ravlyk.org/manual_v2.html') {
+export function buildManualEditorLink(code, editorHref = 'index.html', currentUrl = 'https://ravlyk.org/manual.html') {
     const editorUrl = new URL(editorHref, currentUrl).toString();
     return buildShareLink(getManualExampleCodeText(code), editorUrl);
 }

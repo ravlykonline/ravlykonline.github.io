@@ -80,7 +80,7 @@ runTest('manual code example helpers normalize code and build editor links', () 
     const editorLink = buildManualEditorLink(
         code,
         'index.html',
-        'https://ravlyk.org/v4beta/manual_v2.html'
+        'https://ravlyk.org/v4beta/manual.html'
     );
 
     assert.match(editorLink, /^https:\/\/ravlyk\.org\/v4beta\/index\.html#code=/);
@@ -108,56 +108,56 @@ runTest('manual documents all public runtime error messages except developer-onl
     assert.deepEqual(missingKeys, []);
 });
 
-runTest('manual_v2 keeps reading mode controls, toc search, and searchable section metadata', () => {
-    const manualV2Html = fs.readFileSync('manual_v2.html', 'utf8');
+runTest('manual page keeps reading mode controls, toc search, and searchable section metadata', () => {
+    const manualHtml = fs.readFileSync('manual.html', 'utf8');
 
-    assert.match(manualV2Html, /class="manual-mode-strip"/);
-    assert.match(manualV2Html, /id="manual-search-input"/);
-    assert.match(manualV2Html, /class="manual-toc-search"/);
-    assert.match(manualV2Html, /placeholder="вперед, якщо, колір"/);
-    assert.match(manualV2Html, /id="manual-usage-title">Як користуватися посібником</);
-    assert.match(manualV2Html, /data-manual-mode="beginner"/);
-    assert.match(manualV2Html, /data-manual-mode="full"/);
+    assert.match(manualHtml, /class="manual-mode-strip"/);
+    assert.match(manualHtml, /id="manual-search-input"/);
+    assert.match(manualHtml, /class="manual-toc-search"/);
+    assert.match(manualHtml, /placeholder="вперед, якщо, колір"/);
+    assert.match(manualHtml, /id="manual-usage-title">Як користуватися посібником</);
+    assert.match(manualHtml, /data-manual-mode="beginner"/);
+    assert.match(manualHtml, /data-manual-mode="full"/);
 
-    const sectionKeywordMatches = [...manualV2Html.matchAll(/<article[^>]+data-keywords="[^"]+"/g)];
+    const sectionKeywordMatches = [...manualHtml.matchAll(/<article[^>]+data-keywords="[^"]+"/g)];
     assert.ok(sectionKeywordMatches.length >= 10);
 });
 
-runTest('manual_v2 keeps top area compact without duplicated top navigation', () => {
-    const manualV2Html = fs.readFileSync('manual_v2.html', 'utf8');
+runTest('manual page keeps top area compact without duplicated top navigation', () => {
+    const manualHtml = fs.readFileSync('manual.html', 'utf8');
 
-    assert.doesNotMatch(manualV2Html, /id="manual-back-to-editor"/);
-    assert.doesNotMatch(manualV2Html, /id="manual-to-lessons"/);
-    assert.doesNotMatch(manualV2Html, /Твоя перша текстова мова програмування!/);
-    assert.match(manualV2Html, /id="manual-back-to-editor-footer"/);
-    assert.match(manualV2Html, /id="manual-to-lessons-footer"/);
+    assert.doesNotMatch(manualHtml, /id="manual-back-to-editor"/);
+    assert.doesNotMatch(manualHtml, /id="manual-to-lessons"/);
+    assert.doesNotMatch(manualHtml, /Твоя перша текстова мова програмування!/);
+    assert.match(manualHtml, /id="manual-back-to-editor-footer"/);
+    assert.match(manualHtml, /id="manual-to-lessons-footer"/);
 });
 
-runTest('manual_v2 keeps advanced-only sections for full mode', () => {
-    const manualV2Html = fs.readFileSync('manual_v2.html', 'utf8');
+runTest('manual page keeps advanced-only sections for full mode', () => {
+    const manualHtml = fs.readFileSync('manual.html', 'utf8');
 
-    assert.match(manualV2Html, /<article id="variables-functions" class="guide-section advanced-only"/);
-    assert.match(manualV2Html, /<article id="conditions" class="guide-section advanced-only"/);
-    assert.match(manualV2Html, /<article id="game-mode" class="guide-section advanced-only"/);
-    assert.match(manualV2Html, /<article id="challenges" class="guide-section advanced-only"/);
-    assert.match(manualV2Html, /<article id="projects" class="guide-section advanced-only"/);
+    assert.match(manualHtml, /<article id="variables-functions" class="guide-section advanced-only"/);
+    assert.match(manualHtml, /<article id="conditions" class="guide-section advanced-only"/);
+    assert.match(manualHtml, /<article id="game-mode" class="guide-section advanced-only"/);
+    assert.match(manualHtml, /<article id="challenges" class="guide-section advanced-only"/);
+    assert.match(manualHtml, /<article id="projects" class="guide-section advanced-only"/);
 });
 
-runTest('manual_v2 separates basic and advanced commands in the basic-commands section', () => {
-    const manualV2Html = fs.readFileSync('manual_v2.html', 'utf8');
+runTest('manual page separates basic and advanced commands in the basic-commands section', () => {
+    const manualHtml = fs.readFileSync('manual.html', 'utf8');
 
-    assert.match(manualV2Html, /Базові команди для старту/);
-    assert.match(manualV2Html, /повторити N \(\s*\.\.\.\s*\)/);
-    assert.match(manualV2Html, /<section class="manual-subsection advanced-only" aria-labelledby="manual-basic-advanced-title">/);
-    assert.match(manualV2Html, /Просунуті команди/);
+    assert.match(manualHtml, /Базові команди для старту/);
+    assert.match(manualHtml, /повторити N \(\s*\.\.\.\s*\)/);
+    assert.match(manualHtml, /<section class="manual-subsection advanced-only" aria-labelledby="manual-basic-advanced-title">/);
+    assert.match(manualHtml, /Просунуті команди/);
 });
 
-runTest('manual_v2 uses a neutral loading placeholder for pagination indicators', () => {
-    const manualV2Html = fs.readFileSync('manual_v2.html', 'utf8');
+runTest('manual page uses a neutral loading placeholder for pagination indicators', () => {
+    const manualHtml = fs.readFileSync('manual.html', 'utf8');
 
-    assert.match(manualV2Html, /id="manual-section-indicator">Завантаження розділів\.\.\.</);
-    assert.match(manualV2Html, /id="manual-section-indicator-bottom">Завантаження розділів\.\.\.</);
-    assert.doesNotMatch(manualV2Html, /id="manual-section-indicator">Розділ 1 з 1</);
+    assert.match(manualHtml, /id="manual-section-indicator">Завантаження розділів\.\.\.</);
+    assert.match(manualHtml, /id="manual-section-indicator-bottom">Завантаження розділів\.\.\.</);
+    assert.doesNotMatch(manualHtml, /id="manual-section-indicator">Розділ 1 з 1</);
 });
 
 runTest('manual controller updates paging state and indicators', () => {
