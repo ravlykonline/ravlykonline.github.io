@@ -22,7 +22,7 @@ export function performMove({
 
     if (state.isPenDown) {
         const isVerticalMove = Math.abs(Math.cos(radians)) < 1e-6;
-        const verticalCrispOffsetX = isVerticalMove && distance > 0 ? 0.5 : 0;
+        const verticalCrispOffsetX = isVerticalMove && distance > 0 ? 1 : 0;
         const drawOldX = oldX + verticalCrispOffsetX;
         const drawNewX = state.x + verticalCrispOffsetX;
         ctx.beginPath();
