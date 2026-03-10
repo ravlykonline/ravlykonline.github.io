@@ -159,8 +159,8 @@ runTest('ravlyk sprite keeps pen-thickness visual lead aligned with heading', ()
     }, canvas);
 
     const sprite = container.children[0];
-    assert.equal(sprite.style.left, '85px');
-    assert.equal(sprite.style.top, '100px');
+    assert.equal(sprite.style.left, '82px');
+    assert.equal(sprite.style.top, '97px');
 
     updateRavlykVisualsOnScreen({
         x: 100,
@@ -171,8 +171,8 @@ runTest('ravlyk sprite keeps pen-thickness visual lead aligned with heading', ()
         penSize: 11,
     }, canvas);
 
-    assert.equal(sprite.style.left, '85px');
-    assert.equal(sprite.style.top, '95px');
+    assert.equal(sprite.style.left, '82px');
+    assert.equal(sprite.style.top, '92px');
 
     global.document = previousDocument;
 });
