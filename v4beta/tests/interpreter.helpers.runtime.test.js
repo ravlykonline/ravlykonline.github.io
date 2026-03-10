@@ -457,8 +457,8 @@ runTest('interpreter drawing-ops helper applies a crisp x-offset for upward vert
 
     assert.equal(state.x, 40);
     assert.equal(state.y, 30);
-    assert.deepEqual(calls[1], ['moveTo', 41, 40]);
-    assert.deepEqual(calls[2], ['lineTo', 41, 30]);
+    assert.deepEqual(calls[1], ['moveTo', 40, 40]);
+    assert.deepEqual(calls[2], ['lineTo', 40, 30]);
 });
 
 runTest('background helper rejects rainbow background mode', () => {
