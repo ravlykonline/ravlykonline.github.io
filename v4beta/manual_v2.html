@@ -81,31 +81,27 @@
                 </button>
                 <h3 class="toc-title">Зміст</h3>
                 <div class="manual-toc-search" role="search" aria-label="Пошук по мануалу">
-                    <label class="manual-search-label" for="manual-search-input">Пошук по мануалу</label>
-                    <p class="manual-search-help">Шукає за назвами тем, командами і ключовими словами. Наприклад: вперед, якщо, колір, помилка.</p>
-                    <div class="manual-search-row">
-                        <input type="search" id="manual-search-input" class="manual-search-input"
-                            placeholder="Наприклад: вперед, якщо, колір, помилка"
-                            aria-describedby="manual-search-status" />
-                        <button type="button" id="manual-search-clear" class="manual-search-clear hidden">Очистити</button>
-                    </div>
-                    <p id="manual-search-status" class="manual-search-status" aria-live="polite">Поки що показано весь мануал.</p>
+                    <input type="search" id="manual-search-input" class="manual-search-input"
+                        placeholder="Наприклад: вперед, якщо, колір, помилка"
+                        aria-label="Пошук по мануалу"
+                        aria-describedby="manual-search-status" />
+                    <p id="manual-search-status" class="manual-search-status visually-hidden" aria-live="polite">Поки що показано весь мануал.</p>
                 </div>
                 <ul class="toc-list">
-                    <li><a href="#intro">Що таке РАВЛИК?</a></li>
+                    <li><a href="#intro">Що це таке?</a></li>
                     <li><a href="#basic-commands">Основні команди</a></li>
-                    <li><a href="#repetition">Повторення команд</a></li>
+                    <li><a href="#repetition">Повторення</a></li>
                     <li><a href="#variables-functions">Змінні та функції</a></li>
-                    <li><a href="#conditions">Умови: якщо / інакше</a></li>
-                    <li><a href="#game-mode">Інтерактивний режим: грати</a></li>
-                    <li><a href="#pen-control">Керування олівцем</a></li>
-                    <li><a href="#colors">Використання кольорів</a></li>
+                    <li><a href="#conditions">Умови</a></li>
+                    <li><a href="#game-mode">Режим гри</a></li>
+                    <li><a href="#pen-control">Олівець</a></li>
+                    <li><a href="#colors">Кольори</a></li>
                     <li><a href="#randomness">Випадковість</a></li>
-                    <li><a href="#drawing-shapes">Малювання форм</a></li>
-                    <li><a href="#errors">Можливі помилки та їх значення</a></li>
-                    <li><a href="#limitations">Обмеження та особливості</a></li>
+                    <li><a href="#drawing-shapes">Форми</a></li>
+                    <li><a href="#errors">Помилки</a></li>
+                    <li><a href="#limitations">Обмеження</a></li>
                     <li><a href="#challenges">Цікаві завдання</a></li>
-                    <li><a href="#projects">Твої проєкти</a></li>
+                    <li><a href="#projects">Проєкти</a></li>
                     <li><a href="#next-steps">Наступні кроки</a></li>
                 </ul>
             </aside>
@@ -118,6 +114,17 @@
                 </div>
                 <article id="intro" class="guide-section" data-keywords="равлик вступ що таке початок перша мова програмування малювання кодом" aria-labelledby="manual-section-intro">
                     <h2 id="manual-section-intro">Що таке РАВЛИК?</h2>
+                    <section class="manual-subsection manual-usage-subsection" aria-labelledby="manual-usage-title">
+                    <div class="tips-box" role="region" aria-labelledby="manual-usage-title">
+                        <h3 id="manual-usage-title">Як користуватися посібником</h3>
+                        <ul>
+                            <li>Поле пошуку в блоці <strong>Зміст</strong> відбирає потрібні розділи за назвою теми, командою або ключовим словом.</li>
+                            <li><strong>Для початківців</strong> показує лише базові теми для першого знайомства.</li>
+                            <li><strong>Для досвідчених</strong> відкриває повний мануал разом зі складнішими розділами.</li>
+                            <li>Кнопки <strong>Попередній розділ</strong> і <strong>Наступний розділ</strong> допомагають читати посібник по черзі, крок за кроком.</li>
+                        </ul>
+                    </div>
+                    </section>
                     <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-intro-start-title">
                     <div class="success-list-manual message-list-manual" role="region" aria-labelledby="manual-intro-start-title">
                         <h3 id="manual-intro-start-title">Почни з одного маленького прикладу</h3>

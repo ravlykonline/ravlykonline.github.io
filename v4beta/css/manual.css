@@ -298,12 +298,14 @@
         width: var(--manual-toc-sidebar-width);
         position: sticky; /* Залишаємо TOC липким */
         top: var(--manual-toc-sticky-top); /* Offset from the top */
-        max-height: none;
-        overflow: visible;
+        max-height: calc(100vh - (var(--manual-toc-sticky-top) * 2));
+        overflow-y: auto;
+        overflow-x: hidden;
         margin-bottom: 0; /* No margin when side-by-side */
         margin-left: 0;
         padding-left: var(--manual-toc-sidebar-padding-left);
         border-right: 3px solid var(--manual-toc-accent);
+        scrollbar-gutter: stable;
     }
 }
 
@@ -408,16 +410,17 @@
 }
 
 .toc-list li {
-    margin-bottom: 6px;
+    margin-bottom: 2px;
 }
 
 .toc-list a {
     color: var(--manual-toc-link); /* Lilac */
     text-decoration: none;
-    font-size: 1.05rem;
+    font-size: 1rem;
+    line-height: 1.24;
     transition: color 0.2s, background-color 0.2s;
     display: block;
-    padding: 8px 10px;
+    padding: 6px 9px;
     border-radius: 7px;
 }
 .a11y-high-contrast .toc-list a {
@@ -1013,25 +1016,31 @@ hr { /* From original manual-style.css, if needed */
 }
 
 .manual-toc-search {
-    display: grid;
-    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.manual-toc-search .manual-search-input {
+    display: block;
+}
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.manual-usage-subsection .tips-box {
     margin-bottom: 16px;
     padding: 12px;
     border: 1px solid rgba(106, 90, 205, 0.16);
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.55);
-}
-
-.manual-search-label,
-.manual-reading-mode-label {
-    font-weight: 700;
-    color: #30265f;
-}
-
-.manual-search-help {
-    margin: 0;
-    font-size: 0.95rem;
-    color: #5a5672;
 }
 
 .manual-search-row {
@@ -1115,7 +1124,8 @@ body.mode-beginner .advanced-only {
 }
 
 .a11y-high-contrast .manual-mode-strip,
-.a11y-high-contrast .manual-toc-search,
+.a11y-high-contrast .manual-toc-search .manual-search-input,
+.a11y-high-contrast .manual-usage-subsection .tips-box,
 .a11y-high-contrast .manual-search-input,
 .a11y-high-contrast .manual-search-clear,
 .a11y-high-contrast .manual-mode-btn {
@@ -1131,15 +1141,10 @@ body.mode-beginner .advanced-only {
         justify-content: stretch;
     }
 
-    .manual-search-row {
-        flex-direction: column;
-    }
-
     .manual-reading-mode {
         width: 100%;
     }
 
-    .manual-search-clear,
     .manual-mode-btn {
         width: 100%;
     }

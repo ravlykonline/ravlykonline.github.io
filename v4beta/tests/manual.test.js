@@ -99,7 +99,8 @@ runTest('manual_v2 keeps reading mode controls, toc search, and searchable secti
     assert.match(manualV2Html, /class="manual-mode-strip"/);
     assert.match(manualV2Html, /id="manual-search-input"/);
     assert.match(manualV2Html, /class="manual-toc-search"/);
-    assert.match(manualV2Html, /Шукає за назвами тем, командами і ключовими словами/);
+    assert.match(manualV2Html, /placeholder="Наприклад: вперед, якщо, колір, помилка"/);
+    assert.match(manualV2Html, /id="manual-usage-title">Як користуватися посібником</);
     assert.match(manualV2Html, /data-manual-mode="beginner"/);
     assert.match(manualV2Html, /data-manual-mode="full"/);
 
