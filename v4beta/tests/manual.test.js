@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
+    buildManualEditorLink,
     findManualSectionIndexById,
     getAvailableManualSectionIndexes,
+    getManualExampleCodeText,
     getInitialManualSectionIndex,
     getManualSectionIds,
     matchesManualSectionFilters,
@@ -71,6 +73,19 @@ runTest('manual controller normalizes queries and applies beginner/search filter
     assert.deepEqual(availableIndexes, [0]);
 });
 
+runTest('manual code example helpers normalize code and build editor links', () => {
+    const code = getManualExampleCodeText('вперед 50\r\nправоруч 90\r\n\r\n');
+    assert.equal(code, 'вперед 50\nправоруч 90');
+
+    const editorLink = buildManualEditorLink(
+        code,
+        'index.html',
+        'https://ravlyk.org/v4beta/manual_v2.html'
+    );
+
+    assert.match(editorLink, /^https:\/\/ravlyk\.org\/v4beta\/index\.html#code=/);
+});
+
 runTest('manual documents all public runtime error messages except developer-only legacy path', () => {
     const constantsSource = fs.readFileSync('js/modules/constants.js', 'utf8');
     const manualHtml = fs.readFileSync('manual.html', 'utf8');
@@ -99,13 +114,23 @@ runTest('manual_v2 keeps reading mode controls, toc search, and searchable secti
     assert.match(manualV2Html, /class="manual-mode-strip"/);
     assert.match(manualV2Html, /id="manual-search-input"/);
     assert.match(manualV2Html, /class="manual-toc-search"/);
-    assert.match(manualV2Html, /placeholder="Наприклад: вперед, якщо, колір, помилка"/);
+    assert.match(manualV2Html, /placeholder="вперед, якщо, колір"/);
     assert.match(manualV2Html, /id="manual-usage-title">Як користуватися посібником</);
     assert.match(manualV2Html, /data-manual-mode="beginner"/);
     assert.match(manualV2Html, /data-manual-mode="full"/);
 
     const sectionKeywordMatches = [...manualV2Html.matchAll(/<article[^>]+data-keywords="[^"]+"/g)];
     assert.ok(sectionKeywordMatches.length >= 10);
+});
+
+runTest('manual_v2 keeps top area compact without duplicated top navigation', () => {
+    const manualV2Html = fs.readFileSync('manual_v2.html', 'utf8');
+
+    assert.doesNotMatch(manualV2Html, /id="manual-back-to-editor"/);
+    assert.doesNotMatch(manualV2Html, /id="manual-to-lessons"/);
+    assert.doesNotMatch(manualV2Html, /Твоя перша текстова мова програмування!/);
+    assert.match(manualV2Html, /id="manual-back-to-editor-footer"/);
+    assert.match(manualV2Html, /id="manual-to-lessons-footer"/);
 });
 
 runTest('manual_v2 keeps advanced-only sections for full mode', () => {

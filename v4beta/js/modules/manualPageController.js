@@ -1,5 +1,18 @@
+import { buildShareLink, copyTextToClipboard } from './share.js';
+
 export function getManualSectionIds(sections) {
     return Array.from(sections).map((section) => section.id).filter(Boolean);
+}
+
+export function getManualExampleCodeText(rawCode) {
+    return String(rawCode || '')
+        .replace(/\r\n/g, '\n')
+        .replace(/\n+$/u, '');
+}
+
+export function buildManualEditorLink(code, editorHref = 'index.html', currentUrl = 'https://ravlyk.org/manual_v2.html') {
+    const editorUrl = new URL(editorHref, currentUrl).toString();
+    return buildShareLink(getManualExampleCodeText(code), editorUrl);
 }
 
 export function resolveManualSectionId(sectionIds, id) {
@@ -140,6 +153,8 @@ export function createManualPageController({ documentRef, windowRef }) {
     const searchClearBtn = documentRef.getElementById('manual-search-clear');
     const searchStatus = documentRef.getElementById('manual-search-status');
     const modeButtons = Array.from(documentRef.querySelectorAll('[data-manual-mode]'));
+    const editorLink = documentRef.getElementById('manual-back-to-editor')
+        || documentRef.getElementById('manual-back-to-editor-footer');
 
     const sectionIds = getManualSectionIds(sections);
     let activeIndex = 0;
@@ -361,6 +376,66 @@ export function createManualPageController({ documentRef, windowRef }) {
         });
     }
 
+    function initCodeExamples() {
+        const codeBlocks = Array.from(documentRef.querySelectorAll('pre.example-code-manual'));
+        if (!codeBlocks.length) return;
+
+        const editorHref = editorLink?.getAttribute('href') || 'index.html';
+
+        codeBlocks.forEach((codeBlock, index) => {
+            if (codeBlock.parentElement?.classList.contains('manual-code-block')) return;
+
+            const wrapper = documentRef.createElement('div');
+            wrapper.className = 'manual-code-block';
+
+            const toolbar = documentRef.createElement('div');
+            toolbar.className = 'manual-code-toolbar';
+
+            const copyButton = documentRef.createElement('button');
+            copyButton.type = 'button';
+            copyButton.className = 'manual-code-action manual-code-copy';
+            copyButton.setAttribute('aria-label', 'Скопіювати код');
+            copyButton.title = 'Скопіювати код';
+            copyButton.innerHTML = '<i class="far fa-copy" aria-hidden="true"></i><span class="manual-code-copy-label">Скопійовано</span>';
+
+            const openLink = documentRef.createElement('a');
+            openLink.className = 'manual-code-action manual-code-editor';
+            openLink.target = '_blank';
+            openLink.rel = 'noopener noreferrer';
+            openLink.textContent = 'Перейти в редактор';
+
+            const status = documentRef.createElement('span');
+            status.className = 'visually-hidden';
+            status.setAttribute('aria-live', 'polite');
+            status.id = `manual-code-status-${index + 1}`;
+
+            copyButton.setAttribute('aria-describedby', status.id);
+            openLink.setAttribute('aria-describedby', status.id);
+
+            const codeText = getManualExampleCodeText(codeBlock.textContent);
+            openLink.href = buildManualEditorLink(codeText, editorHref, windowRef.location.href);
+
+            copyButton.addEventListener('click', async () => {
+                try {
+                    await copyTextToClipboard(codeText);
+                    copyButton.classList.add('is-copied');
+                    copyButton.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i><span class="manual-code-copy-label">Скопійовано</span>';
+                    status.textContent = 'Код скопійовано.';
+                    windowRef.setTimeout(() => {
+                        copyButton.classList.remove('is-copied');
+                        copyButton.innerHTML = '<i class="far fa-copy" aria-hidden="true"></i><span class="manual-code-copy-label">Скопійовано</span>';
+                    }, 1500);
+                } catch (error) {
+                    status.textContent = 'Не вдалося скопіювати код.';
+                }
+            });
+
+            toolbar.append(copyButton, openLink);
+            wrapper.append(toolbar, codeBlock.cloneNode(true), status);
+            codeBlock.replaceWith(wrapper);
+        });
+    }
+
     function initDiscoveryControls() {
         if (searchInput) {
             searchInput.addEventListener('input', () => {
@@ -394,6 +469,7 @@ export function createManualPageController({ documentRef, windowRef }) {
     return {
         init() {
             initTopLinks();
+            initCodeExamples();
             initPaging();
             initMobileMenu();
             initDiscoveryControls();
