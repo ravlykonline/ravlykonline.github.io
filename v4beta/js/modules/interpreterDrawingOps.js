@@ -21,14 +21,18 @@ export function performMove({
     state.y = boundedY;
 
     if (state.isPenDown) {
+        const isVerticalMove = Math.abs(Math.cos(radians)) < 1e-6;
+        const verticalCrispOffsetX = isVerticalMove && distance > 0 ? 0.5 : 0;
+        const drawOldX = oldX + verticalCrispOffsetX;
+        const drawNewX = state.x + verticalCrispOffsetX;
         ctx.beginPath();
-        ctx.moveTo(oldX, oldY);
+        ctx.moveTo(drawOldX, oldY);
         if (state.isRainbow) {
             state.rainbowHue = (state.rainbowHue + Math.abs(distance) * 0.5) % 360;
             if (state.rainbowHue < 0) state.rainbowHue += 360;
             applyContextSettings();
         }
-        ctx.lineTo(state.x, state.y);
+        ctx.lineTo(drawNewX, state.y);
         ctx.stroke();
     }
 

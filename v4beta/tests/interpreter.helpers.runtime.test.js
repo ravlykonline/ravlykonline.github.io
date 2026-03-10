@@ -430,6 +430,37 @@ runTest('interpreter drawing-ops helper handles move/turn/color/goto/clear contr
     assert.equal(calls.includes('fillRect'), false);
 });
 
+runTest('interpreter drawing-ops helper applies a crisp x-offset for upward vertical strokes only', () => {
+    const state = {
+        x: 40,
+        y: 40,
+        angle: -90,
+        isPenDown: true,
+        isRainbow: false,
+        rainbowHue: 0,
+    };
+    const calls = [];
+    const ctx = {
+        beginPath() { calls.push(['beginPath']); },
+        moveTo(x, y) { calls.push(['moveTo', x, y]); },
+        lineTo(x, y) { calls.push(['lineTo', x, y]); },
+        stroke() { calls.push(['stroke']); },
+    };
+
+    performMove({
+        distance: 10,
+        state,
+        ctx,
+        clampToCanvasBounds: (x, y) => ({ boundedX: x, boundedY: y }),
+        applyContextSettings() {},
+    });
+
+    assert.equal(state.x, 40);
+    assert.equal(state.y, 30);
+    assert.deepEqual(calls[1], ['moveTo', 40.5, 40]);
+    assert.deepEqual(calls[2], ['lineTo', 40.5, 30]);
+});
+
 runTest('background helper rejects rainbow background mode', () => {
     assert.throws(
         () => setBackgroundColor({
