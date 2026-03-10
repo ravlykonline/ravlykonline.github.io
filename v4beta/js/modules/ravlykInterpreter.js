@@ -3,6 +3,8 @@ import {
     COLOR_MAP, DEFAULT_CANVAS_BACKGROUND, DEFAULT_PEN_COLOR, DEFAULT_PEN_SIZE, RAVLYK_INITIAL_ANGLE,
     DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND,
     COLOR_REGISTRY,
+    GRID_ALIGN_OFFSET_X,
+    GRID_ALIGN_OFFSET_Y,
 } from './constants.js';
 import { RavlykParser, RavlykError } from './ravlykParser.js';
 import {
@@ -124,8 +126,8 @@ export class RavlykInterpreter {
     }
 
     reset() {
-        this.state.x = this.canvas.width / 2;
-        this.state.y = this.canvas.height / 2;
+        this.state.x = (this.canvas.width / 2) + GRID_ALIGN_OFFSET_X;
+        this.state.y = (this.canvas.height / 2) + GRID_ALIGN_OFFSET_Y;
         this.state.angle = RAVLYK_INITIAL_ANGLE;
         this.state.isPenDown = true;
         this.state.color = DEFAULT_PEN_COLOR;

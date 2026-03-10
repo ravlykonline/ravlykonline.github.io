@@ -1,5 +1,5 @@
 ﻿import assert from 'node:assert/strict';
-import { COLOR_MAP, MAX_REPEATS_IN_LOOP } from '../js/modules/constants.js';
+import { COLOR_MAP, MAX_REPEATS_IN_LOOP, GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y } from '../js/modules/constants.js';
 import { createInterpreter } from './parserTestUtils.js';
 import { runTest, runAsyncTest } from './testUtils.js';
 
@@ -219,6 +219,17 @@ runTest('reset restores default background color after custom background', () =>
     assert.equal(String(interpreter.backgroundCanvas.style.backgroundColor).toLowerCase(), '#ffffff');
     assert.equal(interpreter.state.penSize, 1);
     assert.equal(interpreter.ctx.lineWidth, 1);
+});
+
+runTest('reset and goto use the same calibrated drawing origin as the grid overlay', () => {
+    const interpreter = createInterpreter();
+
+    assert.equal(interpreter.state.x, (interpreter.canvas.width / 2) + GRID_ALIGN_OFFSET_X);
+    assert.equal(interpreter.state.y, (interpreter.canvas.height / 2) + GRID_ALIGN_OFFSET_Y);
+
+    interpreter.performGoto(0, 0);
+    assert.equal(interpreter.state.x, (interpreter.canvas.width / 2) + GRID_ALIGN_OFFSET_X);
+    assert.equal(interpreter.state.y, (interpreter.canvas.height / 2) + GRID_ALIGN_OFFSET_Y);
 });
 
 runTest('custom background survives technical resize redraw until clear or reset', () => {

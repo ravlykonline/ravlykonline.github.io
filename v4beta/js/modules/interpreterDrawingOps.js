@@ -1,4 +1,5 @@
 import { applyBackgroundLayer } from './backgroundLayer.js';
+import { GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y } from './constants.js';
 
 export function performMove({
     distance,
@@ -99,8 +100,8 @@ export function performGoto({
     const oldX = state.x;
     const oldY = state.y;
 
-    const canvasTargetX = (canvas.width / 2) + logicalX;
-    const canvasTargetY = (canvas.height / 2) - logicalY;
+    const canvasTargetX = (canvas.width / 2) + GRID_ALIGN_OFFSET_X + logicalX;
+    const canvasTargetY = (canvas.height / 2) + GRID_ALIGN_OFFSET_Y - logicalY;
     const { boundedX, boundedY } = clampToCanvasBounds(canvasTargetX, canvasTargetY);
     const boundaryHit = (canvasTargetX !== boundedX || canvasTargetY !== boundedY);
 

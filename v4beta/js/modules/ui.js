@@ -2,8 +2,6 @@
 import {
     RAVLYK_SVG_DATA_URL,
     CURRENT_YEAR,
-    GRID_ALIGN_OFFSET_X,
-    GRID_ALIGN_OFFSET_Y,
 } from './constants.js';
 
 export {
@@ -63,8 +61,8 @@ export function updateRavlykVisualsOnScreen(ravlykState, canvasElement) {
     const offsetDomY = canvasRect.top - containerRect.top;
     const penVisualLead = Math.max(0, ((Number(ravlykState.penSize) || 1) - 1) / 2);
 
-    const newLeft = ravlykState.x + dx - ravlykSize / 2 + offsetDomX + GRID_ALIGN_OFFSET_X + (Math.cos(headingRad) * penVisualLead);
-    const newTop = ravlykState.y + dy - ravlykSize / 2 + offsetDomY + GRID_ALIGN_OFFSET_Y + (Math.sin(headingRad) * penVisualLead);
+    const newLeft = ravlykState.x + dx - ravlykSize / 2 + offsetDomX + (Math.cos(headingRad) * penVisualLead);
+    const newTop = ravlykState.y + dy - ravlykSize / 2 + offsetDomY + (Math.sin(headingRad) * penVisualLead);
 
     ravlykSpriteElement.style.left = `${newLeft}px`;
     ravlykSpriteElement.style.top = `${newTop}px`;
