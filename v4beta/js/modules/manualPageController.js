@@ -28,11 +28,50 @@ export function getInitialManualSectionIndex(sectionIds, hash) {
     return hashIndex !== -1 ? hashIndex : 0;
 }
 
+export function normalizeManualSearchQuery(query) {
+    return String(query || '').trim().toLowerCase();
+}
+
+export function matchesManualSectionFilters({ section, query = '', mode = 'full' }) {
+    if (!section) return false;
+
+    const normalizedQuery = normalizeManualSearchQuery(query);
+    const isAdvanced = typeof section.classList?.contains === 'function'
+        ? section.classList.contains('advanced-only')
+        : false;
+
+    if (mode === 'beginner' && isAdvanced) {
+        return false;
+    }
+
+    if (!normalizedQuery) {
+        return true;
+    }
+
+    const keywords = section.dataset?.keywords || '';
+    const title = typeof section.querySelector === 'function'
+        ? section.querySelector('h2, h3')?.textContent || ''
+        : '';
+    const textContent = section.textContent || '';
+    const haystack = `${keywords} ${title} ${textContent}`.toLowerCase();
+
+    return normalizedQuery
+        .split(/\s+/)
+        .every((token) => haystack.includes(token));
+}
+
+export function getAvailableManualSectionIndexes({ sections, query = '', mode = 'full' }) {
+    return Array.from(sections)
+        .map((section, index) => (matchesManualSectionFilters({ section, query, mode }) ? index : -1))
+        .filter((index) => index !== -1);
+}
+
 export function updateManualPagingState({
     activeIndex,
     sectionIds,
     sections,
     links,
+    availableIndexes = null,
     prevBtn,
     nextBtn,
     prevBtnBottom = null,
@@ -40,30 +79,45 @@ export function updateManualPagingState({
     indicator,
     indicatorBottom = null,
 }) {
-    const activeId = sectionIds[activeIndex];
+    const resolvedIndexes = Array.isArray(availableIndexes) && availableIndexes.length
+        ? availableIndexes
+        : sectionIds.map((_, index) => index);
+    const hasAvailableSections = resolvedIndexes.length > 0;
+    const availableSet = new Set(resolvedIndexes);
+    const activeId = hasAvailableSections ? sectionIds[activeIndex] : '';
 
     sections.forEach((section, index) => {
-        const isActive = index === activeIndex;
+        const isAvailable = availableSet.has(index);
+        const isActive = isAvailable && index === activeIndex;
         section.classList.toggle('is-active', isActive);
+        section.classList.toggle('is-hidden-by-filter', !isAvailable);
+        section.hidden = !isAvailable;
         section.setAttribute('aria-hidden', isActive ? 'false' : 'true');
     });
 
     links.forEach((link) => {
         const linkId = link.getAttribute('href').replace('#', '');
-        const isCurrent = linkId === activeId;
+        const linkIndex = findManualSectionIndexById(sectionIds, linkId);
+        const isAvailable = availableSet.has(linkIndex);
+        const isCurrent = isAvailable && linkId === activeId;
         link.classList.toggle('is-active', isCurrent);
+        link.classList.toggle('is-filter-hidden', !isAvailable);
+        link.hidden = !isAvailable;
         if (isCurrent) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
     });
 
-    const atStart = activeIndex === 0;
-    const atEnd = activeIndex === sectionIds.length - 1;
+    const currentVisiblePosition = resolvedIndexes.indexOf(activeIndex);
+    const atStart = !hasAvailableSections || currentVisiblePosition <= 0;
+    const atEnd = !hasAvailableSections || currentVisiblePosition === resolvedIndexes.length - 1;
     prevBtn.disabled = atStart;
     nextBtn.disabled = atEnd;
     if (prevBtnBottom) prevBtnBottom.disabled = atStart;
     if (nextBtnBottom) nextBtnBottom.disabled = atEnd;
 
-    const indicatorText = `Розділ ${activeIndex + 1} з ${sectionIds.length}`;
+    const indicatorText = hasAvailableSections
+        ? `Розділ ${currentVisiblePosition + 1} з ${resolvedIndexes.length}`
+        : 'Нічого не знайдено';
     indicator.textContent = indicatorText;
     if (indicatorBottom) indicatorBottom.textContent = indicatorText;
 }
@@ -82,17 +136,88 @@ export function createManualPageController({ documentRef, windowRef }) {
     const closeBtn = documentRef.getElementById('manual-mobile-close-btn');
     const toc = documentRef.getElementById('manual-toc');
     const backdrop = documentRef.getElementById('manual-mobile-backdrop');
+    const searchInput = documentRef.getElementById('manual-search-input');
+    const searchClearBtn = documentRef.getElementById('manual-search-clear');
+    const searchStatus = documentRef.getElementById('manual-search-status');
+    const modeButtons = Array.from(documentRef.querySelectorAll('[data-manual-mode]'));
 
     const sectionIds = getManualSectionIds(sections);
     let activeIndex = 0;
+    let searchQuery = '';
+    let readingMode = documentRef.body.classList.contains('mode-full') ? 'full' : 'beginner';
 
-    function setActiveIndex(nextIndex, options = {}) {
-        activeIndex = Math.max(0, Math.min(sectionIds.length - 1, nextIndex));
+    function getAvailableIndexes() {
+        return getAvailableManualSectionIndexes({
+            sections,
+            query: searchQuery,
+            mode: readingMode,
+        });
+    }
+
+    function resolveAvailableIndex(nextIndex, availableIndexes) {
+        if (!availableIndexes.length) return -1;
+        if (availableIndexes.includes(nextIndex)) return nextIndex;
+
+        const firstHigherIndex = availableIndexes.find((index) => index >= nextIndex);
+        return typeof firstHigherIndex === 'number'
+            ? firstHigherIndex
+            : availableIndexes[availableIndexes.length - 1];
+    }
+
+    function updateSearchStatus(availableIndexes) {
+        if (!searchStatus) return;
+
+        if (!availableIndexes.length) {
+            searchStatus.textContent = 'За цим запитом у вибраному режимі нічого не знайдено.';
+            return;
+        }
+
+        if (searchQuery) {
+            searchStatus.textContent = `Знайдено розділів: ${availableIndexes.length}.`;
+            return;
+        }
+
+        const modeLabel = readingMode === 'beginner' ? 'початківця' : 'повному';
+        searchStatus.textContent = `Показано ${availableIndexes.length} розділів у режимі ${modeLabel}.`;
+    }
+
+    function updateModeButtons() {
+        modeButtons.forEach((button) => {
+            const isActive = button.dataset.manualMode === readingMode;
+            button.classList.toggle('is-active', isActive);
+            button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+        documentRef.body.classList.toggle('mode-beginner', readingMode === 'beginner');
+        documentRef.body.classList.toggle('mode-full', readingMode === 'full');
+    }
+
+    function renderActiveState(activeSectionIndex, options = {}) {
+        const availableIndexes = getAvailableIndexes();
+        if (activeSectionIndex === -1) {
+            updateManualPagingState({
+                activeIndex: 0,
+                sectionIds,
+                sections,
+                links,
+                availableIndexes,
+                prevBtn,
+                nextBtn,
+                prevBtnBottom,
+                nextBtnBottom,
+                indicator,
+                indicatorBottom,
+            });
+            updateSearchStatus(availableIndexes);
+            return false;
+        }
+
+        activeIndex = activeSectionIndex;
         updateManualPagingState({
             activeIndex,
             sectionIds,
             sections,
             links,
+            availableIndexes,
             prevBtn,
             nextBtn,
             prevBtnBottom,
@@ -100,6 +225,7 @@ export function createManualPageController({ documentRef, windowRef }) {
             indicator,
             indicatorBottom,
         });
+        updateSearchStatus(availableIndexes);
 
         const activeId = sectionIds[activeIndex];
         const currentHash = `#${activeId}`;
@@ -113,6 +239,33 @@ export function createManualPageController({ documentRef, windowRef }) {
             const top = content.getBoundingClientRect().top + windowRef.scrollY - 14;
             windowRef.scrollTo({ top, behavior: 'smooth' });
         }
+
+        return true;
+    }
+
+    function setActiveIndex(nextIndex, options = {}) {
+        const availableIndexes = getAvailableIndexes();
+        const resolvedIndex = resolveAvailableIndex(
+            Math.max(0, Math.min(sectionIds.length - 1, nextIndex)),
+            availableIndexes
+        );
+        renderActiveState(resolvedIndex, options);
+    }
+
+    function syncDiscoveryState(options = {}) {
+        updateModeButtons();
+        if (searchClearBtn) {
+            searchClearBtn.classList.toggle('hidden', !searchQuery);
+        }
+
+        const availableIndexes = getAvailableIndexes();
+        const nextIndex = options.preserveActive !== false && availableIndexes.includes(activeIndex)
+            ? activeIndex
+            : resolveAvailableIndex(activeIndex, availableIndexes);
+        renderActiveState(nextIndex, {
+            keepScroll: options.keepScroll !== false,
+            replaceHistory: options.replaceHistory !== false,
+        });
     }
 
     function closeMenu() {
@@ -181,7 +334,7 @@ export function createManualPageController({ documentRef, windowRef }) {
         closeBtn.addEventListener('click', closeMenu);
         backdrop.addEventListener('click', closeMenu);
         windowRef.addEventListener('resize', () => {
-            if (windowRef.innerWidth > 991) closeMenu();
+            if (windowRef.innerWidth >= 1280) closeMenu();
         });
         documentRef.addEventListener('keydown', (event) => {
             if (event.key === 'Escape' && documentRef.body.classList.contains('manual-toc-open')) {
@@ -208,11 +361,42 @@ export function createManualPageController({ documentRef, windowRef }) {
         });
     }
 
+    function initDiscoveryControls() {
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                searchQuery = normalizeManualSearchQuery(searchInput.value);
+                syncDiscoveryState({ preserveActive: false, keepScroll: true, replaceHistory: true });
+            });
+        }
+
+        if (searchClearBtn) {
+            searchClearBtn.addEventListener('click', () => {
+                searchQuery = '';
+                if (searchInput) searchInput.value = '';
+                syncDiscoveryState({ preserveActive: false, keepScroll: true, replaceHistory: true });
+                searchInput?.focus();
+            });
+        }
+
+        modeButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const nextMode = button.dataset.manualMode;
+                if (!nextMode || nextMode === readingMode) return;
+                readingMode = nextMode;
+                syncDiscoveryState({ preserveActive: false, keepScroll: true, replaceHistory: true });
+            });
+        });
+
+        updateModeButtons();
+        updateSearchStatus(getAvailableIndexes());
+    }
+
     return {
         init() {
             initTopLinks();
             initPaging();
             initMobileMenu();
+            initDiscoveryControls();
         },
         setActiveIndex,
         closeMenu,

@@ -2,8 +2,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
     findManualSectionIndexById,
+    getAvailableManualSectionIndexes,
     getInitialManualSectionIndex,
     getManualSectionIds,
+    matchesManualSectionFilters,
+    normalizeManualSearchQuery,
     resolveManualSectionId,
     updateManualPagingState,
 } from '../js/modules/manualPageController.js';
@@ -30,6 +33,44 @@ runTest('manual controller resolves lessons deep-link aliases to current section
     assert.equal(getInitialManualSectionIndex(sectionIds, '#pen'), 3);
 });
 
+runTest('manual controller normalizes queries and applies beginner/search filters', () => {
+    assert.equal(normalizeManualSearchQuery('  КоЛІР  '), 'колір');
+
+    const makeSection = ({ keywords = '', text = '', advanced = false }) => ({
+        dataset: { keywords },
+        textContent: text,
+        classList: {
+            contains(className) {
+                return advanced && className === 'advanced-only';
+            },
+        },
+        querySelector() {
+            return null;
+        },
+    });
+
+    const beginnerSection = makeSection({
+        keywords: 'кольори колір веселка',
+        text: 'Можна змінювати колір і фон.',
+    });
+    const advancedSection = makeSection({
+        keywords: 'змінні функції',
+        text: 'Створюй власні команди.',
+        advanced: true,
+    });
+
+    assert.equal(matchesManualSectionFilters({ section: beginnerSection, query: 'колір', mode: 'beginner' }), true);
+    assert.equal(matchesManualSectionFilters({ section: advancedSection, query: '', mode: 'beginner' }), false);
+    assert.equal(matchesManualSectionFilters({ section: advancedSection, query: 'функції', mode: 'full' }), true);
+
+    const availableIndexes = getAvailableManualSectionIndexes({
+        sections: [beginnerSection, advancedSection],
+        query: 'колір',
+        mode: 'full',
+    });
+    assert.deepEqual(availableIndexes, [0]);
+});
+
 runTest('manual documents all public runtime error messages except developer-only legacy path', () => {
     const constantsSource = fs.readFileSync('js/modules/constants.js', 'utf8');
     const manualHtml = fs.readFileSync('manual.html', 'utf8');
@@ -52,11 +93,37 @@ runTest('manual documents all public runtime error messages except developer-onl
     assert.deepEqual(missingKeys, []);
 });
 
+runTest('manual_v2 keeps discovery controls and searchable section metadata', () => {
+    const manualV2Html = fs.readFileSync('manual_v2.html', 'utf8');
+
+    assert.match(manualV2Html, /id="manual-discovery-title"/);
+    assert.match(manualV2Html, /id="manual-search-input"/);
+    assert.match(manualV2Html, /data-manual-mode="beginner"/);
+    assert.match(manualV2Html, /data-manual-mode="full"/);
+
+    const sectionKeywordMatches = [...manualV2Html.matchAll(/<article[^>]+data-keywords="[^"]+"/g)];
+    assert.ok(sectionKeywordMatches.length >= 10);
+});
+
+runTest('manual_v2 keeps advanced-only sections for full mode', () => {
+    const manualV2Html = fs.readFileSync('manual_v2.html', 'utf8');
+
+    assert.match(manualV2Html, /<article id="variables-functions" class="guide-section advanced-only"/);
+    assert.match(manualV2Html, /<article id="conditions" class="guide-section advanced-only"/);
+    assert.match(manualV2Html, /<article id="game-mode" class="guide-section advanced-only"/);
+    assert.match(manualV2Html, /<article id="challenges" class="guide-section advanced-only"/);
+    assert.match(manualV2Html, /<article id="projects" class="guide-section advanced-only"/);
+});
+
 runTest('manual controller updates paging state and indicators', () => {
     const sections = [0, 1, 2].map(() => ({
         attrs: {},
+        hidden: false,
         classList: {
             classes: new Set(),
+            contains(className) {
+                return this.classes.has(className);
+            },
             toggle(className, enabled) {
                 if (enabled) this.classes.add(className);
                 else this.classes.delete(className);
@@ -69,6 +136,7 @@ runTest('manual controller updates paging state and indicators', () => {
     const links = ['#intro', '#syntax', '#games'].map((href) => ({
         href,
         attrs: {},
+        hidden: false,
         classList: {
             classes: new Set(),
             toggle(className, enabled) {
