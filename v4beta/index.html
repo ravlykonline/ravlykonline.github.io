@@ -134,19 +134,18 @@
         <div class="example-block" tabindex="0" role="button" data-code="повторити 36 ( вперед 10 праворуч 10 )">Коло
         </div>
         <div class="example-block" tabindex="0" role="button"
-          data-code="колір червоний повторити 3 ( вперед 100 праворуч 120 )">Червоний трикутник</div>
+          data-code="повторити 3 ( вперед 100 праворуч 120 )">Трикутник</div>
         <div class="example-block" tabindex="0" role="button"
-          data-code="колір синій повторити 8 ( вперед 50 праворуч 45 )">Синій восьмикутник</div>
+          data-code="повторити 8 ( вперед 50 праворуч 45 )">Восьмикутник</div>
         <div class="example-block" tabindex="0" role="button"
-          data-code="повторити 120 ( вперед 6 якщо край ( назад 8 праворуч 135 ) )">Відбиття від стіни</div>
+          data-code="повторити 120 ( вперед 6 якщо край ( назад 8 праворуч 135 ) )">Відбиття від краю</div>
         <div class="example-block" tabindex="0" role="button"
           data-code="грати (&#10;  якщо клавіша &quot;вгору&quot; ( вперед 5 )&#10;  якщо клавіша &quot;ліво&quot; ( ліворуч 10 )&#10;  якщо клавіша &quot;право&quot; ( праворуч 10 )&#10;)">
-          Керуй стрілками</div>
+          Керування стрілками</div>
       </div>
     </section>
     <section class="help-box-main" aria-labelledby="helpbox-title">
       <h3 id="helpbox-title">Основні команди для равлика</h3>
-      <p class="help-box-intro">Равлик вміє малювати лінії, повторювати дії, перевіряти умови і навіть грати завдяки таким командам:</p>
 
       <div class="commands-tabs" role="tablist" aria-label="Категорії команд">
         <button class="commands-tab active" id="tab-basic" role="tab" aria-selected="true" aria-controls="panel-basic"
@@ -277,7 +276,7 @@
     </nav>
   </main>
   <footer class="main-footer">
-    <p>&copy;<span class="current-year">2024</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики
+    <p>&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики
       <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer"
         class="footer-link">(Facebook)</a></p>
   </footer>
@@ -343,8 +342,7 @@
   <div id="help-modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true"
     aria-labelledby="help-modal-title-static">
     <div id="help-modal-content" class="modal-content help-content">
-      <h2 id="help-modal-title-static" class="modal-title">Довідка: Команди Равлика</h2>
-      <p>Равлик вміє малювати лінії, повторювати дії, перевіряти умови і навіть грати завдяки таким командам:</p>
+      <h2 id="help-modal-title-static" class="modal-title">Довідка: Команди для Равлика</h2>
       <ul>
         <li><b>вперед N</b> / <b>вперед випадково</b> — рух вперед на N кроків або на безпечну випадкову відстань</li>
         <li><b>назад N</b> / <b>назад випадково</b> — рух назад на N кроків або на безпечну випадкову відстань</li>
@@ -356,19 +354,18 @@
         <li><b>перейти в X Y</b> / <b>перейти в випадково</b> — перейти у точку (X, Y) від центру полотна або в безпечну випадкову точку</li>
         <li><b>підняти</b> — підняти олівець (не малювати при русі)</li>
         <li><b>опустити</b> — опустити олівець (малювати при русі)</li>
-        <li><b>очистити</b> — очистити малюнок і повернути білий фон (код не змінюється)</li>
+        <li><b>очистити</b> — очистити малюнок і повернути білий фон</li>
         <li><b># текст</b> — коментар: Равлик цей рядок не виконує</li>
         <li><b>повторити N ( ... )</b> — повторити команди в дужках N разів</li>
         <li><b>якщо умова ( ... )</b> — виконати блок за умовою</li>
         <li><b>якщо умова ( ... ) інакше ( ... )</b> — виконати один із двох блоків залежно від умови</li>
         <li><b>якщо край ( ... )</b> — перевірка межі полотна</li>
-        <li><b>якщо клавіша "вгору" ( ... )</b> — перевірка натиснутої клавіші у блоці <b>грати</b></li>
+        <li><b>якщо клавіша "вгору" ( ... )</b> — перевірка натиснутої клавіші</li>
         <li><b>грати ( ... )</b> — інтерактивний ігровий режим</li>
         <li><b>створити назва(параметр) ( ... )</b> — створити власну команду</li>
         <li><b>назва(число)</b> — викликати власну команду з числом</li>
         <li><b>створити змінна = число</b> — створити змінну</li>
         <li><b>змінна = число</b> — змінити значення змінної</li>
-        <li><b>Умови:</b> <code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>%</code> — для порівнянь у <b>якщо</b></li>
       </ul>
       <div class="modal-actions">
         <button id="to-manual-btn-modal" class="btn btn-info">Повний посібник</button>

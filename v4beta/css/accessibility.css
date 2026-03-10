@@ -589,10 +589,6 @@ html.a11y-reduce-animations body {
 }
 
 @media (max-width: 767px) {
-    body {
-        padding-bottom: max(88px, calc(32px + env(safe-area-inset-bottom)));
-    }
-
     .accessibility-toggle {
         top: calc(16px + env(safe-area-inset-top));
         bottom: auto;

@@ -3,7 +3,7 @@
 This document is the primary technical onboarding for this repository.
 If you are an AI agent or a developer joining the project, start here.
 
-Last updated: 2026-03-09
+Last updated: 2026-03-10
 
 Related:
 - `DESIGN_GUIDE.md` is the visual/style reference for UI work.
@@ -375,6 +375,7 @@ Implemented responsive behavior:
 - compact toolbar on small screens,
 - icon-only toolbar labels on phone widths,
 - workspace tab switching for editor/canvas up to tablet width,
+- technical canvas resize now preserves the current drawing and background layer, so workspace-tab switches do not wipe the canvas,
 - desktop/tablet workspace panels keep `height: 600px`, `min-height: 400px`, and `max-height: 78vh`,
 - command category tabs in the reference block are arranged as a balanced 2x2 grid on phones,
 - optimized examples block:
@@ -415,6 +416,7 @@ Behavior:
 - settings persisted in `localStorage` (`ravlyk_accessibility_settings_v2`),
 - accessibility panel focus trap,
 - keyboard close (`Esc`),
+- floating accessibility controls are pinned to the top-right on phone widths,
 - visual focus styles via `:focus-visible` and global focus ring variables.
 
 ## 10. Limits and safety guards (`constants.js`)
@@ -430,7 +432,8 @@ The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
 Additional current UI-side safety hardening:
 - share-link code is never auto-executed; it is only loaded into the editor,
 - after URL-hash import, the editor shows a persistent "review before running" info message,
-- global message rendering in `js/modules/uiMessages.js` and `js/modules/accessibilityNotifications.js` avoids `innerHTML` for dynamic text, reducing DOM-XSS exposure from message content.
+- global message rendering in `js/modules/uiMessages.js` and `js/modules/accessibilityNotifications.js` avoids `innerHTML` for dynamic text, reducing DOM-XSS exposure from message content,
+- accessibility toast messages are intentionally non-blocking for pointer events, so they do not steal taps/clicks from active UI controls while remaining dismissible through their own close button.
 
 ## 11. Testing strategy
 
@@ -463,6 +466,9 @@ Additional current UI-side safety hardening:
 - download modal interactions (`Esc`, focus return),
 - download exports (PNG drawing + TXT code),
 - workspace switching keeps canvas content (tabbed mobile/tablet and non-tabbed desktop path).
+
+Touch-specific note:
+- the accessibility close-button smoke test runs only on touch projects and first verifies via `elementFromPoint(...)` that the close button is topmost; it then uses `click({ force: true })` because current Playwright mobile actionability reports a false intercept for that control under stress-mode accessibility settings.
 
 Projects in `playwright.config.js`:
 - `chromium` (desktop),
@@ -522,7 +528,8 @@ Parser/UI unit tests:
 
 4. Test stability remains important
 - the previous timing-sensitive flake in `tests/parser.ast-runtime.test.js` was reduced by making the game-loop state test wait for observed progress instead of assuming a fixed wall-clock schedule.
-- the full `npm test` suite currently passes, including Playwright smoke coverage, so test reliability is in a better state than before.
+- the full `npm test` suite currently passes, including Playwright smoke coverage.
+- the touch-specific accessibility close-button smoke case is now documented and isolated instead of leaking instability into unrelated modal-overflow tests.
 
 5. Documentation drift risk
 - this file and any debt/status docs should be updated whenever grammar, command contracts, responsive behavior, or debt priorities materially change.

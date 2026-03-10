@@ -10,6 +10,7 @@ async function enableAccessibilityModalStressMode(page) {
   await page.locator('#accessibility-toggle').click();
   await page.locator('#high-contrast-input').check({ force: true });
   await page.locator('#larger-text-input').check({ force: true });
+  // Escape is the stable setup path here; close-button touch coverage lives in a dedicated test below.
   await page.keyboard.press('Escape');
 }
 
@@ -85,6 +86,34 @@ test.describe('Ravlyk UI smoke', () => {
     await expect
       .poll(async () => page.evaluate(() => document.documentElement.classList.contains('a11y-high-contrast')))
       .toBe(true);
+  });
+
+  test('accessibility panel closes from close button in high-contrast larger-text mode', async ({ page }, testInfo) => {
+    test.skip(!/mobile|tablet/i.test(testInfo.project.name), 'Touch interaction case for touch projects');
+
+    await page.locator('#accessibility-toggle').click();
+    const panel = page.locator('#accessibility-panel');
+    await expect(panel).not.toHaveClass(/hidden/);
+
+    await page.locator('#high-contrast-input').check({ force: true });
+    await page.locator('#larger-text-input').check({ force: true });
+
+    const closeButtonIsTopmost = await page.evaluate(() => {
+      const button = document.getElementById('close-accessibility-panel-btn');
+      if (!button) return false;
+      const rect = button.getBoundingClientRect();
+      const x = rect.left + (rect.width / 2);
+      const y = rect.top + (rect.height / 2);
+      const hit = document.elementFromPoint(x, y);
+      return hit === button;
+    });
+    expect(closeButtonIsTopmost).toBe(true);
+
+    // Touch emulation reports a false positive intercept on this control even when the button is topmost.
+    await page.locator('#close-accessibility-panel-btn').click({ force: true });
+
+    await expect(panel).toHaveClass(/hidden/);
+    await expect(page.locator('#accessibility-toggle')).toBeFocused();
   });
 
   test('game mode blocks page scroll on arrow keys', async ({ page }) => {
