@@ -152,6 +152,23 @@ runTest('manual page separates basic and advanced commands in the basic-commands
     assert.match(manualHtml, /Просунуті команди/);
 });
 
+runTest('manual page uses a dedicated start-example component for example-first sections', () => {
+    const manualHtml = fs.readFileSync('manual.html', 'utf8');
+
+    const startExamples = [...manualHtml.matchAll(/class="manual-start-example"/g)];
+    assert.ok(startExamples.length >= 8);
+    assert.doesNotMatch(manualHtml, /class="success-list-manual message-list-manual" role="region" aria-labelledby="manual-basic-start-title"/);
+    assert.doesNotMatch(manualHtml, /class="success-list-manual message-list-manual" role="region" aria-labelledby="manual-colors-start-title"/);
+});
+
+runTest('manual page uses a dedicated result-example component for visual outcome blocks', () => {
+    const manualHtml = fs.readFileSync('manual.html', 'utf8');
+
+    const resultExamples = [...manualHtml.matchAll(/class="manual-example-result"/g)];
+    assert.ok(resultExamples.length >= 6);
+    assert.doesNotMatch(manualHtml, /class="example-result-manual" role="region"/);
+});
+
 runTest('manual page uses a neutral loading placeholder for pagination indicators', () => {
     const manualHtml = fs.readFileSync('manual.html', 'utf8');
 

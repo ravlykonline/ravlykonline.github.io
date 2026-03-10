@@ -158,7 +158,7 @@ Core modules:
 - `js/modules/accessibilitySettings.js`: accessibility settings/storage/class-application helpers shared by the accessibility entry script.
 - `js/modules/accessibilityNotifications.js`: accessibility toast/icon-selection helpers used by the accessibility entry script; dynamic message DOM is assembled without `innerHTML`.
 - `js/modules/lessonsPageController.js`: lessons-page tab/navigation/history controller helpers used by the lessons entry script.
-- `js/modules/manualPageController.js`: manual-page section paging, hash/history, top-link, and mobile TOC controller helpers used by the manual entry script.
+- `js/modules/manualPageController.js`: manual-page section paging, hash/history, TOC search/filtering, reading-mode switching, code-example toolbar injection, and mobile TOC controller helpers used by the manual entry script.
 - `js/modules/parserStatementDispatcher.js`: parser dispatch helper that routes the current token to the correct statement parser.
 - `js/modules/parserStatementContext.js`: builder for parser statement-helper context/dependencies, used to keep `ravlykParser` thin.
 - `js/modules/parserControlStatements.js`: parser helpers for control-flow statements (`РіСЂР°С‚Рё`, `РїРѕРІС‚РѕСЂРёС‚Рё`, `СЏРєС‰Рѕ`).
@@ -174,7 +174,7 @@ Core modules:
 - `tests/quiz.test.js`: quiz data-bank shape and theme-contract checks.
 - `tests/accessibility.test.js`: accessibility helper contracts (defaults, class toggles, notification icon mapping).
 - `tests/lessons.test.js`: lessons-page controller contracts plus production lessons HTML smoke checks (lesson structure, deep links, reflection blocks, archive-independence guards).
-- `tests/manual.test.js`: manual-page controller contracts (section ids, hash resolution, paging state).
+- `tests/manual.test.js`: manual-page controller contracts plus production manual smoke checks (section ids, hash resolution, paging state, reading-mode controls, TOC search hooks, semantic example components, and manual-structure regressions).
 - `tests/parser-helpers.test.js` also covers statement-dispatch helper routing/error contracts.
 - `tests/parser-helpers.test.js` also covers parser statement-context builder wiring.
 - `tests/ui.dom.test.js`: UI DOM utility tests.
@@ -392,12 +392,23 @@ Implemented responsive behavior:
 - close on `Esc` and link click,
 - desktop docs-like fixed sidebar for wide screens.
 
-## 8.4 Static-layer status snapshot
+## 8.4 Manual page current interaction model
+
+`manual.html` is now the canonical production manual page.
+Current manual UX behavior:
+- TOC search lives inside the sidebar/TOC and filters both TOC items and page sections,
+- reading-mode toggle (`Для початківців` / `Для досвідчених`) hides or shows `advanced-only` sections without reloading,
+- wide screens use a fixed left TOC sidebar; tablet/phone widths use the drawer-style TOC flow,
+- section paging is driven from visible sections only, so the indicator and prev/next buttons respect search filtering and reading mode,
+- code examples get an injected toolbar with copy action and `Відкрити в редакторі`,
+- manual examples now use explicit semantic component classes (`manual-start-example`, `manual-example-result`) instead of relying on older generic message/result styling combinations.
+
+## 8.5 Static-layer status snapshot
 
 Current practical state of the static layer:
 - `manual.html` is no longer a mostly flat document; large sections were split into clearer semantic subsections and repeated content blocks now have more explicit structure/labels.
-- `manual.html` also now uses more consistent subsection wrapper classes across error groups, challenge items, callout-heavy sections, the remaining intro/basic/repetition/next-step support blocks, and the `errors` overview intro, reducing one-off markup patterns inside the large document.
-- `css/manual.css` is partially normalized around shared tokens for panels/content blocks/high-contrast states; recent follow-up cleanup also removed smaller duplicate example/result/challenge/error fragments and folded a few remaining low-level content literals into shared manual tokens, so the highest-value remaining work is now in narrower cleanup clusters rather than broad emergency refactors.
+- `manual.html` also now uses more consistent subsection wrapper classes across error groups, callout-heavy sections, example-first blocks, and support sections, reducing one-off markup patterns inside the large document.
+- `css/manual.css` is now materially cleaner around the manual page than before: desktop layout duplication was removed, old discovery-panel leftovers were removed, manual-specific UI literals were tokenized further, and the most important example components are now explicit semantic families rather than styling accidents.
 - `css/main-editor.css` is largely tokenized for editor surfaces, accents, shadows, responsive controls, and high-contrast variants; remaining work there is mostly cosmetic follow-up, not structural risk.
 - `lessons.html` has already been promoted to the new production lesson structure: lesson0 intro, explicit subsection wrappers across lessons 1-9, CTA-style manual deep links, reflection blocks, path table, and bottom navigation are all part of the live page.
 - `css/lessons.css` now serves only the production lessons page; the archive-only rollback selectors were removed.
@@ -514,13 +525,13 @@ Parser/UI unit tests:
 ## 14. Known technical debt / open points
 
 1. Static CSS complexity remains the primary debt
-- `css/manual.css` is substantially cleaner than before, but still carries some cascade noise in lower-level content/a11y fragments and selector organization.
+- `css/manual.css` is substantially cleaner than before, but still remains a large page-local stylesheet with some remaining cascade noise in lower-level content/a11y fragments and legacy section organization.
 - `css/main-editor.css` is close to a "good enough" state after tokenization and deduplication, but still has a few follow-up cosmetic literals and could be flattened further if desired.
 - `css/lessons.css` is in good shape for the production lessons page; remaining work there is ordinary stylistic cleanup rather than structural debt.
 - styles are still page-local rather than componentized, so maintainability depends on continuing small, verified cleanups instead of large rewrites.
 
 2. Large static documents are still expensive to maintain
-- `manual.html` is much more structured now, but it is still a large hand-maintained static document.
+- `manual.html` is much more structured now, but it is still a large hand-maintained static document with substantial instructional content living directly in HTML.
 - `lessons.html` is now the production version of the reworked course and is no longer an active refactor target; remaining work there is smoke-test growth and ordinary content maintenance.
 
 3. Mixed execution model history
@@ -537,10 +548,10 @@ Parser/UI unit tests:
 ## 14.1 Current debt priority order
 
 Recommended practical order at this snapshot:
-1. finish any last high-signal cleanup in `css/manual.css`,
-2. treat `css/main-editor.css` as near-done and only revisit for narrow cosmetic follow-up,
-3. keep `lessons.html` in watch-mode with small smoke-test growth as the course evolves,
-4. revisit `manual.html` only for deeper content-structure refactors if there is a clear payoff,
+1. only do narrow, low-risk cleanup passes in `css/manual.css` from here,
+2. revisit `manual.html` only for clear content/UX payoff, not speculative restructuring,
+3. treat `css/main-editor.css` as near-done and only revisit for narrow cosmetic follow-up,
+4. keep `lessons.html` in watch-mode with small smoke-test growth as the course evolves,
 5. keep test-suite reliability under observation, but not as the main active debt item right now,
 6. keep JS-core/test cleanup as lower priority hygiene work unless a new bug changes that assessment.
 

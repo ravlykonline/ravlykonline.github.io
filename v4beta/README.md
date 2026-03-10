@@ -19,6 +19,12 @@
 | **📖 Посібник** | [ravlyk.org/manual.html](https://ravlyk.org/manual.html) |
 | **🎓 Уроки** | [ravlyk.org/lessons.html](https://ravlyk.org/lessons.html) |
 
+Посібник зараз працює як повноцінна production-сторінка:
+- пошук по темах, командах і ключових словах,
+- режими читання `Для початківців` / `Для досвідчених`,
+- адаптивний зміст для desktop / tablet / mobile,
+- кнопки `Скопіювати` і `Відкрити в редакторі` в кодових прикладах.
+
 ## 📐 Основні команди та можливості
 
 ### Базовий рух та малювання
@@ -59,6 +65,12 @@
 
 Технічна документація щодо архітектури, парсера та інтерпретатора міститься у [`TECHNICAL_GUIDE.md`](TECHNICAL_GUIDE.md).
 Візуальна та UI-стильова документація міститься у [`DESIGN_GUIDE.md`](DESIGN_GUIDE.md).
+
+Окремо:
+- `manual.html` є canonical production manual page.
+- `manual_old.html` збережений як архівна попередня версія.
+- логіка сторінки мануалу зосереджена в `js/modules/manualPageController.js`.
+- стилі мануалу зосереджені в `css/manual.css`.
 
 - **Стек:** Pure JavaScript (ES Modules), HTML5 Canvas, CSS3.
 - **Тестування:** Unit-тести на `node`-скриптах репозиторію та E2E-тести на `Playwright`.

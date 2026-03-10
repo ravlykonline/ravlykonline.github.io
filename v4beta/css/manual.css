@@ -54,6 +54,40 @@
     --manual-example-result-bg: #fff9e6;
     --manual-example-result-border: #ffa500;
     --manual-example-result-text: #d97706;
+    --manual-shell-bg: #f5f2ff;
+    --manual-ui-border-soft: #d5cdef;
+    --manual-ui-border-muted: #cfc8ee;
+    --manual-ui-border-emphasis: #d9dfef;
+    --manual-ui-surface-soft: #ede9f9;
+    --manual-ui-surface-hover: #f3efff;
+    --manual-ui-surface-tinted: rgba(255, 255, 255, 0.55);
+    --manual-ui-surface-details: #f8fbff;
+    --manual-ui-surface-details-open: #e4ecff;
+    --manual-ui-surface-summary: #eef4ff;
+    --manual-ui-focus-ring: rgba(106, 90, 205, 0.2);
+    --manual-ui-heading: #30265f;
+    --manual-ui-heading-strong: #2f255c;
+    --manual-ui-text: #352d66;
+    --manual-ui-text-muted: #5a5672;
+    --manual-ui-text-summary: #3b3f65;
+    --manual-ui-icon: #5c6bc0;
+    --manual-ui-shadow-soft: 0 8px 24px rgba(47, 37, 92, 0.06);
+    --manual-ui-shadow-details: 0 2px 6px rgba(63, 81, 181, 0.08);
+    --manual-usage-border: rgba(106, 90, 205, 0.16);
+    --manual-code-action-bg: rgba(255, 255, 255, 0.96);
+    --manual-code-action-border: #cfc8ee;
+    --manual-code-action-text: #352d66;
+    --manual-code-action-hover-bg: #ede9f9;
+    --manual-code-action-hover-text: #2f255c;
+    --manual-callout-tips-bg: #e6f7ff;
+    --manual-callout-tips-accent: #1890ff;
+    --manual-callout-tips-heading: #0050b3;
+    --manual-callout-interactive-bg: #fff3cd;
+    --manual-callout-interactive-accent: #ffc107;
+    --manual-callout-interactive-heading: #b08c00;
+    --manual-callout-challenge-bg: #e0f2f1;
+    --manual-callout-challenge-accent: #009688;
+    --manual-callout-challenge-heading: #00695c;
     --manual-challenge-summary-text: #00796b;
     --manual-challenge-summary-hover-bg: rgba(0, 121, 107, 0.1);
     --manual-concept-bg: #f5f5f5;
@@ -64,7 +98,7 @@
     --manual-palette-gradient-text: #333;
 }
 
-/* --- Message Highlighting for Manual --- */
+/* === Message Components === */
 
 /* Base layout for all message boxes */
 .message-list-manual {
@@ -99,7 +133,39 @@
     font-weight: bold;
 }
 
-/* Success Messages (Green) */
+.manual-start-example {
+    background-color: var(--manual-state-success-bg);
+    border-left: var(--manual-accent-border-width) solid var(--manual-state-success-accent);
+    border-radius: var(--manual-panel-radius);
+    padding: var(--manual-panel-padding);
+    margin: var(--manual-panel-margin-y) 0;
+}
+
+.manual-start-example p {
+    padding-bottom: 14px;
+    margin-bottom: 22px;
+    margin-top: 0;
+    position: relative;
+    border-bottom: 2px solid var(--manual-state-success-border);
+}
+
+.manual-start-example p:last-child {
+    border-bottom: none;
+}
+
+.manual-start-example code {
+    font-weight: 700;
+    background: none;
+    font-size: 1.08em;
+    color: var(--manual-state-success-text);
+}
+
+.manual-start-example strong {
+    color: var(--manual-text-strong);
+    font-weight: 700;
+}
+
+/* State Variants */
 .success-list-manual {
     background-color: var(--manual-state-success-bg);
     border-left-color: var(--manual-state-success-accent);
@@ -111,7 +177,6 @@
     color: var(--manual-state-success-text);
 }
 
-/* Info Messages (Orange) */
 .info-list-manual {
     background-color: var(--manual-state-info-bg);
     border-left-color: var(--manual-state-info-accent);
@@ -123,7 +188,6 @@
     color: var(--manual-state-info-text);
 }
 
-/* Error Messages (Red) */
 .error-list-manual {
     background-color: var(--manual-state-error-bg);
     border-left-color: var(--manual-state-error-accent);
@@ -135,7 +199,7 @@
     color: var(--manual-state-error-text);
 }
 
-/* High Contrast Mode */
+/* High Contrast Overrides */
 .a11y-high-contrast .message-list-manual {
     background: var(--manual-high-contrast-bg) !important;
     color: var(--manual-high-contrast-text) !important;
@@ -150,6 +214,20 @@
     border-left-color: var(--manual-state-success-accent) !important;
 }
 .a11y-high-contrast .success-list-manual code {
+    color: var(--manual-state-success-hc) !important;
+}
+.a11y-high-contrast .manual-start-example {
+    background: var(--manual-high-contrast-bg) !important;
+    color: var(--manual-high-contrast-text) !important;
+    border-left-color: var(--manual-state-success-accent) !important;
+}
+.a11y-high-contrast .manual-start-example p {
+    border-bottom-color: var(--manual-high-contrast-border) !important;
+}
+.a11y-high-contrast .manual-start-example strong {
+    color: var(--manual-high-contrast-text) !important;
+}
+.a11y-high-contrast .manual-start-example code {
     color: var(--manual-state-success-hc) !important;
 }
 .a11y-high-contrast .info-list-manual {
@@ -167,7 +245,7 @@
 
 .a11y-high-contrast .toc-container,
 .a11y-high-contrast .guide-section,
-.a11y-high-contrast .example-result-manual,
+.a11y-high-contrast .manual-example-result,
 .a11y-high-contrast .concept-box {
     background: var(--manual-high-contrast-bg) !important;
     color: var(--manual-high-contrast-text) !important;
@@ -176,7 +254,7 @@
 
 
 
-/* --- Layout for Manual Page --- */
+/* === Page Shell And Layout === */
 .top-navigation,
 .bottom-navigation {
     display: flex;
@@ -205,15 +283,6 @@
     display: none;
 }
 
-/* Прибираємо розкидання кнопок по краях */
-/*
-@media (min-width: 600px) {
-    .top-navigation {
-        justify-content: space-between; 
-    }
-}
-*/
-
 .guide-content-area {
     --manual-content-max-width: 980px;
     --manual-content-padding-x: 15px;
@@ -227,26 +296,7 @@
     padding: 0 15px; /* Додаємо відступи по краях для мобільних пристроїв */
 }
 
-@media (min-width: 1280px) { /* Apply two-column layout only for wide desktop screens */
-    .guide-content-area {
-        display: grid;
-        grid-template-columns: var(--manual-content-grid-sidebar) minmax(0, 1fr);
-        align-items: flex-start; /* Align TOC and content to the top */
-        gap: var(--manual-content-grid-gap);
-    }
-    
-    .page-wrapper {
-        max-width: 1600px; /* Суттєво збільшуємо ширину сторінки */
-        margin: 0 auto;
-        padding: 0 var(--manual-content-padding-x);
-    }
-    
-    /* Додаємо фон для всієї сторінки */
-    body {
-        background-color: #f5f2ff;
-    }
-}
-
+/* === Table Of Contents === */
 .toc-container {
     --manual-toc-accent: #6a5acd;
     --manual-toc-title: #4b0082;
@@ -292,22 +342,6 @@
     height: fit-content;
 }
 
-
-@media (min-width: 1280px) {
-    .toc-container {
-        width: var(--manual-toc-sidebar-width);
-        position: sticky; /* Залишаємо TOC липким */
-        top: var(--manual-toc-sticky-top); /* Offset from the top */
-        max-height: calc(100vh - (var(--manual-toc-sticky-top) * 2));
-        overflow-y: auto;
-        overflow-x: hidden;
-        margin-bottom: 0; /* No margin when side-by-side */
-        margin-left: 0;
-        padding-left: var(--manual-toc-sidebar-padding-left);
-        border-right: 3px solid var(--manual-toc-accent);
-        scrollbar-gutter: stable;
-    }
-}
 
 .toc-title {
     color: var(--manual-toc-title); /* Purple */
@@ -457,6 +491,7 @@
     max-width: 100%; /* Дозволяємо використовувати всю доступну ширину */
 }
 
+/* === Section Paging === */
 .manual-section-toolbar {
     --manual-toolbar-bg: #ede9f9;
     --manual-toolbar-border: #d4c8f4;
@@ -617,7 +652,7 @@ body.manual-paged-ready .guide-section.is-active {
 }
 
 
-/* --- Command List specific to Manual --- */
+/* === Command Reference Blocks === */
 .command-list-manual {
     display: flex;
     flex-direction: column;
@@ -669,7 +704,7 @@ body.manual-paged-ready .guide-section.is-active {
 }
 
 
-/* --- Example Code and Result --- */
+/* === Code Example Components === */
 .example-code-manual {
     --manual-example-code-bg: #f8f9fa;
     --manual-example-code-border: #32cd32;
@@ -718,9 +753,9 @@ body.manual-paged-ready .guide-section.is-active {
     justify-content: center;
     min-height: 34px;
     border-radius: 999px;
-    border: 1px solid #cfc8ee;
-    background: rgba(255, 255, 255, 0.96);
-    color: #352d66;
+    border: 1px solid var(--manual-code-action-border);
+    background: var(--manual-code-action-bg);
+    color: var(--manual-code-action-text);
     font-weight: 700;
     text-decoration: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
@@ -728,8 +763,8 @@ body.manual-paged-ready .guide-section.is-active {
 
 .manual-code-action:hover,
 .manual-code-action:focus-visible {
-    background: #ede9f9;
-    color: #2f255c;
+    background: var(--manual-code-action-hover-bg);
+    color: var(--manual-code-action-hover-text);
     text-decoration: none;
 }
 
@@ -803,9 +838,7 @@ body.manual-paged-ready .guide-section.is-active {
     border-color: var(--manual-high-contrast-border) !important;
 }
 
-.example-result-manual {
-    --manual-example-result-bg: #fff9e6;
-    --manual-example-result-border: #ffa500;
+.manual-example-result {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -816,12 +849,12 @@ body.manual-paged-ready .guide-section.is-active {
     border: 2px dashed var(--manual-example-result-border); /* Orange dashed */
     text-align: center;
 }
-.a11y-high-contrast .example-result-manual {
+.a11y-high-contrast .manual-example-result {
     border: 2px dashed var(--manual-high-contrast-border) !important;
 }
 
 
-.example-result-manual img {
+.manual-example-result img {
     max-width: 60%; /* Adjust as needed */
     height: auto;
     border-radius: var(--manual-content-block-radius);
@@ -830,14 +863,14 @@ body.manual-paged-ready .guide-section.is-active {
     background-color: var(--manual-content-block-bg); /* Ensure transparent SVGs have a background */
 }
 
-.example-result-manual p {
+.manual-example-result p {
     font-style: italic;
     color: var(--manual-example-result-text);
     font-size: 1rem;
     margin-bottom: 0;
 }
 
-/* --- Specialized Boxes --- */
+/* === Callout Components === */
 .tips-box,
 .interactive-example-manual,
 .challenge-box {
@@ -868,14 +901,14 @@ body.manual-paged-ready .guide-section.is-active {
 }
 
 .tips-box {
-    --manual-callout-bg: #e6f7ff; /* Light blue */
-    --manual-callout-accent: #1890ff; /* Blue */
-    --manual-callout-heading: #0050b3; /* Dark blue */
+    --manual-callout-bg: var(--manual-callout-tips-bg);
+    --manual-callout-accent: var(--manual-callout-tips-accent);
+    --manual-callout-heading: var(--manual-callout-tips-heading);
 }
 .interactive-example-manual {
-    --manual-callout-bg: #fff3cd; /* Light amber */
-    --manual-callout-accent: #ffc107; /* Amber */
-    --manual-callout-heading: #b08c00; /* Dark amber */
+    --manual-callout-bg: var(--manual-callout-interactive-bg);
+    --manual-callout-accent: var(--manual-callout-interactive-accent);
+    --manual-callout-heading: var(--manual-callout-interactive-heading);
 }
 
 .interactive-example-manual p code,
@@ -888,22 +921,23 @@ body.manual-paged-ready .guide-section.is-active {
 
 
 .challenge-box {
-    --manual-callout-bg: #e0f2f1; /* Light teal */
-    --manual-callout-accent: #009688; /* Teal */
-    --manual-callout-heading: #00695c; /* Dark teal */
+    --manual-callout-bg: var(--manual-callout-challenge-bg);
+    --manual-callout-accent: var(--manual-callout-challenge-accent);
+    --manual-callout-heading: var(--manual-callout-challenge-heading);
 }
 .a11y-high-contrast .tips-box h4,
 .a11y-high-contrast .interactive-example-manual h4,
 .a11y-high-contrast .challenge-box h4 {
     color: var(--manual-high-contrast-accent) !important;
 }
+/* === Disclosure Blocks === */
 .guide-section details {
     margin-top: 12px;
-    border: 1px solid #d9dfef;
+    border: 1px solid var(--manual-ui-border-emphasis);
     border-radius: 10px;
-    background: #f8fbff;
+    background: var(--manual-ui-surface-details);
     overflow: hidden;
-    box-shadow: 0 2px 6px rgba(63, 81, 181, 0.08);
+    box-shadow: var(--manual-ui-shadow-details);
 }
 
 .guide-section summary {
@@ -911,8 +945,8 @@ body.manual-paged-ready .guide-section.is-active {
     cursor: pointer;
     padding: 12px 16px 12px 42px;
     font-weight: 700;
-    color: #3b3f65;
-    background: #eef4ff;
+    color: var(--manual-ui-text-summary);
+    background: var(--manual-ui-surface-summary);
     list-style: none;
     transition: background-color 0.2s ease;
 }
@@ -927,14 +961,14 @@ body.manual-paged-ready .guide-section.is-active {
     left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: #5c6bc0;
+    color: var(--manual-ui-icon);
     font-size: 1rem;
     transition: transform 0.2s ease;
 }
 
 .guide-section details[open] summary {
-    background: #e4ecff;
-    border-bottom: 1px solid #d9dfef;
+    background: var(--manual-ui-surface-details-open);
+    border-bottom: 1px solid var(--manual-ui-border-emphasis);
 }
 
 .guide-section details[open] summary::before {
@@ -978,6 +1012,7 @@ body.manual-paged-ready .guide-section.is-active {
     color: var(--manual-state-error-text);
 }
 
+/* === Content Media Blocks === */
 .concept-box {
     display: flex;
     gap: 20px;
@@ -1045,7 +1080,7 @@ body.manual-paged-ready .guide-section.is-active {
     border: 2px solid var(--manual-palette-chip-border);
     box-shadow: var(--manual-content-block-shadow-soft);
 }
-/* Specific text colors for better contrast on certain backgrounds */
+/* Palette Contrast Exceptions */
 .color-palette-manual span[style*="background-color:yellow"] { color: var(--manual-palette-yellow-text); }
 .color-palette-manual span[style*="background-color:pink"] { color: var(--manual-palette-pink-text); }
 .color-palette-manual span[style*="background:linear-gradient"] { color: var(--manual-palette-gradient-text); border-color: var(--manual-palette-gradient-border);}
@@ -1081,7 +1116,7 @@ body.manual-paged-ready .guide-section.is-active {
     }
 }
 
-/* Desktop docs-style layout: fixed left sidebar + content shifted right */
+/* === Desktop Layout === */
 @media (min-width: 1280px) {
     :root {
         --manual-sidebar-width: 360px;
@@ -1092,6 +1127,7 @@ body.manual-paged-ready .guide-section.is-active {
 
     body {
         padding-inline: var(--manual-shell-edge-gap);
+        background-color: var(--manual-shell-bg);
     }
 
     .page-wrapper {
@@ -1117,9 +1153,11 @@ body.manual-paged-ready .guide-section.is-active {
         margin: 0;
         padding: var(--manual-toc-desktop-padding);
         overflow-y: auto;
+        overflow-x: hidden;
         border-right: none;
         border-left: 3px solid var(--manual-toc-accent);
         z-index: 20;
+        scrollbar-gutter: stable;
     }
 
     .manual-mobile-menu-btn,
@@ -1141,6 +1179,7 @@ body.manual-paged-ready .guide-section.is-active {
 }
 
 
+/* === Manual Discovery And Reading Modes === */
 hr { /* From original manual-style.css, if needed */
     border: 0;
     height: 1px;
@@ -1157,15 +1196,15 @@ hr { /* From original manual-style.css, if needed */
     max-width: 1200px;
     margin: 0 auto 18px;
     padding: 12px 16px;
-    border: 1px solid #d5cdef;
+    border: 1px solid var(--manual-ui-border-soft);
     border-radius: 10px;
-    background: #ede9f9;
+    background: var(--manual-ui-surface-soft);
 }
 
 .manual-mode-strip-label {
     margin: 0;
     font-weight: 700;
-    color: #30265f;
+    color: var(--manual-ui-heading);
 }
 
 .manual-toc-search {
@@ -1191,50 +1230,43 @@ hr { /* From original manual-style.css, if needed */
 .manual-usage-subsection .tips-box {
     margin-bottom: 16px;
     padding: 12px;
-    border: 1px solid rgba(106, 90, 205, 0.16);
+    border: 1px solid var(--manual-usage-border);
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.55);
-}
-
-.manual-search-row {
-    display: flex;
-    gap: 10px;
+    background: var(--manual-ui-surface-tinted);
 }
 
 .manual-search-input {
     width: 100%;
     min-height: 46px;
     padding: 11px 14px;
-    border: 1px solid #cfc8ee;
+    border: 1px solid var(--manual-ui-border-muted);
     border-radius: 12px;
     font-size: 1rem;
 }
 
 .manual-search-input:focus {
-    outline: 2px solid rgba(106, 90, 205, 0.2);
-    border-color: #6a5acd;
+    outline: 2px solid var(--manual-ui-focus-ring);
+    border-color: var(--manual-command-accent);
 }
 
-.manual-search-clear,
 .manual-mode-btn {
     min-height: 44px;
     padding: 0 14px;
-    border: 1px solid #cfc8ee;
+    border: 1px solid var(--manual-ui-border-muted);
     border-radius: 999px;
-    background: #fff;
-    color: #352d66;
+    background: var(--manual-content-block-bg);
+    color: var(--manual-ui-text);
     font-weight: 700;
     cursor: pointer;
 }
 
-.manual-search-clear:hover,
 .manual-mode-btn:hover {
-    background: #f3efff;
+    background: var(--manual-ui-surface-hover);
 }
 
 .manual-search-status {
     margin: 0;
-    color: #5a5672;
+    color: var(--manual-ui-text-muted);
     font-size: 0.96rem;
 }
 
@@ -1246,21 +1278,21 @@ hr { /* From original manual-style.css, if needed */
 }
 
 .manual-mode-btn.is-active {
-    background: #6a5acd;
-    border-color: #6a5acd;
-    color: #fff;
+    background: var(--manual-command-accent);
+    border-color: var(--manual-command-accent);
+    color: var(--manual-content-block-bg);
 }
 
-.manual-example-subsection > .message-list-manual h3,
-.manual-example-subsection > .example-result-manual h3 {
+.manual-example-subsection > .manual-start-example h3,
+.manual-example-subsection > .manual-example-result h3 {
     margin-top: 0;
     margin-bottom: 10px;
-    color: #2f255c;
+    color: var(--manual-ui-heading-strong);
 }
 
-.manual-example-subsection > .message-list-manual,
-.manual-example-subsection > .example-result-manual {
-    box-shadow: 0 8px 24px rgba(47, 37, 92, 0.06);
+.manual-example-subsection > .manual-start-example,
+.manual-example-subsection > .manual-example-result {
+    box-shadow: var(--manual-ui-shadow-soft);
 }
 
 .manual-example-subsection .example-code-manual {
@@ -1280,7 +1312,6 @@ body.mode-beginner .advanced-only {
 .a11y-high-contrast .manual-toc-search .manual-search-input,
 .a11y-high-contrast .manual-usage-subsection .tips-box,
 .a11y-high-contrast .manual-search-input,
-.a11y-high-contrast .manual-search-clear,
 .a11y-high-contrast .manual-mode-btn {
     background: var(--manual-high-contrast-bg) !important;
     color: var(--manual-high-contrast-text) !important;

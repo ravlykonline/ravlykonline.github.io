@@ -150,7 +150,6 @@ export function createManualPageController({ documentRef, windowRef }) {
     const toc = documentRef.getElementById('manual-toc');
     const backdrop = documentRef.getElementById('manual-mobile-backdrop');
     const searchInput = documentRef.getElementById('manual-search-input');
-    const searchClearBtn = documentRef.getElementById('manual-search-clear');
     const searchStatus = documentRef.getElementById('manual-search-status');
     const modeButtons = Array.from(documentRef.querySelectorAll('[data-manual-mode]'));
     const editorLink = documentRef.getElementById('manual-back-to-editor')
@@ -269,10 +268,6 @@ export function createManualPageController({ documentRef, windowRef }) {
 
     function syncDiscoveryState(options = {}) {
         updateModeButtons();
-        if (searchClearBtn) {
-            searchClearBtn.classList.toggle('hidden', !searchQuery);
-        }
-
         const availableIndexes = getAvailableIndexes();
         const nextIndex = options.preserveActive !== false && availableIndexes.includes(activeIndex)
             ? activeIndex
@@ -441,15 +436,6 @@ export function createManualPageController({ documentRef, windowRef }) {
             searchInput.addEventListener('input', () => {
                 searchQuery = normalizeManualSearchQuery(searchInput.value);
                 syncDiscoveryState({ preserveActive: false, keepScroll: true, replaceHistory: true });
-            });
-        }
-
-        if (searchClearBtn) {
-            searchClearBtn.addEventListener('click', () => {
-                searchQuery = '';
-                if (searchInput) searchInput.value = '';
-                syncDiscoveryState({ preserveActive: false, keepScroll: true, replaceHistory: true });
-                searchInput?.focus();
             });
         }
 
