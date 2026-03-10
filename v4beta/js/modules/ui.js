@@ -47,6 +47,7 @@ export function updateRavlykVisualsOnScreen(ravlykState, canvasElement) {
 
     const ravlykSize = 30;
     const angleRad = (ravlykState.angle - 90) * Math.PI / 180;
+    const headingRad = ravlykState.angle * Math.PI / 180;
     const offsetX = 0;
     const offsetY = -ravlykSize * 0.5;
     const dx = offsetX * Math.cos(angleRad) - offsetY * Math.sin(angleRad);
@@ -55,9 +56,10 @@ export function updateRavlykVisualsOnScreen(ravlykState, canvasElement) {
     const containerRect = ravlykSpriteElement.parentElement.getBoundingClientRect();
     const offsetDomX = canvasRect.left - containerRect.left;
     const offsetDomY = canvasRect.top - containerRect.top;
+    const penVisualLead = Math.max(0, ((Number(ravlykState.penSize) || 1) - 1) / 2);
 
-    const newLeft = ravlykState.x + dx - ravlykSize / 2 + offsetDomX;
-    const newTop = ravlykState.y + dy - ravlykSize / 2 + offsetDomY;
+    const newLeft = ravlykState.x + dx - ravlykSize / 2 + offsetDomX + (Math.cos(headingRad) * penVisualLead);
+    const newTop = ravlykState.y + dy - ravlykSize / 2 + offsetDomY + (Math.sin(headingRad) * penVisualLead);
 
     ravlykSpriteElement.style.left = `${newLeft}px`;
     ravlykSpriteElement.style.top = `${newTop}px`;

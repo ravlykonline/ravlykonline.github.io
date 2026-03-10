@@ -7,6 +7,8 @@ import {
     hideHelpModal,
     showDownloadModal,
     hideDownloadModal,
+    createRavlykSprite,
+    updateRavlykVisualsOnScreen,
 } from '../js/modules/ui.js';
 import { createEditorUiController } from '../js/modules/editorUi.js';
 import { createGridOverlayController } from '../js/modules/gridOverlay.js';
@@ -104,6 +106,75 @@ runTest('resizeCanvas keeps linked canvas layers in sync with the drawing canvas
     assert.equal(canvas.height, 580);
     assert.equal(linkedCanvas.width, 860);
     assert.equal(linkedCanvas.height, 580);
+});
+
+runTest('ravlyk sprite keeps pen-thickness visual lead aligned with heading', () => {
+    const previousDocument = global.document;
+
+    const container = {
+        children: [],
+        appendChild(node) {
+            this.children.push(node);
+            node.parentElement = this;
+        },
+        getBoundingClientRect() {
+            return { left: 0, top: 0 };
+        },
+    };
+
+    global.document = {
+        body: container,
+        querySelector(selector) {
+            return selector === '.canvas-box' ? container : null;
+        },
+        createElement() {
+            return {
+                style: {},
+                className: '',
+                classList: {
+                    toggle() {},
+                },
+                setAttribute() {},
+                remove() {},
+                parentElement: null,
+            };
+        },
+    };
+
+    createRavlykSprite(container);
+
+    const canvas = {
+        getBoundingClientRect() {
+            return { left: 0, top: 0 };
+        },
+    };
+
+    updateRavlykVisualsOnScreen({
+        x: 100,
+        y: 100,
+        angle: -90,
+        scale: 1,
+        isPenDown: true,
+        penSize: 1,
+    }, canvas);
+
+    const sprite = container.children[0];
+    assert.equal(sprite.style.left, '85px');
+    assert.equal(sprite.style.top, '100px');
+
+    updateRavlykVisualsOnScreen({
+        x: 100,
+        y: 100,
+        angle: -90,
+        scale: 1,
+        isPenDown: true,
+        penSize: 11,
+    }, canvas);
+
+    assert.equal(sprite.style.left, '85px');
+    assert.equal(sprite.style.top, '95px');
+
+    global.document = previousDocument;
 });
 
 runTest('isModalOpen returns false when modal is missing', () => {
