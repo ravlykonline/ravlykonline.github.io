@@ -160,7 +160,7 @@
                 <article id="basic-commands" class="guide-section" data-keywords="команди вперед назад праворуч ліворуч рух кроки перейти в очистити підняти опустити" aria-labelledby="manual-section-basic-commands">
                     <h2 id="manual-section-basic-commands">Основні команди</h2>
                     <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-basic-start-title">
-                    <div class="example-result-manual" role="region" aria-labelledby="manual-basic-start-title">
+                    <div class="success-list-manual message-list-manual" role="region" aria-labelledby="manual-basic-start-title">
                         <h3 id="manual-basic-start-title">Спочатку спробуй ось це</h3>
                         <pre class="example-code-manual">вперед 100
 праворуч 90
@@ -189,7 +189,7 @@
                                 class="cmd-desc">Змінює фон полотна для малювання, не стираючи вже намальовані лінії (наприклад,
                                 <code>фон блакитний</code>, <code>фон випадково</code>).</span></li>
                         <li class="command-item-manual"><span class="cmd-name">товщина N</span> <span
-                                class="cmd-desc">Змінює товщину лінії. Поки що працюють лише цілі значення від <code>1</code> до <code>50</code> (наприклад,
+                                class="cmd-desc">Змінює товщину лінії. Працюють лише цілі значення від <code>1</code> до <code>50</code> (наприклад,
                                 <code>товщина 5</code>).</span></li>
                         <li class="command-item-manual"><span class="cmd-name">перейти в X Y</span> <span
                                 class="cmd-desc">Переміщує Равлика у точку (X, Y) від центру полотна. Працюють формати:
@@ -202,7 +202,7 @@
                                 class="cmd-desc">Очищає малюнок, повертає білий фон полотна (код у редакторі не
                                 видаляється).</span></li>
                         <li class="command-item-manual"><span class="cmd-name"># коментар</span> <span
-                                class="cmd-desc">Рядок-коментар для пояснень у коді. Після символу <code>#</code> Равлик
+                                class="cmd-desc">пояснення в коді, яке Равлик не виконує. Після символу <code>#</code> Равлик
                                 текст не виконує.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">якщо умова ( ... )</span> <span
                                 class="cmd-desc">Виконує команди в дужках, якщо умова істинна.</span></li>
@@ -217,13 +217,6 @@
                         </li>
                     </ul>
                     <h3>Як користуватися командами</h3>
-                    <p><strong>Важливо про напрямок:</strong> Равлик на старті дивиться вгору (кут -90°). Тому команда
-                        <code>праворуч 90</code> повертає його праворуч <em>від поточного напряму</em>, а не відносно
-                        краю екрана.
-                    </p>
-                    <p><strong>Міні-діаграма:</strong> старт ↑, після <code>праворуч 90</code> →, після ще
-                        <code>праворуч 90</code> ↓.
-                    </p>
                     <p>Напиши команду в редакторі, натисни кнопку "🚀 Запустити", і Равлик виконає твої інструкції!
                         Можеш написати кілька команд одна під одною, і Равлик виконає їх по черзі. Будь уважним! Команди
                         потрібно писати правильно, інакше Равлик їх не зрозуміє.</p>
@@ -284,7 +277,7 @@
                     <p>Команда <code>повторити</code> має таку структуру: <code>повторити N ( команди )</code>, де N -
                         кількість повторень.</p>
                     <p>Зверни увагу на дужки <code>(</code> та <code>)</code>! Важливо ставити їх правильно —
-                        відкриваючу дужку після числа і закриваючу в кінці команд, які треба повторити. Між числом та
+                        відкривну дужку після числа і закриваючу в кінці команд, які треба повторити. Між числом та
                         відкриваючою дужкою має бути пробіл. Команди всередині дужок пишуться з нового рядка або через
                         пробіл.</p>
                     <section class="manual-subsection manual-callout-subsection" aria-labelledby="manual-repetition-examples-title">
@@ -517,7 +510,7 @@
                 <article id="colors" class="guide-section" data-keywords="кольори колір фон веселка випадково палітра" aria-labelledby="manual-section-colors">
                     <h2 id="manual-section-colors">Використання кольорів</h2>
                     <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-colors-start-title">
-                    <div class="example-result-manual" role="region" aria-labelledby="manual-colors-start-title">
+                    <div class="success-list-manual message-list-manual" role="region" aria-labelledby="manual-colors-start-title">
                         <h3 id="manual-colors-start-title">Спробуй спершу короткий кольоровий приклад</h3>
                         <pre class="example-code-manual">колір червоний
 вперед 80
@@ -868,7 +861,7 @@
                             Кількість повторень записана не цілим числом.<br><strong>Як виправити:</strong> Використовуй
                             ціле число, наприклад <code>повторити 12 ( ... )</code>.</p> <!-- INVALID_REPEAT_COUNT -->
                         <p><code>Після числа в команді "повторити" потрібна дужка "(".</code><br><strong>Значення:</strong>
-                            Пропущено відкриваючу дужку блоку циклу.<br><strong>Як виправити:</strong> Після числа
+                            Пропущено відкривну дужку блоку циклу.<br><strong>Як виправити:</strong> Після числа
                             постав <code>(</code>: <code>повторити 5 ( ... )</code>.</p>
                         <!-- REPEAT_EXPECT_OPEN_PAREN -->
                         <p><code>У команді "повторити" бракує закриваючої дужки ")".</code><br><strong>Значення:</strong>
@@ -1109,9 +1102,9 @@
                             <pre class="example-code-manual">колір коричневий # Стіни
 повторити 4 ( вперед 100 праворуч 90 )
 # Перемістити Равлика на початок даху
-вперед 100 
-праворуч 30 
-колір червоний # Дах
+вперед 100
+праворуч 30
+колір червоний
 повторити 3 ( вперед 100 праворуч 120 )</pre>
                         </details>
                     </div>
@@ -1238,7 +1231,7 @@
                             <li>Писати команди текстом.</li>
                             <li>Розуміти послідовність виконання дій (алгоритми).</li>
                             <li>Використовувати повторення (цикли).</li>
-                            <li>Знаходити і виправляти помилки (дебагінг).</li>
+                            <li>Знаходити і виправляти помилки (відлагодження).</li>
                             <li>Планувати свої дії для досягнення результату.</li>
                         </ul>
                         <p>Цього вже достатньо, щоб робити власні маленькі програми і поступово переходити до складніших тем.</p>
@@ -1259,8 +1252,6 @@
                     <div class="tips-box" role="region" aria-label="Куди рухатись після Равлика">
                         <h4>Куди рухатись після Равлика</h4>
                         <ul>
-                            <li><strong>Scratch:</strong> Популярна візуальна мова програмування для дітей, де ти зможеш
-                                створювати власні ігри, анімації та інтерактивні історії.</li>
                             <li><strong>Blockly Games:</strong> Серія ігор, що навчають програмуванню через візуальні
                                 блоки, поступово ускладнюючись.</li>
                             <li><strong>Code.org:</strong> Платформа з безліччю курсів для різного віку, що починаються

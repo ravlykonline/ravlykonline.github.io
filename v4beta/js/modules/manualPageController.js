@@ -402,7 +402,7 @@ export function createManualPageController({ documentRef, windowRef }) {
             openLink.className = 'manual-code-action manual-code-editor';
             openLink.target = '_blank';
             openLink.rel = 'noopener noreferrer';
-            openLink.textContent = 'Перейти в редактор';
+            openLink.textContent = 'Відкрити в редакторі';
 
             const status = documentRef.createElement('span');
             status.className = 'visually-hidden';

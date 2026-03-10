@@ -689,11 +689,16 @@ body.manual-paged-ready .guide-section.is-active {
 .manual-code-block {
     position: relative;
     margin: 20px 0;
+    width: min(100%, 560px);
+    max-width: 100%;
+    margin-inline: auto;
 }
 
 .manual-code-block .example-code-manual {
     margin: 0;
     padding-top: 54px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .manual-code-toolbar {
@@ -752,6 +757,15 @@ body.manual-paged-ready .guide-section.is-active {
 .manual-code-editor {
     padding: 0 12px;
     font-size: 0.92rem;
+    white-space: nowrap;
+}
+
+.manual-example-subsection .manual-code-block {
+    width: min(100%, 640px);
+}
+
+.manual-example-subsection .manual-code-block .example-code-manual {
+    min-height: 150px;
 }
 
 @media (max-width: 767px) {
@@ -759,6 +773,15 @@ body.manual-paged-ready .guide-section.is-active {
         left: 10px;
         right: 10px;
         justify-content: space-between;
+    }
+
+    .manual-code-block,
+    .manual-example-subsection .manual-code-block {
+        width: 100%;
+    }
+
+    .manual-example-subsection .manual-code-block .example-code-manual {
+        min-height: 0;
     }
 
     .manual-code-editor {
