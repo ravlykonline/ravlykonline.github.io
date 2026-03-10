@@ -60,26 +60,11 @@
             <a href="lessons.html" id="manual-to-lessons" class="btn btn-primary"><i class="fas fa-graduation-cap"
                     aria-hidden="true"></i>Перейти до уроків</a>
         </nav>
-        <section class="manual-discovery-panel" aria-labelledby="manual-discovery-title">
-            <div class="manual-discovery-copy">
-                <p class="manual-discovery-eyebrow">Manual v2</p>
-                <h2 id="manual-discovery-title">Знайди тему або обери режим читання</h2>
-                <p class="manual-discovery-text">Початківець бачить лише базові розділи. Повний режим показує всі теми.</p>
-            </div>
-            <div class="manual-discovery-controls">
-                <label class="manual-search-label" for="manual-search-input">Пошук по мануалу</label>
-                <div class="manual-search-row">
-                    <input type="search" id="manual-search-input" class="manual-search-input"
-                        placeholder="Наприклад: вперед, якщо, колір, помилка"
-                        aria-describedby="manual-search-status" />
-                    <button type="button" id="manual-search-clear" class="manual-search-clear hidden">Очистити</button>
-                </div>
-                <p id="manual-search-status" class="manual-search-status" aria-live="polite">Поки що показано весь мануал.</p>
-                <div class="manual-reading-mode" role="group" aria-label="Режим читання">
-                    <span class="manual-reading-mode-label">Режим:</span>
-                    <button type="button" class="manual-mode-btn is-active" data-manual-mode="beginner">Початківець</button>
-                    <button type="button" class="manual-mode-btn" data-manual-mode="full">Повний</button>
-                </div>
+        <section class="manual-mode-strip" aria-label="Режим читання">
+            <p class="manual-mode-strip-label">Показувати теми:</p>
+            <div class="manual-reading-mode" role="group" aria-label="Режим читання">
+                <button type="button" class="manual-mode-btn is-active" data-manual-mode="beginner">Для початківців</button>
+                <button type="button" class="manual-mode-btn" data-manual-mode="full">Для досвідчених</button>
             </div>
         </section>
         <button type="button" id="manual-mobile-menu-btn" class="manual-mobile-menu-btn" aria-expanded="false"
@@ -95,6 +80,17 @@
                     <i class="fas fa-times" aria-hidden="true"></i>
                 </button>
                 <h3 class="toc-title">Зміст</h3>
+                <div class="manual-toc-search" role="search" aria-label="Пошук по мануалу">
+                    <label class="manual-search-label" for="manual-search-input">Пошук по мануалу</label>
+                    <p class="manual-search-help">Шукає за назвами тем, командами і ключовими словами. Наприклад: вперед, якщо, колір, помилка.</p>
+                    <div class="manual-search-row">
+                        <input type="search" id="manual-search-input" class="manual-search-input"
+                            placeholder="Наприклад: вперед, якщо, колір, помилка"
+                            aria-describedby="manual-search-status" />
+                        <button type="button" id="manual-search-clear" class="manual-search-clear hidden">Очистити</button>
+                    </div>
+                    <p id="manual-search-status" class="manual-search-status" aria-live="polite">Поки що показано весь мануал.</p>
+                </div>
                 <ul class="toc-list">
                     <li><a href="#intro">Що таке РАВЛИК?</a></li>
                     <li><a href="#basic-commands">Основні команди</a></li>
@@ -117,7 +113,7 @@
             <div class="guide-sections-wrapper">
                 <div class="manual-section-toolbar" aria-live="polite">
                     <button type="button" class="manual-page-btn" id="manual-prev-section">← Попередній розділ</button>
-                    <p class="manual-section-indicator" id="manual-section-indicator">Розділ 1 з 1</p>
+                    <p class="manual-section-indicator" id="manual-section-indicator">Завантаження розділів...</p>
                     <button type="button" class="manual-page-btn" id="manual-next-section">Наступний розділ →</button>
                 </div>
                 <article id="intro" class="guide-section" data-keywords="равлик вступ що таке початок перша мова програмування малювання кодом" aria-labelledby="manual-section-intro">
@@ -1291,7 +1287,7 @@
                 <div class="manual-section-toolbar manual-section-toolbar-bottom">
                     <button type="button" class="manual-page-btn" id="manual-prev-section-bottom">← Попередній
                         розділ</button>
-                    <p class="manual-section-indicator" id="manual-section-indicator-bottom">Розділ 1 з 1</p>
+                    <p class="manual-section-indicator" id="manual-section-indicator-bottom">Завантаження розділів...</p>
                     <button type="button" class="manual-page-btn" id="manual-next-section-bottom">Наступний розділ
                         →</button>
                 </div>

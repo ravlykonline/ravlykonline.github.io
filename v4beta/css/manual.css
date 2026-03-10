@@ -992,52 +992,46 @@ hr { /* From original manual-style.css, if needed */
     margin: 20px 0;
 }
 
-.manual-discovery-panel {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
-    gap: 20px;
-    align-items: start;
-    max-width: 1200px;
-    margin: 0 auto 24px;
-    padding: 20px 24px;
-    border: 1px solid #d9d4f3;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #f7f3ff 0%, #fffaf2 100%);
-    box-shadow: 0 10px 30px rgba(106, 90, 205, 0.08);
-}
-
-.manual-discovery-eyebrow {
-    margin: 0 0 8px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #6a5acd;
-}
-
-.manual-discovery-copy h2 {
-    margin: 0 0 10px;
-    color: #2f255c;
-}
-
-.manual-discovery-text {
-    margin: 0;
-    color: #4b4b63;
-}
-
-.manual-discovery-controls {
-    display: grid;
+.manual-mode-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
     gap: 12px;
-    padding: 16px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.82);
-    border: 1px solid rgba(106, 90, 205, 0.14);
+    max-width: 1200px;
+    margin: 0 auto 18px;
+    padding: 12px 16px;
+    border: 1px solid #d5cdef;
+    border-radius: 10px;
+    background: #ede9f9;
+}
+
+.manual-mode-strip-label {
+    margin: 0;
+    font-weight: 700;
+    color: #30265f;
+}
+
+.manual-toc-search {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 12px;
+    border: 1px solid rgba(106, 90, 205, 0.16);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.55);
 }
 
 .manual-search-label,
 .manual-reading-mode-label {
     font-weight: 700;
     color: #30265f;
+}
+
+.manual-search-help {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #5a5672;
 }
 
 .manual-search-row {
@@ -1120,8 +1114,8 @@ body.mode-beginner .advanced-only {
     display: none;
 }
 
-.a11y-high-contrast .manual-discovery-panel,
-.a11y-high-contrast .manual-discovery-controls,
+.a11y-high-contrast .manual-mode-strip,
+.a11y-high-contrast .manual-toc-search,
 .a11y-high-contrast .manual-search-input,
 .a11y-high-contrast .manual-search-clear,
 .a11y-high-contrast .manual-mode-btn {
@@ -1131,14 +1125,18 @@ body.mode-beginner .advanced-only {
 }
 
 @media (max-width: 1279px) {
-    .manual-discovery-panel {
-        grid-template-columns: 1fr;
+    .manual-mode-strip {
         padding: 18px;
         margin-inline: 15px;
+        justify-content: stretch;
     }
 
     .manual-search-row {
         flex-direction: column;
+    }
+
+    .manual-reading-mode {
+        width: 100%;
     }
 
     .manual-search-clear,

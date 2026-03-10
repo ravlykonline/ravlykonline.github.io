@@ -93,11 +93,13 @@ runTest('manual documents all public runtime error messages except developer-onl
     assert.deepEqual(missingKeys, []);
 });
 
-runTest('manual_v2 keeps discovery controls and searchable section metadata', () => {
+runTest('manual_v2 keeps reading mode controls, toc search, and searchable section metadata', () => {
     const manualV2Html = fs.readFileSync('manual_v2.html', 'utf8');
 
-    assert.match(manualV2Html, /id="manual-discovery-title"/);
+    assert.match(manualV2Html, /class="manual-mode-strip"/);
     assert.match(manualV2Html, /id="manual-search-input"/);
+    assert.match(manualV2Html, /class="manual-toc-search"/);
+    assert.match(manualV2Html, /Шукає за назвами тем, командами і ключовими словами/);
     assert.match(manualV2Html, /data-manual-mode="beginner"/);
     assert.match(manualV2Html, /data-manual-mode="full"/);
 
@@ -113,6 +115,14 @@ runTest('manual_v2 keeps advanced-only sections for full mode', () => {
     assert.match(manualV2Html, /<article id="game-mode" class="guide-section advanced-only"/);
     assert.match(manualV2Html, /<article id="challenges" class="guide-section advanced-only"/);
     assert.match(manualV2Html, /<article id="projects" class="guide-section advanced-only"/);
+});
+
+runTest('manual_v2 uses a neutral loading placeholder for pagination indicators', () => {
+    const manualV2Html = fs.readFileSync('manual_v2.html', 'utf8');
+
+    assert.match(manualV2Html, /id="manual-section-indicator">Завантаження розділів\.\.\.</);
+    assert.match(manualV2Html, /id="manual-section-indicator-bottom">Завантаження розділів\.\.\.</);
+    assert.doesNotMatch(manualV2Html, /id="manual-section-indicator">Розділ 1 з 1</);
 });
 
 runTest('manual controller updates paging state and indicators', () => {
