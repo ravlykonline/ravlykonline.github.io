@@ -113,6 +113,24 @@ From `css/manual.css`:
 - code block bg: `#f8f9fa`
 - example result bg: `#fff9e6`
 
+Meaning:
+- `success / info / error state` colors are for system feedback, result summaries, notices, and status-style UI
+- warm `info state` (`#fff3e0`, `#e65100`) is not the same thing as the blue pedagogical callout used in lessons
+
+Pedagogical callouts used in `lessons.css` and `resources.css`:
+- `why-important` / `tips` bg: `#e6f7ff`
+- `why-important` / `tips` accent: `#1890ff`
+- `why-important` / `tips` heading: `#0050b3`
+- `tip` bg: `#d9edf0`
+- `tip` accent: `#57c2bd`
+- `task` bg: `#fffbe6`
+- `task` border: `2px dashed #ffa500`
+
+Rule:
+- use warm `info state` for system-style informational feedback
+- use blue `why-important` / `tips` callouts for pedagogical explanation or learner guidance
+- do not label both patterns simply as `info` in code comments or documentation
+
 Use these when creating instructional callouts, examples, warnings, or “what to notice” blocks.
 
 ### 4.3 Accessibility colors

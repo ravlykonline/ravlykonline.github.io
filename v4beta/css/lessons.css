@@ -105,8 +105,8 @@
 }
 
 .lesson-content .why-important {
-    background-color: #e6f7ff; /* Light blue */
-    border-left: 5px solid #1890ff; /* Blue */
+    background-color: var(--color-callout-tips-bg);
+    border-left: 5px solid var(--color-callout-tips-accent);
     padding: 18px; /* Increased padding */
     margin: 25px 0;
     border-radius: 8px;
@@ -219,8 +219,8 @@
 }
 
 .task {
-    background-color: #fffbe6; /* Light yellow */
-    border: 2px dashed #ffa500; /* Orange */
+    background-color: var(--color-callout-task-bg);
+    border: 2px dashed var(--color-callout-task-accent);
     padding: 18px;
     margin-top: 25px;
     border-radius: 8px;
@@ -257,8 +257,8 @@
 }
 
 .tip {
-    background-color: #d9edf0;
-    border-left: 6px solid #57c2bd;
+    background-color: var(--color-callout-tip-bg);
+    border-left: 6px solid var(--color-callout-tip-accent);
     padding: 16px 22px;
     margin-top: 20px;
     border-radius: 8px;
@@ -347,20 +347,7 @@
 }
 
 .bottom-nav-buttons { /* For buttons like "To Editor", "To Manual" at the very bottom */
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
     margin: 30px auto 10px auto;
-}
-
-.bottom-nav-buttons .btn {
-    width: auto;
-    min-height: 48px;
-    padding: 12px 22px;
-    font-size: 0.98rem;
-    white-space: nowrap;
 }
 
 
@@ -373,7 +360,7 @@
         flex-direction: column;
     }
     .bottom-nav-buttons {
-        flex-wrap: wrap;
+        margin-top: 24px;
     }
 }
 

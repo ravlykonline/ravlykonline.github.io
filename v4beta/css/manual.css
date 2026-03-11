@@ -272,11 +272,6 @@
     border-bottom: none;
 }
 
-.site-links-uniform .btn {
-    min-width: 300px;
-    min-height: 56px;
-}
-
 .manual-mobile-menu-btn,
 .manual-mobile-close-btn,
 .manual-mobile-backdrop {
@@ -364,10 +359,6 @@
 }
 
 @media (max-width: 1279px) {
-    .site-links-uniform .btn {
-        width: min(100%, 360px);
-    }
-
     .manual-mobile-menu-btn,
     .manual-mobile-close-btn {
         display: inline-flex;

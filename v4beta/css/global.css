@@ -6,6 +6,17 @@
     --focus-ring-inner: #ffffff;
     --focus-ring-outer-hc: #7dd3ff;
     --focus-ring-inner-hc: #000000;
+    --color-border-soft-purple: #d5cdef;
+    --color-border-soft-blue: #d7e2f1;
+    --color-surface-card: #fafcff;
+    --color-surface-summary: #eef4ff;
+    --color-callout-tips-bg: #e6f7ff;
+    --color-callout-tips-accent: #1890ff;
+    --color-callout-tips-heading: #0050b3;
+    --color-callout-tip-bg: #d9edf0;
+    --color-callout-tip-accent: #57c2bd;
+    --color-callout-task-bg: #fffbe6;
+    --color-callout-task-accent: #ffa500;
 }
 
 html.a11y-high-contrast {
@@ -189,6 +200,20 @@ a.btn:focus-visible {
     background-color: #275fa4;
 }
 
+.site-links-uniform {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+.site-links-uniform .btn {
+    min-height: 52px;
+    padding: 12px 22px;
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
 /* --- Tables --- */
 .manual-table-wrap {
     margin: 20px 0;
@@ -215,7 +240,7 @@ a.btn:focus-visible {
     color: #1f2937;
     font-size: clamp(1rem, 2.5vw, 1.08rem);
     font-weight: 800;
-    background: #eef4ff;
+    background: var(--color-surface-summary);
     border-bottom: 2px solid #cbd5e1;
 }
 
@@ -642,5 +667,9 @@ body #global-message-display.message-a11y-global .message-close-btn-global:hover
 
     .manual-table {
         width: max(100%, 520px);
+    }
+
+    .site-links-uniform .btn {
+        width: min(100%, 320px);
     }
 }

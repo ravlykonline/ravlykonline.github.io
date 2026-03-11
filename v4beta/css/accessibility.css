@@ -17,7 +17,7 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background-color: #4a6fa5;
+    background-color: #2f6fbf;
     color: white;
     font-size: 24px;
     border: none;
@@ -27,7 +27,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s, transform 0.2s;
+    transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 /* Захист іконки доступності від зникнення */
@@ -49,8 +49,9 @@ html.a11y-reduce-animations .accessibility-toggle i {
 }
 
 .accessibility-toggle:hover {
-    background-color: #3a5f95;
-    transform: scale(1.05);
+    background-color: #275fa4;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
 }
 
 .accessibility-toggle:focus {
@@ -105,7 +106,7 @@ html.a11y-reduce-animations .accessibility-toggle i {
     gap: 12px;
     min-height: 60px;
     padding: 15px 20px;
-    background-color: #4a6fa5;
+    background-color: #2f6fbf;
     color: white;
     border-radius: 12px 12px 0 0;
 }

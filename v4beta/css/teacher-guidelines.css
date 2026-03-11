@@ -5,7 +5,7 @@
 
 .teacher-card {
     background: #ffffff;
-    border: 1px solid #d7e2f1;
+    border: 1px solid var(--color-border-soft-blue);
     border-radius: 12px;
     padding: 14px;
 }
@@ -31,10 +31,7 @@
 }
 
 .teacher-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 20px;
 }
 
 .teacher-table {
@@ -47,14 +44,14 @@
 
 .teacher-table th,
 .teacher-table td {
-    border: 1px solid #d7e2f1;
+    border: 1px solid var(--color-border-soft-blue);
     padding: 8px;
     text-align: left;
     vertical-align: top;
 }
 
 .teacher-table th {
-    background: #eef4ff;
+    background: var(--color-surface-summary);
 }
 
 .track-grid {
@@ -64,10 +61,10 @@
 }
 
 .track-card {
-    border: 1px solid #d7e2f1;
+    border: 1px solid var(--color-border-soft-blue);
     border-radius: 10px;
     padding: 10px;
-    background: #fafcff;
+    background: var(--color-surface-card);
 }
 
 .print-block {
