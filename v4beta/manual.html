@@ -11,7 +11,7 @@
     <link rel="canonical" href="https://ravlyk.org/manual.html" />
     <meta name="author" content="Равлик" />
     <meta name="robots" content="index, follow" />
-    <title>Посібник з мови програмування РАВЛИК — Як програмувати та малювати кодом</title>
+    <title>Посібник з мови програмування РАВЛИК 🐌 — Як програмувати та малювати кодом</title>
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
@@ -72,12 +72,12 @@
                     <i class="fas fa-times" aria-hidden="true"></i>
                 </button>
                 <h3 class="toc-title">Зміст</h3>
-                <div class="manual-toc-search" role="search" aria-label="Пошук по мануалу">
+                <div class="manual-toc-search" role="search" aria-label="Пошук в Посібнику">
                     <input type="search" id="manual-search-input" class="manual-search-input"
                         placeholder="вперед, якщо, колір"
-                        aria-label="Пошук по мануалу"
+                        aria-label="Пошук в Посібнику"
                         aria-describedby="manual-search-status" />
-                    <p id="manual-search-status" class="manual-search-status visually-hidden" aria-live="polite">Поки що показано весь мануал.</p>
+                    <p id="manual-search-status" class="manual-search-status visually-hidden" aria-live="polite">Поки що показано весь Посібник.</p>
                 </div>
                 <ul class="toc-list">
                     <li><a href="#intro">Що це таке?</a></li>
@@ -367,7 +367,11 @@
                     <section class="manual-subsection" aria-labelledby="manual-variables-subsection-combined">
                         <h3 id="manual-variables-subsection-combined">3) Разом</h3>
                         <pre class="example-code-manual">створити сторона = 100
-створити квадрат(розмір) ( повторити 4 ( вперед розмір праворуч 90 ) )
+створити квадрат(розмір) ( 
+    повторити 4 ( 
+        вперед розмір 
+        праворуч 90 ) 
+        )
 квадрат(сторона)</pre>
                         <p>Тут змінна <code>сторона</code> передається у функцію як аргумент.</p>
                     </section>
@@ -375,8 +379,21 @@
                         <details>
                             <summary id="manual-variables-more-title">Дізнатись більше: scope і корисні шаблони</summary>
                             <div class="tips-box" role="region" aria-labelledby="manual-variables-scope-title">
-                                <h4 id="manual-variables-scope-title">Важливе правило області видимості (scope)</h4>
-                                <p>Якщо ім'я параметра функції збігається з глобальною змінною, <strong>всередині функції пріоритет має параметр</strong>.</p>
+                                <h4 id="manual-variables-scope-title">Де "живе" змінна?</h4>
+                                <p>У тебе вдома є кіт на ім'я Рудик. У сусідів теж є кіт — і теж Рудик. Коли ти кажеш "Рудик, йди їсти" — твій кіт іде, а сусідський навіть не обертається. Кожен Рудик існує у своєму домі.</p>
+                                <p>Так само і в РАВЛИКУ: параметр функції — це "домашній Рудик". Він існує лише всередині своєї функції і не плутається із зовнішньою змінною з таким самим іменем.</p>
+                                <pre class="code-example">створити розмір = 100            # зовнішній "Рудик"
+                            
+створити коло(розмір) (          # внутрішній "Рудик"
+    повторити 36 ( 
+        вперед розмір 
+        праворуч 10 
+        )
+    )
+                         
+коло(5)       # внутрішній розмір = 5
+вперед розмір # зовнішній розмір = 100, не змінився</pre>
+                                <p><strong>Порада:</strong> щоб уникнути плутанини — давай параметрам інші імена, ніж глобальним змінним. Наприклад: <code>коло(р)</code> або <code>коло(крок)</code>.</p>
                             </div>
                             <div class="interactive-example-manual" role="region" aria-labelledby="manual-variables-patterns-title">
                                 <h4 id="manual-variables-patterns-title">Корисні шаблони</h4>
@@ -417,19 +434,154 @@
 
                     <section class="manual-subsection" aria-labelledby="manual-conditions-subsection-comparisons">
                         <h3 id="manual-conditions-subsection-comparisons">Порівняння чисел</h3>
-                        <p>Можна порівнювати вирази: <code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>,
-                            <code>&lt;=</code>, <code>&gt;=</code>, <code>%</code>.
-                        </p>
-                        <pre class="example-code-manual">створити n = 0
+                        <p>Умова — це питання, на яке РАВЛИК відповідає "так" або "ні". Найчастіше умови порівнюють числа за допомогою операторів.</p>
+                    
+                        <table class="manual-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Оператор</th>
+                                    <th scope="col">Значення</th>
+                                    <th scope="col">Приклад</th>
+                                    <th scope="col">Результат</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>=</code></td>
+                                    <td>дорівнює</td>
+                                    <td><code>якщо n = 5</code></td>
+                                    <td>так, якщо n рівно 5</td>
+                                </tr>
+                                <tr>
+                                    <td><code>!=</code></td>
+                                    <td>не дорівнює</td>
+                                    <td><code>якщо n != 0</code></td>
+                                    <td>так, якщо n — будь-яке число крім нуля</td>
+                                </tr>
+                                <tr>
+                                    <td><code>&lt;</code></td>
+                                    <td>менше</td>
+                                    <td><code>якщо n &lt; 10</code></td>
+                                    <td>так, якщо n менше ніж 10</td>
+                                </tr>
+                                <tr>
+                                    <td><code>&gt;</code></td>
+                                    <td>більше</td>
+                                    <td><code>якщо n &gt; 10</code></td>
+                                    <td>так, якщо n більше ніж 10</td>
+                                </tr>
+                                <tr>
+                                    <td><code>&lt;=</code></td>
+                                    <td>менше або дорівнює</td>
+                                    <td><code>якщо n &lt;= 10</code></td>
+                                    <td>так, якщо n — це 10, 9, 8… або менше</td>
+                                </tr>
+                                <tr>
+                                    <td><code>&gt;=</code></td>
+                                    <td>більше або дорівнює</td>
+                                    <td><code>якщо n &gt;= 10</code></td>
+                                    <td>так, якщо n — це 10, 11, 12… або більше</td>
+                                </tr>
+                                <tr>
+                                    <td><code>%</code></td>
+                                    <td>остача від ділення</td>
+                                    <td><code>якщо n % 2 = 0</code></td>
+                                    <td>так, якщо n парне</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    
+                        <section class="manual-subsection" aria-labelledby="manual-conditions-modulo-title">
+                            <h4 id="manual-conditions-modulo-title">Оператор <code>%</code> — остача від ділення</h4>
+                            <p>Цей оператор може здатися незвичним, але він дуже корисний. <code>n % k</code> — це те, що "залишилось" після того, як поділив <code>n</code> на <code>k</code> рівно стільки разів, скільки можна.</p>
+                            <table class="manual-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Вираз</th>
+                                        <th scope="col">Як рахувати</th>
+                                        <th scope="col">Результат</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td><code>7 % 2</code></td><td>7 = 2×3 + <strong>1</strong></td><td>1</td></tr>
+                                    <tr><td><code>8 % 2</code></td><td>8 = 2×4 + <strong>0</strong></td><td>0</td></tr>
+                                    <tr><td><code>10 % 3</code></td><td>10 = 3×3 + <strong>1</strong></td><td>1</td></tr>
+                                    <tr><td><code>9 % 3</code></td><td>9 = 3×3 + <strong>0</strong></td><td>0</td></tr>
+                                    <tr><td><code>5 % 5</code></td><td>5 = 5×1 + <strong>0</strong></td><td>0</td></tr>
+                                </tbody>
+                            </table>
+                            <p><strong>Ключовий факт:</strong> якщо <code>n % k = 0</code> — число <code>n</code> ділиться на <code>k</code> без остачі.</p>
+                            <ul>
+                                <li><code>n % 2 = 0</code> → n парне (2, 4, 6, 8…)</li>
+                                <li><code>n % 3 = 0</code> → n кратне трьом (3, 6, 9, 12…)</li>
+                                <li><code>n % 5 = 0</code> → n кратне п'яти (5, 10, 15, 20…)</li>
+                            </ul>
+                        </section>
+                    
+                        <section class="manual-subsection" aria-labelledby="manual-conditions-examples-title">
+                            <h4 id="manual-conditions-examples-title">Приклади</h4>
+                    
+                            <p><strong>Чергування двох кольорів через кожен крок:</strong></p>
+                            <pre class="example-code-manual">створити n = 0
 повторити 10 (
-  n = n + 1
-  якщо n % 2 = 0 ( колір синій ) інакше ( колір червоний )
-  вперед 20
-  праворуч 36
+n = n + 1
+якщо n % 2 = 0 ( 
+    колір синій 
+    ) 
+інакше ( 
+    колір червоний 
+    )
+вперед 20
+праворуч 36
 )</pre>
+                    
+                            <p><strong>Кожен третій крок — особливий колір:</strong></p>
+                            <pre class="example-code-manual">створити n = 0
+повторити 12 (
+n = n + 1
+якщо n % 3 = 0 ( 
+    колір жовтий 
+    ) 
+інакше ( 
+    колір чорний 
+    )
+вперед 30
+праворуч 30
+)</pre>
+                    
+                            <p><strong>Різний розмір кроку залежно від лічильника:</strong></p>
+                            <pre class="example-code-manual">створити n = 0
+повторити 20 (
+n = n + 1
+якщо n &lt; 10 ( 
+    вперед 20 
+    ) 
+інакше ( 
+    вперед 50 
+    )
+праворуч 18
+)</pre>
+                    
+                            <p><strong>Зупинитись на певному значенні (лічильник у циклі <code>грати</code>):</strong></p>
+                            <pre class="example-code-manual">створити кроки = 0
+грати (
+якщо клавіша "вгору" (
+    вперед 5
+    кроки = кроки + 1
+)
+якщо кроки &gt;= 20 ( 
+    колір червоний 
+    )
+)</pre>
+                        </section>
+                    
                         <div class="tips-box" role="region" aria-labelledby="manual-conditions-tip-title">
-                            <h4 id="manual-conditions-tip-title">Порада:</h4>
-                            <p>Оператор <code>%</code> (остача від ділення) дуже зручний для задач «парне/непарне».</p>
+                            <h4 id="manual-conditions-tip-title">Часті помилки</h4>
+                            <ul>
+                                <li><strong><code>=</code> — це порівняння, а не присвоєння</strong> всередині <code>якщо</code>. <code>якщо n = 5</code> означає "перевір, чи n дорівнює 5" — Равлик нічого не змінює.</li>
+                                <li><strong><code>&lt;=</code> і <code>&gt;=</code> — два символи без пробілу між ними.</strong> <code>&lt; =</code> з пробілом не спрацює.</li>
+                                <li><strong>Перевірка виконується один раз</strong> у момент, коли РАВЛИК доходить до цього рядка. Якщо хочеш перевіряти постійно — помісти умову в <code>повторити</code> або <code>грати</code>.</li>
+                            </ul>
                         </div>
                     </section>
                 </article>
@@ -497,7 +649,7 @@
                         переривчастими лініями. Для цього використовуй команди <code>підняти</code> та
                         <code>опустити</code>.
                     </p>
-                    <p>💡 Команда перейти в — це теж рух. Якщо олівець опущений — Равлик намалює лінію по дорозі. Якщо
+                    <p>💡 Команда <code>перейти в</code> — це теж рух. Якщо олівець опущений — Равлик намалює лінію по дорозі. Якщо
                         хочеш перемістити Равлика без сліду — підніми олівець перед командою.</p>
                     <ul>
                         <li><code>підняти</code> - Равлик піднімає свій олівець і рухається, не малюючи.</li>
@@ -1189,7 +1341,7 @@
                     <h2 id="manual-section-projects">Твої проєкти</h2>
                     <section class="manual-subsection manual-callout-subsection" aria-labelledby="manual-projects-note-title">
                     <div class="tips-box" role="region" aria-labelledby="manual-projects-note-title">
-                        <h3 id="manual-projects-note-title">Цей розділ для вільної практики після мануалу</h3>
+                        <h3 id="manual-projects-note-title">Цей розділ для вільної практики після вивчення Посідника</h3>
                         <p>Тут немає нових правил синтаксису. Це місце, де ти комбінуєш уже відомі команди у власні ідеї.</p>
                     </div>
                     </section>
@@ -1228,14 +1380,14 @@
                     <h2 id="manual-section-next-steps">Наступні кроки</h2>
                     <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-next-start-title">
                     <div class="manual-start-example" role="region" aria-labelledby="manual-next-start-title">
-                        <h3 id="manual-next-start-title">Найкраще, що можна зробити після мануалу</h3>
+                        <h3 id="manual-next-start-title">Найкраще, що можна зробити після вивчення Посібника</h3>
                         <p>Не намагайся запам'ятати все. Обери одну маленьку ідею, напиши 5-10 рядків коду, запусти, виправ помилку, запусти ще раз.</p>
-                        <p>Саме так знання з мануалу перетворюються на справжню навичку.</p>
+                        <p>Саме так знання з Посібника перетворюються на справжню навичку.</p>
                     </div>
                     </section>
                     <section class="manual-subsection manual-callout-subsection" aria-label="Підсумок вивченого">
                     <div class="tips-box" role="region" aria-label="Підсумок вивченого">
-                        <h4>Що вже вмієш після цього мануалу</h4>
+                        <h4>Що вже вмієш після вивчення цього Посібника</h4>
                         <p>РАВЛИК допомагає зробити перші кроки в текстовому програмуванні без зайвого стресу. Ти вже
                             потренувався:</p>
                         <ul>
@@ -1248,8 +1400,8 @@
                         <p>Цього вже достатньо, щоб робити власні маленькі програми і поступово переходити до складніших тем.</p>
                     </div>
                     </section>
-                    <section class="manual-subsection manual-callout-subsection" aria-label="Наступні кроки після мануалу">
-                    <div class="tips-box" role="region" aria-label="Наступні кроки після мануалу">
+                    <section class="manual-subsection manual-callout-subsection" aria-label="Наступні кроки після вивчення Посібника">
+                    <div class="tips-box" role="region" aria-label="Наступні кроки після вивчення Посібника">
                         <h4>Що робити далі прямо зараз</h4>
                         <ul>
                             <li>Перероби готовий приклад під себе: інші числа, інші кольори, інший розмір.</li>
