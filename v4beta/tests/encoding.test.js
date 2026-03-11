@@ -148,7 +148,7 @@ runTest('index page keeps a single module bootstrap entry and no duplicate direc
     const indexHtml = fs.readFileSync('index.html', 'utf8');
 
     assert.equal(
-        indexHtml.includes('<script type="module" src="js/main.js"></script>'),
+        /<script type="module" src="js\/main\.js(?:\?v=[^"]+)?"><\/script>/.test(indexHtml),
         true,
         'index.html must bootstrap through js/main.js'
     );

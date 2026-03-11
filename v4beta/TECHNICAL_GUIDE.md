@@ -194,15 +194,21 @@ For content, CSS, or documentation changes, always run:
 For user-facing interaction changes, also run:
 3. `npm run test:e2e`
 
+GitHub Pages note:
+- the project uses versioned local asset URLs such as `?v=2026-03-11-1` for CSS, JS, and `site.webmanifest`
+- when shipping a public update, bump that shared release token across HTML entry pages so cached school/lab browsers fetch fresh assets
+- this is the repository-level cache-busting strategy because GitHub Pages does not provide custom cache-header control
+
 ## 9. Release checklist
 
 Before release or public deploy:
 1. run `npm run test:unit`
 2. run `node --experimental-default-type=module tests/encoding.test.js`
 3. run `npm run test:e2e`
-4. visually verify `index.html`, `manual.html`, `lessons.html`, `resources.html`, `quiz.html`, `teacher_guidelines.html`, `advice_for_parents.html`, and `zen.html`
-5. recheck links, anchors, modals, mobile layout, accessibility settings, and download/share flows
-6. keep `README.md`, this file, and `DESIGN_GUIDE.md` aligned with real repo behavior
+4. bump the shared asset version token in HTML entry pages when the release changes public CSS, JS, or manifest behavior
+5. visually verify `index.html`, `manual.html`, `lessons.html`, `resources.html`, `quiz.html`, `teacher_guidelines.html`, `advice_for_parents.html`, and `zen.html`
+6. recheck links, anchors, modals, mobile layout, accessibility settings, and download/share flows
+7. keep `README.md`, this file, and `DESIGN_GUIDE.md` aligned with real repo behavior
 
 ## 10. Current technical debt
 

@@ -142,9 +142,10 @@ footer.main-footer {
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
+a.btn,
 a.btn:hover,
-a.btn:focus-visible {
-    color: inherit;
+a.btn:focus-visible,
+a.btn:active {
     text-decoration: none;
 }
 
@@ -157,24 +158,33 @@ a.btn:focus-visible {
     background-color: #6a5acd; /* Ліловий */
     color: white;
 }
-.btn-primary:hover {
+.btn-primary:hover,
+.btn-primary:focus-visible,
+.btn-primary:active {
     background-color: #5849a9;
+    color: white;
 }
 
 .btn-success {
     background-color: #32cd32; /* Зелений */
     color: white;
 }
-.btn-success:hover {
+.btn-success:hover,
+.btn-success:focus-visible,
+.btn-success:active {
     background-color: #28a428;
+    color: white;
 }
 
 .btn-warning {
     background-color: #ffb300; /* Жовтий/Помаранчевий */
     color: #333;
 }
-.btn-warning:hover {
+.btn-warning:hover,
+.btn-warning:focus-visible,
+.btn-warning:active {
     background-color: #e6a100;
+    color: #333;
 }
 
 .btn:disabled, .btn[disabled] {
@@ -188,16 +198,22 @@ a.btn:focus-visible {
     background-color: #c0392b; /* Темніший червоний для кращого контрасту */
     color: white;
 }
-.btn-danger:hover {
+.btn-danger:hover,
+.btn-danger:focus-visible,
+.btn-danger:active {
     background-color: #a93226;
+    color: white;
 }
 
 .btn-info {
     background-color: #2f6fbf; /* Темніший синій для кращого контрасту */
     color: white;
 }
-.btn-info:hover {
+.btn-info:hover,
+.btn-info:focus-visible,
+.btn-info:active {
     background-color: #275fa4;
+    color: white;
 }
 
 .site-links-uniform {
