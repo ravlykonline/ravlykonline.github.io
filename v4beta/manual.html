@@ -111,9 +111,9 @@
                         <h3 id="manual-usage-title">Як користуватися посібником</h3>
                         <ul>
                             <li>Поле пошуку в блоці <strong>Зміст</strong> відбирає потрібні розділи за назвою теми, командою або ключовим словом.</li>
-                            <li><strong>Для початківців</strong> показує лише базові теми для першого знайомства.</li>
-                            <li><strong>Для досвідчених</strong> відкриває повний мануал разом зі складнішими розділами.</li>
-                            <li>Кнопки <strong>Попередній розділ</strong> і <strong>Наступний розділ</strong> допомагають читати посібник по черзі, крок за кроком.</li>
+                            <li>Режим <strong>Для початківців</strong> показує лише базові теми для першого знайомства з програмуванням.</li>
+                            <li>Режим <strong>Для досвідчених</strong> відкриває повну версію Посібника разом зі складнішими розділами.</li>
+                            <li>Кнопки <strong>Попередній розділ</strong> і <strong>Наступний розділ</strong> допомагають читати Посібник по черзі, крок за кроком.</li>
                         </ul>
                     </div>
                     </section>
@@ -124,9 +124,9 @@
                             <img src="assets/images/ravlyk.png" alt="Зображення Равлик" loading="lazy" />
                         </div>
                         <div class="concept-text">
-                            <p>РАВЛИК — це спеціальна мова програмування для дітей, у якій команди написані українською.</p>
-                            <p>Ти, за допомогою команд, керуєш маленьким Равликом 🐌 на екрані: він рухається, повертає, змінює колір і залишає слід. Твій код одразу перетворюється на малюнок або просту гру.</p>
-                            <p>До речі, РАВЛИК — це абривіатура від слів <b>Р</b>озвиток <b>А</b>лгоритмічних <b>В</b>мінь та <b>Л</b>огіччного м<b>И</b>слення через <b>К</b>одування.</p>
+                            <p>РАВЛИК — це спеціальна мова програмування для дітей, у якій всі команди пишуться українською.</p>
+                            <p>За допомогою команд, ти керуєш маленьким Равликом 🐌 на екрані. Равлик може рухаться, повертати, змінювати колір свого сліду. Твій код одразу перетворюється на малюнок або просту гру.</p>
+                            <p>До речі, РАВЛИК — це абревіатура від слів <b>Р</b>озвиток <b>А</b>лгоритмічних <b>В</b>мінь та <b>Л</b>огічного м<b>И</b>слення через <b>К</b>одування.</p>
 
                         </div>
                     </div>
@@ -136,9 +136,9 @@
                             <h3 id="manual-intro-start-title">Почни з одного маленького прикладу</h3>
                             <p>Напиши в редакторі:</p>
                             <pre class="example-code-manual">вперед 80
-    праворуч 90
-    вперед 80</pre>
-                            <p>Після запуску Равлик намалює кут. Це і є головна ідея мови: ти пишеш короткі команди, а одразу бачиш результат.</p>
+ праворуч 90
+ вперед 80</pre>
+                            <p>Після запуску Равлик намалює кут. Це і є головна ідея мови: ти пишеш короткі команди й одразу бачиш результат.</p>
                         </div>
                     </section>
                     <section class="manual-subsection manual-callout-subsection" aria-labelledby="manual-intro-benefits-title">
@@ -148,21 +148,19 @@
                             <li>Команди короткі й зрозумілі.</li>
                             <li>Результат видно одразу після запуску.</li>
                             <li>Помилятися не страшно: можна швидко виправити код і спробувати ще раз.</li>
-                            <li>Через малювання простіше зрозуміти рух, повторення і логіку.</li>
+                            <li>Через малювання простіше зрозуміти, що таке рух, повторення і алгоритми.</li>
                         </ul>
                     </div>
                     </section>
                     <section class="manual-subsection" aria-labelledby="manual-intro-next-title">
                         <details>
                             <summary id="manual-intro-next-title">Що читати далі</summary>
-                            <p>Якщо ти тільки починаєш, переходь до розділів <strong>Основні команди</strong>, <strong>Повторення команд</strong> і <strong>Помилки</strong>. У них є найпотрібніші речі для першого запуску.</p>
+                            <p>Якщо ти тільки починаєш, переходь до розділів <strong>Основні команди</strong>, <strong>Повторення команд</strong> і <strong>Помилки</strong>. У них є найпотрібніші речі для перших експериментів.</p>
                         </details>
                     </section>
                 </article>
 
                 <article id="basic-commands" class="guide-section" data-keywords="команди вперед назад праворуч ліворуч рух кроки перейти в очистити підняти опустити" aria-labelledby="manual-section-basic-commands">
-                    <div id="movement" aria-hidden="true"></div>
-                    <div id="rotation" aria-hidden="true"></div>
                     <h2 id="manual-section-basic-commands">Основні команди</h2>
                     <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-basic-start-title">
                     <div class="manual-start-example" role="region" aria-labelledby="manual-basic-start-title">
@@ -223,7 +221,7 @@
                         <li class="command-item-manual"><span class="cmd-name">якщо край ( ... )</span> <span
                                 class="cmd-desc">Перевіряє, чи Равлик торкається межі полотна.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">якщо клавіша "вгору" ( ... )</span> <span
-                                class="cmd-desc">Перевіряє, чи натиснута конкретна клавіша у блоці <code>грати</code>.</span></li>
+                                class="cmd-desc">Перевіряє, чи натиснута конкретна клавіша.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">грати ( ... )</span> <span
                                 class="cmd-desc">Безперервний ігровий режим з перевіркою умов на кожному кроці.</span>
                         </li>
@@ -311,8 +309,6 @@
                 </article>
 
                 <article id="variables-functions" class="guide-section advanced-only" data-keywords="змінні функції створити команда власні команди значення ім'я" aria-labelledby="manual-section-variables-functions">
-                    <div id="variables" aria-hidden="true"></div>
-                    <div id="functions" aria-hidden="true"></div>
                     <h2 id="manual-section-variables-functions">Змінні та функції</h2>
                     <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-variables-start-title">
                     <div class="manual-start-example" role="region" aria-labelledby="manual-variables-start-title">
@@ -485,7 +481,6 @@
                 </article>
 
                 <article id="pen-control" class="guide-section" data-keywords="олівець підняти опустити товщина лінія малювання" aria-labelledby="manual-section-pen-control">
-                    <div id="pen" aria-hidden="true"></div>
                     <h2 id="manual-section-pen-control">Керування олівцем</h2>
                     <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-pen-start-title">
                     <div class="manual-start-example" role="region" aria-labelledby="manual-pen-start-title">
