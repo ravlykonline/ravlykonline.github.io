@@ -195,8 +195,14 @@
             }
 
             .zen-principle-header {
-                flex-direction: column;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
                 align-items: start;
+                gap: 10px;
+            }
+
+            .zen-copy-btn {
+                justify-self: end;
             }
         }
     </style>
