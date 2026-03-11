@@ -130,8 +130,12 @@ export function updateManualPagingState({
     const atEnd = !hasAvailableSections || currentVisiblePosition === resolvedIndexes.length - 1;
     prevBtn.disabled = atStart;
     nextBtn.disabled = atEnd;
+    if (prevBtn.style) prevBtn.style.visibility = atStart ? 'hidden' : 'visible';
+    if (nextBtn.style) nextBtn.style.visibility = atEnd ? 'hidden' : 'visible';
     if (prevBtnBottom) prevBtnBottom.disabled = atStart;
     if (nextBtnBottom) nextBtnBottom.disabled = atEnd;
+    if (prevBtnBottom?.style) prevBtnBottom.style.visibility = atStart ? 'hidden' : 'visible';
+    if (nextBtnBottom?.style) nextBtnBottom.style.visibility = atEnd ? 'hidden' : 'visible';
 
     const indicatorText = hasAvailableSections
         ? `Розділ ${currentVisiblePosition + 1} з ${resolvedIndexes.length}`

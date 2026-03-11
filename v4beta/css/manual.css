@@ -501,34 +501,13 @@
     margin-top: var(--manual-toolbar-spacing);
 }
 
-.manual-page-btn {
-    --manual-page-btn-border: #6a5acd;
-    --manual-page-btn-bg: #fff;
-    --manual-page-btn-text: #4b0082;
-    --manual-page-btn-hover-bg: #6a5acd;
-    --manual-page-btn-hover-text: #fff;
-    border: 1px solid var(--manual-page-btn-border);
-    background: var(--manual-page-btn-bg);
-    color: var(--manual-page-btn-text);
-    border-radius: var(--manual-content-block-radius);
-    padding: 8px 12px;
-    font-size: 0.98rem;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.manual-page-btn:hover,
-.manual-page-btn:focus-visible {
-    background: var(--manual-page-btn-hover-bg);
-    color: var(--manual-page-btn-hover-text);
-}
-
-.manual-page-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.manual-section-toolbar .btn {
+    min-width: 238px;
+    flex: 0 0 auto;
 }
 
 .manual-section-indicator {
+    flex: 1 1 auto;
     margin: 0;
     font-weight: 700;
     color: #4b0082;
@@ -1092,7 +1071,7 @@ body.manual-paged-ready .guide-section.is-active {
     color: var(--manual-high-contrast-text) !important;
 }
 
-.a11y-high-contrast .manual-page-btn,
+.a11y-high-contrast .manual-section-toolbar .btn,
 .a11y-high-contrast .manual-mobile-menu-btn,
 .a11y-high-contrast .manual-mobile-close-btn {
     background: var(--manual-high-contrast-bg) !important;
@@ -1104,6 +1083,11 @@ body.manual-paged-ready .guide-section.is-active {
     .manual-section-toolbar {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .manual-section-toolbar .btn {
+        min-width: 0;
+        width: 100%;
     }
 }
 

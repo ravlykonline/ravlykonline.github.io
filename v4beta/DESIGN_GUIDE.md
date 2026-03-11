@@ -3,7 +3,7 @@
 This document is the primary visual/style reference for the repository.
 If you are adding or updating UI, read this before inventing new styles.
 
-Last updated: 2026-03-07
+Last updated: 2026-03-11
 
 ## 1. Purpose
 
@@ -12,6 +12,10 @@ This guide exists so developers and AI agents:
 - keep pages visually consistent,
 - reuse existing UI patterns,
 - avoid introducing one-off button styles, colors, spacing systems, or typography rules.
+
+Scope:
+- this file defines visual rules, reusable patterns, and styling decisions
+- it does not replace `TECHNICAL_GUIDE.md` for runtime behavior, test policy, or architecture
 
 Primary visual reference pages:
 - `index.html`

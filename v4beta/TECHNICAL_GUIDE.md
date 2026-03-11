@@ -1,576 +1,238 @@
 # RAVLYK v4 Technical Guide
 
-This document is the primary technical onboarding for this repository.
-If you are an AI agent or a developer joining the project, start here.
+Primary engineering guide for this repository.
 
 Last updated: 2026-03-11
 
 Related:
-- `DESIGN_GUIDE.md` is the visual/style reference for UI work.
-- `FEATURE_COLOR_BACKGROUND_RANDOM_SPEC.md` is the staged implementation spec for expanded color support, `С„РѕРЅ`, and future `РІРёРїР°РґРєРѕРІРѕ` commands.
+- `README.md` for a short project overview
+- `DESIGN_GUIDE.md` for UI and styling rules
 
-## 0. High-value future backlog
+## 1. Documentation policy
 
-This project should keep a short explicit list of missing but important language capabilities.
-Current pedagogical/product priority order:
+Keep only three canonical repo-wide documents:
+- `README.md` for public-facing orientation
+- `TECHNICAL_GUIDE.md` for engineering reality
+- `DESIGN_GUIDE.md` for design-system and CSS rules
 
-1. Filled shapes / fill semantics
-2. Showing variable values (`показати`, `надрукувати`, or equivalent)
-3. Line thickness (`товщина N`)
-4. Compound conditions (`і`, `або`, `не`)
-5. Reading turtle state (`x`, `y`, `кут`)
-6. Recursion (important for older learners, but not required for the youngest audience)
+Do not create separate repo-wide markdown files for temporary status, debt, release notes, or executive summaries unless the scope is independent and long-lived.
 
-Why these matter:
-- `fill` is a major visual gap for a drawing language and is strongly felt by children immediately.
-- variable output is a learning/debugging gap because learners currently cannot directly inspect changing state.
-- line thickness significantly improves visual expressiveness with a very small syntax surface.
-- compound conditions are the first real ceiling for richer game logic and range checks.
-- turtle-state reads unlock adaptive geometry and coordinate-based reasoning tasks.
-- recursion is strategically important for long-term growth, but not urgent for the core elementary-school experience.
+Update rules:
+- engineering-wide behavior changes belong here
+- UI convention changes belong in `DESIGN_GUIDE.md`
+- `README.md` should stay short and not duplicate internal detail
+- command reference, long feature tutorials, and page-level styling rules should not be expanded here when they already live better in product pages or `DESIGN_GUIDE.md`
 
-Recommended implementation priority for the next version:
-- realistic / low-risk: `товщина N`
-- realistic / low-risk to medium-risk: `показати змінну`
-- realistic but requires a dedicated spec: `заливка`
-- defer until after that: compound conditions and turtle-state reads
-- keep in long-term roadmap: recursion
+## 2. Project purpose
 
-Important product note:
-- If only one visual feature is taken next, `заливка` has the strongest child-visible payoff.
-- If only one teaching/debugging feature is taken next, `показати змінну` has the strongest learning payoff.
-- If the goal is the safest next release, `товщина N` is the best first candidate.
+RAVLYK is a static browser-based educational programming environment with Ukrainian syntax for children.
 
-## 1. Project purpose
+Core product goals:
+- simple text commands with immediate visual feedback
+- predictable execution and friendly errors
+- gradual learning path from basic movement to logic, functions, and game mode
 
-RAVLYK is a browser-based educational programming language (Ukrainian syntax) for kids.
-Main goals:
-- simple text commands with instant visual feedback (turtle-like graphics),
-- predictable execution and friendly errors,
-- educational progression: basics -> loops -> variables/functions -> conditions -> interactive game mode.
+## 3. Stack and architecture
 
-## 2. Tech stack and runtime model
+Technical model:
+- static site only: HTML, CSS, ES modules
+- no backend
+- Canvas 2D rendering
+- parser -> AST -> interpreter/runtime -> renderer
 
-- Frontend only, static site (HTML/CSS/JS modules).
-- No backend.
-- Canvas 2D rendering.
-- Interpreter model:
-  1. Tokenizer
-  2. Parser -> AST
-  3. Interpreter (runtime)
-  4. Renderer (canvas + sprite)
+Main entry points:
+- `index.html` and `js/main.js` for the editor
+- `manual.html` and `js/manualPage.js` for the manual
+- `lessons.html` and `js/lessonsPage.js` for lessons
+- `quiz.html` and `js/quizPage.js` for the quiz
+- `js/accessibility.js` for accessibility controls
 
-Core modules:
+Core engine modules:
 - `js/modules/ravlykParser.js`
 - `js/modules/environment.js`
 - `js/modules/ravlykInterpreter.js`
-- `js/modules/ui.js`
 - `js/modules/constants.js`
-- `js/modules/share.js`
-- `js/modules/workspaceTabs.js`
-- `js/modules/editorUi.js`
-- `js/modules/gridOverlay.js`
-- `js/modules/executionController.js`
-- `js/modules/fileActionsController.js`
-- `js/modules/navigationPrefetch.js`
-- `js/modules/modalController.js`
-- `js/modules/editorInputController.js`
-- `js/modules/lifecycleController.js`
-- `js/modules/interpreterBoundary.js`
-- `js/modules/interpreterConditions.js`
-- `js/modules/interpreterGameLoop.js`
-- `js/modules/interpreterGameAstRunner.js`
-- `js/modules/interpreterQueueRuntime.js`
-- `js/modules/interpreterCommandExecutor.js`
-- `js/modules/interpreterAstQueueAdapter.js`
-- `js/modules/interpreterGameContract.js`
-- `js/modules/interpreterAstEval.js`
-- `js/modules/interpreterPrimitiveStatements.js`
-- `js/modules/interpreterAnimation.js`
-- `js/modules/interpreterDrawingOps.js`
-- `js/modules/backgroundLayer.js`
-- `js/modules/interpreterCommandClone.js`
-- `js/modules/interpreterLifecycleCleanup.js`
-- `js/modules/interpreterRuntimeState.js`
-- `js/modules/parserTokenizer.js`
-- `js/modules/parserCoreUtils.js`
-- `js/modules/parserExpressions.js`
-- `js/modules/parserBlocksConditions.js`
-- `js/modules/parserCreateStatement.js`
-- `js/modules/parserMotionStatements.js`
-- `js/modules/parserStateStatements.js`
-- `js/modules/parserStatementHandlers.js`
-- `js/modules/accessibilitySettings.js`
-- `js/modules/accessibilityNotifications.js`
-- `js/modules/lessonsPageController.js`
-- `js/modules/manualPageController.js`
-- `js/main.js`
 
-## 3. Repository map (v4)
+Supporting controller/module groups:
+- parser helpers in `js/modules/parser*.js`
+- interpreter helpers in `js/modules/interpreter*.js`
+- editor/UI helpers in `js/modules/ui*.js`, `editorUi.js`, `workspaceTabs.js`, `executionController.js`, `fileActionsController.js`
+- page controllers in `manualPageController.js` and `lessonsPageController.js`
 
-- `index.html`: main editor page.
-- `manual.html`: full language manual.
-- `lessons.html`: current production tutorial lessons.
-- `resources.html`: additional resources.
-- `quiz.html`: quiz page with random question selection by topic.
-- `teacher_guidelines.html`: teacher-oriented pedagogical page.
-- `advice_for_parents.html`: parent-oriented pedagogical page.
-- `css/`: page styles (`global.css`, `main-editor.css`, `manual.css`, `lessons.css`, `resources.css`, `accessibility.css`).
-- `css/quiz.css`: quiz page styles.
-- `css/teacher-guidelines.css`: teacher page styles.
-- `css/parents.css`: parents page styles.
-- `js/main.js`: main page orchestration and event wiring.
-- `js/modules/share.js`: share-link/hash encoding + clipboard helpers for editor code sharing.
-- `js/modules/workspaceTabs.js`: command/workspace tabs setup and keyboard navigation wiring.
-- `js/modules/editorUi.js`: editor decorations (line numbers/active+error lines) and friendly error formatting helpers.
-- `js/modules/gridOverlay.js`: grid overlay drawing, persistence, toolbar grid button state, and positive-axis arrow rendering (`+X` right, `+Y` up).
-- `js/modules/executionController.js`: run/stop execution orchestration, execution timeout handling, and stop-confirm pause/resume flow.
-- `js/modules/fileActionsController.js`: save image/code actions, share-link flow, URL-hash code loading, and the shared-project safety notice shown after hash import.
-- `js/modules/navigationPrefetch.js`: secondary-page prefetch scheduling and safe `_blank` navigation helper.
-- `js/modules/modalController.js`: modal button wiring, Escape-key flow, and overlay-close orchestration.
-- `js/modules/editorInputController.js`: editor/example input wiring (hotkeys, indentation, listener setup, placeholder behavior).
-- `js/modules/lifecycleController.js`: startup bootstrap, resize wiring, and initial runtime/UI synchronization.
-- `js/modules/interpreterBoundary.js`: boundary margin/clamp/edge helper math extracted from interpreter for safer incremental decomposition.
-- `js/modules/interpreterConditions.js`: key normalization and condition evaluation helpers shared by game-mode and queue IF evaluation paths.
-- `js/modules/interpreterGameLoop.js`: start/stop helpers for game-loop runtime timer/reject orchestration.
-- `js/modules/interpreterGameAstRunner.js`: AST runner for game-mode statements (top-level prep + per-tick execution callback).
-- `js/modules/interpreterQueueRuntime.js`: RAF/stack orchestration helper for queue-mode command execution loop.
-- `js/modules/interpreterCommandExecutor.js`: queue command-dispatch helper (`ASSIGN_AST`, move/turn/pen/color/goto/clear/repeat/if).
-- `js/modules/interpreterAstQueueAdapter.js`: AST -> legacy queue adapter helper (function/assignment/repeat/if expansion and runtime IF payload conversion).
-- `js/modules/interpreterGameContract.js`: game-mode contract helpers (`hasGameStatement`, top-level/nested `РіСЂР°С‚Рё` validation).
-- `js/modules/interpreterAstEval.js`: AST number-expression evaluation and AST span -> runtime error-location mapping helpers.
-- `js/modules/interpreterPrimitiveStatements.js`: primitive AST statement helper for queue/runtime modes (move/turn/color/background/thickness/goto/pen/clear).
-- `js/modules/interpreterAnimation.js`: animation helpers for pen/move/turn command progression and boundary-warning signaling.
-- `js/modules/interpreterDrawingOps.js`: drawing/state operation helpers (move/turn/color/goto/clear) used by the interpreter runtime.
-- `js/modules/backgroundLayer.js`: canonical helper for background-underlay application and background+drawing export composition.
-- `js/modules/randomResolver.js`: canonical helper for deterministic random color/background selection built on the shared color registry and injected RNG.
-- `js/modules/interpreterCommandClone.js`: recursive command-clone helper for runtime queue branches (removes transient animation/execution fields).
-- `js/modules/interpreterLifecycleCleanup.js`: interpreter destroy/cleanup helper (animation/timer/listener teardown + runtime state reset).
-- `js/modules/interpreterRuntimeState.js`: runtime state transition helpers (`stop`/`pause`/`resume` and boundary-warning status access).
-- `js/modules/parserTokenizer.js`: tokenizer helper (tokens + source metadata) used by `ravlykParser`.
-- `js/modules/parserCoreUtils.js`: parser utility helpers for identifier normalization/validation, quoted-string parsing, span calculation, and parser error location attachment.
-- `js/modules/parserExpressions.js`: expression parser helper (precedence/unary/primary path) used by `ravlykParser`.
-- `js/modules/parserBlocksConditions.js`: block/condition parsing helpers (`(...)` matching, parsed block extraction, `if` condition AST helper) used by `ravlykParser`.
-- `js/modules/parserCreateStatement.js`: `create` statement helper for parser (`create x = expr`, `create fn(params) (...)`).
-- `js/modules/parserMotionStatements.js`: parser helpers for movement/navigation statements (`forward/backward`, `left/right`, `goto`).
-- `js/modules/parserStateStatements.js`: parser helpers for state/call statements (`color`, `pen`, `clear`, assignment, function call).
-- `js/modules/parserStatementHandlers.js`: parser-bound statement handler factory that wires parser callbacks/keywords into the concrete statement helpers.
-- `js/modules/accessibilitySettings.js`: accessibility settings/storage/class-application helpers shared by the accessibility entry script.
-- `js/modules/accessibilityNotifications.js`: accessibility toast/icon-selection helpers used by the accessibility entry script; dynamic message DOM is assembled without `innerHTML`.
-- `js/modules/lessonsPageController.js`: lessons-page tab/navigation/history controller helpers used by the lessons entry script.
-- `js/modules/manualPageController.js`: manual-page section paging, hash/history, TOC search/filtering, reading-mode switching, legacy lesson deep-link alias resolution (`movement`, `rotation`, `pen`, `variables`, `functions`), auto-switch to full mode for `advanced-only` deep links, code-example toolbar injection, and mobile TOC controller helpers used by the manual entry script.
-- `js/modules/parserStatementDispatcher.js`: parser dispatch helper that routes the current token to the correct statement parser.
-- `js/modules/parserStatementContext.js`: builder for parser statement-helper context/dependencies, used to keep `ravlykParser` thin.
-- `js/modules/parserControlStatements.js`: parser helpers for control-flow statements (`РіСЂР°С‚Рё`, `РїРѕРІС‚РѕСЂРёС‚Рё`, `СЏРєС‰Рѕ`).
-- `js/accessibility.js`: accessibility toggles, persistence, focus behavior.
-- `js/manualPage.js`: manual-page entry script that boots manual navigation/TOC behavior.
-- `js/quizBank.js`: quiz question banks (30 per topic).
-- `js/quizData/*.js`: split quiz datasets by theme (`basic`, `loops`, `vars`) consumed by the quiz bank facade.
-- `js/quizPage.js`: quiz runtime (topic picker, random 10 questions, option shuffle, scoring).
-- `tests/parser.basic.test.js`: parser basics (tokenization/AST/expression paths).
-- `tests/parser.ast-runtime.test.js`: parser + runtime AST/queue integration behavior.
-- `tests/parser.errors-boundary.test.js`: parser/runtime error and boundary scenarios.
-- `tests/parser-helpers.test.js`: parser helper-module contracts.
-- `tests/quiz.test.js`: quiz data-bank shape and theme-contract checks.
-- `tests/accessibility.test.js`: accessibility helper contracts (defaults, class toggles, notification icon mapping).
-- `tests/lessons.test.js`: lessons-page controller contracts plus production lessons HTML smoke checks (lesson structure, deep links, reflection blocks, archive-independence guards).
-- `tests/manual.test.js`: manual-page controller contracts plus production manual smoke checks (section ids, hash resolution, paging state, reading-mode controls, TOC search hooks, semantic example components, and manual-structure regressions).
-- `tests/parser-helpers.test.js` also covers statement-dispatch helper routing/error contracts.
-- `tests/parser-helpers.test.js` also covers parser statement-context builder wiring.
-- `tests/ui.dom.test.js`: UI DOM utility tests.
-- `tests/controllers.test.js`: controller-level integration tests.
-- `tests/interpreter.helpers.core.test.js`: interpreter helper core contracts.
-- `tests/interpreter.helpers.runtime.test.js`: interpreter helper runtime contracts.
-- `tests/encoding.test.js`: UTF-8/mojibake and static regression guards (HTML link safety, toolbar/download contract, modal ARIA contract, CSS legacy cleanup constraints, modal/message architecture guards, modal mapping guards, JS `_blank` window.open safety, and targeted UTF-8 guards for critical controller/message modules).
-- `tests/e2e/*`: Playwright smoke tests.
-- `playwright.config.js`: E2E config (desktop + mobile + tablet).
+## 4. Repository map
 
-## 4. Language model and grammar (implemented)
+Primary pages:
+- `index.html`: editor
+- `manual.html`: language manual
+- `lessons.html`: lessons
+- `resources.html`: extra materials
+- `quiz.html`: quiz
+- `teacher_guidelines.html`: teacher page
+- `advice_for_parents.html`: parent page
+- `zen.html`: alternate/static informational page
 
-### 4.1 Statements
+Primary CSS:
+- `css/global.css`: shared tokens and common UI
+- `css/main-editor.css`: editor page
+- `css/manual.css`: manual page
+- `css/lessons.css`: lessons page
+- `css/resources.css`: resources page
+- `css/quiz.css`: quiz page
+- `css/accessibility.css`: accessibility UI
+- `css/teacher-guidelines.css`: teacher page
+- `css/parents.css`: parent page
 
-Implemented AST statement types:
-- `MoveStmt` (`РІРїРµСЂРµРґ`, `РЅР°Р·Р°Рґ`)
-- `TurnStmt` (`РїСЂР°РІРѕСЂСѓС‡`, `Р»С–РІРѕСЂСѓС‡`)
-- `ColorStmt` (`РєРѕР»С–СЂ`)
-- `BackgroundStmt` (`С„РѕРЅ`)
-- `ThicknessStmt` (`С‚РѕРІС‰РёРЅР°`)
-- `GotoStmt` (`РїРµСЂРµР№С‚Рё РІ X Y`)
-- `PenStmt` (`РїС–РґРЅСЏС‚Рё`, `РѕРїСѓСЃС‚РёС‚Рё`)
-- `ClearStmt` (`РѕС‡РёСЃС‚РёС‚Рё`)
-- `AssignmentStmt` (`СЃС‚РІРѕСЂРёС‚Рё x = ...` and `x = ...`)
-- `RepeatStmt` (`РїРѕРІС‚РѕСЂРёС‚Рё N ( ... )`)
-- `IfStmt` (`СЏРєС‰Рѕ ... ( ... ) [С–РЅР°РєС€Рµ ( ... )]`)
-- `FunctionDefStmt` (`СЃС‚РІРѕСЂРёС‚Рё name(params) ( ... )`)
-- `FunctionCallStmt` (`name(args)`)
-- `GameStmt` (`РіСЂР°С‚Рё ( ... )`)
+Tests:
+- `tests/*.test.js`: unit and integration coverage
+- `tests/encoding.test.js`: UTF-8, BOM, structural regression guards
+- `tests/e2e/*`: Playwright smoke coverage
 
-Background-related semantic target:
-- `фон` changes the background/underlay, not the already drawn lines.
-- `очистити` is the learner-facing "clean sheet" action: clear drawing + restore default white background.
-- `reset` is the broader full-state reset on top of that semantic model.
-- Runtime ownership is now split intentionally: `backgroundLayer.js` owns underlay fill/export composition, while interpreter runtime owns state transitions.
-- Keep `FEATURE_COLOR_BACKGROUND_RANDOM_SPEC.md` as the source of truth if implementation and docs are being aligned in phases.
+## 5. Language model
 
+Implemented statement families:
+- movement: forward, backward, left, right, goto
+- drawing state: color, background, thickness, pen up/down, clear
+- variables and assignment
+- repeat loops
+- conditions with optional else
+- function definitions and calls
+- game mode
 
-### 4.2 Conditions
+Implemented expressions:
+- number literals
+- identifiers
+- unary `+` and `-`
+- binary `+ - * / %`
 
-Implemented condition node types:
-- `EdgeCondition` (`РєСЂР°Р№`)
-- `KeyCondition` (`РєР»Р°РІС–С€Р° "..."`)
-- `CompareCondition` (`expr comparator expr`, comparators: `= != < > <= >=`)
+Implemented condition families:
+- edge checks
+- key checks
+- comparisons `= != < > <= >=`
 
-### 4.3 Expressions
+Semantic notes:
+- `фон` changes the background underlay, not existing drawing
+- `очистити` restores a clean white sheet
+- non-game execution still uses AST-to-queue adaptation for compatibility
+- game mode runs on a fixed tick loop and validates its contract before execution
 
-Implemented expression node types:
-- `NumberLiteral`
-- `Identifier`
-- `UnaryExpr` (`+x`, `-x`)
-- `BinaryExpr` (`+ - * / %`)
+## 6. Runtime and safety model
 
-Operator precedence:
-- high: `* / %`
-- low: `+ -`
+Parser:
+- tokenizes with source metadata
+- builds AST only
+- attaches location data to user-facing errors
 
-## 5. Parser design (`ravlykParser.js`)
+Environment:
+- hierarchical scope with parent lookup
+- supports define, set, get, and clone
 
-### 5.1 Tokenization
+Interpreter:
+- parses code to AST
+- validates `грати` contract
+- runs either game-mode execution or queue-mode execution
 
-`tokenizeWithMetadata()`:
-- strips comments (`# ...`),
-- keeps quoted strings (`"..."`) as single tokens,
-- supports multi-char comparators (`>= <= !=`),
-- records token source metadata (`line`, `column`, token text).
-
-### 5.2 AST parsing
-
-`parseCodeToAst()` is the main entry for raw code.
-`parseTokensToAst()` handles statement parsing and span assignment.
-
-Important:
-- legacy parser path `parseTokens()` is intentionally removed and throws `LEGACY_PARSE_PATH_REMOVED`.
-- parser does not execute runtime logic.
-
-### 5.3 Error location
-
-Parser attaches location to `RavlykError` (`line`, `column`, `token`) via token metadata and AST spans.
-
-## 6. Runtime environment (`environment.js`)
-
-`Environment` is hierarchical (`parent` chain).
-Methods:
-- `get(name)` with parent lookup, throws `UNDEFINED_VARIABLE`,
-- `define(name, value)`,
-- `set(name, value)`,
-- `clone()` for branch-local evaluation contexts.
-
-## 7. Interpreter design (`ravlykInterpreter.js`)
-
-## 7.1 Global flow
-
-`executeCommands(code)`:
-1. parse code to AST,
-2. validate `РіСЂР°С‚Рё` contract,
-3. if game AST exists -> `executeGameProgram()`,
-4. else -> AST to runtime queue (`astToLegacyQueue`) and run queue (`runCommandQueue()`).
-
-### 7.2 Queue command model (non-game path)
-
-Queue command types include:
-- `MOVE`, `MOVE_BACK`, `TURN`, `TURN_LEFT`,
-- `COLOR`, `GOTO`, `PEN_UP`, `PEN_DOWN`, `CLEAR`,
-- `BACKGROUND`,
-- `ASSIGN_AST`,
-- `IF` (with runtime-evaluated condition),
-- `REPEAT` (legacy format support kept for compatibility).
-
-Important architectural point:
-- `CompareCondition` is now carried as runtime payload (`COMPARE_AST`) and evaluated during execution, not precomputed to boolean.
-
-### 7.3 Game mode
-
-`executeGameProgram()`:
-- runs with fixed tick interval (`gameTickMs = 50`, 20 TPS),
-- uses shared runtime env across ticks,
-- executes `GameStmt` body repeatedly,
-- evaluates key and edge conditions each tick.
-
-### 7.4 Game contract restrictions
-
-Validated by `validateGameProgramContract()` from `js/modules/interpreterGameContract.js`:
-- max one top-level `РіСЂР°С‚Рё` block,
-- no nested `РіСЂР°С‚Рё`,
-- if `РіСЂР°С‚Рё` is present, only specific top-level statements are allowed (assignments and function defs besides `GameStmt`).
-
-### 7.5 Input handling and cleanup
-
-Interpreter constructor registers keyboard listeners.
-`destroy()` removes listeners and clears timers/animation refs.
-`main.js` ensures old interpreter instances are destroyed before new ones.
-
-### 7.6 Boundary handling
-
-Key methods:
-- `getBoundaryMargin()`
-- `clampToCanvasBounds(x, y)`
-- `isAtCanvasEdge()`
-
-Behavior:
-- movement and goto are clamped to visible canvas bounds,
-- friendly out-of-bounds info message shown once per stuck sequence.
-
-### 7.7 Constants hygiene
-
-- Removed dead UI constants (`HELP_MODAL_CONTENT_ID`, `CLEAR_CONFIRM_MODAL_ID`) that were not referenced by runtime code.
-
-## 8. UI architecture
-
-## 8.1 Main page (`index.html` + `js/main.js`)
-
-Responsibilities:
-- visual reading order on desktop: title -> toolbar -> editor/canvas workspace -> examples -> command reference -> low-priority SEO subtitle -> `РџРѕСЃС–Р±РЅРёРє` / `РЈСЂРѕРєРё` CTA buttons,
-- toolbar actions (run/stop/clear/download/share/grid/help),
-- current short labels: `Р—Р°РїСѓСЃС‚РёС‚Рё`, `РЎС‚РѕРї`, `РЎРєРёРЅСѓС‚Рё`, `РЎС–С‚РєР°`, `Р”РѕРІС–РґРєР°`, `Р—Р°РІР°РЅС‚Р°Р¶РёС‚Рё`, `РџРѕРґС–Р»РёС‚РёСЃСЏ`,
-- unified download flow: `Р—Р°РІР°РЅС‚Р°Р¶РёС‚Рё` opens modal with `Р—Р°РІР°РЅС‚Р°Р¶РёС‚Рё СЏРє РјР°Р»СЋРЅРѕРє` / `Р—Р°РІР°РЅС‚Р°Р¶РёС‚Рё СЏРє РєРѕРґ`,
-- smart idle prefetch of secondary pages (`manual.html`, `lessons.html`, `quiz.html`, `resources.html`) on good connections (skips `Save-Data` and `2g`),
-- editor line numbers and active/error line highlighting,
-- help/confirm modals,
-- modal open/close behavior is centralized in `js/modules/ui.js` (`toggleModal` + dedicated show/hide wrappers for help/clear/stop/download),
-- modal state checks use shared helper `isModalOpen(modalId)` instead of ad-hoc `classList.contains('hidden')` checks in page scripts,
-- overlay-click close wiring is centralized via `bindModalOverlayClose(modalId, onClose)` helper,
-- external same-site new-tab navigation is centralized in `js/modules/navigationPrefetch.js` via `openInNewTab(url)` with `noopener,noreferrer`,
-- code-share hash/clipboard helpers are centralized in `js/modules/share.js` and consumed by `main.js`,
-- command reference tabs and workspace tabs wiring are centralized in `js/modules/workspaceTabs.js` and consumed by `main.js`,
-- editor decorations and parser/runtime error-to-editor mapping are centralized in `js/modules/editorUi.js` and consumed by `main.js`,
-- grid overlay persistence/drawing is centralized in `js/modules/gridOverlay.js` and consumed by `main.js`,
-- execution run/timeout/toolbar-locking and stop-confirm behavior are centralized in `js/modules/executionController.js` and consumed by `main.js`,
-- save/share/hash-load file actions are centralized in `js/modules/fileActionsController.js` and consumed by `main.js`,
-- share-link imports still auto-load editor code from `#code=...`, but the UI now shows an explicit non-expiring notice telling the user the code came from a link and should be reviewed before running,
-- secondary-page idle prefetch scheduling is centralized in `js/modules/navigationPrefetch.js` and consumed by `main.js`,
-- modal interactions (Escape/open-close behavior/overlay-close wiring) are centralized in `js/modules/modalController.js` and consumed by `main.js`,
-- editor/example keyboard and input listener wiring is centralized in `js/modules/editorInputController.js` and consumed by `main.js`,
-- initial setup/resize lifecycle wiring is centralized in `js/modules/lifecycleController.js` and consumed by `main.js`,
-- interpreter boundary math is centralized in `js/modules/interpreterBoundary.js` and consumed by `ravlykInterpreter.js`,
-- interpreter condition evaluation/key normalization is centralized in `js/modules/interpreterConditions.js` and consumed by `ravlykInterpreter.js`,
-- interpreter game-loop timer orchestration is centralized in `js/modules/interpreterGameLoop.js` and consumed by `ravlykInterpreter.js`,
-- interpreter game-mode AST execution scaffolding is centralized in `js/modules/interpreterGameAstRunner.js` and consumed by `ravlykInterpreter.js`,
-- interpreter queue-mode RAF/stack orchestration is centralized in `js/modules/interpreterQueueRuntime.js` and consumed by `ravlykInterpreter.js`,
-- interpreter queue command-dispatch switch is centralized in `js/modules/interpreterCommandExecutor.js` and consumed by `ravlykInterpreter.js`,
-- parser tokenization with metadata is centralized in `js/modules/parserTokenizer.js` and consumed by `ravlykParser.js`,
-- parser identifier/span/error utility logic is centralized in `js/modules/parserCoreUtils.js` and consumed by `ravlykParser.js`,
-- parser expression parsing logic is centralized in `js/modules/parserExpressions.js` and consumed by `ravlykParser.js`,
-- parser movement/navigation statement helpers are centralized in `js/modules/parserMotionStatements.js`,
-- parser state/call statement helpers are centralized in `js/modules/parserStateStatements.js`,
-- parser-bound statement handler wiring is centralized in `js/modules/parserStatementHandlers.js`,
-- Escape-key modal flow in `main.js` is grouped in dedicated `handleEscapeKey` handler to keep keyboard behavior maintainable,
-- examples launcher,
-- command reference tabs,
-- the `Р РђР’Р›РРљ - С‚РІРѕСЏ РїРµСЂС€Р° С‚РµРєСЃС‚РѕРІР° РјРѕРІР° РїСЂРѕРіСЂР°РјСѓРІР°РЅРЅСЏ!` subtitle is intentionally placed near the bottom of the main page, directly above the manual/lessons CTA block, so semantic SEO text remains present without competing with the primary editor workflow,
-- workspace tabs (`Р РµРґР°РєС‚РѕСЂ` / `РџРѕР»РѕС‚РЅРѕ`) on small and medium screens,
-- state synchronization with interpreter.
-
-### 8.2 Mobile behavior (current)
-
-Implemented responsive behavior:
-- compact toolbar on small screens,
-- icon-only toolbar labels on phone widths,
-- workspace tab switching for editor/canvas up to tablet width,
-- technical canvas resize now preserves the current drawing and background layer, so workspace-tab switches do not wipe the canvas,
-- desktop/tablet workspace panels keep `height: 600px`, `min-height: 400px`, and `max-height: 78vh`,
-- command category tabs in the reference block are arranged as a balanced 2x2 grid on phones,
-- optimized examples block:
-  - tablet: compact grid,
-  - phone: horizontal scroll cards,
-  - visible swipe hint text is shown above examples on phones.
-
-## 8.3 Manual page mobile TOC
-
-`manual.html` + `manual.css` now include:
-- mobile TOC toggle button,
-- slide-in TOC panel,
-- backdrop overlay,
-- close on `Esc` and link click,
-- desktop docs-like fixed sidebar for wide screens.
-
-## 8.4 Manual page current interaction model
-
-`manual.html` is now the canonical production manual page.
-Current manual UX behavior:
-- TOC search lives inside the sidebar/TOC and filters both TOC items and page sections,
-- reading-mode toggle (`Для початківців` / `Для досвідчених`) hides or shows `advanced-only` sections without reloading,
-- legacy lesson/manual deep links are preserved through alias hash targets (`#movement`, `#rotation`, `#pen`, `#variables`, `#functions`) that resolve to current canonical sections,
-- opening a deep link to an `advanced-only` section now auto-switches the manual from `mode-beginner` to `mode-full`, so lesson 7-9 links do not strand learners behind the reading-mode filter,
-- wide screens use a fixed left TOC sidebar; tablet/phone widths use the drawer-style TOC flow,
-- section paging is driven from visible sections only, so the indicator and prev/next buttons respect search filtering and reading mode,
-- code examples get an injected toolbar with copy action and `Відкрити в редакторі`,
-- manual examples now use explicit semantic component classes (`manual-start-example`, `manual-example-result`) instead of relying on older generic message/result styling combinations.
-
-## 8.5 Static-layer status snapshot
-
-Current practical state of the static layer:
-- `manual.html` is no longer a mostly flat document; large sections were split into clearer semantic subsections and repeated content blocks now have more explicit structure/labels.
-- `manual.html` also now uses more consistent subsection wrapper classes across error groups, callout-heavy sections, example-first blocks, and support sections, reducing one-off markup patterns inside the large document.
-- `css/manual.css` is now materially cleaner around the manual page than before: desktop layout duplication was removed, old discovery-panel leftovers were removed, manual-specific UI literals were tokenized further, and the most important example components are now explicit semantic families rather than styling accidents.
-- `css/main-editor.css` is largely tokenized for editor surfaces, accents, shadows, responsive controls, and high-contrast variants; remaining work there is mostly cosmetic follow-up, not structural risk.
-- `lessons.html` has already been promoted to the new production lesson structure: lesson0 intro, explicit subsection wrappers across lessons 1-9, CTA-style manual deep links, reflection blocks, path table, and bottom navigation are all part of the live page.
-- `css/lessons.css` now serves only the production lessons page; the archive-only rollback selectors were removed.
-- the project's biggest maintainability risk still sits in static HTML/CSS, not in the interpreter/runtime core.
-
-## 9. Accessibility subsystem
-
-`js/accessibility.js` + `css/accessibility.css` provide:
-- high contrast,
-- larger text,
-- reduced animations,
-- simpler font,
-- increased spacing.
-
-Behavior:
-- settings persisted in `localStorage` (`ravlyk_accessibility_settings_v2`),
-- accessibility panel focus trap,
-- keyboard close (`Esc`),
-- floating accessibility controls are pinned to the top-right on phone widths,
-- visual focus styles via `:focus-visible` and global focus ring variables.
-
-## 10. Limits and safety guards (`constants.js`)
-
-Current key limits:
+Safety and limits from `js/modules/constants.js`:
 - `MAX_RECURSION_DEPTH = 20`
 - `MAX_REPEATS_IN_LOOP = 500`
 - `EXECUTION_TIMEOUT_MS = 180000`
 - `MAX_CODE_LENGTH_CHARS = 10000`
 
-The parser/interpreter use friendly user-facing errors from `ERROR_MESSAGES`.
+Current safety posture:
+- shared-code links load code but do not auto-run it
+- imported code shows a persistent review notice
+- `_blank` navigation uses `noopener,noreferrer`
+- dynamic UI messages avoid unsafe `innerHTML` paths
 
-Additional current UI-side safety hardening:
-- share-link code is never auto-executed; it is only loaded into the editor,
-- after URL-hash import, the editor shows a persistent "review before running" info message,
-- global message rendering in `js/modules/uiMessages.js` and `js/modules/accessibilityNotifications.js` avoids `innerHTML` for dynamic text, reducing DOM-XSS exposure from message content,
-- accessibility toast messages are intentionally non-blocking for pointer events, so they do not steal taps/clicks from active UI controls while remaining dismissible through their own close button.
+## 7. UI architecture
 
-## 11. Testing strategy
+Editor page responsibilities:
+- code editor, canvas, toolbar, examples, command reference, modal flows
+- share/download/grid/help actions
+- mobile workspace switching between editor and canvas
 
-### 11.1 Unit/logic tests
+Manual page responsibilities:
+- section navigation and TOC
+- reading modes
+- deep-link compatibility
+- example actions such as copy and open-in-editor
 
-- `tests/parser.basic.test.js`: parser tokenization and baseline AST behavior.
-- `tests/parser.ast-runtime.test.js`: AST-to-runtime queue integration behavior.
-- `tests/parser.errors-boundary.test.js`: parser/runtime error and boundary scenarios.
-- `tests/parser-helpers.test.js`: parser helper-module contracts.
-- `tests/ui.dom.test.js`: UI DOM utility checks (canvas/modals/editor behavior).
-- `tests/controllers.test.js`: controller-level checks (execution/file/navigation/modal/input/lifecycle).
-- `tests/interpreter.helpers.core.test.js`: interpreter helper core checks (boundary/conditions/game/queue/AST-eval).
-- `tests/interpreter.helpers.runtime.test.js`: interpreter helper runtime checks (primitive/animation/drawing/clone/lifecycle/runtime-state).
-- `tests/encoding.test.js`: UTF-8 integrity checks (`U+FFFD` + key Ukrainian snippets), repository policy checks for `.editorconfig`/`.gitattributes`, UTF-8 BOM guards for selected critical text files (with explicit legacy allowlist), external-link safety assertions for `_blank`, unified toolbar/download regression guards, modal ARIA contract checks, CSS legacy-cleanup guards, modal/message architecture guards, modal overlay->content mapping checks, JS `window.open(..., '_blank', 'noopener,noreferrer')` safety guards, and direct coverage for the share/message modules most exposed to mojibake regressions.
+Lessons page responsibilities:
+- lesson navigation and deep links
+- production lesson content structure
 
-## 11.3 Encoding and line-ending policy
+Quiz page responsibilities:
+- topic selection
+- random 10-question generation
+- answer state and scoring feedback
 
-- `.editorconfig` is the source of truth for editor defaults (`utf-8`, `lf`, final newline, trim trailing whitespace).
-- `.gitattributes` enforces repository normalization (`* text=auto eol=lf`) and marks binary assets as binary.
-- The runtime remains static-site only; these are repository hygiene controls and do not add build/runtime dependencies.
+Accessibility subsystem:
+- high contrast
+- larger text
+- reduced motion
+- simpler font
+- increased spacing
+- settings persisted in `localStorage`
 
-### 11.2 E2E smoke tests (Playwright)
+## 8. Testing and verification
 
-`tests/e2e/index.smoke.spec.js` covers:
-- help modal (`Esc`, focus return),
-- accessibility panel (focus containment + persistence),
-- arrow-key scroll blocking in `РіСЂР°С‚Рё`,
-- smoke execution via example block + stop,
-- stop-confirm modal keyboard flow (`Esc` opens while executing, second `Esc` closes and resumes),
-- download modal interactions (`Esc`, focus return),
-- download exports (PNG drawing + TXT code),
-- workspace switching keeps canvas content (tabbed mobile/tablet and non-tabbed desktop path).
-
-Touch-specific note:
-- the accessibility close-button smoke test runs only on touch projects and first verifies via `elementFromPoint(...)` that the close button is topmost; it then uses `click({ force: true })` because current Playwright mobile actionability reports a false intercept for that control under stress-mode accessibility settings.
-
-Projects in `playwright.config.js`:
-- `chromium` (desktop),
-- `mobile-chrome` (phone viewport),
-- `tablet-chrome` (tablet viewport).
-
-## 12. CI
-
-Workflow:
-- `../.github/workflows/e2e-ui.yml` (repo root).
-
-Runs on push/PR affecting `version_4/**`:
-- `npm ci`
-- `npx playwright install --with-deps chromium`
+Primary commands:
 - `npm run test:unit`
 - `npm run test:e2e`
-- uploads Playwright artifacts on failure.
-
-## 13. Local developer commands
-
-From `version_4`:
-- `npm install`
-- `npm run test:unit`
-- `npm run test:e2e`
-- `npm run test:e2e:headed`
-- `npm run test:e2e:ui`
-
-Parser/UI unit tests:
-- `node --experimental-default-type=module tests/parser.basic.test.js`
-- `node --experimental-default-type=module tests/parser.ast-runtime.test.js`
-- `node --experimental-default-type=module tests/parser.errors-boundary.test.js`
-- `node --experimental-default-type=module tests/parser-helpers.test.js`
-- `node --experimental-default-type=module tests/quiz.test.js`
-- `node --experimental-default-type=module tests/accessibility.test.js`
-- `node --experimental-default-type=module tests/lessons.test.js`
-- `node --experimental-default-type=module tests/manual.test.js`
-- `node --experimental-default-type=module tests/controllers.test.js`
-- `node --experimental-default-type=module tests/interpreter.helpers.core.test.js`
-- `node --experimental-default-type=module tests/interpreter.helpers.runtime.test.js`
-- `node --experimental-default-type=module tests/ui.dom.test.js`
 - `node --experimental-default-type=module tests/encoding.test.js`
 
-## 14. Known technical debt / open points
+What the suites cover:
+- parser and interpreter correctness
+- controller and DOM behavior
+- page-level contracts for manual, lessons, quiz, and accessibility
+- encoding and mojibake regressions
+- E2E smoke flows for editor and responsive UI
 
-1. Static CSS complexity remains the primary debt
-- `css/manual.css` is substantially cleaner than before, but still remains a large page-local stylesheet with some remaining cascade noise in lower-level content/a11y fragments and legacy section organization.
-- `css/main-editor.css` is close to a "good enough" state after tokenization and deduplication, but still has a few follow-up cosmetic literals and could be flattened further if desired.
-- `css/lessons.css` is in good shape for the production lessons page; remaining work there is ordinary stylistic cleanup rather than structural debt.
-- styles are still page-local rather than componentized, so maintainability depends on continuing small, verified cleanups instead of large rewrites.
+For content, CSS, or documentation changes, always run:
+1. `npm run test:unit`
+2. `node --experimental-default-type=module tests/encoding.test.js`
 
-2. Large static documents are still expensive to maintain
-- `manual.html` is much more structured now, but it is still a large hand-maintained static document with substantial instructional content living directly in HTML.
-- `lessons.html` is now the production version of the reworked course and is no longer an active refactor target; remaining work there is smoke-test growth and ordinary content maintenance.
+For user-facing interaction changes, also run:
+3. `npm run test:e2e`
 
-3. Mixed execution model history
-- despite parser cleanup, non-game mode still uses queue adaptation for compatibility with existing runtime structure.
+## 9. Release checklist
 
-4. Test stability remains important
-- the previous timing-sensitive flake in `tests/parser.ast-runtime.test.js` was reduced by making the game-loop state test wait for observed progress instead of assuming a fixed wall-clock schedule.
-- the full `npm test` suite currently passes, including Playwright smoke coverage.
-- the touch-specific accessibility close-button smoke case is now documented and isolated instead of leaking instability into unrelated modal-overflow tests.
+Before release or public deploy:
+1. run `npm run test:unit`
+2. run `node --experimental-default-type=module tests/encoding.test.js`
+3. run `npm run test:e2e`
+4. visually verify `index.html`, `manual.html`, `lessons.html`, `resources.html`, `quiz.html`, `teacher_guidelines.html`, `advice_for_parents.html`, and `zen.html`
+5. recheck links, anchors, modals, mobile layout, accessibility settings, and download/share flows
+6. keep `README.md`, this file, and `DESIGN_GUIDE.md` aligned with real repo behavior
 
-5. Documentation drift risk
-- this file and any debt/status docs should be updated whenever grammar, command contracts, responsive behavior, or debt priorities materially change.
+## 10. Current technical debt
 
-## 14.1 Current debt priority order
+Primary remaining debt:
+- CSS is improved but still partly page-local rather than componentized
+- `css/manual.css` remains the largest static styling surface
+- large static content pages still require careful manual maintenance
+- queue-mode compatibility logic remains in the runtime for non-game execution
 
-Recommended practical order at this snapshot:
-1. only do narrow, low-risk cleanup passes in `css/manual.css` from here,
-2. revisit `manual.html` only for clear content/UX payoff, not speculative restructuring,
-3. treat `css/main-editor.css` as near-done and only revisit for narrow cosmetic follow-up,
-4. keep `lessons.html` in watch-mode with small smoke-test growth as the course evolves,
-5. keep test-suite reliability under observation, but not as the main active debt item right now,
-6. keep JS-core/test cleanup as lower priority hygiene work unless a new bug changes that assessment.
+Current priority order:
+1. favor small verified cleanup passes over rewrites
+2. keep tokenization and shared UI styles moving into `css/global.css` when useful
+3. expand tests when page structure or runtime behavior changes
+4. avoid speculative refactors unless they remove real duplication or bugs
 
-## 15. Change checklist for contributors
+## 11. Contributor checklist
 
-When adding a language feature:
-1. update parser AST generation,
-2. update runtime execution path (queue/runtime or direct AST path),
-3. add/extend friendly errors in `constants.js`,
-4. add parser/unit tests,
-5. add/update E2E smoke if UI/interaction changes,
-6. update this document and user docs (`manual.html`, `lessons.html`),
-7. if the feature is part of the staged color/background/random expansion, keep `FEATURE_COLOR_BACKGROUND_RANDOM_SPEC.md` aligned with the actual phase and scope.
+When changing language or runtime behavior:
+1. update parser and runtime paths together
+2. update friendly errors if needed
+3. add or update unit tests
+4. add or update E2E coverage if interaction changes
+5. update `manual.html` or `lessons.html` if user-facing behavior changes
+6. update this file or `DESIGN_GUIDE.md` instead of creating a new repo-wide status document
 
-## 16. Single-source principle
+Single-source rule:
+- if `README.md` and this guide differ on technical details, this guide wins
+- if styling in code and `DESIGN_GUIDE.md` differ, bring the code back to the guide or explicitly update the guide
 
-For technical orientation, prefer this file over `README.md` if there is mismatch.
-`README.md` can stay short/public-facing; this guide is the detailed engineering source.
-
-
+Boundary reminder:
+- `README.md` is for orientation
+- this guide is for architecture, behavior, testing, and maintenance
+- `DESIGN_GUIDE.md` is for visual consistency, tokens, and reusable UI patterns
