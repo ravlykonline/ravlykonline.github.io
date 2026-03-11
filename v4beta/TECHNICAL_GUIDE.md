@@ -3,7 +3,7 @@
 This document is the primary technical onboarding for this repository.
 If you are an AI agent or a developer joining the project, start here.
 
-Last updated: 2026-03-10
+Last updated: 2026-03-11
 
 Related:
 - `DESIGN_GUIDE.md` is the visual/style reference for UI work.
@@ -158,7 +158,7 @@ Core modules:
 - `js/modules/accessibilitySettings.js`: accessibility settings/storage/class-application helpers shared by the accessibility entry script.
 - `js/modules/accessibilityNotifications.js`: accessibility toast/icon-selection helpers used by the accessibility entry script; dynamic message DOM is assembled without `innerHTML`.
 - `js/modules/lessonsPageController.js`: lessons-page tab/navigation/history controller helpers used by the lessons entry script.
-- `js/modules/manualPageController.js`: manual-page section paging, hash/history, TOC search/filtering, reading-mode switching, code-example toolbar injection, and mobile TOC controller helpers used by the manual entry script.
+- `js/modules/manualPageController.js`: manual-page section paging, hash/history, TOC search/filtering, reading-mode switching, legacy lesson deep-link alias resolution (`movement`, `rotation`, `pen`, `variables`, `functions`), auto-switch to full mode for `advanced-only` deep links, code-example toolbar injection, and mobile TOC controller helpers used by the manual entry script.
 - `js/modules/parserStatementDispatcher.js`: parser dispatch helper that routes the current token to the correct statement parser.
 - `js/modules/parserStatementContext.js`: builder for parser statement-helper context/dependencies, used to keep `ravlykParser` thin.
 - `js/modules/parserControlStatements.js`: parser helpers for control-flow statements (`РіСЂР°С‚Рё`, `РїРѕРІС‚РѕСЂРёС‚Рё`, `СЏРєС‰Рѕ`).
@@ -398,6 +398,8 @@ Implemented responsive behavior:
 Current manual UX behavior:
 - TOC search lives inside the sidebar/TOC and filters both TOC items and page sections,
 - reading-mode toggle (`Для початківців` / `Для досвідчених`) hides or shows `advanced-only` sections without reloading,
+- legacy lesson/manual deep links are preserved through alias hash targets (`#movement`, `#rotation`, `#pen`, `#variables`, `#functions`) that resolve to current canonical sections,
+- opening a deep link to an `advanced-only` section now auto-switches the manual from `mode-beginner` to `mode-full`, so lesson 7-9 links do not strand learners behind the reading-mode filter,
 - wide screens use a fixed left TOC sidebar; tablet/phone widths use the drawer-style TOC flow,
 - section paging is driven from visible sections only, so the indicator and prev/next buttons respect search filtering and reading mode,
 - code examples get an injected toolbar with copy action and `Відкрити в редакторі`,

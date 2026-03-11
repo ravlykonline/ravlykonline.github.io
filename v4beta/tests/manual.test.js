@@ -10,6 +10,7 @@ import {
     matchesManualSectionFilters,
     normalizeManualSearchQuery,
     resolveManualSectionId,
+    sectionRequiresFullMode,
     updateManualPagingState,
 } from '../js/modules/manualPageController.js';
 import { runTest } from './testUtils.js';
@@ -71,6 +72,29 @@ runTest('manual controller normalizes queries and applies beginner/search filter
         mode: 'full',
     });
     assert.deepEqual(availableIndexes, [0]);
+});
+
+runTest('manual controller detects that advanced sections require full mode', () => {
+    const sections = [
+        {
+            classList: {
+                contains(className) {
+                    return className === 'advanced-only' ? false : false;
+                },
+            },
+        },
+        {
+            classList: {
+                contains(className) {
+                    return className === 'advanced-only';
+                },
+            },
+        },
+    ];
+
+    assert.equal(sectionRequiresFullMode(sections, 0), false);
+    assert.equal(sectionRequiresFullMode(sections, 1), true);
+    assert.equal(sectionRequiresFullMode(sections, 99), false);
 });
 
 runTest('manual code example helpers normalize code and build editor links', () => {

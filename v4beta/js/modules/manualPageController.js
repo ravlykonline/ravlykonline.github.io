@@ -79,6 +79,11 @@ export function getAvailableManualSectionIndexes({ sections, query = '', mode = 
         .filter((index) => index !== -1);
 }
 
+export function sectionRequiresFullMode(sections, index) {
+    const section = Array.isArray(sections) ? sections[index] : null;
+    return Boolean(section && typeof section.classList?.contains === 'function' && section.classList.contains('advanced-only'));
+}
+
 export function updateManualPagingState({
     activeIndex,
     sectionIds,
@@ -205,6 +210,13 @@ export function createManualPageController({ documentRef, windowRef }) {
         documentRef.body.classList.toggle('mode-full', readingMode === 'full');
     }
 
+    function ensureModeForIndex(nextIndex) {
+        if (readingMode === 'beginner' && sectionRequiresFullMode(sections, nextIndex)) {
+            readingMode = 'full';
+            updateModeButtons();
+        }
+    }
+
     function renderActiveState(activeSectionIndex, options = {}) {
         const availableIndexes = getAvailableIndexes();
         if (activeSectionIndex === -1) {
@@ -258,6 +270,7 @@ export function createManualPageController({ documentRef, windowRef }) {
     }
 
     function setActiveIndex(nextIndex, options = {}) {
+        ensureModeForIndex(nextIndex);
         const availableIndexes = getAvailableIndexes();
         const resolvedIndex = resolveAvailableIndex(
             Math.max(0, Math.min(sectionIds.length - 1, nextIndex)),
