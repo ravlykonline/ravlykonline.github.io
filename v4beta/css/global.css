@@ -189,6 +189,91 @@ a.btn:focus-visible {
     background-color: #275fa4;
 }
 
+/* --- Tables --- */
+.manual-table-wrap {
+    margin: 20px 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.manual-table {
+    width: max(100%, 560px);
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: transparent;
+}
+
+.manual-table thead th {
+    padding: 14px 16px;
+    text-align: left;
+    vertical-align: bottom;
+    color: #1f2937;
+    font-size: clamp(1rem, 2.5vw, 1.08rem);
+    font-weight: 800;
+    background: #eef4ff;
+    border-bottom: 2px solid #cbd5e1;
+}
+
+.manual-table tbody td {
+    padding: 12px 16px;
+    vertical-align: top;
+    color: #1f2937;
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+}
+
+.manual-table tbody tr:first-child td {
+    border-top: none;
+}
+
+.manual-table :is(th, td) + :is(th, td) {
+    border-left: 1px solid #e5e7eb;
+}
+
+.manual-table tbody tr:nth-child(even) td {
+    background: #fafbff;
+}
+
+.manual-table tbody tr:hover td {
+    background: #f3efff;
+}
+
+.manual-table code {
+    white-space: nowrap;
+}
+
+.manual-table th:first-child,
+.manual-table td:first-child {
+    min-width: 88px;
+}
+
+.manual-table th:last-child,
+.manual-table td:last-child {
+    min-width: 130px;
+}
+
+.a11y-high-contrast .manual-table-wrap {
+    background: #000 !important;
+    border-color: #fff !important;
+    box-shadow: none !important;
+}
+
+.a11y-high-contrast .manual-table thead th,
+.a11y-high-contrast .manual-table tbody td {
+    color: #fff !important;
+    background: #000 !important;
+    border-color: #fff !important;
+}
+
+.a11y-high-contrast .manual-table tbody tr:hover td {
+    background: #111 !important;
+}
+
 
 /* --- Headings --- */
 h1, h2, h3, h4, h5, h6 {
@@ -549,5 +634,13 @@ body #global-message-display.message-a11y-global .message-close-btn-global:hover
 
     .modal-actions .btn {
         flex-basis: 100%;
+    }
+
+    .manual-table-wrap {
+        margin-inline: -4px;
+    }
+
+    .manual-table {
+        width: max(100%, 520px);
     }
 }

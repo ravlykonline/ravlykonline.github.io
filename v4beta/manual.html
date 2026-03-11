@@ -382,7 +382,7 @@
                                 <h4 id="manual-variables-scope-title">Де "живе" змінна?</h4>
                                 <p>У тебе вдома є кіт на ім'я Рудик. У сусідів теж є кіт — і теж Рудик. Коли ти кажеш "Рудик, йди їсти" — твій кіт іде, а сусідський навіть не обертається. Кожен Рудик існує у своєму домі.</p>
                                 <p>Так само і в РАВЛИКУ: параметр функції — це "домашній Рудик". Він існує лише всередині своєї функції і не плутається із зовнішньою змінною з таким самим іменем.</p>
-                                <pre class="code-example">створити розмір = 100            # зовнішній "Рудик"
+                                <pre class="example-code-manual">створити розмір = 100            # зовнішній "Рудик"
                             
 створити коло(розмір) (          # внутрішній "Рудик"
     повторити 36 ( 
@@ -436,80 +436,84 @@
                         <h3 id="manual-conditions-subsection-comparisons">Порівняння чисел</h3>
                         <p>Умова — це питання, на яке РАВЛИК відповідає "так" або "ні". Найчастіше умови порівнюють числа за допомогою операторів.</p>
                     
-                        <table class="manual-table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Оператор</th>
-                                    <th scope="col">Значення</th>
-                                    <th scope="col">Приклад</th>
-                                    <th scope="col">Результат</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><code>=</code></td>
-                                    <td>дорівнює</td>
-                                    <td><code>якщо n = 5</code></td>
-                                    <td>так, якщо n рівно 5</td>
-                                </tr>
-                                <tr>
-                                    <td><code>!=</code></td>
-                                    <td>не дорівнює</td>
-                                    <td><code>якщо n != 0</code></td>
-                                    <td>так, якщо n — будь-яке число крім нуля</td>
-                                </tr>
-                                <tr>
-                                    <td><code>&lt;</code></td>
-                                    <td>менше</td>
-                                    <td><code>якщо n &lt; 10</code></td>
-                                    <td>так, якщо n менше ніж 10</td>
-                                </tr>
-                                <tr>
-                                    <td><code>&gt;</code></td>
-                                    <td>більше</td>
-                                    <td><code>якщо n &gt; 10</code></td>
-                                    <td>так, якщо n більше ніж 10</td>
-                                </tr>
-                                <tr>
-                                    <td><code>&lt;=</code></td>
-                                    <td>менше або дорівнює</td>
-                                    <td><code>якщо n &lt;= 10</code></td>
-                                    <td>так, якщо n — це 10, 9, 8… або менше</td>
-                                </tr>
-                                <tr>
-                                    <td><code>&gt;=</code></td>
-                                    <td>більше або дорівнює</td>
-                                    <td><code>якщо n &gt;= 10</code></td>
-                                    <td>так, якщо n — це 10, 11, 12… або більше</td>
-                                </tr>
-                                <tr>
-                                    <td><code>%</code></td>
-                                    <td>остача від ділення</td>
-                                    <td><code>якщо n % 2 = 0</code></td>
-                                    <td>так, якщо n парне</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    
-                        <section class="manual-subsection" aria-labelledby="manual-conditions-modulo-title">
-                            <h4 id="manual-conditions-modulo-title">Оператор <code>%</code> — остача від ділення</h4>
-                            <p>Цей оператор може здатися незвичним, але він дуже корисний. <code>n % k</code> — це те, що "залишилось" після того, як поділив <code>n</code> на <code>k</code> рівно стільки разів, скільки можна.</p>
+                        <div class="manual-table-wrap">
                             <table class="manual-table">
                                 <thead>
                                     <tr>
-                                        <th scope="col">Вираз</th>
-                                        <th scope="col">Як рахувати</th>
+                                        <th scope="col">Оператор</th>
+                                        <th scope="col">Значення</th>
+                                        <th scope="col">Приклад</th>
                                         <th scope="col">Результат</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr><td><code>7 % 2</code></td><td>7 = 2×3 + <strong>1</strong></td><td>1</td></tr>
-                                    <tr><td><code>8 % 2</code></td><td>8 = 2×4 + <strong>0</strong></td><td>0</td></tr>
-                                    <tr><td><code>10 % 3</code></td><td>10 = 3×3 + <strong>1</strong></td><td>1</td></tr>
-                                    <tr><td><code>9 % 3</code></td><td>9 = 3×3 + <strong>0</strong></td><td>0</td></tr>
-                                    <tr><td><code>5 % 5</code></td><td>5 = 5×1 + <strong>0</strong></td><td>0</td></tr>
+                                    <tr>
+                                        <td><code>=</code></td>
+                                        <td>дорівнює</td>
+                                        <td><code>якщо n = 5</code></td>
+                                        <td>так, якщо n рівно 5</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>!=</code></td>
+                                        <td>не дорівнює</td>
+                                        <td><code>якщо n != 0</code></td>
+                                        <td>так, якщо n — будь-яке число крім нуля</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>&lt;</code></td>
+                                        <td>менше</td>
+                                        <td><code>якщо n &lt; 10</code></td>
+                                        <td>так, якщо n менше ніж 10</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>&gt;</code></td>
+                                        <td>більше</td>
+                                        <td><code>якщо n &gt; 10</code></td>
+                                        <td>так, якщо n більше ніж 10</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>&lt;=</code></td>
+                                        <td>менше або дорівнює</td>
+                                        <td><code>якщо n &lt;= 10</code></td>
+                                        <td>так, якщо n — це 10, 9, 8… або менше</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>&gt;=</code></td>
+                                        <td>більше або дорівнює</td>
+                                        <td><code>якщо n &gt;= 10</code></td>
+                                        <td>так, якщо n — це 10, 11, 12… або більше</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>%</code></td>
+                                        <td>остача від ділення</td>
+                                        <td><code>якщо n % 2 = 0</code></td>
+                                        <td>так, якщо n парне</td>
+                                    </tr>
                                 </tbody>
                             </table>
+                        </div>
+                    
+                        <section class="manual-subsection" aria-labelledby="manual-conditions-modulo-title">
+                            <h4 id="manual-conditions-modulo-title">Оператор <code>%</code> — остача від ділення</h4>
+                            <p>Цей оператор може здатися незвичним, але він дуже корисний. <code>n % k</code> — це те, що "залишилось" після того, як поділив <code>n</code> на <code>k</code> рівно стільки разів, скільки можна.</p>
+                            <div class="manual-table-wrap">
+                                <table class="manual-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Вираз</th>
+                                            <th scope="col">Як рахувати</th>
+                                            <th scope="col">Результат</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td><code>7 % 2</code></td><td>7 = 2×3 + <strong>1</strong></td><td>1</td></tr>
+                                        <tr><td><code>8 % 2</code></td><td>8 = 2×4 + <strong>0</strong></td><td>0</td></tr>
+                                        <tr><td><code>10 % 3</code></td><td>10 = 3×3 + <strong>1</strong></td><td>1</td></tr>
+                                        <tr><td><code>9 % 3</code></td><td>9 = 3×3 + <strong>0</strong></td><td>0</td></tr>
+                                        <tr><td><code>5 % 5</code></td><td>5 = 5×1 + <strong>0</strong></td><td>0</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                             <p><strong>Ключовий факт:</strong> якщо <code>n % k = 0</code> — число <code>n</code> ділиться на <code>k</code> без остачі.</p>
                             <ul>
                                 <li><code>n % 2 = 0</code> → n парне (2, 4, 6, 8…)</li>
