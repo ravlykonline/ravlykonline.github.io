@@ -57,7 +57,7 @@ export function updateRavlykVisualsOnScreen(ravlykState, canvasElement) {
     const offsetX = 0;
     // Illustrated snail sprites read better when anchored slightly inside the box,
     // otherwise the path endpoint peeks out above the shell.
-    const offsetY = -ravlykSize * 0.3;
+    const offsetY = (-ravlykSize * 0.3) - 1;
     const dx = offsetX * Math.cos(angleRad) - offsetY * Math.sin(angleRad);
     const dy = offsetX * Math.sin(angleRad) + offsetY * Math.cos(angleRad);
     const canvasRect = canvasElement.getBoundingClientRect();

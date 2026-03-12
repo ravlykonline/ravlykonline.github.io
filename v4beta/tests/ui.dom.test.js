@@ -160,7 +160,7 @@ runTest('ravlyk sprite keeps pen-thickness visual lead aligned with heading', ()
 
     const sprite = container.children[0];
     assert.equal(sprite.style.left, '85px');
-    assert.equal(sprite.style.top, '94px');
+    assert.equal(sprite.style.top, '95px');
 
     updateRavlykVisualsOnScreen({
         x: 100,
@@ -172,7 +172,7 @@ runTest('ravlyk sprite keeps pen-thickness visual lead aligned with heading', ()
     }, canvas);
 
     assert.equal(sprite.style.left, '85px');
-    assert.equal(sprite.style.top, '89px');
+    assert.equal(sprite.style.top, '90px');
 
     global.document = previousDocument;
 });
