@@ -164,6 +164,9 @@ Editor page responsibilities:
 - code editor, canvas, toolbar, examples, command reference, modal flows
 - share/download/grid/help actions
 - mobile workspace switching between editor and canvas
+- the moving snail marker is a DOM sprite created by `js/modules/ui.js`, not a canvas draw primitive
+- the editor currently uses an illustrated SVG snail variant based on `ravlyk_2.svg`
+- sprite placement keeps a small manual Y-anchor calibration in `updateRavlykVisualsOnScreen()` so path endpoints do not visibly protrude from under the icon
 
 Manual page responsibilities:
 - section navigation and TOC
