@@ -522,6 +522,101 @@ input:checked + .toggle-slider:before {
     color: #000 !important;
 }
 
+.a11y-high-contrast .resource-section,
+.a11y-high-contrast .resource-item,
+.a11y-high-contrast .coming-soon,
+.a11y-high-contrast .quiz-card,
+.a11y-high-contrast .quiz-question,
+.a11y-high-contrast .quiz-option,
+.a11y-high-contrast .quiz-result,
+.a11y-high-contrast #quiz-question-list:empty::before,
+.a11y-high-contrast .quiz-settings select,
+.a11y-high-contrast .tabs-container,
+.a11y-high-contrast .lesson-content,
+.a11y-high-contrast .lesson-path-section,
+.a11y-high-contrast .lesson-content .why-important,
+.a11y-high-contrast .lesson-content .code-example,
+.a11y-high-contrast .task,
+.a11y-high-contrast .tip,
+.a11y-high-contrast .lesson-path-table thead th,
+.a11y-high-contrast .lesson-path-table tbody td,
+.a11y-high-contrast .lesson-content details,
+.a11y-high-contrast .lesson-content summary,
+.a11y-high-contrast .parent-card,
+.a11y-high-contrast .teacher-card,
+.a11y-high-contrast .track-card,
+.a11y-high-contrast .print-sheet,
+.a11y-high-contrast .print-block,
+.a11y-high-contrast .phrase,
+.a11y-high-contrast .teacher-table,
+.a11y-high-contrast .teacher-table th,
+.a11y-high-contrast .teacher-table td {
+    background: #000 !important;
+    color: #fff !important;
+    border-color: #fff !important;
+    box-shadow: none !important;
+}
+
+.a11y-high-contrast .resource-item pre,
+.a11y-high-contrast .resource-item code {
+    background: #000 !important;
+    color: #fff !important;
+    border-color: #fff !important;
+}
+
+.a11y-high-contrast .resource-section h2,
+.a11y-high-contrast .resource-section h3,
+.a11y-high-contrast .resource-item h4,
+.a11y-high-contrast .resource-section p,
+.a11y-high-contrast .resource-section li,
+.a11y-high-contrast .resource-item p,
+.a11y-high-contrast .quiz-settings h4,
+.a11y-high-contrast .quiz-question legend,
+.a11y-high-contrast .quiz-option-text,
+.a11y-high-contrast .quiz-card p,
+.a11y-high-contrast .quiz-result,
+.a11y-high-contrast .quiz-settings label,
+.a11y-high-contrast .lesson-path-section p,
+.a11y-high-contrast .lesson-path-index,
+.a11y-high-contrast .lesson-content .lesson-path-table tbody td:nth-child(2),
+.a11y-high-contrast .lesson-content .lesson-path-table tbody td:nth-child(3),
+.a11y-high-contrast .lesson-content h2,
+.a11y-high-contrast .lesson-content h3,
+.a11y-high-contrast .tip strong,
+.a11y-high-contrast .parent-card h3,
+.a11y-high-contrast .parent-card h4,
+.a11y-high-contrast .parent-card p,
+.a11y-high-contrast .parent-card li,
+.a11y-high-contrast .teacher-card h3,
+.a11y-high-contrast .teacher-card h4,
+.a11y-high-contrast .teacher-card p,
+.a11y-high-contrast .teacher-card li,
+.a11y-high-contrast .teacher-table th,
+.a11y-high-contrast .teacher-table td,
+.a11y-high-contrast .phrase {
+    color: #fff !important;
+}
+
+.a11y-high-contrast .lesson-content h2,
+.a11y-high-contrast .lesson-content h3,
+.a11y-high-contrast .tip strong {
+    border-color: #fff !important;
+}
+
+.a11y-high-contrast .coming-soon {
+    border: 1px dashed #fff !important;
+}
+
+.a11y-high-contrast .lesson-path-dot {
+    border-color: #fff !important;
+}
+
+.a11y-high-contrast .print-sheet li::before,
+.a11y-high-contrast .print-checklist li::before {
+    border-color: #fff !important;
+    background: #000 !important;
+}
+
 .a11y-high-contrast body #global-message-display.message-a11y-global {
     background: #000 !important;
     color: #fff !important;

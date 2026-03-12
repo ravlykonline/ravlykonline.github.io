@@ -386,18 +386,6 @@
 }
 
 /* --- Accessibility refinements: lessons page --- */
-.a11y-high-contrast .tabs-container,
-.a11y-high-contrast .lesson-content,
-.a11y-high-contrast .lesson-content .why-important,
-.a11y-high-contrast .lesson-content .code-example,
-.a11y-high-contrast .task,
-.a11y-high-contrast .tip {
-    background: #000 !important;
-    color: #fff !important;
-    border-color: #fff !important;
-    box-shadow: none !important;
-}
-
 .a11y-high-contrast .tab-button {
     color: #fff !important;
     border: 1px solid #fff !important;
@@ -413,26 +401,6 @@
     background: #fff !important;
     color: #000 !important;
     border-color: #fff !important;
-}
-
-.a11y-high-contrast .lesson-path-table thead th,
-.a11y-high-contrast .lesson-path-table tbody td {
-    border-color: #fff !important;
-}
-
-.a11y-high-contrast .lesson-content h2,
-.a11y-high-contrast .lesson-content h3,
-.a11y-high-contrast .tip strong {
-    color: #fff !important;
-    border-color: #fff !important;
-}
-
-.a11y-high-contrast .lesson-content details,
-.a11y-high-contrast .lesson-content summary {
-    background: #000 !important;
-    color: #fff !important;
-    border-color: #fff !important;
-    box-shadow: none !important;
 }
 
 .a11y-high-contrast .lesson-image {

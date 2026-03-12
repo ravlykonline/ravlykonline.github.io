@@ -1,0 +1,29 @@
+.a11y-high-contrast .zen-section-label,
+.a11y-high-contrast .zen-principle,
+.a11y-high-contrast .zen-num,
+.a11y-high-contrast .zen-copy-btn {
+    background: #000 !important;
+    color: #fff !important;
+    border-color: #fff !important;
+    box-shadow: none !important;
+}
+
+.a11y-high-contrast .zen-divider {
+    background: #fff !important;
+}
+
+.a11y-high-contrast .zen-intro,
+.a11y-high-contrast .zen-principle-text,
+.a11y-high-contrast .zen-principle-comment,
+.a11y-high-contrast .zen-footer-text,
+.a11y-high-contrast .zen-copy-btn i {
+    color: #fff !important;
+}
+
+.a11y-high-contrast .zen-copy-btn:hover,
+.a11y-high-contrast .zen-copy-btn:focus-visible,
+.a11y-high-contrast .zen-copy-btn.copied {
+    background: #222 !important;
+    color: #fff !important;
+    border-color: #7dd3ff !important;
+}

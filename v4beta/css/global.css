@@ -562,6 +562,43 @@ body #global-message-display.message-a11y-global .message-close-btn-global:hover
     background-color: rgba(0, 0, 0, 0.1) !important;
 }
 
+html.a11y-high-contrast body #global-message-display,
+html.a11y-high-contrast body #global-message-display.message-global,
+html.a11y-high-contrast body #global-message-display.message-error-global,
+html.a11y-high-contrast body #global-message-display.message-success-global,
+html.a11y-high-contrast body #global-message-display.message-info-global,
+html.a11y-high-contrast body #global-message-display.message-a11y-global {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
+    border-left-width: 6px !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html.a11y-high-contrast body #global-message-display.message-error-global {
+    border-left-color: #ff6b6b !important;
+}
+
+html.a11y-high-contrast body #global-message-display.message-success-global {
+    border-left-color: #7CFC00 !important;
+}
+
+html.a11y-high-contrast body #global-message-display.message-info-global,
+html.a11y-high-contrast body #global-message-display.message-a11y-global {
+    border-left-color: #7dd3ff !important;
+}
+
+html.a11y-high-contrast body #global-message-display .message-text-global,
+html.a11y-high-contrast body #global-message-display .message-text-global i,
+html.a11y-high-contrast body #global-message-display .message-close-btn-global {
+    color: #fff !important;
+}
+
+html.a11y-high-contrast body #global-message-display .message-close-btn-global:hover {
+    background: #222 !important;
+}
+
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;

@@ -23,6 +23,10 @@ Use this checklist after accessibility-related changes and before release.
   - larger text
   - reduced motion
   - dyslexia-friendly font
+- Verify high contrast on all public pages keeps:
+  - readable foreground/background contrast
+  - visible focus rings
+  - distinct action states for cards, buttons, tables, and notices
 - Run keyboard smoke on desktop and mobile/tablet viewports.
 - Run a short screen reader smoke on core pages:
   - `index.html`
@@ -51,6 +55,9 @@ Focus on these suites when accessibility code is touched:
 
 - `tests/accessibility.test.js`
 - `tests/e2e/accessibility.pages.spec.js`
+- `tests/e2e/accessibility.checklist.spec.js`
+- `tests/e2e/accessibility.persistence.spec.js`
+- `tests/e2e/accessibility.high-contrast.spec.js`
 - `tests/e2e/index.smoke.spec.js`
 - `tests/encoding.test.js`
 
@@ -85,6 +92,7 @@ Check each setting on desktop and mobile widths.
   - text stays readable
   - focus rings remain visible
   - action buttons remain distinguishable
+  - cards, notices, and table cells do not fall back to light backgrounds with light text
 - Larger text:
   - no clipped text
   - no overlapping controls
@@ -104,3 +112,4 @@ Accessibility changes are ready to ship when:
 - P1 manual checks are complete
 - no public page is missing the shared accessibility shell
 - no keyboard regression is found in `skip-link`, `main`, or panel focus flow
+- no high-contrast regression is found on quiz, lessons, zen, resources, teacher, or parent pages

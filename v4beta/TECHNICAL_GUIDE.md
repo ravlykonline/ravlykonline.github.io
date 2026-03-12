@@ -80,9 +80,10 @@ Primary CSS:
 - `css/lessons.css`: lessons page
 - `css/resources.css`: resources page
 - `css/quiz.css`: quiz page
-- `css/accessibility.css`: accessibility UI
+- `css/accessibility.css`: accessibility UI and shared accessibility-mode overrides
 - `css/teacher-guidelines.css`: teacher page
 - `css/parents.css`: parent page
+- `css/zen.css`: Zen page styles
 
 Tests:
 - `tests/*.test.js`: unit and integration coverage
@@ -176,6 +177,8 @@ Accessibility subsystem:
 - increased spacing
 - settings persisted in `localStorage`
 - shared setting contract uses `data-setting` attributes in the panel inputs
+- shared high-contrast surface overrides live in `css/accessibility.css`
+- page CSS keeps only page-specific state and layout exceptions where shared rules would be too broad
 
 ## 8. Testing and verification
 
@@ -192,11 +195,13 @@ What the suites cover:
 - E2E smoke flows for editor and responsive UI
 - keyboard smoke for skip-link, `main`, and accessibility-panel focus flow on all public pages
 - persistence checks for accessibility settings on `index.html`, `manual.html`, and `lessons.html`
+- computed-style regression checks for high contrast on quiz, lessons, zen, resources, teacher, and parent pages
 
 Primary accessibility E2E specs:
 - `tests/e2e/accessibility.pages.spec.js`
 - `tests/e2e/accessibility.checklist.spec.js`
 - `tests/e2e/accessibility.persistence.spec.js`
+- `tests/e2e/accessibility.high-contrast.spec.js`
 - `tests/e2e/index.smoke.spec.js`
 
 For content, CSS, or documentation changes, always run:
@@ -207,7 +212,7 @@ For user-facing interaction changes, also run:
 3. `npm run test:e2e`
 
 Accessibility verification note:
-- automated tests cover structure, focus flow, and key persistence paths
+- automated tests cover structure, focus flow, key persistence paths, and the main high-contrast visual contract
 - screen reader output and final visual readability checks remain manual and are tracked in `ACCESSIBILITY_CHECKLIST.md`
 
 GitHub Pages note:
@@ -238,6 +243,11 @@ Primary remaining debt:
 - `css/manual.css` remains the largest static styling surface
 - large static content pages still require careful manual maintenance
 - queue-mode compatibility logic remains in the runtime for non-game execution
+
+Accessibility settings follow-up:
+- screen reader smoke is still manual and should be rerun on `index.html`, `manual.html`, and `lessons.html` before release
+- final visual review is still needed for larger text, reduced motion, simpler font, and increased spacing across desktop and mobile widths
+- persistence is directly covered for `index.html`, `manual.html`, and `lessons.html`; the remaining public pages rely on the shared `js/accessibility.js` contract and should still be spot-checked manually
 
 Current priority order:
 1. favor small verified cleanup passes over rewrites
