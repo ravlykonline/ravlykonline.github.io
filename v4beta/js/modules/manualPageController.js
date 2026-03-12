@@ -342,8 +342,10 @@ export function createManualPageController({ documentRef, windowRef }) {
             }
         });
 
+        const hasInitialHash = Boolean(windowRef.location.hash);
         setActiveIndex(getInitialManualSectionIndex(sectionIds, windowRef.location.hash), {
-            replaceHistory: true,
+            replaceHistory: hasInitialHash,
+            skipHistory: !hasInitialHash,
             keepScroll: true,
         });
     }

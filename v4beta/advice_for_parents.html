@@ -14,6 +14,7 @@
     <title>Поради для батьків — Як вивчати програмування з дитиною</title>
     <!-- Release token for GitHub Pages cache busting: 2026-03-11-1 -->
     <link rel="stylesheet" href="css/global.css?v=2026-03-11-1" />
+    <link rel="stylesheet" href="css/accessibility.css?v=2026-03-11-1" />
     <link rel="stylesheet" href="css/parents.css?v=2026-03-11-1" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <!-- Google tag (gtag.js) -->
@@ -156,6 +157,65 @@
             <p>&copy;<span class="current-year">2026</span> РАВЛИК | Поради для батьків</p>
         </footer>
     </div>
+    <div class="accessibility-floating-layer">
+    <button id="accessibility-toggle" class="accessibility-toggle" aria-expanded="false"
+        aria-controls="accessibility-panel" aria-label="&#1053;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1086;&#1089;&#1090;&#1110;"><i
+            class="fas fa-universal-access"></i></button>
+    <div id="accessibility-panel" class="accessibility-panel hidden" role="dialog" aria-modal="true"
+        aria-labelledby="accessibility-title">
+        <div class="accessibility-header">
+            <h3 id="accessibility-title" class="accessibility-panel-title">&#1053;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1086;&#1089;&#1090;&#1110;</h3>
+            <button id="close-accessibility-panel-btn" class="close-btn"
+                aria-label="&#1047;&#1072;&#1082;&#1088;&#1080;&#1090;&#1080; &#1087;&#1072;&#1085;&#1077;&#1083;&#1100; &#1085;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1100; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1086;&#1089;&#1090;&#1110;">&times;</button>
+        </div>
+        <div class="accessibility-options">
+            <div class="accessibility-option">
+                <label for="high-contrast-input">&#1042;&#1080;&#1089;&#1086;&#1082;&#1080;&#1081; &#1082;&#1086;&#1085;&#1090;&#1088;&#1072;&#1089;&#1090;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="high-contrast-input" class="accessibility-setting-input"
+                        data-setting="high-contrast">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="larger-text-input">&#1047;&#1073;&#1110;&#1083;&#1100;&#1096;&#1077;&#1085;&#1080;&#1081; &#1090;&#1077;&#1082;&#1089;&#1090;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="larger-text-input" class="accessibility-setting-input"
+                        data-setting="larger-text">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="reduce-animations-input">&#1047;&#1084;&#1077;&#1085;&#1096;&#1077;&#1085;&#1085;&#1103; &#1072;&#1085;&#1110;&#1084;&#1072;&#1094;&#1110;&#1111;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="reduce-animations-input" class="accessibility-setting-input"
+                        data-setting="reduce-animations">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="sans-serif-font-input">&#1055;&#1088;&#1086;&#1089;&#1090;&#1080;&#1081; &#1096;&#1088;&#1080;&#1092;&#1090;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="sans-serif-font-input" class="accessibility-setting-input"
+                        data-setting="sans-serif-font">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="increased-spacing-input">&#1047;&#1073;&#1110;&#1083;&#1100;&#1096;&#1077;&#1085;&#1110; &#1110;&#1085;&#1090;&#1077;&#1088;&#1074;&#1072;&#1083;&#1080;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="increased-spacing-input" class="accessibility-setting-input"
+                        data-setting="increased-spacing">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+        </div>
+        <div class="accessibility-footer">
+            <button id="reset-accessibility-btn" class="btn btn-danger">&#1057;&#1082;&#1080;&#1085;&#1091;&#1090;&#1080; &#1085;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103;</button>
+        </div>
+    </div>
+</div>
+<script type="module" src="js/accessibility.js?v=2026-03-11-1"></script>
 </body>
 
 </html>

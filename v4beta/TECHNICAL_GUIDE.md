@@ -2,18 +2,20 @@
 
 Primary engineering guide for this repository.
 
-Last updated: 2026-03-11
+Last updated: 2026-03-12
 
 Related:
 - `README.md` for a short project overview
 - `DESIGN_GUIDE.md` for UI and styling rules
+- `ACCESSIBILITY_CHECKLIST.md` for release-facing accessibility verification
 
 ## 1. Documentation policy
 
-Keep only three canonical repo-wide documents:
+Keep only these canonical repo-wide documents:
 - `README.md` for public-facing orientation
 - `TECHNICAL_GUIDE.md` for engineering reality
 - `DESIGN_GUIDE.md` for design-system and CSS rules
+- `ACCESSIBILITY_CHECKLIST.md` for accessibility regression verification
 
 Do not create separate repo-wide markdown files for temporary status, debt, release notes, or executive summaries unless the scope is independent and long-lived.
 
@@ -166,12 +168,14 @@ Quiz page responsibilities:
 - answer state and scoring feedback
 
 Accessibility subsystem:
+- shared accessibility shell is present on all public entry pages
 - high contrast
 - larger text
 - reduced motion
 - simpler font
 - increased spacing
 - settings persisted in `localStorage`
+- shared setting contract uses `data-setting` attributes in the panel inputs
 
 ## 8. Testing and verification
 
@@ -186,6 +190,14 @@ What the suites cover:
 - page-level contracts for manual, lessons, quiz, and accessibility
 - encoding and mojibake regressions
 - E2E smoke flows for editor and responsive UI
+- keyboard smoke for skip-link, `main`, and accessibility-panel focus flow on all public pages
+- persistence checks for accessibility settings on `index.html`, `manual.html`, and `lessons.html`
+
+Primary accessibility E2E specs:
+- `tests/e2e/accessibility.pages.spec.js`
+- `tests/e2e/accessibility.checklist.spec.js`
+- `tests/e2e/accessibility.persistence.spec.js`
+- `tests/e2e/index.smoke.spec.js`
 
 For content, CSS, or documentation changes, always run:
 1. `npm run test:unit`
@@ -193,6 +205,10 @@ For content, CSS, or documentation changes, always run:
 
 For user-facing interaction changes, also run:
 3. `npm run test:e2e`
+
+Accessibility verification note:
+- automated tests cover structure, focus flow, and key persistence paths
+- screen reader output and final visual readability checks remain manual and are tracked in `ACCESSIBILITY_CHECKLIST.md`
 
 GitHub Pages note:
 - the project uses versioned local asset URLs such as `?v=2026-03-11-1` for CSS, JS, and `site.webmanifest`
@@ -212,7 +228,8 @@ Before release or public deploy:
 5. if promoting from `v4beta`, run `powershell -ExecutionPolicy Bypass -File .\scripts\promote-to-root.ps1` first in dry-run mode, then rerun with `-Apply` after reviewing the planned changes
 6. visually verify `index.html`, `manual.html`, `lessons.html`, `resources.html`, `quiz.html`, `teacher_guidelines.html`, `advice_for_parents.html`, and `zen.html`
 7. recheck links, anchors, modals, mobile layout, accessibility settings, and download/share flows
-8. keep `README.md`, this file, and `DESIGN_GUIDE.md` aligned with real repo behavior
+8. run the manual P1 review from `ACCESSIBILITY_CHECKLIST.md` for screen reader and visual accessibility checks
+9. keep `README.md`, this file, `DESIGN_GUIDE.md`, and `ACCESSIBILITY_CHECKLIST.md` aligned with real repo behavior
 
 ## 10. Current technical debt
 
