@@ -56,6 +56,8 @@ Main entry points:
 - `lessons.html` and `js/lessonsPage.js` for lessons
 - `quiz.html` and `js/quizPage.js` for the quiz
 - `js/accessibility.js` for accessibility controls
+- `js/registerServiceWorker.js` for public-page service-worker registration
+- `sw.js` for offline shell caching and runtime fallback
 
 Core engine modules:
 - `js/modules/ravlykParser.js`
@@ -190,6 +192,15 @@ Accessibility subsystem:
 - shared high-contrast surface overrides live in `css/accessibility.css`
 - page CSS keeps only page-specific state and layout exceptions where shared rules would be too broad
 
+PWA/offline subsystem:
+- all public entry pages register the root service worker through `js/registerServiceWorker.js`
+- `sw.js` precaches the public shell: HTML entry pages, local CSS, local JS entry files, `js/modules/*`, `js/quizData/*`, local icons, and local instructional images
+- navigation requests use network-first with cache fallback
+- static same-origin assets use cache-first with runtime cache fill
+- after one successful online warm-up, the editor, manual, lessons, quiz, and supporting shell pages are expected to remain available offline
+- first-load offline is not guaranteed until the service worker has been installed and the cache warmed
+- the offline shell currently targets same-origin assets only; third-party CDN resources are not part of the precache contract
+
 ## 8. Testing and verification
 
 Primary commands:
@@ -206,6 +217,7 @@ What the suites cover:
 - keyboard smoke for skip-link, `main`, and accessibility-panel focus flow on all public pages
 - persistence checks for accessibility settings on `index.html`, `manual.html`, and `lessons.html`
 - computed-style regression checks for high contrast on quiz, lessons, zen, resources, teacher, and parent pages
+- offline smoke for the warmed PWA shell on `index.html`, `manual.html`, `lessons.html`, and `quiz.html`
 
 Primary accessibility E2E specs:
 - `tests/e2e/accessibility.pages.spec.js`
@@ -213,6 +225,9 @@ Primary accessibility E2E specs:
 - `tests/e2e/accessibility.persistence.spec.js`
 - `tests/e2e/accessibility.high-contrast.spec.js`
 - `tests/e2e/index.smoke.spec.js`
+
+Primary PWA E2E spec:
+- `tests/e2e/pwa.offline.spec.js`
 
 For content, CSS, or documentation changes, always run:
 1. `npm run test:unit`
@@ -229,9 +244,11 @@ GitHub Pages note:
 - the project uses versioned local asset URLs such as `?v=2026-03-11-1` for CSS, JS, and `site.webmanifest`
 - when shipping a public update, bump that shared release token across HTML entry pages so cached school/lab browsers fetch fresh assets
 - this is the repository-level cache-busting strategy because GitHub Pages does not provide custom cache-header control
+- `sw.js` uses the same shared release token as its cache version and should be updated when public asset behavior changes
 - do not publish the entire `v4beta` working directory into the site root because it contains dev-only artifacts such as `node_modules`, `tests`, `package*.json`, and Playwright config
 - when promoting `v4beta` to the root site, sync only the public site files and preserve repo control directories such as `.git`, `.github`, `old`, and `v4beta`
 - use `scripts/promote-to-root.ps1` from inside `v4beta` for the root promotion flow instead of manual "delete everything in root"
+- `scripts/promote-to-root.ps1` must include `sw.js` in the published root file set
 
 ## 9. Release checklist
 
@@ -240,12 +257,13 @@ Before release or public deploy:
 2. run `node --experimental-default-type=module tests/encoding.test.js`
 3. run `npm run test:e2e`
 4. bump the shared asset version token in HTML entry pages when the release changes public CSS, JS, or manifest behavior
-5. if promoting from `v4beta`, run `powershell -ExecutionPolicy Bypass -File .\scripts\promote-to-root.ps1` first in dry-run mode, then rerun with `-Apply` after reviewing the planned changes
-6. visually verify `index.html`, `manual.html`, `lessons.html`, `resources.html`, `quiz.html`, `teacher_guidelines.html`, `advice_for_parents.html`, and `zen.html`
-7. visually verify `about.html`
-8. recheck links, anchors, modals, mobile layout, accessibility settings, and download/share flows
-9. run the manual P1 review from `ACCESSIBILITY_CHECKLIST.md` for screen reader and visual accessibility checks
-10. keep `README.md`, this file, `DESIGN_GUIDE.md`, and `ACCESSIBILITY_CHECKLIST.md` aligned with real repo behavior
+5. when public offline behavior changes, keep `sw.js` cache version and the shared HTML asset token aligned
+6. if promoting from `v4beta`, run `powershell -ExecutionPolicy Bypass -File .\scripts\promote-to-root.ps1` first in dry-run mode, then rerun with `-Apply` after reviewing the planned changes
+7. visually verify `index.html`, `manual.html`, `lessons.html`, `resources.html`, `quiz.html`, `teacher_guidelines.html`, `advice_for_parents.html`, and `zen.html`
+8. visually verify `about.html`
+9. recheck links, anchors, modals, mobile layout, accessibility settings, download/share flows, and warmed offline startup
+10. run the manual P1 review from `ACCESSIBILITY_CHECKLIST.md` for screen reader and visual accessibility checks
+11. keep `README.md`, this file, `DESIGN_GUIDE.md`, and `ACCESSIBILITY_CHECKLIST.md` aligned with real repo behavior
 
 ## 10. Current technical debt
 
@@ -259,6 +277,12 @@ Accessibility settings follow-up:
 - screen reader smoke is still manual and should be rerun on `index.html`, `manual.html`, and `lessons.html` before release
 - final visual review is still needed for larger text, reduced motion, simpler font, and increased spacing across desktop and mobile widths
 - persistence is directly covered for `index.html`, `manual.html`, and `lessons.html`; the remaining public pages rely on the shared `js/accessibility.js` contract and should still be spot-checked manually
+
+Offline/PWA follow-up:
+- the local offline shell is working only after a successful online warm cache
+- third-party runtime dependencies are still external, most notably Font Awesome from `cdnjs` and Google Analytics / `gtag` from `googletagmanager.com`
+- future cleanup should localize icon assets and analytics loading so the installed app can operate without failed external requests when the network drops
+- until that cleanup is done, core same-origin functionality is expected to keep working offline, but some icons or analytics-related requests may fail silently when connectivity is lost
 
 Current priority order:
 1. favor small verified cleanup passes over rewrites

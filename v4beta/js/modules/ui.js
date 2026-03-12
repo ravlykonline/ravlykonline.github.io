@@ -4,6 +4,8 @@ import {
     CURRENT_YEAR,
 } from './constants.js';
 
+const RAVLYK_EDITOR_SVG_DATA_URL = 'data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="42" y="15" width="16" height="70" rx="8" fill="%23A3C09A"/><path d="M45 18 L35 6 M55 18 L65 6" stroke="%23A3C09A" stroke-width="3" stroke-linecap="round"/><circle cx="50" cy="55" r="26" fill="%23DE9C53"/><path d="M50 55 A 5 5 0 0 1 55 60 A 10 10 0 0 1 45 65 A 15 15 0 0 1 35 50 A 20 20 0 0 1 55 35 A 25 25 0 0 1 75 60" fill="none" stroke="%23201E1F" stroke-width="3" stroke-linecap="round"/></svg>';
+
 export {
     showError,
     showSuccessMessage,
@@ -34,7 +36,8 @@ export function createRavlykSprite(canvasContainer) {
     ravlykSpriteElement.id = 'ravlyk-sprite';
     ravlykSpriteElement.className = 'ravlyk-sprite-global';
     ravlykSpriteElement.setAttribute('aria-hidden', 'true');
-    ravlykSpriteElement.style.backgroundImage = `url('${RAVLYK_SVG_DATA_URL}')`;
+    // Temporary preview variant from ravlyk_1.svg. Roll back by switching to RAVLYK_SVG_DATA_URL.
+    ravlykSpriteElement.style.backgroundImage = `url('${RAVLYK_EDITOR_SVG_DATA_URL || RAVLYK_SVG_DATA_URL}')`;
 
     const container = canvasContainer || document.querySelector('.canvas-box');
     if (container) {
