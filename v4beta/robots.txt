@@ -2,6 +2,8 @@ User-agent: *
 Allow: /
 
 # Service directories and test files
+Disallow: /old/
+Disallow: /v4beta/
 Disallow: /node_modules/
 Disallow: /tests/
 Disallow: /test-results/

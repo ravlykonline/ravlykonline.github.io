@@ -131,6 +131,35 @@ runTest('primary public pages do not link to unfinished additional resources pag
     });
 });
 
+runTest('public pages and client scripts do not hardcode the temporary /v4beta path', () => {
+    const files = [
+        'index.html',
+        'manual.html',
+        'lessons.html',
+        'resources.html',
+        'quiz.html',
+        'teacher_guidelines.html',
+        'advice_for_parents.html',
+        'zen.html',
+        'README.md',
+        'js/main.js',
+        'js/manualPage.js',
+        'js/lessonsPage.js',
+        'js/quizPage.js',
+        'js/modules/manualPageController.js',
+        'js/modules/navigationPrefetch.js',
+    ];
+
+    files.forEach((path) => {
+        const content = fs.readFileSync(path, 'utf8');
+        assert.equal(
+            /\/v4beta\//.test(content),
+            false,
+            `${path} should not hardcode the temporary /v4beta path`
+        );
+    });
+});
+
 runTest('editor toolbar keeps unified download button and no legacy save buttons', () => {
     const indexHtml = fs.readFileSync('index.html', 'utf8');
     const mainJs = fs.readFileSync('js/main.js', 'utf8');

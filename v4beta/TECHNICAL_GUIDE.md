@@ -198,6 +198,9 @@ GitHub Pages note:
 - the project uses versioned local asset URLs such as `?v=2026-03-11-1` for CSS, JS, and `site.webmanifest`
 - when shipping a public update, bump that shared release token across HTML entry pages so cached school/lab browsers fetch fresh assets
 - this is the repository-level cache-busting strategy because GitHub Pages does not provide custom cache-header control
+- do not publish the entire `v4beta` working directory into the site root because it contains dev-only artifacts such as `node_modules`, `tests`, `package*.json`, and Playwright config
+- when promoting `v4beta` to the root site, sync only the public site files and preserve repo control directories such as `.git`, `.github`, `old`, and `v4beta`
+- use `scripts/promote-to-root.ps1` from inside `v4beta` for the root promotion flow instead of manual "delete everything in root"
 
 ## 9. Release checklist
 
@@ -206,9 +209,10 @@ Before release or public deploy:
 2. run `node --experimental-default-type=module tests/encoding.test.js`
 3. run `npm run test:e2e`
 4. bump the shared asset version token in HTML entry pages when the release changes public CSS, JS, or manifest behavior
-5. visually verify `index.html`, `manual.html`, `lessons.html`, `resources.html`, `quiz.html`, `teacher_guidelines.html`, `advice_for_parents.html`, and `zen.html`
-6. recheck links, anchors, modals, mobile layout, accessibility settings, and download/share flows
-7. keep `README.md`, this file, and `DESIGN_GUIDE.md` aligned with real repo behavior
+5. if promoting from `v4beta`, run `powershell -ExecutionPolicy Bypass -File .\scripts\promote-to-root.ps1` first in dry-run mode, then rerun with `-Apply` after reviewing the planned changes
+6. visually verify `index.html`, `manual.html`, `lessons.html`, `resources.html`, `quiz.html`, `teacher_guidelines.html`, `advice_for_parents.html`, and `zen.html`
+7. recheck links, anchors, modals, mobile layout, accessibility settings, and download/share flows
+8. keep `README.md`, this file, and `DESIGN_GUIDE.md` aligned with real repo behavior
 
 ## 10. Current technical debt
 

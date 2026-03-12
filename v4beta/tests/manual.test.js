@@ -101,13 +101,19 @@ runTest('manual code example helpers normalize code and build editor links', () 
     const code = getManualExampleCodeText('вперед 50\r\nправоруч 90\r\n\r\n');
     assert.equal(code, 'вперед 50\nправоруч 90');
 
-    const editorLink = buildManualEditorLink(
+    const nestedEditorLink = buildManualEditorLink(
         code,
         'index.html',
         'https://ravlyk.org/v4beta/manual.html'
     );
+    const rootEditorLink = buildManualEditorLink(
+        code,
+        'index.html',
+        'https://ravlyk.org/manual.html'
+    );
 
-    assert.match(editorLink, /^https:\/\/ravlyk\.org\/v4beta\/index\.html#code=/);
+    assert.match(nestedEditorLink, /^https:\/\/ravlyk\.org\/v4beta\/index\.html#code=/);
+    assert.match(rootEditorLink, /^https:\/\/ravlyk\.org\/index\.html#code=/);
 });
 
 runTest('manual documents all public runtime error messages except developer-only legacy path', () => {
