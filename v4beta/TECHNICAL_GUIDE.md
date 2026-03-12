@@ -8,6 +8,10 @@ Related:
 - `README.md` for a short project overview
 - `DESIGN_GUIDE.md` for UI and styling rules
 - `ACCESSIBILITY_CHECKLIST.md` for release-facing accessibility verification
+- `LICENSE` for source-code licensing
+- `LICENSE-CONTENT.md` for educational-content licensing
+- `BRAND_POLICY.md` for naming and branding rules
+- `CONTRIBUTING.md` for contribution workflow and submission terms
 
 ## 1. Documentation policy
 
@@ -16,6 +20,10 @@ Keep only these canonical repo-wide documents:
 - `TECHNICAL_GUIDE.md` for engineering reality
 - `DESIGN_GUIDE.md` for design-system and CSS rules
 - `ACCESSIBILITY_CHECKLIST.md` for accessibility regression verification
+- `LICENSE` for source-code permissions
+- `LICENSE-CONTENT.md` for non-code educational materials
+- `BRAND_POLICY.md` for brand-use restrictions
+- `CONTRIBUTING.md` for contribution expectations
 
 Do not create separate repo-wide markdown files for temporary status, debt, release notes, or executive summaries unless the scope is independent and long-lived.
 
@@ -72,6 +80,7 @@ Primary pages:
 - `teacher_guidelines.html`: teacher page
 - `advice_for_parents.html`: parent page
 - `zen.html`: alternate/static informational page
+- `about.html`: project background and origin page
 
 Primary CSS:
 - `css/global.css`: shared tokens and common UI
@@ -84,6 +93,7 @@ Primary CSS:
 - `css/teacher-guidelines.css`: teacher page
 - `css/parents.css`: parent page
 - `css/zen.css`: Zen page styles
+- `css/about-project.css`: about page styles
 
 Tests:
 - `tests/*.test.js`: unit and integration coverage
@@ -232,9 +242,10 @@ Before release or public deploy:
 4. bump the shared asset version token in HTML entry pages when the release changes public CSS, JS, or manifest behavior
 5. if promoting from `v4beta`, run `powershell -ExecutionPolicy Bypass -File .\scripts\promote-to-root.ps1` first in dry-run mode, then rerun with `-Apply` after reviewing the planned changes
 6. visually verify `index.html`, `manual.html`, `lessons.html`, `resources.html`, `quiz.html`, `teacher_guidelines.html`, `advice_for_parents.html`, and `zen.html`
-7. recheck links, anchors, modals, mobile layout, accessibility settings, and download/share flows
-8. run the manual P1 review from `ACCESSIBILITY_CHECKLIST.md` for screen reader and visual accessibility checks
-9. keep `README.md`, this file, `DESIGN_GUIDE.md`, and `ACCESSIBILITY_CHECKLIST.md` aligned with real repo behavior
+7. visually verify `about.html`
+8. recheck links, anchors, modals, mobile layout, accessibility settings, and download/share flows
+9. run the manual P1 review from `ACCESSIBILITY_CHECKLIST.md` for screen reader and visual accessibility checks
+10. keep `README.md`, this file, `DESIGN_GUIDE.md`, and `ACCESSIBILITY_CHECKLIST.md` aligned with real repo behavior
 
 ## 10. Current technical debt
 

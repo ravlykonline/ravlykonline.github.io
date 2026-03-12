@@ -22,8 +22,10 @@ const filesToValidate = [
     'css/global.css',
     'css/lessons.css',
     'css/main-editor.css',
+    'css/about-project.css',
     'README.md',
     'TECHNICAL_GUIDE.md',
+    'about.html',
 ];
 
 const htmlFilesToValidateTargetRel = [
@@ -31,9 +33,10 @@ const htmlFilesToValidateTargetRel = [
     'manual.html',
     'lessons.html',
     'resources.html',
-    'teacher_guidelines.html',
-    'advice_for_parents.html',
-];
+        'teacher_guidelines.html',
+        'advice_for_parents.html',
+        'about.html',
+    ];
 
 runTest('repository defines editor and git encoding/line-ending policy files', () => {
     const editorConfig = fs.readFileSync('.editorconfig', 'utf8');
@@ -118,15 +121,19 @@ runTest('all target="_blank" links explicitly declare rel="noopener noreferrer"'
     });
 });
 
-runTest('primary public pages do not link to unfinished additional resources page', () => {
-    const files = ['index.html', 'manual.html', 'lessons.html', 'README.md', 'sitemap.xml', 'js/modules/navigationPrefetch.js'];
+runTest('sitemap includes published public support pages', () => {
+    const sitemapXml = fs.readFileSync('sitemap.xml', 'utf8');
 
-    files.forEach((path) => {
-        const content = fs.readFileSync(path, 'utf8');
+    const requiredSnippets = [
+        'https://ravlyk.org/resources.html',
+        'https://ravlyk.org/about.html',
+    ];
+
+    requiredSnippets.forEach((snippet) => {
         assert.equal(
-            content.includes('resources.html'),
-            false,
-            `${path} should not link to unfinished resources.html`
+            sitemapXml.includes(snippet),
+            true,
+            `sitemap.xml should include published page: ${snippet}`
         );
     });
 });
@@ -141,6 +148,7 @@ runTest('public pages and client scripts do not hardcode the temporary /v4beta p
         'teacher_guidelines.html',
         'advice_for_parents.html',
         'zen.html',
+        'about.html',
         'README.md',
         'js/main.js',
         'js/manualPage.js',

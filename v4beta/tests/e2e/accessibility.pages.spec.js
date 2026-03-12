@@ -9,6 +9,7 @@ const PAGE_CASES = [
   '/advice_for_parents.html',
   '/teacher_guidelines.html',
   '/zen.html',
+  '/about.html',
 ];
 
 test.describe('Public page accessibility shell', () => {

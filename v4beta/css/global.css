@@ -230,6 +230,14 @@ a.btn:active {
     white-space: nowrap;
 }
 
+.footer-site-nav {
+    margin-top: 24px;
+}
+
+.footer-site-nav .btn {
+    min-width: min(100%, 220px);
+}
+
 /* --- Tables --- */
 .manual-table-wrap {
     margin: 20px 0;
@@ -724,5 +732,9 @@ html.a11y-high-contrast body #global-message-display .message-close-btn-global:h
 
     .site-links-uniform .btn {
         width: min(100%, 320px);
+    }
+
+    .footer-site-nav .btn {
+        min-width: 0;
     }
 }

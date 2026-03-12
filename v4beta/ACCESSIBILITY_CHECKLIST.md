@@ -15,6 +15,7 @@ Use this checklist after accessibility-related changes and before release.
   - `advice_for_parents.html`
   - `teacher_guidelines.html`
   - `zen.html`
+  - `about.html`
 - Verify `skip-link` is the first keyboard stop on page load.
 - Verify `skip-link` moves focus to `#main-content`.
 - Verify the accessibility panel opens, traps focus, closes on `Escape`, and returns focus to the toggle.
