@@ -1,13 +1,20 @@
 RAVLYK
 Copyright 2025-2026 Artem Kysliakov
 
-Source code in this repository is licensed under Apache License 2.0.
-Educational content is licensed separately as described in LICENSE-CONTENT.md.
+Source code in this repository is licensed under the GNU Affero General
+Public License v3.0 (AGPL-3.0). See LICENSE for the full license text.
 
-The name "RAVLYK" / "РАВЛИК", the domain ravlyk.org, logos, character identity,
-and related visual branding are not licensed under Apache License 2.0.
+Educational content is licensed separately under CC BY-SA 4.0.
+See LICENSE-CONTENT.md for details.
+
+The name "RAVLYK" / "РАВЛИК", the domain ravlyk.org, logos, character
+identity, and related visual branding are not licensed under AGPL-3.0.
 See BRAND_POLICY.md for branding and naming rules.
 
-RAVLYK is an original Ukrainian-language implementation inspired by the broader
-family of Logo-like educational programming languages. This repository does not
-claim ownership over the general idea of a turtle-graphics teaching language.
+RAVLYK is an original Ukrainian-language implementation inspired by the
+broader family of Logo-like educational programming languages. This
+repository does not claim ownership over the general idea of a
+turtle-graphics teaching language.
+
+Commercial licensing: the author-owned portions of this project may be
+licensed under separate commercial terms. Contact: info@ravlyk.org.

@@ -24,12 +24,22 @@ Contributions are welcome, but changes should fit the educational goals and qual
 
 ## Licensing of contributions
 
-By submitting a contribution to this repository, you agree that your contribution may be included in the project under:
+By submitting a contribution to this repository, you agree that your
+contribution may be included in the project under:
 
-- Apache License 2.0 for source code
-- the repository's existing content and branding policies for non-code materials
+- GNU Affero General Public License v3.0 (AGPL-3.0) for source code
+- Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) for
+  educational content
+- the repository's existing branding policies for brand elements
 
-If you submit content or assets that you do not own or cannot license under these terms, do not submit them.
+This follows the standard inbound = outbound model. Contributions are
+accepted under the same open-source license as the project; no
+contributor license agreement (CLA) or copyright assignment is currently
+in place.
+
+This policy will be revisited before the project opens for broader
+community contributions. If you have questions about licensing before
+contributing, contact info@ravlyk.org.
 
 ## Branding reminder
 

@@ -1,9 +1,10 @@
 # Content License
 
-Unless stated otherwise in a specific file, the educational content in this repository is licensed under:
+Unless stated otherwise in a specific file, the educational content in
+this repository is licensed under:
 
-- Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
-- License text: https://creativecommons.org/licenses/by-nc-sa/4.0/
+- Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+- License text: https://creativecommons.org/licenses/by-sa/4.0/
 
 This applies to materials such as:
 
@@ -13,17 +14,28 @@ This applies to materials such as:
 - parent guidance
 - educational explanations and examples
 
-In short, you may:
+## What you may do
 
-- copy and share the content with attribution
-- adapt and remix the content with attribution
-- redistribute adaptations under the same license
+- copy, share, and redistribute the content for any purpose, including
+  commercial use (paid courses, textbooks, teaching materials)
+- adapt, remix, and translate the content
+- use the content in paid educational products
 
-You may not:
+## What is required
 
-- use the content for commercial purposes without separate permission
-- remove attribution to the original project and author
-- imply that your version is the official RAVLYK project
+- attribute the original project: РАВЛИК by Artem Kysliakov, ravlyk.org,
+  in any reasonable manner appropriate to the medium and context
+- distribute any adaptations under the same CC BY-SA 4.0 license
+- do not imply that your version is the official RAVLYK project
 
-This file is a repository policy summary, not a replacement for the full CC license text.
-If a file or asset declares a different license, that file-level declaration wins.
+## Author's rights
+
+These terms apply to third parties. The author (Artem Kysliakov) retains
+full copyright and may use, license, and distribute this content under
+any terms, including commercially, independently of this license.
+
+## Note
+
+This file is a repository policy summary, not a replacement for the full
+CC license text. If a file or asset declares a different license, that
+file-level declaration wins.
