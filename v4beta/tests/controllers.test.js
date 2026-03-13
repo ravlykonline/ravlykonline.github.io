@@ -169,6 +169,85 @@ runTest('execution controller manages stop-confirm pause/resume flow', () => {
     assert.equal(resumeCalls, 1);
 });
 
+runAsyncTest('execution controller preserves drawing after user stop in game mode', async () => {
+    const previousWindow = global.window;
+    global.window = {};
+    let resetCalls = 0;
+    let infoMessage = null;
+    let successCalls = 0;
+    let errorCalls = 0;
+
+    const controller = createExecutionController({
+        interpreter: {
+            isExecuting: false,
+            shouldStop: false,
+            pauseExecution() {},
+            resumeExecution() {},
+            stopExecution() {},
+            reset() { resetCalls += 1; },
+            setAnimationEnabled() {},
+            setSpeed() {},
+            wasBoundaryWarningShown() { return false; },
+            async executeCommands() {
+                const error = new Error('stopped');
+                error.name = 'RavlykError';
+                error.message = 'EXECUTION_STOPPED_BY_USER';
+                throw error;
+            },
+        },
+        codeEditor: { disabled: false, value: 'грати (\n  якщо клавіша "вгору" ( вперед 3 )\n)' },
+        editorUi: {
+            setEditorErrorLine() {},
+            getFriendlyExecutionError() { return { line: null, message: '' }; },
+            focusEditorLine() {},
+        },
+        uiControls: {
+            runBtn: { disabled: false },
+            stopBtn: { disabled: true },
+            clearBtn: { disabled: false },
+            downloadBtn: { disabled: false },
+            shareBtn: { disabled: false },
+            gridBtn: { disabled: false },
+            helpBtn: { disabled: false },
+            exampleBlocks: [],
+        },
+        messages: {
+            ERROR_MESSAGES: {
+                CODE_TOO_LONG: '',
+                EXECUTION_TIMEOUT: '',
+                EXECUTION_STOPPED_BY_USER: 'EXECUTION_STOPPED_BY_USER',
+            },
+            SUCCESS_MESSAGES: { CODE_EXECUTED: '' },
+            INFO_MESSAGES: { EXECUTION_STOPPED: 'execution stopped' },
+        },
+        limits: {
+            MAX_CODE_LENGTH_CHARS: 1000,
+            EXECUTION_TIMEOUT_MS: 1000,
+        },
+        animationDefaults: {
+            DEFAULT_MOVE_PIXELS_PER_SECOND: 100,
+            DEFAULT_TURN_DEGREES_PER_SECOND: 90,
+        },
+        uiHandlers: {
+            showError() { errorCalls += 1; },
+            showInfoMessage(message) { infoMessage = message; },
+            showSuccessMessage() { successCalls += 1; },
+            showStopConfirmModal() {},
+            hideStopConfirmModal() {},
+            updateCommandIndicator() {},
+        },
+    });
+
+    await controller.runCode();
+
+    assert.equal(resetCalls, 1, 'controller should reset only before starting a fresh run');
+    assert.equal(infoMessage, 'execution stopped');
+    assert.equal(errorCalls, 0);
+    assert.equal(successCalls, 0);
+
+    global.window = previousWindow;
+});
+
 runAsyncTest('file actions controller blocks share for empty code', async () => {
     let infoCalls = 0;
     let errorCalls = 0;

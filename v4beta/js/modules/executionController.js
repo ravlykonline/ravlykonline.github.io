@@ -88,11 +88,13 @@ export function createExecutionController({
                 showSuccessMessage(SUCCESS_MESSAGES.CODE_EXECUTED);
             }
         } catch (error) {
+            let shouldResetInterpreter = true;
             if (error.name === 'RavlykError') {
                 if (executionTimedOut) {
                     showError(ERROR_MESSAGES.EXECUTION_TIMEOUT, 0);
                 } else if (error.message === ERROR_MESSAGES.EXECUTION_STOPPED_BY_USER) {
                     showInfoMessage(INFO_MESSAGES.EXECUTION_STOPPED);
+                    shouldResetInterpreter = false;
                 } else {
                     const friendlyError = editorUi.getFriendlyExecutionError(code, error);
                     showError(friendlyError.message, 0);
@@ -105,7 +107,9 @@ export function createExecutionController({
                 showError(`Неочікувана помилка: ${error.message}`, 0);
                 console.error('Unexpected error during execution:', error);
             }
-            interpreter.reset();
+            if (shouldResetInterpreter) {
+                interpreter.reset();
+            }
         } finally {
             clearTimeout(executionTimeoutId);
             updateExecutionControls(false);
