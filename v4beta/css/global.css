@@ -129,8 +129,8 @@ footer.main-footer {
 
 .btn :is(i, .ui-icon) {
     margin-right: 8px;
-    width: 1.15em;
-    height: 1.15em;
+    width: 1.2em;
+    height: 1.2em;
 }
 
 .btn :is(i, .ui-icon).icon-right {
