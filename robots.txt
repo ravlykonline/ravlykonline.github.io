@@ -1,7 +1,22 @@
 User-agent: *
 Allow: /
-Disallow: /js/
-Disallow: /css/
-Disallow: /assets/
+
+# Service directories and test files
+Disallow: /old/
+Disallow: /v4beta/
+Disallow: /node_modules/
+Disallow: /tests/
+Disallow: /test-results/
+
+# Configuration files
+Disallow: /package.json
+Disallow: /package-lock.json
+Disallow: /playwright.config.js
+Disallow: /TECHNICAL_GUIDE.md
+Disallow: /README.md
+Disallow: /.git/
+Disallow: /.gitignore
+Disallow: /.gitattributes
+Disallow: /.editorconfig
 
 Sitemap: https://ravlyk.org/sitemap.xml

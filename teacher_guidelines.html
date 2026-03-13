@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="Методичні матеріали для вчителів початкових класів та інформатики: плани уроків та рубрики оцінювання з мовою Равлик." />
+    <meta name="keywords"
+        content="плани уроків інформатика 1-4 клас, методика викладання програмування, равлик у школі, критерії оцінювання кодування" />
+    <link rel="canonical" href="https://ravlyk.org/teacher_guidelines.html" />
+    <meta name="author" content="Равлик" />
+    <meta name="robots" content="index, follow" />
+    <title>Матеріали для вчителів — Методика викладання мови Равлик</title>
+    <!-- Release token for GitHub Pages cache busting: 2026-03-13-2 -->
+    <link rel="stylesheet" href="css/global.css?v=2026-03-13-2" />
+    <link rel="stylesheet" href="css/accessibility.css?v=2026-03-13-2" />
+    <link rel="stylesheet" href="css/teacher-guidelines.css?v=2026-03-13-2" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="uk_UA" />
+    <meta property="og:site_name" content="Мова програмування РАВЛИК" />
+    <meta property="og:title" content="Матеріали для вчителів — Методика викладання мови Равлик" />
+    <meta property="og:description"
+        content="Методичні матеріали для вчителів початкових класів та інформатики: плани уроків та рубрики оцінювання з мовою Равлик." />
+    <meta property="og:url" content="https://ravlyk.org/teacher_guidelines.html" />
+    <meta property="og:image" content="https://ravlyk.org/ravlyk.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Матеріали для вчителів — Методика викладання мови Равлик" />
+    <meta name="twitter:description"
+        content="Методичні матеріали для вчителів початкових класів та інформатики: плани уроків та рубрики оцінювання з мовою Равлик." />
+    <meta name="twitter:image" content="https://ravlyk.org/ravlyk.jpg" />
+</head>
+
+<body>
+    <a class="skip-link" href="#main-content">Перейти до основного вмісту</a>
+    <div class="page-wrapper">
+        <header class="main-header">
+            <h1>Методичні матеріали для вчителів</h1>
+        </header>
+        <main id="main-content" class="content-container teacher-grid">
+            <nav class="teacher-nav site-links-uniform" aria-label="Швидка навігація">
+                <a class="btn btn-success" href="index.html"><span class="ui-icon icon-paint-brush" aria-hidden="true"></span>До Редактора</a>
+                <a class="btn btn-primary" href="lessons.html"><span class="ui-icon icon-graduation-cap" aria-hidden="true"></span>До Уроків</a>
+                <a class="btn btn-primary" href="manual.html"><span class="ui-icon icon-book-open" aria-hidden="true"></span>До Посібника</a>
+                <a class="btn btn-primary" href="resources.html"><span class="ui-icon icon-puzzle-piece" aria-hidden="true"></span>До Ресурсів</a>
+                <button type="button" class="btn btn-info print-actions" onclick="window.print()">Друк
+                    матеріалів</button>
+            </nav>
+
+            <section class="teacher-card" aria-labelledby="teacher-goals">
+                <h3 id="teacher-goals">Навчальні цілі (1-4 класи)</h3>
+                <ul>
+                    <li>Розуміє послідовність команд і причинно-наслідковий зв'язок у коді.</li>
+                    <li>Використовує базові команди руху, повороту, кольору, очищення.</li>
+                    <li>Застосовує цикл <code>повторити</code> для побудови фігур і візерунків.</li>
+                    <li>Використовує умови <code>якщо</code> / <code>інакше</code> у простих сценаріях.</li>
+                    <li>Пояснює свої рішення словами: що саме робить програма і чому.</li>
+                </ul>
+            </section>
+
+            <section class="teacher-card" aria-labelledby="teacher-plan">
+                <h3 id="teacher-plan">Базовий план заняття (45 хв)</h3>
+                <table class="teacher-table">
+                    <thead>
+                        <tr>
+                            <th>Етап</th>
+                            <th>Час</th>
+                            <th>Що робимо</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Актуалізація</td>
+                            <td>5 хв</td>
+                            <td>Міні-бесіда: що таке алгоритм і як команди впливають на результат.</td>
+                        </tr>
+                        <tr>
+                            <td>Демонстрація</td>
+                            <td>10 хв</td>
+                            <td>Показ 1-2 прикладів у редакторі з коментарем кожного рядка.</td>
+                        </tr>
+                        <tr>
+                            <td>Керована практика</td>
+                            <td>15 хв</td>
+                            <td>Учні відтворюють код і змінюють 1 параметр (довжину, кут, колір, кількість повторів).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Самостійна робота</td>
+                            <td>10 хв</td>
+                            <td>Міні-проєкт: власна фігура/візерунок за критеріями.</td>
+                        </tr>
+                        <tr>
+                            <td>Рефлексія</td>
+                            <td>5 хв</td>
+                            <td>2 питання: що вдалося, що змінити в наступній версії коду.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="teacher-card" aria-labelledby="teacher-rubric">
+                <h3 id="teacher-rubric">Швидка рубрика оцінювання (4 рівні)</h3>
+                <table class="teacher-table">
+                    <thead>
+                        <tr>
+                            <th>Критерій</th>
+                            <th>Початковий</th>
+                            <th>Середній</th>
+                            <th>Достатній</th>
+                            <th>Високий</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Коректність коду</td>
+                            <td>Потрібна постійна допомога</td>
+                            <td>Працює частково</td>
+                            <td>Працює стабільно</td>
+                            <td>Працює і перевірено на кількох варіантах</td>
+                        </tr>
+                        <tr>
+                            <td>Логіка</td>
+                            <td>Не пояснює послідовність</td>
+                            <td>Пояснює окремі кроки</td>
+                            <td>Пояснює повну логіку</td>
+                            <td>Пропонує покращення логіки</td>
+                        </tr>
+                        <tr>
+                            <td>Використання конструкцій</td>
+                            <td>Лише базові команди</td>
+                            <td>Є повторення або умова</td>
+                            <td>Комбінує повторення й умови</td>
+                            <td>Додає змінні/функції до задачі</td>
+                        </tr>
+                        <tr>
+                            <td>Самостійність</td>
+                            <td>Працює лише за зразком</td>
+                            <td>Мінімальні зміни зразка</td>
+                            <td>Власна адаптація</td>
+                            <td>Оригінальний проєкт і самоаналіз</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="teacher-card" aria-labelledby="teacher-errors">
+                <h3 id="teacher-errors">Типові помилки і реакція вчителя</h3>
+                <ul>
+                    <li><strong>Пропущене число після команди:</strong> попросіть учня проговорити команду словами і
+                        знайти, де бракує параметра.</li>
+                    <li><strong>Помилки в дужках у <code>повторити</code> / <code>якщо</code>:</strong> використайте
+                        правило “кожна відкрита дужка має пару”.</li>
+                    <li><strong>Невідомий колір або змінна:</strong> поверніть до довідки команд і перевірки написання.
+                    </li>
+                    <li><strong>Зависока складність завдання:</strong> розбийте на кроки “спочатку форма, потім колір,
+                        потім умова”.</li>
+                </ul>
+            </section>
+
+            <section class="teacher-card" aria-labelledby="teacher-diff">
+                <h3 id="teacher-diff">Диференціація</h3>
+                <p><strong>Базовий рівень:</strong> змінити лише числа у готовому шаблоні.</p>
+                <p><strong>Середній рівень:</strong> зібрати фігуру з 2-3 блоків <code>повторити</code>.</p>
+                <p><strong>Вищий рівень:</strong> додати умови або власну функцію для повторюваного фрагмента.</p>
+            </section>
+
+            <section class="teacher-card" aria-labelledby="teacher-tracks">
+                <h3 id="teacher-tracks">Вікові треки</h3>
+                <div class="track-grid">
+                    <article class="track-card">
+                        <h4>1-2 класи</h4>
+                        <ul>
+                            <li>Фокус: послідовність, напрямок, прості фігури.</li>
+                            <li>Крок уроку: короткий приклад -> зміна одного параметра.</li>
+                            <li>Оцінювання: чи пояснює дитина, що робить кожна команда.</li>
+                        </ul>
+                    </article>
+                    <article class="track-card">
+                        <h4>3-4 класи</h4>
+                        <ul>
+                            <li>Фокус: цикли, умови, змінні, прості функції.</li>
+                            <li>Крок уроку: задача -> план -> код -> рефлексія.</li>
+                            <li>Оцінювання: правильність + обґрунтування логіки.</li>
+                        </ul>
+                    </article>
+                </div>
+            </section>
+
+            <section class="teacher-card" aria-labelledby="teacher-homework">
+                <h3 id="teacher-homework">Ідеї домашніх міні-проєктів</h3>
+                <ul>
+                    <li>“Мій візерунок дня”: 3 версії одного малюнка з різними параметрами.</li>
+                    <li>“Геометричне місто”: будинки з квадратів/прямокутників і дахом-трикутником.</li>
+                    <li>“Міні-гра”: керування стрілками у блоці <code>грати</code> + реакція на <code>край</code>.</li>
+                </ul>
+            </section>
+
+            <section class="teacher-card" aria-labelledby="teacher-printables">
+                <h3 id="teacher-printables">Готові друковані матеріали</h3>
+                <div class="print-block">
+                    <h4>Чекліст перевірки міні-проєкту</h4>
+                    <ul class="print-checklist">
+                        <li>Код запускається без помилок.</li>
+                        <li>Є щонайменше одна конструкція <code>повторити</code> або <code>якщо</code>.</li>
+                        <li>Учень може пояснити 2-3 ключові рядки.</li>
+                        <li>Є щонайменше одна власна зміна відносно зразка.</li>
+                    </ul>
+                </div>
+                <div class="print-block">
+                    <h4>Шаблон короткої рефлексії (для друку)</h4>
+                    <p>1. Сьогодні я навчився/лась _____________________________________</p>
+                    <p>2. У мене виникла складність _____________________________________</p>
+                    <p>3. Наступного разу я спробую _____________________________________</p>
+                </div>
+            </section>
+        </main>
+        <nav class="footer-site-nav site-links-uniform" aria-label="Нижня навігація сайтом">
+            <a href="about.html" class="btn btn-info"><span class="ui-icon icon-info-circle" aria-hidden="true"></span>Про проєкт</a>
+        </nav>
+        <footer class="main-footer">
+            <p>&copy;<span class="current-year">2026</span> РАВЛИК | Методичні матеріали для вчителя</p>
+        </footer>
+    </div>
+    <div class="accessibility-floating-layer">
+    <button id="accessibility-toggle" class="accessibility-toggle" aria-expanded="false"
+        aria-controls="accessibility-panel" aria-label="&#1053;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1086;&#1089;&#1090;&#1110;"><span
+            class="ui-icon icon-universal-access" aria-hidden="true"></span></button>
+    <div id="accessibility-panel" class="accessibility-panel hidden" role="dialog" aria-modal="true"
+        aria-labelledby="accessibility-title">
+        <div class="accessibility-header">
+            <h3 id="accessibility-title" class="accessibility-panel-title">&#1053;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1086;&#1089;&#1090;&#1110;</h3>
+            <button id="close-accessibility-panel-btn" class="close-btn"
+                aria-label="&#1047;&#1072;&#1082;&#1088;&#1080;&#1090;&#1080; &#1087;&#1072;&#1085;&#1077;&#1083;&#1100; &#1085;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1100; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1086;&#1089;&#1090;&#1110;">&times;</button>
+        </div>
+        <div class="accessibility-options">
+            <div class="accessibility-option">
+                <label for="high-contrast-input">&#1042;&#1080;&#1089;&#1086;&#1082;&#1080;&#1081; &#1082;&#1086;&#1085;&#1090;&#1088;&#1072;&#1089;&#1090;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="high-contrast-input" class="accessibility-setting-input"
+                        data-setting="high-contrast">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="larger-text-input">&#1047;&#1073;&#1110;&#1083;&#1100;&#1096;&#1077;&#1085;&#1080;&#1081; &#1090;&#1077;&#1082;&#1089;&#1090;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="larger-text-input" class="accessibility-setting-input"
+                        data-setting="larger-text">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="reduce-animations-input">&#1047;&#1084;&#1077;&#1085;&#1096;&#1077;&#1085;&#1085;&#1103; &#1072;&#1085;&#1110;&#1084;&#1072;&#1094;&#1110;&#1111;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="reduce-animations-input" class="accessibility-setting-input"
+                        data-setting="reduce-animations">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="sans-serif-font-input">&#1055;&#1088;&#1086;&#1089;&#1090;&#1080;&#1081; &#1096;&#1088;&#1080;&#1092;&#1090;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="sans-serif-font-input" class="accessibility-setting-input"
+                        data-setting="sans-serif-font">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="increased-spacing-input">&#1047;&#1073;&#1110;&#1083;&#1100;&#1096;&#1077;&#1085;&#1110; &#1110;&#1085;&#1090;&#1077;&#1088;&#1074;&#1072;&#1083;&#1080;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="increased-spacing-input" class="accessibility-setting-input"
+                        data-setting="increased-spacing">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+        </div>
+        <div class="accessibility-footer">
+            <button id="reset-accessibility-btn" class="btn btn-danger">&#1057;&#1082;&#1080;&#1085;&#1091;&#1090;&#1080; &#1085;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103;</button>
+        </div>
+    </div>
+</div>
+<script type="module" src="js/accessibility.js?v=2026-03-13-2"></script>
+<script type="module" src="js/analytics.js?v=2026-03-13-2"></script>
+<script type="module" src="js/registerServiceWorker.js?v=2026-03-13-2"></script>
+</body>
+
+</html>

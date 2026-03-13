@@ -1,31 +1,72 @@
-// js/main.js
+﻿// js/main.js
 import { RavlykInterpreter } from './modules/ravlykInterpreter.js';
 import {
     showError, showSuccessMessage, showInfoMessage,
     showHelpModal, hideHelpModal,
     showClearConfirmModal, hideClearConfirmModal,
+    showStopConfirmModal, hideStopConfirmModal,
+    showDownloadModal, hideDownloadModal,
     createRavlykSprite, updateRavlykVisualsOnScreen,
     updateCommandIndicator, resizeCanvas, setFooterYear
 } from './modules/ui.js';
 import {
     ERROR_MESSAGES, SUCCESS_MESSAGES, INFO_MESSAGES,
     MAX_CODE_LENGTH_CHARS, EXECUTION_TIMEOUT_MS,
-    HELP_MODAL_CONTENT_ID, CLEAR_CONFIRM_MODAL_ID,
-    DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND
+    DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND,
+    GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y
 } from './modules/constants.js';
+import {
+    setupCommandTabs,
+    setupWorkspaceTabs
+} from './modules/workspaceTabs.js';
+import {
+    createEditorUiController
+} from './modules/editorUi.js';
+import {
+    createGridOverlayController
+} from './modules/gridOverlay.js';
+import {
+    createExecutionController
+} from './modules/executionController.js';
+import {
+    createFileActionsController
+} from './modules/fileActionsController.js';
+import {
+    createNavigationPrefetchController
+} from './modules/navigationPrefetch.js';
+import {
+    createModalController
+} from './modules/modalController.js';
+import {
+    createEditorInputController
+} from './modules/editorInputController.js';
+import {
+    createLifecycleController
+} from './modules/lifecycleController.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const codeEditor = document.getElementById("code-editor");
+    const codeLineNumbers = document.getElementById("code-line-numbers");
+    const codeActiveLine = document.getElementById("code-active-line");
+    const codeErrorLine = document.getElementById("code-error-line");
+    const backgroundCanvas = document.getElementById("ravlyk-background-canvas");
     const canvas = document.getElementById("ravlyk-canvas");
-    const canvasContainer = document.querySelector(".canvas-box"); // Ravlyk sprite will be appended here
+    const canvasContainer = document.querySelector(".canvas-stage") || document.querySelector(".canvas-box");
 
     const runBtn = document.getElementById("run-btn");
     const stopBtn = document.getElementById("stop-btn");
     const clearBtn = document.getElementById("clear-btn");
-    const saveBtn = document.getElementById("save-btn");
+    const downloadBtn = document.getElementById("download-btn");
+    const shareBtn = document.getElementById("share-btn");
+    const gridBtn = document.getElementById("grid-btn");
     const helpBtn = document.getElementById("help-btn");
+    const gridCanvas = document.getElementById("ravlyk-grid-canvas");
 
     const exampleBlocks = document.querySelectorAll(".example-block");
+    const commandTabs = document.querySelectorAll(".commands-tab");
+    const commandTabPanels = document.querySelectorAll(".commands-tab-panels [data-tab-panel]");
+    const workspaceTabs = document.querySelectorAll(".workspace-tab");
+    const workspacePanels = document.querySelectorAll(".main-area [data-workspace-panel]");
     const toManualBtnMain = document.getElementById("to-manual-btn");
     const toLessonsBtnMain = document.getElementById("to-lessons-btn");
 
@@ -34,6 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const helpModalToManualBtn = document.getElementById("to-manual-btn-modal");
     const clearConfirmBtn = document.getElementById("confirm-clear-btn");
     const clearCancelBtn = document.getElementById("cancel-clear-btn");
+    const stopConfirmBtn = document.getElementById("confirm-stop-btn");
+    const stopCancelBtn = document.getElementById("cancel-stop-btn");
+    const downloadImageBtn = document.getElementById("download-image-btn");
+    const downloadCodeBtn = document.getElementById("download-code-btn");
+    const closeDownloadModalBtn = document.getElementById("close-download-modal-btn");
 
     if (!canvas || typeof canvas.getContext !== 'function') {
         showError(ERROR_MESSAGES.CANVAS_NOT_SUPPORTED, 0);
@@ -44,239 +90,178 @@ document.addEventListener('DOMContentLoaded', () => {
         showError(ERROR_MESSAGES.CANVAS_CONTEXT_ERROR, 0);
         return;
     }
+    const backgroundCtx = backgroundCanvas ? backgroundCanvas.getContext("2d") : null;
+    const gridCtx = gridCanvas ? gridCanvas.getContext("2d") : null;
+    const MAX_SHARE_URL_LENGTH_CHARS = 7000;
+    const editorUi = createEditorUiController({
+        codeEditor,
+        codeLineNumbers,
+        codeActiveLine,
+        codeErrorLine,
+    });
+
+    if (window.ravlykInterpreterInstance && typeof window.ravlykInterpreterInstance.destroy === 'function') {
+        window.ravlykInterpreterInstance.destroy();
+    }
 
     createRavlykSprite(canvasContainer);
-    const interpreter = new RavlykInterpreter(ctx, canvas, updateRavlykVisualsOnScreen, updateCommandIndicator, showInfoMessage);
+    const interpreter = new RavlykInterpreter(
+        ctx,
+        canvas,
+        updateRavlykVisualsOnScreen,
+        updateCommandIndicator,
+        showInfoMessage,
+        {
+            backgroundCanvas,
+            backgroundCtx,
+        }
+    );
+    const gridOverlay = createGridOverlayController({
+        canvas,
+        canvasContainer,
+        gridCanvas,
+        gridCtx,
+        gridBtn,
+        gridAlignOffsetX: GRID_ALIGN_OFFSET_X,
+        gridAlignOffsetY: GRID_ALIGN_OFFSET_Y,
+    });
+    const navigationPrefetch = createNavigationPrefetchController();
+    setupCommandTabs(commandTabs, commandTabPanels);
     
     // Make interpreter instance globally accessible for accessibility module if needed (alternative to event bus)
     window.ravlykInterpreterInstance = interpreter;
-
-
-    function updateExecutionControls(isExecuting) {
-        runBtn.disabled = isExecuting;
-        stopBtn.disabled = !isExecuting;
-        clearBtn.disabled = isExecuting;
-        saveBtn.disabled = isExecuting;
-        helpBtn.disabled = isExecuting;
-        codeEditor.disabled = isExecuting;
-        exampleBlocks.forEach(b => b.classList.toggle('disabled', isExecuting));
-    }
-
-    async function runCode() {
-        const code = codeEditor.value;
-        if (code.length > MAX_CODE_LENGTH_CHARS) {
-            showError(ERROR_MESSAGES.CODE_TOO_LONG);
-            return;
+    window.addEventListener('beforeunload', () => {
+        if (window.ravlykInterpreterInstance && typeof window.ravlykInterpreterInstance.destroy === 'function') {
+            window.ravlykInterpreterInstance.destroy();
         }
-
-        // Перевіряємо, чи вже виконується код
-        if (interpreter.isExecuting) {
-            interpreter.stopExecution();
-            // Чекаємо трохи, щоб інтерпретатор завершив поточну операцію
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-
-        updateExecutionControls(true);
-        interpreter.reset(); // Resets Ravlyk state and clears canvas
-
-        // Animation speed can be configured here based on accessibility settings
-        const accessibilitySettings = window.ravlykAccessibility ? window.ravlykAccessibility.load() : {};
-        interpreter.setAnimationEnabled(!accessibilitySettings['reduce-animations']);
-        interpreter.setSpeed(DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND);
+    }, { once: true });
 
 
-        let executionTimeoutId;
-        const executionPromise = interpreter.executeCommands(code);
-        const timeoutPromise = new Promise((_, reject) => {
-            executionTimeoutId = setTimeout(() => {
-                interpreter.stopExecution(); // Request interpreter to stop
-                // The error from stopExecution will be caught by the race
-            }, EXECUTION_TIMEOUT_MS);
-        });
+    const executionController = createExecutionController({
+        interpreter,
+        codeEditor,
+        editorUi,
+        uiControls: {
+            runBtn,
+            stopBtn,
+            clearBtn,
+            downloadBtn,
+            shareBtn,
+            gridBtn,
+            helpBtn,
+            exampleBlocks,
+        },
+        messages: {
+            ERROR_MESSAGES,
+            SUCCESS_MESSAGES,
+            INFO_MESSAGES,
+        },
+        limits: {
+            MAX_CODE_LENGTH_CHARS,
+            EXECUTION_TIMEOUT_MS,
+        },
+        animationDefaults: {
+            DEFAULT_MOVE_PIXELS_PER_SECOND,
+            DEFAULT_TURN_DEGREES_PER_SECOND,
+        },
+        uiHandlers: {
+            showError,
+            showInfoMessage,
+            showSuccessMessage,
+            showStopConfirmModal,
+            hideStopConfirmModal,
+            updateCommandIndicator,
+        },
+    });
 
-        try {
-            await Promise.race([executionPromise, timeoutPromise]);
-            if (!interpreter.wasBoundaryWarningShown()) {
-                showSuccessMessage(SUCCESS_MESSAGES.CODE_EXECUTED);
-            }
-        } catch (error) {
-            if (error.name === "RavlykError") {
-                 if (error.message === ERROR_MESSAGES.EXECUTION_STOPPED_BY_USER) {
-                    showInfoMessage(INFO_MESSAGES.EXECUTION_STOPPED);
-                } else {
-                    showError(error.message, 0); // Show Ravlyk-specific errors persistently
-                }
-            } else { // Other unexpected errors
-                showError(`Неочікувана помилка: ${error.message}`, 0);
-                console.error("Unexpected error during execution:", error);
-            }
-            interpreter.reset(); // Ensure canvas is clean on error
-        } finally {
-            clearTimeout(executionTimeoutId);
-            updateExecutionControls(false);
-            updateCommandIndicator(null, -1); // Hide command indicator
-        }
-    }
-
-    function saveDrawing() {
-        try {
-            // Create a temporary canvas to draw background + current canvas content
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = canvas.height;
-            const tempCtx = tempCanvas.getContext('2d');
-
-            // Get canvas background color (assuming it's from .canvas-box or body)
-            const canvasBgColor = getComputedStyle(canvas).backgroundColor || 
-                                  getComputedStyle(canvas.parentElement).backgroundColor || 
-                                  'white';
-            tempCtx.fillStyle = canvasBgColor;
-            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-            tempCtx.drawImage(canvas, 0, 0); // Draw current canvas content on top
-
-            const link = document.createElement('a');
-            link.download = `ravlyk-малюнок-${Date.now()}.png`;
-            link.href = tempCanvas.toDataURL('image/png');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showSuccessMessage(SUCCESS_MESSAGES.IMAGE_SAVED);
-        } catch (error) {
-            if (error.name === 'SecurityError' && error.message.includes('tainted')) {
-                showError(ERROR_MESSAGES.SAVE_IMAGE_SECURITY_ERROR, 0);
-            } else {
-                showError(ERROR_MESSAGES.SAVE_IMAGE_ERROR(error.message), 0);
-            }
-        }
-    }
+    const fileActions = createFileActionsController({
+        canvas,
+        backgroundCanvas,
+        codeEditor,
+        maxCodeLengthChars: MAX_CODE_LENGTH_CHARS,
+        maxShareUrlLengthChars: MAX_SHARE_URL_LENGTH_CHARS,
+        errorMessages: ERROR_MESSAGES,
+        successMessages: SUCCESS_MESSAGES,
+        showError,
+        showSuccessMessage,
+        showInfoMessage,
+        getCanvasBackgroundColor: () => interpreter.getCanvasBackgroundColor(),
+        onCodeLoaded: () => {
+            editorUi.setEditorErrorLine(null);
+            editorUi.updateEditorDecorations();
+        },
+    });
+    const modalController = createModalController({
+        interpreter,
+        codeEditor,
+        editorUi,
+        fileActions,
+        executionController,
+        navigationPrefetch,
+        showInfoMessage,
+        hideHelpModal,
+        showClearConfirmModal,
+        hideClearConfirmModal,
+        hideDownloadModal,
+    });
+    const editorInputController = createEditorInputController({
+        codeEditor,
+        exampleBlocks,
+        editorUi,
+        executionController,
+        interpreter,
+    });
+    const lifecycleController = createLifecycleController({
+        canvas,
+        backgroundCanvas,
+        ctx,
+        canvasContainer,
+        interpreter,
+        gridOverlay,
+        executionController,
+        editorUi,
+        resizeCanvas,
+        setFooterYear,
+    });
 
     // --- Event Listeners ---
-    if (runBtn) runBtn.addEventListener("click", runCode);
-    if (stopBtn) stopBtn.addEventListener("click", () => {
-        if (interpreter.isExecuting) {
-            interpreter.stopExecution();
-        }
-    });
-    if (clearBtn) clearBtn.addEventListener("click", () => {
-        if (interpreter.isExecuting) return;
-        showClearConfirmModal();
-    });
-    if (saveBtn) saveBtn.addEventListener('click', saveDrawing);
+    if (runBtn) runBtn.addEventListener("click", executionController.runCode);
+    if (clearBtn) clearBtn.addEventListener("click", modalController.requestClearConfirmation);
+    if (downloadBtn) downloadBtn.addEventListener('click', showDownloadModal);
+    if (shareBtn) shareBtn.addEventListener('click', fileActions.shareCodeAsLink);
+    if (gridBtn) gridBtn.addEventListener('click', () => gridOverlay.toggle());
     if (helpBtn) helpBtn.addEventListener('click', showHelpModal);
+
+    if (stopBtn) stopBtn.addEventListener("click", () => {
+        executionController.openStopConfirmDialog();
+    });
 
     // Початково кнопка "Зупинити" вимкнена
     if (stopBtn) stopBtn.disabled = true;
 
-    // Modal interactions
-    if (helpModalCloseBtn) helpModalCloseBtn.addEventListener('click', hideHelpModal);
-    if (helpModalToManualBtn) {
-        helpModalToManualBtn.addEventListener('click', () => {
-            window.open('manual.html', '_blank');
-            hideHelpModal();
-        });
-    }
-    if (clearConfirmBtn) clearConfirmBtn.addEventListener('click', () => {
-        codeEditor.value = "";
-        interpreter.reset();
-        hideClearConfirmModal();
-        showInfoMessage("Полотно та код очищено.");
-    });
-    if (clearCancelBtn) clearCancelBtn.addEventListener('click', hideClearConfirmModal);
-
-    // Close modals on Escape key
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-            // Якщо виконується код - зупиняємо його
-            if (interpreter.isExecuting) {
-                interpreter.stopExecution();
-                return;
-            }
-            
-            // Якщо відкрите модальне вікно - закриваємо його
-            if (!document.getElementById('help-modal-overlay').classList.contains('hidden')) {
-                hideHelpModal();
-            }
-            if (!document.getElementById('clear-confirm-modal-overlay').classList.contains('hidden')) {
-                hideClearConfirmModal();
-            }
-        }
-    });
-    // Close modals on overlay click
-    document.getElementById('help-modal-overlay')?.addEventListener('click', (event) => {
-        if (event.target === event.currentTarget) hideHelpModal();
-    });
-    document.getElementById('clear-confirm-modal-overlay')?.addEventListener('click', (event) => {
-        if (event.target === event.currentTarget) hideClearConfirmModal();
+    modalController.setupModalInteractions({
+        helpModalCloseBtn,
+        helpModalToManualBtn,
+        clearConfirmBtn,
+        clearCancelBtn,
+        stopConfirmBtn,
+        stopCancelBtn,
+        downloadImageBtn,
+        downloadCodeBtn,
+        closeDownloadModalBtn,
     });
 
 
-    if (toManualBtnMain) toManualBtnMain.addEventListener('click', () => window.open('manual.html', '_blank'));
-    if (toLessonsBtnMain) toLessonsBtnMain.addEventListener('click', () => window.open('lessons.html', '_blank'));
+    if (toManualBtnMain) toManualBtnMain.addEventListener('click', () => navigationPrefetch.openInNewTab('manual.html'));
+    if (toLessonsBtnMain) toLessonsBtnMain.addEventListener('click', () => navigationPrefetch.openInNewTab('lessons.html'));
 
-    exampleBlocks.forEach((block) => {
-        block.addEventListener("click", () => {
-            if (interpreter.isExecuting) return;
-            const code = block.getAttribute("data-code");
-            if (code) {
-                codeEditor.value = code;
-                runCode(); // Run example code immediately
-            }
-        });
-        // Make examples keyboard accessible
-        block.setAttribute('role', 'button');
-        block.setAttribute('tabindex', '0');
-        block.addEventListener('keydown', (e) => {
-            if (interpreter.isExecuting) return;
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                block.click();
-            }
-        });
-    });
+    editorInputController.setupExampleBlocks();
+    editorInputController.setupEditorInputListeners();
 
-    codeEditor.addEventListener("keydown", function(e) {
-        if (interpreter.isExecuting && e.key !== "Escape") { // Allow Escape to try to stop
-            e.preventDefault();
-            return;
-        }
-        if (e.key === "Enter" && (e.ctrlKey || e.metaKey || e.shiftKey)) { // Ctrl+Enter, Cmd+Enter, Shift+Enter
-            e.preventDefault();
-            runCode();
-        }
-        // Basic Tab indentation (2 spaces)
-        if (e.key === "Tab") {
-            e.preventDefault();
-            const start = this.selectionStart;
-            const end = this.selectionEnd;
-            this.value = this.value.substring(0, start) + "  " + this.value.substring(end);
-            this.selectionStart = this.selectionEnd = start + 2;
-        }
-    });
+    lifecycleController.initialize();
+    fileActions.loadCodeFromUrlHash();
+    setupWorkspaceTabs(workspaceTabs, workspacePanels, lifecycleController.scheduleResize);
+    navigationPrefetch.scheduleSecondaryPagesPrefetch();
 
-    // --- Initial Setup ---
-    const initialResizeAndSetup = () => {
-        resizeCanvas(canvas, ctx, () => {
-            interpreter.applyContextSettings(); // Re-apply settings as resize might clear them
-            interpreter.handleCanvasResize(); // Let interpreter know, e.g., to update ravlyk visual
-        });
-        interpreter.reset();
-        updateExecutionControls(false);
-        setFooterYear();
-    };
-    
-    // Debounce resize a bit
-    let resizeTimeout;
-    window.addEventListener("resize", () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(initialResizeAndSetup, 150);
-    });
-    
-    initialResizeAndSetup(); // Initial call
-
-    // Placeholder logic for textarea
-    const defaultPlaceholder = codeEditor.getAttribute('placeholder') || '';
-    codeEditor.addEventListener('focus', () => codeEditor.setAttribute('placeholder', ''));
-    codeEditor.addEventListener('blur', () => {
-        if (!codeEditor.value) codeEditor.setAttribute('placeholder', defaultPlaceholder);
-    });
+    editorInputController.setupPlaceholderBehavior();
 });

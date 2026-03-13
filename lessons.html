@@ -3,469 +3,1649 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Равлик - українська мова програмування для дітей. Навчайтесь програмувати через малювання геометричних фігур. Уроки з Равликом!" />
-    <meta name="keywords" content="равлик, програмування для дітей, вивчення програмування, українська мова програмування, черепашача графіка, малювання кодом, уроки програмування, черепашина графіка, черепашка, програмування черепашка" />
+    <meta name="description" content="Безкоштовні уроки програмування для дітей українською мовою. Оновлений цикл РАВЛИК: великі ідеї, передбачення, пошук помилок, творчі завдання та шлях від першої команди до першої гри." />
+    <meta name="keywords" content="уроки програмування для дітей, курс програмування равлик, інформатика, навчання кодуванню, програмування для початківців" />
     <link rel="canonical" href="https://ravlyk.org/lessons.html" />
     <meta name="author" content="Равлик" />
     <meta name="robots" content="index, follow" />
-    <title>Уроки з Равликом! Покрокове навчання програмуванню</title>
+    <title>Уроки з Равликом — Покрокове навчання програмуванню для дітей</title>
+    <!-- Release token for GitHub Pages cache busting: 2026-03-13-2 -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-    <link rel="manifest" href="site.webmanifest" />
+    <link rel="manifest" href="site.webmanifest?v=2026-03-13-2" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="stylesheet" href="css/global.css" />
-    <link rel="stylesheet" href="css/lessons.css" />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QV58ZGT594"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-    
-      gtag('config', 'G-QV58ZGT594');
-    </script>
+    <link rel="stylesheet" href="css/global.css?v=2026-03-13-2" />
+    <link rel="stylesheet" href="css/accessibility.css?v=2026-03-13-2" />
+    <link rel="stylesheet" href="css/lessons.css?v=2026-03-13-2" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="uk_UA" />
+    <meta property="og:site_name" content="Мова програмування РАВЛИК" />
+    <meta property="og:title" content="Уроки з Равликом — Покрокове навчання програмуванню для дітей" />
+    <meta property="og:description" content="Безкоштовні уроки програмування для дітей українською мовою. Оновлений цикл РАВЛИК: великі ідеї, передбачення, пошук помилок, творчі завдання та шлях від першої команди до першої гри." />
+    <meta property="og:url" content="https://ravlyk.org/lessons.html" />
+    <meta property="og:image" content="https://ravlyk.org/ravlyk.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Уроки з Равликом — Покрокове навчання програмуванню для дітей" />
+    <meta name="twitter:description" content="Безкоштовні уроки програмування для дітей українською мовою. Оновлений цикл РАВЛИК: великі ідеї, передбачення, пошук помилок, творчі завдання та шлях від першої команди до першої гри." />
+    <meta name="twitter:image" content="https://ravlyk.org/ravlyk.jpg" />
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Перейти до основного вмісту</a>
     <div class="page-wrapper">
         <header class="course-header">
             <h1>🐌 Цикл уроків "Малюй з Равликом!" 🎨</h1>
-            <p>Навчайся програмувати весело та легко, відкриваючи двері у світ технологій!</p>
         </header>
 
-        <nav class="tabs-container" aria-label="Навігація уроками">
-            <button class="tab-button active" data-lesson="lesson1" role="tab" aria-selected="true" aria-controls="lesson1-content">Урок 1: Знайомство</button>
-            <button class="tab-button" data-lesson="lesson2" role="tab" aria-selected="false" aria-controls="lesson2-content">Урок 2: Повороти</button>
-            <button class="tab-button" data-lesson="lesson3" role="tab" aria-selected="false" aria-controls="lesson3-content">Урок 3: Кольори</button>
-            <button class="tab-button" data-lesson="lesson4" role="tab" aria-selected="false" aria-controls="lesson4-content">Урок 4: Повторення</button>
-            <button class="tab-button" data-lesson="lesson5" role="tab" aria-selected="false" aria-controls="lesson5-content">Урок 5: Фігури</button>
-            <button class="tab-button" data-lesson="lesson6" role="tab" aria-selected="false" aria-controls="lesson6-content">Урок 6: Олівець</button>
-            <button class="tab-button" data-lesson="lesson7" role="tab" aria-selected="false" aria-controls="lesson7-content">Урок 7: Творчість</button>
+        <nav class="tabs-container" aria-label="Навігація уроками" role="tablist">
+            <button id="lesson0-tab" class="tab-button active" data-lesson="lesson0" role="tab" aria-selected="true" aria-controls="lesson0">Урок 0: Знайомство</button>
+            <button id="lesson1-tab" class="tab-button" data-lesson="lesson1" role="tab" aria-selected="false" aria-controls="lesson1" tabindex="-1">Урок 1: Команда</button>
+            <button id="lesson2-tab" class="tab-button" data-lesson="lesson2" role="tab" aria-selected="false" aria-controls="lesson2" tabindex="-1">Урок 2: Напрямок</button>
+            <button id="lesson3-tab" class="tab-button" data-lesson="lesson3" role="tab" aria-selected="false" aria-controls="lesson3" tabindex="-1">Урок 3: Стан</button>
+            <button id="lesson4-tab" class="tab-button" data-lesson="lesson4" role="tab" aria-selected="false" aria-controls="lesson4" tabindex="-1">Урок 4: Цикл</button>
+            <button id="lesson5-tab" class="tab-button" data-lesson="lesson5" role="tab" aria-selected="false" aria-controls="lesson5" tabindex="-1">Урок 5: Геометрія</button>
+            <button id="lesson6-tab" class="tab-button" data-lesson="lesson6" role="tab" aria-selected="false" aria-controls="lesson6" tabindex="-1">Урок 6: Контроль</button>
+            <button id="lesson7-tab" class="tab-button" data-lesson="lesson7" role="tab" aria-selected="false" aria-controls="lesson7" tabindex="-1">Урок 7: Побудова</button>
+            <button id="lesson8-tab" class="tab-button" data-lesson="lesson8" role="tab" aria-selected="false" aria-controls="lesson8" tabindex="-1">Урок 8: Рішення</button>
+            <button id="lesson9-tab" class="tab-button" data-lesson="lesson9" role="tab" aria-selected="false" aria-controls="lesson9" tabindex="-1">Урок 9: Гра</button>
         </nav>
 
-        <main>
-            <article id="lesson1" class="lesson-content active" role="tabpanel" aria-labelledby="lesson1-tab">
-                <h2>Урок 1: Знайомство з Равликом 🌟</h2>
-                <p>Привіт, юний програмісте! Сьогодні ми дізнаємося, що таке програмування і чому це так круто! А також познайомимося з Равликом!</p>
+        <main id="main-content">
+            <article id="lesson0" class="lesson-content active" role="tabpanel" aria-labelledby="lesson0-tab">
+                <h2>Урок 0: Знайомство з Равликом 🌟</h2>
+                <p><strong>Велика ідея:</strong> Знайомство. Перед тим як керувати Равликом, важливо зрозуміти, хто він, де він живе і як ми з ним будемо працювати.</p>
 
-                <h3>Що таке програмування та кодування?</h3>
-                <p>Уяви, що ти хочеш навчити свого робота-помічника (або нашого Равлика!) виконувати різні завдання: прибирати іграшки, малювати картину або навіть танцювати. Щоб робот тебе зрозумів, ти маєш дати йому дуже чіткі інструкції, крок за кроком. Ці інструкції, написані спеціальною мовою, яку розуміє комп'ютер (або Равлик), називаються <strong>кодом</strong>. А створення цих інструкцій – це <strong>кодування</strong> або <strong>програмування</strong>.</p>
-                <p>Програмування – це ніби розмова з комп'ютером. Ти кажеш йому, що робити, а він слухняно виконує.</p>
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson0-goal-title">
+                    <h3 id="lesson0-goal-title">Що важливо зрозуміти</h3>
+                    <p><strong>Ти вже вмієш:</strong> бути допитливим — цього достатньо для старту.</p>
+                    <p><strong>Сьогодні дізнаєшся:</strong> що таке програмування, хто такий Равлик і де відбуватиметься вся наша робота.</p>
+                    <p><strong>Головне питання уроку:</strong> що саме означає "програмування" і як у цьому допомагає Равлик?</p>
+                </section>
 
-                <h3>Наш друг – Равлик!</h3>
-                <p>Ось він, наш головний герой – Равлик! Він дуже любить малювати, але йому потрібна твоя допомога, щоб знати, куди рухатися і що робити. Твої команди для Равлика – це твій перший код!</p>
-                <img src="assets/images/ravlyk.png" alt="Милий Равлик, що посміхається" class="lesson-image" loading="lazy">
-                
-                <h3>Дім Равлика</h3>
-                <p>А це місце, де живе та працює наш герой - онлайн-редактор! Саме тут ми будемо давати нашому Равлику команди, які він буде виконувати та створювати зображення.</p>
-                <img src="assets/images/editor.jpg" alt="Інтерфейс онлайн-редактора Равлик з полем для коду та полотном для малювання" class="lesson-image lesson-image-fullwidth" loading="lazy">
-                
-                <h3>Перша команда: <code>вперед</code></h3>
-                <p>Щоб Равлик почав рухатися, ми скажемо йому команду <code>вперед</code> і додамо число – скільки кроків він має зробити. Наприклад:</p>
-                <pre class="code-example">вперед 100</pre>
-                <p>Це означає, що Равлик проповзе вперед на 100 маленьких кроків і намалює лінію!</p>
-                <img src="assets/images/lesson_01_01.jpg" alt="Результат команди 'вперед 100' - пряма горизонтальна лінія на полотні" class="lesson-image lesson-image-fullwidth" loading="lazy">
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson0-programming-title">
+                    <h3 id="lesson0-programming-title">Що таке програмування</h3>
+                    <p>Уяви, що ти хочеш навчити свого робота-помічника виконувати різні завдання: прибирати іграшки, малювати картину або навіть танцювати. 
+                        Щоб робот тебе зрозумів, ти маєш дати йому дуже чіткі інструкції, крок за кроком. Ці інструкції, написані спеціальною мовою, 
+                        яку розуміє комп'ютер, називаються <strong>кодом</strong>. А створення таких інструкцій — це <strong>кодування</strong> або <strong>програмування</strong>.</p>
+                    <p>Програмування — це ніби розмова з комп'ютером. Ти кажеш йому, що робити, а він слухняно виконує.</p>
+                </section>
 
-                <div class="why-important">
-                    <h4>💡 Для чого це потрібно? Чому вчитися рухати Равлика – це важливо?</h4>
-                    <p>Вміння давати точні команди – це основа програмування! Коли ти вчиш Равлика рухатися, ти вчишся:</p>
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson0-ravlyk-title">
+                    <h3 id="lesson0-ravlyk-title">Наш друг — Равлик</h3>
+                    <p>Ось він, наш головний герой — Равлик! Він дуже любить малювати, але йому потрібна твоя допомога, щоб знати, куди рухатися і що робити. Твої команди для Равлика — це твій перший код!</p>
+                    <img src="assets/images/ravlyk.png" alt="Милий Равлик, що посміхається" class="lesson-image" loading="lazy">
+                </section>
+
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson0-home-title">
+                    <h3 id="lesson0-home-title">Дім Равлика</h3>
+                    <p>А це місце, де живе та працює наш герой — онлайн-редактор! Саме тут ми будемо давати нашому Равлику команди, які він буде виконувати та створювати зображення.</p>
+                    <img src="assets/images/editor.jpg" alt="Інтерфейс онлайн-редактора Равлик з полем для коду та полотном для малювання" class="lesson-image lesson-image-wide" loading="lazy">
+                    <p>Тут ти зможеш помилятися, перевіряти здогадки, змінювати числа, шукати кращі рішення і створювати власні проєкти.</p>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Зазирнути до редактора</a>
+                </section>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3 id="lesson0-first-touch-title">🖐️ Твоє перше завдання — без підготовки</h3>
+                    <p>Відкрий редактор. Натисни будь-яку клавішу, напиши будь-що і натисни "Запустити". Подивись, що станеться.</p>
+                    <p>Ти ще не знаєш жодної команди — і це нормально. Равлик або щось намалює, або покаже підказку про помилку. В обох випадках це корисно: ти вже бачиш, як середовище реагує на твої дії.</p>
+                    <p>Запам'ятай: помилка — це не провал. Це інформація. Так само, як коли вчишся їздити на велосипеді: впав — зрозумів, що треба виправити.</p>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Відкрити редактор і спробувати</a>
+                </div>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>💡 Для чого це потрібно?</h3>
+                    <p>Знайомство з Равликом потрібне, щоб одразу зрозуміти, як ми будемо мислити та працювати на всьому курсі.</p>
                     <ul>
-                        <li><strong>Послідовності дій:</strong> Розуміти, що команди виконуються одна за одною. Це як у рецепті: спочатку одне, потім інше.</li>
-                        <li><strong>Точності:</strong> Комп'ютер (і Равлик) робить тільки те, що ти йому скажеш. Якщо ти скажеш "вперед 100", він не пройде 101 крок.</li>
-                        <li><strong>Плануванню:</strong> Ти заздалегідь думаєш, що хочеш отримати, і які команди для цього потрібні.</li>
+                        <li><strong>Ти бачиш мету:</strong> не просто вчиш команди, а вчишся керувати об'єктом і перевіряти свої ідеї.</li>
+                        <li><strong>Ти розумієш середовище:</strong> де писати код, де дивитися результат і де можна сміливо помилятися.</li>
                     </ul>
-                    <p>Ці навички знадобляться тобі не тільки в програмуванні, а й у математиці, коли ти будеш розв'язувати задачі, або навіть коли будеш складати конструктор LEGO за інструкцією!</p>
                 </div>
 
-                <div class="task">
-                    <h4>🚀 Практичне завдання: Намалюй лінію!</h4>
-                    <p>Відкрий редактор Равлика і напиши команду <code>вперед 100</code>. Натисни кнопку "Запустити". Що вийшло?</p>
-                    <a href="index.html" target="_blank" class="btn btn-success">Відкрити редактор</a>
+                <section class="lesson-subsection lesson-example-subsection lesson-path-section" aria-labelledby="lesson0-path-title">
+                    <h3 id="lesson0-path-title">🗺️ Твій шлях</h3>
+                    <p>Ось що тебе чекає. Кожен урок — це одна нова ідея і одна нова команда. Не поспішай: важливо розуміти кожен крок, перш ніж рухатися далі.</p>
+                    <div class="manual-table-wrap">
+                        <table class="manual-table lesson-path-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Урок</th>
+                                    <th scope="col">Велика ідея</th>
+                                    <th scope="col">Нова команда</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="lesson-path-index">1</span><span class="lesson-path-dot lesson-path-dot-green" aria-hidden="true"></span></td>
+                                    <td><strong>Команда</strong></td>
+                                    <td><code>вперед</code>, <code>назад</code></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="lesson-path-index">2</span><span class="lesson-path-dot lesson-path-dot-green" aria-hidden="true"></span></td>
+                                    <td><strong>Напрямок</strong></td>
+                                    <td><code>праворуч</code>, <code>ліворуч</code></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="lesson-path-index">3</span><span class="lesson-path-dot lesson-path-dot-green" aria-hidden="true"></span></td>
+                                    <td><strong>Стан</strong></td>
+                                    <td><code>колір</code></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="lesson-path-index">4</span><span class="lesson-path-dot lesson-path-dot-yellow" aria-hidden="true"></span></td>
+                                    <td><strong>Цикл</strong></td>
+                                    <td><code>повторити</code></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="lesson-path-index">5</span><span class="lesson-path-dot lesson-path-dot-yellow" aria-hidden="true"></span></td>
+                                    <td><strong>Геометрія</strong></td>
+                                    <td>дослідження чисел у циклі</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="lesson-path-index">6</span><span class="lesson-path-dot lesson-path-dot-yellow" aria-hidden="true"></span></td>
+                                    <td><strong>Контроль</strong></td>
+                                    <td><code>підняти</code>, <code>опустити</code>, <code>перейти в</code></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="lesson-path-index">7</span><span class="lesson-path-dot lesson-path-dot-yellow" aria-hidden="true"></span></td>
+                                    <td><strong>Побудова</strong></td>
+                                    <td><code>створити</code></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="lesson-path-index">8</span><span class="lesson-path-dot lesson-path-dot-red" aria-hidden="true"></span></td>
+                                    <td><strong>Рішення</strong></td>
+                                    <td><code>якщо</code>, <code>інакше</code></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="lesson-path-index">9</span><span class="lesson-path-dot lesson-path-dot-red" aria-hidden="true"></span></td>
+                                    <td><strong>Гра</strong></td>
+                                    <td><code>грати</code>, <code>якщо клавіша</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                </section>
+                <div class="tip">
+                    <p><strong>Не поспішай.</strong> Важливо розуміти, а не просто прогортати уроки.</p>
                 </div>
-
-                <div class="task">
-                    <h4>📏 Додаткове завдання: Змінюй довжину!</h4>
-                    <p>Спробуй написати:</p>
-                    <pre class="code-example">вперед 50</pre>
-                    <p>А потім:</p>
-                    <pre class="code-example">вперед 150</pre>
-                    <p>Бачиш, як змінюється довжина лінії? Чим більше число, тим довша лінія!</p>
-                    <a href="index.html" target="_blank" class="btn btn-success">Відкрити редактор</a>
-                </div>
-                <div class="tip"><strong>Підказка:</strong> Не забувай натискати "Запустити" після кожної зміни у коді!</div>
                 <nav class="navigation-buttons">
-                    <button class="btn btn-primary nav-btn-prev" disabled style="visibility: hidden;">← Попередній урок</button>
-                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson2">Наступний урок →</button>
+                    <button class="btn btn-primary nav-btn-prev" disabled style="visibility: hidden;"><span class="ui-icon icon-arrow-left" aria-hidden="true"></span>Попередній урок</button>
+                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson1">Наступний урок<span class="ui-icon icon-arrow-right icon-right" aria-hidden="true"></span></button>
                 </nav>
             </article>
 
-            <article id="lesson2" class="lesson-content" role="tabpanel" aria-labelledby="lesson2-tab">
-                <h2>Урок 2: Равлик повертається! ↩️↪️</h2>
-                <p>Молодець! Ти вже вмієш рухати Равлика вперед. А тепер навчимо його повертати!</p>
+            <article id="lesson1" class="lesson-content" role="tabpanel" aria-labelledby="lesson1-tab" hidden>
+                <h2>Урок 1: Перша команда 🚀</h2>
+                <p><strong>Велика ідея:</strong> Команда. Равлик робить саме те, що ти написав.</p>
 
-                <h3>Повторюємо: Рух вперед</h3>
-                <p>Пам'ятаєш команду <code>вперед [число]</code>? Вона допомагає Равлику малювати прямі лінії.</p>
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson1-goal-title">
+                    <h3 id="lesson1-goal-title">Що сьогодні важливо зрозуміти</h3>
+                    <p><strong>Ти вже знаєш:</strong> що таке програмування та хто такий Равлик.</p>
+                    <p><strong>Ти вже вмієш:</strong> поки що нічого, і це нормально.</p>
+                    <p><strong>Сьогодні навчишся:</strong> рухати Равлика і бачити, як код перетворюється на лінію.</p>
+                    <p><strong>Головне питання уроку:</strong> як дати комп'ютеру настільки точну команду, щоб він не здогадувався, а виконував?</p>
+                </section>
 
-                <h3>Нові команди: <code>праворуч</code> та <code>ліворуч</code></h3>
-                <p>Щоб Равлик повернув, ми використовуємо команди:</p>
-                <ul>
-                    <li><code>праворуч 90</code> – Равлик повернеться праворуч. Число 90 означає прямий кут.</li>
-                    <li><code>ліворуч 90</code> – Равлик повернеться ліворуч.</li>
-                </ul>
-                <p>Уяви, що Равлик стоїть і дивиться вгору. Після команди <code>праворуч 90</code> він дивитиметься направо.</p>
-                <img src="assets/images/lesson_02_01.jpg" alt="Схема повороту Равлика праворуч на 90 градусів" class="lesson-image lesson-image-fullwidth" loading="lazy">
-           
-                <div class="why-important">
-                    <h4>💡 Для чого це потрібно? Навіщо Равлику повороти?</h4>
-                    <p>Команди поворотів допомагають нам створювати не просто прямі лінії, а різні фігури! Коли ти вчишся повертати Равлика, ти:</p>
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson1-unplugged-title">
+                    <h3 id="lesson1-unplugged-title">👥 Спочатку без комп'ютера</h3>
+                    <p>Один учень — "Равлик", інший — "програміст". Програміст дає команди вголос, а Равлик виконує їх буквально: не думає, не здогадується, не виправляє.</p>
+                    <p>Спробуйте: "крок вперед", "повернись праворуч", "три кроки вперед". Доведіть Равлика від дошки до дверей, а потім поміняйтеся ролями.</p>
+                    <p>Що помітиш: неточна команда дає неправильний результат. Комп'ютер поводиться так само.</p>
+                    <div class="tip lesson-support-block lesson-tip-block">
+                        <h3>🔁 Зроби це і на наступних уроках</h3>
+                        <p>Unplugged-гра "програміст і Равлик" працює для будь-якої нової команди. Перед Уроком 2 спробуй додати команди "повернись на 90°" і "повернись на 45°". Перед Уроком 4 — команду "повтори 4 рази: крок вперед, поворот". Тіло запам'ятовує те, що голова ще не формалізувала.</p>
+                    </div>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson1-command-title">
+                    <h3 id="lesson1-command-title">Нова команда: <code>вперед</code></h3>
+                    <pre class="code-example">вперед 100</pre>
+                    <p>Равлик пройде вперед на 100 кроків і намалює лінію.</p>
+                    <div class="tip lesson-support-block lesson-tip-block">
+                        <strong>Скільки це — 100 кроків?</strong>
+                        <p>Полотно Равлика приблизно 500 кроків завширшки. Тобто <code>вперед 100</code> — це п'ята частина полотна. Спробуй <code>вперед 500</code> — куди дійде Равлик?</p>
+                    </div>
+                    <img src="assets/images/lesson_01_01.jpg" alt="Результат команди 'вперед 100' — пряма вертикальна лінія вгору на полотні" class="lesson-image lesson-image-wide" loading="lazy">
+                    <p><a href="manual.html#movement" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: команди руху</a></p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson1-predict-title">
+                    <h3 id="lesson1-predict-title">🔮 Спробуй передбачити</h3>
+                    <p>Не запускай одразу. Спершу подивись на код, намалюй результат на папері і лише тоді перевір в редакторі.</p>
+                    <pre class="code-example">вперед 50
+вперед 100
+вперед 25</pre>
+                    <p>Скільки ліній вийде? Яка з них найдовша? Чи справді це три окремі лінії, чи одна доріжка з трьох кроків?</p>
+                </section>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>💡 Для чого це потрібно?</h3>
+                    <p>Точні команди — це основа всього програмування.</p>
                     <ul>
-                        <li><strong>Розвиваєш просторове мислення:</strong> Ти уявляєш, як Равлик рухатиметься і куди поверне. Це схоже на те, як ти орієнтуєшся на карті або проходиш лабіринт.</li>
-                        <li><strong>Вчишся геометрії:</strong> Ти дізнаєшся про кути (наприклад, прямий кут – 90 градусів, який є у квадрата).</li>
-                        <li><strong>Створюєш складніші інструкції:</strong> Ти поєднуєш рух вперед із поворотами, щоб намалювати щось цікавіше, ніж просто лінія.</li>
+                        <li><strong>Ти вчишся мислити послідовно:</strong> одна команда виконується за одною, як кроки в рецепті.</li>
+                        <li><strong>Ти вчишся бути точним:</strong> комп'ютер не здогадається, що ти "мав на увазі". Йому потрібні чіткі інструкції.</li>
+                        <li><strong>Ти вчишся планувати:</strong> ти заздалегідь думаєш, що хочеш отримати, і які команди для цього потрібні.</li>
+                        <li><strong>Ти готуєшся до складніших ідей:</strong> цикли, умови й ігри теж будуються з точних команд.</li>
                     </ul>
-                    <p>Це вміння керувати напрямком важливе у створенні ігор (де персонажі рухаються), у робототехніці (де роботи мають об'їжджати перешкоди) і навіть у малюванні на комп'ютері!</p>
                 </div>
 
-                <div class="task">
-                    <h4>📐 Практичне завдання: Створи кут!</h4>
-                    <p>Спробуй написати такий код:</p>
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🚀 Завдання</h3>
+                    <p>Відкрий редактор, напиши <code>вперед 100</code> і натисни "Запустити". Потім спробуй <code>вперед 50</code> і <code>вперед 200</code>. Що змінюється?</p>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Відкрити редактор</a>
+                </div>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson1-bug-title">
+                    <h3 id="lesson1-bug-title">🐛 Знайди помилку</h3>
+                    <p>Ось код, який не працює:</p>
+                    <pre class="code-example">вперед сто</pre>
+                    <details>
+                        <summary>Підказка</summary>
+                        <p>Равлик розуміє числа, а не слова.</p>
+                    </details>
+                    <details>
+                        <summary>Відповідь</summary>
+                        <pre class="code-example">вперед 100</pre>
+                    </details>
+                </section>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎨 Спробуй по-своєму</h3>
+                    <p>Намалюй три лінії різної довжини без готового зразка. Ти обираєш довжини сам.</p>
+                    <p>Перед тим як писати код — заплануй:</p>
+                    <div class="manual-table-wrap">
+                    <table class="manual-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Лінія</th>
+                                <th scope="col">Моя довжина</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Перша</td>
+                                <td>___</td>
+                            </tr>
+                            <tr>
+                                <td>Друга</td>
+                                <td>___</td>
+                            </tr>
+                            <tr>
+                                <td>Третя</td>
+                                <td>___</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Тепер напиши код за своїм планом і перевір.</p>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Спробувати свою ідею</a>
+                </div>
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎯 Обери свій рівень</h3>
+                    <ul>
+                        <li>🟢 Простий: напиши <code>вперед 100</code> і запусти. Змінюй лише одне число.</li>
+                        <li>🟡 Середній: намалюй три лінії, де кожна наступна на 50 довша за попередню. Запиши числа до запуску.</li>
+                        <li>🔴 Складний: намалюй лінію, яка займає рівно половину ширини полотна. Як ти дізнаєшся, що вона точно половина?</li>
+                    </ul>
+                </div>
+                <div class="tip">
+                    <p><strong>Підказка:</strong> Не забувай натискати "Запустити" після кожної зміни у коді!</p>
+                </div>
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>✅ Я вмію</h3>
+                    <ul>
+                        <li><strong>Можу повторити:</strong> написати <code>вперед 100</code> і запустити.</li>
+                        <li><strong>Можу змінити:</strong> передбачити, як число вплине на довжину лінії.</li>
+                        <li><strong>Можу придумати своє:</strong> зробити кілька ліній без підказки.</li>
+                    </ul>
+                </div>
+
+                <div class="tip lesson-support-block lesson-tip-block">
+                    <strong>Подумай:</strong>
+                    <ul>
+                        <li>Що було новим?</li>
+                        <li>Що ще не до кінця зрозуміло?</li>
+                        <li>Спробуй написати <code>вперед 0</code> і запустити. Що сталося? Чи це помилка? Чи рух без сліду?</li>
+                    </ul>
+                </div>
+
+                <nav class="navigation-buttons">
+                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson0"><span class="ui-icon icon-arrow-left" aria-hidden="true"></span>Попередній урок</button>
+                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson2">Наступний урок<span class="ui-icon icon-arrow-right icon-right" aria-hidden="true"></span></button>
+                </nav>
+            </article>
+
+            <article id="lesson2" class="lesson-content" role="tabpanel" aria-labelledby="lesson2-tab" hidden>
+                <h2>Урок 2: Равлик повертається ↩️↪️</h2>
+                <p><strong>Велика ідея:</strong> Напрямок. Равлик повертає в різні боки.</p>
+
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson2-goal-title">
+                    <h3 id="lesson2-goal-title">Що сьогодні важливо зрозуміти</h3>
+                    <p><strong>Ти вже вмієш:</strong> рухати Равлика вперед.</p>
+                    <p><strong>Сьогодні навчишся:</strong> повертати і малювати кути.</p>
+                    <p><strong>Головне питання уроку:</strong> як пояснити комп'ютеру, куди саме треба повернути?</p>
+                </section>
+
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson2-clock-title">
+                    <h3 id="lesson2-clock-title">🕐 Стань стрілкою годинника</h3>
+                    <p>Уяви, що ти дивишся вгору на 12 годину. Це стартовий напрямок.</p>
+                    <ul>
+                        <li><code>праворуч 90</code> — це 3 година.</li>
+                        <li>Ще <code>праворуч 90</code> — це 6 година.</li>
+                        <li>Ще <code>праворуч 90</code> — це 9 година.</li>
+                        <li>Ще <code>праворуч 90</code> — знову 12 година.</li>
+                    </ul>
+                    <p>Так тіло запам'ятовує, що 4 × 90° = 360°.</p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson2-command-title">
+                    <h3 id="lesson2-command-title">Нові команди: <code>праворуч</code> та <code>ліворуч</code></h3>
+                    <p>Щоб Равлик повернув, ми використовуємо команди:</p>
+                    <pre class="code-example">праворуч 90 # Равлик повернеться праворуч
+ліворуч 90 # Равлик повернеться ліворуч</pre>
+                    <p>Поворот завжди відбувається від поточного напряму Равлика. Уяви, що Равлик стоїть і дивиться вгору. Після команди <code>праворуч 90</code> він дивитиметься направо.</p>
+                    <img src="assets/images/lesson_02_01.jpg" alt="Схема повороту Равлика праворуч на 90 градусів" class="lesson-image lesson-image-wide" loading="lazy">
+                    <div class="why-important lesson-support-block lesson-why-block">
+                        <h3>⚠️ Важливо: Равлик повертає відносно себе</h3>
+                        <p>Стань обличчям до стіни. Повернись праворуч. Тепер ти дивишся не туди, куди дивився раніше, — ти повернувся відносно себе. Равлик робить те саме.</p>
+                        <p>Тому два рази <code>праворуч 90</code> — це не "дивитися праворуч від мене", а "ще раз повернутися від свого поточного напряму". Після двох поворотів по 90° Равлик дивитиметься вниз, а не праворуч.</p>
+                    </div>
+                    <p><a href="manual.html#rotation" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: команди повороту</a></p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson2-left-title">
+                    <h3 id="lesson2-left-title">🔄 А що з <code>ліворуч</code>?</h3>
+                    <div class="task lesson-support-block lesson-task-block">
+                        <pre class="code-example">вперед 80
+ліворуч 90
+вперед 80</pre>
+                        <p>Спробуй запустити. Що вийшло? Чим цей малюнок відрізняється від <code>праворуч 90</code>? Спробуй замінити <code>ліворуч</code> на <code>праворуч</code> і порівняй обидва результати.</p>
+                    </div>
+                    <div class="tip lesson-support-block lesson-tip-block">
+                        <strong>Подумай ще</strong>
+                        <p>Чи відрізняється <code>ліворуч 90</code> від <code>праворуч 270</code>? Перевір.</p>
+                    </div>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson2-predict-title">
+                    <h3 id="lesson2-predict-title">🔮 Спробуй передбачити</h3>
+                    <pre class="code-example">вперед 80
+праворуч 90
+вперед 80
+праворуч 90
+вперед 80</pre>
+                    <p>Скільки ліній намалює Равлик? Куди він буде дивитися у кінці? Що буде, якщо дописати ще один поворот і ще одну лінію?</p>
+                </section>
+                <div class="tip">
+                    <p><strong>Підказка:</strong> Число після <code>праворуч</code> або <code>ліворуч</code> — це градуси. 90 — це прямий кут, як у квадрата.</p>
+                </div>
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>💡 Для чого це потрібно?</h3>
+                    <p>Без поворотів Равлик міг би малювати тільки прямі доріжки. А з поворотами починаються фігури, карти, лабіринти й орнаменти.</p>
+                    <ul>
+                        <li><strong>Ти розвиваєш просторове мислення:</strong> уявляєш шлях ще до запуску.</li>
+                        <li><strong>Ти починаєш мислити геометрично:</strong> кут керує формою.</li>
+                        <li><strong>Ти вчишся орієнтуватися відносно себе:</strong> "праворуч" і "ліворуч" залежать від напряму руху.</li>
+                    </ul>
+                </div>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>📐 Завдання</h3>
                     <pre class="code-example">вперед 100
 праворуч 90
 вперед 100</pre>
-                    <p>Що намалював Равлик? Схоже на кутик?</p>
-                    <a href="index.html" target="_blank" class="btn btn-success">Відкрити редактор</a>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Відкрити редактор</a>
                 </div>
 
-                <div class="task">
-                    <h4>🪜 Додаткове завдання: Малюємо сходинки!</h4>
-                    <p>А тепер спробуй намалювати маленькі сходинки. Можливо, так?</p>
-                    <pre class="code-example">вперед 50
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson2-bug-title">
+                    <h3 id="lesson2-bug-title">🐛 Знайди помилку</h3>
+                    <p>Учень хотів квадрат, але отримав дивну фігуру:</p>
+                    <pre class="code-example">вперед 100
 праворуч 90
-вперед 50
-ліворуч 90
-вперед 50
+вперед 100
 праворуч 90
-вперед 50</pre>
-                    <p>Експериментуй! Можеш зробити більше сходинок або змінити їх розмір.</p>
-                    <a href="index.html" target="_blank" class="btn btn-success">Відкрити редактор</a>
+вперед 100
+праворуч 45
+вперед 100</pre>
+                    <details>
+                        <summary>Відповідь</summary>
+                        <p>Останній поворот має бути <code>праворуч 90</code>, а не <code>праворуч 45</code>.</p>
+                    </details>
+                </section>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎨 Спробуй по-своєму</h3>
+                    <p>Намалюй сходинки. Кількість сходинок і розмір обирай сам.</p>
+                    <p>Підказка для планування: одна сходинка — це рух вперед і рух вгору. Скільки команд потрібно для однієї сходинки? Випиши їх. А для трьох сходинок?</p>
+                    <p>Поки ми ще не вміємо повторювати автоматично — але в Уроці 4 це зміниться. Тоді ти побачиш, наскільки коротшим стане цей самий код.</p>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Спробувати свою ідею</a>
                 </div>
-                <div class="tip"><strong>Підказка:</strong> Число після <code>праворуч</code> або <code>ліворуч</code> – це градуси. 90 – це прямий кут, як у квадрата.</div>
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎯 Обери свій рівень</h3>
+                    <ul>
+                        <li>🟢 Простий: намалюй три сходинки, де кожна однакового розміру.</li>
+                        <li>🟡 Середній: намалюй п'ять сходинок, де кожна наступна на 10 вища. Запиши числа до запуску.</li>
+                        <li>🔴 Складний: намалюй сходинки, які йдуть спочатку вгору, а потім вниз — як гора. Скільки команд тобі знадобиться? Чи є спосіб скоротити код?</li>
+                    </ul>
+                </div>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>✅ Я вмію</h3>
+                    <ul>
+                        <li><strong>Можу повторити:</strong> повернути Равлика на 90°.</li>
+                        <li><strong>Можу змінити:</strong> передбачити, як зміниться шлях при іншому куті.</li>
+                        <li><strong>Можу придумати своє:</strong> зробити власну фігуру з рухів і поворотів.</li>
+                    </ul>
+                </div>
+
+                <div class="tip lesson-support-block lesson-tip-block">
+                    <strong>Подумай:</strong>
+                    <ul>
+                        <li>Уяви годинникову стрілку. Якщо Равлик дивиться на 12 — <code>праворуч 90</code> повертає його на 3, ще <code>праворуч 90</code> — на 6, ще — на 9, ще — назад на 12. Скільки разів по 90° потрібно, щоб повернутися до старту? А якщо поворот 45°?</li>
+                        <li>Що означає <code>праворуч 360</code>?</li>
+                        <li>Яку фігуру можна побудувати лише з <code>вперед</code> і поворотів?</li>
+                    </ul>
+                </div>
+
                 <nav class="navigation-buttons">
-                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson1">← Попередній урок</button>
-                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson3">Наступний урок →</button>
+                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson1"><span class="ui-icon icon-arrow-left" aria-hidden="true"></span>Попередній урок</button>
+                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson3">Наступний урок<span class="ui-icon icon-arrow-right icon-right" aria-hidden="true"></span></button>
                 </nav>
             </article>
 
-            <article id="lesson3" class="lesson-content" role="tabpanel" aria-labelledby="lesson3-tab">
+            <article id="lesson3" class="lesson-content" role="tabpanel" aria-labelledby="lesson3-tab" hidden>
                 <h2>Урок 3: Кольоровий Равлик 🌈</h2>
-                <p>Чудово! Равлик вже вміє ходити і повертати. А чи знаєш ти, що він може малювати різними кольорами?</p>
-    
-                <h3>Повторення вивченого</h3>
-                <p>Давай пригадаємо, як рухати Равлика вперед (<code>вперед [число]</code>) та повертати (<code>праворуч [число]</code>, <code>ліворуч [число]</code>).</p>
-    
-                <h3>Нова команда: <code>колір</code></h3>
-                <p>Щоб змінити колір, яким малює Равлик, ми використовуємо команду <code>колір</code> та назву кольору. Наприклад:</p>
-                <pre class="code-example">колір синій</pre>
-                <p>Після цієї команди всі наступні лінії Равлик малюватиме синім кольором. Ти можеш використовувати такі кольори: <code>червоний</code>, <code>зелений</code>, <code>синій</code>, <code>жовтий</code>, <code>чорний</code>, <code>жовтогарячий</code>, <code>фіолетовий</code>, <code>рожевий</code>, і навіть <code>веселка</code>!</p>
-                <img src="assets/images/lesson_03_01.jpg" alt="Равлик малює три лінії різними кольорами: червоним, зеленим, синім" class="lesson-image lesson-image-fullwidth" loading="lazy">
-                
-                <div class="why-important">
-                    <h4>💡 Для чого це потрібно? Навіщо Равлику кольори?</h4>
-                    <p>Кольори роблять наші малюнки яскравішими та цікавішими! Коли ти вчишся використовувати команду <code>колір</code>, ти:</p>
-                    <ul>
-                        <li><strong>Розвиваєш творчі здібності:</strong> Ти можеш експериментувати, поєднувати різні кольори та створювати унікальні малюнки.</li>
-                        <li><strong>Вчишся керувати станом:</strong> Команда <code>колір</code> змінює "стан" Равлика. Це як взяти інший фломастер. У програмуванні часто потрібно змінювати різні налаштування.</li>
-                        <li><strong>Робиш програми зрозумілішими:</strong> У складних малюнках різні кольори можуть позначати різні частини або об'єкти, роблячи їх легшими для сприйняття.</li>
-                    </ul>
-                    <p>Дизайнери веб-сайтів використовують кольори, щоб зробити сторінки гарними та зручними. Художники-аніматори – щоб оживити персонажів. Навіть у схемах та графіках кольори допомагають виділити важливу інформацію!</p>
-                </div>
-    
-                <div class="task">
-                    <h4>🎨 Практичне завдання: Різнокольорові лінії!</h4>
-                    <p>Намалюй три лінії різними кольорами. Наприклад:</p>
-                    <pre class="code-example">колір червоний
-вперед 50
-колір зелений
-вперед 50
-колір синій
-вперед 50</pre>
-                    <p>Що сталося? Равлик змінив напрямок чи просто продовжив малювати поруч?</p>
-                    <div class="tip"><strong>Підказка:</strong> Щоб лінії були окремо, перемісти Равлика або поверни його перед малюванням нової лінії! Наприклад, після першої лінії додай <code>праворуч 90</code>, потім <code>вперед 20</code> (щоб відступити), а тоді <code>ліворуч 90</code>, щоб Равлик знову дивився в той самий бік, що й на початку, але вже в новому місці. Або використай команди <code>підняти</code> та <code>опустити</code> (про них дізнаєшся пізніше!).</div>
-                    <a href="index.html" target="_blank" class="btn btn-success">Відкрити редактор</a>
-                </div>
-    
-                <div class="task">
-                    <h4>🌈 Додаткове завдання: Намалюй веселку (спрощено)!</h4>
-                    <p>Спробуй намалювати кілька коротких ліній різними кольорами веселки одна під одною або дугами. Для простого варіанту прямих ліній:</p>
-                    <pre class="code-example">колір червоний
-вперед 100
-праворуч 90 # Повернути, щоб рухатись вниз для наступної лінії
-вперед 10  # Відстань між лініями
-праворуч 90 # Повернути, щоб малювати вліво (паралельно першій)
-колір жовтогарячий
-вперед 100
-ліворуч 90  # Повернути, щоб рухатись вниз
-вперед 10
-ліворуч 90  # Повернути, щоб малювати вправо (паралельно попередній)
+                <p><strong>Велика ідея:</strong> Стан. Равлик запам'ятовує колір, доки ти його не зміниш.</p>
+
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson3-goal-title">
+                    <h3 id="lesson3-goal-title">Що сьогодні важливо зрозуміти</h3>
+                    <p><strong>Ти вже вмієш:</strong> рухати і повертати Равлика.</p>
+                    <p><strong>Сьогодні навчишся:</strong> змінювати колір малювання і думати про "поточний стан".</p>
+                    <p><strong>Головне питання уроку:</strong> що змінюється не в одному рядку, а зберігається далі?</p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson3-command-title">
+                    <h3 id="lesson3-command-title">Нова команда: <code>колір</code></h3>
+                    <p>Щоб змінити колір, яким малює Равлик, використовуй команду <code>колір</code> і додай назву кольору.</p>
+                    <pre class="code-example">колір синій</pre>
+                    <p>Після цієї команди всі наступні лінії будуть сині, поки не з'явиться інший колір.</p>
+                    <div class="why-important lesson-support-block lesson-why-block">
+                        <h3>Стан — це те, що Равлик "пам'ятає"</h3>
+                        <p>Уяви, що Равлик тримає фломастер. Поки ти не написав <code>колір синій</code> — він тримає чорний і малює чорним. Пишеш <code>колір синій</code> — він бере синій фломастер. Усе, що намалював раніше, лишається чорним. Усе, що намалює тепер — синє. Фломастер у руці і є стан.</p>
+                        <p>Стан — це те, що програма пам'ятає між командами. Поточний колір, чи піднятий олівець, де зараз знаходиться Равлик — усе це стан. Команда <code>колір</code> не просто фарбує одну лінію — вона змінює стан програми для всього, що йде після неї.</p>
+                        <p>Це і є стан — і він зустрічається скрізь.</p>
+                        <p>Де ще є стан у житті? Вимикач світла: він "пам'ятає", увімкнений чи вимкнений. Світлофор: він "пам'ятає", яке зараз світло. Ти сам: ти "пам'ятаєш", голодний ти чи ні — і це впливає на твої наступні дії.</p>
+                    </div>
+
+                    <img src="assets/images/lesson_03_01.jpg" alt="Равлик малює сходинки синім кольором" class="lesson-image lesson-image-wide" loading="lazy">
+
+                    <p>Равлик знає багато кольорів: червоний, зелений, синій, жовтий, чорний, жовтогарячий, фіолетовий, рожевий, коричневий, блакитний, кораловий, смарагдовий, золотий та інші, а також <code>веселка</code>.</p>
+                    <p><a href="manual.html#colors" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: кольори</a></p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson3-background-title">
+                    <h3 id="lesson3-background-title">Другий стан: <code>фон</code></h3>
+                    <p>Команда <code>колір</code> змінює, чим малює Равлик. А <code>фон</code> змінює саме полотно — тло, на якому малюєш.</p>
+                    <pre class="code-example">фон блакитний
 колір жовтий
-вперед 100
-# і так далі...</pre>
-                    <p>Це може бути непросто, але головне – спробувати! Або просто напиши <code>колір веселка</code> і <code>вперед 100</code> - подивись, що буде!</p>
-                    <a href="index.html" target="_blank" class="btn btn-success">Відкрити редактор</a>
+вперед 100</pre>
+                    <p>Спочатку передбач, що побачиш. Потім спробуй: що змінюється, якщо написати <code>фон</code> до малювання? А якщо після? Чи можна намалювати жовту лінію на жовтому тлі — і що вийде?</p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson3-predict-title">
+                    <h3 id="lesson3-predict-title">🔮 Спробуй передбачити</h3>
+                    <pre class="code-example">колір червоний
+вперед 60
+колір синій
+вперед 60
+колір червоний
+вперед 60</pre>
+                    <p>Скільки ліній? Якого кольору кожна? Що буде, якщо прибрати останню команду <code>колір червоний</code>?</p>
+                </section>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>💡 Для чого це потрібно?</h3>
+                    <p>Колір — це перший крок до розуміння стану: щось змінюється зараз, але впливає і на наступні дії.</p>
+                    <ul>
+                        <li><strong>Ти вчишся бачити стан програми:</strong> поточний колір зберігається, поки його не змінять.</li>
+                        <li><strong>Ти розвиваєш творчість:</strong> колір може передавати настрій, ритм і ідею.</li>
+                        <li><strong>Ти помічаєш причинно-наслідкові зв'язки:</strong> один рядок коду змінює все, що йде після нього.</li>
+                    </ul>
                 </div>
-                <div class="tip"><strong>Пам'ятай:</strong> Команда <code>колір</code> змінює колір для всіх наступних ліній, доки ти не даси нову команду <code>колір</code>.</div>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎨 Завдання</h3>
+                    <p>Намалюй три лінії трьома різними кольорами. Кожну — в іншому напрямку.</p>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Відкрити редактор</a>
+                </div>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson3-bug-title">
+                    <h3 id="lesson3-bug-title">🤔 Що не так із задумом?</h3>
+                    <pre class="code-example">вперед 100
+колір синій
+вперед 100</pre>
+                    <details>
+                        <summary>Підказка</summary>
+                        <p>Поглянь на порядок команд: коли саме змінюється колір — до руху чи після нього?</p>
+                    </details>
+                    <details>
+                        <summary>Пояснення</summary>
+                        <p>Тут немає синтаксичної помилки — код виконається без повідомлення про помилку. Але результат може не збігатися з очікуванням: перша лінія лишається чорною, бо <code>колір синій</code> стоїть після першого руху. Якщо хочеш, щоб обидві лінії були сині — постав <code>колір синій</code> на самому початку.</p>
+                        <p>Це важлива особливість стану: команда <code>колір</code> впливає лише на те, що йде після неї.</p>
+                    </details>
+                </section>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎨 Спробуй по-своєму</h3>
+                    <p>Намалюй два схожі малюнки різними кольорами: один "радісний", другий "спокійний".</p>
+                    <p>Покажи свої два малюнки однокласнику. Нехай він угадає, який "радісний", а який "спокійний" — і поясни, які кольори ти обрав і чому.</p>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Спробувати свою ідею</a>
+                </div>
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎯 Обери свій рівень</h3>
+                    <ul>
+                        <li>🟢 Простий: намалюй три лінії трьома різними кольорами. Перевір: чи правильно стоять команди <code>колір</code>?</li>
+                        <li>🟡 Середній: намалюй квадрат, де кожна сторона іншого кольору. Підказка: команда <code>колір</code> має стояти перед кожним <code>вперед</code>.</li>
+                        <li>🔴 Складний: намалюй "веселковий" малюнок — щонайменше 6 різних кольорів у правильному порядку (<code>червоний</code>, <code>жовтогарячий</code>, <code>жовтий</code>, <code>зелений</code>, <code>синій</code>, <code>фіолетовий</code>). Придумай, яку форму матиме твоя веселка.</li>
+                    </ul>
+                </div>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>✅ Я вмію</h3>
+                    <ul>
+                        <li><strong>Можу повторити:</strong> змінити колір командою <code>колір синій</code>.</li>
+                        <li><strong>Можу змінити:</strong> передбачити колір кожної лінії.</li>
+                        <li><strong>Можу придумати своє:</strong> використати колір як частину задуму.</li>
+                    </ul>
+                </div>
+
+                <div class="tip lesson-support-block lesson-tip-block">
+                    <strong>Подумай:</strong>
+                    <ul>
+                        <li>Що буде, якщо написати <code>колір синій</code> один раз на початку?</li>
+                        <li>Де ще в житті є стан, який зберігається і змінюється?</li>
+                    </ul>
+                </div>
+
                 <nav class="navigation-buttons">
-                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson2">← Попередній урок</button>
-                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson4">Наступний урок →</button>
+                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson2"><span class="ui-icon icon-arrow-left" aria-hidden="true"></span>Попередній урок</button>
+                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson4">Наступний урок<span class="ui-icon icon-arrow-right icon-right" aria-hidden="true"></span></button>
                 </nav>
             </article>
 
-            <article id="lesson4" class="lesson-content" role="tabpanel" aria-labelledby="lesson4-tab">
-                <h2>Урок 4: Повторюємо команди! 🔁</h2>
-                <p>Ти вже справжній майстер! Але іноді нам потрібно робити одне й те саме кілька разів - а це може бути нудно. На щастя, для цього є рішення!</p>
-    
-                <h3>Що таке повторення?</h3>
-                <p>Уяви, що тобі треба стрибнути 4 рази. Ти ж не будеш казати собі: "Стрибни. Стрибни. Стрибни. Стрибни."? Ти скажеш: "Стрибни 4 рази!". У програмуванні так само. Повторення одних і тих самих дій називається <strong>циклом</strong>.</p>
-    
-                <h3>Команда <code>повторити</code></h3>
-                <p>Щоб намалювати квадрат, нам потрібно 4 рази зробити дві дії: пройти вперед і повернути праворуч. Замість того, щоб писати їх 4 рази:</p>
-                <pre class="code-example">вперед 100
-праворуч 90
-вперед 100
-праворуч 90
-вперед 100
-праворуч 90
-вперед 100
-праворуч 90</pre>
-                <p>ми можемо сказати:</p>
-                <pre class="code-example">повторити 4 (
-  вперед 100
-  праворуч 90
-)</pre>
-                <img src="assets/images/lesson_04_01.jpg" alt="Равлик малює квадрат за допомогою команди 'повторити'" class="lesson-image lesson-image-fullwidth" loading="lazy">
-                <p>Це означає: "Повтори 4 рази те, що написано в дужках: пройди вперед 100 кроків і поверни праворуч на 90 градусів".</p>
-                <p><strong>Важливо:</strong> Зверни увагу на дужки <code>(</code> та <code>)</code>. Вони показують, які саме команди треба повторювати. І не забувай про пробіл між числом та відкриваючою дужкою, а також між командами всередині!</p>
-    
-                <div class="why-important">
-                    <h4>💡 Для чого це потрібно? Навіщо потрібні цикли?</h4>
-                    <p>Команда <code>повторити</code> (цикли) – це одна з найпотужніших ідей у програмуванні! Вона допомагає:</p>
-                    <ul>
-                        <li><strong>Економити час та зусилля:</strong> Замість того, щоб писати багато однакових команд, ти пишеш одну команду повторення. Твій код стає коротшим і зрозумілішим!</li>
-                        <li><strong>Створювати складні візерунки та фігури:</strong> Багато красивих малюнків (сніжинки, квіти, орнаменти) створюються саме за допомогою повторення простих елементів.</li>
-                        <li><strong>Автоматизувати завдання:</strong> Уяви, що роботу потрібно 100 разів підняти коробку. Замість 100 команд, ти напишеш одну з повторенням!</li>
-                    </ul>
-                    <p>Цикли використовуються скрізь: в іграх (щоб анімація рухалася плавно), на фабриках (щоб роботи виконували однакові операції), і навіть у природі (зміна пір року – це теж своєрідний цикл!).</p>
-                </div>
-    
-                <div class="task">
-                    <h4>🖼️ Практичне завдання: Намалюй квадрат!</h4>
-                    <p>Введи команду для малювання квадрата, яку ми розглянули вище. Равлик намалював квадрат?</p>
+            <article id="lesson4" class="lesson-content" role="tabpanel" aria-labelledby="lesson4-tab" hidden>
+                <h2>Урок 4: Повторюємо команди 🔁</h2>
+                <p><strong>Велика ідея:</strong> цикл. Комп'ютер може виконувати нудну роботу за тебе.</p>
+
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson4-goal-title">
+                    <h3 id="lesson4-goal-title">Що сьогодні важливо зрозуміти</h3>
+                    <p><strong>Ти вже вмієш:</strong> рухати, повертати й змінювати колір.</p>
+                    <p><strong>Сьогодні навчишся:</strong> повторювати команди коротким кодом.</p>
+                    <p><strong>Головне питання уроку:</strong> як змусити комп'ютер багато разів робити одну й ту саму корисну дію?</p>
+                </section>
+
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson4-why-title">
+                    <h3 id="lesson4-why-title">Чому цикли змінюють усе</h3>
+                    <p>Без циклу квадрат — це багато рядків, з циклом — кілька. Без циклу коло майже неможливе, з циклом — стає простим правилом.</p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson4-command-title">
+                    <h3 id="lesson4-command-title">Нова команда: <code>повторити</code></h3>
                     <pre class="code-example">повторити 4 (
   вперед 100
   праворуч 90
 )</pre>
-                    <a href="index.html" target="_blank" class="btn btn-success">Відкрити редактор</a>
-                </div>
-    
-                <div class="task">
-                    <h4>✨ Додаткове завдання: Інші фігури!</h4>
-                    <p>А як намалювати трикутник? Йому потрібно 3 сторони. Кут повороту для рівностороннього трикутника буде 120 градусів (360 / 3 = 120).</p>
-                    <pre class="code-example">колір зелений
-повторити 3 (
-  вперед 100
+                    <p>Між числом і <code>(</code> має бути пробіл. Закривна <code>)</code> обов'язкова.</p>
+                    <img src="assets/images/lesson_04_01.jpg" alt="Равлик малює квадрат за допомогою команди 'повторити'" class="lesson-image lesson-image-wide" loading="lazy">
+                    <p><a href="manual.html#repetition" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: повторення</a></p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson4-predict-title">
+                    <h3 id="lesson4-predict-title">🔮 Спробуй передбачити</h3>
+                    <pre class="code-example">повторити 3 (
+  вперед 80
   праворуч 120
 )</pre>
-                    <p>А п'ятикутник? (кут 72 градуси = 360 / 5)</p>
-                    <pre class="code-example">колір фіолетовий
-повторити 5 (
-  вперед 80 # Можна змінити довжину сторони
-  праворуч 72
-)</pre>
-                    <a href="index.html" target="_blank" class="btn btn-success">Відкрити редактор</a>
+                    <p>Скільки разів Равлик повернеться? Скільки градусів разом? Яку фігуру це натякає?</p>
+                </section>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>💡 Для чого це потрібно?</h3>
+                    <p>Цикл — одна з найсильніших ідей у програмуванні: замість багато разів повторювати одне й те саме вручну, ти описуєш правило один раз.</p>
+                    <ul>
+                        <li><strong>Ти економиш зусилля:</strong> код стає коротшим і чистішим.</li>
+                        <li><strong>Ти починаєш бачити закономірність:</strong> велика фігура будується з повторення простого кроку.</li>
+                        <li><strong>Ти готуєшся до складних програм:</strong> анімації, ігри й симуляції всюди спираються на повторення.</li>
+                    </ul>
                 </div>
-                <div class="tip"><strong>Секрет:</strong> Щоб намалювати правильний багатокутник (де всі сторони і кути однакові), кут повороту завжди буде 360 поділити на кількість сторін!</div>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🖼️ Завдання</h3>
+                    <pre class="code-example">повторити 4 (
+  вперед 100
+  праворуч 90
+)</pre>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Намалювати квадрат</a>
+                </div>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson4-discovery-title">
+                    <h3 id="lesson4-discovery-title">🔢 Відкрий правило фігур сам</h3>
+                    <p>Не читай відповідь одразу — спочатку спробуй сам. Дій покроково:</p>
+                    <p>Крок 1. Запусти квадрат і порахуй: скільки разів Равлик повернув? Скільки градусів разом? (4 × 90 = ?)</p>
+                    <p>Крок 2. Тепер спробуй трикутник: <code>повторити 3 ( вперед 100 праворуч ? )</code>. Яке число треба підставити замість <code>?</code>, щоб фігура замкнулась? Поміркуй: скільки градусів разом має зробити Равлик?</p>
+                    <p>Крок 3. Заповни таблицю — передбач, потім перевір:</p>
+                    <div class="manual-table-wrap">
+                    <table class="manual-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Фігура</th>
+                                <th scope="col">Кількість сторін</th>
+                                <th scope="col">Кут (моє передбачення)</th>
+                                <th scope="col">Кут (перевірено)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Квадрат</td>
+                                <td>4</td>
+                                <td>90</td>
+                                <td>90</td>
+                            </tr>
+                            <tr>
+                                <td>Трикутник</td>
+                                <td>3</td>
+                                <td>___</td>
+                                <td>___</td>
+                            </tr>
+                            <tr>
+                                <td>П'ятикутник</td>
+                                <td>5</td>
+                                <td>___</td>
+                                <td>___</td>
+                            </tr>
+                            <tr>
+                                <td>Шестикутник</td>
+                                <td>6</td>
+                                <td>___</td>
+                                <td>___</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <details>
+                        <summary>Правило (відкрий після того, як заповниш таблицю)</summary>
+                        <p>Для замкненої правильної фігури з N сторін кут повороту = 360° ÷ N. Равлик завжди разом повертає рівно на одне повне коло.</p>
+                    </details>
+                    <div class="why-important lesson-support-block lesson-why-block">
+                        <h3>Зв'язок із годинником</h3>
+                        <p>Пам'ятаєш метафору годинника з Уроку 2? Коло — це 360°. Рівностороння фігура завжди повертає рівно на одне повне коло — незалежно від кількості сторін. Квадрат: 4 × 90° = 360°. Трикутник: 3 × 120° = 360°. П'ятикутник: 5 × 72° = 360°. Завжди — одне повне коло.</p>
+                    </div>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson4-bug-title">
+                    <h3 id="lesson4-bug-title">🐛 Знайди помилку</h3>
+                    <pre class="code-example">повторити 3 (
+  вперед 100
+  праворуч 90
+)</pre>
+                    <details>
+                        <summary>Відповідь</summary>
+                        <p>Для рівностороннього трикутника треба поворот <code>120</code>, а не <code>90</code>.</p>
+                    </details>
+                </section>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎨 Спробуй по-своєму</h3>
+                    <ul>
+                        <li>🟢 Простий: намалюй правильний шестикутник. Підрахуй кут за правилом <code>360÷N</code> до запуску.</li>
+                        <li>🟡 Середній: намалюй три квадрати різного розміру в різних кольорах. Використовуй один і той самий код <code>повторити</code> — тільки міняй числа.</li>
+                        <li>🔴 Складний: намалюй квітку — квадрат всередині квадрата всередині квадрата (три вкладені квадрати). Підказка: вони мають бути однаково центровані. Як це зробити?</li>
+                    </ul>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Спробувати свою ідею</a>
+                </div>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>✅ Я вмію</h3>
+                    <ul>
+                        <li><strong>Можу повторити:</strong> намалювати квадрат через <code>повторити</code>.</li>
+                        <li><strong>Можу змінити:</strong> підібрати кут для багатокутника.</li>
+                        <li><strong>Можу придумати своє:</strong> відкрити нову фігуру через правило 360 ÷ N.</li>
+                    </ul>
+                </div>
+
+                <div class="tip lesson-support-block lesson-tip-block">
+                    <strong>Подумай:</strong>
+                    <ul>
+                        <li>Де ще в житті є повторення?</li>
+                        <li>Що станеться, якщо написати <code>повторити 1</code> або <code>повторити 100</code>?</li>
+                        <li>А що буде, якщо написати <code>повторити</code> всередині <code>повторити</code>?</li>
+                    </ul>
+                    <p>Спробуй:</p>
+                    <pre class="code-example">повторити 4 (
+  повторити 3 ( вперед 30 праворуч 120 )
+  праворуч 90
+)</pre>
+                    <p>Скільки трикутників з'явиться? Чому саме стільки?</p>
+                </div>
+
                 <nav class="navigation-buttons">
-                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson3">← Попередній урок</button>
-                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson5">Наступний урок →</button>
+                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson3"><span class="ui-icon icon-arrow-left" aria-hidden="true"></span>Попередній урок</button>
+                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson5">Наступний урок<span class="ui-icon icon-arrow-right icon-right" aria-hidden="true"></span></button>
                 </nav>
             </article>
 
-            <article id="lesson5" class="lesson-content" role="tabpanel" aria-labelledby="lesson5-tab">
-                <h2>Урок 5: Коло і Зірки 🌙⭐</h2>
-                <p>Команду <code>повторити</code> можна використовувати для створення дуже цікавих фігур! Сьогодні ми намалюємо коло та справжню зірку!</p>
-    
-                <h3>Малюємо коло</h3>
-                <p>Щоб намалювати коло, Равлику потрібно багато-багато разів зробити маленький крок вперед і трошки повернути. Наприклад, 36 разів:</p>
-                <pre class="code-example">колір жовтий
+            <article id="lesson5" class="lesson-content" role="tabpanel" aria-labelledby="lesson5-tab" hidden>
+                <h2>Урок 5: Коло і зірки 🌙⭐</h2>
+                <p><strong>Велика ідея:</strong> геометрія. Якщо змінювати числа в одному й тому самому правилі, народжуються різні фігури.</p>
+
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson5-goal-title">
+                    <h3 id="lesson5-goal-title">Що сьогодні важливо зрозуміти</h3>
+                    <p><strong>Ти вже вмієш:</strong> малювати правильні багатокутники.</p>
+                    <p><strong>Сьогодні навчишся:</strong> помічати, як одне число змінює розмір, а інше — саму форму.</p>
+                    <p><strong>Головне питання уроку:</strong> яке число робить фігуру більшою, а яке змінює її вигляд?</p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson5-circle-title">
+                    <h3 id="lesson5-circle-title">Малюємо коло</h3>
+                    <pre class="code-example">колір жовтий
 повторити 36 (
-  вперед 10 # Маленький крок
-  праворуч 10 # Маленький поворот
+  вперед 10
+  праворуч 10
 )</pre>
-                <img src="assets/images/lesson_05_01.jpg" alt="Равлик малює жовте коло за допомогою команди 'повторити'" class="lesson-image lesson-image-fullwidth" loading="lazy">
-    
-                <p>Чим менші кроки і повороти, і чим більше повторень, тим круглішим буде коло!</p>
-    
-                <h3>Малюємо зірку</h3>
-                <p>Для зірки нам теж знадобиться команда <code>повторити</code>. Для п'ятикутної зірки Равлик має 5 разів намалювати довгу лінію і повернути на особливий кут – 144 градуси.</p>
-                <pre class="code-example">колір зелений
-повторити 5 (
-  вперед 150 # Довга лінія для променя зірки
-  праворуч 144
-)</pre>
-                <img src="assets/images/lesson_05_02.jpg" alt="Равлик малює зелену п'ятикутну зірку" class="lesson-image lesson-image-fullwidth" loading="lazy">
-                
-                <div class="why-important">
-                    <h4>💡 Для чого це потрібно? Де ми бачимо кола та зірки, створені за допомогою повторень?</h4>
-                    <p>Вміння малювати складні фігури за допомогою повторення простих кроків – це дуже потужно! Ти вчишся:</p>
+                    <p>Равлик робить багато маленьких кроків і багато маленьких поворотів. Разом це дає повне коло: 36 × 10° = 360°.</p>
+                    <div class="why-important lesson-support-block lesson-why-block">
+                        <h3>Знову годинник</h3>
+                        <p>Пам'ятаєш: для замкненої фігури Равлик завжди повертає рівно на 360°? Коло — не виняток: 36 × 10° = 360°. Різниця лише в тому, що кожен крок дуже маленький — тому кути майже непомітні і фігура виглядає як крива, а не як багатокутник. Більше повторень → менший кут → плавніша крива.</p>
+                    </div>
+                    <img src="assets/images/lesson_05_01.jpg" alt="Равлик малює жовте коло за допомогою команди 'повторити'" class="lesson-image lesson-image-wide" loading="lazy">
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson5-smoothness-title">
+                    <h3 id="lesson5-smoothness-title">🔬 Лабораторія плавності</h3>
+                    <p>Усі три коди нижче малюють повне коло (разом 360°). Спробуй кожен і порівняй:</p>
+                    <pre class="code-example">повторити 6  ( вперед 30 праворуч 60 )
+повторити 12 ( вперед 15 праворуч 30 )
+повторити 36 ( вперед 5  праворуч 10 )</pre>
+                    <p>Запитання для дослідження (відповідай після запуску, не до):</p>
                     <ul>
-                        <li><strong>Абстракції:</strong> Ти думаєш не про кожну точку на колі, а про загальний принцип його створення (багато маленьких поворотів).</li>
-                        <li><strong>Розбивати складне на просте:</strong> Складна зірка малюється повторенням однієї простої дії: лінія + поворот.</li>
-                        <li><strong>Експериментувати:</strong> Змінюючи числа в команді <code>повторити</code>, ти можеш створювати різні види кіл, спіралей, зірок та інших візерунків.</li>
+                        <li>Що спільного у всіх трьох? (Порахуй: скільки градусів разом?)</li>
+                        <li>Чим вони відрізняються зовні?</li>
+                        <li>Який результат найбільш схожий на справжнє коло і чому?</li>
                     </ul>
-                    <p>Комп'ютерна графіка, яка використовується в мультфільмах та іграх, часто створює складні об'єкти та ефекти за допомогою схожих принципів. Дизайнери використовують повторювані елементи для створення красивих візерунків на тканинах або шпалерах. Навіть природа любить повторення: подивись на пелюстки квітки або сніжинку!</p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson5-predict-title">
+                    <h3 id="lesson5-predict-title">🔮 Спробуй передбачити</h3>
+                    <p>Порівняй два коди. Не запускай одразу — спершу спробуй уявити результат.</p>
+                    <pre class="code-example">повторити 36 ( вперед 10 праворуч 10 )</pre>
+                    <pre class="code-example">повторити 12 ( вперед 10 праворуч 30 )</pre>
+                    <p>Який малюнок буде більш схожим на коло? Який матиме помітніші кути? Що зміниться, якщо збільшити лише довжину кроку?</p>
+                </section>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>💡 Для чого це потрібно?</h3>
+                    <p>У цьому уроці ти вже не просто виконуєш команди, а досліджуєш, як числа керують формою.</p>
+                    <ul>
+                        <li><strong>Ти вчишся абстракції:</strong> думаєш не про кожну лінію окремо, а про правило побудови.</li>
+                        <li><strong>Ти бачиш математику в дії:</strong> кут і кількість повторів разом створюють фігуру.</li>
+                        <li><strong>Ти працюєш як дослідник:</strong> змінюєш одну змінну й дивишся, що змінюється в результаті.</li>
+                    </ul>
                 </div>
-    
-                <div class="task">
-                    <h4>🌌 Практичне завдання: Намалюй своє зоряне небо!</h4>
-                    <p>Спробуй намалювати одне велике коло (місяць) і кілька маленьких зірочок поруч. Можеш змінювати їхні кольори та розміри!</p>
-                    <p>Наприклад, спочатку намалюй жовте коло, а потім, змінивши колір на синій, намалюй зірку. (Поки що ми не вміємо переміщати Равлика без малювання, тому фігури можуть накладатися. Це нормально! Головне – експериментувати з командами. Або... ти вже знаєш, як це зробити з наступного уроку!).</p>
-                    <a href="index.html" target="_blank" class="btn btn-success">Відкрити редактор</a>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson5-lab-title">
+                    <h3 id="lesson5-lab-title">🔬 Лабораторія: вплив числа на форму</h3>
+                    <p>Працюй як дослідник: змінюй лише одне число за раз у коді <code>повторити 36 ( вперед 10 праворуч 10 )</code>. Спочатку спробуй передбачити, потім перевір, а потім сформулюй висновок.</p>
+                </section>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>⭐ Відкрий зірку сам</h3>
+                    <pre class="code-example">повторити 5 ( вперед 100 праворуч 72 )</pre>
+                    <p>Спочатку вийде правильний п'ятикутник. А що станеться, якщо замінити <code>72</code> на <code>144</code>? Чому лінія раптом почне "перестрибувати" через вершини?</p>
+                    <img src="assets/images/lesson_05_02.jpg" alt="Равлик малює зелену п'ятикутну зірку" class="lesson-image lesson-image-wide" loading="lazy">
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Дослідити в редакторі</a>
                 </div>
-                <div class="tip"><strong>Цікавинка:</strong> Змінюючи кількість повторень, довжину кроку та кут повороту в команді <code>повторити</code>, можна створювати безліч різних візерунків та фігур! Спробуй <code>повторити 10 ( вперед 100 праворуч 144 вперед 100 ліворуч 72 )</code>. Що вийде?</div>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>⭐ Зіркова лабораторія</h3>
+                    <p>Кут 144° = 72° × 2: Равлик "перестрибує" через одну вершину і виходить зірка. А що буде з сімкою?</p>
+                    <pre class="code-example">повторити 7 ( вперед 100 праворуч ??? )</pre>
+                    <p>Спробуй кут 154 і кут 205. Який дає зірку, а який — просто многокутник? Чому?</p>
+                    <details>
+                        <summary>Підказка</summary>
+                        <p>Зірка виходить, коли Равлик "перестрибує" через вершини, а не йде до кожної по черзі. Спробуй різні кути і подивись, коли лінії починають перетинатися.</p>
+                    </details>
+                </div>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson5-bug-title">
+                    <h3 id="lesson5-bug-title">🔍 Що тут цікавого?</h3>
+                    <pre class="code-example">повторити 36 (
+  вперед 10
+  праворуч 11
+)</pre>
+                    <p>Спочатку запусти і подивись, що вийде. Потім подумай: кут змінився лише на 1° — чому результат такий несподіваний?</p>
+                    <details>
+                        <summary>Пояснення</summary>
+                        <p>36 × 11° = 396°. Равлик повертає трохи більше, ніж одне повне коло. Тому шлях не замикається — він трохи "зсувається" з кожним повторенням. Це не помилка, а цікавий ефект: маленька зміна кута дає великий вплив на форму.</p>
+                        <p>Спробуй поекспериментувати: <code>праворуч 9</code>, <code>праворуч 11</code>, <code>праворуч 13</code>. Як змінюється малюнок? Який з них найкрасивіший, на твій погляд?</p>
+                    </details>
+                </section>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎨 Спробуй по-своєму</h3>
+                    <ul>
+                        <li>🟢 Простий: намалюй три кола різного розміру. Зміни лише довжину кроку, кількість повторів залишай 36.</li>
+                        <li>🟡 Середній: намалюй сонце — коло плюс промені. Промені — це окремі лінії навколо кола. Де розмістити кожен промінь?</li>
+                        <li>🔴 Складний: поекспериментуй із "нецілими" колами — кутами 9°, 11°, 13° замість 10°. Що відбувається? Поясни своїми словами, чому малюнок не замикається.</li>
+                    </ul>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Спробувати свою ідею</a>
+                </div>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>✅ Я вмію</h3>
+                    <ul>
+                        <li><strong>Можу повторити:</strong> намалювати коло і зірку.</li>
+                        <li><strong>Можу змінити:</strong> передбачити вплив числа на форму й плавність.</li>
+                        <li><strong>Можу придумати своє:</strong> створити візерунок через експеримент із числами.</li>
+                    </ul>
+                </div>
+
+                <div class="tip lesson-support-block lesson-tip-block">
+                    <strong>Подумай:</strong>
+                    <ul>
+                        <li>Яке число найбільше впливає на розмір?</li>
+                        <li>А яке — на форму?</li>
+                        <li>Як би ти пояснив молодшому учню, чому 144° дає зірку?</li>
+                    </ul>
+                </div>
+
                 <nav class="navigation-buttons">
-                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson4">← Попередній урок</button>
-                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson6">Наступний урок →</button>
+                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson4"><span class="ui-icon icon-arrow-left" aria-hidden="true"></span>Попередній урок</button>
+                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson6">Наступний урок<span class="ui-icon icon-arrow-right icon-right" aria-hidden="true"></span></button>
                 </nav>
             </article>
 
-            <article id="lesson6" class="lesson-content" role="tabpanel" aria-labelledby="lesson6-tab">
-                <h2>Урок 6: Підніми олівець! ✏️🖐️</h2>
-                <p>Іноді нам потрібно, щоб Равлик переповз на нове місце, але не залишав за собою сліду. Для цього є спеціальні команди!</p>
-    
-                <h3>Нові команди: <code>підняти</code> та <code>опустити</code></h3>
-                <ul>
-                    <li>Команда <code>підняти</code> наказує Равлику підняти свій чарівний олівець. Коли олівець піднятий, Равлик рухається, але не малює.</li>
-                    <li>Команда <code>опустити</code> наказує Равлику знову опустити олівець. Після неї він знову почне малювати.</li>
-                </ul>
-                <p>Це дуже зручно, якщо ти хочеш намалювати дві фігури в різних місцях екрану!</p>
-                <img src="assets/images/lesson_06_01.jpg" alt="Схема: Равлик малює лінію, потім піднімає олівець, рухається, опускає олівець і малює ще одну лінію" class="lesson-image lesson-image-fullwidth" loading="lazy">
-    
-                <div class="why-important">
-                    <h4>💡 Для чого це потрібно? Де використовується "переміщення без сліду"?</h4>
-                    <p>Можливість керувати тим, коли малювати, а коли ні – дуже важлива. Ти вчишся:</p>
+            <article id="lesson6" class="lesson-content" role="tabpanel" aria-labelledby="lesson6-tab" hidden>
+                <h2>Урок 6: Підніми олівець ✏️🖐️</h2>
+                <p><strong>Велика ідея:</strong> контроль. Ти вирішуєш, коли Равлик малює, а коли тільки рухається.</p>
+
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson6-goal-title">
+                    <h3 id="lesson6-goal-title">Що сьогодні важливо зрозуміти</h3>
+                    <p><strong>Ти вже вмієш:</strong> будувати фігури й візерунки.</p>
+                    <p><strong>Сьогодні навчишся:</strong> переміщати Равлика без сліду і точно розкладати об'єкти на полотні.</p>
+                    <p><strong>Головне питання уроку:</strong> як відокремити рух від малювання?</p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson6-command-title">
+                    <h3 id="lesson6-command-title">Нові команди</h3>
+                    <p><strong>Крок 1: Олівець</strong></p>
+                    <pre class="code-example">підняти
+вперед 60
+опустити</pre>
+                    <p><code>підняти</code> — Равлик рухається без сліду. <code>опустити</code> — малювання вмикається знову. Спробуй спочатку лише це, без координат.</p>
+                    <div class="tip lesson-support-block lesson-tip-block">
+                        <h3>✏️ Мінімальний експеримент</h3>
+                        <p>Запусти цей код і подивись, де є лінія, а де — пропуск:</p>
+                        <pre class="code-example">вперед 50
+підняти
+вперед 30
+опустити
+вперед 50</pre>
+                        <p>Скільки видимих ліній? Де пропуск? Чи збігається з твоїм передбаченням?</p>
+                    </div>
+                    <p><strong>Крок 2: Координати</strong></p>
+                    <pre class="code-example">підняти
+перейти в 150 0
+опустити</pre>
+                    <p><code>перейти в X Y</code> переміщує Равлика в точку на полотні. Важливо: перед <code>перейти</code> майже завжди потрібен <code>підняти</code>, інакше лінія залишиться між старою і новою позицією.</p>
+                    <img src="assets/images/lesson_06_01.jpg" alt="Схема: Равлик малює лінію, потім піднімає олівець, рухається, опускає олівець і малює ще одну лінію" class="lesson-image lesson-image-wide" loading="lazy">
+                    <p><a href="manual.html#pen" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: олівець і переміщення</a></p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson6-map-title">
+                    <h3 id="lesson6-map-title">🗺️ Карта полотна: як працює <code>перейти в X Y</code></h3>
+                    <p>Полотно — як карта міста. Центр — точка <code>(0, 0)</code>. Перше число після "в" — це відстань праворуч або ліворуч від центру. Друге число — вгору або вниз.</p>
+                    <div class="manual-table-wrap">
+                    <table class="manual-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Команда</th>
+                                <th scope="col">Куди потрапить Равлик</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>перейти в 0 0</code></td>
+                                <td>Точно в центр полотна</td>
+                            </tr>
+                            <tr>
+                                <td><code>перейти в 100 0</code></td>
+                                <td>100 кроків праворуч від центру</td>
+                            </tr>
+                            <tr>
+                                <td><code>перейти в 0 100</code></td>
+                                <td>100 кроків вгору від центру</td>
+                            </tr>
+                            <tr>
+                                <td><code>перейти в -100 -100</code></td>
+                                <td>Ліворуч і вниз від центру</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="why-important lesson-support-block lesson-why-block">
+                        <h3>Як читати координати</h3>
+                        <p>Перше число — це ліво/право (X): позитивне — праворуч, від'ємне — ліворуч. Друге число — це вгору/вниз (Y): позитивне — вгору, від'ємне — вниз. Центр полотна завжди <code>(0, 0)</code>. Спробуй: <code>перейти в 200 200</code> — це правий верхній кут. <code>перейти в -200 -200</code> — лівий нижній.</p>
+                    </div>
+                    <p>Порада: якщо не знаєш, де знаходиться точка — просто спробуй <code>перейти в X Y</code> і подивись.</p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson6-predict-title">
+                    <h3 id="lesson6-predict-title">🔮 Спробуй передбачити</h3>
+                    <pre class="code-example">вперед 60
+підняти
+вперед 40
+опустити
+вперед 60
+підняти
+перейти в 0 -100
+опустити
+повторити 4 ( вперед 50 праворуч 90 )</pre>
+                    <p>Скільки намальованих відрізків? Де буде квадрат? Які рухи залишаться невидимими?</p>
+                </section>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>💡 Для чого це потрібно?</h3>
+                    <p>Команди олівця дають тобі значно точніший контроль над малюнком.</p>
                     <ul>
-                        <li><strong>Більш точному контролю:</strong> Ти можеш розміщувати елементи малюнка саме там, де потрібно, не з'єднуючи їх випадковими лініями.</li>
-                        <li><strong>Створювати складніші композиції:</strong> Намалювати будинок, а потім окремо сонечко поруч, не проводячи лінію між ними.</li>
-                        <li><strong>Ефективності:</strong> Замість того, щоб стирати непотрібні лінії, ти просто "вимикаєш" малювання на час переміщення.</li>
+                        <li><strong>Ти розділяєш дві дії:</strong> рух і малювання тепер не одне й те саме.</li>
+                        <li><strong>Ти можеш будувати композиції:</strong> окремі фігури більше не з'єднуються випадковими лініями.</li>
+                        <li><strong>Ти працюєш точніше:</strong> це вже схоже не просто на каракулі, а на справжнє конструювання зображення.</li>
                     </ul>
-                    <p>У графічних редакторах (наприклад, Paint або Photoshop) ти теж можеш переміщати курсор або об'єкти, не залишаючи сліду. 3D-принтери піднімають свою голівку, коли переходять до друку іншої частини об'єкта. Навіть роботи на фабриках можуть переміщати деталі, не виконуючи при цьому іншої операції.</p>
                 </div>
-    
-                <div class="task">
-                    <h4>〰️ Практичне завдання: Переривчаста лінія!</h4>
-                    <p>Спробуй намалювати лінію, яка складається з маленьких рисочок:</p>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>〰️ Завдання</h3>
                     <pre class="code-example">вперед 30
 підняти
-вперед 20 # Равлик повзе, але не малює
+вперед 20
 опустити
 вперед 30
 підняти
 вперед 20
 опустити
 вперед 30</pre>
-                    <p>Що вийшло? Схоже на пунктир?</p>
-                    <a href="index.html" target="_blank" class="btn btn-success">Відкрити редактор</a>
+                    <p>Запусти і перевір, чи схоже це на пунктир.</p>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Відкрити редактор</a>
                 </div>
-    
-                <div class="task">
-                    <h4>📦 Додаткове завдання: Пунктирні фігури!</h4>
-                    <p>Тепер, коли ти знаєш команди <code>підняти</code> та <code>опустити</code>, спробуй намалювати квадрат або трикутник пунктирною лінією. Тобі доведеться використовувати ці команди для кожної сторони!</p>
-                    <p>Наприклад, для однієї сторони квадрата пунктиром (довжиною 100, з 3 рисочками):</p>
-                    <pre class="code-example"># Одна сторона квадрата пунктиром
-повторити 3 ( # Три рисочки
-  опустити
-  вперед 20 # Довжина рисочки
-  підняти
-  вперед 10 # Проміжок
-)
-опустити # Намалювати останню частину, якщо потрібно, щоб загальна довжина була 100.
-вперед 10 # (20+10)*3 = 90. Ще 10 для 100.
 
-# Потім поверни праворуч 90 і повтори для інших сторін
-# ...або використай ще один цикл `повторити 4 (...)` для всього квадрата!
-</pre>
-                    <p>Це завдання потребує уваги, але ти впораєшся! Подумай, як тобі може допомогти повторення?</p>
-                    <a href="index.html" target="_blank" class="btn btn-success">Відкрити редактор</a>
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson6-bug-title">
+                    <h3 id="lesson6-bug-title">🐛 Знайди помилку</h3>
+                    <pre class="code-example">повторити 4 ( вперед 50 праворуч 90 )
+перейти в 150 0
+повторити 4 ( вперед 50 праворуч 90 )</pre>
+                    <details>
+                        <summary>Відповідь</summary>
+                        <pre class="code-example">повторити 4 ( вперед 50 праворуч 90 )
+підняти
+перейти в 150 0
+опустити
+повторити 4 ( вперед 50 праворуч 90 )</pre>
+                    </details>
+                </section>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎨 Спробуй по-своєму</h3>
+                    <p>Намалюй три фігури в різних місцях полотна без жодних з'єднувальних ліній.</p>
+                    <p>Виклик для тих, хто хоче більше: постав Равлика точно в чотири кути уявного квадрата — у точки <code>(100, 100)</code>, <code>(-100, 100)</code>, <code>(-100, -100)</code>, <code>(100, -100)</code>. У кожному куті намалюй маленьке коло. Жодних ліній між ними.</p>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Спробувати свою ідею</a>
                 </div>
-                <div class="tip"><strong>Ідея!</strong> Використовуй <code>підняти</code> та <code>опустити</code>, щоб намалювати очі та посмішку для сонечка, яке ти міг намалювати на минулому уроці! Або намалюй кілька сніжинок у різних місцях.</div>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎯 Обери свій рівень</h3>
+                    <ul>
+                        <li>🟢 Простий: намалюй пунктирну лінію з 5 відрізків. Підказка: чергуй <code>вперед 30</code> → <code>підняти</code> → <code>вперед 15</code> → <code>опустити</code>.</li>
+                        <li>🟡 Середній: намалюй три квадрати в різних кутах полотна без жодної з'єднувальної лінії між ними.</li>
+                        <li>🔴 Складний: намалюй просте обличчя: два ока (маленькі кола), ніс (точка або крапка) і посмішку (дуга). Усі елементи — в правильних позиціях на полотні.</li>
+                    </ul>
+                </div>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>✅ Я вмію</h3>
+                    <ul>
+                        <li><strong>Можу повторити:</strong> перемістити Равлика без сліду.</li>
+                        <li><strong>Можу змінити:</strong> передбачити, де буде лінія, а де порожнеча.</li>
+                        <li><strong>Можу придумати своє:</strong> розкладати фігури точно там, де хочу.</li>
+                    </ul>
+                </div>
+
+                <div class="tip lesson-support-block lesson-tip-block">
+                    <strong>Подумай:</strong>
+                    <ul>
+                        <li>Що буде, якщо підняти олівець на початку і більше не опускати?</li>
+                        <li>Спробуй <code>підняти</code>, потім <code>перейти в 0 0</code>, потім <code>опустити</code> і <code>вперед 50</code>. Де на полотні з'явилася лінія?</li>
+                    </ul>
+                </div>
+
                 <nav class="navigation-buttons">
-                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson5">← Попередній урок</button>
-                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson7">Наступний урок →</button>
+                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson5"><span class="ui-icon icon-arrow-left" aria-hidden="true"></span>Попередній урок</button>
+                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson7">Наступний урок<span class="ui-icon icon-arrow-right icon-right" aria-hidden="true"></span></button>
                 </nav>
             </article>
 
-            <article id="lesson7" class="lesson-content" role="tabpanel" aria-labelledby="lesson7-tab">
-                <h2>Урок 7: Творча майстерня! 🧑‍🎨💡</h2>
-                <p>Вітаю! Ти пройшов усі основні уроки з Равликом і тепер знаєш багато його секретів! Настав час для справжньої творчості!</p>
-    
-                <h3>Повторення всіх команд</h3>
-                <p>Давай швиденько пригадаємо, що ми вивчили:</p>
-                <ul>
-                    <li><code>вперед [число]</code> - рух вперед</li>
-                    <li><code>назад [число]</code> - рух назад</li>
-                    <li><code>праворуч [число]</code>, <code>ліворуч [число]</code> - повороти</li>
-                    <li><code>колір [назва_кольору]</code> - зміна кольору (пам'ятай про <code>веселка</code>!)</li>
-                    <li><code>повторити [число] ( команди )</code> - повторення команд</li>
-                    <li><code>підняти</code> - підняти олівець (не малювати)</li>
-                    <li><code>опустити</code> - опустити олівець (малювати)</li>
-                    <li><code>очистити</code> - очистити все полотно</li>
-                </ul>
-                
-                <div class="why-important">
-                    <h4>💡 Для чого потрібна творчість у програмуванні?</h4>
-                    <p>Програмування – це не лише сухі команди та логіка. Це також величезний простір для творчості! Коли ти створюєш власний малюнок, ти:</p>
+            <article id="lesson7" class="lesson-content" role="tabpanel" aria-labelledby="lesson7-tab" hidden>
+                <h2>Урок 7: Будуємо власні команди 🏗️</h2>
+                <p><strong>Велика ідея:</strong> побудова. Ти можеш зберігати важливі числа і створювати для Равлика свої власні команди.</p>
+
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson7-goal-title">
+                    <h3 id="lesson7-goal-title">Що сьогодні важливо зрозуміти</h3>
+                    <p><strong>Ти вже вмієш:</strong> користуватися основними командами Равлика.</p>
+                    <p><strong>Сьогодні навчишся:</strong> спочатку зберігати число у змінній, а потім використовувати це у власних командах.</p>
+                    <p><strong>Головне питання уроку:</strong> як не переписувати один і той самий код знову і знову?</p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson7-variable-title">
+                    <h3 id="lesson7-variable-title">Змінна — скринька для числа</h3>
+                    <pre class="code-example">створити сторона = 100
+вперед сторона
+
+сторона = 150
+вперед сторона</pre>
+                    <p>Уяви дошку оголошень у класі. На ній написано: "сторона = 100". Коли ти пишеш <code>сторона = 150</code> — ти стираєш старе і пишеш нове. Стара цифра зникає. Дошка завжди показує лише одне поточне значення.</p>
+                    <p>Тому <code>сторона = сторона + 20</code> означає: "Прочитай поточне значення з дошки, додай 20, і запиши нове число назад."</p>
+                    <div class="why-important lesson-support-block lesson-why-block">
+                        <h3>⚠️ Змінна vs. стан: що спільного?</h3>
+                        <p>Пам'ятаєш фломастер у руці з Уроку 3? <code>колір</code> — це і є зміна фломастера. Змінна — те саме, але ти сам вигадуєш їй ім'я і сам вирішуєш, що зберігати: число, рахунок, розмір, швидкість. <code>колір</code> — це вбудований стан Равлика. Змінна — це твій власний стан, який ти придумав.</p>
+                    </div>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson7-function-title">
+                    <h3 id="lesson7-function-title">Функція — твоя власна команда</h3>
+                    <pre class="code-example">створити квадрат(с) (
+  повторити 4 ( вперед с праворуч 90 )
+)
+
+квадрат(50)
+квадрат(100)</pre>
+                    <p>Тут ти ніби вчиш Равлика новому слову: коли він чує <code>квадрат(50)</code>, то вже знає, що треба робити.</p>
+                    <div class="tip lesson-support-block lesson-tip-block">
+                        <h3>Хороше ім'я функції — це вже половина роботи</h3>
+                        <p>Коли ти пишеш <code>створити квадрат(с)</code> — ти вчиш Равлика нового слова. Хороше ім'я описує що робить функція, а не як. <code>квадрат</code> — хороше ім'я. <code>команда1</code> або <code>qqq</code> — погані: ти сам забудеш, що це означає, вже через день.</p>
+                    </div>
+                    <div class="why-important lesson-support-block lesson-why-block">
+                        <h3>🔗 Змінна + Функція = Гнучкість</h3>
+                        <p>Змінна зберігає число. Функція — це правило, що використовує це число. Разом вони дозволяють писати код один раз і легко змінювати результат. Порівняй:</p>
+                        <pre class="code-example"># Без змінної і функції — треба переписувати все:
+повторити 4 ( вперед 50 праворуч 90 )
+повторити 4 ( вперед 100 праворуч 90 )
+повторити 4 ( вперед 150 праворуч 90 )
+
+# З функцією — одне правило, різні числа:
+створити квадрат(с) ( повторити 4 ( вперед с праворуч 90 ) )
+квадрат(50)
+квадрат(100)
+квадрат(150)</pre>
+                        <p>Перший варіант — три окремі інструкції. Другий — одне правило і три виклики. Якщо захочеш змінити форму квадрата — у першому варіанті треба міняти в трьох місцях, у другому — лише в одному.</p>
+                    </div>
+                    <div class="lesson-manual-link-group">
+                        <a href="manual.html#variables" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: змінні</a>
+                        <a href="manual.html#functions" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: функції</a>
+                    </div>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson7-predict-title">
+                    <h3 id="lesson7-predict-title">🔮 Спробуй передбачити</h3>
+                    <pre class="code-example">створити крок = 20
+повторити 5 (
+  вперед крок
+  праворуч 90
+  крок = крок + 20
+)</pre>
+                    <p>Заповни таблицю по кроках — до запуску. Потім перевір у редакторі:</p>
+                    <div class="manual-table-wrap">
+                    <table class="manual-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Крок циклу</th>
+                                <th scope="col"><code>крок</code> на початку кроку</th>
+                                <th scope="col">Равлик іде вперед на</th>
+                                <th scope="col"><code>крок</code> після оновлення</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>20</td>
+                                <td>20</td>
+                                <td>40</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>40</td>
+                                <td>___</td>
+                                <td>___</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>___</td>
+                                <td>___</td>
+                                <td>___</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>___</td>
+                                <td>___</td>
+                                <td>___</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>___</td>
+                                <td>___</td>
+                                <td>___</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Чи буде фігура однаковою, чи почне "розростатися"? Перевір свій прогноз.</p>
+                </section>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>💡 Для чого це потрібно?</h3>
+                    <p>Змінні й власні команди потрібні не "для дорослості", а щоб твої програми стали гнучкішими й розумнішими.</p>
                     <ul>
-                        <li><strong>Розв'язуєш проблеми по-своєму:</strong> Як намалювати саме такий будиночок, який ти уявив? Які команди використати?</li>
-                        <li><strong>Виражаєш себе:</strong> Твій малюнок – це твоя ідея, втілена в коді.</li>
-                        <li><strong>Вчишся планувати проекти:</strong> Ти думаєш про те, з яких частин складатиметься твій малюнок, і як їх поєднати.</li>
-                        <li><strong>Отримуєш задоволення від результату:</strong> Бачити, як твоя ідея оживає на екрані – це дуже круто!</li>
+                        <li><strong>Ти перестаєш копіювати код:</strong> одне правило можна використати багато разів.</li>
+                        <li><strong>Ти можеш керувати числами:</strong> змінна дозволяє змінити поведінку програми без повного переписування.</li>
+                        <li><strong>Ти починаєш будувати власні інструменти:</strong> не тільки користуєшся командами, а й створюєш свої.</li>
                     </ul>
-                    <p>Багато програмістів – це справжні творці! Вони створюють ігри, веб-сайти, мобільні додатки, анімацію, музику та багато іншого. Вміння творчо підходити до завдань, знаходити нестандартні рішення та втілювати свої ідеї – ось що робить програміста справжнім майстром. І "Равлик" – це чудове місце, щоб почати розвивати ці навички!</p>
                 </div>
-    
-                <div class="task">
-                    <h4>🌟 Творче завдання: Мій власний малюнок!</h4>
-                    <p>А тепер найцікавіше! Використовуючи всі команди, які ти знаєш, намалюй свій власний, унікальний малюнок! Це може бути:</p>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🖼️ Завдання</h3>
+                    <p>Напиши функцію <code>трикутник(с)</code> для рівностороннього трикутника. Потім виклич її тричі з різними числами і порівняй результат.</p>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Відкрити редактор</a>
+                </div>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson7-bug-title">
+                    <h3 id="lesson7-bug-title">🤔 Що треба додати?</h3>
+                    <pre class="code-example">створити сторона = 20
+повторити 5 (
+  вперед сторона
+  праворуч 90
+)</pre>
+                    <p>Цей код працює без помилок, але фігура не змінюється. Що треба додати, щоб кожна наступна сторона була на 20 більша?</p>
+                    <details>
+                        <summary>Відповідь</summary>
+                        <p>Після <code>праворуч 90</code> треба додати рядок <code>сторона = сторона + 20</code>. Без нього змінна залишається постійною — Равлик кожен раз іде на ті самі 20 кроків.</p>
+                    </details>
+                </section>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎨 Спробуй по-своєму</h3>
+                    <p>Обери свій рівень:</p>
                     <ul>
-                        <li>Будиночок із сонечком та квітами.</li>
-                        <li>Космічний корабель серед зірок.</li>
-                        <li>Веселий робот.</li>
-                        <li>Чарівний візерунок або орнамент.</li>
-                        <li>Своє ім'я або ініціали.</li>
-                        <li>Все, що підкаже твоя фантазія!</li>
+                        <li>🟢 <strong>Простий:</strong> намалюй 5 кіл різного розміру, використовуючи одну власну команду.</li>
+                        <li>🟡 <strong>Середній:</strong> зроби квіточку з кількох однакових пелюсток через власну команду.</li>
+                        <li>🔴 <strong>Складний:</strong> склади композицію з кількох власних команд, наприклад "квітка + стебло + сонце".</li>
                     </ul>
-                    <p>Не бійся експериментувати з кольорами, формами та повтореннями. Використовуй команди <code>підняти</code> та <code>опустити</code>, щоб розміщувати елементи малюнка там, де тобі потрібно.</p>
-                    <a href="index.html" target="_blank" class="btn btn-success">Відкрити редактор і творити!</a>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Спробувати свою ідею</a>
                 </div>
-    
-                <div class="tip"><strong>Головне – отримуй задоволення!</strong> Програмування – це не тільки логіка, а й великий простір для творчості. Равлик чекає на твої шедеври! Якщо щось не виходить – не засмучуйся, спробуй ще раз або попроси допомоги у посібнику.</div>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>✅ Я вмію</h3>
+                    <ul>
+                        <li><strong>Можу повторити:</strong> створити змінну і функцію за зразком.</li>
+                        <li><strong>Можу змінити:</strong> передбачити, як зміна змінної вплине на малюнок.</li>
+                        <li><strong>Можу придумати своє:</strong> написати власну команду і використати її кілька разів.</li>
+                    </ul>
+                </div>
+
+                <div class="tip lesson-support-block lesson-tip-block">
+                    <strong>Подумай:</strong>
+                    <ul>
+                        <li>Навіщо змінній зрозуміле ім'я?</li>
+                        <li>Чим власна команда краща за копіювання одного й того самого коду?</li>
+                    </ul>
+                </div>
+
                 <nav class="navigation-buttons">
-                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson6">← Попередній урок</button>
-                    <button class="btn btn-primary nav-btn-next" disabled style="visibility: hidden;">Наступний урок →</button> 
+                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson6"><span class="ui-icon icon-arrow-left" aria-hidden="true"></span>Попередній урок</button>
+                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson8">Наступний урок<span class="ui-icon icon-arrow-right icon-right" aria-hidden="true"></span></button>
+                </nav>
+            </article>
+
+            <article id="lesson8" class="lesson-content" role="tabpanel" aria-labelledby="lesson8-tab" hidden>
+                <h2>Урок 8: Равлик приймає рішення 🤔</h2>
+                <p><strong>Велика ідея:</strong> рішення. Програма може діяти по-різному залежно від ситуації.</p>
+
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson8-goal-title">
+                    <h3 id="lesson8-goal-title">Що сьогодні важливо зрозуміти</h3>
+                    <p><strong>Ти вже вмієш:</strong> будувати, повторювати і змінювати стан.</p>
+                    <p><strong>Сьогодні навчишся:</strong> писати програми, які перевіряють умову.</p>
+                    <p><strong>Головне питання уроку:</strong> як змусити програму не просто виконувати, а ще й обирати?</p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson8-condition-title">
+                    <h3 id="lesson8-condition-title">Умова — це питання з відповіддю "так" або "ні"</h3>
+                    <p>Комп'ютер не вміє відповідати "може бути" або "залежить". Він завжди обирає між двома варіантами:</p>
+                    <ul>
+                        <li>"Равлик на краю?" — так або ні.</li>
+                        <li>"n парне?" — так або ні.</li>
+                        <li>"n більше 5?" — так або ні.</li>
+                    </ul>
+                    <div class="why-important lesson-support-block lesson-why-block">
+                        <h3>Умова — не команда, а питання</h3>
+                        <p>Різниця між <code>вперед 5</code> і <code>якщо край</code>: перша команда завжди щось робить. Друга спочатку запитує ("чи правдиво це?") і лише потім вирішує, чи виконувати вміст дужок. Якщо відповідь "ні" — код у дужках просто пропускається.</p>
+                    </div>
+                    <p>Це і є умова. Команда <code>якщо</code> перевіряє умову і виконує код лише тоді, коли відповідь "так".</p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson8-if-title">
+                    <h3 id="lesson8-if-title">Нова команда: <code>якщо</code></h3>
+                    <pre class="code-example">якщо край (
+  праворуч 180
+)</pre>
+                    <p>Команди в дужках виконуються тільки тоді, коли умова правдива.</p>
+                    <div class="tip lesson-support-block lesson-tip-block">
+                        <strong>Важливо</strong>
+                        <p>Ця перевірка виконується лише один раз і одразу зупиняється. Щоб вона перевіряла постійно — треба помістити її всередині циклу або у блок <code>грати</code>. Спробуй:</p>
+                        <pre class="code-example">повторити 200 (
+  вперед 5
+  якщо край ( праворуч 180 )
+)</pre>
+                    </div>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson8-else-title">
+                    <h3 id="lesson8-else-title"><code>інакше</code> — запасний план</h3>
+                    <pre class="code-example">створити n = 2
+якщо n % 2 = 0 (
+  колір синій
+) інакше (
+  колір червоний
+)</pre>
+                    <p>Якщо число парне — буде синій. Якщо непарне — червоний. Спробуй змінити <code>n = 2</code> на <code>n = 3</code> і перевір, чи зміниться колір.</p>
+                    <p><a href="manual.html#conditions" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: умови</a></p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson8-predict-title">
+                    <h3 id="lesson8-predict-title">🔮 Спробуй передбачити</h3>
+                    <pre class="code-example">створити n = 0
+повторити 6 (
+  n = n + 1
+  якщо n % 2 = 0 (
+    колір синій
+  ) інакше (
+    колір червоний
+  )
+  вперед 50
+  праворуч 60
+)</pre>
+                    <p>Заповни подумки або на папері, а потім перевір у редакторі:</p>
+                    <div class="manual-table-wrap">
+                    <table class="manual-table">
+                        <thead>
+                            <tr>
+                                <th scope="col"><code>n</code></th>
+                                <th scope="col">Парне?</th>
+                                <th scope="col">Колір</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>ні</td><td>...</td></tr>
+                            <tr><td>2</td><td>так</td><td>...</td></tr>
+                            <tr><td>3</td><td>...</td><td>...</td></tr>
+                            <tr><td>4</td><td>...</td><td>...</td></tr>
+                            <tr><td>5</td><td>...</td><td>...</td></tr>
+                            <tr><td>6</td><td>...</td><td>...</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>💡 Для чого це потрібно?</h3>
+                    <p>Умови — це початок "розумної" поведінки програми. Завдяки ним код може реагувати на ситуацію, а не лише сліпо виконувати команди.</p>
+                    <ul>
+                        <li><strong>Ти вчишся формулювати правила:</strong> якщо сталося одне — роби так, інакше — інакше.</li>
+                        <li><strong>Ти бачиш логіку в дії:</strong> програма починає ніби "приймати рішення".</li>
+                        <li><strong>Ти готуєшся до ігор і складніших систем:</strong> без умов не буває справжньої взаємодії.</li>
+                    </ul>
+                </div>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎯 Завдання</h3>
+                    <pre class="code-example">повторити 150 (
+  вперед 5
+  якщо край ( праворуч 91 )
+)</pre>
+                    <p>Спробуй змінити 91 на 113, 137 або 171. Як зміниться траєкторія?</p>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Дослідити в редакторі</a>
+                </div>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson8-bug-title">
+                    <h3 id="lesson8-bug-title">🐛 Знайди помилку</h3>
+                    <pre class="code-example">створити n = 0
+повторити 8 (
+  n = n + 1
+  якщо n % 2 = 0 ( колір синій )
+  якщо n % 2 = 0 ( колір червоний )
+  вперед 40
+  праворуч 45
+)</pre>
+                    <details>
+                        <summary>Відповідь</summary>
+                        <p>Друга перевірка має бути <code>інакше</code>, а не ще одне таке саме <code>якщо</code>.</p>
+                    </details>
+                </section>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎨 Спробуй по-своєму</h3>
+                    <ul>
+                        <li>🟢 Простий: намалюй 8 ліній, що чергуються: парні — сині, непарні — червоні. Використовуй <code>n % 2</code>.</li>
+                        <li>🟡 Середній: зроби Равлика, що відбивається від краю і змінює колір при кожному відбитті. Скільки відбиттів відбудеться за 200 кроків?</li>
+                        <li>🔴 Складний: намалюй 12 ліній, де кожна третя — зелена, решта — чорні. Підказка: умова <code>n % 3 = 0</code>. Що означає <code>%</code>? Як пояснити це молодшому?</li>
+                    </ul>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Спробувати свою ідею</a>
+                </div>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>✅ Я вмію</h3>
+                    <ul>
+                        <li><strong>Можу повторити:</strong> написати просту умову.</li>
+                        <li><strong>Можу змінити:</strong> передбачити наслідок умови для кольору чи руху.</li>
+                        <li><strong>Можу придумати своє:</strong> зробити власне правило "якщо... то...".</li>
+                    </ul>
+                </div>
+
+                <div class="tip lesson-support-block lesson-tip-block">
+                    <h3>🔧 Як перевірити, чи спрацьовує умова</h3>
+                    <p>Якщо не знаєш, чи виконується <code>якщо</code> — додай тимчасово зміну кольору і подивись:</p>
+                    <pre class="code-example">якщо n % 2 = 0 (
+  колір синій
+) інакше (
+  колір червоний
+)
+вперед 5</pre>
+                    <p>Якщо бачиш тільки червоний — гілка <code>якщо</code> ніколи не виконується. Подивися на значення <code>n</code>. Цей прийом використовують справжні програмісти — він називається "відлагодження через колір".</p>
+                </div>
+
+                <div class="tip lesson-support-block lesson-tip-block">
+                    <strong>Подумай:</strong>
+                    <ul>
+                        <li>Що робить програма, якщо умова хибна і <code>інакше</code> немає?</li>
+                        <li>Чим <code>якщо край</code> відрізняється від <code>якщо n = 5</code>?</li>
+                        <li>Спробуй написати умову, яка ніколи не виконується: <code>якщо 1 = 2 ( колір синій )</code>. Що станеться? А тепер навпаки — умову, яка завжди виконується: <code>якщо 1 = 1 ( колір синій )</code>. Чим це корисно?</li>
+                        <li>Як пов'язані умови і стан? Підказка: <code>якщо</code> часто перевіряє стан програми (наприклад, значення змінної) і змінює інший стан (наприклад, колір).</li>
+                    </ul>
+                </div>
+
+                <nav class="navigation-buttons">
+                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson7"><span class="ui-icon icon-arrow-left" aria-hidden="true"></span>Попередній урок</button>
+                    <button class="btn btn-primary nav-btn-next" data-target-lesson="lesson9">Наступний урок<span class="ui-icon icon-arrow-right icon-right" aria-hidden="true"></span></button>
+                </nav>
+            </article>
+
+            <article id="lesson9" class="lesson-content" role="tabpanel" aria-labelledby="lesson9-tab" hidden>
+                <h2>Урок 9: Перша гра з клавіатурою 🎮</h2>
+                <p><strong>Велика ідея:</strong> гра. Програма працює без зупинки і постійно слухає, що робить гравець.</p>
+
+                <section class="lesson-subsection lesson-intro-subsection" aria-labelledby="lesson9-goal-title">
+                    <h3 id="lesson9-goal-title">Що сьогодні важливо зрозуміти</h3>
+                    <p><strong>Ти вже вмієш:</strong> працювати з умовами, циклами, змінними та функціями.</p>
+                    <p><strong>Сьогодні навчишся:</strong> запускати програму, яка не просто малює, а реагує на твої клавіші.</p>
+                    <p><strong>Головне питання уроку:</strong> чим жива гра відрізняється від малюнка, який просто виконався і зупинився?</p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson9-compare-title">
+                    <h3 id="lesson9-compare-title">Різниця між <code>повторити</code> і <code>грати</code></h3>
+                    <div class="manual-table-wrap">
+                    <table class="manual-table">
+                        <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col"><code>повторити 100</code></th>
+                                <th scope="col"><code>грати</code></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Коли зупиняється</td><td>Після N разів</td><td>Лише коли ти зупиниш</td></tr>
+                            <tr><td>Реагує на клавіші</td><td>Ні (не призначений для цього)</td><td>Так (перевіряє між кожним кадром)</td></tr>
+                            <tr><td>Для чого</td><td>Малюнок</td><td>Гра</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>🎮 Три компоненти будь-якої гри</h3>
+                    <p>Перед тим як кодувати — подумай про три речі:</p>
+                    <ul>
+                        <li>Рух — як гравець керує персонажем? (клавіші, швидкість)</li>
+                        <li>Правила — що дозволено, а що ні? (відбиття від краю, заборонені зони)</li>
+                        <li>Мета — що треба зробити, щоб "перемогти"?</li>
+                    </ul>
+                    <p>У мінімальній грі нижче є рух і є правило. Мети поки немає. Що могло б бути цікавою метою для твоєї гри?</p>
+                    <p>Перш ніж писати код — дай відповіді на ці три питання на папері або вголос. Тільки тоді відкривай редактор. Програмісти називають це "проєктуванням перед кодуванням".</p>
+                </div>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson9-command-title">
+                    <h3 id="lesson9-command-title">Нова команда: <code>грати</code></h3>
+                    <pre class="code-example">грати (
+  якщо клавіша "вгору" ( вперед 5 )
+  якщо клавіша "вниз" ( назад 5 )
+  якщо клавіша "ліво" ( ліворуч 10 )
+  якщо клавіша "право" ( праворуч 10 )
+)</pre>
+                    <p><strong>Правила:</strong> один блок <code>грати</code> у програмі; змінні та функції — поза ним; зупинка через кнопку "Зупинити" або <code>Esc</code>. Усе, що має перевірятися постійно, треба писати всередині <code>грати</code>.</p>
+                    <div class="why-important lesson-support-block lesson-why-block">
+                        <h3>Як читати блок <code>грати</code></h3>
+                        <p>Уяви, що блок <code>грати</code> — це серце, яке б'ється. Кожен "удар" — це один кадр: програма перевіряє всі умови всередині (яка клавіша натиснута, чи торкнувся краю) і виконує відповідні команди. Потім — наступний удар. І так — поки ти не натиснеш "Зупинити". Тому все, що має реагувати на гравця, має бути всередині <code>грати</code>.</p>
+                    </div>
+                    <p><a href="manual.html#game-mode" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: ігровий режим</a></p>
+                </section>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson9-predict-title">
+                    <h3 id="lesson9-predict-title">🔮 Спробуй передбачити</h3>
+                    <pre class="code-example">створити швидкість = 2
+грати (
+  якщо клавіша "вгору" (
+    вперед швидкість
+    швидкість = швидкість + 1
+  )
+  якщо клавіша "вниз" ( назад 4 )
+)</pre>
+                    <p>Що станеться зі змінною <code>швидкість</code> після п'яти натискань "вгору"? Чи буде Равлик рухатись однаково швидко весь час? Як його можна сповільнити?</p>
+                </section>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>💡 Для чого це потрібно?</h3>
+                    <p>Ігровий режим показує, що програма може жити в часі й реагувати на людину прямо під час роботи.</p>
+                    <ul>
+                        <li><strong>Ти переходиш від малюнка до взаємодії:</strong> тепер результат залежить від твоїх дій.</li>
+                        <li><strong>Ти вчишся мислити подіями:</strong> натиснув клавішу — програма відповіла.</li>
+                        <li><strong>Ти збираєш усе разом:</strong> команди, умови, змінні й правила починають працювати як одна система.</li>
+                    </ul>
+                </div>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎮 Завдання: мінімальна робоча гра</h3>
+                    <pre class="code-example">грати (
+  якщо клавіша "вгору" ( вперед 5 )
+  якщо клавіша "вниз" ( назад 5 )
+  якщо клавіша "ліво" ( ліворуч 10 )
+  якщо клавіша "право" ( праворуч 10 )
+  якщо край ( праворуч 180 )
+)</pre>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Створити гру</a>
+                </div>
+
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson9-bug-title">
+                    <h3 id="lesson9-bug-title">🐛 Знайди помилку</h3>
+                    <pre class="code-example">створити крок = 5
+повторити 10 ( вперед крок )
+
+грати (
+  якщо клавіша "вгору" ( вперед крок )
+  якщо клавіша "ліво" ( ліворуч 10 )
+  якщо клавіша "право" ( праворуч 10 )
+)
+
+якщо край ( праворуч 180 )</pre>
+                    <details>
+                        <summary>Підказка</summary>
+                        <p>Спочатку просто добийся того, щоб керування працювало. Не ускладнюй гру одразу. Подумай, що саме в цій програмі має перевірятися постійно.</p>
+                    </details>
+                    <details>
+                        <summary>Відповідь</summary>
+                        <p>Перевірка <code>якщо край</code> має бути всередині <code>грати</code>, інакше вона не буде виконуватися постійно під час гри.</p>
+                    </details>
+                </section>
+
+                <div class="task lesson-support-block lesson-task-block">
+                    <h3>🎨 Спробуй по-своєму</h3>
+                    <p>Обери рівень і будуй гру крок за кроком. Правило: кожного разу додавай лише одну нову річ і перевіряй, що все ще працює.</p>
+                    <div class="manual-table-wrap">
+                    <table class="manual-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Крок</th>
+                                <th scope="col">Що додати</th>
+                                <th scope="col">Перевірено ✓</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Керування стрілками (базова гра)</td>
+                                <td>□</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Відбиття від краю</td>
+                                <td>□</td>
+                            </tr>
+                            <tr>
+                                <td>3 🟡</td>
+                                <td>Зміна кольору при відбитті або прискорення</td>
+                                <td>□</td>
+                            </tr>
+                            <tr>
+                                <td>4 🔴</td>
+                                <td>Власна мета або умова перемоги</td>
+                                <td>□</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Спробувати свою ідею</a>
+                </div>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>✅ Я вмію</h3>
+                    <ul>
+                        <li><strong>Можу повторити:</strong> написати гру з керуванням стрілками.</li>
+                        <li><strong>Можу змінити:</strong> передбачити, як зміняться правила при іншій змінній.</li>
+                        <li><strong>Можу придумати своє:</strong> додати власну мету або поведінку гри.</li>
+                    </ul>
+                </div>
+
+                <div class="tip lesson-support-block lesson-tip-block">
+                    <strong>Подумай наприкінці циклу:</strong>
+                    <ul>
+                        <li>Яку команду ти використовував найчастіше?</li>
+                        <li>Яке завдання було найважчим?</li>
+                        <li>Який момент тебе найбільше здивував?</li>
+                        <li>Що хочеш навчитися робити далі?</li>
+                        <li>Опиши свою найкращу програму за весь курс одним реченням — так, щоб зрозумів хтось, хто ніколи не бачив Равлика.</li>
+                        <li>Поглянь на таблицю шляху з Уроку 0. Яка "велика ідея" виявилась найважливішою для тебе особисто? Яка — найважчою?</li>
+                        <li>Якби ти додавав Урок 10 — що б ти хотів навчитися? Що ще, як тобі здається, вміє Равлик, але ти ще не знаєш?</li>
+                    </ul>
+                </div>
+
+                <div class="why-important lesson-support-block lesson-why-block">
+                    <h3>🏁 Ти дійшов до кінця циклу</h3>
+                    <p>За ці 10 уроків ти навчився: давати точні команди, повертати і малювати фігури, змінювати стан програми, повторювати автоматично, досліджувати геометрію через числа, розділяти рух і малювання, зберігати числа у змінних, створювати власні команди, приймати рішення через умови, і будувати справжні ігри.</p>
+                    <p>Це не просто "команди Равлика". Це фундаментальні ідеї, з яких складається будь-яка програма — від мобільного додатку до відеогри. Ти вже мислиш як програміст.</p>
+                </div>
+
+                <nav class="navigation-buttons">
+                    <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson8"><span class="ui-icon icon-arrow-left" aria-hidden="true"></span>Попередній урок</button>
+                    <button class="btn btn-primary nav-btn-next" disabled style="visibility: hidden;">Наступний урок<span class="ui-icon icon-arrow-right icon-right" aria-hidden="true"></span></button>
                 </nav>
             </article>
         </main>
 
         <nav class="bottom-nav-buttons" aria-label="Основна навігація сайтом">
-            <a href="index.html" class="btn btn-success">🎨 До Редактора</a>
-            <a href="manual.html" class="btn btn-primary">📖 До Посібника</a>
-            <!-- <a href="resourses.html" class="btn btn-info">🧩 Додаткові Ресурси</a> -->
+            <div class="site-links-uniform">
+                <a href="index.html" class="btn btn-success"><span class="ui-icon icon-paint-brush" aria-hidden="true"></span>До Редактора</a>
+                <a href="manual.html" class="btn btn-primary"><span class="ui-icon icon-book-open" aria-hidden="true"></span>До Посібника</a>
+                <a href="about.html" class="btn btn-info"><span class="ui-icon icon-info-circle" aria-hidden="true"></span>Про проєкт</a>
+            </div>
         </nav>
-        
+
         <footer class="main-footer">
-            <p>&copy;2025 Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener" style="margin-left:8px;">(Facebook)</a></p>
+            <p>&copy;<span class="current-year">2025</span> Мова програмування РАВЛИК | Автор: пан Артем — вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" style="margin-left:8px;">(Facebook)</a></p>
         </footer>
     </div>
-    <script src="js/lessonsPage.js"></script>
+    <div class="accessibility-floating-layer">
+    <button id="accessibility-toggle" class="accessibility-toggle" aria-expanded="false"
+        aria-controls="accessibility-panel" aria-label="&#1053;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1086;&#1089;&#1090;&#1110;"><span
+            class="ui-icon icon-universal-access" aria-hidden="true"></span></button>
+    <div id="accessibility-panel" class="accessibility-panel hidden" role="dialog" aria-modal="true"
+        aria-labelledby="accessibility-title">
+        <div class="accessibility-header">
+            <h3 id="accessibility-title" class="accessibility-panel-title">&#1053;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1086;&#1089;&#1090;&#1110;</h3>
+            <button id="close-accessibility-panel-btn" class="close-btn"
+                aria-label="&#1047;&#1072;&#1082;&#1088;&#1080;&#1090;&#1080; &#1087;&#1072;&#1085;&#1077;&#1083;&#1100; &#1085;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1100; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1086;&#1089;&#1090;&#1110;">&times;</button>
+        </div>
+        <div class="accessibility-options">
+            <div class="accessibility-option">
+                <label for="high-contrast-input">&#1042;&#1080;&#1089;&#1086;&#1082;&#1080;&#1081; &#1082;&#1086;&#1085;&#1090;&#1088;&#1072;&#1089;&#1090;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="high-contrast-input" class="accessibility-setting-input"
+                        data-setting="high-contrast">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="larger-text-input">&#1047;&#1073;&#1110;&#1083;&#1100;&#1096;&#1077;&#1085;&#1080;&#1081; &#1090;&#1077;&#1082;&#1089;&#1090;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="larger-text-input" class="accessibility-setting-input"
+                        data-setting="larger-text">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="reduce-animations-input">&#1047;&#1084;&#1077;&#1085;&#1096;&#1077;&#1085;&#1085;&#1103; &#1072;&#1085;&#1110;&#1084;&#1072;&#1094;&#1110;&#1111;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="reduce-animations-input" class="accessibility-setting-input"
+                        data-setting="reduce-animations">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="sans-serif-font-input">&#1055;&#1088;&#1086;&#1089;&#1090;&#1080;&#1081; &#1096;&#1088;&#1080;&#1092;&#1090;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="sans-serif-font-input" class="accessibility-setting-input"
+                        data-setting="sans-serif-font">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="increased-spacing-input">&#1047;&#1073;&#1110;&#1083;&#1100;&#1096;&#1077;&#1085;&#1110; &#1110;&#1085;&#1090;&#1077;&#1088;&#1074;&#1072;&#1083;&#1080;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="increased-spacing-input" class="accessibility-setting-input"
+                        data-setting="increased-spacing">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+        </div>
+        <div class="accessibility-footer">
+            <button id="reset-accessibility-btn" class="btn btn-danger">&#1057;&#1082;&#1080;&#1085;&#1091;&#1090;&#1080; &#1085;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103;</button>
+        </div>
+    </div>
+</div>
+<script type="module" src="js/accessibility.js?v=2026-03-13-2"></script>
+<script type="module" src="js/analytics.js?v=2026-03-13-2"></script>
+<script type="module" src="js/registerServiceWorker.js?v=2026-03-13-2"></script>
+    <script type="module" src="js/lessonsPage.js?v=2026-03-13-2"></script>
 </body>
 </html>

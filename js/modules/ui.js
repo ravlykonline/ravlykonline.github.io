@@ -1,134 +1,49 @@
 // js/modules/ui.js
-import { RAVLYK_SVG_DATA_URL, HELP_MODAL_CONTENT_ID, CLEAR_CONFIRM_MODAL_ID, CURRENT_YEAR } from './constants.js';
+import {
+    RAVLYK_SVG_DATA_URL,
+    CURRENT_YEAR,
+} from './constants.js';
 
-let messageTimeout;
+const RAVLYK_EDITOR_SVG_DATA_URL = 'data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="40" y="15" width="20" height="70" rx="10" fill="%23758F6C"/><path d="M43 18 L33 6 M57 18 L67 6" stroke="%23758F6C" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="55" r="26" fill="%23DE9C53"/><path d="M50 55 A 5 5 0 0 1 55 60 A 10 10 0 0 1 45 65 A 15 15 0 0 1 35 50 A 20 20 0 0 1 55 35 A 25 25 0 0 1 75 60" fill="none" stroke="%23201E1F" stroke-width="3" stroke-linecap="round"/></svg>';
 
-function showMessage(message, type = 'info', duration = 3000) {
-    clearTimeout(messageTimeout);
-    const existingMessage = document.getElementById('global-message-display');
-    if (existingMessage) existingMessage.remove();
+export {
+    showError,
+    showSuccessMessage,
+    showInfoMessage,
+    hideMessage,
+} from './uiMessages.js';
 
-    const messageDiv = document.createElement('div');
-    messageDiv.id = 'global-message-display';
-    messageDiv.className = `message-global message-${type}-global`; // e.g., message-error-global
-    messageDiv.setAttribute('role', type === 'error' ? 'alert' : 'status');
+export {
+    isModalOpen,
+    bindModalOverlayClose,
+    showHelpModal,
+    hideHelpModal,
+    showClearConfirmModal,
+    hideClearConfirmModal,
+    showStopConfirmModal,
+    hideStopConfirmModal,
+    showDownloadModal,
+    hideDownloadModal,
+} from './uiModals.js';
 
-    let iconClass = 'fa-info-circle';
-    if (type === 'success') iconClass = 'fa-check-circle';
-    if (type === 'error') iconClass = 'fa-exclamation-triangle';
-    
-    // Форматування повідомлення про зупинку для кращого відображення
-    if (message.includes('Виконання зупинено')) {
-        iconClass = 'fa-hand-paper'; // Іконка "зупинки"
-    }
-
-    messageDiv.innerHTML = `
-        <span class="message-text-global"><i class="fas ${iconClass}"></i> ${message}</span>
-        <button class="message-close-btn-global" aria-label="Закрити повідомлення"><i class="fas fa-times"></i></button>
-    `;
-
-    // Вставляємо повідомлення у body замість вставки в потік документа
-    document.body.appendChild(messageDiv);
-
-    const closeBtn = messageDiv.querySelector('.message-close-btn-global');
-    const removeMessage = () => {
-        messageDiv.remove();
-        clearTimeout(messageTimeout);
-    };
-    closeBtn.addEventListener('click', removeMessage, { once: true });
-
-    if (duration > 0) {
-        messageTimeout = setTimeout(removeMessage, duration);
-    }
-     // Play sound for errors
-    if (type === 'error') {
-        try {
-            // Short beep, replace with a less intrusive sound if needed
-            const audio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=');
-            audio.play().catch(() => {}); // Ignore play errors
-        } catch (e) { /* ignore */ }
-    }
-}
-
-export function showError(message, duration = 0) { // Errors persist by default
-    showMessage(message, 'error', duration);
-}
-export function showSuccessMessage(message, duration = 3000) {
-    showMessage(message, 'success', duration);
-}
-export function showInfoMessage(message, duration = 3000) {
-    showMessage(message, 'info', duration);
-}
-export function hideMessage() {
-    const existingMessage = document.getElementById('global-message-display');
-    if (existingMessage) existingMessage.remove();
-    clearTimeout(messageTimeout);
-}
-
-
-// --- Modal Management ---
-function toggleModal(modalId, show) {
-    const modalOverlay = document.getElementById(modalId);
-    // Fix: get direct modalContent id which already contains -content suffix
-    const modalContentId = modalId === 'help-modal-overlay' ? 'help-modal-content' : 
-                         (modalId === 'clear-confirm-modal-overlay' ? 'clear-confirm-modal-content' : `${modalId}-content`);
-    const modalContent = document.getElementById(modalContentId);
-    
-    console.log(`Toggle modal: ${modalId}, show: ${show}, content: ${modalContentId}`);
-    
-    if (modalOverlay) {
-        if (show) {
-            modalOverlay.classList.remove('hidden');
-            modalOverlay.setAttribute('aria-hidden', 'false');
-            // Focus first focusable element in modal or close button if content exists
-            if (modalContent) {
-                const focusable = modalContent.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                if (focusable) focusable.focus();
-            }
-        } else {
-            modalOverlay.classList.add('hidden');
-            modalOverlay.setAttribute('aria-hidden', 'true');
-        }
-    } else {
-        console.error(`Modal overlay with id ${modalId} not found!`);
-    }
-}
-
-export function showHelpModal() {
-    toggleModal('help-modal-overlay', true);
-}
-export function hideHelpModal() {
-    toggleModal('help-modal-overlay', false);
-    document.getElementById('help-btn')?.focus(); // Return focus
-}
-
-export function showClearConfirmModal() {
-    toggleModal('clear-confirm-modal-overlay', true);
-}
-export function hideClearConfirmModal() {
-    toggleModal('clear-confirm-modal-overlay', false);
-    document.getElementById('clear-btn')?.focus(); // Return focus
-}
-
-
-// --- Ravlyk Sprite Management ---
 let ravlykSpriteElement = null;
+let commandIndicatorElement = null;
 
 export function createRavlykSprite(canvasContainer) {
     if (ravlykSpriteElement) ravlykSpriteElement.remove();
 
-    ravlykSpriteElement = document.createElement("div");
-    ravlykSpriteElement.id = "ravlyk-sprite";
-    ravlykSpriteElement.className = "ravlyk-sprite-global"; // Defined in main-editor.css
+    ravlykSpriteElement = document.createElement('div');
+    ravlykSpriteElement.id = 'ravlyk-sprite';
+    ravlykSpriteElement.className = 'ravlyk-sprite-global';
     ravlykSpriteElement.setAttribute('aria-hidden', 'true');
-    ravlykSpriteElement.style.backgroundImage = `url('${RAVLYK_SVG_DATA_URL}')`;
-    
-    // Append to canvas container for easier relative positioning
+    // Temporary preview variant from ravlyk_1.svg. Roll back by switching to RAVLYK_SVG_DATA_URL.
+    ravlykSpriteElement.style.backgroundImage = `url('${RAVLYK_EDITOR_SVG_DATA_URL || RAVLYK_SVG_DATA_URL}')`;
+
     const container = canvasContainer || document.querySelector('.canvas-box');
     if (container) {
         container.appendChild(ravlykSpriteElement);
     } else {
-        document.body.appendChild(ravlykSpriteElement); // Fallback
+        document.body.appendChild(ravlykSpriteElement);
     }
     return ravlykSpriteElement;
 }
@@ -137,48 +52,42 @@ export function updateRavlykVisualsOnScreen(ravlykState, canvasElement) {
     if (!ravlykSpriteElement || !ravlykState || !canvasElement) return;
 
     const ravlykSize = 30;
-
     const angleRad = (ravlykState.angle - 90) * Math.PI / 180;
+    const headingRad = ravlykState.angle * Math.PI / 180;
     const offsetX = 0;
-    const offsetY = -ravlykSize * 50 / 100;
+    // Illustrated snail sprites read better when anchored slightly inside the box,
+    // otherwise the path endpoint peeks out above the shell.
+    const offsetY = (-ravlykSize * 0.3) - 1;
     const dx = offsetX * Math.cos(angleRad) - offsetY * Math.sin(angleRad);
     const dy = offsetX * Math.sin(angleRad) + offsetY * Math.cos(angleRad);
     const canvasRect = canvasElement.getBoundingClientRect();
     const containerRect = ravlykSpriteElement.parentElement.getBoundingClientRect();
     const offsetDomX = canvasRect.left - containerRect.left;
     const offsetDomY = canvasRect.top - containerRect.top;
+    const penVisualLead = Math.max(0, ((Number(ravlykState.penSize) || 1) - 1) / 2);
 
-    const newLeft = ravlykState.x + dx - ravlykSize / 2 + offsetDomX;
-    const newTop = ravlykState.y + dy - ravlykSize / 2 + offsetDomY;
-    
+    const newLeft = ravlykState.x + dx - ravlykSize / 2 + offsetDomX + (Math.cos(headingRad) * penVisualLead);
+    const newTop = ravlykState.y + dy - ravlykSize / 2 + offsetDomY + (Math.sin(headingRad) * penVisualLead);
+
     ravlykSpriteElement.style.left = `${newLeft}px`;
     ravlykSpriteElement.style.top = `${newTop}px`;
-
-    // Завжди будуємо повний рядок transform в одному місці
-    const rotation = `rotate(${ravlykState.angle + 90}deg)`;
-    const scale = `scale(${ravlykState.scale})`; // Використовуємо scale зі стану
-    ravlykSpriteElement.style.transform = `${rotation} ${scale}`;
-    
-    // Керуємо тінню через клас
+    ravlykSpriteElement.style.transform = `rotate(${ravlykState.angle + 90}deg) scale(${ravlykState.scale})`;
     ravlykSpriteElement.classList.toggle('lifted', !ravlykState.isPenDown);
 }
 
-// --- Command Indicator ---
-let commandIndicatorElement = null;
 export function updateCommandIndicator(commandText, index) {
     if (!commandIndicatorElement) {
         commandIndicatorElement = document.createElement('div');
         commandIndicatorElement.id = 'ravlyk-command-indicator';
-        // Basic styling (better in CSS)
         commandIndicatorElement.style.position = 'absolute';
         commandIndicatorElement.style.bottom = '5px';
         commandIndicatorElement.style.left = '5px';
-        commandIndicatorElement.style.backgroundColor = 'rgba(74, 111, 165, 0.8)'; // --main-purple with alpha
+        commandIndicatorElement.style.backgroundColor = 'rgba(74, 111, 165, 0.8)';
         commandIndicatorElement.style.color = 'white';
         commandIndicatorElement.style.padding = '3px 8px';
         commandIndicatorElement.style.borderRadius = '4px';
         commandIndicatorElement.style.fontSize = '0.8em';
-        commandIndicatorElement.style.zIndex = '1050'; // Above canvas, below modals
+        commandIndicatorElement.style.zIndex = '1050';
         commandIndicatorElement.style.fontFamily = "'Fira Mono', monospace";
         commandIndicatorElement.style.transition = 'opacity 0.3s';
         commandIndicatorElement.style.opacity = '0';
@@ -195,48 +104,80 @@ export function updateCommandIndicator(commandText, index) {
     }
 }
 
-// --- Canvas Resizing ---
-export function resizeCanvas(canvas, ctx, onResizeCallback) {
+export function resizeCanvas(canvas, ctx, onResizeCallback, options = {}) {
     if (!canvas || !canvas.parentElement) return;
+    if (typeof canvas.getClientRects === 'function' && canvas.getClientRects().length === 0) {
+        return;
+    }
 
-    const canvasBox = canvas.closest('.canvas-box') || canvas.parentElement; // Find closest canvas-box
-    let prevImage = null;
+    const linkedCanvases = Array.isArray(options.linkedCanvases) ? options.linkedCanvases : [];
 
-    if (canvas.width > 0 && canvas.height > 0) {
+    const canvasBox = canvas.closest('.canvas-box') || canvas.parentElement;
+    const oldWidth = canvas.width;
+    const oldHeight = canvas.height;
+    let prevCanvas = null;
+
+    if (oldWidth > 0 && oldHeight > 0) {
         try {
-            prevImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        } catch (e) {
-            console.warn("Could not save canvas state before resize:", e);
-            prevImage = null;
+            prevCanvas = document.createElement('canvas');
+            prevCanvas.width = oldWidth;
+            prevCanvas.height = oldHeight;
+            const prevCtx = prevCanvas.getContext('2d');
+            if (prevCtx) {
+                prevCtx.drawImage(canvas, 0, 0);
+            } else {
+                prevCanvas = null;
+            }
+        } catch (error) {
+            console.warn('Could not save canvas state before resize:', error);
+            prevCanvas = null;
         }
     }
-    
-    // Set canvas dimensions based on its container's client size
-    // Ensure canvas-box has explicit or computed dimensions for this to work reliably
-    canvas.width = canvasBox.clientWidth;
-    const computedStyle = getComputedStyle(canvasBox);
-    // canvas.height should not include padding of canvasBox, so use clientHeight or explicit value
-    let boxHeight = parseFloat(computedStyle.height);
-    if (computedStyle.boxSizing === 'border-box') {
-        boxHeight -= (parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom) + parseFloat(computedStyle.borderTopWidth) + parseFloat(computedStyle.borderBottomWidth));
+
+    const renderedWidth = Math.round(canvas.clientWidth || canvasBox.clientWidth || 0);
+    let renderedHeight = Math.round(canvas.clientHeight || 0);
+
+    if (renderedHeight <= 0) {
+        const boxHeight = Math.round(canvasBox.clientHeight || 0);
+        const header = canvasBox.querySelector('.area-header');
+        const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 0;
+        renderedHeight = Math.max(1, boxHeight - headerHeight);
     }
-    canvas.height = boxHeight > 0 ? boxHeight : 400; // Fallback height
 
+    canvas.width = Math.max(1, renderedWidth);
+    canvas.height = Math.max(1, renderedHeight);
+    for (const linkedCanvas of linkedCanvases) {
+        if (!linkedCanvas) continue;
+        linkedCanvas.width = canvas.width;
+        linkedCanvas.height = canvas.height;
+    }
 
-    if (prevImage) {
+    const deltaX = (canvas.width - oldWidth) / 2;
+    const deltaY = (canvas.height - oldHeight) / 2;
+
+    if (prevCanvas) {
         try {
-            ctx.putImageData(prevImage, 0, 0);
-        } catch (e) {
-            console.warn("Could not restore canvas state after resize:", e);
+            ctx.drawImage(prevCanvas, deltaX, deltaY);
+        } catch (error) {
+            console.warn('Could not restore canvas state after resize:', error);
         }
     }
-    // Interpreter should re-apply its context settings after resize if they are reset
+
     if (onResizeCallback && typeof onResizeCallback === 'function') {
-        onResizeCallback();
+        onResizeCallback({
+            deltaX,
+            deltaY,
+            oldWidth,
+            oldHeight,
+            newWidth: canvas.width,
+            newHeight: canvas.height,
+        });
     }
 }
 
 export function setFooterYear() {
     const yearElements = document.querySelectorAll('.current-year');
-    yearElements.forEach(el => el.textContent = CURRENT_YEAR);
+    yearElements.forEach((element) => {
+        element.textContent = CURRENT_YEAR;
+    });
 }

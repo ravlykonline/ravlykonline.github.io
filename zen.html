@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Дзен Равлика: двадцять іронічно-серйозних принципів про код, помилки, мислення і творчість." />
+    <meta name="keywords" content="Равлик, дзен програмування, програмування для дітей, інформатика, мислення, уроки Равлик" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Дзен Равлика</title>
+    <!-- Release token for GitHub Pages cache busting: 2026-03-13-2 -->
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="manifest" href="site.webmanifest?v=2026-03-13-2" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="stylesheet" href="css/global.css?v=2026-03-13-2" />
+    <link rel="stylesheet" href="css/accessibility.css?v=2026-03-13-2" />
+    <link rel="stylesheet" href="css/lessons.css?v=2026-03-13-2" />
+    <link rel="stylesheet" href="css/zen.css?v=2026-03-13-2" />
+    <style>
+        .zen-page {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 32px 20px 56px;
+        }
+
+        .zen-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .zen-snail-icon {
+            display: inline-block;
+            font-size: 3rem;
+            margin-bottom: 8px;
+        }
+
+        .zen-title {
+            margin-bottom: 12px;
+        }
+
+        .zen-divider {
+            width: 120px;
+            height: 4px;
+            margin: 0 auto;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #5bbf7a 0%, #5aa9e6 50%, #f2b134 100%);
+        }
+
+        .zen-intro {
+            text-align: center;
+        }
+
+        .zen-intro {
+            max-width: 760px;
+            margin: 0 auto 28px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .zen-principles {
+            display: grid;
+            gap: 14px;
+        }
+
+        .zen-section-label {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: lowercase;
+            color: #173042;
+            background: #e8f1f8;
+            border: 1px solid rgba(23, 48, 66, 0.1);
+            margin-top: 14px;
+        }
+
+        .zen-section-label.green { background: #e7f6ea; }
+        .zen-section-label.blue { background: #e8f1fb; }
+        .zen-section-label.yellow { background: #fff4d8; }
+        .zen-section-label.pink { background: #fde8ef; }
+
+        .zen-principle {
+            display: grid;
+            grid-template-columns: 56px 1fr;
+            gap: 16px;
+            align-items: start;
+            padding: 18px 20px;
+            border-radius: 18px;
+            background: #fff;
+            border: 1px solid rgba(23, 48, 66, 0.1);
+            box-shadow: 0 12px 28px rgba(26, 46, 59, 0.08);
+        }
+
+        .zen-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #173042;
+            background: #f2f6f9;
+            border: 1px solid rgba(23, 48, 66, 0.1);
+        }
+
+        .zen-principle[data-type="core"] .zen-num { background: #e7f6ea; }
+        .zen-principle[data-type="process"] .zen-num { background: #e8f1fb; }
+        .zen-principle[data-type="wisdom"] .zen-num { background: #fff4d8; }
+        .zen-principle[data-type="meta"] .zen-num { background: #fde8ef; }
+
+        .zen-principle-text {
+            font-size: 1.08rem;
+            font-weight: 700;
+            line-height: 1.5;
+            color: #173042;
+        }
+
+        .zen-principle-header {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .zen-principle-comment {
+            margin-top: 8px;
+            color: #49616f;
+            line-height: 1.65;
+        }
+
+        .zen-copy-btn {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border: 1px solid rgba(23, 48, 66, 0.14);
+            border-radius: 50%;
+            background: #f7fafc;
+            color: #49616f;
+            font: inherit;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .zen-copy-btn:hover {
+            background: #eef4f8;
+            color: #173042;
+        }
+
+        .zen-copy-btn.copied {
+            background: #e7f6ea;
+            border-color: rgba(91, 191, 122, 0.4);
+            color: #24553a;
+        }
+
+        .zen-copy-btn i {
+            font-size: 0.95rem;
+        }
+
+        .zen-footer {
+            margin-top: 36px;
+            text-align: center;
+        }
+
+        .zen-footer-text {
+            margin-top: 20px;
+            line-height: 1.8;
+            color: #49616f;
+        }
+
+        .zen-footer-text a {
+            font-weight: 600;
+        }
+
+        @media (max-width: 720px) {
+            .zen-page {
+                padding: 24px 16px 48px;
+            }
+
+            .zen-principle {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .zen-num {
+                width: 36px;
+                height: 36px;
+            }
+
+            .zen-principle-header {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
+                align-items: start;
+                gap: 10px;
+            }
+
+            .zen-copy-btn {
+                justify-self: end;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Перейти до основного вмісту</a>
+    <div class="page-wrapper">
+        <main id="main-content" class="zen-page">
+            <header class="course-header zen-header">
+                <span class="zen-snail-icon" aria-hidden="true">🐌</span>
+                <h1 class="zen-title">Дзен Равлика</h1>
+                <div class="zen-divider" aria-hidden="true"></div>
+            </header>
+
+            <section class="lesson-content active" aria-labelledby="zen-intro-title">
+                <h2 id="zen-intro-title" class="sr-only">Вступ до Дзену Равлика</h2>
+                <div class="zen-intro">
+                    Ці правила — не інструкція. Це спосіб думати.<br />
+                    Вони написані для дітей. Але дорослим теж буде корисно прочитати.
+                </div>
+
+                <div class="zen-principles" aria-label="Принципи Дзену Равлика">
+                    <div class="zen-section-label green">рух і команда</div>
+
+                    <article class="zen-principle" data-type="core" data-rule-number="1">
+                        <span class="zen-num">1</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Спочатку думай — потім запускай.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 1">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Хвилина роздумів перед запуском коштує десяти хвилин пошуку помилки після.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="core" data-rule-number="2">
+                        <span class="zen-num">2</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Равлик робить тільки те, що написано. Не більше. Не менше.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 2">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Це не вада — це його сила. Якщо результат не той, що ти очікував — питання не до Равлика.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="core" data-rule-number="3">
+                        <span class="zen-num">3</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Стань Равликом — і зрозумієш.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 3">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Найкраще пояснення кутів і напрямків — встати і повернутися самому. Тіло розуміє те, що очі ще не бачать.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="core" data-rule-number="4">
+                        <span class="zen-num">4</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Мала команда. Великий малюнок.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 4">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment"><code>вперед 5 праворуч 10</code>, повторені 36 разів, малюють коло. Сила програмування — у повторенні простого.</div>
+                        </div>
+                    </article>
+
+                    <div class="zen-section-label blue">код і структура</div>
+
+                    <article class="zen-principle" data-type="process" data-rule-number="5">
+                        <span class="zen-num">5</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Якщо пишеш одне й те саме двічі — час використати <code>повторити</code>.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 5">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Дублювання коду — запрошення до циклу. Якщо копіюєш рядки — зупинись і подумай.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="process" data-rule-number="6">
+                        <span class="zen-num">6</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Назви речі так, щоб через тиждень зрозумів.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 6">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment"><code>сторона</code> краще за <code>с</code>. <code>крок_руху</code> краще за <code>к</code>. Код читають люди — в тому числі ти сам, пізніше.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="process" data-rule-number="7">
+                        <span class="zen-num">7</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Простий код краще за складний.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 7">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Якщо тобі складно пояснити, що робить цей рядок — швидше за все, його можна написати простіше.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="process" data-rule-number="8">
+                        <span class="zen-num">8</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Функція — це нове слово для Равлика.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 8">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Коли ти пишеш <code>квадрат(100)</code> — ти розширюєш мову Равлика. Наступного разу він розумітиме більше.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="process" data-rule-number="9">
+                        <span class="zen-num">9</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Коментар — лист майбутньому собі.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 9">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Пиши <code># малюємо дах</code> не для Равлика — він це не читає. Пиши для себе, для вчителя, для друга.</div>
+                        </div>
+                    </article>
+
+                    <div class="zen-section-label yellow">помилки і відкриття</div>
+
+                    <article class="zen-principle" data-type="wisdom" data-rule-number="10">
+                        <span class="zen-num">10</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Помилка — це запрошення до відкриття.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 10">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Равлик не каже «ти поганий програміст». Він каже «я не зрозумів — поясни інакше». Помилки — це діалог.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="wisdom" data-rule-number="11">
+                        <span class="zen-num">11</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Читай повідомлення про помилку. Воно підказує.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 11">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Повідомлення — не вирок. Це підказка. «рядок 5» означає: почни шукати тут.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="wisdom" data-rule-number="12">
+                        <span class="zen-num">12</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Змінюй одне — і дивись, що змінилося.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 12">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Найкращий спосіб зрозуміти програму — змінити одне число і подивитися на результат.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="wisdom" data-rule-number="13">
+                        <span class="zen-num">13</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Несподіваний результат — найцікавіша частина уроку.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 13">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Коли Равлик намалював щось інше, ніж ти очікував — не виправляй одразу. Спитай себе: чому?</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="wisdom" data-rule-number="14">
+                        <span class="zen-num">14</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Малюнок — це результат. Код — це пояснення.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 14">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Якщо на полотні з’явилося те, що ти замислив — код правильний. Якщо ні — десь є помилка в міркуванні.</div>
+                        </div>
+                    </article>
+
+                    <div class="zen-section-label pink">навчання і творчість</div>
+
+                    <article class="zen-principle" data-type="meta" data-rule-number="15">
+                        <span class="zen-num">15</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text"> Уявляй. Перевіряй. Дивуйся. Повторюй.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 15">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Це не просто алгоритм навчання. Це спосіб жити з будь-якою ідеєю — в програмуванні, математиці, науці.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="meta" data-rule-number="16">
+                        <span class="zen-num">16</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">«Не виходить» — це початок, а не кінець.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 16">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Равлик ніколи не засуджує. Він чекає наступної команди. Ти теж можеш почати ще раз — в будь-який момент.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="meta" data-rule-number="17">
+                        <span class="zen-num">17</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Пояснити другу — значить зрозуміти самому.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 17">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Якщо можеш пояснити <code>повторити</code> молодшому брату або сестрі — ти справді це розумієш.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="meta" data-rule-number="18">
+                        <span class="zen-num">18</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Равлик говорить українською. Думай так само.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 18">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Назви змінних і функцій, а також коментарі — пиши так, щоб було зрозуміло тобі і твоєму однокласнику. Мова коду — це теж вибір.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="meta" data-rule-number="19">
+                        <span class="zen-num">19</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Твій найкращий малюнок — той, що ти ще не намалював.</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 19">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Кожен запуск — це нова можливість. Зберігай, що тобі подобається. І ділись цим з іншими.</div>
+                        </div>
+                    </article>
+
+                    <article class="zen-principle" data-type="meta" data-rule-number="20">
+                        <span class="zen-num">20</span>
+                        <div>
+                            <div class="zen-principle-header">
+                                <div class="zen-principle-text">Равлик — це лише початок. Але який слід він залишає!</div>
+                                <button class="zen-copy-btn" type="button" aria-label="Копіювати правило 20">
+                                    <span class="ui-icon icon-copy" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="zen-principle-comment">Все, що ти навчився тут — живе в кожній мові програмування. Ти вже думаєш як програміст. Равлик зробив свою справу.</div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <footer class="zen-footer">
+                <nav class="bottom-nav-buttons" aria-label="Навігація Дзену Равлика">
+                    <div class="site-links-uniform">
+                        <a href="index.html" class="btn btn-success"><span class="ui-icon icon-paint-brush" aria-hidden="true"></span>До Редактора</a>
+                        <a href="lessons.html" class="btn btn-primary"><span class="ui-icon icon-graduation-cap" aria-hidden="true"></span>До Уроків</a>
+                        <a href="manual.html" class="btn btn-primary"><span class="ui-icon icon-book-open" aria-hidden="true"></span>До Посібника</a>
+                        <a href="about.html" class="btn btn-info"><span class="ui-icon icon-info-circle" aria-hidden="true"></span>Про проєкт</a>
+                    </div>
+                </nav>
+
+                <div class="zen-footer-text">
+                    Натхнення: <em>The Zen of Python</em> — Тім Пітерс (1999)<br /><br />
+                    ©2026 Мова програмування РАВЛИК<br />
+                </div>
+            </footer>
+        </main>
+    </div>
+    <div class="accessibility-floating-layer">
+    <button id="accessibility-toggle" class="accessibility-toggle" aria-expanded="false"
+        aria-controls="accessibility-panel" aria-label="&#1053;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1086;&#1089;&#1090;&#1110;"><span
+            class="ui-icon icon-universal-access" aria-hidden="true"></span></button>
+    <div id="accessibility-panel" class="accessibility-panel hidden" role="dialog" aria-modal="true"
+        aria-labelledby="accessibility-title">
+        <div class="accessibility-header">
+            <h3 id="accessibility-title" class="accessibility-panel-title">&#1053;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1086;&#1089;&#1090;&#1110;</h3>
+            <button id="close-accessibility-panel-btn" class="close-btn"
+                aria-label="&#1047;&#1072;&#1082;&#1088;&#1080;&#1090;&#1080; &#1087;&#1072;&#1085;&#1077;&#1083;&#1100; &#1085;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1100; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1086;&#1089;&#1090;&#1110;">&times;</button>
+        </div>
+        <div class="accessibility-options">
+            <div class="accessibility-option">
+                <label for="high-contrast-input">&#1042;&#1080;&#1089;&#1086;&#1082;&#1080;&#1081; &#1082;&#1086;&#1085;&#1090;&#1088;&#1072;&#1089;&#1090;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="high-contrast-input" class="accessibility-setting-input"
+                        data-setting="high-contrast">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="larger-text-input">&#1047;&#1073;&#1110;&#1083;&#1100;&#1096;&#1077;&#1085;&#1080;&#1081; &#1090;&#1077;&#1082;&#1089;&#1090;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="larger-text-input" class="accessibility-setting-input"
+                        data-setting="larger-text">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="reduce-animations-input">&#1047;&#1084;&#1077;&#1085;&#1096;&#1077;&#1085;&#1085;&#1103; &#1072;&#1085;&#1110;&#1084;&#1072;&#1094;&#1110;&#1111;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="reduce-animations-input" class="accessibility-setting-input"
+                        data-setting="reduce-animations">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="sans-serif-font-input">&#1055;&#1088;&#1086;&#1089;&#1090;&#1080;&#1081; &#1096;&#1088;&#1080;&#1092;&#1090;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="sans-serif-font-input" class="accessibility-setting-input"
+                        data-setting="sans-serif-font">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="increased-spacing-input">&#1047;&#1073;&#1110;&#1083;&#1100;&#1096;&#1077;&#1085;&#1110; &#1110;&#1085;&#1090;&#1077;&#1088;&#1074;&#1072;&#1083;&#1080;</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="increased-spacing-input" class="accessibility-setting-input"
+                        data-setting="increased-spacing">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+        </div>
+        <div class="accessibility-footer">
+            <button id="reset-accessibility-btn" class="btn btn-danger">&#1057;&#1082;&#1080;&#1085;&#1091;&#1090;&#1080; &#1085;&#1072;&#1083;&#1072;&#1096;&#1090;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103;</button>
+        </div>
+    </div>
+</div>
+<script type="module" src="js/accessibility.js?v=2026-03-13-2"></script>
+<script type="module" src="js/analytics.js?v=2026-03-13-2"></script>
+<script type="module" src="js/registerServiceWorker.js?v=2026-03-13-2"></script>
+    <script>
+        (() => {
+            const copyButtons = document.querySelectorAll(".zen-copy-btn");
+            copyButtons.forEach((button) => {
+                button.addEventListener("click", async () => {
+                    const principle = button.closest(".zen-principle");
+                    if (!principle) {
+                        return;
+                    }
+
+                    const ruleNumber = principle.dataset.ruleNumber;
+                    const title = principle.querySelector(".zen-principle-text")?.innerText.trim() ?? "";
+                    const comment = principle.querySelector(".zen-principle-comment")?.innerText.trim() ?? "";
+                    const payload = `Правило ${ruleNumber}\n${title}\n${comment}\nДзен Равлика 🐌`;
+
+                    try {
+                        await navigator.clipboard.writeText(payload);
+                        const icon = button.querySelector(".ui-icon");
+                        if (icon) {
+                            icon.className = "ui-icon icon-check";
+                        }
+                        button.classList.add("copied");
+                        window.setTimeout(() => {
+                            if (icon) {
+                                icon.className = "ui-icon icon-copy";
+                            }
+                            button.classList.remove("copied");
+                        }, 1400);
+                    } catch {
+                        const icon = button.querySelector(".ui-icon");
+                        if (icon) {
+                            icon.className = "ui-icon icon-times";
+                        }
+                        window.setTimeout(() => {
+                            if (icon) {
+                                icon.className = "ui-icon icon-copy";
+                            }
+                        }, 1400);
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
