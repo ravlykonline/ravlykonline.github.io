@@ -20,7 +20,8 @@ if ((Split-Path $sourceRoot -Leaf) -ne 'v4beta') {
 $publicDirectories = @(
     'assets',
     'css',
-    'js'
+    'js',
+    'resources'
 )
 
 $publicFiles = @(
@@ -28,6 +29,7 @@ $publicFiles = @(
     'manual.html',
     'lessons.html',
     'resources.html',
+    'about.html',
     'quiz.html',
     'teacher_guidelines.html',
     'advice_for_parents.html',
