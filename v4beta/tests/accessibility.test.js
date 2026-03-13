@@ -54,10 +54,10 @@ runTest('applyAccessibilitySettings toggles classes and interpreter animation pr
 });
 
 runTest('accessibility notifications choose icon class by message meaning', () => {
-    assert.equal(getAccessibilityNotificationIconClass('Високий контраст увімкнено'), 'fa-adjust');
-    assert.equal(getAccessibilityNotificationIconClass('Збільшений текст увімкнено'), 'fa-font');
-    assert.equal(getAccessibilityNotificationIconClass('Налаштування доступності скинуто'), 'fa-undo');
-    assert.equal(getAccessibilityNotificationIconClass('Інший статус'), 'fa-universal-access');
+    assert.equal(getAccessibilityNotificationIconClass('Високий контраст увімкнено'), 'universal-access');
+    assert.equal(getAccessibilityNotificationIconClass('Збільшений текст увімкнено'), 'universal-access');
+    assert.equal(getAccessibilityNotificationIconClass('Налаштування доступності скинуто'), 'check-circle');
+    assert.equal(getAccessibilityNotificationIconClass('Інший статус'), 'universal-access');
 });
 
 console.log('Accessibility tests completed.');

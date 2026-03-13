@@ -1,4 +1,4 @@
-const SERVICE_WORKER_URL = '/sw.js?v=2026-03-12-1';
+const SERVICE_WORKER_URL = '/sw.js?v=2026-03-13-2';
 
 async function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) {

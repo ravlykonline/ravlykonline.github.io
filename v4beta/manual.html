@@ -12,25 +12,15 @@
     <meta name="author" content="Равлик" />
     <meta name="robots" content="index, follow" />
     <title>Посібник з мови програмування РАВЛИК 🐌 — Як програмувати та малювати кодом</title>
-    <!-- Release token for GitHub Pages cache busting: 2026-03-12-1 -->
+    <!-- Release token for GitHub Pages cache busting: 2026-03-13-2 -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-    <link rel="manifest" href="site.webmanifest?v=2026-03-12-1" />
+    <link rel="manifest" href="site.webmanifest?v=2026-03-13-2" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="stylesheet" href="css/global.css?v=2026-03-12-1" />
-    <link rel="stylesheet" href="css/manual.css?v=2026-03-12-1" />
-    <link rel="stylesheet" type="text/css" href="css/accessibility.css?v=2026-03-12-1" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QV58ZGT594"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-
-        gtag('config', 'G-QV58ZGT594');
-    </script>
+    <link rel="stylesheet" href="css/global.css?v=2026-03-13-2" />
+    <link rel="stylesheet" href="css/manual.css?v=2026-03-13-2" />
+    <link rel="stylesheet" type="text/css" href="css/accessibility.css?v=2026-03-13-2" />
     <meta property="og:type" content="article" />
     <meta property="og:locale" content="uk_UA" />
     <meta property="og:site_name" content="Мова програмування РАВЛИК" />
@@ -62,7 +52,7 @@
         </section>
         <button type="button" id="manual-mobile-menu-btn" class="manual-mobile-menu-btn" aria-expanded="false"
             aria-controls="manual-toc">
-            <i class="fas fa-bars" aria-hidden="true"></i>Зміст
+            <span class="ui-icon icon-book-open" aria-hidden="true"></span>Зміст
         </button>
         <div id="manual-mobile-backdrop" class="manual-mobile-backdrop hidden" aria-hidden="true"></div>
 
@@ -70,7 +60,7 @@
             <aside class="toc-container" id="manual-toc">
                 <button type="button" id="manual-mobile-close-btn" class="manual-mobile-close-btn"
                     aria-label="Закрити зміст">
-                    <i class="fas fa-times" aria-hidden="true"></i>
+                    <span class="ui-icon icon-times" aria-hidden="true"></span>
                 </button>
                 <h3 class="toc-title">Зміст</h3>
                 <div class="manual-toc-search" role="search" aria-label="Пошук в Посібнику">
@@ -102,11 +92,11 @@
             <div class="guide-sections-wrapper">
                 <div class="manual-section-toolbar" aria-live="polite">
                     <button type="button" class="btn btn-primary nav-btn-prev" id="manual-prev-section">
-                        <i class="fas fa-arrow-left" aria-hidden="true"></i>Попередній розділ
+                        <span class="ui-icon icon-arrow-left" aria-hidden="true"></span>Попередній розділ
                     </button>
                     <p class="manual-section-indicator" id="manual-section-indicator">Завантаження розділів...</p>
                     <button type="button" class="btn btn-primary nav-btn-next" id="manual-next-section">
-                        Наступний розділ<i class="fas fa-arrow-right icon-right" aria-hidden="true"></i>
+                        Наступний розділ<span class="ui-icon icon-arrow-right icon-right" aria-hidden="true"></span>
                     </button>
                 </div>
                 <article id="intro" class="guide-section" data-keywords="равлик вступ що таке початок перша мова програмування малювання кодом" aria-labelledby="manual-section-intro">
@@ -926,7 +916,7 @@ n = n + 1
                     </section>
 
                     <section class="manual-subsection manual-message-subsection" aria-labelledby="manual-errors-success-title">
-                    <h3 class="message-group-title success-title" id="manual-errors-success-title"><i class="fas fa-check-circle" aria-hidden="true"></i>
+                    <h3 class="message-group-title success-title" id="manual-errors-success-title"><span class="ui-icon icon-check-circle" aria-hidden="true"></span>
                         Повідомлення про успіх</h3>
                     <p>Ці повідомлення показують, що все спрацювало правильно:</p>
                     <div class="message-list-manual success-list-manual" role="region" aria-labelledby="manual-errors-success-title">
@@ -940,7 +930,7 @@ n = n + 1
                     </section>
 
                     <section class="manual-subsection manual-message-subsection" aria-labelledby="manual-errors-info-title">
-                    <h3 class="message-group-title info-title" id="manual-errors-info-title"><i class="fas fa-info-circle" aria-hidden="true"></i>
+                    <h3 class="message-group-title info-title" id="manual-errors-info-title"><span class="ui-icon icon-info-circle" aria-hidden="true"></span>
                         Інформаційні повідомлення</h3>
                     <p>Це не помилки, а підказки про поточний стан програми:</p>
                     <div class="message-list-manual info-list-manual" role="region" aria-labelledby="manual-errors-info-title">
@@ -956,8 +946,7 @@ n = n + 1
                     </section>
 
                     <section class="manual-subsection manual-message-subsection" aria-labelledby="manual-errors-group-title">
-                    <h3 class="message-group-title error-title" id="manual-errors-group-title"><i class="fas fa-exclamation-triangle"
-                            aria-hidden="true"></i> Повідомлення про помилки</h3>
+                    <h3 class="message-group-title error-title" id="manual-errors-group-title"><span class="ui-icon icon-exclamation-triangle" aria-hidden="true"></span> Повідомлення про помилки</h3>
                     <p>Справжні програмісти не бояться помилок. Нижче всі повідомлення згруповані за темами, і для
                         кожного є пояснення та порада, як виправити.</p>
                     <section class="manual-subsection" aria-labelledby="manual-errors-reading-title">
@@ -1212,7 +1201,7 @@ n = n + 1
                         <h4 id="manual-limitations-animation-title">Швидкість анімації:</h4>
                         <p>Равлик виконує команди не миттєво, а з невеликою затримкою, щоб ти міг бачити процес
                             малювання. Ти можеш налаштувати швидкість анімації в розділі "Налаштування доступності"
-                            (кнопка <i class="fas fa-universal-access"></i>), якщо ця панель доступна на сторінці. Режим
+                            (кнопка <span class="ui-icon icon-universal-access" aria-hidden="true"></span>), якщо ця панель доступна на сторінці. Режим
                             "Зменшення анімації" може прискорити виконання.</p>
                         <p>Якщо написати кілька команд <code>фон ...</code> підряд без пауз, під час анімації ти зазвичай побачиш лише останній фон. Це не помилка синтаксису, а особливість відображення.</p>
                     </div>
@@ -1448,22 +1437,22 @@ n = n + 1
                 </article>
                 <div class="manual-section-toolbar manual-section-toolbar-bottom">
                     <button type="button" class="btn btn-primary nav-btn-prev" id="manual-prev-section-bottom">
-                        <i class="fas fa-arrow-left" aria-hidden="true"></i>Попередній розділ
+                        <span class="ui-icon icon-arrow-left" aria-hidden="true"></span>Попередній розділ
                     </button>
                     <p class="manual-section-indicator" id="manual-section-indicator-bottom">Завантаження розділів...</p>
                     <button type="button" class="btn btn-primary nav-btn-next" id="manual-next-section-bottom">
-                        Наступний розділ<i class="fas fa-arrow-right icon-right" aria-hidden="true"></i>
+                        Наступний розділ<span class="ui-icon icon-arrow-right icon-right" aria-hidden="true"></span>
                     </button>
                 </div>
             </div>
         </main>
 
         <nav class="bottom-navigation site-links-uniform" aria-label="Нижня навігація посібника">
-            <a href="index.html" id="manual-back-to-editor-footer" class="btn btn-success"><i class="fas fa-paint-brush"
-                    aria-hidden="true"></i>До Редактора</a>
-            <a href="lessons.html" id="manual-to-lessons-footer" class="btn btn-primary"><i
-                    class="fas fa-graduation-cap" aria-hidden="true"></i>До Уроків</a>
-            <a href="about.html" class="btn btn-info"><i class="fas fa-info-circle" aria-hidden="true"></i>Про проєкт</a>
+            <a href="index.html" id="manual-back-to-editor-footer" class="btn btn-success"><span class="ui-icon icon-paint-brush"
+                    aria-hidden="true"></span>До Редактора</a>
+            <a href="lessons.html" id="manual-to-lessons-footer" class="btn btn-primary"><span
+                    class="ui-icon icon-graduation-cap" aria-hidden="true"></span>До Уроків</a>
+            <a href="about.html" class="btn btn-info"><span class="ui-icon icon-info-circle" aria-hidden="true"></span>Про проєкт</a>
         </nav>
 
         <footer class="main-footer">
@@ -1474,7 +1463,7 @@ n = n + 1
     </div>
 
     <button id="accessibility-toggle" class="accessibility-toggle" aria-expanded="false"
-        aria-label="Налаштування доступності"><i class="fas fa-universal-access"></i></button>
+        aria-label="Налаштування доступності"><span class="ui-icon icon-universal-access" aria-hidden="true"></span></button>
 
     <div id="accessibility-panel" class="accessibility-panel hidden" aria-labelledby="accessibility-title" role="dialog"
         aria-modal="true">
@@ -1534,9 +1523,10 @@ n = n + 1
         </div>
     </div>
 
-    <script type="module" src="js/accessibility.js?v=2026-03-12-1"></script>
-    <script type="module" src="js/registerServiceWorker.js?v=2026-03-12-1"></script>
-    <script type="module" src="js/manualPage.js?v=2026-03-12-1"></script>
+    <script type="module" src="js/accessibility.js?v=2026-03-13-2"></script>
+    <script type="module" src="js/analytics.js?v=2026-03-13-2"></script>
+    <script type="module" src="js/registerServiceWorker.js?v=2026-03-13-2"></script>
+    <script type="module" src="js/manualPage.js?v=2026-03-13-2"></script>
 </body>
 
 </html>

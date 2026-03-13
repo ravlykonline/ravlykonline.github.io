@@ -16,7 +16,7 @@
 .a11y-high-contrast .zen-principle-text,
 .a11y-high-contrast .zen-principle-comment,
 .a11y-high-contrast .zen-footer-text,
-.a11y-high-contrast .zen-copy-btn i {
+.a11y-high-contrast .zen-copy-btn .ui-icon {
     color: #fff !important;
 }
 
@@ -26,4 +26,9 @@
     background: #222 !important;
     color: #fff !important;
     border-color: #7dd3ff !important;
+}
+
+.zen-copy-btn .ui-icon {
+    width: 0.95rem;
+    height: 0.95rem;
 }

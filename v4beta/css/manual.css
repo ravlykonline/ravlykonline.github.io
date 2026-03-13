@@ -738,6 +738,12 @@ body.manual-paged-ready .guide-section.is-active {
     text-decoration: none;
 }
 
+.manual-code-action .ui-icon {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 8px;
+}
+
 .manual-code-copy {
     min-width: 34px;
     padding: 0 9px;

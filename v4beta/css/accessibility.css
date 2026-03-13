@@ -30,22 +30,15 @@
     transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
-/* Захист іконки доступності від зникнення */
-.accessibility-toggle i,
-html.a11y-high-contrast .accessibility-toggle i,
-html.a11y-sans-serif-font .accessibility-toggle i,
-html.a11y-larger-text .accessibility-toggle i,
-html.a11y-increased-spacing .accessibility-toggle i,
-html.a11y-reduce-animations .accessibility-toggle i {
-    font-family: "Font Awesome 5 Free" !important;
-    font-style: normal !important;
-    font-weight: 900 !important;
-    font-size: 24px !important;
-    line-height: 1 !important;
-    display: inline-block !important;
-    text-rendering: auto !important;
-    -webkit-font-smoothing: antialiased !important;
-    -moz-osx-font-smoothing: grayscale !important;
+/* Захист локальної SVG-іконки доступності від зникнення */
+.accessibility-toggle .ui-icon,
+html.a11y-high-contrast .accessibility-toggle .ui-icon,
+html.a11y-sans-serif-font .accessibility-toggle .ui-icon,
+html.a11y-larger-text .accessibility-toggle .ui-icon,
+html.a11y-increased-spacing .accessibility-toggle .ui-icon,
+html.a11y-reduce-animations .accessibility-toggle .ui-icon {
+    width: 24px !important;
+    height: 24px !important;
 }
 
 .accessibility-toggle:hover {
@@ -351,33 +344,7 @@ input:checked + .toggle-slider:before {
     font-family: 'Courier New', monospace !important;
 }
 
-/* Keep Font Awesome icons visible when "Simple font" is enabled */
-.a11y-sans-serif-font .fas,
-.a11y-sans-serif-font .fa,
-.a11y-sans-serif-font i[class^="fa"],
-.a11y-sans-serif-font i[class*=" fa-"],
-.a11y-sans-serif-font .fas::before,
-.a11y-sans-serif-font .fa::before,
-.a11y-sans-serif-font i[class^="fa"]::before,
-.a11y-sans-serif-font i[class*=" fa-"]::before {
-    font-family: "Font Awesome 5 Free" !important;
-    font-weight: 900 !important;
-    font-style: normal !important;
-}
-
-.a11y-sans-serif-font .far,
-.a11y-sans-serif-font .far::before {
-    font-family: "Font Awesome 5 Free" !important;
-    font-weight: 400 !important;
-    font-style: normal !important;
-}
-
-.a11y-sans-serif-font .fab,
-.a11y-sans-serif-font .fab::before {
-    font-family: "Font Awesome 5 Brands" !important;
-    font-weight: 400 !important;
-    font-style: normal !important;
-}
+/* Local SVG ui-icons inherit color and stay stable in the simple-font mode. */
 
 /* Збільшені інтервали */
 .a11y-increased-spacing {

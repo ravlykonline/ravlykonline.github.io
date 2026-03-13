@@ -244,10 +244,15 @@
     text-decoration: none;
 }
 .lesson-manual-link::before {
-    content: "\f02d";
-    font-family: "Font Awesome 5 Free";
-    font-weight: 900;
-    font-size: 0.9em;
+    content: "";
+    display: inline-block;
+    width: 0.9em;
+    height: 0.9em;
+    margin-right: 0.55em;
+    vertical-align: -0.1em;
+    background-color: currentColor;
+    mask: url('../assets/icons/book-open.svg') no-repeat center / contain;
+    -webkit-mask: url('../assets/icons/book-open.svg') no-repeat center / contain;
 }
 .lesson-manual-link-group {
     display: flex;

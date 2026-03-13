@@ -12,6 +12,11 @@ async function waitForServiceWorker(page) {
 
 test.describe('PWA offline shell', () => {
     test('core public pages and quiz data stay available offline after warm cache', async ({ page, context }) => {
+        const pageErrors = [];
+        page.on('pageerror', (error) => {
+            pageErrors.push(String(error));
+        });
+
         await page.goto('/index.html');
         await waitForServiceWorker(page);
 
@@ -34,5 +39,7 @@ test.describe('PWA offline shell', () => {
         await expect(page.locator('#quiz-new-set-btn')).toBeVisible();
         await page.locator('#quiz-new-set-btn').click();
         await expect(page.locator('.quiz-question')).toHaveCount(10);
+
+        expect(pageErrors, `Offline shell should not throw runtime errors: ${pageErrors.join(' | ')}`).toEqual([]);
     });
 });

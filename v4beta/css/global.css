@@ -127,13 +127,131 @@ footer.main-footer {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.btn i {
+.btn :is(i, .ui-icon) {
     margin-right: 8px;
 }
 
-.btn i.icon-right {
+.btn :is(i, .ui-icon).icon-right {
     margin-right: 0;
     margin-left: 8px;
+}
+
+.ui-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    flex: 0 0 auto;
+    vertical-align: -0.125em;
+    background-color: currentColor;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+}
+
+.icon-arrow-left {
+    mask-image: url('../assets/icons/arrow-left.svg');
+    -webkit-mask-image: url('../assets/icons/arrow-left.svg');
+}
+
+.icon-arrow-right {
+    mask-image: url('../assets/icons/arrow-right.svg');
+    -webkit-mask-image: url('../assets/icons/arrow-right.svg');
+}
+
+.icon-book-open {
+    mask-image: url('../assets/icons/book-open.svg');
+    -webkit-mask-image: url('../assets/icons/book-open.svg');
+}
+
+.icon-check {
+    mask-image: url('../assets/icons/check.svg');
+    -webkit-mask-image: url('../assets/icons/check.svg');
+}
+
+.icon-check-circle {
+    mask-image: url('../assets/icons/check-circle.svg');
+    -webkit-mask-image: url('../assets/icons/check-circle.svg');
+}
+
+.icon-copy {
+    mask-image: url('../assets/icons/copy.svg');
+    -webkit-mask-image: url('../assets/icons/copy.svg');
+}
+
+.icon-download {
+    mask-image: url('../assets/icons/download.svg');
+    -webkit-mask-image: url('../assets/icons/download.svg');
+}
+
+.icon-exclamation-triangle {
+    mask-image: url('../assets/icons/exclamation-triangle.svg');
+    -webkit-mask-image: url('../assets/icons/exclamation-triangle.svg');
+}
+
+.icon-graduation-cap {
+    mask-image: url('../assets/icons/graduation-cap.svg');
+    -webkit-mask-image: url('../assets/icons/graduation-cap.svg');
+}
+
+.icon-info-circle {
+    mask-image: url('../assets/icons/info-circle.svg');
+    -webkit-mask-image: url('../assets/icons/info-circle.svg');
+}
+
+.icon-link {
+    mask-image: url('../assets/icons/link.svg');
+    -webkit-mask-image: url('../assets/icons/link.svg');
+}
+
+.icon-paint-brush {
+    mask-image: url('../assets/icons/paint-brush.svg');
+    -webkit-mask-image: url('../assets/icons/paint-brush.svg');
+}
+
+.icon-play {
+    mask-image: url('../assets/icons/play.svg');
+    -webkit-mask-image: url('../assets/icons/play.svg');
+}
+
+.icon-puzzle-piece {
+    mask-image: url('../assets/icons/puzzle-piece.svg');
+    -webkit-mask-image: url('../assets/icons/puzzle-piece.svg');
+}
+
+.icon-question-circle {
+    mask-image: url('../assets/icons/question-circle.svg');
+    -webkit-mask-image: url('../assets/icons/question-circle.svg');
+}
+
+.icon-stop-circle {
+    mask-image: url('../assets/icons/stop-circle.svg');
+    -webkit-mask-image: url('../assets/icons/stop-circle.svg');
+}
+
+.icon-th {
+    mask-image: url('../assets/icons/th.svg');
+    -webkit-mask-image: url('../assets/icons/th.svg');
+}
+
+.icon-times {
+    mask-image: url('../assets/icons/times.svg');
+    -webkit-mask-image: url('../assets/icons/times.svg');
+}
+
+.icon-trash-alt {
+    mask-image: url('../assets/icons/trash-alt.svg');
+    -webkit-mask-image: url('../assets/icons/trash-alt.svg');
+}
+
+.icon-universal-access {
+    mask-image: url('../assets/icons/universal-access.svg');
+    -webkit-mask-image: url('../assets/icons/universal-access.svg');
 }
 
 
@@ -497,34 +615,29 @@ body #global-message-display .message-text-global {
 }
 
 /* Стилі для іконок з захистом від перезаписування */
-body #global-message-display .message-text-global i,
-html.a11y-high-contrast body #global-message-display .message-text-global i,
-html.a11y-sans-serif-font body #global-message-display .message-text-global i,
-html.a11y-larger-text body #global-message-display .message-text-global i,
-html.a11y-increased-spacing body #global-message-display .message-text-global i,
-html.a11y-reduce-animations body #global-message-display .message-text-global i {
+body #global-message-display .message-text-global :is(i, .ui-icon),
+html.a11y-high-contrast body #global-message-display .message-text-global :is(i, .ui-icon),
+html.a11y-sans-serif-font body #global-message-display .message-text-global :is(i, .ui-icon),
+html.a11y-larger-text body #global-message-display .message-text-global :is(i, .ui-icon),
+html.a11y-increased-spacing body #global-message-display .message-text-global :is(i, .ui-icon),
+html.a11y-reduce-animations body #global-message-display .message-text-global :is(i, .ui-icon) {
     font-size: 1.3rem !important;
-    font-family: "Font Awesome 5 Free" !important;
-    font-style: normal !important;
-    font-weight: 900 !important;
-    display: inline-block !important;
-    text-rendering: auto !important;
-    -webkit-font-smoothing: antialiased !important;
-    -moz-osx-font-smoothing: grayscale !important;
+    width: 1.3rem !important;
+    height: 1.3rem !important;
 }
 
 /* Іконка для помилок */
-body #global-message-display.message-error-global i {
+body #global-message-display.message-error-global :is(i, .ui-icon) {
     color: #d50000 !important;
 }
 
 /* Іконка для успішних повідомлень */
-body #global-message-display.message-success-global i {
+body #global-message-display.message-success-global :is(i, .ui-icon) {
     color: #1b5e20 !important;
 }
 
 /* Іконка для інформаційних повідомлень */
-body #global-message-display.message-info-global i {
+body #global-message-display.message-info-global :is(i, .ui-icon) {
     color: #8a3b00 !important;
 }
 
@@ -598,7 +711,7 @@ html.a11y-high-contrast body #global-message-display.message-a11y-global {
 }
 
 html.a11y-high-contrast body #global-message-display .message-text-global,
-html.a11y-high-contrast body #global-message-display .message-text-global i,
+html.a11y-high-contrast body #global-message-display .message-text-global :is(i, .ui-icon),
 html.a11y-high-contrast body #global-message-display .message-close-btn-global {
     color: #fff !important;
 }

@@ -1,11 +1,13 @@
 export function getAccessibilityNotificationIconClass(message) {
-    if (message.includes('\u043a\u043e\u043d\u0442\u0440\u0430\u0441\u0442')) return 'fa-adjust';
-    if (message.includes('\u0442\u0435\u043a\u0441\u0442')) return 'fa-font';
-    if (message.includes('\u0430\u043d\u0456\u043c\u0430\u0446\u0456\u0457')) return 'fa-film';
-    if (message.includes('\u0448\u0440\u0438\u0444\u0442')) return 'fa-text-width';
-    if (message.includes('\u0456\u043d\u0442\u0435\u0440\u0432\u0430\u043b\u0438')) return 'fa-expand';
-    if (message.includes('\u0441\u043a\u0438\u043d\u0443\u0442\u043e')) return 'fa-undo';
-    return 'fa-universal-access';
+    if (message.includes('\u0441\u043a\u0438\u043d\u0443\u0442\u043e')) return 'check-circle';
+    return 'universal-access';
+}
+
+function createUiIcon(documentRef, iconName) {
+    const icon = documentRef.createElement('span');
+    icon.className = 'ui-icon icon-' + iconName;
+    icon.setAttribute('aria-hidden', 'true');
+    return icon;
 }
 
 export function showAccessibilityNotification(message, options = {}) {
@@ -29,19 +31,13 @@ export function showAccessibilityNotification(message, options = {}) {
 
     const textSpan = documentRef.createElement('span');
     textSpan.className = 'message-text-global';
-
-    const icon = documentRef.createElement('i');
-    icon.className = `fas ${iconClass}`;
-    textSpan.appendChild(icon);
+    textSpan.appendChild(createUiIcon(documentRef, iconClass));
     textSpan.appendChild(documentRef.createTextNode(` ${message}`));
 
     const closeBtn = documentRef.createElement('button');
     closeBtn.className = 'message-close-btn-global';
-    closeBtn.setAttribute('aria-label', '\u0417\u0430\u043a\u0440\u0438\u0442\u0438 \u043f\u043e\u0432\u0456\u0434\u043e\u043c\u043b\u0435\u043d\u043d\u044f');
-
-    const closeIcon = documentRef.createElement('i');
-    closeIcon.className = 'fas fa-times';
-    closeBtn.appendChild(closeIcon);
+    closeBtn.setAttribute('aria-label', 'Закрити повідомлення');
+    closeBtn.appendChild(createUiIcon(documentRef, 'times'));
 
     messageDiv.appendChild(textSpan);
     messageDiv.appendChild(closeBtn);

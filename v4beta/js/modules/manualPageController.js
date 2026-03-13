@@ -410,7 +410,7 @@ export function createManualPageController({ documentRef, windowRef }) {
             copyButton.className = 'manual-code-action manual-code-copy';
             copyButton.setAttribute('aria-label', 'Скопіювати код');
             copyButton.title = 'Скопіювати код';
-            copyButton.innerHTML = '<i class="far fa-copy" aria-hidden="true"></i><span class="manual-code-copy-label">Скопійовано</span>';
+            copyButton.innerHTML = '<span class="ui-icon icon-copy" aria-hidden="true"></span><span class="manual-code-copy-label">Скопійовано</span>';
 
             const openLink = documentRef.createElement('a');
             openLink.className = 'manual-code-action manual-code-editor';
@@ -433,11 +433,11 @@ export function createManualPageController({ documentRef, windowRef }) {
                 try {
                     await copyTextToClipboard(codeText);
                     copyButton.classList.add('is-copied');
-                    copyButton.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i><span class="manual-code-copy-label">Скопійовано</span>';
+                    copyButton.innerHTML = '<span class="ui-icon icon-check" aria-hidden="true"></span><span class="manual-code-copy-label">Скопійовано</span>';
                     status.textContent = 'Код скопійовано.';
                     windowRef.setTimeout(() => {
                         copyButton.classList.remove('is-copied');
-                        copyButton.innerHTML = '<i class="far fa-copy" aria-hidden="true"></i><span class="manual-code-copy-label">Скопійовано</span>';
+                        copyButton.innerHTML = '<span class="ui-icon icon-copy" aria-hidden="true"></span><span class="manual-code-copy-label">Скопійовано</span>';
                     }, 1500);
                 } catch (error) {
                     status.textContent = 'Не вдалося скопіювати код.';

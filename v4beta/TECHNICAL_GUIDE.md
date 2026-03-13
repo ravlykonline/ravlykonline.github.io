@@ -2,7 +2,7 @@
 
 Primary engineering guide for this repository.
 
-Last updated: 2026-03-12
+Last updated: 2026-03-13
 
 Related:
 - `README.md` for a short project overview
@@ -56,6 +56,7 @@ Main entry points:
 - `lessons.html` and `js/lessonsPage.js` for lessons
 - `quiz.html` and `js/quizPage.js` for the quiz
 - `js/accessibility.js` for accessibility controls
+- `js/analytics.js` for network-only analytics bootstrapping
 - `js/registerServiceWorker.js` for public-page service-worker registration
 - `sw.js` for offline shell caching and runtime fallback
 
@@ -197,6 +198,7 @@ Accessibility subsystem:
 
 PWA/offline subsystem:
 - all public entry pages register the root service worker through `js/registerServiceWorker.js`
+- all public entry pages bootstrap analytics through `js/analytics.js`, which lazy-loads Google Analytics only on production hosts, skips offline startup, and retries when the browser comes back online
 - `sw.js` precaches the public shell: HTML entry pages, local CSS, local JS entry files, `js/modules/*`, `js/quizData/*`, local icons, and local instructional images
 - navigation requests use network-first with cache fallback
 - static same-origin assets use cache-first with runtime cache fill
@@ -283,9 +285,9 @@ Accessibility settings follow-up:
 
 Offline/PWA follow-up:
 - the local offline shell is working only after a successful online warm cache
-- third-party runtime dependencies are still external, most notably Font Awesome from `cdnjs` and Google Analytics / `gtag` from `googletagmanager.com`
-- future cleanup should localize icon assets and analytics loading so the installed app can operate without failed external requests when the network drops
-- until that cleanup is done, core same-origin functionality is expected to keep working offline, but some icons or analytics-related requests may fail silently when connectivity is lost
+- third-party runtime dependencies are still external for analytics via Google Analytics / `gtag` from `googletagmanager.com`, but loading is now deferred behind the local `js/analytics.js` gate
+- icon assets are now localized into `assets/icons/*` and included in the service-worker precache; analytics is no longer part of the critical shell path, but the remote provider is still external by design
+- core same-origin functionality is expected to keep working offline; analytics is intentionally skipped while offline and retries after the app regains connectivity
 
 Current priority order:
 1. favor small verified cleanup passes over rewrites
