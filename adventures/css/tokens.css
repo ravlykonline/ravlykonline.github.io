@@ -1,0 +1,300 @@
+:root {
+  --font-body: "Atkinson Hyperlegible", "Nunito", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-heading: "Atkinson Hyperlegible", "Nunito", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-size-body: 1rem;
+  --font-size-label: 0.875rem;
+  --font-size-small: 0.9375rem;
+  --font-size-title: 1.5rem;
+  --line-body: 1.5;
+  --line-heading: 1.3;
+
+  --sw: 140px;
+  --tile-sz: 56px;
+  --tile-r: 10px;
+  --cell-sz: 72px;
+  --gs-w: 576px;
+  --gs-h: 432px;
+
+  --space-px: 1px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2-5: 10px;
+  --space-3-5: 14px;
+  --space-4-5: 18px;
+  --space-5-5: 20px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 36px;
+  --space-8: 48px;
+  --space-9: 64px;
+
+  --size-chip-min-h: 32px;
+  --size-action-min-h: 44px;
+  --size-status-min-h: 36px;
+  --size-primary-min-h: 48px;
+  --size-nav-min-w: 52px;
+  --size-next-min-w: 110px;
+  --size-delete-btn: 32px;
+  --size-modal-btn-min-w: 160px;
+  --size-speak-btn-min-w: 220px;
+  --size-modal-max-w: 300px;
+  --size-map-max-w: 720px;
+  --size-map-max-h: 860px;
+  --size-intro-max-w: 560px;
+  --size-map-level-min-w: 150px;
+  --size-map-level-min-h: 108px;
+  --size-progress-copy-basis: 240px;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 20px;
+  --radius-2xl: 22px;
+  --radius-pill: 999px;
+  --border-strong: 2px;
+  --outline-width: 3px;
+  --outline-offset: 3px;
+  --outline-offset-inset: -3px;
+  --outline-offset-tight: 2px;
+  --blur-surface: 6px;
+
+  --bg: #e8f2dc;
+  --sidebar: #f2fbea;
+  --sbd: #bcd9a0;
+
+  --ca: #b2d690;
+  --cb: #99c475;
+  --chov: #ffe070;
+  --cdrop: #ffc800;
+  --gbd: #52903a;
+  --gap: 3px;
+
+  --t-str: #357a45;
+  --t-str-h: #255a33;
+  --t-str-sh: #1a4324;
+
+  --t-trn: #2f73b8;
+  --t-trn-h: #255f98;
+  --t-trn-sh: #1d4a76;
+  --t-trn-placed: #0e2d5a;
+
+  --t-sel: #d94d1a;
+  --t-sel-sh: #6e220a;
+
+  --run-bg: #2d8a55;
+  --run-sh: #205f3d;
+  --clr-bg: #bf4a43;
+  --clr-sh: #8b332e;
+
+  --delete-btn-bg: #cb2c2c;
+  --delete-btn-shadow: #8f1919;
+  --delete-btn-focus: #fff2a8;
+
+  --placed-bg: #1a3d22;
+  --trail: rgba(255, 200, 20, 0.35);
+  --txt: #162210;
+  --muted: #425d36;
+  --text-strong: #193a14;
+  --text-progress: #2d4a22;
+  --text-white: #ffffff;
+  --text-soft: #405a35;
+  --text-hint: #24371f;
+
+  --surface-strong: rgba(255, 255, 255, 0.78);
+  --surface-soft: rgba(255, 255, 255, 0.5);
+  --surface-solid: #ffffff;
+  --surface-border: rgba(98, 143, 68, 0.16);
+  --surface-border-strong: rgba(98, 143, 68, 0.18);
+  --surface-shadow: 0 8px 18px rgba(54, 85, 35, 0.06);
+  --card-shadow: 0 10px 24px rgba(54, 85, 35, 0.08);
+  --sidebar-shadow: 3px 0 18px rgba(0, 0, 0, 0.09);
+  --modal-shadow: 0 18px 52px rgba(0, 0, 0, 0.28);
+  --map-card-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+  --map-box-border: rgba(37, 68, 28, 0.18);
+  --map-scroll-track: rgba(98, 143, 68, 0.12);
+  --map-scroll-thumb: rgba(73, 116, 51, 0.42);
+  --map-card-border: rgba(46, 76, 37, 0.16);
+  --map-card-border-strong: rgba(46, 76, 37, 0.28);
+
+  --shadow-press: 0 1px 0 rgba(0, 0, 0, 0.4);
+  --shadow-tile-rest: 0 4px 0 var(--t-str-sh), 0 5px 12px rgba(0, 0, 0, 0.2);
+  --shadow-tile-hover: 0 6px 0 var(--t-str-sh), 0 8px 16px rgba(0, 0, 0, 0.22);
+  --shadow-turn-rest: 0 4px 0 var(--t-trn-sh), 0 5px 12px rgba(0, 0, 0, 0.2);
+  --shadow-turn-hover: 0 6px 0 var(--t-trn-sh), 0 8px 16px rgba(0, 0, 0, 0.22);
+  --shadow-selected: 0 4px 0 var(--t-sel-sh), 0 6px 20px rgba(217, 77, 26, 0.55);
+  --shadow-selected-from: 0 4px 0 var(--t-sel-sh), 0 5px 12px rgba(217, 77, 26, 0.4);
+  --shadow-selected-to: 0 4px 0 var(--t-sel-sh), 0 5px 26px rgba(217, 77, 26, 0.8);
+  --shadow-run-rest: 0 4px 0 var(--run-sh), 0 5px 14px rgba(26, 138, 60, 0.28);
+  --shadow-run-hover: 0 6px 0 var(--run-sh), 0 8px 18px rgba(26, 138, 60, 0.3);
+  --shadow-clr-rest: 0 4px 0 var(--clr-sh), 0 5px 12px rgba(184, 32, 32, 0.24);
+  --shadow-delete: 0 3px 0 var(--delete-btn-shadow), 0 8px 16px rgba(0, 0, 0, 0.18);
+  --shadow-mok: 0 4px 0 var(--run-sh);
+
+  --chip-warm-bg: #f6efcf;
+  --chip-warm-text: #624700;
+  --chip-mode-play-bg: rgba(58, 125, 68, 0.14);
+  --chip-mode-play-text: #21572a;
+  --chip-mode-debug-bg: rgba(36, 100, 191, 0.14);
+  --chip-mode-debug-text: #184d95;
+  --chip-goal-bg: rgba(245, 200, 66, 0.2);
+  --chip-goal-text: #563d00;
+
+  --nav-btn-bg: #efd37a;
+  --nav-btn-text: #433300;
+  --nav-btn-shadow: #bf9b33;
+
+  --map-btn-bg: #347c4e;
+  --map-btn-text: #ffffff;
+  --map-btn-shadow: #25573a;
+
+  --info-btn-bg: #f7efcf;
+  --info-btn-text: #4b3600;
+  --info-btn-shadow: #ccb06c;
+
+  --speak-btn-bg: #ddebff;
+  --speak-btn-text: #18496f;
+  --speak-btn-shadow: #8aaecf;
+
+  --task-bg-start: #fff9e5;
+  --task-bg-end: #fff3c4;
+  --task-border: rgba(245, 200, 66, 0.5);
+  --task-shadow: 0 12px 24px rgba(120, 89, 0, 0.12);
+  --task-label: #704a00;
+  --task-text: #193a14;
+
+  --debug-note-bg: rgba(36, 100, 191, 0.1);
+  --debug-note-text: #173f76;
+  --debug-card-border: rgba(36, 100, 191, 0.24);
+  --debug-card-shadow: 0 10px 24px rgba(36, 100, 191, 0.12);
+  --debug-status-bg: #e9f2ff;
+  --debug-status-text: #17457e;
+  --debug-grid-glow: 0 8px 36px rgba(12, 70, 146, 0.16), 0 0 0 3px #4f8fda;
+  --debug-cell-outline: inset 0 0 0 2px rgba(79, 143, 218, 0.24);
+  --debug-preset-ring: inset 0 -3px 0 rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(133, 194, 255, 0.6);
+
+  --progress-track-bg: rgba(85, 128, 58, 0.14);
+  --progress-track-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+  --progress-fill-start: #62b74d;
+  --progress-fill-end: #9ad45f;
+  --progress-height: 14px;
+
+  --status-ok-bg: #d7f1df;
+  --status-ok-text: #174b25;
+  --status-err-bg: #fbe7e2;
+  --status-err-text: #7a1f1f;
+  --status-run-bg: #fff4d9;
+  --status-run-text: #5b4204;
+  --status-warn-bg: #fff1cc;
+  --status-warn-text: #5c3f03;
+
+  --map-done-start: #e3f8df;
+  --map-done-end: #c5ebb9;
+  --map-done-text: #1f5b2a;
+  --map-current-start: #fff6cc;
+  --map-current-end: #f8df79;
+  --map-current-text: #5d4300;
+  --map-todo-start: #eef3f6;
+  --map-todo-end: #dce6eb;
+  --map-todo-text: #52656d;
+
+  --grid-shadow: 0 8px 36px rgba(0, 0, 0, 0.18), 0 0 0 3px var(--gbd);
+  --cell-drop-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.2);
+  --cell-arrow-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.3);
+  --pending-delete-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(255, 255, 255, 0.55);
+  --obstacle-shadow: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
+  --snail-shadow: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+  --ghost-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+
+  --anim-fast: 0.08s;
+  --anim-ui: 0.14s;
+  --anim-med: 0.18s;
+  --anim-progress: 0.24s;
+  --anim-wiggle: 0.26s;
+  --anim-snail: 0.68s;
+  --anim-modal: 0.32s;
+  --anim-pulse: 0.9s;
+  --anim-bob: 1.9s;
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-snail: cubic-bezier(0.22, 0.7, 0.2, 1);
+
+  --overlay-dark: rgba(0, 0, 0, 0.5);
+  --focus-ring: #0b63ce;
+
+  --utility-ghost-offset: -120px;
+  --utility-confetti-start: -14px;
+
+  --tr: 0.15s ease;
+}
+
+
+@media (prefers-contrast: high) {
+  :root {
+    --surface-strong: #ffffff;
+    --surface-soft: #ffffff;
+    --surface-border: rgba(0, 0, 0, 0.28);
+    --surface-border-strong: rgba(0, 0, 0, 0.36);
+    --muted: #b8cbb0;
+    --text-soft: #d7e8cd;
+    --progress-track-bg: rgba(0, 0, 0, 0.18);
+    --debug-note-bg: #e8f1ff;
+    --task-border: rgba(112, 74, 0, 0.82);
+    --focus-ring: #0039a6;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1b2418;
+    --sidebar: #23301f;
+    --sbd: #4f6a42;
+    --txt: #f1f6e8;
+    --muted: #b8cbb0;
+    --text-strong: #eef7e8;
+    --text-progress: #d7e8cd;
+    --text-soft: #d7e8cd;
+    --text-hint: #dcebd3;
+    --surface-strong: rgba(30, 43, 25, 0.92);
+    --surface-soft: rgba(30, 43, 25, 0.82);
+    --surface-solid: #20301b;
+    --surface-border: rgba(210, 233, 188, 0.12);
+    --surface-border-strong: rgba(210, 233, 188, 0.18);
+    --surface-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+    --card-shadow: 0 10px 24px rgba(0, 0, 0, 0.38);
+    --sidebar-shadow: 3px 0 18px rgba(0, 0, 0, 0.3);
+    --modal-shadow: 0 18px 52px rgba(0, 0, 0, 0.55);
+    --progress-track-bg: rgba(255, 255, 255, 0.14);
+    --chip-warm-bg: #5f511f;
+    --chip-warm-text: #fff0ba;
+    --chip-mode-play-bg: rgba(93, 170, 109, 0.18);
+    --chip-mode-play-text: #daf5d9;
+    --chip-mode-debug-bg: rgba(111, 169, 255, 0.18);
+    --chip-mode-debug-text: #d8e8ff;
+    --chip-goal-bg: rgba(245, 200, 66, 0.2);
+    --chip-goal-text: #ffe7a0;
+    --info-btn-bg: #5d531d;
+    --info-btn-text: #fff0bf;
+    --speak-btn-bg: #244b66;
+    --speak-btn-text: #e6f4ff;
+    --map-btn-bg: #2f7a4a;
+    --task-bg-start: #4b4117;
+    --task-bg-end: #5d5016;
+    --task-border: rgba(255, 219, 110, 0.42);
+    --task-label: #ffe29a;
+    --task-text: #eef7e8;
+    --debug-note-bg: rgba(93, 150, 235, 0.2);
+    --debug-note-text: #e3f0ff;
+    --status-ok-bg: #1f4a2a;
+    --status-ok-text: #e8ffe8;
+    --status-err-bg: #5a2525;
+    --status-err-text: #ffe9e9;
+    --status-run-bg: #634a0a;
+    --status-run-text: #fff3cc;
+    --status-warn-bg: #6a4b08;
+    --status-warn-text: #fff1c2;
+    --focus-ring: #7cc4ff;
+  }
+}

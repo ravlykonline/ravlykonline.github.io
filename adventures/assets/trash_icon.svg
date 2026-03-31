@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" id="svg-trash">
+                        <!-- Ручка кришки -->
+                        <path d="M42 25 V20 Q42 15 50 15 Q58 15 58 20 V25" fill="none" stroke="#231f20" stroke-width="3.5" stroke-linecap="round"/>
+                        <!-- Кришка -->
+                        <path d="M20 35 H80 Q83 35 83 30 Q83 25 80 25 H20 Q17 25 17 30 Q17 35 20 35 Z" fill="#f8fafc" stroke="#231f20" stroke-width="3.5" stroke-linejoin="round"/>
+                        <!-- Основна ємність -->
+                        <path d="M25 35 H75 V85 Q75 92 68 92 H32 Q25 92 25 85 Z" fill="#f8fafc" stroke="#231f20" stroke-width="3.5" stroke-linejoin="round"/>
+                        <!-- Декоративні лінії -->
+                        <line x1="40" y1="45" x2="40" y2="80" stroke="#cbd5e1" stroke-width="3.5" stroke-linecap="round"/>
+                        <line x1="50" y1="45" x2="50" y2="80" stroke="#cbd5e1" stroke-width="3.5" stroke-linecap="round"/>
+                        <line x1="60" y1="45" x2="60" y2="80" stroke="#cbd5e1" stroke-width="3.5" stroke-linecap="round"/>
+                    </svg>

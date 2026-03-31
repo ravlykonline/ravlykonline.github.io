@@ -1,0 +1,7 @@
+{
+  "name": "ravlyk-code",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  }
+}
