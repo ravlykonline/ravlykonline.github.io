@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ravlyk Artist</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/accessibility.css">
+</head>
+<body>
+<a class="skip-link" href="#app-main">Skip to main content</a>
+
+<header id="hdr">
+  <div class="logo">
+    <div class="logo-box">ART</div>
+    Ravlyk Artist
+  </div>
+  <div class="lesson-title" id="lesson-title">Lesson 1</div>
+  <nav class="lesson-nav" id="lesson-nav" aria-label="Lesson navigation"></nav>
+</header>
+<div class="folk-divider"></div>
+
+<main id="app-main">
+  <div id="body">
+    <section id="canvas-panel" aria-labelledby="lesson-title">
+      <div id="instr-box">
+        <div class="snail-avatar" id="avatar-box" aria-hidden="true"></div>
+        <div>
+          <p class="panel-label">Task</p>
+          <div id="instr-text">Loading lesson...</div>
+        </div>
+      </div>
+      <div id="grid-wrap" aria-describedby="canvas-status">
+        <svg id="grid-svg" aria-hidden="true"></svg>
+        <canvas id="trail-canvas" aria-hidden="true"></canvas>
+        <div id="snail-el" aria-hidden="true"></div>
+        <div id="canvas-status" class="sr-only">Canvas is ready.</div>
+      </div>
+    </section>
+
+    <aside id="palette" aria-labelledby="palette-title">
+      <div class="panel-label" id="palette-title">Blocks</div>
+      <div id="pblock-list"></div>
+    </aside>
+
+    <section id="workspace" aria-labelledby="workspace-title">
+      <div class="ws-meta">
+        <div class="panel-label" id="workspace-title">Workspace</div>
+        <div id="block-count">0 blocks</div>
+      </div>
+      <div id="ws-stack">
+        <div class="evt-block">
+          <span aria-hidden="true">Run</span>
+          <span>When run</span>
+        </div>
+        <div id="ws-inner">
+          <div class="ws-empty" id="ws-empty">
+            Tap a block on the left<br>to add it here
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer id="footer">
+  <button class="btn-run" id="btn-run" type="button">Run</button>
+  <button class="btn-reset" id="btn-reset" type="button">Reset</button>
+  <div id="feedback" aria-live="polite"></div>
+  <button id="show-code-btn" type="button">Code</button>
+</footer>
+
+<div id="code-panel" aria-label="Generated code">
+  <pre id="code-text"></pre>
+</div>
+
+<div id="overlay" aria-hidden="true">
+  <div class="success-card" role="dialog" aria-modal="true" aria-labelledby="success-title" aria-describedby="success-msg">
+    <div class="success-emoji">OK</div>
+    <h2 id="success-title">Great job!</h2>
+    <p id="success-msg">The snail completed the task.</p>
+    <button class="btn-next" id="btn-next" type="button">Next lesson</button>
+  </div>
+</div>
+
+<div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

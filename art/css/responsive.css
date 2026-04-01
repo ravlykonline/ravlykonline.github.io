@@ -1,0 +1,77 @@
+@media (max-width: 1023px) {
+  #body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    overflow-y: auto;
+  }
+
+  #canvas-panel,
+  #palette,
+  #workspace {
+    border-right: none;
+    border-bottom: 2px solid #e4d9c8;
+  }
+}
+
+@media (max-width: 767px) {
+  body {
+    overflow: auto;
+  }
+
+  #hdr {
+    height: auto;
+    padding: var(--space-3);
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .lesson-title {
+    position: static;
+    width: 100%;
+    transform: none;
+    text-align: left;
+  }
+
+  .lesson-nav {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  #canvas-panel,
+  #palette,
+  #workspace {
+    padding: var(--space-3);
+  }
+
+  #grid-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  #footer {
+    position: sticky;
+    bottom: 0;
+    height: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: var(--space-3);
+  }
+
+  .btn-run,
+  .btn-reset,
+  #show-code-btn {
+    min-height: 48px;
+  }
+
+  #feedback {
+    order: 4;
+    width: 100%;
+  }
+
+  #code-panel {
+    width: 100%;
+    right: 0;
+    bottom: 0;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+}

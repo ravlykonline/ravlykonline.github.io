@@ -1,0 +1,27 @@
+export function getDomReferences() {
+  return {
+    lessonTitle: document.getElementById('lesson-title'),
+    lessonNav: document.getElementById('lesson-nav'),
+    instructionText: document.getElementById('instr-text'),
+    avatarBox: document.getElementById('avatar-box'),
+    paletteList: document.getElementById('pblock-list'),
+    workspaceInner: document.getElementById('ws-inner'),
+    workspaceEmpty: document.getElementById('ws-empty'),
+    blockCount: document.getElementById('block-count'),
+    runButton: document.getElementById('btn-run'),
+    resetButton: document.getElementById('btn-reset'),
+    codeToggleButton: document.getElementById('show-code-btn'),
+    codePanel: document.getElementById('code-panel'),
+    codeText: document.getElementById('code-text'),
+    feedback: document.getElementById('feedback'),
+    overlay: document.getElementById('overlay'),
+    successTitle: document.getElementById('success-title'),
+    successMessage: document.getElementById('success-msg'),
+    nextButton: document.getElementById('btn-next'),
+    screenReaderAnnouncer: document.getElementById('sr-announcer'),
+    canvasStatus: document.getElementById('canvas-status'),
+    gridSvg: document.getElementById('grid-svg'),
+    trailCanvas: document.getElementById('trail-canvas'),
+    snailElement: document.getElementById('snail-el'),
+  };
+}

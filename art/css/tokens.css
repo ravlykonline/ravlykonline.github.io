@@ -1,0 +1,66 @@
+:root {
+  --color-teal: #1a7a6e;
+  --color-teal-dark: #0d5248;
+  --color-teal-light: #4db5a7;
+  --color-teal-pale: #d0ede9;
+  --color-orange: #f5962a;
+  --color-orange-dark: #c0700a;
+  --color-orange-light: #ffd08a;
+  --color-cream: #fff8ee;
+  --color-warm-background: #f9f3e8;
+  --color-text: #2c1a0e;
+  --color-text-soft: #6b4e35;
+  --color-move-block: #1a9080;
+  --color-move-block-dark: #0e5a4e;
+  --color-repeat-block: #c72070;
+  --color-repeat-block-dark: #8a1550;
+  --color-event-block: #e8940a;
+  --color-surface: #ffffff;
+  --color-surface-muted: #ede6db;
+  --color-surface-soft: #f4efe6;
+  --color-workspace: #e4dbce;
+  --color-workspace-border: #c8b9a8;
+  --color-grid-background: #fffcf5;
+  --color-grid-cell-alt: rgba(0, 0, 0, 0.025);
+  --color-grid-line: rgba(180, 160, 130, 0.35);
+  --color-feedback-ok: #7fffcf;
+  --color-feedback-error: #ffb3ba;
+  --color-overlay: rgba(13, 60, 50, 0.55);
+  --color-code-text: #7fffd4;
+  --color-focus-ring: #ffbf47;
+  --color-trail-orange: #f5962a;
+  --color-trail-teal: #1a9080;
+  --color-trail-pink: #c72070;
+  --color-trail-purple: #7b3f9e;
+  --color-trail-green: #5dad3a;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+
+  --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-2: 0 4px 18px rgba(0, 0, 0, 0.14);
+  --shadow-3: 0 8px 36px rgba(0, 0, 0, 0.18);
+
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-md: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 15px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 28px;
+
+  --z-raised: 10;
+  --z-overlay: 500;
+  --z-modal: 600;
+}
