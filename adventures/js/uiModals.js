@@ -165,8 +165,9 @@
     return element;
   }
 
-  // Shows one calm retry prompt when a route on a turn level needs rethinking.
-  function showTurnHintModal() {
+  // Shows one calm retry prompt after a broken route. Turn levels can add a more specific hint.
+  function showTurnHintModal(options) {
+    const { includeTurnHint = false } = options || {};
     if (activeModal?.backdrop?.classList.contains('turn-hint-modal')) {
       return;
     }
@@ -183,8 +184,10 @@
     const closeButton = createModalCloseButton('turn-hint-close');
     const title = createTextElement('h2', 'mttl', text.ui.tryAgainTitle, 'turn-hint-title');
     const body = createTextElement('p', 'mbdy', text.ui.tryAgainBody);
-    body.appendChild(document.createElement('br'));
-    body.append(text.ui.tryAgainTurns);
+    if (includeTurnHint) {
+      body.appendChild(document.createElement('br'));
+      body.append(text.ui.tryAgainTurns);
+    }
     const actions = document.createElement('div');
     actions.className = 'modal-actions';
     const okButton = createTextElement('button', 'mok', text.ui.tryAgainAction, 'turn-hint-ok');
@@ -255,16 +258,33 @@
     const isDebug = current.type === 'debug';
     const isOnboarding = current.id === 1 && app.state.completedLevelIds.length === 0;
     const isEarlyLevel = current.id <= 3 && !isDebug;
-    const introTitle = isOnboarding ? '\u041f\u043e\u0447\u043d\u0435\u043c\u043e \u0433\u0440\u0443!' : current.name;
+    const onboardingText = text.onboarding || {};
+    const earlyLevelText = text.earlyLevel || {};
+    const debugLevelText = text.debugLevel || {};
+    const introTitle = isOnboarding ? (onboardingText.title || current.name) : current.name;
     const introGoal = isOnboarding
-      ? '\u0414\u043e\u043f\u043e\u043c\u043e\u0436\u0438 \u0440\u0430\u0432\u043b\u0438\u043a\u0443 \u0434\u0456\u0441\u0442\u0430\u0442\u0438\u0441\u044f \u0434\u043e \u044f\u0431\u043b\u0443\u043a\u0430.'
+      ? (onboardingText.goal || current.goal)
       : current.goal;
-    const introTaskLabel = (isOnboarding || isEarlyLevel) ? '\u0429\u041e \u0420\u041e\u0411\u0418\u0422\u0418' : text.ui.taskLabel;
+    const introTaskLabel = isOnboarding
+      ? (onboardingText.taskLabel || text.ui.taskLabel)
+      : isDebug
+        ? (debugLevelText.taskLabel || text.ui.taskLabel)
+        : isEarlyLevel
+          ? (earlyLevelText.taskLabel || text.ui.taskLabel)
+          : text.ui.taskLabel;
     const introTaskText = isOnboarding
-      ? '\u041f\u0435\u0440\u0435\u0442\u044f\u0433\u043d\u0438 \u0437\u0435\u043b\u0435\u043d\u0443 \u0441\u0442\u0440\u0456\u043b\u043a\u0443 \u043d\u0430 \u043a\u043b\u0456\u0442\u0438\u043d\u043a\u0438 \u043c\u0456\u0436 \u0440\u0430\u0432\u043b\u0438\u043a\u043e\u043c \u0456 \u044f\u0431\u043b\u0443\u043a\u043e\u043c, \u0430 \u043f\u043e\u0442\u0456\u043c \u043d\u0430\u0442\u0438\u0441\u043d\u0438 \u00ab\u0417\u0430\u043f\u0443\u0441\u0442\u0438\u0442\u0438\u00bb.'
-      : current.hint;
-    const introListenAction = isEarlyLevel ? '\u{1F50A} \u041f\u043e\u044f\u0441\u043d\u0438\u0442\u0438' : text.ui.listenTask;
-    const introStartAction = isOnboarding ? '\u041f\u043e\u0457\u0445\u0430\u043b\u0438!' : text.ui.startAction;
+      ? (onboardingText.taskText || current.hint)
+      : isDebug && debugLevelText.taskTextSuffix
+        ? current.hint + ' ' + debugLevelText.taskTextSuffix
+        : current.hint;
+    const introListenAction = isEarlyLevel
+      ? (earlyLevelText.listenAction || text.ui.listenTask)
+      : text.ui.listenTask;
+    const introStartAction = isOnboarding
+      ? (onboardingText.startAction || text.ui.startAction)
+      : isEarlyLevel
+        ? (earlyLevelText.startAction || text.ui.startAction)
+        : text.ui.startAction;
     const backdrop = document.createElement('div');
     backdrop.className = 'mbd level-intro-modal';
     backdrop.setAttribute('role', 'dialog');
@@ -280,8 +300,8 @@
 
     box.append(closeButton, chip, title);
 
-    if (isOnboarding) {
-      const onboardingBody = createTextElement('p', 'mbdy', '\u041f\u0440\u0438\u0432\u0456\u0442! \u0426\u0435 \u043f\u0435\u0440\u0448\u0438\u0439 \u0440\u0456\u0432\u0435\u043d\u044c. \u0422\u0443\u0442 \u043c\u0438 \u043f\u0440\u043e\u0441\u0442\u043e \u0432\u0447\u0438\u043c\u043e\u0441\u044f \u043a\u0435\u0440\u0443\u0432\u0430\u0442\u0438 \u0440\u0430\u0432\u043b\u0438\u043a\u043e\u043c.');
+    if (isOnboarding && onboardingText.body) {
+      const onboardingBody = createTextElement('p', 'mbdy', onboardingText.body);
       box.appendChild(onboardingBody);
     }
 

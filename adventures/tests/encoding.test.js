@@ -37,11 +37,11 @@ test('texts.uk.js stays UTF-8 without BOM and keeps readable Ukrainian strings',
 
 test('levels file contains no typical mojibake markers', () => {
   const levels = readUtf8('js/levels.js');
+  const bytes = readBytes('js/levels.js');
 
-  assert.ok(levels.includes('\\u041f\\u0440\\u044f\\u043c\\u0430 \\u0434\\u043e\\u0440\\u0456\\u0436\\u043a\\u0430')); 
-  assert.ok(levels.includes('\\u0412\\u0435\\u043b\\u0438\\u043a\\u0430 \\u043f\\u043e\\u0434\\u043e\\u0440\\u043e\\u0436 \\u0440\\u0430\\u0432\\u043b\\u0438\\u043a\\u0430')); 
-  assert.ok(!levels.includes('?????????????????????????????????????????????????????????????'));
+  assert.equal(bytes[0], 0x28);
+  assert.ok(!bytes.subarray(0, 3).equals(Buffer.from([0xef, 0xbb, 0xbf])), 'BOM should be absent');
+  assert.ok(levels.includes('Пряма доріжка'));
+  assert.ok(levels.includes('Велика подорож равлика'));
+  assert.ok(!levels.includes('????????')); 
 });
-
-
-

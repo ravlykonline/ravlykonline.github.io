@@ -9,11 +9,9 @@
 
   // app.resolveStartTileExit is kept here as historical context for the original first-step model.
   async function showTurnTryAgain() {
-    if (!app.levelUsesTurnTiles()) {
-      return;
-    }
-
-    app.ui.showTurnHintModal();
+    app.ui.showTurnHintModal({
+      includeTurnHint: app.levelUsesTurnTiles()
+    });
   }
 
   // Returns the snail to the initial cell so every new attempt clearly starts from the beginning.
@@ -135,11 +133,14 @@
           });
           break;
         }
-
-        app.ui.playErrorSound();
-        app.ui.setStatus('\u{1F914}', engineText.placeNearby, 'warn');
         app.ui.flashNeighbours(r, c);
-        app.ui.flashCell(r, c, '#ff9800');
+        await handleFailure({
+          icon: '🤔',
+          text: engineText.placeNearby,
+          statusType: 'warn',
+          flash: { r, c, color: '#ff9800' },
+          showTurnModal: true
+        });
         break;
       }
 

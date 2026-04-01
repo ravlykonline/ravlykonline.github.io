@@ -68,7 +68,7 @@
       winNextAction: "До наступного рівня",
       winRestartAction: "Почати спочатку",
       tryAgainTitle: "Щось не так",
-      tryAgainBody: "Подумай та спробуй ще.",
+      tryAgainBody: "Подумай та спробуй ще. Можливо не вистачає стрілочки або прокладено невірний маршрут",
       tryAgainTurns: "Тут потрібно скласти маршрут саме поворотами.",
       tryAgainAction: "Зрозуміло",
       clearConfirmTitle: "Очистити поле?",
@@ -77,6 +77,23 @@
       clearCancelAction: "Скасувати",
       alreadySolvedTitle: "Рівень уже пройдено",
       alreadySolvedBody: "Можна перейти далі або змінити маршрут.",
+    },
+    onboarding: {
+      title: "Пригоди Равлика",
+      body: "",
+      taskLabel: "ЩО РОБИТИ",
+      taskText: "Перетягни зелену стрілку на клітинки між равликом і яблуком. Потім натисни «Запустити» — і дивися, що станеться.",
+      startAction: "Поїхали! 🐌",
+      goal: "Равлик голодний і хоче яблуко. Але сам він не знає дороги. Допоможи йому — проклади стрілочками маршрут до смаколика."
+    },
+    earlyLevel: {
+      taskLabel: "ЩО РОБИТИ",
+      listenAction: "🔊 Пояснити",
+      startAction: "Почати"
+    },
+    debugLevel: {
+      taskLabel: "ЗНАЙДИ ПОМИЛКУ",
+      taskTextSuffix: "Запусти — і поспостерігай, де равлик зупиниться. Потім виправ помилкову стрілку."
     },
     engine: {
       placeCommandsFirst: "Спочатку постав команди на поле!",
@@ -120,8 +137,9 @@
     },
     taskSpeech(level) {
       const baseText = level.hint || level.goal || level.name;
+      const debugTaskSuffix = this.debugLevel?.taskTextSuffix || this.ui.debugTaskSuffix;
       return level.type === "debug"
-        ? level.name + ". " + baseText + ". " + this.ui.debugTaskSuffix
+        ? level.name + ". " + baseText + ". " + debugTaskSuffix
         : level.name + ". " + baseText;
     },
     mapState(isCurrent, isDone) {
