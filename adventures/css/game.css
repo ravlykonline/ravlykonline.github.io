@@ -1,4 +1,4 @@
-.sidebar {
+﻿.sidebar {
   width: var(--sw);
   flex-shrink: 0;
   background: var(--sidebar);
@@ -302,7 +302,8 @@ body.dragging-active {
   backdrop-filter: blur(var(--blur-surface));
 }
 
-.progress-card {
+.progress-card,
+.progress-box {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -316,6 +317,11 @@ body.dragging-active {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+}
+
+.progress-box {
+  flex: 1 1 360px;
+  min-width: min(100%, 320px);
 }
 
 .progress-text {
@@ -1098,24 +1104,36 @@ body.debug-mode #status.warn {
 
 .level-toolbar {
   width: min(100%, var(--gs-w, 960px));
-}
-
-.level-toolbar .progress-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  column-gap: var(--space-4);
+  row-gap: var(--space-2);
   padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: var(--surface-soft);
   border: 1px solid var(--surface-border);
   box-shadow: var(--surface-shadow);
 }
 
-.level-toolbar-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: var(--space-3);
+.level-toolbar .progress-card,
+.level-toolbar .progress-box {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
-.map-btn,
+.level-toolbar-actions,
+.toolbar-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  align-self: end;
+  gap: var(--space-3);
+}
 .info-btn,
 .speak-btn {
   min-height: var(--size-action-min-h);
@@ -1233,8 +1251,15 @@ body.debug-mode #status.warn {
 }
 
 @media (max-width: 900px) {
-  .level-toolbar-actions {
+  .level-toolbar {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .level-toolbar-actions,
+  .toolbar-actions {
     width: 100%;
+    flex-wrap: wrap;
     justify-content: stretch;
   }
 
@@ -1244,12 +1269,6 @@ body.debug-mode #status.warn {
 
   .level-nav-btn {
     flex: 1 1 0;
-  }
-
-  .info-btn,
-  .map-btn,
-  .speak-btn {
-    flex: 1 1 180px;
   }
 
   .gwrap {
@@ -1425,3 +1444,22 @@ body.debug-mode #status.warn {
   outline: var(--outline-width) solid var(--focus-ring);
   outline-offset: var(--outline-offset);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

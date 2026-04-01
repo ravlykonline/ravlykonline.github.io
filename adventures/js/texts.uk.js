@@ -26,6 +26,10 @@
       speakButton: "🔊 Слухати",
       speakAria: "Озвучити завдання",
       speakTitle: "Озвучити завдання",
+      earlyLevelInfoButton: "Що робити",
+      earlyLevelSpeakButton: "🔊 Пояснити",
+      earlyLevelSpeakAria: "Озвучити пояснення до рівня",
+      earlyLevelSpeakTitle: "Пояснити завдання",
       mapButton: "Карта рівнів",
       introSourceAria: "Опис рівня",
       mainAria(rows, cols) {

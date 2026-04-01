@@ -27,19 +27,38 @@
     return img;
   };
 
+  function createTileDef(dir, group, label, iconFile) {
+    return {
+      dir,
+      group,
+      label,
+      iconFile,
+      icon: assetIcon(iconFile, 'tile-icon')
+    };
+  }
+
+  app.createTileIconByDir = function createTileIconByDir(dir, className) {
+    const tileDef = app.tileDefs.find((item) => item.dir === dir);
+    if (!tileDef) {
+      return null;
+    }
+
+    return app.createAssetIcon(tileDef.iconFile, className || 'tile-icon');
+  };
+
   app.tileDefs = [
-    { dir: 'up', group: 'str', label: '\u0412\u0433\u043e\u0440\u0443', icon: assetIcon('straight_up.svg', 'tile-icon') },
-    { dir: 'right', group: 'str', label: '\u0412\u043f\u0440\u0430\u0432\u043e', icon: assetIcon('straight_right.svg', 'tile-icon') },
-    { dir: 'down', group: 'str', label: '\u0412\u043d\u0438\u0437', icon: assetIcon('straight_down.svg', 'tile-icon') },
-    { dir: 'left', group: 'str', label: '\u0412\u043b\u0456\u0432\u043e', icon: assetIcon('straight_left.svg', 'tile-icon') },
-    { dir: 'right-up', group: 'trn', label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0441\u043f\u0440\u0430\u0432\u0430 \u2192 \u0432\u0433\u043e\u0440\u0443', icon: assetIcon('right_to_up.svg', 'tile-icon') },
-    { dir: 'down-right', group: 'trn', label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0437\u043d\u0438\u0437\u0443 \u2192 \u0432\u043f\u0440\u0430\u0432\u043e', icon: assetIcon('bottom_to_right.svg', 'tile-icon') },
-    { dir: 'left-down', group: 'trn', label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0437\u043b\u0456\u0432\u0430 \u2192 \u0432\u043d\u0438\u0437', icon: assetIcon('left_to_down.svg', 'tile-icon') },
-    { dir: 'up-left', group: 'trn', label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0437\u0433\u043e\u0440\u0438 \u2192 \u0432\u043b\u0456\u0432\u043e', icon: assetIcon('top_to_left.svg', 'tile-icon') },
-    { dir: 'right-down', group: 'trn', label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0441\u043f\u0440\u0430\u0432\u0430 \u2192 \u0432\u043d\u0438\u0437', icon: assetIcon('right_to_down.svg', 'tile-icon') },
-    { dir: 'down-left', group: 'trn', label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0437\u043d\u0438\u0437\u0443 \u2192 \u0432\u043b\u0456\u0432\u043e', icon: assetIcon('bottom_to_left.svg', 'tile-icon') },
-    { dir: 'left-up', group: 'trn', label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0437\u043b\u0456\u0432\u0430 \u2192 \u0432\u0433\u043e\u0440\u0443', icon: assetIcon('left_to_up.svg', 'tile-icon') },
-    { dir: 'up-right', group: 'trn', label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0437\u0433\u043e\u0440\u0438 \u2192 \u0432\u043f\u0440\u0430\u0432\u043e', icon: assetIcon('top_to_right.svg', 'tile-icon') }
+    createTileDef('up', 'str', '\u0412\u0433\u043e\u0440\u0443', 'straight_up.svg'),
+    createTileDef('right', 'str', '\u0412\u043f\u0440\u0430\u0432\u043e', 'straight_right.svg'),
+    createTileDef('down', 'str', '\u0412\u043d\u0438\u0437', 'straight_down.svg'),
+    createTileDef('left', 'str', '\u0412\u043b\u0456\u0432\u043e', 'straight_left.svg'),
+    createTileDef('right-up', 'trn', '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u043b\u0456\u0432\u043e \u2192 \u0432\u0433\u043e\u0440\u0443', 'right_to_up.svg'),
+    createTileDef('down-right', 'trn', '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u0433\u043e\u0440\u0443 \u2192 \u0432\u043f\u0440\u0430\u0432\u043e', 'bottom_to_right.svg'),
+    createTileDef('left-down', 'trn', '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u043f\u0440\u0430\u0432\u043e \u2192 \u0432\u043d\u0438\u0437', 'left_to_down.svg'),
+    createTileDef('up-left', 'trn', '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u043d\u0438\u0437 \u2192 \u0432\u043b\u0456\u0432\u043e', 'top_to_left.svg'),
+    createTileDef('right-down', 'trn', '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u043b\u0456\u0432\u043e \u2192 \u0432\u043d\u0438\u0437', 'right_to_down.svg'),
+    createTileDef('down-left', 'trn', '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u0433\u043e\u0440\u0443 \u2192 \u0432\u043b\u0456\u0432\u043e', 'bottom_to_left.svg'),
+    createTileDef('left-up', 'trn', '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u043f\u0440\u0430\u0432\u043e \u2192 \u0432\u0433\u043e\u0440\u0443', 'left_to_up.svg'),
+    createTileDef('up-right', 'trn', '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u043d\u0438\u0437 \u2192 \u0432\u043f\u0440\u0430\u0432\u043e', 'top_to_right.svg')
   ];
 
   app.delta = {

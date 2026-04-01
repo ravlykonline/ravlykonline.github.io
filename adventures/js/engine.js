@@ -19,11 +19,12 @@
   // Returns the snail to the initial cell so every new attempt clearly starts from the beginning.
   async function returnSnailToStart() {
     const start = app.getStart();
+    const startFacing = app.getStartFacing();
     const alreadyAtStart = app.state.snailPos.r === start.r && app.state.snailPos.c === start.c;
 
     app.state.snailPos = { ...start };
-    app.state.snailFacing = 'right';
-    app.render.posSnail(start.r, start.c, true, 'right');
+    app.state.snailFacing = startFacing;
+    app.render.posSnail(start.r, start.c, true, startFacing);
 
     if (!alreadyAtStart) {
       await delay(stepMs + 180);
@@ -89,7 +90,7 @@
     app.render.clearPendingDelete();
     app.render.clearStartHighlight();
     app.state.snailPos = { ...start };
-    app.state.snailFacing = 'right';
+    app.state.snailFacing = app.getStartFacing();
     app.render.posSnail(app.state.snailPos.r, app.state.snailPos.c, false, app.state.snailFacing);
     app.render.renderAll();
 

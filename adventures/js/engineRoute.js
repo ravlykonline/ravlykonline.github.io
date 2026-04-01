@@ -95,7 +95,7 @@
       const cols = app.config.cols;
       const visited = new Set();
       let firstStep = true;
-      let facing = 'right';
+      let facing = app.getStartFacing();
       let r = start.r;
       let c = start.c;
       let steps = 0;

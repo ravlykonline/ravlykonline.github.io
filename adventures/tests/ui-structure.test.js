@@ -18,6 +18,9 @@ test('ui rebuilds palette, updates level meta and progress widgets', () => {
   assert.match(ui, /btnMap\.addEventListener\('click', modalApi\.openLevelMap\)/);
   assert.match(ui, /progressFillEl\.style\.width/);
   assert.match(ui, /setLevelIntroStatus/);
+  assert.match(ui, /function shouldAutoOpenIntroOnSessionStart\(\)/);
+  assert.match(ui, /shouldAutoOpenIntroOnSessionStart\(\)[\s\S]*modalApi\.openLevelIntro\(\)/);
+  assert.match(ui, /loadCurrentLevel\(\{ showIntro: false \}\)/);
 });
 
 test('win and already-solved modals support next level and full restart after final win', () => {
@@ -27,16 +30,31 @@ test('win and already-solved modals support next level and full restart after fi
   assert.match(uiModals, /const hasNext = app\.hasNextLevel\(\)/);
   assert.match(uiModals, /const isFinalWin = !hasNext/);
   assert.match(uiModals, /app\.restartProgress\(\)/);
-  assert.match(uiModals, /id="already-solved-action"/);
+  assert.match(uiModals, /loadCurrentLevel\(\{ showIntro: true \}\)/);
+  assert.match(uiModals, /createModalCloseButton\('win-close'\)/);
+  assert.match(uiModals, /createTextElement\('button', 'mok', actionLabel, 'mok'\)/);
+  assert.match(uiModals, /createTextElement\('button', 'mok', text\.winAction\(hasNext\), 'already-solved-action'\)/);
 });
 
 test('secondary modals use close icons instead of duplicate close buttons', () => {
   const uiModals = fs.readFileSync(path.join(root, 'js/uiModals.js'), 'utf8');
 
-  assert.match(uiModals, /function getModalCloseMarkup\(id\)/);
-  assert.match(uiModals, /getModalCloseMarkup\('clear-close'\)/);
-  assert.match(uiModals, /getModalCloseMarkup\('level-intro-close'\)/);
-  assert.match(uiModals, /getModalCloseMarkup\('map-close'\)/);
+  assert.match(uiModals, /function createModalCloseButton\(id\)/);
+  assert.match(uiModals, /function createTextElement\(tagName, className, textValue, id\)/);
+  assert.match(uiModals, /box\.append\(closeButton, title, body, actions\)/);
+  assert.match(uiModals, /button\.setAttribute\('aria-label', text\.ui\.mapClose\)/);
+  assert.match(uiModals, /const goalChip = createTextElement\('span', 'goal-chip', introGoal\)/);
+  assert.match(uiModals, /createModalCloseButton\('clear-close'\)/);
+  assert.match(uiModals, /createModalCloseButton\('level-intro-close'\)/);
+  assert.match(uiModals, /const chip = createTextElement\('span', 'level-chip', levelChipEl\.textContent\)/);
+  assert.match(uiModals, /const taskCard = document\.createElement\('div'\);/);
+  assert.match(uiModals, /taskCard\.append\(taskLabel, taskText, speakButton\)/);
+  assert.match(uiModals, /createModalCloseButton\('map-close'\)/);
+  assert.match(uiModals, /createTextElement\('span', 'map-level-name', level\.name\)/);
+  assert.match(uiModals, /button\.append\(idEl, nameEl, stateEl\)/);
+  assert.match(uiModals, /createModalCloseButton\('turn-hint-close'\)/);
+  assert.match(uiModals, /createModalCloseButton\('already-solved-close'\)/);
+  assert.match(uiModals, /box\.append\(closeButton, icon, title, body, actions\)/);
   assert.doesNotMatch(uiModals, /id="clear-cancel"/);
 });
 

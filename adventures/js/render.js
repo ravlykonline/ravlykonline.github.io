@@ -11,6 +11,10 @@
     return gridEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
   }
 
+  function createTileIconElement(def) {
+    return app.createAssetIcon(def.iconFile, 'tile-icon');
+  }
+
   function deselect() {
     app.state.selDir = null;
     document.querySelectorAll('.atile').forEach((tile) => tile.classList.remove('sel'));
@@ -109,7 +113,7 @@
     if (def && !shouldRenderApple && !obstacle) {
       const arrowEl = document.createElement('div');
       arrowEl.className = `cell-arrow ${def.group}-placed${isPendingDelete ? ' is-pending-delete' : ''}${isPresetArrow ? ' preset-arrow' : ''}${isStartPickedArrow ? ' start-picked-arrow' : ''}`;
-      arrowEl.innerHTML = def.icon;
+      arrowEl.appendChild(createTileIconElement(def));
       arrowEl.setAttribute('aria-hidden', 'true');
       el.appendChild(arrowEl);
 
@@ -181,13 +185,14 @@
     const key = `${r},${c}`;
     if (app.state.appleEaten) {
       const start = app.getStart();
+      const startFacing = app.getStartFacing();
       app.state.appleEaten = false;
       app.state.snailPos = { ...start };
-      app.state.snailFacing = 'right';
+      app.state.snailFacing = startFacing;
       clearTrail();
       clearStartHighlight();
       renderAll();
-      snailApi.posSnail(start.r, start.c, false, 'right');
+      snailApi.posSnail(start.r, start.c, false, startFacing);
     }
     delete app.state.arrows[key];
     if (app.state.pendingDeleteKey === key) {
@@ -212,17 +217,45 @@
     clearPendingDelete();
   }
 
+  let activeCellKey = null;
+
+  function setActiveGridCell(r, c, options) {
+    const focus = options?.focus !== false;
+    const next = cellEl(r, c);
+    if (!next) {
+      return false;
+    }
+
+    if (activeCellKey) {
+      const [prevR, prevC] = activeCellKey.split(',').map(Number);
+      const prev = cellEl(prevR, prevC);
+      if (prev && prev !== next) {
+        prev.setAttribute('tabindex', '-1');
+        prev.removeAttribute('data-active');
+      }
+    }
+
+    activeCellKey = `${r},${c}`;
+    next.setAttribute('tabindex', '0');
+    next.setAttribute('data-active', 'true');
+
+    if (focus) {
+      next.focus();
+    }
+    return true;
+  }
+
   // Builds the command palette from the tiles allowed in the current level.
   function buildPalette() {
     paletteEl.innerHTML = '';
 
-    app.getAllowedTileDefs().forEach(({ dir, group, label, icon }) => {
+    app.getAllowedTileDefs().forEach(({ dir, group, label, icon, iconFile }) => {
       const button = document.createElement('button');
       button.className = `atile ${group}`;
       button.dataset.dir = dir;
       button.dataset.group = group;
       button.setAttribute('aria-label', renderText.dragToBoard(label));
-      button.innerHTML = icon;
+      button.appendChild(app.createAssetIcon(iconFile, 'tile-icon'));
 
       button.addEventListener('pointerdown', (event) => {
         if (event.button !== undefined && event.button !== 0) {
@@ -259,7 +292,14 @@
   function buildGrid() {
     const rows = app.config.rows;
     const cols = app.config.cols;
+    const moves = {
+      ArrowRight: [0, 1],
+      ArrowLeft: [0, -1],
+      ArrowUp: [-1, 0],
+      ArrowDown: [1, 0]
+    };
 
+    activeCellKey = null;
     gridEl.innerHTML = '';
     gridEl.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
     gridEl.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
@@ -269,11 +309,36 @@
         const el = document.createElement('div');
         el.className = `cell ${(r + c) % 2 === 0 ? 'odd' : 'even'}`;
         el.setAttribute('role', 'gridcell');
-        el.setAttribute('tabindex', '0');
+        el.setAttribute('tabindex', '-1');
         el.dataset.r = String(r);
         el.dataset.c = String(c);
-        el.addEventListener('click', () => cellClick(r, c));
+        el.addEventListener('click', () => {
+          setActiveGridCell(r, c, { focus: false });
+          cellClick(r, c);
+        });
+        el.addEventListener('focus', () => {
+          setActiveGridCell(r, c, { focus: false });
+        });
         el.addEventListener('keydown', (event) => {
+          if (moves[event.key]) {
+            event.preventDefault();
+            const [dr, dc] = moves[event.key];
+            setActiveGridCell(r + dr, c + dc);
+            return;
+          }
+
+          if (event.key === 'Home') {
+            event.preventDefault();
+            setActiveGridCell(r, 0);
+            return;
+          }
+
+          if (event.key === 'End') {
+            event.preventDefault();
+            setActiveGridCell(r, cols - 1);
+            return;
+          }
+
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             cellClick(r, c);
@@ -282,8 +347,9 @@
         gridEl.appendChild(el);
       }
     }
-  }
 
+    setActiveGridCell(0, 0, { focus: false });
+  }
   const snailApi = app.createRenderSnail({
     cellEl
   });

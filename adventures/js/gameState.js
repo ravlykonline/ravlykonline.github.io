@@ -79,10 +79,14 @@
     scanOrder: ['down', 'right', 'up', 'left']
   };
 
+  app.getStartFacing = function getStartFacing() {
+    return app.state?.currentLevel?.startFacing || level.startFacing || 'right';
+  };
+
   app.state = {
     arrows: cloneArrowMap(level.presetArrows),
     snailPos: { ...level.start },
-    snailFacing: 'right',
+    snailFacing: level.startFacing || 'right',
     appleEaten: false,
     startHighlightKey: null,
     running: false,
@@ -198,7 +202,7 @@
   app.resetLevelState = function resetLevelState() {
     app.state.arrows = cloneArrowMap(app.state.currentLevel.presetArrows);
     app.state.snailPos = { ...app.state.currentLevel.start };
-    app.state.snailFacing = 'right';
+    app.state.snailFacing = app.getStartFacing();
     app.state.appleEaten = false;
     app.state.startHighlightKey = null;
     app.state.running = false;

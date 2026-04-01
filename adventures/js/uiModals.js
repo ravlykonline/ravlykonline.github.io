@@ -142,8 +142,27 @@
     }
   }
 
-  function getModalCloseMarkup(id) {
-    return `<button class="modal-close-btn" id="${id}" type="button" aria-label="${text.ui.mapClose}" title="${text.ui.mapClose}">&times;</button>`;
+  function createModalCloseButton(id) {
+    const button = document.createElement('button');
+    button.className = 'modal-close-btn';
+    button.id = id;
+    button.type = 'button';
+    button.setAttribute('aria-label', text.ui.mapClose);
+    button.setAttribute('title', text.ui.mapClose);
+    button.textContent = '\u00d7';
+    return button;
+  }
+
+  function createTextElement(tagName, className, textValue, id) {
+    const element = document.createElement(tagName);
+    if (className) {
+      element.className = className;
+    }
+    if (id) {
+      element.id = id;
+    }
+    element.textContent = textValue;
+    return element;
   }
 
   // Shows one calm retry prompt when a route on a turn level needs rethinking.
@@ -157,16 +176,31 @@
     backdrop.setAttribute('role', 'dialog');
     backdrop.setAttribute('aria-modal', 'true');
     backdrop.setAttribute('aria-labelledby', 'turn-hint-title');
-    backdrop.innerHTML = `<div class="mbox modal-box-with-close">${getModalCloseMarkup('turn-hint-close')}<h2 class="mttl" id="turn-hint-title">${text.ui.tryAgainTitle}</h2><p class="mbdy">${text.ui.tryAgainBody}<br>${text.ui.tryAgainTurns}</p><div class="modal-actions"><button class="mok" id="turn-hint-ok">${text.ui.tryAgainAction}</button></div></div>`;
+
+    const box = document.createElement('div');
+    box.className = 'mbox modal-box-with-close';
+
+    const closeButton = createModalCloseButton('turn-hint-close');
+    const title = createTextElement('h2', 'mttl', text.ui.tryAgainTitle, 'turn-hint-title');
+    const body = createTextElement('p', 'mbdy', text.ui.tryAgainBody);
+    body.appendChild(document.createElement('br'));
+    body.append(text.ui.tryAgainTurns);
+    const actions = document.createElement('div');
+    actions.className = 'modal-actions';
+    const okButton = createTextElement('button', 'mok', text.ui.tryAgainAction, 'turn-hint-ok');
+
+    actions.appendChild(okButton);
+    box.append(closeButton, title, body, actions);
+    backdrop.appendChild(box);
 
     const modalState = openManagedModal(backdrop, {
       initialFocusSelector: '#turn-hint-ok'
     });
 
-    backdrop.querySelector('#turn-hint-close')?.addEventListener('click', () => {
+    closeButton.addEventListener('click', () => {
       closeManagedModal(modalState);
     });
-    backdrop.querySelector('#turn-hint-ok')?.addEventListener('click', () => {
+    okButton.addEventListener('click', () => {
       closeManagedModal(modalState);
     });
   }
@@ -185,16 +219,29 @@
     backdrop.setAttribute('role', 'dialog');
     backdrop.setAttribute('aria-modal', 'true');
     backdrop.setAttribute('aria-labelledby', 'clear-confirm-title');
-    backdrop.innerHTML = `<div class="mbox modal-box-with-close">${getModalCloseMarkup('clear-close')}<h2 class="mttl" id="clear-confirm-title">${text.ui.clearConfirmTitle}</h2><p class="mbdy">${text.ui.clearConfirmBody}</p><div class="modal-actions"><button class="mok" id="clear-confirm">${text.ui.clearConfirmAction}</button></div></div>`;
+
+    const box = document.createElement('div');
+    box.className = 'mbox modal-box-with-close';
+
+    const closeButton = createModalCloseButton('clear-close');
+    const title = createTextElement('h2', 'mttl', text.ui.clearConfirmTitle, 'clear-confirm-title');
+    const body = createTextElement('p', 'mbdy', text.ui.clearConfirmBody);
+    const actions = document.createElement('div');
+    actions.className = 'modal-actions';
+    const confirmButton = createTextElement('button', 'mok', text.ui.clearConfirmAction, 'clear-confirm');
+
+    actions.appendChild(confirmButton);
+    box.append(closeButton, title, body, actions);
+    backdrop.appendChild(box);
 
     const modalState = openManagedModal(backdrop, {
       initialFocusSelector: '#clear-confirm'
     });
 
-    backdrop.querySelector('#clear-close')?.addEventListener('click', () => {
+    closeButton.addEventListener('click', () => {
       closeManagedModal(modalState);
     });
-    backdrop.querySelector('#clear-confirm')?.addEventListener('click', () => {
+    confirmButton.addEventListener('click', () => {
       closeManagedModal(modalState, { restoreFocus: false });
       app.engine.clearAll();
     });
@@ -206,17 +253,73 @@
 
     const current = app.state.currentLevel;
     const isDebug = current.type === 'debug';
+    const isOnboarding = current.id === 1 && app.state.completedLevelIds.length === 0;
+    const isEarlyLevel = current.id <= 3 && !isDebug;
+    const introTitle = isOnboarding ? '\u041f\u043e\u0447\u043d\u0435\u043c\u043e \u0433\u0440\u0443!' : current.name;
+    const introGoal = isOnboarding
+      ? '\u0414\u043e\u043f\u043e\u043c\u043e\u0436\u0438 \u0440\u0430\u0432\u043b\u0438\u043a\u0443 \u0434\u0456\u0441\u0442\u0430\u0442\u0438\u0441\u044f \u0434\u043e \u044f\u0431\u043b\u0443\u043a\u0430.'
+      : current.goal;
+    const introTaskLabel = (isOnboarding || isEarlyLevel) ? '\u0429\u041e \u0420\u041e\u0411\u0418\u0422\u0418' : text.ui.taskLabel;
+    const introTaskText = isOnboarding
+      ? '\u041f\u0435\u0440\u0435\u0442\u044f\u0433\u043d\u0438 \u0437\u0435\u043b\u0435\u043d\u0443 \u0441\u0442\u0440\u0456\u043b\u043a\u0443 \u043d\u0430 \u043a\u043b\u0456\u0442\u0438\u043d\u043a\u0438 \u043c\u0456\u0436 \u0440\u0430\u0432\u043b\u0438\u043a\u043e\u043c \u0456 \u044f\u0431\u043b\u0443\u043a\u043e\u043c, \u0430 \u043f\u043e\u0442\u0456\u043c \u043d\u0430\u0442\u0438\u0441\u043d\u0438 \u00ab\u0417\u0430\u043f\u0443\u0441\u0442\u0438\u0442\u0438\u00bb.'
+      : current.hint;
+    const introListenAction = isEarlyLevel ? '\u{1F50A} \u041f\u043e\u044f\u0441\u043d\u0438\u0442\u0438' : text.ui.listenTask;
+    const introStartAction = isOnboarding ? '\u041f\u043e\u0457\u0445\u0430\u043b\u0438!' : text.ui.startAction;
     const backdrop = document.createElement('div');
     backdrop.className = 'mbd level-intro-modal';
     backdrop.setAttribute('role', 'dialog');
     backdrop.setAttribute('aria-modal', 'true');
     backdrop.setAttribute('aria-labelledby', 'level-intro-title');
 
-    const debugMarkup = isDebug
-      ? `<p class="debug-note">${text.ui.debugNote}</p>`
-      : '';
+    const box = document.createElement('div');
+    box.className = 'mbox level-intro-box modal-box-with-close';
 
-    backdrop.innerHTML = `<div class="mbox level-intro-box modal-box-with-close">${getModalCloseMarkup('level-intro-close')}<span class="level-chip">${levelChipEl.textContent}</span><h2 class="mttl level-intro-title" id="level-intro-title">${current.name}</h2><div class="level-card"><div class="level-badges"><span class="mode-chip ${isDebug ? 'debug' : 'play'}">${text.mode(isDebug)}</span><span class="goal-chip">${current.goal}</span></div><div class="level-task-card"><div class="level-task-label">${text.ui.taskLabel}</div><p class="level-hint level-task-text">${current.hint}</p><button class="speak-btn level-speak-btn" id="level-intro-speak" type="button">${text.ui.listenTask}</button></div>${debugMarkup}</div><div class="modal-actions"><button class="mok" id="level-intro-start">${text.ui.startAction}</button></div></div>`;
+    const closeButton = createModalCloseButton('level-intro-close');
+    const chip = createTextElement('span', 'level-chip', levelChipEl.textContent);
+    const title = createTextElement('h2', 'mttl level-intro-title', introTitle, 'level-intro-title');
+
+    box.append(closeButton, chip, title);
+
+    if (isOnboarding) {
+      const onboardingBody = createTextElement('p', 'mbdy', '\u041f\u0440\u0438\u0432\u0456\u0442! \u0426\u0435 \u043f\u0435\u0440\u0448\u0438\u0439 \u0440\u0456\u0432\u0435\u043d\u044c. \u0422\u0443\u0442 \u043c\u0438 \u043f\u0440\u043e\u0441\u0442\u043e \u0432\u0447\u0438\u043c\u043e\u0441\u044f \u043a\u0435\u0440\u0443\u0432\u0430\u0442\u0438 \u0440\u0430\u0432\u043b\u0438\u043a\u043e\u043c.');
+      box.appendChild(onboardingBody);
+    }
+
+    const levelCard = document.createElement('div');
+    levelCard.className = 'level-card';
+    const badges = document.createElement('div');
+    badges.className = 'level-badges';
+
+    if (isDebug) {
+      const modeChip = createTextElement('span', 'mode-chip debug', text.mode(true));
+      badges.appendChild(modeChip);
+    }
+
+    const goalChip = createTextElement('span', 'goal-chip', introGoal);
+    badges.appendChild(goalChip);
+
+    const taskCard = document.createElement('div');
+    taskCard.className = 'level-task-card';
+    const taskLabel = createTextElement('div', 'level-task-label', introTaskLabel);
+    const taskText = createTextElement('p', 'level-hint level-task-text', introTaskText);
+    const speakButton = createTextElement('button', 'speak-btn level-speak-btn', introListenAction, 'level-intro-speak');
+    speakButton.type = 'button';
+
+    taskCard.append(taskLabel, taskText, speakButton);
+    levelCard.append(badges, taskCard);
+
+    if (isDebug) {
+      const debugNote = createTextElement('p', 'debug-note', text.ui.debugNote);
+      levelCard.appendChild(debugNote);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'modal-actions';
+    const startButton = createTextElement('button', 'mok', introStartAction, 'level-intro-start');
+    actions.appendChild(startButton);
+
+    box.append(levelCard, actions);
+    backdrop.appendChild(box);
 
     const modalState = openManagedModal(backdrop, {
       initialFocusSelector: '#level-intro-start',
@@ -225,14 +328,11 @@
       }
     });
 
-    const closeBtn = backdrop.querySelector('#level-intro-close');
-    const startBtn = backdrop.querySelector('#level-intro-start');
-    const speakBtn = backdrop.querySelector('#level-intro-speak');
-    speakBtn?.addEventListener('click', speakCurrentTask);
-    closeBtn?.addEventListener('click', () => {
+    speakButton.addEventListener('click', speakCurrentTask);
+    closeButton.addEventListener('click', () => {
       closeManagedModal(modalState);
     });
-    startBtn.addEventListener('click', () => {
+    startButton.addEventListener('click', () => {
       closeManagedModal(modalState);
     });
   }
@@ -244,22 +344,40 @@
     backdrop.setAttribute('aria-modal', 'true');
     backdrop.setAttribute('aria-labelledby', 'map-title');
 
-    const cards = app.levels.map((level) => {
+    const box = document.createElement('div');
+    box.className = 'mbox map-box modal-box-with-close';
+
+    const closeButton = createModalCloseButton('map-close');
+    const title = createTextElement('h2', 'mttl', text.ui.mapTitle, 'map-title');
+    const body = createTextElement('p', 'mbdy', text.ui.mapBody);
+    const grid = document.createElement('div');
+    grid.className = 'level-map-grid';
+
+    const buttons = app.levels.map((level) => {
       const isCurrent = level.id === app.state.currentLevel.id;
       const isDone = app.state.completedLevelIds.includes(level.id);
       const stateClass = isCurrent ? 'current' : isDone ? 'done' : 'todo';
       const stateLabel = text.mapState(isCurrent, isDone);
-      return `<button class="map-level ${stateClass}" data-level-id="${level.id}" type="button"><span class="map-level-id">${level.id}</span><span class="map-level-name">${level.name}</span><span class="map-level-state">${stateLabel}</span></button>`;
-    }).join('');
+      const button = document.createElement('button');
+      button.className = 'map-level ' + stateClass;
+      button.dataset.levelId = String(level.id);
+      button.type = 'button';
 
-    backdrop.innerHTML = `<div class="mbox map-box modal-box-with-close">${getModalCloseMarkup('map-close')}<h2 class="mttl" id="map-title">${text.ui.mapTitle}</h2><p class="mbdy">${text.ui.mapBody}</p><div class="level-map-grid">${cards}</div></div>`;
+      const idEl = createTextElement('span', 'map-level-id', String(level.id));
+      const nameEl = createTextElement('span', 'map-level-name', level.name);
+      const stateEl = createTextElement('span', 'map-level-state', stateLabel);
+
+      button.append(idEl, nameEl, stateEl);
+      grid.appendChild(button);
+      return button;
+    });
+
+    box.append(closeButton, title, body, grid);
+    backdrop.appendChild(box);
 
     const modalState = openManagedModal(backdrop, {
       initialFocusSelector: '#map-close'
     });
-
-    const closeBtn = backdrop.querySelector('#map-close');
-    const buttons = Array.from(backdrop.querySelectorAll('.map-level'));
 
     buttons.forEach((button) => {
       button.addEventListener('click', () => {
@@ -271,7 +389,7 @@
       });
     });
 
-    closeBtn.addEventListener('click', () => closeManagedModal(modalState));
+    closeButton.addEventListener('click', () => closeManagedModal(modalState));
   }
 
   function showAlreadySolvedModal() {
@@ -281,18 +399,33 @@
     backdrop.setAttribute('role', 'dialog');
     backdrop.setAttribute('aria-modal', 'true');
     backdrop.setAttribute('aria-labelledby', 'already-solved-title');
-    backdrop.innerHTML = `<div class="mbox win-modal-box">${getModalCloseMarkup('already-solved-close')}<div class="mico" aria-hidden="true">\u{1F3C6}</div><h2 class="mttl" id="already-solved-title">${text.ui.alreadySolvedTitle}</h2><p class="mbdy">${text.ui.alreadySolvedBody}</p><div class="modal-actions"><button class="mok" id="already-solved-action">${text.winAction(hasNext)}</button></div></div>`;
+
+    const box = document.createElement('div');
+    box.className = 'mbox win-modal-box';
+
+    const closeButton = createModalCloseButton('already-solved-close');
+    const icon = document.createElement('div');
+    icon.className = 'mico';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = '\u{1F3C6}';
+    const title = createTextElement('h2', 'mttl', text.ui.alreadySolvedTitle, 'already-solved-title');
+    const body = createTextElement('p', 'mbdy', text.ui.alreadySolvedBody);
+    const actions = document.createElement('div');
+    actions.className = 'modal-actions';
+    const actionButton = createTextElement('button', 'mok', text.winAction(hasNext), 'already-solved-action');
+
+    actions.appendChild(actionButton);
+    box.append(closeButton, icon, title, body, actions);
+    backdrop.appendChild(box);
 
     const modalState = openManagedModal(backdrop, {
       initialFocusSelector: '#already-solved-action'
     });
 
-    const closeBtn = backdrop.querySelector('#already-solved-close');
-    const actionBtn = backdrop.querySelector('#already-solved-action');
-    closeBtn?.addEventListener('click', () => {
+    closeButton.addEventListener('click', () => {
       closeManagedModal(modalState);
     });
-    actionBtn?.addEventListener('click', () => {
+    actionButton.addEventListener('click', () => {
       closeManagedModal(modalState, { restoreFocus: false });
       if (hasNext) {
         if (app.setCurrentLevel(app.getNextLevelId())) {
@@ -301,7 +434,7 @@
         return;
       }
       app.restartProgress();
-      loadCurrentLevel({ showIntro: false });
+      loadCurrentLevel({ showIntro: true });
     });
   }
 
@@ -313,19 +446,34 @@
     backdrop.className = 'mbd';
     backdrop.setAttribute('role', 'dialog');
     backdrop.setAttribute('aria-modal', 'true');
-    backdrop.setAttribute('aria-labelledby', 'mtit');
-    backdrop.innerHTML = `<div class="mbox win-modal-box"><button class="modal-close-btn" id="win-close" type="button" aria-label="${text.ui.mapClose}" title="${text.ui.mapClose}">&times;</button><div class="mico" aria-hidden="true">\u{1F389}</div><h2 class="mttl" id="mtit">${text.winTitle(isFinalWin)}</h2><p class="mbdy">${text.winBody(isFinalWin)}</p><div class="modal-actions"><button class="mok" id="mok">${actionLabel}</button></div></div>`;
+    backdrop.setAttribute('aria-labelledby', 'win-title');
+
+    const box = document.createElement('div');
+    box.className = 'mbox win-modal-box';
+
+    const closeButton = createModalCloseButton('win-close');
+    const icon = document.createElement('div');
+    icon.className = 'mico';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = '🎉';
+    const title = createTextElement('h2', 'mttl', text.winTitle(isFinalWin), 'win-title');
+    const body = createTextElement('p', 'mbdy', text.winBody(isFinalWin));
+    const actions = document.createElement('div');
+    actions.className = 'modal-actions';
+    const actionButton = createTextElement('button', 'mok', actionLabel, 'mok');
+
+    actions.appendChild(actionButton);
+    box.append(closeButton, icon, title, body, actions);
+    backdrop.appendChild(box);
 
     const modalState = openManagedModal(backdrop, {
       initialFocusSelector: '#mok'
     });
 
-    const closeBtn = backdrop.querySelector('#win-close');
-    const ok = backdrop.querySelector('#mok');
-    closeBtn?.addEventListener('click', () => {
+    closeButton.addEventListener('click', () => {
       closeManagedModal(modalState);
     });
-    ok.addEventListener('click', () => {
+    actionButton.addEventListener('click', () => {
       closeManagedModal(modalState, { restoreFocus: false });
       if (hasNext) {
         if (app.setCurrentLevel(app.getNextLevelId())) {
@@ -335,7 +483,7 @@
       }
       if (isFinalWin) {
         app.restartProgress();
-        loadCurrentLevel({ showIntro: false });
+        loadCurrentLevel({ showIntro: true });
         return;
       }
       app.engine.clearAll();

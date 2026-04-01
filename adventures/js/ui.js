@@ -125,10 +125,6 @@
     if (toolbar) {
       toolbar.setAttribute('aria-label', staticText.toolbarAria);
     }
-    btnLevelInfo.textContent = staticText.infoButton;
-    btnSpeakTask.textContent = staticText.speakButton;
-    btnSpeakTask.setAttribute('aria-label', staticText.speakAria);
-    btnSpeakTask.setAttribute('title', staticText.speakTitle);
     btnMap.textContent = staticText.mapButton;
     app.refs.gridEl.setAttribute('aria-label', staticText.gridAria(rows, cols));
     if (introSource) {
@@ -150,6 +146,25 @@
 
   function getCurrentTaskText() {
     return text.taskSpeech(app.state.currentLevel);
+  }
+
+  function getLevelTaskButtonLabels() {
+    const isEarlyLevel = app.state.currentLevel.id <= 3 && app.state.currentLevel.type !== 'debug';
+    if (isEarlyLevel) {
+      return {
+        infoText: text.static.earlyLevelInfoButton,
+        speakText: text.static.earlyLevelSpeakButton,
+        speakAria: text.static.earlyLevelSpeakAria,
+        speakTitle: text.static.earlyLevelSpeakTitle
+      };
+    }
+
+    return {
+      infoText: text.static.infoButton,
+      speakText: text.static.speakButton,
+      speakAria: text.static.speakAria,
+      speakTitle: text.static.speakTitle
+    };
   }
 
   function refreshProgressUi() {
@@ -179,6 +194,11 @@
     debugNoteEl.textContent = isDebug
       ? text.ui.debugNote
       : '';
+    const taskButtons = getLevelTaskButtonLabels();
+    btnLevelInfo.textContent = taskButtons.infoText;
+    btnSpeakTask.textContent = taskButtons.speakText;
+    btnSpeakTask.setAttribute('aria-label', taskButtons.speakAria);
+    btnSpeakTask.setAttribute('title', taskButtons.speakTitle);
     document.body.classList.toggle('debug-mode', isDebug);
     btnPrev.disabled = !app.hasPrevLevel() || app.state.running;
     btnNext.disabled = !app.hasNextLevel() || app.state.running;
@@ -261,6 +281,10 @@
     }
   }
 
+  function shouldAutoOpenIntroOnSessionStart() {
+    return app.state.currentLevel.id === 1 && app.state.completedLevelIds.length === 0;
+  }
+
   function goToLevel(levelId) {
     if (!levelId) {
       return false;
@@ -311,13 +335,25 @@
 
     const compact = window.innerWidth <= 900;
     const tileSize = compact
-      ? Math.max(44, Math.min(64, wrapRect.width / 6.8))
+      ? Math.max(48, Math.min(64, wrapRect.width / 6.8))
       : Math.max(52, Math.min(64, wrapRect.width / 10));
     root.style.setProperty('--tile-sz', `${Math.round(tileSize)}px`);
 
     requestAnimationFrame(() => {
       app.render.posSnail(app.state.snailPos.r, app.state.snailPos.c, false, app.state.snailFacing || 'right');
     });
+  }
+
+  function registerServiceWorker() {
+    if (!('serviceWorker' in navigator) || window.location.protocol === 'file:') {
+      return;
+    }
+
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {
+        // Keep the game playable even when service workers are unavailable.
+      });
+    }, { once: true });
   }
 
   function bindGlobalEvents() {
@@ -397,6 +433,7 @@
     app.render.buildGrid();
     app.render.clearPendingDelete();
     app.render.renderAll();
+    registerServiceWorker();
     bindGlobalEvents();
     refreshLevelUi();
 
@@ -407,6 +444,9 @@
         const start = app.getStart();
         snailEl.innerHTML = app.getAssetIconMarkup('snail.svg', 'board-icon board-icon-snail');
         requestAnimationFrame(() => app.render.posSnail(start.r, start.c, false, app.state.snailFacing || 'right'));
+        if (shouldAutoOpenIntroOnSessionStart()) {
+          requestAnimationFrame(() => modalApi.openLevelIntro());
+        }
       });
     });
   }

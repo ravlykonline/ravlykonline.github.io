@@ -11,14 +11,19 @@
       }
     }
 
-    function showGhost(group, icon) {
-      ghostEl.innerHTML = icon;
+    function showGhost(group) {
+      ghostEl.replaceChildren();
+      const iconEl = app.createTileIconByDir(app.state.dragDir, 'tile-icon');
+      if (iconEl) {
+        ghostEl.appendChild(iconEl);
+      }
       ghostEl.style.background = group === 'trn' ? 'var(--t-trn)' : 'var(--t-str)';
       ghostEl.classList.add('show');
     }
 
     function hideGhost() {
       ghostEl.classList.remove('show');
+      ghostEl.replaceChildren();
     }
 
     function moveGhost(x, y) {
@@ -61,7 +66,7 @@
       button.classList.add('dragging');
       button.setPointerCapture?.(event.pointerId);
       document.body?.classList.add('dragging-active');
-      showGhost(group, icon);
+      showGhost(group);
       moveGhost(event.clientX, event.clientY);
       updateDropTarget(event.clientX, event.clientY);
     }
