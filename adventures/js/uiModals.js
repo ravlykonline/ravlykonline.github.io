@@ -328,11 +328,6 @@
     taskCard.append(taskLabel, taskText, speakButton);
     levelCard.append(badges, taskCard);
 
-    if (isDebug) {
-      const debugNote = createTextElement('p', 'debug-note', text.ui.debugNote);
-      levelCard.appendChild(debugNote);
-    }
-
     const actions = document.createElement('div');
     actions.className = 'modal-actions';
     const startButton = createTextElement('button', 'mok', introStartAction, 'level-intro-start');

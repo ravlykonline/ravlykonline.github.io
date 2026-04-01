@@ -28,6 +28,11 @@
   let runHintTimeout = null;
   let modalApi = null;
   let audioApi = null;
+  let mobileCommandDockEl = null;
+
+  const sidebarEl = document.querySelector('.sidebar');
+  const dividerEl = document.querySelector('.div-line');
+  const actionsEl = document.querySelector('.actions');
 
   function clearRunHint() {
     clearTimeout(runHintTimeout);
@@ -130,6 +135,7 @@
     if (introSource) {
       introSource.setAttribute('aria-label', staticText.introSourceAria);
     }
+    updateResponsiveLabels();
   }
 
   function clearStatus() {
@@ -167,6 +173,11 @@
     };
   }
 
+  function updateResponsiveLabels() {
+    const compactToolbar = window.innerWidth <= 640;
+    btnMap.textContent = compactToolbar ? 'Рівні' : text.static.mapButton;
+  }
+
   function refreshProgressUi() {
     const completed = app.state.completedLevelIds.length;
     const total = app.getTotalLevels();
@@ -199,10 +210,46 @@
     btnSpeakTask.textContent = taskButtons.speakText;
     btnSpeakTask.setAttribute('aria-label', taskButtons.speakAria);
     btnSpeakTask.setAttribute('title', taskButtons.speakTitle);
+    updateResponsiveLabels();
     document.body.classList.toggle('debug-mode', isDebug);
     btnPrev.disabled = !app.hasPrevLevel() || app.state.running;
     btnNext.disabled = !app.hasNextLevel() || app.state.running;
     refreshProgressUi();
+  }
+
+  function ensureMobileCommandDock() {
+    if (mobileCommandDockEl) {
+      return mobileCommandDockEl;
+    }
+
+    mobileCommandDockEl = document.createElement('div');
+    mobileCommandDockEl.className = 'mobile-command-dock';
+    app.refs.gwrap.parentNode.insertBefore(mobileCommandDockEl, app.refs.gwrap);
+    return mobileCommandDockEl;
+  }
+
+  function syncCommandLayout() {
+    if (!app.refs.paletteEl || !actionsEl || !sidebarEl || !dividerEl) {
+      return;
+    }
+
+    const isCompact = window.innerWidth <= 900;
+    const mobileDock = ensureMobileCommandDock();
+
+    if (isCompact) {
+      if (app.refs.paletteEl.parentNode !== mobileDock) {
+        mobileDock.append(app.refs.paletteEl, actionsEl);
+      }
+      return;
+    }
+
+    if (app.refs.paletteEl.parentNode !== sidebarEl) {
+      sidebarEl.insertBefore(app.refs.paletteEl, dividerEl);
+    }
+
+    if (actionsEl.parentNode !== sidebarEl) {
+      sidebarEl.appendChild(actionsEl);
+    }
   }
 
   function setDisabled(disabled) {
@@ -409,6 +456,8 @@
     window.addEventListener('resize', () => {
       clearTimeout(syncTimeout);
       syncTimeout = setTimeout(() => {
+        syncCommandLayout();
+        updateResponsiveLabels();
         syncSizes();
         app.render.posSnail(app.state.snailPos.r, app.state.snailPos.c, false, app.state.snailFacing || 'right');
       }, 80);
@@ -429,6 +478,7 @@
 
   function init() {
     applyStaticText();
+    syncCommandLayout();
     app.render.buildPalette();
     app.render.buildGrid();
     app.render.clearPendingDelete();
