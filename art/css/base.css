@@ -4,13 +4,25 @@
   padding: 0;
 }
 
+html {
+  height: 100%;
+  font-size: 100%;
+}
+
 body {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto var(--space-1) minmax(0, 1fr) auto;
   overflow: hidden;
-  font-family: 'Nunito', sans-serif;
-  background: var(--color-cream);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  background:
+    radial-gradient(circle at top left, var(--color-page-glow), transparent 28%),
+    linear-gradient(180deg, var(--color-page-tint) 0%, var(--color-cream) 28%, var(--color-warm-background) 100%);
   color: var(--color-text);
 }
 
@@ -24,8 +36,10 @@ button {
 }
 
 #app-main {
-  flex: 1;
+  min-width: 0;
   min-height: 0;
+  overflow: hidden;
+  display: flex;
 }
 
 .panel-label {
@@ -34,9 +48,9 @@ button {
   gap: var(--space-2);
   margin-bottom: var(--space-2);
   color: var(--color-text-soft);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: 800;
-  letter-spacing: 1.2px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -53,7 +67,7 @@ button {
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: var(--space-2);
 }
 
 ::-webkit-scrollbar-track {
@@ -61,6 +75,8 @@ button {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.18);
+  background: var(--color-scroll-thumb);
   border-radius: var(--radius-sm);
 }
+
+

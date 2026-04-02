@@ -17,51 +17,152 @@ export function findBlock(list, id) {
   return null;
 }
 
-export function addBlock(type) {
-  if (appState.running) {
-    return;
-  }
-
-  const block = type === 'repeat'
-    ? { type: 'repeat', id: nextBlockId(), count: 3, blocks: [] }
-    : { type, id: nextBlockId() };
-
-  if (appState.openRepeatId !== null) {
-    const parent = findBlock(appState.workspace, appState.openRepeatId);
-    if (parent) {
-      parent.blocks.push(block);
-    } else {
-      appState.workspace.push(block);
+export function findBlockLocation(list, id, parentId = null) {
+  for (let index = 0; index < list.length; index += 1) {
+    const block = list[index];
+    if (block.id === id) {
+      return { block, parentId, index, list };
     }
-  } else {
-    appState.workspace.push(block);
+
+    if (block.blocks) {
+      const match = findBlockLocation(block.blocks, id, block.id);
+      if (match) {
+        return match;
+      }
+    }
   }
 
-  if (type === 'repeat') {
-    appState.openRepeatId = block.id;
-  }
+  return null;
 }
 
-function removeFromList(list, id) {
-  return list
-    .filter((block) => block.id !== id)
-    .map((block) => (
-      block.blocks
-        ? { ...block, blocks: removeFromList(block.blocks, id) }
-        : block
-    ));
+export function createBlock(type, id = nextBlockId()) {
+  return type === 'repeat'
+    ? { type: 'repeat', id, count: 3, blocks: [] }
+    : { type, id };
+}
+
+export function getBlockChildren(list, parentId = null) {
+  if (parentId === null) {
+    return list;
+  }
+
+  const parent = findBlock(list, parentId);
+  if (!parent || !Array.isArray(parent.blocks)) {
+    return null;
+  }
+
+  return parent.blocks;
+}
+
+function normalizeInsertIndex(length, index) {
+  if (!Number.isInteger(index)) {
+    return length;
+  }
+
+  return Math.max(0, Math.min(length, index));
+}
+
+function blockContainsId(block, id) {
+  if (!block || id === null) {
+    return false;
+  }
+
+  if (block.id === id) {
+    return true;
+  }
+
+  return Array.isArray(block.blocks) ? Boolean(findBlock(block.blocks, id)) : false;
+}
+
+export function insertBlock(list, block, parentId = null, index = list.length) {
+  const target = getBlockChildren(list, parentId);
+  if (!target) {
+    return false;
+  }
+
+  target.splice(normalizeInsertIndex(target.length, index), 0, block);
+  return true;
+}
+
+export function removeBlockFromList(list, id) {
+  for (let index = 0; index < list.length; index += 1) {
+    const block = list[index];
+    if (block.id === id) {
+      return list.splice(index, 1)[0];
+    }
+
+    if (block.blocks) {
+      const removed = removeBlockFromList(block.blocks, id);
+      if (removed) {
+        return removed;
+      }
+    }
+  }
+
+  return null;
+}
+
+export function moveBlockInList(list, id, targetParentId = null, targetIndex = 0) {
+  const location = findBlockLocation(list, id);
+  if (!location) {
+    return false;
+  }
+
+  if (targetParentId === id || blockContainsId(location.block, targetParentId)) {
+    return false;
+  }
+
+  const sourceList = location.list;
+  const movingBlock = sourceList.splice(location.index, 1)[0];
+  const targetList = getBlockChildren(list, targetParentId);
+
+  if (!targetList) {
+    sourceList.splice(location.index, 0, movingBlock);
+    return false;
+  }
+
+  const adjustedIndex = location.parentId === targetParentId && location.index < targetIndex
+    ? targetIndex - 1
+    : targetIndex;
+
+  targetList.splice(normalizeInsertIndex(targetList.length, adjustedIndex), 0, movingBlock);
+  return true;
+}
+
+export function clearWorkspace() {
+  appState.workspace = [];
+  appState.activeBlockId = null;
+}
+
+export function addBlock(type) {
+  return addBlockAt(type, null);
+}
+
+export function addBlockAt(type, parentId = null, index) {
+  if (appState.running) {
+    return null;
+  }
+
+  const resolvedParentId = getBlockChildren(appState.workspace, parentId) ? parentId : null;
+  const block = createBlock(type);
+  insertBlock(appState.workspace, block, resolvedParentId, index);
+  return block;
 }
 
 export function removeBlock(id) {
   if (appState.running) {
-    return;
+    return null;
   }
 
-  if (appState.openRepeatId === id) {
-    appState.openRepeatId = null;
+  return removeBlockFromList(appState.workspace, id);
+}
+
+export function moveBlock(id, targetParentId = null, targetIndex = 0) {
+  if (appState.running) {
+    return false;
   }
 
-  appState.workspace = removeFromList(appState.workspace, id);
+  return moveBlockInList(appState.workspace, id, targetParentId, targetIndex);
 }
 
 export function updateRepeatCount(id, value) {
@@ -72,10 +173,6 @@ export function updateRepeatCount(id, value) {
 
   const parsedValue = Number.parseInt(value, 10);
   block.count = Math.max(1, Math.min(20, Number.isFinite(parsedValue) ? parsedValue : 1));
-}
-
-export function closeRepeat() {
-  appState.openRepeatId = null;
 }
 
 export function countBlocks(list = appState.workspace) {

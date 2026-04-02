@@ -3,15 +3,59 @@ import { buildProgramCode } from './core/codegen.js';
 import { moveSnail, sleep } from './core/engine.js';
 import { evaluateGoal } from './core/goals.js';
 import { appState, markLessonDone, resetRuntimeState, setActiveBlock, setLesson, setRunning, toggleCodePanelState } from './core/state.js';
-import { addBlock, closeRepeat, countBlocks, flattenBlocks, removeBlock, updateRepeatCount } from './core/workspace.js';
-import { clearTrail, drawTrail, placeSnail, setupCanvas, wiggleSnail } from './ui/canvas.js';
+import { addBlock, addBlockAt, clearWorkspace, countBlocks, flattenBlocks, moveBlock, removeBlock, updateRepeatCount } from './core/workspace.js';
+import { clearTrail, drawTrail, placeSnail, renderLessonGuide, setupCanvas, wiggleSnail } from './ui/canvas.js';
 import { getDomReferences } from './ui/dom.js';
 import { clearFeedback, hideSuccess, renderBlockCount, renderCode, renderControls, renderLessonHeader, renderLessonNavigation, renderPalette, renderWorkspace, showFeedback, showSuccess } from './ui/render.js';
 
 const dom = getDomReferences();
+const SUCCESS_CELEBRATION_DELAY_MS = 900;
+let workspaceDragDepth = 0;
+
+function setWorkspaceDragActive(isActive) {
+  dom.workspaceSection.classList.toggle('workspace-drag-active', isActive);
+}
+
+function setWorkspaceDropTarget(isActive) {
+  dom.workspaceSection.classList.toggle('workspace-drop-target', isActive);
+}
+
+function setResetConfirmOpen(isOpen) {
+  dom.resetConfirmOverlay.classList.toggle('show', isOpen);
+  dom.resetConfirmOverlay.setAttribute('aria-hidden', String(!isOpen));
+
+  if (isOpen) {
+    dom.resetConfirmButton.focus();
+  } else {
+    dom.resetButton.focus();
+  }
+}
+
+function resetWorkspaceDragState() {
+  workspaceDragDepth = 0;
+  setWorkspaceDragActive(false);
+  setWorkspaceDropTarget(false);
+}
 
 function updateCodePanel() {
   renderCode(dom, buildProgramCode(appState.workspace), appState.codePanelOpen);
+}
+
+function handleDrop(parentId, index, payload) {
+  if (appState.running) {
+    return;
+  }
+
+  if (payload.paletteType) {
+    addBlockAt(payload.paletteType, parentId, index);
+    refreshUi();
+    return;
+  }
+
+  const blockId = Number.parseInt(payload.blockId, 10);
+  if (Number.isFinite(blockId) && moveBlock(blockId, parentId, index)) {
+    refreshUi();
+  }
 }
 
 function updateWorkspaceUi() {
@@ -24,14 +68,9 @@ function updateWorkspaceUi() {
       updateRepeatCount(id, value);
       refreshUi();
     },
-    onOpenRepeat: (id) => {
-      appState.openRepeatId = id;
-      refreshUi();
-    },
-    onCloseRepeat: () => {
-      closeRepeat();
-      refreshUi();
-    },
+    onDrop: handleDrop,
+    onDragStart: () => setWorkspaceDragActive(true),
+    onDragEnd: resetWorkspaceDragState,
   });
 
   renderBlockCount(dom, countBlocks());
@@ -41,10 +80,15 @@ function updateWorkspaceUi() {
 function refreshUi() {
   renderLessonHeader(dom, appState.currentLesson);
   renderLessonNavigation(dom, appState, loadLesson);
-  renderPalette(dom, appState.currentLesson, (type) => {
-    addBlock(type);
-    refreshUi();
+  renderPalette(dom, appState.currentLesson, {
+    onAddBlock: (type) => {
+      addBlock(type);
+      refreshUi();
+    },
+    onDragStart: () => setWorkspaceDragActive(true),
+    onDragEnd: resetWorkspaceDragState,
   });
+  renderLessonGuide(dom, appState.currentLesson);
   updateWorkspaceUi();
   renderControls(dom, appState);
 }
@@ -59,17 +103,35 @@ function loadLesson(index) {
   setLesson(index);
   clearFeedback(dom);
   hideSuccess(dom);
+  resetWorkspaceDragState();
+  setResetConfirmOpen(false);
   refreshUi();
   resetBoard();
 }
 
-function resetLesson() {
+function performResetLesson() {
+  clearWorkspace();
   resetRuntimeState();
   clearFeedback(dom);
   hideSuccess(dom);
+  resetWorkspaceDragState();
+  setResetConfirmOpen(false);
   renderControls(dom, appState);
   updateWorkspaceUi();
   resetBoard();
+}
+
+function requestResetLesson() {
+  if (appState.running) {
+    return;
+  }
+
+  if (appState.workspace.length === 0) {
+    performResetLesson();
+    return;
+  }
+
+  setResetConfirmOpen(true);
 }
 
 async function runProgram() {
@@ -119,9 +181,10 @@ async function runProgram() {
   if (result.ok) {
     markLessonDone(appState.currentLessonIndex);
     refreshUi();
-    showSuccess(dom, appState.currentLesson, appState.currentLessonIndex === lessons.length - 1);
     wiggleSnail(dom);
     dom.screenReaderAnnouncer.textContent = appState.currentLesson.successMessage;
+    await sleep(SUCCESS_CELEBRATION_DELAY_MS);
+    showSuccess(dom, appState.currentLesson, appState.currentLessonIndex === lessons.length - 1);
   } else {
     showFeedback(dom, result.message);
   }
@@ -142,14 +205,64 @@ function toggleCodePanel() {
 
 function bindEvents() {
   dom.runButton.addEventListener('click', runProgram);
-  dom.resetButton.addEventListener('click', resetLesson);
+  dom.resetButton.addEventListener('click', requestResetLesson);
+  dom.resetConfirmButton.addEventListener('click', performResetLesson);
+  dom.resetCancelButton.addEventListener('click', () => setResetConfirmOpen(false));
   dom.codeToggleButton.addEventListener('click', toggleCodePanel);
   dom.nextButton.addEventListener('click', goToNextLesson);
+
+  dom.resetConfirmOverlay.addEventListener('click', (event) => {
+    if (event.target === dom.resetConfirmOverlay) {
+      setResetConfirmOpen(false);
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && dom.resetConfirmOverlay.classList.contains('show')) {
+      setResetConfirmOpen(false);
+    }
+  });
+
+  dom.workspaceSection.addEventListener('dragenter', (event) => {
+    if (!dom.workspaceSection.classList.contains('workspace-drag-active')) {
+      return;
+    }
+
+    event.preventDefault();
+    workspaceDragDepth += 1;
+    setWorkspaceDropTarget(true);
+  });
+
+  dom.workspaceSection.addEventListener('dragover', (event) => {
+    if (!dom.workspaceSection.classList.contains('workspace-drag-active')) {
+      return;
+    }
+
+    event.preventDefault();
+    setWorkspaceDropTarget(true);
+  });
+
+  dom.workspaceSection.addEventListener('dragleave', () => {
+    if (!dom.workspaceSection.classList.contains('workspace-drag-active')) {
+      return;
+    }
+
+    workspaceDragDepth = Math.max(0, workspaceDragDepth - 1);
+    if (workspaceDragDepth === 0) {
+      setWorkspaceDropTarget(false);
+    }
+  });
+
+  dom.workspaceSection.addEventListener('drop', () => {
+    workspaceDragDepth = 0;
+    setWorkspaceDropTarget(false);
+  });
 }
 
 function init() {
   setupCanvas(dom);
   bindEvents();
+  setResetConfirmOpen(false);
   loadLesson(0);
 }
 

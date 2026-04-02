@@ -9,7 +9,6 @@ export const appState = {
   currentLesson: lessons[0],
   snail: createSnail(lessons[0]),
   workspace: [],
-  openRepeatId: null,
   running: false,
   doneLessons: new Set(),
   trailPoints: [],
@@ -27,7 +26,6 @@ export function setLesson(index) {
   appState.currentLessonIndex = index;
   appState.currentLesson = lessons[index];
   appState.workspace = [];
-  appState.openRepeatId = null;
   appState.activeBlockId = null;
   resetRuntimeState();
 }

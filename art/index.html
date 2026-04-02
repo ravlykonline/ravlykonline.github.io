@@ -27,6 +27,33 @@
 
 <main id="app-main">
   <div id="body">
+    <section id="control-panel" aria-label="Blocks and workspace">
+      <div id="editor-panels">
+        <aside id="palette" aria-labelledby="palette-title">
+          <div class="panel-label" id="palette-title">Blocks</div>
+          <div id="pblock-list"></div>
+        </aside>
+
+        <section id="workspace" aria-labelledby="workspace-title">
+          <div class="ws-meta">
+            <div class="panel-label" id="workspace-title">Workspace</div>
+            <div id="block-count">0 blocks</div>
+          </div>
+          <div id="ws-stack">
+            <div class="evt-block">
+              <span aria-hidden="true">Run</span>
+              <span>When run</span>
+            </div>
+            <div id="ws-inner">
+              <div class="ws-empty" id="ws-empty">
+                Tap a block on the left<br>to add it here
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
     <section id="canvas-panel" aria-labelledby="lesson-title">
       <div id="instr-box">
         <div class="snail-avatar" id="avatar-box" aria-hidden="true"></div>
@@ -35,33 +62,12 @@
           <div id="instr-text">Loading lesson...</div>
         </div>
       </div>
-      <div id="grid-wrap" aria-describedby="canvas-status">
-        <svg id="grid-svg" aria-hidden="true"></svg>
-        <canvas id="trail-canvas" aria-hidden="true"></canvas>
-        <div id="snail-el" aria-hidden="true"></div>
-        <div id="canvas-status" class="sr-only">Canvas is ready.</div>
-      </div>
-    </section>
-
-    <aside id="palette" aria-labelledby="palette-title">
-      <div class="panel-label" id="palette-title">Blocks</div>
-      <div id="pblock-list"></div>
-    </aside>
-
-    <section id="workspace" aria-labelledby="workspace-title">
-      <div class="ws-meta">
-        <div class="panel-label" id="workspace-title">Workspace</div>
-        <div id="block-count">0 blocks</div>
-      </div>
-      <div id="ws-stack">
-        <div class="evt-block">
-          <span aria-hidden="true">Run</span>
-          <span>When run</span>
-        </div>
-        <div id="ws-inner">
-          <div class="ws-empty" id="ws-empty">
-            Tap a block on the left<br>to add it here
-          </div>
+      <div id="canvas-shell">
+        <div id="grid-wrap" aria-describedby="canvas-status">
+          <svg id="grid-svg" aria-hidden="true"></svg>
+          <canvas id="trail-canvas" aria-hidden="true"></canvas>
+          <div id="snail-el" aria-hidden="true"></div>
+          <div id="canvas-status" class="sr-only">Canvas is ready.</div>
         </div>
       </div>
     </section>
@@ -85,6 +91,17 @@
     <h2 id="success-title">Great job!</h2>
     <p id="success-msg">The snail completed the task.</p>
     <button class="btn-next" id="btn-next" type="button">Next lesson</button>
+  </div>
+</div>
+
+<div id="reset-confirm-overlay" aria-hidden="true">
+  <div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="reset-confirm-title" aria-describedby="reset-confirm-msg">
+    <h2 id="reset-confirm-title">Reset program?</h2>
+    <p id="reset-confirm-msg">This will clear the blocks in the workspace and return the snail to the start.</p>
+    <div class="confirm-actions">
+      <button class="btn-confirm-secondary" id="btn-reset-cancel" type="button">Cancel</button>
+      <button class="btn-confirm-danger" id="btn-reset-confirm" type="button">Reset program</button>
+    </div>
   </div>
 </div>
 

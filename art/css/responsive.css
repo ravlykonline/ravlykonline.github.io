@@ -1,25 +1,43 @@
-@media (max-width: 1023px) {
+@media (max-width: 63.9375rem) {
+  #app-main {
+    height: auto;
+  }
+
   #body {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto;
     overflow-y: auto;
   }
 
-  #canvas-panel,
-  #palette,
-  #workspace {
+  #control-panel {
     border-right: none;
-    border-bottom: 2px solid #e4d9c8;
+    border-bottom: 0.0625rem solid var(--color-violet-border-faint);
+  }
+
+  #editor-panels {
+    grid-template-columns: minmax(13.75rem, 0.7fr) minmax(0, 1.3fr);
+  }
+
+  #canvas-panel {
+    min-height: 28.75rem;
+  }
+
+  #code-panel {
+    width: min(100vw, 42.5rem);
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 47.9375rem) {
   body {
+    min-height: 100vh;
+    height: auto;
+    display: flex;
+    flex-direction: column;
     overflow: auto;
   }
 
   #hdr {
-    height: auto;
+    min-height: auto;
     padding: var(--space-3);
     gap: var(--space-2);
     flex-wrap: wrap;
@@ -37,21 +55,25 @@
     flex-wrap: wrap;
   }
 
+  #control-panel,
   #canvas-panel,
   #palette,
   #workspace {
     padding: var(--space-3);
   }
 
+  #editor-panels {
+    grid-template-columns: 1fr;
+  }
+
   #grid-wrap {
-    width: 100%;
-    overflow-x: auto;
+    max-width: 100%;
   }
 
   #footer {
     position: sticky;
     bottom: 0;
-    height: auto;
+    min-height: auto;
     flex-wrap: wrap;
     justify-content: center;
     padding: var(--space-3);
@@ -60,7 +82,7 @@
   .btn-run,
   .btn-reset,
   #show-code-btn {
-    min-height: 48px;
+    min-height: var(--size-touch-comfortable);
   }
 
   #feedback {
@@ -70,8 +92,9 @@
 
   #code-panel {
     width: 100%;
-    right: 0;
+    left: 0;
     bottom: 0;
+    max-height: 46vh;
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   }
 }

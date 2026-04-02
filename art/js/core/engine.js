@@ -4,6 +4,10 @@ export function cellToPixels(value) {
   return value * CELL_SIZE + (CELL_SIZE - SNAIL_SIZE) / 2;
 }
 
+export function cellToGridIntersection(value) {
+  return value * CELL_SIZE;
+}
+
 export function moveSnail(snail, blockType) {
   const nextSnail = { ...snail };
 
