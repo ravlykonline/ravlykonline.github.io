@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Інтеграційний тест Равлик-бродилка</title>
+    <link rel="stylesheet" href="../tokens.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        .test-panel {
+            position: fixed;
+            right: var(--space-3);
+            bottom: var(--space-3);
+            z-index: 999;
+            width: min(26rem, calc(100vw - 2rem));
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            background: var(--color-white);
+            box-shadow: var(--shadow-3);
+            font-family: var(--font-family-base);
+        }
+
+        .test-panel h1 {
+            margin: 0 0 var(--space-2);
+            font-size: var(--font-size-lg);
+        }
+
+        .test-panel p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .pass {
+            color: var(--color-success);
+        }
+
+        .fail {
+            color: var(--color-error);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#game-area" class="skip-link">Перейти до гри</a>
+    <h1 class="sr-only">Равлик-бродилка</h1>
+
+    <div id="viewport" aria-label="Гра Равлик-бродилка. Тестова сторінка">
+        <div id="game-area" aria-label="Ігровий світ. Тестовий запуск">
+            <div id="obstacles-container"></div>
+            <div id="items-container"></div>
+            <div id="npcs-container"></div>
+
+            <div id="keyboard-cursor" role="presentation" aria-hidden="true">
+                <div class="cursor-crosshair"></div>
+            </div>
+
+            <div id="player-wrapper">
+                <div id="player-inner" class="is-idle">
+                    <div class="eyestalk left" aria-hidden="true"></div>
+                    <div class="eyestalk right" aria-hidden="true"></div>
+                    <div class="snail-body" aria-hidden="true"></div>
+                    <div class="snail-shell" aria-hidden="true"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ui-layer" role="status" aria-live="polite" aria-atomic="true">
+        <div id="score-display" aria-label="Рахунок">Яблука: 0 | Зірочки: 0</div>
+        <div id="controls-hint" aria-label="Керування">WASD / стрілки / клік / Enter / T для прицілу</div>
+        <div id="keyboard-mode-indicator" class="hidden" aria-live="assertive">Режим вибору цілі активовано</div>
+    </div>
+
+    <div id="dialog-layer" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-text"
+        aria-hidden="true" style="display: none;">
+        <div class="dialog-box">
+            <h2 id="dialog-title" class="dialog-title">Равлик-бродилка</h2>
+            <p id="dialog-text" class="dialog-text">Текст діалогу...</p>
+            <div class="dialog-actions">
+                <button id="dialog-btn" class="dialog-btn dialog-btn--primary" type="button">Далі</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="announcements" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+    <div id="game-state-description" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <aside class="test-panel">
+        <h1>Інтеграційний тест</h1>
+        <p id="integration-summary">Виконуємо сценарій…</p>
+    </aside>
+
+    <script type="module" src="./integration-test.js"></script>
+</body>
+
+</html>

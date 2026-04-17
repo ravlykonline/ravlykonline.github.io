@@ -1,0 +1,138 @@
+:root {
+    --color-primary: #1a56db;
+    --color-primary-hover: #1e429f;
+    --color-primary-soft: #dbeafe;
+    --color-text: #111827;
+    --color-text-muted: #4b5563;
+    --color-text-inverse: #ffffff;
+    --color-background: #7cb342;
+    --color-surface: #f9fafb;
+    --color-surface-raised: #f3f4f6;
+    --color-surface-glass: rgba(255, 255, 255, 0.84);
+    --color-border: #d1d5db;
+    --color-border-strong: #9ca3af;
+    --color-error: #dc2626;
+    --color-error-bg: #fef2f2;
+    --color-success: #16a34a;
+    --color-success-bg: #f0fdf4;
+    --color-warning: #d97706;
+    --color-warning-bg: #fffbeb;
+    --color-focus-ring: #3b82f6;
+    --color-black: #000000;
+    --color-white: #ffffff;
+    --color-overlay: rgba(0, 0, 0, 0.7);
+    --color-overlay-soft: rgba(255, 255, 255, 0.95);
+    --color-shadow-soft: rgba(0, 0, 0, 0.1);
+    --color-shadow-soft-strong: rgba(0, 0, 0, 0.2);
+    --color-shadow-medium: rgba(0, 0, 0, 0.3);
+    --color-shadow-strong: rgba(0, 0, 0, 0.4);
+    --color-shadow-outline-soft: rgba(255, 255, 255, 0.45);
+    --color-debug-hit-area: rgba(255, 0, 0, 0.1);
+    --color-panel-shadow: rgba(31, 41, 55, 0.18);
+    --color-snail-body-shadow: rgba(0, 0, 0, 0.12);
+    --color-shell-spiral: rgba(62, 39, 35, 0.35);
+    --color-eye-dark: #000000;
+    --color-eye-mid: #444444;
+    --color-grass-light: #7cb342;
+    --color-grass-dark: #558b2f;
+    --color-grass-pattern: #33691e;
+    --color-rock: #9e9e9e;
+    --color-rock-border: #616161;
+    --color-bush: #2e7d32;
+    --color-bush-border: #1b5e20;
+    --color-twig: #5d4037;
+    --color-twig-border: #3e2723;
+    --color-apple: #e74c3c;
+    --color-apple-border: #c0392b;
+    --color-apple-leaf: #4caf50;
+    --color-snail-body: #f9a825;
+    --color-snail-body-border: #8d5a00;
+    --color-snail-shell-light: #8d6e63;
+    --color-snail-shell-dark: #5d4037;
+    --color-snail-shell-border: #3e2723;
+    --color-mouse-surface: #bdbdbd;
+    --color-mouse-border: #757575;
+    --color-beetle-surface: #424242;
+    --color-beetle-border: #212121;
+    --color-contrast-grass-light: #5a9216;
+    --color-contrast-grass-dark: #33691e;
+    --color-contrast-rock: #757575;
+    --color-contrast-bush: #1b5e20;
+    --color-contrast-apple: #c62828;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 48px;
+    --space-8: 64px;
+
+    --font-family-base: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    --font-family-readable: "Atkinson Hyperlegible", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    --font-family-accent: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-pill: 9999px;
+
+    --shadow-0: none;
+    --shadow-1: 0 1px 3px rgba(0, 0, 0, .1), 0 1px 2px rgba(0, 0, 0, .06);
+    --shadow-2: 0 4px 6px rgba(0, 0, 0, .07), 0 2px 4px rgba(0, 0, 0, .06);
+    --shadow-3: 0 10px 15px rgba(0, 0, 0, .1), 0 4px 6px rgba(0, 0, 0, .05);
+
+    --z-base: 0;
+    --z-raised: 10;
+    --z-items: 5;
+    --z-npcs: 6;
+    --z-player: 10;
+    --z-cursor: 15;
+    --z-ui: 20;
+    --z-modal: 500;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-primary: #60a5fa;
+        --color-primary-hover: #93c5fd;
+        --color-primary-soft: rgba(96, 165, 250, 0.16);
+        --color-text: #f3f4f6;
+        --color-text-muted: #cbd5e1;
+        --color-background: #1f3a14;
+        --color-surface: #111827;
+        --color-surface-raised: #1f2937;
+        --color-surface-glass: rgba(17, 24, 39, 0.82);
+        --color-border: #334155;
+        --color-border-strong: #64748b;
+        --color-overlay: rgba(2, 6, 23, 0.78);
+        --color-overlay-soft: rgba(15, 23, 42, 0.86);
+        --color-shadow-outline-soft: rgba(148, 163, 184, 0.22);
+        --color-panel-shadow: rgba(2, 6, 23, 0.45);
+        --color-grass-light: #2e5a1f;
+        --color-grass-dark: #1d3d13;
+        --color-grass-pattern: #456b2d;
+        --color-rock: #7c8797;
+        --color-rock-border: #cbd5e1;
+        --color-bush: #2f7b41;
+        --color-bush-border: #8ad0a1;
+        --color-twig: #8b6b57;
+        --color-twig-border: #d0b09a;
+        --color-apple: #ff6b57;
+        --color-apple-border: #ffd0c9;
+        --color-apple-leaf: #72d68c;
+        --color-mouse-surface: #94a3b8;
+        --color-mouse-border: #e2e8f0;
+        --color-beetle-surface: #0f172a;
+        --color-beetle-border: #94a3b8;
+    }
+}

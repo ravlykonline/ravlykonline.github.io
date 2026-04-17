@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="theme-color" content="">
+    <title data-i18n-title="meta.title"></title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="tokens.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <a href="#game-area" class="skip-link" data-i18n="app.skipLink"></a>
+    <h1 class="sr-only" data-i18n="app.heading"></h1>
+
+    <div id="viewport" data-i18n-aria-label="app.viewportLabel">
+        <div id="game-area" data-i18n-aria-label="app.gameAreaLabel">
+            <div id="obstacles-container"></div>
+            <div id="items-container"></div>
+            <div id="npcs-container"></div>
+
+            <div id="keyboard-cursor" role="presentation" aria-hidden="true">
+                <div class="cursor-crosshair"></div>
+            </div>
+
+            <div id="player-wrapper">
+                <div id="player-inner" class="is-idle">
+                    <div class="eyestalk left" aria-hidden="true"></div>
+                    <div class="eyestalk right" aria-hidden="true"></div>
+                    <div class="snail-body" aria-hidden="true"></div>
+                    <div class="snail-shell" aria-hidden="true"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ui-layer" role="status" aria-live="polite" aria-atomic="true">
+        <section class="hud-panel" aria-labelledby="hud-title">
+            <div class="hud-panel__header">
+                <div>
+                    <p id="hud-kicker" class="hud-kicker" data-i18n="hud.kicker"></p>
+                    <h2 id="hud-title" class="hud-title" data-i18n="app.heading"></h2>
+                </div>
+                <div class="hud-actions" aria-label="Налаштування читання">
+                    <button id="font-toggle-btn" class="hud-action-btn" type="button" data-i18n="hud.fontToggle"></button>
+                </div>
+            </div>
+
+            <div class="hud-stats" aria-label="Статистика гри">
+                <article class="hud-stat hud-stat--apples">
+                    <span class="hud-stat__icon" aria-hidden="true">●</span>
+                    <span class="hud-stat__label" data-i18n="hud.applesLabel"></span>
+                    <strong id="apples-count" class="hud-stat__value">0</strong>
+                </article>
+                <article class="hud-stat hud-stat--stars">
+                    <span class="hud-stat__icon" aria-hidden="true">★</span>
+                    <span class="hud-stat__label" data-i18n="hud.starsLabel"></span>
+                    <strong id="stars-count" class="hud-stat__value">0</strong>
+                </article>
+            </div>
+
+            <div class="hud-message">
+                <p id="hud-objective-label" class="hud-message__label" data-i18n="hud.objectiveLabel"></p>
+                <p id="hud-objective" class="hud-message__text" data-i18n="hud.objectiveText"></p>
+            </div>
+
+            <div class="hud-footer">
+                <div id="score-display" class="sr-only" data-i18n="score.display" data-i18n-aria-label="app.scoreLabel"></div>
+                <p id="controls-hint" class="hud-footer__hint" data-i18n="app.controlsHint" data-i18n-aria-label="app.controlsLabel"></p>
+                <div id="keyboard-mode-indicator" class="hud-badge hidden" aria-live="assertive" data-i18n="app.keyboardMode"></div>
+            </div>
+        </section>
+    </div>
+
+    <div id="dialog-layer" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-text"
+        aria-hidden="true" style="display: none;">
+        <div class="dialog-box">
+            <h2 id="dialog-title" class="dialog-title" data-i18n="app.dialogTitleFallback"></h2>
+            <p id="dialog-text" class="dialog-text" data-i18n="app.dialogTextFallback"></p>
+            <div class="dialog-actions">
+                <button id="dialog-btn" class="dialog-btn dialog-btn--primary" type="button" data-i18n="app.dialogButtonFallback"></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="announcements" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+    <div id="game-state-description" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>

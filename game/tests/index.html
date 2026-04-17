@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тести Равлик-бродилка</title>
+    <link rel="stylesheet" href="../tokens.css">
+    <style>
+        body {
+            margin: 0;
+            padding: var(--space-6);
+            background: var(--color-surface);
+            color: var(--color-text);
+            font-family: var(--font-family-base);
+        }
+
+        .results {
+            max-width: 56rem;
+            margin: 0 auto;
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-2);
+            padding: var(--space-6);
+        }
+
+        .summary {
+            font-size: var(--font-size-xl);
+            margin-bottom: var(--space-4);
+        }
+
+        .pass {
+            color: var(--color-success);
+        }
+
+        .fail {
+            color: var(--color-error);
+        }
+
+        li {
+            margin-bottom: var(--space-2);
+        }
+    </style>
+</head>
+
+<body>
+    <main class="results">
+        <h1>Тести критичних правил</h1>
+        <p id="summary" class="summary">Виконуємо тести…</p>
+        <ul id="results"></ul>
+    </main>
+
+    <script type="module" src="./test-game.js"></script>
+</body>
+
+</html>

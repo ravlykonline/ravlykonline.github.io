@@ -1,0 +1,914 @@
+/* ============================================
+   DESIGN TOKENS
+   ============================================ */
+
+/* ============================================
+   BASE STYLES & RESET
+   ============================================ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--color-grass-light);
+    font-family: var(--font-family-base);
+    line-height: 1.5;
+    color: var(--color-text);
+}
+
+body[data-font-mode="readable"] {
+    font-family: var(--font-family-readable);
+}
+
+/* Skip Link */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--color-black);
+    color: var(--color-white);
+    padding: var(--space-2) var(--space-3);
+    text-decoration: none;
+    z-index: 1000;
+    border-radius: 0 0 var(--radius-md) 0;
+    font-weight: bold;
+    transition: top 0.2s;
+}
+
+.skip-link:focus {
+    top: 0;
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
+}
+
+/* Screen Reader Only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ============================================
+   GAME VIEWPORT & WORLD
+   ============================================ */
+#viewport {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    touch-action: none;
+    /* Prevent default touch actions for game */
+}
+
+#game-area {
+    position: absolute;
+    width: 4000px;
+    height: 4000px;
+    background-color: var(--color-grass-dark);
+    background-image: radial-gradient(var(--color-grass-pattern) 2px, transparent 2px);
+    background-size: 40px 40px;
+    cursor: crosshair;
+    transform-origin: 0 0;
+    will-change: transform;
+}
+
+/* ============================================
+   LAYERS & CONTAINERS
+   ============================================ */
+#obstacles-container,
+#items-container,
+#npcs-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+#items-container {
+    z-index: var(--z-items);
+}
+
+#npcs-container {
+    z-index: var(--z-npcs);
+}
+
+/* ============================================
+   OBSTACLES (Rocks, Bushes, Twigs)
+   ============================================ */
+.obstacle {
+    position: absolute;
+    box-sizing: border-box;
+    pointer-events: auto;
+    /* Enable for accessibility */
+    min-width: 48px;
+    /* WCAG 2.5.8 target size */
+    min-height: 48px;
+}
+
+.obstacle.rock {
+    background-color: var(--color-rock);
+    border: 2px solid var(--color-rock-border);
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    box-shadow: inset -5px -5px 10px var(--color-shadow-soft-strong), 3px 3px 5px var(--color-shadow-strong);
+}
+
+.obstacle.bush {
+    background-color: var(--color-bush);
+    border: 2px solid var(--color-bush-border);
+    border-radius: 50%;
+    box-shadow: inset -5px -5px 15px var(--color-shadow-medium), 3px 3px 5px var(--color-shadow-strong);
+}
+
+.obstacle.twig {
+    background-color: var(--color-twig);
+    border: 1px solid var(--color-twig-border);
+    border-radius: 10px;
+    box-shadow: 2px 2px 3px var(--color-shadow-strong);
+    min-width: 80px;
+    /* Longer for twigs */
+    min-height: 24px;
+}
+
+/* ============================================
+   ITEMS (Apples)
+   ============================================ */
+.apple {
+    position: absolute;
+    width: 28px;
+    /* WCAG 2.5.8: min 24px */
+    height: 28px;
+    background-color: var(--color-apple);
+    border-radius: 50%;
+    box-shadow: inset -3px -3px 6px var(--color-shadow-medium), 2px 2px 3px var(--color-shadow-medium);
+    border: 1px solid var(--color-apple-border);
+    box-sizing: border-box;
+    /* Invisible touch target extension */
+    margin: 8px;
+    /* Creates 44px total hit area with pseudo-element */
+}
+
+.apple::before {
+    content: '';
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    top: -8px;
+    left: -8px;
+    border-radius: 50%;
+    /* Debug: background: var(--color-debug-hit-area); */
+}
+
+.apple::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 4px;
+    background-color: var(--color-apple-leaf);
+    border-radius: 10px 0;
+    top: -3px;
+    left: 12px;
+}
+
+/* ============================================
+   NPCs (Mouse, Beetle)
+   ============================================ */
+.npc {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-2xl);
+    border-radius: 50%;
+    box-shadow: var(--shadow-2);
+    min-width: 48px;
+    /* WCAG 2.5.8 */
+    min-height: 48px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.npc:hover,
+.npc:focus {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-3);
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
+}
+
+.npc.mouse {
+    background-color: var(--color-mouse-surface);
+    border: 2px solid var(--color-mouse-border);
+}
+
+.npc.beetle {
+    background-color: var(--color-beetle-surface);
+    border: 2px solid var(--color-beetle-border);
+    color: var(--color-text-inverse);
+    font-size: var(--font-size-lg);
+    font-weight: bold;
+}
+
+.npc.npc--near {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 4px var(--color-shadow-outline-soft), var(--shadow-3);
+}
+
+/* Completed indicator - not just color */
+.npc.completed {
+    opacity: 0.7;
+    filter: grayscale(100%);
+}
+
+.npc.completed::after {
+    content: '✓';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--color-success);
+    color: var(--color-white);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-sm);
+    border: 2px solid var(--color-white);
+    box-shadow: var(--shadow-1);
+}
+
+/* ============================================
+   PLAYER (Snail)
+   ============================================ */
+#player-wrapper {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    margin-left: -20px;
+    margin-top: -20px;
+    pointer-events: none;
+    z-index: var(--z-player);
+    will-change: transform;
+}
+
+#player-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    will-change: transform;
+}
+
+.snail-body {
+    position: absolute;
+    width: 48px;
+    height: 18px;
+    background-color: var(--color-snail-body);
+    border-radius: 10px;
+    top: 11px;
+    left: -4px;
+    border: 2px solid var(--color-snail-body-border);
+    z-index: 1;
+    transform-origin: center left;
+    transition: transform 180ms ease-out;
+    box-shadow: inset 0 -2px 4px var(--color-snail-body-shadow);
+}
+
+.snail-shell {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    background: radial-gradient(circle at 30% 30%, var(--color-snail-shell-light) 20%, var(--color-snail-shell-dark) 80%);
+    border-radius: 50%;
+    top: 2px;
+    left: -6px;
+    border: 2px solid var(--color-snail-shell-border);
+    box-shadow: 2px 2px 4px var(--color-shadow-strong);
+    z-index: 2;
+    transition: transform 180ms ease-out;
+}
+
+.snail-shell::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-shell-spiral);
+    border-radius: 50%;
+    top: 6px;
+    left: 6px;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+    transform: rotate(45deg);
+}
+
+.eyestalk {
+    position: absolute;
+    width: 10px;
+    height: 4px;
+    background-color: var(--color-snail-body);
+    right: -10px;
+    z-index: 1;
+    border-radius: 0 2px 2px 0;
+    border: 2px solid var(--color-snail-body-border);
+    border-left: none;
+    transition: transform 180ms ease-out;
+    transform-origin: left center;
+}
+
+.eyestalk::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle at 30% 30%, var(--color-eye-mid) 30%, var(--color-eye-dark) 70%);
+    border-radius: 50%;
+    right: -3px;
+    top: -3px;
+    box-shadow: 0 1px 2px var(--color-shadow-medium);
+    animation: blink 5s infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    96%,
+    100% {
+        transform: scaleY(1);
+    }
+
+    98% {
+        transform: scaleY(0.12);
+    }
+}
+
+.eyestalk.left {
+    top: 10px;
+    transform: translateX(0) rotate(-22deg);
+}
+
+.eyestalk.right {
+    bottom: 10px;
+    transform: translateX(0) rotate(22deg);
+}
+
+#player-inner.is-idle .snail-body {
+    transform: scaleX(1) scaleY(1);
+    animation: breathe 2.8s ease-in-out infinite;
+}
+
+#player-inner.is-idle .eyestalk.left {
+    transform: translateX(0) rotate(-22deg);
+}
+
+#player-inner.is-idle .eyestalk.right {
+    transform: translateX(0) rotate(22deg);
+}
+
+#player-inner.is-idle .snail-shell {
+    animation: shellBreathe 2.8s ease-in-out infinite;
+}
+
+#player-inner.is-moving .snail-body {
+    transform: scaleX(1.1) scaleY(0.97);
+}
+
+#player-inner.is-moving .eyestalk.left {
+    transform: translateX(7px) rotate(-14deg);
+}
+
+#player-inner.is-moving .eyestalk.right {
+    transform: translateX(7px) rotate(14deg);
+}
+
+#player-inner.is-moving .snail-shell {
+    animation: shellGlide 900ms ease-in-out infinite;
+}
+
+#player-inner.is-turning-left .snail-shell {
+    transform: rotate(-5deg);
+}
+
+#player-inner.is-turning-right .snail-shell {
+    transform: rotate(5deg);
+}
+
+@keyframes breathe {
+
+    0%,
+    100% {
+        transform: scaleX(1) scaleY(1);
+    }
+
+    50% {
+        transform: scaleX(1.02) scaleY(0.98);
+    }
+}
+
+@keyframes shellBreathe {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-1px);
+    }
+}
+
+@keyframes shellGlide {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-2px);
+    }
+}
+
+/* ============================================
+   KEYBOARD CURSOR (Accessibility)
+   ============================================ */
+#keyboard-cursor {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    margin-left: -20px;
+    margin-top: -20px;
+    z-index: var(--z-cursor);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+#keyboard-cursor.active {
+    opacity: 1;
+}
+
+.cursor-crosshair {
+    width: 100%;
+    height: 100%;
+    border: 3px dashed var(--color-focus-ring);
+    border-radius: 50%;
+    position: relative;
+    animation: cursorPulse 1s ease-in-out infinite;
+}
+
+.cursor-crosshair::before,
+.cursor-crosshair::after {
+    content: '';
+    position: absolute;
+    background: var(--color-focus-ring);
+}
+
+.cursor-crosshair::before {
+    width: 4px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.cursor-crosshair::after {
+    width: 16px;
+    height: 4px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes cursorPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* ============================================
+   UI LAYER
+   ============================================ */
+#ui-layer {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    z-index: var(--z-ui);
+    width: min(24rem, calc(100vw - 2rem));
+    pointer-events: none;
+}
+
+.hud-panel {
+    position: relative;
+    overflow: hidden;
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: calc(var(--radius-xl) + var(--space-1));
+    background:
+        radial-gradient(circle at top right, var(--color-primary-soft), transparent 40%),
+        linear-gradient(180deg, var(--color-surface-glass), var(--color-overlay-soft));
+    box-shadow: 0 18px 40px var(--color-panel-shadow);
+    backdrop-filter: blur(14px);
+}
+
+.hud-panel::before {
+    content: '';
+    position: absolute;
+    inset: auto auto -32px -28px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--color-primary-soft), transparent 72%);
+    pointer-events: none;
+}
+
+.hud-panel__header,
+.hud-stats,
+.hud-message,
+.hud-footer {
+    position: relative;
+    z-index: 1;
+}
+
+.hud-panel__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.hud-kicker {
+    margin: 0 0 var(--space-1);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.hud-title {
+    margin: 0;
+    font-family: var(--font-family-accent);
+    font-size: var(--font-size-xl);
+    line-height: 1.15;
+}
+
+.hud-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    pointer-events: auto;
+}
+
+.hud-action-btn {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-raised);
+    color: var(--color-text);
+    padding: var(--space-2) var(--space-3);
+    min-height: 40px;
+    font: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.hud-action-btn:hover,
+.hud-action-btn:focus-visible {
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+    outline: none;
+}
+
+.hud-action-btn[aria-pressed="true"] {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+.hud-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+}
+
+.hud-stat {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border);
+}
+
+.hud-stat__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    font-size: var(--font-size-sm);
+}
+
+.hud-stat--apples .hud-stat__icon {
+    background: color-mix(in srgb, var(--color-apple) 18%, var(--color-surface));
+    color: var(--color-apple-border);
+}
+
+.hud-stat--stars .hud-stat__icon {
+    background: color-mix(in srgb, var(--color-warning) 18%, var(--color-surface));
+    color: var(--color-warning);
+}
+
+.hud-stat__label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+.hud-stat__value {
+    font-size: var(--font-size-xl);
+    line-height: 1;
+}
+
+.hud-message {
+    margin-top: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-raised);
+    border: 1px dashed var(--color-border-strong);
+}
+
+.hud-message__label {
+    margin: 0 0 var(--space-1);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.hud-message__text {
+    margin: 0;
+    font-size: var(--font-size-sm);
+}
+
+.hud-footer {
+    margin-top: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.hud-footer__hint {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.hud-badge {
+    align-self: flex-start;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+}
+
+.hud-badge.hidden {
+    display: none;
+}
+
+/* ============================================
+   DIALOG / MODAL
+   ============================================ */
+#dialog-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--color-overlay);
+    z-index: var(--z-modal);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    backdrop-filter: blur(2px);
+}
+
+.dialog-box {
+    background: var(--color-white);
+    border: 4px solid var(--color-grass-light);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-3);
+    position: relative;
+}
+
+.dialog-title {
+    font-size: var(--font-size-2xl);
+    color: var(--color-grass-pattern);
+    margin: 0 0 var(--space-3) 0;
+    border-bottom: 2px solid var(--color-surface-raised);
+    padding-bottom: var(--space-2);
+    line-height: 1.3;
+}
+
+.dialog-text {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-4);
+    line-height: 1.6;
+    color: var(--color-text);
+}
+
+.dialog-actions {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: center;
+}
+
+.dialog-btn {
+    background: var(--color-grass-light);
+    border: 2px solid transparent;
+    padding: var(--space-2) var(--space-5);
+    font-size: var(--font-size-lg);
+    color: var(--color-white);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 120px;
+    min-height: 48px;
+    /* WCAG 2.5.8 */
+    font-weight: 600;
+}
+
+.dialog-btn:hover {
+    background: var(--color-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+}
+
+.dialog-btn:focus {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
+    border-color: var(--color-focus-ring);
+}
+
+.dialog-btn:active {
+    transform: translateY(0);
+}
+
+/* Secondary button style if needed */
+.dialog-btn--secondary {
+    background: var(--color-surface-raised);
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+.dialog-btn--secondary:hover {
+    background: var(--color-surface);
+}
+
+/* ============================================
+   ACCESSIBILITY: HIGH CONTRAST MODE
+   ============================================ */
+@media (prefers-contrast: high) {
+    :root {
+        --color-grass-light: var(--color-contrast-grass-light);
+        --color-grass-dark: var(--color-contrast-grass-dark);
+        --color-rock: var(--color-contrast-rock);
+        --color-bush: var(--color-contrast-bush);
+        --color-apple: var(--color-contrast-apple);
+    }
+
+    .obstacle,
+    .npc,
+    .apple {
+        border-width: 3px;
+        border-color: var(--color-black);
+    }
+
+    .npc.completed::after {
+        border-width: 3px;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY: REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    #player-inner {
+        transition: transform 0.1s linear !important;
+    }
+
+    #player-inner.is-moving .snail-shell,
+    #player-inner.is-idle .snail-shell,
+    #player-inner.is-idle .snail-body,
+    #player-inner.is-idle .eyestalk {
+        animation: none !important;
+    }
+
+    .cursor-crosshair {
+        animation: none;
+    }
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+@media (max-width: 480px) {
+    #ui-layer {
+        top: var(--space-1);
+        left: var(--space-1);
+        right: var(--space-1);
+        width: auto;
+    }
+
+    .dialog-box {
+        padding: var(--space-3);
+        border-width: 3px;
+    }
+
+    .dialog-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .dialog-text {
+        font-size: var(--font-size-base);
+    }
+
+    .hud-panel {
+        padding: var(--space-3);
+    }
+
+    .hud-panel__header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hud-actions {
+        justify-content: flex-start;
+    }
+}
+
+/* Touch device optimizations */
+@media (pointer: coarse) {
+
+    .npc,
+    .apple {
+        transform: scale(1.2);
+    }
+
+    .npc:active {
+        transform: scale(1.1);
+    }
+}
