@@ -4,6 +4,7 @@ import { LevelData } from '../game/level-data.js';
 import { TaskPicker } from '../game/task-picker.js';
 import { isNpcWithinRange, shouldCollectApple, pickNearestByDistance } from '../game/rules.js';
 import { t } from '../i18n/index.js';
+import { HUDController } from '../ui/hud-controller.js';
 import { DialogScene } from './dialog-scene.js';
 
 export class GameScene {
@@ -111,7 +112,9 @@ export class GameScene {
         this.renderApples();
         this.renderNpcs();
         this.syncCameraToPlayer();
-        this.updateHudObjective(t('hud.objectiveText'));
+        HUDController.setObjective(t('hud.objectiveText'));
+        HUDController.setContext(t('hud.contextIntro'));
+        HUDController.setNearbyNpc(null);
         this.updateAccessibilityDescription();
         this.announcer.announce(t('announcer.newGameStarted'), 'assertive');
     }
@@ -359,10 +362,14 @@ export class GameScene {
 
         if (nearestNpc && !nearestNpc.hasPrompted) {
             nearestNpc.hasPrompted = true;
-            this.updateHudObjective(t('announcer.npcNearby', { name: nearestNpc.name }));
+            HUDController.setObjective(t('hud.objectiveMeetNpc', { name: nearestNpc.name }));
+            HUDController.setContext(t('announcer.npcNearby', { name: nearestNpc.name }));
+            HUDController.setNearbyNpc(nearestNpc.name);
             this.announcer.announce(t('announcer.npcNearby', { name: nearestNpc.name }));
         } else if (!nearestNpc) {
-            this.updateHudObjective(t('hud.objectiveText'));
+            HUDController.setObjective(t('hud.objectiveText'));
+            HUDController.setContext(t('hud.contextExplore'));
+            HUDController.setNearbyNpc(null);
         }
     }
 
@@ -377,6 +384,7 @@ export class GameScene {
         );
 
         if (!isNpcWithinRange(distance, CONFIG.interactionRadius)) {
+            HUDController.setContext(t('announcer.moveCloser'));
             this.announcer.announce(t('announcer.moveCloser'));
             return;
         }
@@ -412,15 +420,10 @@ export class GameScene {
             this.apples.splice(index, 1);
 
             if (this.apples.length % 4 === 0) {
-                this.updateHudObjective(t('announcer.applesRemaining', { count: this.apples.length }));
+                HUDController.setObjective(t('hud.objectiveApplesRemaining', { count: this.apples.length }));
+                HUDController.setContext(t('announcer.applesRemaining', { count: this.apples.length }));
                 this.announcer.announce(t('announcer.applesRemaining', { count: this.apples.length }));
             }
-        }
-    }
-
-    updateHudObjective(message) {
-        if (this.dom.hudObjective) {
-            this.dom.hudObjective.textContent = message;
         }
     }
 

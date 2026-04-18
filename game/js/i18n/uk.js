@@ -1,7 +1,9 @@
 export const uk = {
     meta: {
         title: 'Равлик-бродилка',
-        themeColor: '#7cb342'
+        themeColor: '#7cb342',
+        themeColorLight: '#7cb342',
+        themeColorDark: '#1f3a14'
     },
     app: {
         heading: 'Равлик-бродилка',
@@ -22,7 +24,21 @@ export const uk = {
         starsLabel: 'Зірочки',
         objectiveLabel: 'Ціль',
         objectiveText: 'Збирай яблука і підходь до друзів, щоб відкривати нові завдання.',
-        fontToggle: 'Шрифт для читання'
+        objectiveMeetNpc: 'Підійди до {name}, щоб відкрити нове завдання.',
+        objectiveApplesRemaining: 'Чудово! У саду залишилося ще {count} яблук.',
+        fontToggle: 'Шрифт для читання',
+        themeToggleDark: 'Темна тема',
+        themeToggleLight: 'Світла тема',
+        settingsLabel: 'Налаштування інтерфейсу',
+        statsLabel: 'Статистика гри',
+        sessionLabel: 'Сесія',
+        sessionStatusDefault: 'Нова прогулянка почалася: 0 яблук і 0 зірочок.',
+        sessionStatus: 'У цій грі вже зібрано {apples} яблук і {stars} зірочок.',
+        contextLabel: 'Поруч зараз',
+        contextIdle: 'Спокійно оглянь галявину і обери, куди рухатись далі.',
+        contextIntro: 'Равлику час роздивитись галявину, зібрати яблука і знайти друзів із завданнями.',
+        contextExplore: 'На галявині є яблука та друзі з новими головоломками. Рухайся в зручному темпі.',
+        nearbyNpcBadge: 'Поруч: {name}'
     },
     intro: {
         title: 'Почнемо нову гру',
@@ -31,6 +47,7 @@ export const uk = {
     },
     dialog: {
         complete: 'Готово',
+        back: 'Повернутися',
         announce: 'Діалог з персонажем {name}. {task}'
     },
     score: {
@@ -84,5 +101,40 @@ export const uk = {
         b1_p1: 'Я Жук. Завдання: яка фігура наступна у послідовності?',
         b1_p2: 'Я Жук. Завдання: знайди зайвий елемент.',
         b1_p3: 'Я Жук. Завдання: що підходить до візерунка?'
+    },
+    taskUi: {
+        sequencePrompt: 'Продовж послідовність',
+        sequenceInstructions: 'Подивись на ряд і обери, що має бути далі.',
+        oddOneOutPrompt: 'Знайди зайвий предмет',
+        oddOneOutInstructions: 'Натисни на те, що не підходить до інших.',
+        compareMorePrompt: 'Знайди, де більше',
+        compareMoreInstructions: 'Подивись на дві групи і обери, де предметів більше.',
+        compareLessPrompt: 'Знайди, де менше',
+        compareLessInstructions: 'Подивись на дві групи і обери, де предметів менше.',
+        countAndMatchPrompt: 'Полічи предмети',
+        countAndMatchInstructions: 'Порахуйте всі крапки і натисни правильне число.',
+        simpleAdditionPrompt: 'Розв’яжи приклад',
+        simpleAdditionInstructions: 'Обчисли приклад і обери правильну відповідь.',
+        shapePatternPrompt: 'Знайди наступну фігуру',
+        shapePatternInstructions: 'Подивись на візерунок з фігур і обери, що має бути далі.',
+        simpleSubtractionPrompt: 'Розв’яжи віднімання',
+        simpleSubtractionInstructions: 'Обчисли приклад на віднімання і обери правильну відповідь.',
+        logicPairsPrompt: 'Знайди правильну пару',
+        logicPairsInstructions: 'Подивись на першу пару і обери іншу пару з таким самим зв’язком.',
+        orderAscPrompt: 'Розмісти числа від меншого до більшого',
+        orderAscInstructions: 'Натискай числа по черзі: спочатку найменше, потім більше.',
+        orderDescPrompt: 'Розмісти числа від більшого до меншого',
+        orderDescInstructions: 'Натискай числа по черзі: спочатку найбільше, потім менше.',
+        leftGroupLabel: 'Ліва група',
+        rightGroupLabel: 'Права група',
+        leftChoice: 'Ліворуч',
+        rightChoice: 'Праворуч',
+        answerLabel: 'Твоя відповідь',
+        bankLabel: 'Числа для вибору',
+        clearAnswer: 'Очистити',
+        correct: 'Правильно! Ще мить і зірочка твоя.',
+        tryAgain: 'Спробуй ще раз.',
+        orderRetry: 'Порядок ще не той. Склади ряд заново.',
+        successWithStar: 'Чудово! Завдання виконано, можна забирати зірочку.'
     }
 };

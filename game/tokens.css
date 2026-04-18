@@ -101,8 +101,42 @@
     --z-modal: 500;
 }
 
+body[data-theme="dark"] {
+    --color-primary: #60a5fa;
+    --color-primary-hover: #93c5fd;
+    --color-primary-soft: rgba(96, 165, 250, 0.16);
+    --color-text: #f3f4f6;
+    --color-text-muted: #cbd5e1;
+    --color-background: #1f3a14;
+    --color-surface: #111827;
+    --color-surface-raised: #1f2937;
+    --color-surface-glass: rgba(17, 24, 39, 0.82);
+    --color-border: #334155;
+    --color-border-strong: #64748b;
+    --color-overlay: rgba(2, 6, 23, 0.78);
+    --color-overlay-soft: rgba(15, 23, 42, 0.86);
+    --color-shadow-outline-soft: rgba(148, 163, 184, 0.22);
+    --color-panel-shadow: rgba(2, 6, 23, 0.45);
+    --color-grass-light: #2e5a1f;
+    --color-grass-dark: #1d3d13;
+    --color-grass-pattern: #456b2d;
+    --color-rock: #7c8797;
+    --color-rock-border: #cbd5e1;
+    --color-bush: #2f7b41;
+    --color-bush-border: #8ad0a1;
+    --color-twig: #8b6b57;
+    --color-twig-border: #d0b09a;
+    --color-apple: #ff6b57;
+    --color-apple-border: #ffd0c9;
+    --color-apple-leaf: #72d68c;
+    --color-mouse-surface: #94a3b8;
+    --color-mouse-border: #e2e8f0;
+    --color-beetle-surface: #0f172a;
+    --color-beetle-border: #94a3b8;
+}
+
 @media (prefers-color-scheme: dark) {
-    :root {
+    body:not([data-theme]) {
         --color-primary: #60a5fa;
         --color-primary-hover: #93c5fd;
         --color-primary-soft: rgba(96, 165, 250, 0.16);

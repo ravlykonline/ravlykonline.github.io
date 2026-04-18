@@ -8,10 +8,16 @@ export const DOM = {
     scoreDisplay: document.getElementById('score-display'),
     applesCount: document.getElementById('apples-count'),
     starsCount: document.getElementById('stars-count'),
+    hudSession: document.getElementById('hud-session'),
     hudObjective: document.getElementById('hud-objective'),
+    hudContext: document.getElementById('hud-context'),
+    hudNpcBadge: document.getElementById('hud-npc-badge'),
     fontToggleBtn: document.getElementById('font-toggle-btn'),
+    themeToggleBtn: document.getElementById('theme-toggle-btn'),
     dialogLayer: document.getElementById('dialog-layer'),
     dialogTitle: document.getElementById('dialog-title'),
     dialogText: document.getElementById('dialog-text'),
+    dialogContent: document.getElementById('dialog-content'),
+    dialogStatus: document.getElementById('dialog-status'),
     dialogBtn: document.getElementById('dialog-btn')
 };

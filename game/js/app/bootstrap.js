@@ -8,6 +8,8 @@ import { IntroScene } from '../scenes/intro-scene.js';
 import { GameScene } from '../scenes/game-scene.js';
 import { ScoreSystem } from '../systems/score-system.js';
 import { FontModeController } from '../ui/font-mode.js';
+import { HUDController } from '../ui/hud-controller.js';
+import { ThemeModeController } from '../ui/theme-mode.js';
 
 function resetSceneManager() {
     while (SceneManager.stack.length > 0) {
@@ -30,7 +32,9 @@ export function bootGame() {
     Announcer.init();
     Announcer.t = t;
     Input.init(Announcer);
+    HUDController.init({ dom: DOM });
     FontModeController.init({ dom: DOM });
+    ThemeModeController.init({ dom: DOM });
     resetSceneManager();
     ScoreSystem.init({ eventBus: EventBus, dom: DOM });
 
@@ -49,6 +53,8 @@ export function bootGame() {
         eventBus: EventBus,
         sceneManager: SceneManager,
         scoreSystem: ScoreSystem,
-        fontModeController: FontModeController
+        hudController: HUDController,
+        fontModeController: FontModeController,
+        themeModeController: ThemeModeController
     };
 }

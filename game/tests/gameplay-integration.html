@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#7cb342">
     <title>Gameplay інтеграційний тест</title>
     <link rel="stylesheet" href="../tokens.css">
     <link rel="stylesheet" href="../style.css">
@@ -66,6 +67,11 @@
     </div>
 
     <div id="ui-layer" role="status" aria-live="polite" aria-atomic="true">
+        <button id="font-toggle-btn" type="button">Шрифт для читання</button>
+        <button id="theme-toggle-btn" type="button">Темна тема</button>
+        <div id="apples-count">0</div>
+        <div id="stars-count">0</div>
+        <div id="hud-objective">Збирай яблука і підходь до друзів, щоб відкривати нові завдання.</div>
         <div id="score-display" aria-label="Рахунок">Яблука: 0 | Зірочки: 0</div>
         <div id="controls-hint" aria-label="Керування">WASD / стрілки / клік / Enter / T для прицілу</div>
         <div id="keyboard-mode-indicator" class="hidden" aria-live="assertive">Режим вибору цілі активовано</div>
@@ -76,6 +82,8 @@
         <div class="dialog-box">
             <h2 id="dialog-title" class="dialog-title">Равлик-бродилка</h2>
             <p id="dialog-text" class="dialog-text">Текст діалогу...</p>
+            <div id="dialog-content" class="dialog-content"></div>
+            <p id="dialog-status" class="dialog-status" aria-live="polite"></p>
             <div class="dialog-actions">
                 <button id="dialog-btn" class="dialog-btn dialog-btn--primary" type="button">Далі</button>
             </div>

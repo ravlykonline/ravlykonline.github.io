@@ -43,12 +43,13 @@
                     <p id="hud-kicker" class="hud-kicker" data-i18n="hud.kicker"></p>
                     <h2 id="hud-title" class="hud-title" data-i18n="app.heading"></h2>
                 </div>
-                <div class="hud-actions" aria-label="Налаштування читання">
+                <div class="hud-actions" data-i18n-aria-label="hud.settingsLabel">
                     <button id="font-toggle-btn" class="hud-action-btn" type="button" data-i18n="hud.fontToggle"></button>
+                    <button id="theme-toggle-btn" class="hud-action-btn" type="button" data-i18n="hud.themeToggleDark"></button>
                 </div>
             </div>
 
-            <div class="hud-stats" aria-label="Статистика гри">
+            <div class="hud-stats" data-i18n-aria-label="hud.statsLabel">
                 <article class="hud-stat hud-stat--apples">
                     <span class="hud-stat__icon" aria-hidden="true">●</span>
                     <span class="hud-stat__label" data-i18n="hud.applesLabel"></span>
@@ -61,9 +62,22 @@
                 </article>
             </div>
 
-            <div class="hud-message">
+            <div class="hud-ribbon">
+                <p id="hud-session-label" class="hud-ribbon__label" data-i18n="hud.sessionLabel"></p>
+                <p id="hud-session" class="hud-ribbon__text" data-i18n="hud.sessionStatusDefault"></p>
+            </div>
+
+            <div class="hud-message hud-message--primary">
                 <p id="hud-objective-label" class="hud-message__label" data-i18n="hud.objectiveLabel"></p>
                 <p id="hud-objective" class="hud-message__text" data-i18n="hud.objectiveText"></p>
+            </div>
+
+            <div class="hud-message hud-message--secondary">
+                <div class="hud-message__meta">
+                    <p id="hud-context-label" class="hud-message__label" data-i18n="hud.contextLabel"></p>
+                    <span id="hud-npc-badge" class="hud-badge hud-badge--soft hidden"></span>
+                </div>
+                <p id="hud-context" class="hud-message__text" data-i18n="hud.contextIdle"></p>
             </div>
 
             <div class="hud-footer">
@@ -79,6 +93,8 @@
         <div class="dialog-box">
             <h2 id="dialog-title" class="dialog-title" data-i18n="app.dialogTitleFallback"></h2>
             <p id="dialog-text" class="dialog-text" data-i18n="app.dialogTextFallback"></p>
+            <div id="dialog-content" class="dialog-content"></div>
+            <p id="dialog-status" class="dialog-status" aria-live="polite"></p>
             <div class="dialog-actions">
                 <button id="dialog-btn" class="dialog-btn dialog-btn--primary" type="button" data-i18n="app.dialogButtonFallback"></button>
             </div>

@@ -22,6 +22,13 @@ export class ModalScene {
 
         this.dom.dialogTitle.textContent = this.title;
         this.dom.dialogText.textContent = this.text;
+        if (this.dom.dialogContent) {
+            this.dom.dialogContent.innerHTML = '';
+        }
+        if (this.dom.dialogStatus) {
+            this.dom.dialogStatus.textContent = '';
+            this.dom.dialogStatus.className = 'dialog-status';
+        }
         this.dom.dialogBtn.textContent = this.buttonLabel;
         this.dom.dialogLayer.style.display = 'flex';
         this.dom.dialogLayer.setAttribute('aria-hidden', 'false');
@@ -65,6 +72,13 @@ export class ModalScene {
     destroy() {
         this.dom.dialogLayer.style.display = 'none';
         this.dom.dialogLayer.setAttribute('aria-hidden', 'true');
+        if (this.dom.dialogContent) {
+            this.dom.dialogContent.innerHTML = '';
+        }
+        if (this.dom.dialogStatus) {
+            this.dom.dialogStatus.textContent = '';
+            this.dom.dialogStatus.className = 'dialog-status';
+        }
         this.dom.dialogBtn.removeEventListener('click', this.handleActionBind);
         document.removeEventListener('keydown', this.handleKeydownBind);
 

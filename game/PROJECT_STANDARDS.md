@@ -364,6 +364,8 @@ For children with cognitive, attention, or learning disabilities — every signi
 - [ ] Choose the persistence model explicitly per tool mode:
       persistent learning tools auto-save progress, but **session-based classroom games on shared devices must reset to a fresh game after reload or browser restart**
       and must not restore another child's run by default
+- [ ] For this project specifically, session reset is the default and correct behavior:
+      no gameplay progress, stars, apples, or NPC completion state should survive page reload, browser restart, or a new child starting a session on the same device
 - [ ] Error messages are friendly and constructive — never blame the user
 
 ### 5.3 Reduced Motion
@@ -728,6 +730,16 @@ self.addEventListener('fetch', event => {
 - [ ] Input fields remain active offline; data is queued for submission
 - [ ] No spinner that hangs forever — timeout after **8 seconds** with offline fallback message
 
+### 10.4 Shared-Device Session Policy
+
+This project is a **shared-device classroom game**, not a personal long-term progress tracker.
+
+- [ ] Fresh start on every new session is a product requirement, not a missing feature
+- [ ] Browser reload or restart must open a new game state by default
+- [ ] Do not restore another child's puzzle sequence, collected apples, or earned stars automatically
+- [ ] Randomized NPC task selection is encouraged to keep repeated classroom sessions varied
+- [ ] If teacher-facing persistence is added later, it must be clearly separated from child gameplay sessions
+
 ---
 
 ## 11. Design Tokens & AI Agent Rules
@@ -870,6 +882,14 @@ When generating or modifying a component, the AI agent **must**:
 - [ ] Default language: **Ukrainian**
 - [ ] Ukrainian typography: quotes «», em dash —
 - [ ] Font verified to include full **Cyrillic character set**
+- [ ] All source files that contain Ukrainian text must be saved as **UTF-8**
+- [ ] The test suite must include a regression check for mojibake/replacement artifacts such as `Ð`, `Ñ`, `�`, `?` in broken Cyrillic output
+
+### 13.1 Current Project Implementation Rules
+
+- [ ] Gameplay text, HUD labels, onboarding, and puzzle copy continue to live in centralized i18n resources
+- [ ] New puzzle types must provide Ukrainian copy through the same resource layer before merge
+- [ ] Encoding regressions are treated as release blockers because they directly break readability for children
 
 ---
 
@@ -883,6 +903,11 @@ npx lighthouse --preset=desktop
 npx lighthouse --preset=mobile
 npx html-validate ./dist/**/*.html
 ```
+
+- [ ] Core browser tests cover movement rules, task selection, HUD state, and theme/font controllers
+- [ ] Integration tests cover the main classroom loop: onboarding → movement → NPC interaction → puzzle completion → star reward → HUD update
+- [ ] Encoding regression tests scan critical Ukrainian UI/task files for mojibake and replacement-character artifacts
+- [ ] New puzzle types ship with automated coverage for generation and answer validation
 
 ### 14.2 Accessibility (Manual)
 
@@ -917,6 +942,13 @@ npx html-validate ./dist/**/*.html
 - [ ] PWA installable (passes Chrome install criteria)
 - [ ] Offline mode: disconnect network, verify `/offline.html` appears and cached content loads
 - [ ] Canvas elements: test with screen reader + verify `aria-live` announcements fire correctly
+
+### 14.6 Architectural Regression Checks
+
+- [ ] New gameplay logic is added in focused modules instead of expanding a monolithic `script.js`
+- [ ] NPC content is assigned through `taskPoolId`/task pools, not hardcoded one-off dialog branches
+- [ ] Puzzle rendering, puzzle data, and answer evaluation stay separable so new task types do not require `GameScene` rewrites
+- [ ] HUD changes are routed through the HUD controller layer instead of ad-hoc DOM mutations from unrelated modules
 
 ---
 
@@ -994,8 +1026,8 @@ npx html-validate ./dist/**/*.html
 
 ---
 
-> **Last updated:** _(fill in date at project creation)_
-> **Version:** 3.0
-> **Maintained by:** _(author name)_
+> **Last updated:** 2026-04-18
+> **Version:** 3.1
+> **Maintained by:** project contributors
 >
 > *Review and update at the start of each new major feature.*

@@ -1,5 +1,4 @@
 import { bootGame } from '../js/app/bootstrap.js';
-import { t } from '../js/i18n/index.js';
 import { SceneManager } from '../js/scenes/scene-manager.js';
 
 const summary = document.getElementById('integration-summary');
@@ -14,10 +13,36 @@ function assert(condition, message) {
     }
 }
 
+async function solveTask(task) {
+    if (task.correctChoiceId) {
+        document.querySelector(`[data-choice-id="${task.correctChoiceId}"]`)?.click();
+        await wait(40);
+        return;
+    }
+
+    if (task.type === 'order-numbers') {
+        task.correctOrder.forEach((value) => {
+            document.querySelector(`[data-bank-value="${value}"]`)?.click();
+        });
+        await wait(40);
+    }
+}
+
 async function run() {
     const app = bootGame();
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const initialTheme = document.body.dataset.theme;
+    const initialThemeColor = document.querySelector('meta[name="theme-color"]')?.getAttribute('content');
 
     assert(SceneManager.active.constructor.name === 'IntroScene', 'Гра має стартувати з onboarding-модалки.');
+    assert(initialTheme === 'light' || initialTheme === 'dark', 'Після bootGame має встановлюватися явна тема.');
+    assert(Boolean(themeToggleBtn), 'HUD має містити кнопку перемикання теми.');
+
+    themeToggleBtn.click();
+    await wait(20);
+
+    assert(document.body.dataset.theme !== initialTheme, 'Перемикач теми має змінювати data-theme.');
+    assert(document.querySelector('meta[name="theme-color"]')?.getAttribute('content') !== initialThemeColor, 'Перемикач теми має оновлювати meta theme-color.');
 
     document.getElementById('dialog-btn').click();
     await wait(80);
@@ -44,14 +69,16 @@ async function run() {
     await wait(80);
 
     assert(SceneManager.active.constructor.name === 'DialogScene', 'Клік по NPC має відкрити діалог.');
-    assert(document.getElementById('dialog-text').textContent.includes(t(targetNpc.activeTask.dialogKey)), 'У діалозі має бути активне випадкове завдання.');
+    assert(document.getElementById('dialog-text').textContent.includes(targetNpc.activeTask.prompt), 'У діалозі має бути активне випадкове завдання.');
+
+    await solveTask(targetNpc.activeTask);
+    assert(targetNpc.completed === true, 'NPC має позначатися виконаним після правильної відповіді.');
+    assert(app.scoreSystem.stars === 1, 'За правильно розв’язане завдання має нараховуватись одна зірочка.');
 
     document.getElementById('dialog-btn').click();
     await wait(80);
 
     assert(SceneManager.active.constructor.name === 'GameScene', 'Після завершення діалогу гра має повернутись назад.');
-    assert(targetNpc.completed === true, 'NPC має відмічатись як виконаний.');
-    assert(app.scoreSystem.stars === 1, 'За виконане завдання має нараховуватись одна зірочка.');
     assert(document.getElementById('score-display').textContent.includes('Зірочки: 1'), 'UI має показувати оновлений рахунок зірочок.');
 
     summary.textContent = 'PASS: onboarding, NPC-взаємодія та зірочка працюють';

@@ -1,4 +1,5 @@
 import { t } from '../i18n/index.js';
+import { HUDController } from '../ui/hud-controller.js';
 
 export const ScoreSystem = {
     apples: 0,
@@ -33,5 +34,6 @@ export const ScoreSystem = {
         if (this.dom.starsCount) {
             this.dom.starsCount.textContent = `${this.stars}`;
         }
+        HUDController.setSessionSummary({ apples: this.apples, stars: this.stars });
     }
 };
