@@ -94,7 +94,7 @@ test('responsive UI and safe-delete styles remain present', () => {
   assert.ok(render.includes('ArrowRight'));
   assert.ok(render.includes("tabindex', '-1'"));
   assert.ok(ui.includes('registerServiceWorker'));
-  assert.ok(ui.includes("navigator.serviceWorker.register('sw.js')"));
+  assert.ok(ui.includes("navigator.serviceWorker.register('./sw.js')"));
   assert.ok(ui.includes("root.style.setProperty('--gs-w'"));
   assert.ok(ui.includes("root.style.setProperty('--gs-h'"));
   assert.ok(readUtf8('sw.js').includes('isSuccessfulDocumentResponse'));

@@ -231,6 +231,7 @@
     }
 
     app.resetLevelState();
+    app.persistCurrentArrows?.();
     app.render.clearTrail();
     app.render.clearStartHighlight();
     app.render.posSnail(start.r, start.c, false, app.state.snailFacing || 'right');

@@ -1,7 +1,7 @@
 // Service worker for offline play.
 // Core app files use network-first so deployed updates can replace older cached
 // copies without relying entirely on manual cache version bumps.
-const STATIC_CACHE = 'ravlyk-static-v1';
+const STATIC_CACHE = 'ravlyk-static-v4';
 const APP_SHELL = [
   './',
   './index.html',
@@ -11,6 +11,27 @@ const APP_SHELL = [
   './css/tokens.css',
   './css/base.css',
   './css/game.css',
+  './js/core/config.js',
+  './js/core/constants.js',
+  './js/core/levels.js',
+  './js/core/texts.uk.js',
+  './js/engine/levelRules.js',
+  './js/engine/route.js',
+  './js/engine/simulator.js',
+  './js/engine/validation.js',
+  './js/features/audio.js',
+  './js/features/confetti.js',
+  './js/features/pwaRegister.js',
+  './js/features/speech.js',
+  './js/state/gameState.js',
+  './js/state/sessionStore.js',
+  './js/ui/dom.js',
+  './js/ui/focus.js',
+  './js/ui/modals.js',
+  './js/ui/renderBoard.js',
+  './js/ui/renderLevelMap.js',
+  './js/ui/renderPalette.js',
+  './js/ui/renderProgress.js',
   './js/main.js',
   './js/levels.js',
   './js/texts.uk.js',

@@ -16,6 +16,7 @@
     levelHintEl,
     debugNoteEl,
     progressTextEl,
+    progressTrackEl,
     progressFillEl,
     sicoEl,
     snailEl,
@@ -185,7 +186,7 @@
 
     progressTextEl.textContent = text.progress(completed, total);
     progressFillEl.style.width = `${percent}%`;
-    progressFillEl.setAttribute('aria-valuenow', String(percent));
+    progressTrackEl.setAttribute('aria-valuenow', String(percent));
   }
 
   function refreshLevelUi() {
@@ -294,18 +295,30 @@
   }
 
   function launchConfetti() {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
     const colors = ['#3a7d44', '#e8623a', '#f5c842', '#5b9cf6', '#e86fa3', '#a3d977', '#ff9966', '#1a6fc2'];
-    confEl.innerHTML = '';
+    confEl.replaceChildren();
 
     for (let i = 0; i < 75; i += 1) {
       const part = document.createElement('div');
       part.className = 'cp';
-      part.style.cssText = `left:${Math.random() * 100}vw;background:${colors[i % colors.length]};width:${6 + Math.random() * 9}px;height:${10 + Math.random() * 12}px;border-radius:${Math.random() > 0.5 ? '50%' : '3px'};transform:rotate(${Math.random() * 360}deg);animation-duration:${1.1 + Math.random() * 1.9}s;animation-delay:${Math.random() * 0.5}s;opacity:.9`;
+      part.style.left = `${Math.random() * 100}vw`;
+      part.style.background = colors[i % colors.length];
+      part.style.width = `${6 + Math.random() * 9}px`;
+      part.style.height = `${10 + Math.random() * 12}px`;
+      part.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+      part.style.transform = `rotate(${Math.random() * 360}deg)`;
+      part.style.animationDuration = `${1.1 + Math.random() * 1.9}s`;
+      part.style.animationDelay = `${Math.random() * 0.5}s`;
+      part.style.opacity = '.9';
       confEl.appendChild(part);
     }
 
     setTimeout(() => {
-      confEl.innerHTML = '';
+      confEl.replaceChildren();
     }, 4500);
   }
 
@@ -397,7 +410,7 @@
     }
 
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(() => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {
         // Keep the game playable even when service workers are unavailable.
       });
     }, { once: true });

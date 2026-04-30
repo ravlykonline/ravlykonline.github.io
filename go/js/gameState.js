@@ -1,11 +1,41 @@
 (function () {
   const app = window.SnailGame;
   const level = app.levels[0];
-  const STORAGE_KEY = 'ravlyk-code-progress-v1';
+  const STORAGE_KEY = 'ravlyk-code-session-v1';
+  const LEGACY_STORAGE_KEY = 'ravlyk-code-progress-v1';
+  const SESSION_VERSION = 1;
 
   // Clones preset arrows so level templates stay immutable while the player edits the board.
   function cloneArrowMap(source) {
     return Object.fromEntries(Object.entries(source || {}).map(([key, value]) => [key, value]));
+  }
+
+  function getLevelStorageKey(levelId) {
+    return String(levelId);
+  }
+
+  function isPlainObject(value) {
+    return !!value && typeof value === 'object' && !Array.isArray(value);
+  }
+
+  function normalizeSavedArrowsByLevel(source) {
+    if (!isPlainObject(source)) {
+      return {};
+    }
+
+    return Object.fromEntries(
+      Object.entries(source)
+        .filter(([levelId, arrows]) => app.getLevelById(Number(levelId)) && isPlainObject(arrows))
+        .map(([levelId, arrows]) => [String(levelId), cloneArrowMap(arrows)])
+    );
+  }
+
+  function getCurrentLevelArrows() {
+    const levelKey = getLevelStorageKey(app.state.currentLevel.id);
+    if (!app.state.arrowsByLevel[levelKey]) {
+      app.state.arrowsByLevel[levelKey] = cloneArrowMap(app.state.currentLevel.presetArrows);
+    }
+    return app.state.arrowsByLevel[levelKey];
   }
 
   // Wraps sessionStorage access because file:// and privacy settings may block it.
@@ -25,7 +55,11 @@
     }
 
     const payload = {
+      version: SESSION_VERSION,
       currentLevelId: app.state.currentLevel.id,
+      arrowsByLevel: Object.fromEntries(
+        Object.entries(app.state.arrowsByLevel).map(([levelId, arrows]) => [levelId, cloneArrowMap(arrows)])
+      ),
       completedLevelIds: [...app.state.completedLevelIds]
     };
     try {
@@ -44,7 +78,7 @@
 
     let raw = null;
     try {
-      raw = storage.getItem(STORAGE_KEY);
+      raw = storage.getItem(STORAGE_KEY) || storage.getItem(LEGACY_STORAGE_KEY);
     } catch {
       return null;
     }
@@ -66,6 +100,7 @@
     }
     try {
       storage.removeItem(STORAGE_KEY);
+      storage.removeItem(LEGACY_STORAGE_KEY);
     } catch {
       // Ignore storage clear failures in privacy-restricted contexts so gameplay can continue.
     }
@@ -96,6 +131,7 @@
     touchDir: null,
     touchCell: null,
     currentLevel: level,
+    arrowsByLevel: {},
     completedLevelIds: []
   };
 
@@ -125,6 +161,7 @@
     levelHintEl: document.getElementById('level-hint'),
     debugNoteEl: document.getElementById('debug-note'),
     progressTextEl: document.getElementById('progress-text'),
+    progressTrackEl: document.getElementById('progress-track'),
     progressFillEl: document.getElementById('progress-fill'),
     btnMap: document.getElementById('btn-map'),
     ghostEl: document.getElementById('ghost'),
@@ -198,9 +235,15 @@
     }
   };
 
+  app.persistCurrentArrows = function persistCurrentArrows() {
+    const levelKey = getLevelStorageKey(app.state.currentLevel.id);
+    app.state.arrowsByLevel[levelKey] = cloneArrowMap(app.state.arrows);
+    saveProgress();
+  };
+
   // Resets all transient state that belongs to one level attempt.
   app.resetLevelState = function resetLevelState() {
-    app.state.arrows = cloneArrowMap(app.state.currentLevel.presetArrows);
+    app.state.arrows = cloneArrowMap(getCurrentLevelArrows());
     app.state.snailPos = { ...app.state.currentLevel.start };
     app.state.snailFacing = app.getStartFacing();
     app.state.appleEaten = false;
@@ -229,6 +272,7 @@
 
   app.restartProgress = function restartProgress() {
     app.state.completedLevelIds = [];
+    app.state.arrowsByLevel = {};
     clearSavedProgress();
     app.state.currentLevel = app.levels[0];
     app.config.rows = app.state.currentLevel.rows;
@@ -241,7 +285,8 @@
     clearSavedProgress,
     loadProgress,
     saveProgress,
-    storageKey: STORAGE_KEY
+    storageKey: STORAGE_KEY,
+    legacyStorageKey: LEGACY_STORAGE_KEY
   };
 
   const saved = loadProgress();
@@ -249,6 +294,7 @@
     app.state.completedLevelIds = Array.isArray(saved.completedLevelIds)
       ? saved.completedLevelIds.filter((id) => !!app.getLevelById(id))
       : [];
+    app.state.arrowsByLevel = normalizeSavedArrowsByLevel(saved.arrowsByLevel);
 
     const savedLevel = app.getLevelById(saved.currentLevelId);
     if (savedLevel) {

@@ -118,3 +118,12 @@ test('safe delete flow keeps pending-delete and preset arrow markers', () => {
   assert.match(gameCss, /\.cell-delete-btn/);
   assert.match(gameCss, /pending-delete-wiggle/);
 });
+
+test('runtime confetti respects reduced motion and avoids innerHTML clearing', () => {
+  const ui = fs.readFileSync(path.join(root, 'js/ui.js'), 'utf8');
+
+  assert.match(ui, /prefers-reduced-motion: reduce/);
+  assert.match(ui, /confEl\.replaceChildren\(\)/);
+  assert.doesNotMatch(ui, /confEl\.innerHTML\s*=/);
+  assert.doesNotMatch(ui, /part\.style\.cssText/);
+});

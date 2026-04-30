@@ -174,6 +174,7 @@
 
     clearPendingDelete();
     app.state.arrows[`${r},${c}`] = dir;
+    app.persistCurrentArrows?.();
     renderCell(r, c);
     app.ui?.onRouteChanged?.();
   }
@@ -198,6 +199,7 @@
     if (app.state.pendingDeleteKey === key) {
       app.state.pendingDeleteKey = null;
     }
+    app.persistCurrentArrows?.();
     renderCell(r, c);
     app.ui?.onRouteChanged?.();
   }
