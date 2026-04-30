@@ -714,8 +714,8 @@ self.addEventListener('fetch', event => {
 ```
 
 - [ ] `/offline.html` exists — a friendly page shown when user is offline, with list of cached content available
-- [ ] Progress and user answers are **saved to localStorage / IndexedDB** immediately on input — not only on submit
-- [ ] On reconnect, pending data is synced automatically (Background Sync API where supported)
+- [ ] For this project, progress is saved only to `sessionStorage` through `js/state/sessionStore.js`
+- [ ] Do not use `localStorage`, `IndexedDB`, background sync, or remote submission in this game unless the product constraints are explicitly changed
 
 **Offline user experience checklist:**
 

@@ -5,14 +5,12 @@ This file is mandatory reading before editing the project.
 You are working on **Пригоди Равлика**, a small static educational PWA game published at:
 
 ```text
-ravlyk.org/go
+https://ravlyk.org/go
 ```
 
 The owner wants a **soft technical refactor**, not a redesign and not a platform rewrite.
 
----
-
-## Product constraints
+## Product Constraints
 
 The project must remain:
 
@@ -30,82 +28,28 @@ The project must remain:
 - no framework;
 - no persistent progress after closing the tab.
 
-The game must work at:
-
-```text
-https://ravlyk.org/go
-```
-
 Use relative paths compatible with `/go`.
 
----
+## Current State
 
-## Primary refactor goal
-
-Refactor the code from a global-object architecture:
-
-```js
-window.SnailGame
-```
-
-to native ES modules:
-
-```html
-<script type="module" src="./js/main.js"></script>
-```
-
-Do not significantly change the UI or gameplay.
-
----
-
-## Non-goals
-
-Do **not**:
-
-- add React, Vue, Svelte, Angular, Vite, Webpack, Parcel, or any other framework/build tool;
-- add TypeScript unless explicitly requested later;
-- add npm runtime dependencies;
-- add backend/API calls;
-- add login, accounts, users, profiles, or teacher dashboard;
-- add analytics;
-- add cookies;
-- add `localStorage`;
-- add remote fonts, remote icons, remote images, or CDN assets;
-- redesign the game;
-- change the visual identity unless needed to fix a bug;
-- change the number of levels;
-- lock levels behind progression;
-- remove offline/PWA support.
-
----
-
-## Current technical context
-
-Current files include:
-
-```text
-index.html
-manifest.json
-offline.html
-sw.js
-css/tokens.css
-css/base.css
-css/game.css
-js/main.js
-js/levels.js
-js/texts.uk.js
-js/gameState.js
-js/renderDrag.js
-js/renderSnail.js
-js/render.js
-js/engineRoute.js
-js/engine.js
-js/uiAudio.js
-js/uiModals.js
-js/ui.js
-assets/*
-tests/*
-```
+- `index.html` loads one module entrypoint: `<script type="module" src="./js/main.js"></script>`.
+- The old root-level classic script chain has been removed from `index.html`.
+- The old root-level classic JS files were deleted:
+  - `js/levels.js`
+  - `js/texts.uk.js`
+  - `js/gameState.js`
+  - `js/renderDrag.js`
+  - `js/renderSnail.js`
+  - `js/render.js`
+  - `js/engineRoute.js`
+  - `js/engine.js`
+  - `js/uiAudio.js`
+  - `js/uiModals.js`
+  - `js/ui.js`
+- Current runtime code is split across ES modules under `js/core`, `js/state`, `js/engine`, `js/ui`, `js/features`, and `js/app`.
+- `js/app/legacy*.js` is a temporary compatibility layer. It keeps the current behavior stable while the remaining old runtime contract is dismantled.
+- `window.SnailGame` may still exist as temporary compatibility glue, but new code should not add new global state or new dependencies on it.
+- `sw.js` caches the current module files and assets, not the deleted classic files.
 
 Current tests run with:
 
@@ -115,53 +59,78 @@ npm test
 
 Keep this command working.
 
----
-
-## Desired target structure
-
-Refactor toward this structure:
+## Current Structure
 
 ```text
-js/
-  main.js
+/
+  index.html
+  manifest.json
+  offline.html
+  sw.js
 
-  core/
-    config.js
-    constants.js
-    levels.js
-    texts.uk.js
+  assets/
+  css/
 
-  engine/
-    simulator.js
-    route.js
-    validation.js
-    levelRules.js
+  js/
+    main.js
+    main.module.js
 
-  state/
-    sessionStore.js
-    gameState.js
+    app/
+      composition.js
+      legacy*.js
 
-  ui/
-    dom.js
-    renderBoard.js
-    renderPalette.js
-    renderLevelMap.js
-    renderProgress.js
-    modals.js
-    focus.js
+    core/
+      config.js
+      constants.js
+      levels.js
+      texts.uk.js
 
-  features/
-    audio.js
-    speech.js
-    confetti.js
-    pwaRegister.js
+    engine/
+      levelRules.js
+      route.js
+      simulator.js
+      validation.js
+
+    features/
+      audio.js
+      confetti.js
+      pwaRegister.js
+      speech.js
+
+    state/
+      gameState.js
+      sessionStore.js
+
+    ui/
+      assets.js
+      dom.js
+      focus.js
+      modals.js
+      renderBoard.js
+      renderLevelMap.js
+      renderPalette.js
+      renderProgress.js
+
+  tests/
 ```
 
-This exact structure can be adjusted if needed, but preserve the separation of responsibilities.
+## Target Direction
 
----
+Continue reducing `js/app/legacy*.js` until the app can run through explicit module imports and plain function calls only.
 
-## Required behavior
+The final direction is:
+
+- `js/main.js` and `js/main.module.js` initialize the app;
+- `js/core/*` owns static data, constants, and config;
+- `js/state/*` owns state and `sessionStorage`;
+- `js/engine/*` owns pure gameplay simulation and validation;
+- `js/ui/*` owns DOM rendering and interaction;
+- `js/features/*` owns optional browser features;
+- no app state depends on `window.SnailGame`.
+
+Do not bring back the deleted root-level classic files.
+
+## Required Behavior
 
 ### Progress/session behavior
 
@@ -184,7 +153,7 @@ After closing the tab:
 - browser clears `sessionStorage`;
 - the next visit starts from scratch.
 
-Add or preserve a **“Почати гру спочатку”** action:
+Preserve **“Почати гру спочатку”**:
 
 - asks for confirmation;
 - clears session state;
@@ -206,30 +175,37 @@ Add or preserve a **“Почати гру спочатку”** action:
 - Service worker must be registered with `./sw.js`.
 - Manifest and asset paths must be relative.
 - Update `sw.js` app shell when files move.
-- Bump cache version when changing cached files.
+- Bump `STATIC_CACHE` when changing cached files.
 
----
-
-## Module responsibilities
+## Module Responsibilities
 
 ### `js/main.js`
 
 Allowed:
 
-- import modules;
-- initialize app;
-- wire event handlers;
-- trigger first render;
-- call PWA registration.
+- import the module runtime;
+- start the app.
 
 Avoid:
 
-- large UI rendering code;
+- UI rendering code;
 - route simulation logic;
 - storage implementation details;
 - hardcoded level data.
 
----
+### `js/main.module.js`
+
+Allowed:
+
+- compose modules;
+- initialize app;
+- call PWA registration;
+- hold only temporary compatibility wiring that is being actively reduced.
+
+Avoid:
+
+- growing the compatibility layer;
+- adding new global contracts.
 
 ### `js/core/levels.js`
 
@@ -248,8 +224,6 @@ Rules:
 - no `window.SnailGame`;
 - preserve current level content unless intentionally fixing a bug.
 
----
-
 ### `js/core/texts.uk.js`
 
 Must export Ukrainian UI text constants:
@@ -260,20 +234,9 @@ export const textsUk = {...};
 
 Do not hardcode repeated UI text across modules.
 
----
-
 ### `js/state/sessionStore.js`
 
 The only allowed file to access `window.sessionStorage`.
-
-Must export something like:
-
-```js
-export function loadSession() {}
-export function saveSession(payload) {}
-export function clearSession() {}
-export function isSessionStorageAvailable() {}
-```
 
 Requirements:
 
@@ -283,111 +246,35 @@ Requirements:
 - never throw during normal gameplay;
 - never use `localStorage`.
 
-Expected payload:
-
-```js
-{
-  version: 1,
-  currentLevelId: 7,
-  arrowsByLevel: {
-    "7": {
-      "1,2": "right",
-      "1,3": "down"
-    }
-  },
-  completedLevelIds: [1, 2, 3]
-}
-```
-
----
-
 ### `js/state/gameState.js`
 
-Owns app state and state transitions.
+Owns app state and state transitions. Keep this module independent from DOM.
 
-Should expose functions such as:
+### `js/engine/*`
 
-```js
-createInitialState(levels, savedSession)
-setCurrentLevel(state, levelId)
-placeArrow(state, levelId, key, direction)
-removeArrow(state, levelId, key)
-markLevelComplete(state, levelId)
-restartGame(state)
+Engine modules must stay pure:
+
+- no DOM;
+- no audio;
+- no storage;
+- no global app state.
+
+Simulation failures may include:
+
+```text
+missing-arrow
+blocked
+out-of-board
+loop
+wrong-turn
+max-steps
 ```
-
-Keep this module independent from DOM.
-
----
-
-### `js/engine/simulator.js`
-
-Pure gameplay simulation.
-
-Input example:
-
-```js
-simulateLevel({ level, arrows, config })
-```
-
-Output example:
-
-```js
-{
-  success: true,
-  path: [...],
-  reason: null
-}
-```
-
-Failure output example:
-
-```js
-{
-  success: false,
-  path: [...],
-  reason: 'missing-arrow'
-}
-```
-
-Allowed reasons may include:
-
-```js
-'missing-arrow'
-'blocked'
-'out-of-board'
-'loop'
-'wrong-turn'
-'max-steps'
-```
-
-Hard rule: engine must not access DOM, audio, storage, or global app state.
-
----
-
-### `js/engine/validation.js`
-
-Validate levels and optionally game moves.
-
-Minimum checks:
-
-- exactly 20 levels;
-- unique ids;
-- valid type;
-- valid board size;
-- valid start/apple coordinates;
-- no obstacles on start/apple;
-- valid tile ids;
-- valid preset arrow coordinates;
-- level is solvable.
-
----
 
 ### `js/ui/*`
 
 UI modules may access DOM, but should not implement route simulation or storage internals.
 
-Expected split:
+Expected responsibilities:
 
 - `dom.js` — collect DOM refs;
 - `renderBoard.js` — board rendering;
@@ -396,8 +283,6 @@ Expected split:
 - `renderProgress.js` — progress text/bar/ARIA;
 - `modals.js` — modal dialogs;
 - `focus.js` — focus trap and keyboard support.
-
----
 
 ### `js/features/*`
 
@@ -410,9 +295,7 @@ Feature modules:
 
 Each feature must degrade gracefully if unsupported.
 
----
-
-## Security rules
+## Security Rules
 
 Hard rules:
 
@@ -443,9 +326,7 @@ element.innerHTML = html;
 
 If `innerHTML` remains temporarily, it must be limited to safe, non-user-controlled content and covered by tests or a documented whitelist.
 
----
-
-## Accessibility rules
+## Accessibility Rules
 
 Preserve or improve:
 
@@ -457,15 +338,12 @@ Preserve or improve:
 - touch-friendly target sizes;
 - `prefers-reduced-motion` support.
 
-Important fix:
+Important:
 
 - `aria-valuenow` must be updated on the element that has `role="progressbar"`, not on a child fill element.
+- Destructive actions must have explicit cancel buttons, not only an `×` close button.
 
-Destructive actions must have explicit cancel buttons, not only an `×` close button.
-
----
-
-## Path rules for `/go`
+## Path Rules For `/go`
 
 Use relative paths:
 
@@ -492,95 +370,19 @@ Do not use root-relative paths:
 
 These may break under `/go`.
 
----
+## Next Refactor Sequence
 
-## Refactor sequence
+Move step by step. Do not attempt a massive rewrite.
 
-Follow this sequence. Do not attempt a massive rewrite in one step.
+1. Keep `npm test` green before and after meaningful changes.
+2. Split remaining UI behavior out of `js/app/legacyUi.js` into focused `js/ui/*` modules.
+3. Split remaining engine/runtime behavior out of `js/app/legacyEngine.js` and `js/app/legacyState.js`.
+4. Replace temporary `window.SnailGame` wiring with explicit imports and dependency passing.
+5. Delete `js/app/legacy*.js` only after the module contracts no longer need them.
+6. Update `sw.js` and tests whenever files move.
+7. Re-check browser smoke and offline behavior after PWA-affecting changes.
 
-### Step 1 — Documentation and tests baseline
-
-- Ensure `npm test` passes before editing.
-- Read `README.md`, `ARCHITECTURE.md`, `SECURITY.md`, `LEVELS.md`, `PWA.md`, `PROJECT_STANDARDS.md`.
-- Do not change UX.
-
-### Step 2 — Convert data modules
-
-- Convert `js/levels.js` to `js/core/levels.js` with `export const levels`.
-- Convert `js/texts.uk.js` to `js/core/texts.uk.js` with `export const textsUk`.
-- Preserve content.
-- Update tests.
-
-### Step 3 — Extract constants/config
-
-- Create `js/core/constants.js`.
-- Create `js/core/config.js`.
-- Move tile definitions, directions, config values.
-- Keep behavior unchanged.
-
-### Step 4 — Extract storage
-
-- Create `js/state/sessionStore.js`.
-- Move all `sessionStorage` access there.
-- Add arrows persistence by level.
-- Add defensive schema handling.
-- Ensure no `localStorage`.
-
-### Step 5 — Extract game state
-
-- Create `js/state/gameState.js`.
-- Move state creation and transitions.
-- Keep state DOM-free.
-
-### Step 6 — Extract engine
-
-- Create `js/engine/simulator.js`, `route.js`, `levelRules.js`, `validation.js`.
-- Make route simulation pure.
-- UI should consume simulation result, not drive the domain logic.
-
-### Step 7 — Extract UI modules
-
-- Split rendering into `ui/*` files.
-- Keep visual output as close as possible to current output.
-- Preserve drag/drop, click/tap, keyboard behavior.
-
-### Step 8 — Update entrypoint
-
-- Update `index.html` to load only:
-
-```html
-<script type="module" src="./js/main.js"></script>
-```
-
-- Remove old script tags.
-- Ensure app initializes correctly.
-
-### Step 9 — PWA update
-
-- Update `sw.js` APP_SHELL for the new files.
-- Bump `STATIC_CACHE` version.
-- Ensure `manifest.json` uses relative paths compatible with `/go`.
-- Ensure service worker registration uses `./sw.js`.
-
-### Step 10 — Test hardening
-
-Add or update tests for:
-
-- exactly 20 levels;
-- level validity;
-- solvability;
-- no external URLs;
-- no `localStorage`;
-- `sessionStorage` only through `sessionStore.js`;
-- no `eval`, `new Function`, `document.write`;
-- PWA cached files exist;
-- manifest is `/go` compatible;
-- no BOM in text files;
-- progressbar ARIA.
-
----
-
-## Testing requirements
+## Testing Requirements
 
 Run after every meaningful change:
 
@@ -597,9 +399,7 @@ If tests fail:
 3. Fix the smallest possible scope.
 4. Do not remove tests just to pass.
 
----
-
-## Coding style
+## Coding Style
 
 - Use plain JavaScript ES modules.
 - Use `const` by default, `let` only when reassignment is needed.
@@ -611,9 +411,7 @@ If tests fail:
 - UI text should be in Ukrainian.
 - Technical comments may be in English if clearer.
 
----
-
-## DOM rules
+## DOM Rules
 
 Prefer:
 
@@ -644,9 +442,7 @@ element.style.cssText = '...';
 
 Inline style is allowed only where there is a clear need and no simple CSS-class alternative.
 
----
-
-## UX preservation rules
+## UX Preservation Rules
 
 The owner explicitly wants the current visual appearance to remain mostly unchanged.
 
@@ -656,7 +452,7 @@ Allowed changes:
 - accessibility fixes;
 - code-driven layout stability fixes;
 - mobile/touch fixes;
-- adding “Почати гру спочатку”;
+- preserving or improving “Почати гру спочатку”;
 - small wording improvements.
 
 Not allowed without explicit approval:
@@ -669,15 +465,14 @@ Not allowed without explicit approval:
 - changing from 20 levels;
 - changing the target audience.
 
----
-
-## Required final checks before handing off
+## Required Final Checks Before Handing Off
 
 Before finishing a refactor task, verify:
 
 - [ ] `npm test` passes.
-- [ ] `index.html` uses `type="module"` when module refactor is complete.
-- [ ] No `window.SnailGame` application state remains when module refactor is complete.
+- [ ] `index.html` uses `type="module"`.
+- [ ] No deleted classic root JS files were reintroduced.
+- [ ] No new dependency on `window.SnailGame` was added.
 - [ ] No `localStorage` appears in source files.
 - [ ] No external URLs were introduced.
 - [ ] Current level persists after reload in the same tab.
@@ -689,9 +484,7 @@ Before finishing a refactor task, verify:
 - [ ] PWA offline still works.
 - [ ] UI did not significantly change.
 
----
-
-## If unsure
+## If Unsure
 
 When in doubt, choose the simpler option that preserves:
 
