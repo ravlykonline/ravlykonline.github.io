@@ -1,4 +1,11 @@
-(function () {
+export function installLegacyUi({
+  documentRef = document,
+  navigatorRef = navigator,
+  windowRef = window
+} = {}) {
+  const document = documentRef;
+  const navigator = navigatorRef;
+  const window = windowRef;
   const app = window.SnailGame;
   const {
     btnRun,
@@ -545,4 +552,4 @@
   };
 
   init();
-})();
+}

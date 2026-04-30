@@ -1,11 +1,18 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const vm = require('node:vm');
+const { pathToFileURL } = require('node:url');
 
 const root = path.resolve(__dirname, '..');
 const htmlPath = path.join(root, 'index.html');
 const cssFiles = ['css/tokens.css', 'css/base.css', 'css/game.css'];
-const jsFiles = ['js/main.js', 'js/levels.js', 'js/texts.uk.js', 'js/gameState.js', 'js/renderDrag.js', 'js/renderSnail.js', 'js/render.js', 'js/engineRoute.js', 'js/engine.js', 'js/uiAudio.js', 'js/uiModals.js', 'js/ui.js'];
+const jsFiles = ['js/main.js'];
+const legacyJsFiles = [];
+const SESSION_KEY = 'ravlyk-code-session-v1';
+const LEGACY_PROGRESS_KEY = 'ravlyk-code-progress-v1';
+
+async function importModule(relativePath) {
+  return import(pathToFileURL(path.join(root, relativePath)).href);
+}
 
 function readUtf8(relativePath) {
   return fs.readFileSync(path.join(root, relativePath), 'utf8');
@@ -30,43 +37,52 @@ function createStorage() {
   };
 }
 
-function bootstrapCore(savedProgress = null, storageOverride = null) {
+async function bootstrapCore(savedProgress = null, storageOverride = null) {
   const storage = storageOverride || createStorage();
   if (savedProgress) {
-    storage.setItem('ravlyk-code-progress-v1', JSON.stringify(savedProgress));
+    const key = savedProgress.version === 1 ? SESSION_KEY : LEGACY_PROGRESS_KEY;
+    storage.setItem(key, JSON.stringify(savedProgress));
   }
 
-  const context = {
-    window: {},
-    sessionStorage: storage,
+  const documentRef = {
+    body: {
+      classList: { toggle() {} }
+    },
     document: {
       body: {
         classList: { toggle() {} }
-      },
-      getElementById() {
-        return {};
-      },
-      createElement() {
-        return {
-          setAttribute() {},
-          appendChild() {}
-        };
       }
+    },
+    getElementById(id) {
+      return { id };
+    },
+    createElement(tagName) {
+      return {
+        appendChild() {},
+        classList: { add() {}, remove() {}, toggle() {} },
+        dataset: {},
+        setAttribute() {},
+        tagName
+      };
     }
   };
-  context.window = context;
-  vm.createContext(context);
+  const windowRef = {
+    addEventListener() {},
+    location: { protocol: 'file:' },
+    sessionStorage: storage
+  };
+  const navigatorRef = {};
+  const { createAppComposition } = await importModule('js/app/composition.js');
+  const composition = createAppComposition({ documentRef, navigatorRef, windowRef });
+  composition.installLegacyGlobals();
+  composition.installLegacyState();
+  composition.installLegacyEngine();
 
-  for (const file of ['js/main.js', 'js/levels.js', 'js/texts.uk.js', 'js/gameState.js']) {
-    const source = fs.readFileSync(path.join(root, file), 'utf8');
-    vm.runInContext(source, context, { filename: file });
-  }
-
-  return { app: context.SnailGame, storage, context };
+  return { app: windowRef.SnailGame, storage, context: windowRef, composition };
 }
 
-function bootstrapEngineHarness(levelOverride) {
-  const { app, storage, context } = bootstrapCore();
+async function bootstrapEngineHarness(levelOverride) {
+  const { app, storage, context } = await bootstrapCore();
   const modalCalls = { turnHint: 0 };
 
   context.setTimeout = (fn) => {
@@ -107,11 +123,6 @@ function bootstrapEngineHarness(levelOverride) {
     async bumpSnail() {}
   };
 
-  const engineRouteSource = fs.readFileSync(path.join(root, 'js/engineRoute.js'), 'utf8');
-  vm.runInContext(engineRouteSource, context, { filename: 'js/engineRoute.js' });
-  const engineSource = fs.readFileSync(path.join(root, 'js/engine.js'), 'utf8');
-  vm.runInContext(engineSource, context, { filename: 'js/engine.js' });
-
   app.state.currentLevel = {
     id: 999,
     rows: 3,
@@ -125,7 +136,12 @@ function bootstrapEngineHarness(levelOverride) {
   };
   app.config.rows = app.state.currentLevel.rows;
   app.config.cols = app.state.currentLevel.cols;
-  app.resetLevelState();
+  app.config.stepMs = 0;
+  app.state.arrows = { ...(app.state.currentLevel.presetArrows || {}) };
+  app.state.snailPos = { ...app.state.currentLevel.start };
+  app.state.snailFacing = app.state.currentLevel.startFacing || 'right';
+  app.state.appleEaten = false;
+  app.state.running = false;
 
   return { app, storage, context, modalCalls };
 }
@@ -206,6 +222,7 @@ module.exports = {
   cssFiles,
   htmlPath,
   jsFiles,
+  legacyJsFiles,
   readBytes,
   readUtf8,
   root

@@ -20,6 +20,16 @@ test('service worker app shell caches real local files', () => {
   assert.ok(appShell.includes('./js/core/constants.js'));
   assert.ok(appShell.includes('./js/core/levels.js'));
   assert.ok(appShell.includes('./js/core/texts.uk.js'));
+  assert.ok(appShell.includes('./js/app/composition.js'));
+  assert.ok(appShell.includes('./js/app/legacyEngine.js'));
+  assert.ok(appShell.includes('./js/app/legacyGlobals.js'));
+  assert.ok(appShell.includes('./js/app/legacyRender.js'));
+  assert.ok(appShell.includes('./js/app/legacyRenderDrag.js'));
+  assert.ok(appShell.includes('./js/app/legacyRenderSnail.js'));
+  assert.ok(appShell.includes('./js/app/legacyState.js'));
+  assert.ok(appShell.includes('./js/app/legacyUiAudio.js'));
+  assert.ok(appShell.includes('./js/app/legacyUiModals.js'));
+  assert.ok(appShell.includes('./js/app/legacyUi.js'));
   assert.ok(appShell.includes('./js/engine/levelRules.js'));
   assert.ok(appShell.includes('./js/engine/route.js'));
   assert.ok(appShell.includes('./js/engine/simulator.js'));
@@ -31,12 +41,26 @@ test('service worker app shell caches real local files', () => {
   assert.ok(appShell.includes('./js/state/gameState.js'));
   assert.ok(appShell.includes('./js/state/sessionStore.js'));
   assert.ok(appShell.includes('./js/ui/dom.js'));
+  assert.ok(appShell.includes('./js/ui/assets.js'));
   assert.ok(appShell.includes('./js/ui/focus.js'));
   assert.ok(appShell.includes('./js/ui/modals.js'));
   assert.ok(appShell.includes('./js/ui/renderBoard.js'));
   assert.ok(appShell.includes('./js/ui/renderLevelMap.js'));
   assert.ok(appShell.includes('./js/ui/renderPalette.js'));
   assert.ok(appShell.includes('./js/ui/renderProgress.js'));
+  assert.ok(appShell.includes('./js/main.module.js'));
+  assert.equal(appShell.includes('./js/main.legacy.js'), false);
+  assert.equal(appShell.includes('./js/levels.js'), false);
+  assert.equal(appShell.includes('./js/texts.uk.js'), false);
+  assert.equal(appShell.includes('./js/gameState.js'), false);
+  assert.equal(appShell.includes('./js/renderDrag.js'), false);
+  assert.equal(appShell.includes('./js/renderSnail.js'), false);
+  assert.equal(appShell.includes('./js/render.js'), false);
+  assert.equal(appShell.includes('./js/engineRoute.js'), false);
+  assert.equal(appShell.includes('./js/engine.js'), false);
+  assert.equal(appShell.includes('./js/uiAudio.js'), false);
+  assert.equal(appShell.includes('./js/uiModals.js'), false);
+  assert.equal(appShell.includes('./js/ui.js'), false);
 
   for (const entry of appShell) {
     assert.doesNotMatch(entry, /^https?:\/\//i);
@@ -54,7 +78,7 @@ test('service worker app shell caches real local files', () => {
 test('service worker cache version is bumped for added app shell files', () => {
   const source = readUtf8('sw.js');
 
-  assert.match(source, /const STATIC_CACHE = 'ravlyk-static-v4'/);
+  assert.match(source, /const STATIC_CACHE = 'ravlyk-static-v20'/);
   assert.match(source, /event\.request\.method !== 'GET'/);
 });
 

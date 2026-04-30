@@ -1,5 +1,8 @@
-(function () {
-  const app = window.SnailGame;
+export function installLegacyRenderDrag({
+  documentRef = document,
+  windowRef = window
+} = {}) {
+  const app = windowRef.SnailGame;
 
   app.createRenderDrag = function createRenderDrag(deps) {
     const { clearPendingDelete, ghostEl, placeArrow } = deps;
@@ -27,9 +30,9 @@
     }
 
     function moveGhost(x, y) {
-      const size = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-sz')) || 56;
-      ghostEl.style.left = (x - size / 2) + 'px';
-      ghostEl.style.top = (y - size / 2) + 'px';
+      const size = parseFloat(windowRef.getComputedStyle(documentRef.documentElement).getPropertyValue('--tile-sz')) || 56;
+      ghostEl.style.left = `${x - size / 2}px`;
+      ghostEl.style.top = `${y - size / 2}px`;
     }
 
     function updateDropTarget(clientX, clientY) {
@@ -38,7 +41,7 @@
       }
 
       ghostEl.style.pointerEvents = 'none';
-      const under = document.elementFromPoint(clientX, clientY)?.closest?.('.cell') || null;
+      const under = documentRef.elementFromPoint(clientX, clientY)?.closest?.('.cell') || null;
       ghostEl.style.pointerEvents = '';
 
       if (app.state.dragCell && app.state.dragCell !== under) {
@@ -52,7 +55,7 @@
       app.state.dragCell = under;
     }
 
-    function beginPointerDrag(event, button, dir, group, icon) {
+    function beginPointerDrag(event, button, dir, group) {
       if (app.state.running || button.disabled) {
         return;
       }
@@ -65,7 +68,7 @@
       app.state.suppressTileClick = false;
       button.classList.add('dragging');
       button.setPointerCapture?.(event.pointerId);
-      document.body?.classList.add('dragging-active');
+      documentRef.body?.classList.add('dragging-active');
       showGhost(group);
       moveGhost(event.clientX, event.clientY);
       updateDropTarget(event.clientX, event.clientY);
@@ -90,7 +93,7 @@
         button.classList.remove('dragging');
       }
 
-      document.body?.classList.remove('dragging-active');
+      documentRef.body?.classList.remove('dragging-active');
       app.state.dragDir = null;
       app.state.dragButton = null;
       app.state.dragPointerId = null;
@@ -118,4 +121,6 @@
       updateDropTarget
     };
   };
-})();
+
+  return app.createRenderDrag;
+}

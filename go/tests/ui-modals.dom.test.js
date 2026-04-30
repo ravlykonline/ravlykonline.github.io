@@ -1,10 +1,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
 const path = require('node:path');
-const vm = require('node:vm');
+const { pathToFileURL } = require('node:url');
 
 const { root } = require('./testHelpers.cjs');
+
+async function importModule(relativePath) {
+  return import(pathToFileURL(path.join(root, relativePath)).href);
+}
 
 class FakeElement {
   constructor(tagName, ownerDocument) {
@@ -212,19 +215,17 @@ function createDocument() {
   return document;
 }
 
-function createModalHarness(options = {}) {
+async function createModalHarness(options = {}) {
   const document = createDocument();
-  const context = {
-    window: {},
+  const windowRef = {
     document,
     console,
     requestAnimationFrame(fn) {
       fn();
-    },
-    HTMLElement: FakeElement
+    }
   };
-  context.window = context;
-  context.SnailGame = {
+  windowRef.window = windowRef;
+  windowRef.SnailGame = {
     state: {
       running: false,
       completedLevelIds: options.completedLevelIds || [],
@@ -268,9 +269,8 @@ function createModalHarness(options = {}) {
       this.restartProgressCalls += 1;
     }
   };
-  vm.createContext(context);
-  const source = fs.readFileSync(path.join(root, 'js/uiModals.js'), 'utf8');
-  vm.runInContext(source, context, { filename: 'js/uiModals.js' });
+  const { installLegacyUiModals } = await importModule('js/app/legacyUiModals.js');
+  installLegacyUiModals({ documentRef: document, windowRef });
 
   const calls = {
     loadCurrentLevel: [],
@@ -278,7 +278,7 @@ function createModalHarness(options = {}) {
     stopTaskSpeech: 0
   };
 
-  const modalApi = context.SnailGame.createUiModals({
+  const modalApi = windowRef.SnailGame.createUiModals({
     loadCurrentLevel(args) {
       calls.loadCurrentLevel.push(args);
     },
@@ -336,15 +336,15 @@ function createModalHarness(options = {}) {
   trigger.focus();
 
   return {
-    app: context.SnailGame,
+    app: windowRef.SnailGame,
     calls,
     document,
     modalApi
   };
 }
 
-test('openLevelIntro renders controls, speaks task and closes cleanly', () => {
-  const harness = createModalHarness({
+test('openLevelIntro renders controls, speaks task and closes cleanly', async () => {
+  const harness = await createModalHarness({
     currentLevel: {
       id: 2,
       type: 'normal',
@@ -370,8 +370,8 @@ test('openLevelIntro renders controls, speaks task and closes cleanly', () => {
   assert.equal(harness.document.body.querySelector('#level-intro-title'), null);
 });
 
-test('openLevelMap changes level and reloads UI without intro', () => {
-  const harness = createModalHarness();
+test('openLevelMap changes level and reloads UI without intro', async () => {
+  const harness = await createModalHarness();
 
   harness.modalApi.openLevelMap();
 

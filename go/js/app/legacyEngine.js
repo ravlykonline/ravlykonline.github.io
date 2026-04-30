@@ -1,20 +1,121 @@
-(function () {
-  const app = window.SnailGame;
-  const { maxSteps, stepMs } = app.config;
-  const { engine: engineText } = app.text;
+import { DIRECTION_DELTAS, resolveTileExit } from '../core/constants.js';
+import { analyzeRoute } from '../engine/route.js';
 
-  function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function createLegacyRouteApi(app) {
+  const scanOrder = app.config.scanOrder;
+
+  function findNeighborStartMove(r, c, rows, cols) {
+    for (const dir of scanOrder) {
+      const { dr, dc } = DIRECTION_DELTAS[dir];
+      const nr = r + dr;
+      const nc = c + dc;
+      if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) {
+        continue;
+      }
+
+      const tileDir = app.state.arrows[`${nr},${nc}`];
+      if (tileDir && resolveTileExit(tileDir, dir)) {
+        return { dir, startKey: `${nr},${nc}` };
+      }
+    }
+
+    return { dir: null, startKey: null };
   }
 
-  // app.resolveStartTileExit is kept here as historical context for the original first-step model.
+  function resolveRouteStep(stepState) {
+    const { c, facing, firstStep, r, rows, cols, visited } = stepState;
+    const key = `${r},${c}`;
+
+    if (firstStep) {
+      const neighborMove = findNeighborStartMove(r, c, rows, cols);
+      if (!neighborMove.dir) {
+        return { ok: false, reason: 'invalid-turn' };
+      }
+      return { ok: true, dir: neighborMove.dir, startKey: neighborMove.startKey };
+    }
+
+    const tileDir = app.state.arrows[key];
+    if (!tileDir) {
+      return { ok: false, reason: 'missing-tile' };
+    }
+    if (visited.has(key)) {
+      return { ok: false, reason: 'loop' };
+    }
+
+    visited.add(key);
+    const dir = resolveTileExit(tileDir, facing);
+    if (!dir) {
+      return { ok: false, reason: 'invalid-turn' };
+    }
+
+    return { ok: true, dir };
+  }
+
+  function inspectForwardMove(moveState) {
+    const { apple, c, dir, r, rows, cols } = moveState;
+    const { dr, dc } = DIRECTION_DELTAS[dir];
+    const nr = r + dr;
+    const nc = c + dc;
+
+    if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) {
+      return { ok: false, reason: 'out-of-bounds', dir, nr, nc };
+    }
+    if (app.isObstacle(nr, nc)) {
+      return { ok: false, reason: 'obstacle', dir, nr, nc };
+    }
+
+    const isAppleAhead = nr === apple.r && nc === apple.c;
+    const nextTileDir = app.state.arrows[`${nr},${nc}`];
+    if (!isAppleAhead && (!nextTileDir || !resolveTileExit(nextTileDir, dir))) {
+      return { ok: false, reason: 'invalid-next-step', dir, nr, nc };
+    }
+
+    return { ok: true, dir, nr, nc, isAppleAhead };
+  }
+
+  function analyzeCurrentRoute() {
+    const result = analyzeRoute({
+      arrows: app.state.arrows,
+      config: {
+        maxSteps: app.config.maxSteps,
+        routeScanOrder: app.config.scanOrder
+      },
+      level: app.state.currentLevel
+    });
+
+    return {
+      canReachApple: result.canReachApple,
+      reason: result.reason || 'success',
+      startKey: result.startKey || null
+    };
+  }
+
+  return {
+    analyzeCurrentRoute,
+    findNeighborStartMove,
+    inspectForwardMove,
+    resolveRouteStep
+  };
+}
+
+export function installLegacyEngine({ windowRef = window } = {}) {
+  const app = windowRef.SnailGame;
+  const { engine: engineText } = app.text;
+
+  app.createEngineRoute = function createEngineRoute() {
+    return createLegacyRouteApi(app);
+  };
+
   async function showTurnTryAgain() {
     app.ui.showTurnHintModal({
       includeTurnHint: app.levelUsesTurnTiles()
     });
   }
 
-  // Returns the snail to the initial cell so every new attempt clearly starts from the beginning.
   async function returnSnailToStart() {
     const start = app.getStart();
     const startFacing = app.getStartFacing();
@@ -25,11 +126,10 @@
     app.render.posSnail(start.r, start.c, true, startFacing);
 
     if (!alreadyAtStart) {
-      await delay(stepMs + 180);
+      await delay(app.config.stepMs + 180);
     }
   }
 
-  // Handles route failures consistently: show the mistake, reset the snail, then explain what went wrong.
   async function handleFailure(options) {
     const {
       icon = '\u{1F914}',
@@ -51,12 +151,10 @@
       await app.render.bumpSnail(app.state.snailPos.r, app.state.snailPos.c, bumpDir);
     }
 
-    // Keep the wrong place visible for a moment before resetting the route.
     await delay(900);
     await returnSnailToStart();
 
     if (showTurnModal) {
-      // Give children a moment to notice the mistake before the helper modal appears.
       await delay(1100);
       await showTurnTryAgain();
     }
@@ -64,7 +162,6 @@
 
   const routeApi = app.createEngineRoute();
 
-  // Executes the route step by step: first from a neighboring command, then by the tile under the snail.
   async function run() {
     const start = app.getStart();
     const apple = app.getApple();
@@ -101,7 +198,7 @@
     let firstStep = true;
     const visited = new Set();
 
-    while (steps < maxSteps) {
+    while (steps < app.config.maxSteps) {
       steps += 1;
       const { r, c } = app.state.snailPos;
       const step = routeApi.resolveRouteStep({
@@ -117,11 +214,7 @@
 
       if (!step.ok) {
         if (step.reason === 'loop') {
-          await handleFailure({
-            icon: '\u{1F635}',
-            text: engineText.loop,
-            statusType: 'err'
-          });
+          await handleFailure({ icon: '\u{1F635}', text: engineText.loop, statusType: 'err' });
           break;
         }
 
@@ -133,9 +226,10 @@
           });
           break;
         }
+
         app.ui.flashNeighbours(r, c);
         await handleFailure({
-          icon: '🤔',
+          icon: '\u{1F914}',
           text: engineText.placeNearby,
           statusType: 'warn',
           flash: { r, c, color: '#ff9800' },
@@ -154,11 +248,7 @@
       const move = routeApi.inspectForwardMove({ r, c, dir: step.dir, rows, cols, apple });
       if (!move.ok) {
         if (move.reason === 'out-of-bounds') {
-          await handleFailure({
-            icon: '\u{1F62C}',
-            text: engineText.outOfBounds,
-            bumpDir: step.dir
-          });
+          await handleFailure({ icon: '\u{1F62C}', text: engineText.outOfBounds, bumpDir: step.dir });
           break;
         }
 
@@ -188,7 +278,7 @@
       app.render.posSnail(move.nr, move.nc, true, step.dir);
 
       if (move.isAppleAhead) {
-        await delay(stepMs * 0.8);
+        await delay(app.config.stepMs * 0.8);
         app.markLevelComplete(app.state.currentLevel.id);
         app.state.appleEaten = true;
         const finishFacing = step.dir === 'left' ? 'left' : 'right';
@@ -206,15 +296,11 @@
         return;
       }
 
-      await delay(stepMs);
+      await delay(app.config.stepMs);
     }
 
-    if (steps >= maxSteps) {
-      await handleFailure({
-        icon: '\u{1F635}',
-        text: engineText.tooManySteps,
-        statusType: 'err'
-      });
+    if (steps >= app.config.maxSteps) {
+      await handleFailure({ icon: '\u{1F635}', text: engineText.tooManySteps, statusType: 'err' });
     }
 
     app.render.clearStartHighlight();
@@ -249,4 +335,6 @@
     findNeighborStartMove: routeApi.findNeighborStartMove,
     run
   };
-})();
+
+  return app.engine;
+}

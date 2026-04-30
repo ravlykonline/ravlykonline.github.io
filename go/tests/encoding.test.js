@@ -23,11 +23,11 @@ test('index.html stays UTF-8 without BOM and keeps key UI markers', () => {
   assert.ok(!html.includes('???'));
 });
 
-test('texts.uk.js stays UTF-8 without BOM and keeps readable Ukrainian strings', () => {
-  const textsUk = readUtf8('js/texts.uk.js');
-  const bytes = readBytes('js/texts.uk.js');
+test('core texts module stays UTF-8 without BOM and keeps readable Ukrainian strings', () => {
+  const textsUk = readUtf8('js/core/texts.uk.js');
+  const bytes = readBytes('js/core/texts.uk.js');
 
-  assert.equal(bytes[0], 0x28);
+  assert.equal(bytes[0], 0x65);
   assert.ok(!bytes.subarray(0, 3).equals(Buffer.from([0xef, 0xbb, 0xbf])), 'BOM should be absent');
   assert.ok(textsUk.includes('Пригоди Равлика')); 
   assert.ok(textsUk.includes('Озвучення не підтримується у цьому браузері.')); 
@@ -35,11 +35,11 @@ test('texts.uk.js stays UTF-8 without BOM and keeps readable Ukrainian strings',
   assert.ok(!textsUk.includes('\\u0420\\u0430\\u0432\\u043b\\u0438\\u043a'));
 });
 
-test('levels file contains no typical mojibake markers', () => {
-  const levels = readUtf8('js/levels.js');
-  const bytes = readBytes('js/levels.js');
+test('core levels module contains no typical mojibake markers', () => {
+  const levels = readUtf8('js/core/levels.js');
+  const bytes = readBytes('js/core/levels.js');
 
-  assert.equal(bytes[0], 0x28);
+  assert.equal(bytes[0], 0x63);
   assert.ok(!bytes.subarray(0, 3).equals(Buffer.from([0xef, 0xbb, 0xbf])), 'BOM should be absent');
   assert.ok(levels.includes('Пряма доріжка'));
   assert.ok(levels.includes('Велика подорож равлика'));

@@ -30,11 +30,11 @@ test('ui dom module collects stable DOM refs including the progressbar track', a
 
 test('progressbar aria-valuenow is updated on the element with role progressbar', () => {
   const html = readUtf8('index.html');
-  const gameState = readUtf8('js/gameState.js');
-  const ui = readUtf8('js/ui.js');
+  const dom = readUtf8('js/ui/dom.js');
+  const ui = readUtf8('js/app/legacyUi.js');
 
   assert.match(html, /id="progress-track"[^>]+role="progressbar"/);
-  assert.match(gameState, /progressTrackEl: document\.getElementById\('progress-track'\)/);
+  assert.match(dom, /progressTrackEl: documentRef\.getElementById\('progress-track'\)/);
   assert.match(ui, /progressTrackEl\.setAttribute\('aria-valuenow', String\(percent\)\)/);
   assert.doesNotMatch(ui, /progressFillEl\.setAttribute\('aria-valuenow'/);
 });

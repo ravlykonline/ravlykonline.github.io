@@ -4,28 +4,32 @@ const assert = require('node:assert/strict');
 const { readUtf8 } = require('./testHelpers.cjs');
 
 test('core JS files keep expected symbols for game logic and progress', () => {
-  const main = readUtf8('js/main.js');
-  const ui = readUtf8('js/ui.js');
-  const levels = readUtf8('js/levels.js');
-  const textsUk = readUtf8('js/texts.uk.js');
-  const gameState = readUtf8('js/gameState.js');
-  const engineRoute = readUtf8('js/engineRoute.js');
-  const engine = readUtf8('js/engine.js');
-  const render = readUtf8('js/render.js');
-  const renderDrag = readUtf8('js/renderDrag.js');
-  const renderSnail = readUtf8('js/renderSnail.js');
-  const uiAudio = readUtf8('js/uiAudio.js');
-  const uiModals = readUtf8('js/uiModals.js');
+  const moduleMain = readUtf8('js/main.js');
+  const constants = readUtf8('js/core/constants.js');
+  const assets = readUtf8('js/ui/assets.js');
+  const ui = readUtf8('js/app/legacyUi.js');
+  const levels = readUtf8('js/core/levels.js');
+  const textsUk = readUtf8('js/core/texts.uk.js');
+  const gameState = readUtf8('js/app/legacyState.js');
+  const sessionStore = readUtf8('js/state/sessionStore.js');
+  const engineRoute = readUtf8('js/app/legacyEngine.js');
+  const engine = readUtf8('js/app/legacyEngine.js');
+  const render = readUtf8('js/app/legacyRender.js');
+  const renderBoard = readUtf8('js/ui/renderBoard.js');
+  const renderDrag = readUtf8('js/app/legacyRenderDrag.js');
+  const renderSnail = readUtf8('js/app/legacyRenderSnail.js');
+  const uiAudio = readUtf8('js/app/legacyUiAudio.js');
+  const uiModals = readUtf8('js/app/legacyUiModals.js');
 
-  assert.ok(main.includes('resolveTileExit'));
-  assert.ok(main.includes('app.oppositeDir'));
-  assert.ok(main.includes('createTileDef'));
-  assert.ok(main.includes('createTileIconByDir'));
-  assert.ok(main.includes('iconFile'));
-  assert.ok(main.includes('\\u0432\\u043b\\u0456\\u0432\\u043e \\u2192 \\u0432\\u0433\\u043e\\u0440\\u0443')); 
-  assert.ok(main.includes('\\u0432\\u043f\\u0440\\u0430\\u0432\\u043e \\u2192 \\u0432\\u0433\\u043e\\u0440\\u0443')); 
-  assert.ok(main.includes('\\u0432\\u043d\\u0438\\u0437 \\u2192 \\u0432\\u043f\\u0440\\u0430\\u0432\\u043e')); 
-  assert.ok(main.includes('\\u0432\\u0433\\u043e\\u0440\\u0443 \\u2192 \\u0432\\u043b\\u0456\\u0432\\u043e')); 
+  assert.ok(constants.includes('resolveTileExit'));
+  assert.ok(constants.includes('function oppositeDir'));
+  assert.ok(constants.includes('TILE_DEFS'));
+  assert.ok(assets.includes('createTileIconByDir'));
+  assert.ok(constants.includes('left-up'));
+  assert.ok(constants.includes('right-up'));
+  assert.ok(constants.includes('down-right'));
+  assert.ok(constants.includes('up-left'));
+  assert.ok(moduleMain.includes('bootstrapApp'));
   assert.ok(ui.includes('debugNoteEl'));
   assert.ok(ui.includes('setLevelIntroStatus'));
   assert.ok(ui.includes('refreshProgressUi'));
@@ -41,7 +45,7 @@ test('core JS files keep expected symbols for game logic and progress', () => {
   assert.ok(uiModals.includes('restartProgress'));
   assert.ok(uiModals.includes('openManagedModal'));
   assert.ok(uiModals.includes('createModalCloseButton'));
-  assert.ok(uiModals.includes('\u{1F389}')); 
+  assert.ok(uiModals.includes('\\u{1F389}'));
   assert.ok(renderDrag.includes('createRenderDrag'));
   assert.ok(renderDrag.includes('beginPointerDrag'));
   assert.ok(renderDrag.includes('updateDropTarget'));
@@ -53,33 +57,34 @@ test('core JS files keep expected symbols for game logic and progress', () => {
   assert.ok(renderSnail.includes('posSnail'));
   assert.ok(render.includes('const dragApi = app.createRenderDrag'));
   assert.ok(render.includes('const snailApi = app.createRenderSnail'));
-  assert.ok(render.includes('createTileIconElement'));
+  assert.ok(render.includes('app.createTileIconByDir'));
   assert.ok(!render.includes('arrowEl.innerHTML = def.icon'));
   assert.ok(!render.includes('button.innerHTML = icon'));
   assert.ok(levels.includes('ALL_TILES'));
   assert.ok(levels.includes('centerLevelLayout'));
   assert.ok(levels.includes('id: 20'));
   assert.ok(levels.includes('id: 19'));
-  assert.ok(textsUk.includes('Пригоди Равлика')); 
-  assert.ok(textsUk.includes('Тягни команди на поле')); 
+  assert.ok(textsUk.includes('Пригоди Равлика'));
+  assert.ok(textsUk.includes('Тягни команди на поле'));
   assert.ok(textsUk.includes('Що робити'));
-  assert.ok(textsUk.includes('Пояснити завдання')); 
-  assert.ok(gameState.includes('texts.uk.js must be loaded before gameState.js'));
-  assert.ok(gameState.includes('app.text = app.textUk'));
-  assert.ok(gameState.includes('ravlyk-code-progress-v1'));
+  assert.ok(textsUk.includes('Пояснити завдання'));
+  assert.ok(gameState.includes('createInitialState'));
+  assert.ok(gameState.includes('loadLegacySession'));
+  assert.ok(sessionStore.includes('SESSION_VERSION'));
   assert.ok(gameState.includes('saveProgress'));
-  assert.ok(gameState.includes('loadProgress'));
+  assert.ok(gameState.includes('loadSession'));
   assert.ok(engine.includes('routeApi.resolveRouteStep'));
   assert.ok(engine.includes('routeApi.inspectForwardMove'));
   assert.ok(engineRoute.includes('findNeighborStartMove'));
   assert.ok(engineRoute.includes('analyzeCurrentRoute'));
-  assert.ok(render.includes('preset-arrow'));
+  assert.ok(renderBoard.includes('preset-arrow'));
 });
 
 test('responsive UI and safe-delete styles remain present', () => {
-  const ui = readUtf8('js/ui.js');
+  const ui = readUtf8('js/app/legacyUi.js');
   const gameCss = readUtf8('css/game.css');
-  const render = readUtf8('js/render.js');
+  const render = readUtf8('js/app/legacyRender.js');
+  const pwaRegister = readUtf8('js/features/pwaRegister.js');
 
   assert.ok(gameCss.includes('aspect-ratio: 8 / 6'));
   assert.ok(gameCss.includes('.level-card'));
@@ -93,8 +98,7 @@ test('responsive UI and safe-delete styles remain present', () => {
   assert.ok(render.includes('setActiveGridCell'));
   assert.ok(render.includes('ArrowRight'));
   assert.ok(render.includes("tabindex', '-1'"));
-  assert.ok(ui.includes('registerServiceWorker'));
-  assert.ok(ui.includes("navigator.serviceWorker.register('./sw.js')"));
+  assert.ok(pwaRegister.includes("register('./sw.js')"));
   assert.ok(ui.includes("root.style.setProperty('--gs-w'"));
   assert.ok(ui.includes("root.style.setProperty('--gs-h'"));
   assert.ok(readUtf8('sw.js').includes('isSuccessfulDocumentResponse'));
@@ -102,5 +106,3 @@ test('responsive UI and safe-delete styles remain present', () => {
   assert.ok(readUtf8('sw.js').includes("content-type"));
   assert.ok(readUtf8('sw.js').includes('response.ok'));
 });
-
-

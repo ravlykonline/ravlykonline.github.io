@@ -1,7 +1,7 @@
 // Service worker for offline play.
 // Core app files use network-first so deployed updates can replace older cached
 // copies without relying entirely on manual cache version bumps.
-const STATIC_CACHE = 'ravlyk-static-v4';
+const STATIC_CACHE = 'ravlyk-static-v20';
 const APP_SHELL = [
   './',
   './index.html',
@@ -15,6 +15,16 @@ const APP_SHELL = [
   './js/core/constants.js',
   './js/core/levels.js',
   './js/core/texts.uk.js',
+  './js/app/composition.js',
+  './js/app/legacyEngine.js',
+  './js/app/legacyGlobals.js',
+  './js/app/legacyRender.js',
+  './js/app/legacyRenderDrag.js',
+  './js/app/legacyRenderSnail.js',
+  './js/app/legacyState.js',
+  './js/app/legacyUiAudio.js',
+  './js/app/legacyUiModals.js',
+  './js/app/legacyUi.js',
   './js/engine/levelRules.js',
   './js/engine/route.js',
   './js/engine/simulator.js',
@@ -26,6 +36,7 @@ const APP_SHELL = [
   './js/state/gameState.js',
   './js/state/sessionStore.js',
   './js/ui/dom.js',
+  './js/ui/assets.js',
   './js/ui/focus.js',
   './js/ui/modals.js',
   './js/ui/renderBoard.js',
@@ -33,17 +44,7 @@ const APP_SHELL = [
   './js/ui/renderPalette.js',
   './js/ui/renderProgress.js',
   './js/main.js',
-  './js/levels.js',
-  './js/texts.uk.js',
-  './js/gameState.js',
-  './js/renderDrag.js',
-  './js/renderSnail.js',
-  './js/render.js',
-  './js/engineRoute.js',
-  './js/engine.js',
-  './js/uiAudio.js',
-  './js/uiModals.js',
-  './js/ui.js',
+  './js/main.module.js',
   './assets/run_button.svg',
   './assets/trash_icon.svg',
   './assets/prev_level.svg',

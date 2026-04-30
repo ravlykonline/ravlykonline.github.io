@@ -1,27 +1,29 @@
-(function () {
-  const app = window.SnailGame;
+import { DIRECTION_DELTAS } from '../core/constants.js';
+
+function getSnailOrientation(dir) {
+  switch (dir) {
+    case 'up':
+      return ' rotate(-90deg)';
+    case 'down':
+      return ' rotate(90deg)';
+    case 'left':
+      return ' scaleX(-1)';
+    case 'right':
+    default:
+      return '';
+  }
+}
+
+function getSnailTransform(x, y, dir) {
+  return `translate(${x}px,${y}px)${getSnailOrientation(dir)}`;
+}
+
+export function installLegacyRenderSnail({ windowRef = window } = {}) {
+  const app = windowRef.SnailGame;
   const { gwrap, snailEl } = app.refs;
 
   app.createRenderSnail = function createRenderSnail(deps) {
     const { cellEl } = deps;
-
-    function getSnailOrientation(dir) {
-      switch (dir) {
-        case 'up':
-          return ' rotate(-90deg)';
-        case 'down':
-          return ' rotate(90deg)';
-        case 'left':
-          return ' scaleX(-1)';
-        case 'right':
-        default:
-          return '';
-      }
-    }
-
-    function getSnailTransform(x, y, dir) {
-      return `translate(${x}px,${y}px)${getSnailOrientation(dir)}`;
-    }
 
     function getSnailCellPosition(r, c) {
       const el = cellEl(r, c);
@@ -46,12 +48,12 @@
 
       const { cellRect, x, y } = position;
       const facing = dir || app.state.snailFacing || 'right';
-      const delta = app.delta[facing] || { dr: 0, dc: 0 };
+      const delta = DIRECTION_DELTAS[facing] || { dr: 0, dc: 0 };
       const bumpDistance = Math.round(Math.min(cellRect.width, cellRect.height) * 0.18);
       const baseTransform = getSnailTransform(x, y, facing);
       const bumpTransform = getSnailTransform(x + delta.dc * bumpDistance, y + delta.dr * bumpDistance, facing);
 
-      if (typeof snailEl.animate === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (typeof snailEl.animate === 'function' && !windowRef.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         const animation = snailEl.animate(
           [
             { transform: baseTransform },
@@ -103,4 +105,6 @@
       posSnail
     };
   };
-})();
+
+  return app.createRenderSnail;
+}

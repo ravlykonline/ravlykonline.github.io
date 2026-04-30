@@ -9,8 +9,8 @@ function plain(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-test('saved progress loads from sessionStorage and persists current level', () => {
-  const { app, storage } = bootstrapCore({ currentLevelId: 6, completedLevelIds: [1, 2, 3] });
+test('saved progress loads from sessionStorage and persists current level', async () => {
+  const { app, storage } = await bootstrapCore({ currentLevelId: 6, completedLevelIds: [1, 2, 3] });
 
   assert.equal(app.state.currentLevel.id, 6);
   assert.deepEqual(Array.from(app.state.completedLevelIds), [1, 2, 3]);
@@ -23,8 +23,8 @@ test('saved progress loads from sessionStorage and persists current level', () =
   assert.deepEqual(saved.completedLevelIds, [1, 2, 3]);
 });
 
-test('restartProgress resets saved and active progress', () => {
-  const { app, storage } = bootstrapCore({ currentLevelId: 8, completedLevelIds: [1, 2, 3, 4] });
+test('restartProgress resets saved and active progress', async () => {
+  const { app, storage } = await bootstrapCore({ currentLevelId: 8, completedLevelIds: [1, 2, 3, 4] });
 
   app.restartProgress();
   const saved = JSON.parse(storage.getItem(SESSION_KEY));
@@ -36,7 +36,7 @@ test('restartProgress resets saved and active progress', () => {
   assert.deepEqual(saved.completedLevelIds, []);
 });
 
-test('storage failures do not break level changes or progress reset', () => {
+test('storage failures do not break level changes or progress reset', async () => {
   const throwingStorage = {
     getItem() {
       return null;
@@ -49,7 +49,7 @@ test('storage failures do not break level changes or progress reset', () => {
     }
   };
 
-  const { app } = bootstrapCore(null, throwingStorage);
+  const { app } = await bootstrapCore(null, throwingStorage);
 
   assert.doesNotThrow(() => app.setCurrentLevel(2));
   assert.equal(app.state.currentLevel.id, 2);
@@ -58,8 +58,8 @@ test('storage failures do not break level changes or progress reset', () => {
   assert.deepEqual(Array.from(app.state.completedLevelIds), []);
 });
 
-test('placed arrows persist by level across reloads in the same tab', () => {
-  const { app, storage } = bootstrapCore({
+test('placed arrows persist by level across reloads in the same tab', async () => {
+  const { app, storage } = await bootstrapCore({
     version: 1,
     currentLevelId: 6,
     arrowsByLevel: {
@@ -80,7 +80,7 @@ test('placed arrows persist by level across reloads in the same tab', () => {
   app.state.arrows['3,4'] = 'down';
   app.persistCurrentArrows();
 
-  const reloaded = bootstrapCore(null, storage).app;
+  const reloaded = (await bootstrapCore(null, storage)).app;
   assert.equal(reloaded.state.currentLevel.id, 6);
   assert.deepEqual(plain(reloaded.state.arrows), {
     '2,3': 'right',
