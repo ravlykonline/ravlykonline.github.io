@@ -69,6 +69,10 @@ export const Input = {
         });
 
         window.addEventListener('mousedown', (event) => {
+            if (event.target.closest?.('#ui-layer, #dialog-layer')) {
+                return;
+            }
+
             if (event.button === 0 && !this.keyboard.active) {
                 this.mouse.isDown = true;
                 this.mouse.x = event.clientX;
@@ -88,6 +92,10 @@ export const Input = {
         });
 
         window.addEventListener('touchstart', (event) => {
+            if (event.target.closest?.('#ui-layer, #dialog-layer')) {
+                return;
+            }
+
             if (!this.keyboard.active) {
                 this.mouse.isDown = true;
                 this.mouse.x = event.touches[0].clientX;

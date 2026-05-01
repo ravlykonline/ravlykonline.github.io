@@ -130,14 +130,40 @@ export class GameScene {
         });
     }
 
+    getViewportSize() {
+        return {
+            width: this.dom.viewport?.clientWidth || window.innerWidth,
+            height: this.dom.viewport?.clientHeight || window.innerHeight
+        };
+    }
+
+    getViewportRect() {
+        return this.dom.viewport?.getBoundingClientRect() ?? {
+            left: 0,
+            top: 0,
+            width: window.innerWidth,
+            height: window.innerHeight
+        };
+    }
+
+    getPointerWorldTarget() {
+        const rect = this.getViewportRect();
+
+        return {
+            x: this.input.mouse.x - rect.left + this.state.camera.x,
+            y: this.input.mouse.y - rect.top + this.state.camera.y
+        };
+    }
+
     syncCameraToPlayer() {
+        const viewport = this.getViewportSize();
         this.state.targetCamera.x = Math.max(0, Math.min(
-            this.state.x - window.innerWidth / 2,
-            CONFIG.worldWidth - window.innerWidth
+            this.state.x - viewport.width / 2,
+            CONFIG.worldWidth - viewport.width
         ));
         this.state.targetCamera.y = Math.max(0, Math.min(
-            this.state.y - window.innerHeight / 2,
-            CONFIG.worldHeight - window.innerHeight
+            this.state.y - viewport.height / 2,
+            CONFIG.worldHeight - viewport.height
         ));
         this.state.camera.x = this.state.targetCamera.x;
         this.state.camera.y = this.state.targetCamera.y;
@@ -172,10 +198,7 @@ export class GameScene {
         let intentY = 0;
 
         if (this.input.mouse.isDown && !this.input.keyboard.active) {
-            this.input.mouse.intentTarget = {
-                x: this.input.mouse.x + this.state.camera.x,
-                y: this.input.mouse.y + this.state.camera.y
-            };
+            this.input.mouse.intentTarget = this.getPointerWorldTarget();
         }
 
         if (this.input.keys.w || this.input.keys.ArrowUp) intentY -= 1;
@@ -368,23 +391,24 @@ export class GameScene {
     }
 
     updateCamera() {
+        const viewport = this.getViewportSize();
         const screenX = this.state.x - this.state.targetCamera.x;
         const screenY = this.state.y - this.state.targetCamera.y;
 
         if (screenX < CONFIG.cameraThreshold) {
             this.state.targetCamera.x -= (CONFIG.cameraThreshold - screenX);
-        } else if (screenX > window.innerWidth - CONFIG.cameraThreshold) {
-            this.state.targetCamera.x += screenX - (window.innerWidth - CONFIG.cameraThreshold);
+        } else if (screenX > viewport.width - CONFIG.cameraThreshold) {
+            this.state.targetCamera.x += screenX - (viewport.width - CONFIG.cameraThreshold);
         }
 
         if (screenY < CONFIG.cameraThreshold) {
             this.state.targetCamera.y -= (CONFIG.cameraThreshold - screenY);
-        } else if (screenY > window.innerHeight - CONFIG.cameraThreshold) {
-            this.state.targetCamera.y += screenY - (window.innerHeight - CONFIG.cameraThreshold);
+        } else if (screenY > viewport.height - CONFIG.cameraThreshold) {
+            this.state.targetCamera.y += screenY - (viewport.height - CONFIG.cameraThreshold);
         }
 
-        this.state.targetCamera.x = Math.max(0, Math.min(this.state.targetCamera.x, CONFIG.worldWidth - window.innerWidth));
-        this.state.targetCamera.y = Math.max(0, Math.min(this.state.targetCamera.y, CONFIG.worldHeight - window.innerHeight));
+        this.state.targetCamera.x = Math.max(0, Math.min(this.state.targetCamera.x, CONFIG.worldWidth - viewport.width));
+        this.state.targetCamera.y = Math.max(0, Math.min(this.state.targetCamera.y, CONFIG.worldHeight - viewport.height));
 
         this.state.camera.x += (this.state.targetCamera.x - this.state.camera.x) * CONFIG.cameraLerp;
         this.state.camera.y += (this.state.targetCamera.y - this.state.camera.y) * CONFIG.cameraLerp;

@@ -1,4 +1,5 @@
 export const DOM = {
+    viewport: document.getElementById('viewport'),
     gameArea: document.getElementById('game-area'),
     playerWrapper: document.getElementById('player-wrapper'),
     playerInner: document.getElementById('player-inner'),
