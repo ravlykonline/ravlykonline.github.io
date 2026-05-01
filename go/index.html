@@ -5,6 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Пригоди Равлика</title>
 <meta name="theme-color" content="#e8f2dc">
+<script>
+(function ensureDirectoryUrl() {
+  var path = window.location.pathname;
+  var lastSegment = path.split('/').pop();
+
+  if (
+    window.location.protocol !== 'file:' &&
+    lastSegment &&
+    lastSegment.indexOf('.') === -1 &&
+    path.charAt(path.length - 1) !== '/'
+  ) {
+    window.location.replace(path + '/' + window.location.search + window.location.hash);
+  }
+})();
+</script>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="ravlyk.png" sizes="any">
 <link rel="apple-touch-icon" href="assets/icon-192.png">
