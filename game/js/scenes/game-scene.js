@@ -1,5 +1,6 @@
 import { CONFIG } from '../core/config.js';
 import { approach, normalizeAngleDifference, updateAngle } from '../core/motion.js';
+import { hasWorldCollision } from '../game/collision-system.js';
 import { LevelData } from '../game/level-data.js';
 import { createInitialSessionState } from '../game/session-state.js';
 import { generateWorld } from '../game/world-generator.js';
@@ -243,19 +244,13 @@ export class GameScene {
     }
 
     isCollision(px, py) {
-        if (
-            px < CONFIG.playerRadius ||
-            px > CONFIG.worldWidth - CONFIG.playerRadius ||
-            py < CONFIG.playerRadius ||
-            py > CONFIG.worldHeight - CONFIG.playerRadius
-        ) {
-            return true;
-        }
-
-        return this.obstacles.some((obstacle) => {
-            const testX = px < obstacle.x ? obstacle.x : px > obstacle.x + obstacle.w ? obstacle.x + obstacle.w : px;
-            const testY = py < obstacle.y ? obstacle.y : py > obstacle.y + obstacle.h ? obstacle.y + obstacle.h : py;
-            return Math.hypot(px - testX, py - testY) <= CONFIG.playerRadius;
+        return hasWorldCollision({
+            x: px,
+            y: py,
+            radius: CONFIG.playerRadius,
+            worldWidth: CONFIG.worldWidth,
+            worldHeight: CONFIG.worldHeight,
+            rects: [...this.obstacles, ...this.npcs]
         });
     }
 

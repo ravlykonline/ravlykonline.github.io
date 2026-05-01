@@ -5,6 +5,8 @@ export const DOM = {
     obstaclesContainer: document.getElementById('obstacles-container'),
     itemsContainer: document.getElementById('items-container'),
     npcsContainer: document.getElementById('npcs-container'),
+    hudPanel: document.getElementById('hud-panel'),
+    hudToggleBtn: document.getElementById('hud-toggle-btn'),
     scoreDisplay: document.getElementById('score-display'),
     applesCount: document.getElementById('apples-count'),
     starsCount: document.getElementById('stars-count'),

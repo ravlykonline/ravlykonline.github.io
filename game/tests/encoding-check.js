@@ -52,6 +52,7 @@ async function run() {
         '../js/tasks/task-validator.js',
         '../js/tasks/task-ui-helpers.js',
         '../js/tasks/task-evaluators/single-choice.js',
+        '../js/game/collision-system.js',
         '../js/game/level-data.js',
         '../js/game/session-state.js',
         '../js/game/spawn-rules.js',

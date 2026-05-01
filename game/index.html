@@ -37,7 +37,7 @@
     </div>
 
     <div id="ui-layer" role="status" aria-live="polite" aria-atomic="true">
-        <section class="hud-panel" aria-labelledby="hud-title">
+        <section id="hud-panel" class="hud-panel" aria-labelledby="hud-title">
             <div class="hud-panel__header">
                 <div>
                     <p id="hud-kicker" class="hud-kicker" data-i18n="hud.kicker"></p>
@@ -64,28 +64,35 @@
                 </article>
             </div>
 
-            <div class="hud-ribbon">
-                <p id="hud-session-label" class="hud-ribbon__label" data-i18n="hud.sessionLabel"></p>
-                <p id="hud-session" class="hud-ribbon__text" data-i18n="hud.sessionStatusDefault"></p>
-            </div>
+            <button id="hud-toggle-btn" class="hud-toggle-btn" type="button" aria-expanded="false"
+                data-i18n-aria-label="hud.toggleDetailsLabel">
+                <span class="hud-toggle-btn__grip" aria-hidden="true"></span>
+            </button>
 
-            <div class="hud-message hud-message--primary">
-                <p id="hud-objective-label" class="hud-message__label" data-i18n="hud.objectiveLabel"></p>
-                <p id="hud-objective" class="hud-message__text" data-i18n="hud.objectiveText"></p>
-            </div>
-
-            <div class="hud-message hud-message--secondary">
-                <div class="hud-message__meta">
-                    <p id="hud-context-label" class="hud-message__label" data-i18n="hud.contextLabel"></p>
-                    <span id="hud-npc-badge" class="hud-badge hud-badge--soft hidden"></span>
+            <div id="hud-details" class="hud-details">
+                <div class="hud-ribbon">
+                    <p id="hud-session-label" class="hud-ribbon__label" data-i18n="hud.sessionLabel"></p>
+                    <p id="hud-session" class="hud-ribbon__text" data-i18n="hud.sessionStatusDefault"></p>
                 </div>
-                <p id="hud-context" class="hud-message__text" data-i18n="hud.contextIdle"></p>
-            </div>
 
-            <div class="hud-footer">
-                <div id="score-display" class="sr-only" data-i18n="score.display" data-i18n-aria-label="app.scoreLabel"></div>
-                <p id="controls-hint" class="hud-footer__hint" data-i18n="app.controlsHint" data-i18n-aria-label="app.controlsLabel"></p>
-                <div id="keyboard-mode-indicator" class="hud-badge hidden" aria-live="assertive" data-i18n="app.keyboardMode"></div>
+                <div class="hud-message hud-message--primary">
+                    <p id="hud-objective-label" class="hud-message__label" data-i18n="hud.objectiveLabel"></p>
+                    <p id="hud-objective" class="hud-message__text" data-i18n="hud.objectiveText"></p>
+                </div>
+
+                <div class="hud-message hud-message--secondary">
+                    <div class="hud-message__meta">
+                        <p id="hud-context-label" class="hud-message__label" data-i18n="hud.contextLabel"></p>
+                        <span id="hud-npc-badge" class="hud-badge hud-badge--soft hidden"></span>
+                    </div>
+                    <p id="hud-context" class="hud-message__text" data-i18n="hud.contextIdle"></p>
+                </div>
+
+                <div class="hud-footer">
+                    <div id="score-display" class="sr-only" data-i18n="score.display" data-i18n-aria-label="app.scoreLabel"></div>
+                    <p id="controls-hint" class="hud-footer__hint" data-i18n="app.controlsHint" data-i18n-aria-label="app.controlsLabel"></p>
+                    <div id="keyboard-mode-indicator" class="hud-badge hidden" aria-live="assertive" data-i18n="app.keyboardMode"></div>
+                </div>
             </div>
         </section>
     </div>

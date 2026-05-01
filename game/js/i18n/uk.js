@@ -33,6 +33,7 @@ export const uk = {
         themeToggleLabel: 'Перемкнути тему',
         settingsLabel: 'Налаштування інтерфейсу',
         statsLabel: 'Статистика гри',
+        toggleDetailsLabel: 'Показати або сховати підказки гри',
         sessionLabel: 'Сесія',
         sessionStatusDefault: 'Нова прогулянка почалася: 0 яблук і 0 зірочок.',
         sessionStatus: 'У цій грі вже зібрано {apples} яблук і {stars} зірочок.',
