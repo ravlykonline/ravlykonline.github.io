@@ -7,22 +7,26 @@ const { htmlPath, root } = require('./testHelpers.cjs');
 
 test('ui rebuilds palette, updates level meta and progress widgets', () => {
   const ui = fs.readFileSync(path.join(root, 'js/ui/appUi.js'), 'utf8');
+  const uiEvents = fs.readFileSync(path.join(root, 'js/ui/appUiEvents.js'), 'utf8');
+  const uiLevelFlow = fs.readFileSync(path.join(root, 'js/ui/appUiLevelFlow.js'), 'utf8');
+  const uiState = fs.readFileSync(path.join(root, 'js/ui/appUiState.js'), 'utf8');
+  const uiStartup = fs.readFileSync(path.join(root, 'js/ui/appUiStartup.js'), 'utf8');
   const renderLevelHeader = fs.readFileSync(path.join(root, 'js/ui/renderLevelHeader.js'), 'utf8');
 
-  assert.match(ui, /function loadCurrentLevel\(\)[\s\S]*app\.render\.buildPalette\(\)[\s\S]*app\.render\.buildGrid\(\)/);
-  assert.match(ui, /renderLevelHeader\(/);
+  assert.match(uiLevelFlow, /function loadCurrentLevel\([^)]*\)[\s\S]*app\.render\.buildPalette\(\)[\s\S]*app\.render\.buildGrid\(\)/);
+  assert.match(uiState, /renderLevelHeader\(/);
   assert.match(renderLevelHeader, /levelModeEl\.textContent/);
   assert.match(renderLevelHeader, /levelGoalEl\.textContent/);
   assert.match(renderLevelHeader, /levelHintEl\.textContent/);
   assert.match(renderLevelHeader, /debugNoteEl\.textContent/);
   assert.match(ui, /refreshProgressUi/);
   assert.match(ui, /modalApi\.openLevelMap/);
-  assert.match(ui, /btnMap\.addEventListener\('click', modalApi\.openLevelMap\)/);
-  assert.match(ui, /renderProgress\(/);
+  assert.match(uiEvents, /btnMap\.addEventListener\('click', modalApi\.openLevelMap\)/);
+  assert.match(uiState, /renderProgress\(/);
   assert.match(ui, /setLevelIntroStatus/);
-  assert.match(ui, /function shouldAutoOpenIntroOnSessionStart\(\)/);
-  assert.match(ui, /shouldAutoOpenIntroOnSessionStart\(\)[\s\S]*modalApi\.openLevelIntro\(\)/);
-  assert.match(ui, /loadCurrentLevel\(\{ showIntro: false \}\)/);
+  assert.match(uiLevelFlow, /function shouldAutoOpenIntroOnSessionStart\(\)/);
+  assert.match(uiStartup, /shouldAutoOpenIntro\(\)[\s\S]*modalApiProvider\(\)\.openLevelIntro\(\)/);
+  assert.match(uiLevelFlow, /loadCurrentLevel\(\{ showIntro: false \}\)/);
 });
 
 test('win and already-solved modals support next level and full restart after final win', () => {
@@ -122,10 +126,10 @@ test('safe delete flow keeps pending-delete and preset arrow markers', () => {
 });
 
 test('runtime confetti respects reduced motion and avoids innerHTML clearing', () => {
-  const ui = fs.readFileSync(path.join(root, 'js/ui/appUi.js'), 'utf8');
+  const uiEffects = fs.readFileSync(path.join(root, 'js/ui/appUiEffects.js'), 'utf8');
   const confetti = fs.readFileSync(path.join(root, 'js/features/confetti.js'), 'utf8');
 
-  assert.match(ui, /launchFeatureConfetti/);
+  assert.match(uiEffects, /launchFeatureConfetti/);
   assert.match(confetti, /prefers-reduced-motion: reduce/);
   assert.match(confetti, /confettiRoot\.replaceChildren\(\)/);
   assert.doesNotMatch(confetti, /innerHTML\s*=/);

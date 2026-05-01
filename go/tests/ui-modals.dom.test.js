@@ -225,7 +225,7 @@ async function createModalHarness(options = {}) {
     }
   };
   windowRef.window = windowRef;
-  windowRef.SnailGame = {
+  const appRef = {
     state: {
       running: false,
       completedLevelIds: options.completedLevelIds || [],
@@ -278,7 +278,7 @@ async function createModalHarness(options = {}) {
   };
 
   const modalApi = createUiModals({
-    app: windowRef.SnailGame,
+    app: appRef,
     documentRef: document,
     loadCurrentLevel(args) {
       calls.loadCurrentLevel.push(args);
@@ -338,7 +338,7 @@ async function createModalHarness(options = {}) {
   trigger.focus();
 
   return {
-    app: windowRef.SnailGame,
+    app: appRef,
     calls,
     document,
     modalApi

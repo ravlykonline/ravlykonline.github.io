@@ -8,6 +8,7 @@ test('core JS files keep expected symbols for game logic and progress', () => {
   const constants = readUtf8('js/core/constants.js');
   const assets = readUtf8('js/ui/assets.js');
   const ui = readUtf8('js/ui/appUi.js');
+  const uiEffects = readUtf8('js/ui/appUiEffects.js');
   const renderLevelHeader = readUtf8('js/ui/renderLevelHeader.js');
   const levels = readUtf8('js/core/levels.js');
   const textsUk = readUtf8('js/core/texts.uk.js');
@@ -83,7 +84,7 @@ test('core JS files keep expected symbols for game logic and progress', () => {
 });
 
 test('responsive UI and safe-delete styles remain present', () => {
-  const ui = readUtf8('js/ui/appUi.js');
+  const uiEffects = readUtf8('js/ui/appUiEffects.js');
   const gameCss = readUtf8('css/game.css');
   const render = readUtf8('js/ui/render.js');
   const renderBoard = readUtf8('js/ui/renderBoard.js');
@@ -103,8 +104,8 @@ test('responsive UI and safe-delete styles remain present', () => {
   assert.ok(render.includes('ArrowRight'));
   assert.ok(renderBoard.includes("'0' : '-1'"));
   assert.ok(pwaRegister.includes("register('./sw.js')"));
-  assert.ok(ui.includes("root.style.setProperty('--gs-w'"));
-  assert.ok(ui.includes("root.style.setProperty('--gs-h'"));
+  assert.ok(uiEffects.includes("root.style.setProperty('--gs-w'"));
+  assert.ok(uiEffects.includes("root.style.setProperty('--gs-h'"));
   assert.ok(readUtf8('sw.js').includes('isSuccessfulDocumentResponse'));
   assert.ok(readUtf8('sw.js').includes('cacheDocumentResponse'));
   assert.ok(readUtf8('sw.js').includes("content-type"));

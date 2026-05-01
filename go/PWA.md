@@ -23,6 +23,14 @@ Service worker реєструється так:
 navigator.serviceWorker.register('./sw.js');
 ```
 
+Сторінка має відкриватися як каталог:
+
+```text
+https://ravlyk.org/go/
+```
+
+Якщо користувач відкриває `https://ravlyk.org/go`, ранній inline-скрипт в `index.html` перенаправляє на `/go/` до завантаження CSS/JS. Це потрібно, щоб відносні шляхи працювали однаково стабільно. Файл `_redirects` містить дублююче правило для хостингів, які його підтримують, але для GitHub Pages основним захистом є саме inline-redirect.
+
 Не використовувати:
 
 ```text
@@ -64,25 +72,11 @@ Service worker лежить у корені гри:
 - додати `index.html`, `offline.html`, `manifest.json`, CSS, assets;
 - додати `js/main.js`, `js/main.module.js`;
 - додати всі ES-модулі з `js/core`, `js/engine`, `js/state`, `js/ui`, `js/features`;
-- додати тимчасові `js/app/legacy*.js`, доки вони потрібні runtime;
+- додати `js/app/appFactory.js` і `js/app/composition.js`;
+- не додавати видалені `js/app/legacy*.js` або legacy script-loader;
 - не додавати видалені classic-файли.
 
-Видалені файли не мають повертатися в `APP_SHELL`:
-
-```text
-./js/main.legacy.js
-./js/levels.js
-./js/texts.uk.js
-./js/gameState.js
-./js/engineRoute.js
-./js/engine.js
-./js/renderDrag.js
-./js/renderSnail.js
-./js/render.js
-./js/uiAudio.js
-./js/uiModals.js
-./js/ui.js
-```
+Видалені classic і legacy файли не мають повертатися в `APP_SHELL`. Особливо важливо не кешувати старі root-level scripts на кшталт `./js/ui.js`, `./js/engine.js`, `./js/render.js`, `./js/gameState.js`, а також будь-які `./js/app/legacy*.js`.
 
 ## Cache Version
 

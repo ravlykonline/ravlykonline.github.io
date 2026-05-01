@@ -27,7 +27,7 @@ import { bootstrapApp } from './main.module.js';
 bootstrapApp();
 ```
 
-`js/main.module.js` збирає composition, встановлює тимчасові compatibility-адаптери й запускає UI.
+`js/main.module.js` збирає composition і запускає UI без classic script-loader або legacy runtime bridge.
 
 ## Поточна Структура
 
@@ -37,6 +37,7 @@ js/
   main.module.js
 
   app/
+    appFactory.js
     composition.js
 
   core/
@@ -65,6 +66,13 @@ js/
 
   ui/
     appUi.js
+    appUiEffects.js
+    appUiEvents.js
+    appUiLevelFlow.js
+    appUiLayout.js
+    appUiState.js
+    appUiStartup.js
+    appUiStatus.js
     assets.js
     dom.js
     focus.js
@@ -81,18 +89,18 @@ js/
 
 Старі файли `js/levels.js`, `js/gameState.js`, `js/engine.js`, `js/render.js`, `js/ui.js` та інші classic-файли видалені.
 
-## Compatibility Шар
+## Legacy Стан
 
-`js/app/legacy*.js` — видалено. App object створюється в `js/app/composition.js`.
+`js/app/legacy*.js` — видалено. App object створюється в `js/app/appFactory.js` і підключається через `js/app/composition.js`.
 
-Runtime більше не очікує контракт `window.SnailGame`; залежності передаються через ES-модулі та app object.
+Runtime більше не очікує контракт `window.SnailGame`; залежності передаються через ES-модулі та app object. `js/main.module.js` більше не експортує legacy loader для classic scripts.
 
 Важливо:
 
-- це не нова цільова архітектура;
-- ці файли не мають розростатися новою логікою;
-- наступні кроки мають зменшувати великий `js/ui/appUi.js`, не повертаючи legacy-шар;
-- application state не має залежати від `window.SnailGame`.
+- не повертати classic script-chain або `js/app/legacy*.js`;
+- не додавати нові залежності від `window.SnailGame`;
+- `js/ui/appUi.js` лишається тонким composer-модулем, а нову UI-логіку треба класти у focused `js/ui/*` модулі;
+- app facade можна далі зменшувати тільки там, де це спрощує код без зміни UX.
 
 ## Відповідальності Модулів
 
@@ -142,9 +150,9 @@ Runtime більше не очікує контракт `window.SnailGame`; за
 
 `app/*`:
 
-- composition;
-- тимчасове збирання старого runtime-контракту;
-- міст між новими модулями й поки що не демонтованими UI/engine сценаріями.
+- створення app object;
+- composition залежностей між `core`, `engine`, `state`, `ui` та `features`;
+- bootstrap-level wiring без DOM-логіки, storage internals або route simulation.
 
 ## Стан І Session Payload
 
@@ -205,9 +213,9 @@ navigator.serviceWorker.register('./sw.js');
 
 Наступний етап буде завершеним, коли:
 
-- `js/ui/appUi.js` ще містить частину UI/controller orchestration, яку треба далі розкласти на менші модулі;
-- `js/engine/runtime.js` відʼєднано від старого `app/*` шару, але runtime ще користується app facade;
-- runtime більше не потребує `window.SnailGame` як application state;
-- `js/app/legacy*.js` видалено;
+- entrypoint лишається модульним і без legacy loader;
+- `js/app/appFactory.js` та `js/app/composition.js` не нарощують UI/engine деталі;
+- `js/ui/appUi.js` лишається composer-модулем, а нова поведінка живе в малих UI-модулях;
+- app facade зменшується поступово там, де це не змінює UX;
 - `npm test` проходить;
 - PWA offline перевірено після оновлення `APP_SHELL`.

@@ -1,7 +1,7 @@
 // Service worker for offline play.
 // Core app files use network-first so deployed updates can replace older cached
 // copies without relying entirely on manual cache version bumps.
-const STATIC_CACHE = 'ravlyk-static-v30';
+const STATIC_CACHE = 'ravlyk-static-v39';
 const APP_SHELL = [
   './',
   './index.html',
@@ -15,6 +15,7 @@ const APP_SHELL = [
   './js/core/constants.js',
   './js/core/levels.js',
   './js/core/texts.uk.js',
+  './js/app/appFactory.js',
   './js/app/composition.js',
   './js/engine/levelRules.js',
   './js/engine/route.js',
@@ -30,6 +31,13 @@ const APP_SHELL = [
   './js/state/sessionStore.js',
   './js/ui/dom.js',
   './js/ui/appUi.js',
+  './js/ui/appUiEffects.js',
+  './js/ui/appUiEvents.js',
+  './js/ui/appUiLevelFlow.js',
+  './js/ui/appUiLayout.js',
+  './js/ui/appUiState.js',
+  './js/ui/appUiStartup.js',
+  './js/ui/appUiStatus.js',
   './js/ui/assets.js',
   './js/ui/focus.js',
   './js/ui/modals.js',

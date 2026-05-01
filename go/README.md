@@ -15,7 +15,7 @@ https://ravlyk.org/go
 - `index.html` підключає один entrypoint: `<script type="module" src="./js/main.js"></script>`.
 - Старий ланцюжок classic scripts видалено з кореня `js/`.
 - Дані, стан, engine, UI та feature-логіка винесені в ES-модулі.
-- Compatibility-шар `js/app/legacy*.js` видалено; app object створюється в `js/app/composition.js`.
+- Compatibility-шар `js/app/legacy*.js` і legacy script-loader видалено; app object створюється в `js/app/appFactory.js` і підключається через `js/app/composition.js`.
 - Service worker кешує тільки актуальні модульні файли й assets.
 - Прогрес зберігається тільки в `sessionStorage` у межах поточної вкладки.
 
@@ -47,6 +47,7 @@ https://ravlyk.org/go
     main.module.js
 
     app/
+      appFactory.js
       composition.js
 
     core/
@@ -75,6 +76,13 @@ https://ravlyk.org/go
 
     ui/
       appUi.js
+      appUiEffects.js
+      appUiEvents.js
+      appUiLevelFlow.js
+      appUiLayout.js
+      appUiState.js
+      appUiStartup.js
+      appUiStatus.js
       assets.js
       dom.js
       focus.js
@@ -91,7 +99,7 @@ https://ravlyk.org/go
   tests/
 ```
 
-`js/app/composition.js` створює app object і явно підключає `engine/*`, `ui/*`, `features/*` та `state/*`.
+`js/app/appFactory.js` створює app object, а `js/app/composition.js` явно підключає `engine/*`, `ui/*`, `features/*` та `state/*`.
 
 ## Запуск Локально
 
@@ -136,6 +144,6 @@ navigator.serviceWorker.register('./sw.js');
 
 ## Наступний Рефакторинг
 
-1. Розкласти залишок `js/ui/appUi.js` на чисті UI/controller-модулі.
-2. Повторно перевірити PWA offline після демонтажу compatibility-шару.
-3. Далі зменшувати app facade там, де це спрощує код без зміни UX.
+1. Далі зменшувати app facade там, де це спрощує код без зміни UX.
+2. Не повертати classic script-chain, `js/app/legacy*.js` або legacy loader у `main.module.js`.
+3. Повторно перевірити PWA offline після кожної зміни `APP_SHELL` або service worker.

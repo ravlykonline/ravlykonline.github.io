@@ -10,8 +10,9 @@ test('appUi module exposes the current UI controller without legacy global wirin
 
   assert.match(source, /export function createAppUi\(/);
   assert.doesNotMatch(source, /window\.SnailGame/);
-  assert.match(source, /function loadCurrentLevel\(\)/);
-  assert.match(source, /function bindGlobalEvents\(\)/);
+  assert.match(source, /createAppUiLevelFlow\(/);
+  assert.match(source, /loadCurrentLevel: flowApi\.loadCurrentLevel/);
+  assert.match(source, /bindAppUiEvents\(/);
   assert.match(source, /app\.ui = ui/);
 });
 

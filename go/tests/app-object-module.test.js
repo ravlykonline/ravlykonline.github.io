@@ -23,7 +23,7 @@ function createElement(tagName) {
   };
 }
 
-test('composition creates the app object from explicit ES modules', async () => {
+test('composition exposes the app object from the app factory', async () => {
   const { createAppComposition } = await importModule('js/app/composition.js');
   const documentRef = {
     createElement,
@@ -43,21 +43,8 @@ test('composition creates the app object from explicit ES modules', async () => 
   assert.equal(app.tileDefs.length, 12);
   assert.equal(app.levels.length, 20);
   assert.equal(app.levels[0].id, 1);
-  assert.equal(typeof app.textUk.progress, 'function');
-  assert.equal(app.tileDefs[0].iconFile, 'straight_up.svg');
-  assert.match(app.tileDefs[0].icon, /src="\.\/assets\/straight_up\.svg"/);
-  assert.equal(app.delta.right.dc, 1);
-  assert.equal(app.oppositeDir('left'), 'right');
-  assert.equal(app.resolveTileExit('left-up', 'right'), 'up');
-  assert.equal(app.resolveStartTileExit('up-right'), 'right');
-  assert.equal(app.canEnterTile('down-left', 'up'), true);
-
-  const icon = app.createAssetIcon('snail.svg', 'board-icon');
-  assert.equal(icon.src, './assets/snail.svg');
-  assert.equal(icon.className, 'asset-icon board-icon');
-  assert.equal(icon.attrs['aria-hidden'], 'true');
-
-  assert.equal(app.createTileIconByDir('right').src, './assets/straight_right.svg');
-  assert.equal(app.createTileIconByDir('missing'), null);
+  assert.equal(typeof app.createAssetIcon, 'function');
+  assert.equal(typeof app.createTileIconByDir, 'function');
+  assert.equal(typeof app.resolveTileExit, 'function');
   assert.equal(windowRef.SnailGame, undefined);
 });

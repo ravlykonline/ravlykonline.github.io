@@ -76,6 +76,7 @@ Keep this command working.
     main.module.js
 
     app/
+      appFactory.js
       composition.js
 
     core/
@@ -104,6 +105,13 @@ Keep this command working.
 
     ui/
       appUi.js
+      appUiEffects.js
+      appUiEvents.js
+      appUiLevelFlow.js
+      appUiLayout.js
+      appUiState.js
+      appUiStartup.js
+      appUiStatus.js
       assets.js
       dom.js
       focus.js
@@ -206,11 +214,11 @@ Allowed:
 - compose modules;
 - initialize app;
 - call PWA registration;
-- hold only temporary compatibility wiring that is being actively reduced.
+- keep bootstrap wiring small and explicit.
 
 Avoid:
 
-- growing the compatibility layer;
+- reintroducing classic script loading or compatibility layers;
 - adding new global contracts.
 
 ### `js/core/levels.js`
@@ -382,10 +390,11 @@ These may break under `/go`.
 Move step by step. Do not attempt a massive rewrite.
 
 1. Keep `npm test` green before and after meaningful changes.
-2. Split remaining UI/controller behavior out of `js/ui/appUi.js` into focused `js/ui/*` or app controller modules.
-3. Keep dependencies explicit; do not reintroduce `window.SnailGame`.
-4. Update `sw.js` and tests whenever files move.
-5. Re-check browser smoke and offline behavior after PWA-affecting changes.
+2. Keep `js/ui/appUi.js` as a thin composer; put new UI/controller behavior into focused `js/ui/*` modules.
+3. Reduce the app facade where it simplifies code without changing UX.
+4. Keep dependencies explicit; do not reintroduce `window.SnailGame`, classic script loading, or `js/app/legacy*.js`.
+5. Update `sw.js` and tests whenever files move or cached files change.
+6. Re-check browser smoke and offline behavior after PWA-affecting changes.
 
 ## Testing Requirements
 

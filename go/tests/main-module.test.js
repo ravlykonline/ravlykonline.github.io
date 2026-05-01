@@ -69,7 +69,6 @@ test('candidate module entrypoint bootstraps composition and app modules', async
     const composition = await bootstrapApp({
       documentRef: globalThis.document,
       initializeUi: false,
-      loadLegacyRuntime: false,
       navigatorRef: globalThis.navigator,
       windowRef
     });
@@ -97,37 +96,15 @@ test('candidate module entrypoint avoids storage internals and old script conten
   assert.doesNotMatch(source, /sessionStorage|localStorage/);
   assert.doesNotMatch(source, /createTileDef/);
   assert.doesNotMatch(source, /resolveTileExit\(tileDir/);
+  assert.doesNotMatch(source, /LEGACY_RUNTIME_SCRIPTS/);
+  assert.doesNotMatch(source, /loadClassicScript/);
+  assert.doesNotMatch(source, /loadLegacyRuntimeScripts/);
+  assert.doesNotMatch(source, /loadLegacyRuntime/);
+  assert.doesNotMatch(source, /legacyScripts/);
 });
 
-test('module entrypoint defines ordered legacy runtime loading for the transition', async () => {
-  const { LEGACY_RUNTIME_SCRIPTS, loadLegacyRuntimeScripts } = await importModule('js/main.module.js');
-  const loaded = [];
-  const documentRef = {
-    body: {
-      appendChild(script) {
-        loaded.push(script.src);
-        script.onload();
-      }
-    },
-    createElement() {
-      return {};
-    }
-  };
+test('module entrypoint exposes only the module bootstrap API', async () => {
+  const module = await importModule('js/main.module.js');
 
-  assert.deepEqual(LEGACY_RUNTIME_SCRIPTS, []);
-  assert.equal(LEGACY_RUNTIME_SCRIPTS.includes('./js/ui.js'), false);
-  assert.equal(LEGACY_RUNTIME_SCRIPTS.includes('./js/uiModals.js'), false);
-  assert.equal(LEGACY_RUNTIME_SCRIPTS.includes('./js/uiAudio.js'), false);
-  assert.equal(LEGACY_RUNTIME_SCRIPTS.includes('./js/render.js'), false);
-  assert.equal(LEGACY_RUNTIME_SCRIPTS.includes('./js/renderDrag.js'), false);
-  assert.equal(LEGACY_RUNTIME_SCRIPTS.includes('./js/renderSnail.js'), false);
-  assert.equal(LEGACY_RUNTIME_SCRIPTS.includes('./js/engineRoute.js'), false);
-  assert.equal(LEGACY_RUNTIME_SCRIPTS.includes('./js/engine.js'), false);
-
-  await loadLegacyRuntimeScripts({
-    documentRef,
-    scripts: ['./a.js', './b.js']
-  });
-
-  assert.deepEqual(loaded, ['./a.js', './b.js']);
+  assert.deepEqual(Object.keys(module).sort(), ['bootstrapApp']);
 });

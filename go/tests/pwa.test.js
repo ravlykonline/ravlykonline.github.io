@@ -20,6 +20,7 @@ test('service worker app shell caches real local files', () => {
   assert.ok(appShell.includes('./js/core/constants.js'));
   assert.ok(appShell.includes('./js/core/levels.js'));
   assert.ok(appShell.includes('./js/core/texts.uk.js'));
+  assert.ok(appShell.includes('./js/app/appFactory.js'));
   assert.ok(appShell.includes('./js/app/composition.js'));
   assert.equal(appShell.includes('./js/app/legacyEngine.js'), false);
   assert.equal(appShell.includes('./js/app/legacyGlobals.js'), false);
@@ -43,6 +44,13 @@ test('service worker app shell caches real local files', () => {
   assert.ok(appShell.includes('./js/state/gameState.js'));
   assert.ok(appShell.includes('./js/state/sessionStore.js'));
   assert.ok(appShell.includes('./js/ui/appUi.js'));
+  assert.ok(appShell.includes('./js/ui/appUiEffects.js'));
+  assert.ok(appShell.includes('./js/ui/appUiEvents.js'));
+  assert.ok(appShell.includes('./js/ui/appUiLevelFlow.js'));
+  assert.ok(appShell.includes('./js/ui/appUiLayout.js'));
+  assert.ok(appShell.includes('./js/ui/appUiState.js'));
+  assert.ok(appShell.includes('./js/ui/appUiStartup.js'));
+  assert.ok(appShell.includes('./js/ui/appUiStatus.js'));
   assert.ok(appShell.includes('./js/ui/dom.js'));
   assert.ok(appShell.includes('./js/ui/assets.js'));
   assert.ok(appShell.includes('./js/ui/focus.js'));
@@ -85,7 +93,7 @@ test('service worker app shell caches real local files', () => {
 test('service worker cache version is bumped for added app shell files', () => {
   const source = readUtf8('sw.js');
 
-  assert.match(source, /const STATIC_CACHE = 'ravlyk-static-v30'/);
+  assert.match(source, /const STATIC_CACHE = 'ravlyk-static-v39'/);
   assert.match(source, /event\.request\.method !== 'GET'/);
 });
 
@@ -102,4 +110,23 @@ test('manifest uses /go-compatible relative paths', () => {
     assert.doesNotMatch(icon.src, /^https?:\/\//i);
     assert.doesNotMatch(icon.src, /^\//);
   }
+});
+
+test('index redirects /go to /go/ before loading page assets', () => {
+  const html = readUtf8('index.html');
+  const redirectScriptIndex = html.indexOf('function ensureDirectoryUrl()');
+  const firstStylesheetIndex = html.indexOf('<link rel="stylesheet"');
+  const moduleScriptIndex = html.indexOf('<script type="module"');
+
+  assert.notEqual(redirectScriptIndex, -1, 'index.html should contain the early directory URL guard');
+  assert.ok(redirectScriptIndex < firstStylesheetIndex, 'directory URL guard should run before CSS loads');
+  assert.ok(redirectScriptIndex < moduleScriptIndex, 'directory URL guard should run before module JS loads');
+  assert.ok(html.includes("window.location.replace(path + '/' + window.location.search + window.location.hash)"));
+  assert.ok(html.includes("window.location.protocol !== 'file:'"));
+});
+
+test('optional redirects file documents /go to /go/ fallback for supporting hosts', () => {
+  const redirects = readUtf8('_redirects').trim();
+
+  assert.equal(redirects, '/go /go/ 301');
 });
