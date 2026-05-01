@@ -7,7 +7,16 @@ export function getAllowedTileDefs({ level, tileDefs }) {
   return tileDefs.filter((tile) => allowed.includes(tile.dir));
 }
 
-export function renderPalette({ createTileIcon, documentRef = document, level, onSelect, selectedDir, text, tileDefs }) {
+export function renderPalette({
+  createTileIcon,
+  documentRef = document,
+  level,
+  onPointerDown,
+  onSelect,
+  selectedDir,
+  text,
+  tileDefs
+}) {
   const palette = documentRef.createElement('div');
   palette.className = 'palette';
 
@@ -19,7 +28,10 @@ export function renderPalette({ createTileIcon, documentRef = document, level, o
     button.dataset.group = tile.group;
     button.setAttribute('aria-label', text.render.dragToBoard(tile.label));
     button.appendChild(createTileIcon(tile));
-    button.addEventListener('click', () => onSelect(tile.dir));
+    if (onPointerDown) {
+      button.addEventListener('pointerdown', (event) => onPointerDown(event, button, tile));
+    }
+    button.addEventListener('click', () => onSelect(tile.dir, button, tile));
     palette.appendChild(button);
   }
 

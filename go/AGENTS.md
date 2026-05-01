@@ -47,8 +47,8 @@ Use relative paths compatible with `/go`.
   - `js/uiModals.js`
   - `js/ui.js`
 - Current runtime code is split across ES modules under `js/core`, `js/state`, `js/engine`, `js/ui`, `js/features`, and `js/app`.
-- `js/app/legacy*.js` is a temporary compatibility layer. It keeps the current behavior stable while the remaining old runtime contract is dismantled.
-- `window.SnailGame` may still exist as temporary compatibility glue, but new code should not add new global state or new dependencies on it.
+- `js/app/legacy*.js` has been removed. Do not reintroduce the compatibility layer.
+- `window.SnailGame` is no longer part of the runtime contract. Do not add new global state or dependencies on it.
 - `sw.js` caches the current module files and assets, not the deleted classic files.
 
 Current tests run with:
@@ -77,7 +77,6 @@ Keep this command working.
 
     app/
       composition.js
-      legacy*.js
 
     core/
       config.js
@@ -88,6 +87,7 @@ Keep this command working.
     engine/
       levelRules.js
       route.js
+      runtime.js
       simulator.js
       validation.js
 
@@ -98,25 +98,31 @@ Keep this command working.
       speech.js
 
     state/
+      appStateFacade.js
       gameState.js
       sessionStore.js
 
     ui/
+      appUi.js
       assets.js
       dom.js
       focus.js
       modals.js
+      render.js
       renderBoard.js
+      renderDrag.js
+      renderLevelHeader.js
       renderLevelMap.js
       renderPalette.js
       renderProgress.js
+      renderSnail.js
 
   tests/
 ```
 
 ## Target Direction
 
-Continue reducing `js/app/legacy*.js` until the app can run through explicit module imports and plain function calls only.
+Keep the app running through explicit module imports and plain function calls only.
 
 The final direction is:
 
@@ -279,6 +285,7 @@ Expected responsibilities:
 - `dom.js` — collect DOM refs;
 - `renderBoard.js` — board rendering;
 - `renderPalette.js` — arrow palette;
+- `renderLevelHeader.js` — current level title, goal, hint, mode, task buttons, and nav state;
 - `renderLevelMap.js` — level map;
 - `renderProgress.js` — progress text/bar/ARIA;
 - `modals.js` — modal dialogs;
@@ -375,12 +382,10 @@ These may break under `/go`.
 Move step by step. Do not attempt a massive rewrite.
 
 1. Keep `npm test` green before and after meaningful changes.
-2. Split remaining UI behavior out of `js/app/legacyUi.js` into focused `js/ui/*` modules.
-3. Split remaining engine/runtime behavior out of `js/app/legacyEngine.js` and `js/app/legacyState.js`.
-4. Replace temporary `window.SnailGame` wiring with explicit imports and dependency passing.
-5. Delete `js/app/legacy*.js` only after the module contracts no longer need them.
-6. Update `sw.js` and tests whenever files move.
-7. Re-check browser smoke and offline behavior after PWA-affecting changes.
+2. Split remaining UI/controller behavior out of `js/ui/appUi.js` into focused `js/ui/*` or app controller modules.
+3. Keep dependencies explicit; do not reintroduce `window.SnailGame`.
+4. Update `sw.js` and tests whenever files move.
+5. Re-check browser smoke and offline behavior after PWA-affecting changes.
 
 ## Testing Requirements
 

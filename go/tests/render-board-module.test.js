@@ -66,11 +66,15 @@ test('createBoardGrid builds stable grid cells with coordinates and events', asy
   const { createBoardGrid } = await importModule('js/ui/renderBoard.js');
   const documentRef = createDocument();
   const clicked = [];
+  const keyed = [];
   const grid = createBoardGrid({
     cols: 2,
     documentRef,
     onCellAction(row, col) {
       clicked.push([row, col]);
+    },
+    onCellKeyDown(event, row, col) {
+      keyed.push([event.key, row, col]);
     },
     rows: 2
   });
@@ -83,7 +87,9 @@ test('createBoardGrid builds stable grid cells with coordinates and events', asy
   assert.equal(grid.children[3].attrs.tabindex, '-1');
 
   grid.children[2].listeners.click();
+  grid.children[1].listeners.keydown({ key: 'Enter' });
   assert.deepEqual(clicked, [[1, 0]]);
+  assert.deepEqual(keyed, [['Enter', 0, 1]]);
 });
 
 test('renderBoardCell renders arrow state and accessible label without innerHTML', async () => {

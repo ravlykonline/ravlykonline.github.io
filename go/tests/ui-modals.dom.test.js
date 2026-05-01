@@ -269,8 +269,7 @@ async function createModalHarness(options = {}) {
       this.restartProgressCalls += 1;
     }
   };
-  const { installLegacyUiModals } = await importModule('js/app/legacyUiModals.js');
-  installLegacyUiModals({ documentRef: document, windowRef });
+  const { createUiModals } = await importModule('js/ui/modals.js');
 
   const calls = {
     loadCurrentLevel: [],
@@ -278,7 +277,9 @@ async function createModalHarness(options = {}) {
     stopTaskSpeech: 0
   };
 
-  const modalApi = windowRef.SnailGame.createUiModals({
+  const modalApi = createUiModals({
+    app: windowRef.SnailGame,
+    documentRef: document,
     loadCurrentLevel(args) {
       calls.loadCurrentLevel.push(args);
     },
@@ -327,7 +328,8 @@ async function createModalHarness(options = {}) {
       winBody(isFinalWin) {
         return isFinalWin ? '??? ?????? ????????.' : '?????? ????????.';
       }
-    }
+    },
+    windowRef
   });
 
   const trigger = document.createElement('button');

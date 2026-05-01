@@ -1,10 +1,10 @@
-import { renderBoardCell } from '../ui/renderBoard.js';
+import { createBoardGrid, renderBoardCell } from './renderBoard.js';
+import { renderPalette } from './renderPalette.js';
 
-export function installLegacyRender({
-  documentRef = document,
-  windowRef = window
-} = {}) {
-  const app = windowRef.SnailGame;
+export function createRender({
+  app,
+  documentRef = document
+}) {
   const { paletteEl, ghostEl, gridEl } = app.refs;
   const { render: renderText } = app.text;
 
@@ -201,24 +201,17 @@ export function installLegacyRender({
   }
 
   function buildPalette() {
-    paletteEl.replaceChildren();
-
-    app.getAllowedTileDefs().forEach(({ dir, group, label, icon }) => {
-      const button = documentRef.createElement('button');
-      button.className = `atile ${group}`;
-      button.dataset.dir = dir;
-      button.dataset.group = group;
-      button.setAttribute('aria-label', renderText.dragToBoard(label));
-      button.appendChild(app.createTileIconByDir(dir, 'tile-icon'));
-
-      button.addEventListener('pointerdown', (event) => {
+    const palette = renderPalette({
+      createTileIcon: (tile) => app.createTileIconByDir(tile.dir, 'tile-icon'),
+      documentRef,
+      level: app.state.currentLevel,
+      onPointerDown(event, button, tile) {
         if (event.button !== undefined && event.button !== 0) {
           return;
         }
-        dragApi.beginPointerDrag(event, button, dir, group, icon);
-      });
-
-      button.addEventListener('click', () => {
+        dragApi.beginPointerDrag(event, button, tile.dir, tile.group, tile.icon);
+      },
+      onSelect(dir, button) {
         if (app.state.suppressTileClick) {
           app.state.suppressTileClick = false;
           return;
@@ -236,10 +229,13 @@ export function installLegacyRender({
           documentRef.querySelectorAll('.atile').forEach((tile) => tile.classList.remove('sel'));
           button.classList.add('sel');
         }
-      });
-
-      paletteEl.appendChild(button);
+      },
+      selectedDir: app.state.selDir,
+      text: app.text,
+      tileDefs: app.tileDefs
     });
+
+    paletteEl.replaceChildren(...Array.from(palette.childNodes));
   }
 
   function buildGrid() {
@@ -253,53 +249,47 @@ export function installLegacyRender({
     };
 
     activeCellKey = null;
-    gridEl.replaceChildren();
-    gridEl.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
-    gridEl.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
+    const grid = createBoardGrid({
+      cols,
+      documentRef,
+      onCellAction(r, c) {
+        setActiveGridCell(r, c, { focus: false });
+        cellClick(r, c);
+      },
+      onCellFocus(r, c) {
+        setActiveGridCell(r, c, { focus: false });
+      },
+      onCellKeyDown(event, r, c) {
+        if (moves[event.key]) {
+          event.preventDefault();
+          const [dr, dc] = moves[event.key];
+          setActiveGridCell(r + dr, c + dc);
+          return;
+        }
 
-    for (let r = 0; r < rows; r += 1) {
-      for (let c = 0; c < cols; c += 1) {
-        const el = documentRef.createElement('div');
-        el.className = `cell ${(r + c) % 2 === 0 ? 'odd' : 'even'}`;
-        el.setAttribute('role', 'gridcell');
-        el.setAttribute('tabindex', '-1');
-        el.dataset.r = String(r);
-        el.dataset.c = String(c);
-        el.addEventListener('click', () => {
-          setActiveGridCell(r, c, { focus: false });
+        if (event.key === 'Home') {
+          event.preventDefault();
+          setActiveGridCell(r, 0);
+          return;
+        }
+
+        if (event.key === 'End') {
+          event.preventDefault();
+          setActiveGridCell(r, cols - 1);
+          return;
+        }
+
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
           cellClick(r, c);
-        });
-        el.addEventListener('focus', () => {
-          setActiveGridCell(r, c, { focus: false });
-        });
-        el.addEventListener('keydown', (event) => {
-          if (moves[event.key]) {
-            event.preventDefault();
-            const [dr, dc] = moves[event.key];
-            setActiveGridCell(r + dr, c + dc);
-            return;
-          }
+        }
+      },
+      rows
+    });
 
-          if (event.key === 'Home') {
-            event.preventDefault();
-            setActiveGridCell(r, 0);
-            return;
-          }
-
-          if (event.key === 'End') {
-            event.preventDefault();
-            setActiveGridCell(r, cols - 1);
-            return;
-          }
-
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            cellClick(r, c);
-          }
-        });
-        gridEl.appendChild(el);
-      }
-    }
+    gridEl.replaceChildren(...Array.from(grid.children));
+    gridEl.style.gridTemplateColumns = grid.style.gridTemplateColumns;
+    gridEl.style.gridTemplateRows = grid.style.gridTemplateRows;
 
     setActiveGridCell(0, 0, { focus: false });
   }
@@ -342,7 +332,7 @@ export function installLegacyRender({
     documentRef.querySelectorAll('.cell.trail').forEach((cell) => cell.classList.remove('trail'));
   }
 
-  app.render = {
+  return {
     beginPointerDrag: dragApi.beginPointerDrag,
     buildPalette,
     buildGrid,
@@ -366,6 +356,4 @@ export function installLegacyRender({
     setTrail,
     updateDropTarget: dragApi.updateDropTarget
   };
-
-  return app.render;
 }

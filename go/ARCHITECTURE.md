@@ -38,15 +38,6 @@ js/
 
   app/
     composition.js
-    legacyEngine.js
-    legacyGlobals.js
-    legacyRender.js
-    legacyRenderDrag.js
-    legacyRenderSnail.js
-    legacyState.js
-    legacyUi.js
-    legacyUiAudio.js
-    legacyUiModals.js
 
   core/
     config.js
@@ -57,6 +48,7 @@ js/
   engine/
     levelRules.js
     route.js
+    runtime.js
     simulator.js
     validation.js
 
@@ -67,34 +59,40 @@ js/
     speech.js
 
   state/
+    appStateFacade.js
     gameState.js
     sessionStore.js
 
   ui/
+    appUi.js
     assets.js
     dom.js
     focus.js
     modals.js
+    render.js
     renderBoard.js
+    renderDrag.js
+    renderLevelHeader.js
     renderLevelMap.js
     renderPalette.js
     renderProgress.js
+    renderSnail.js
 ```
 
 Старі файли `js/levels.js`, `js/gameState.js`, `js/engine.js`, `js/render.js`, `js/ui.js` та інші classic-файли видалені.
 
 ## Compatibility Шар
 
-`js/app/legacy*.js` — тимчасовий шар сумісності.
+`js/app/legacy*.js` — видалено. App object створюється в `js/app/composition.js`.
 
-Він потрібен, бо частина runtime ще очікує старий контракт `window.SnailGame`, хоча дані й більшість логіки вже винесені в ES-модулі.
+Runtime більше не очікує контракт `window.SnailGame`; залежності передаються через ES-модулі та app object.
 
 Важливо:
 
 - це не нова цільова архітектура;
 - ці файли не мають розростатися новою логікою;
-- при наступних кроках їх треба розкладати в `ui/*`, `engine/*`, `features/*`, `state/*`;
-- фінальна мета — прибрати application state з `window.SnailGame`.
+- наступні кроки мають зменшувати великий `js/ui/appUi.js`, не повертаючи legacy-шар;
+- application state не має залежати від `window.SnailGame`.
 
 ## Відповідальності Модулів
 
@@ -207,8 +205,8 @@ navigator.serviceWorker.register('./sw.js');
 
 Наступний етап буде завершеним, коли:
 
-- `js/app/legacyUi.js` розкладено на менші UI-модулі;
-- `js/app/legacyEngine.js` розкладено на чисті engine модулі;
+- `js/ui/appUi.js` ще містить частину UI/controller orchestration, яку треба далі розкласти на менші модулі;
+- `js/engine/runtime.js` відʼєднано від старого `app/*` шару, але runtime ще користується app facade;
 - runtime більше не потребує `window.SnailGame` як application state;
 - `js/app/legacy*.js` видалено;
 - `npm test` проходить;

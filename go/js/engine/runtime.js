@@ -1,11 +1,11 @@
 import { DIRECTION_DELTAS, resolveTileExit } from '../core/constants.js';
-import { analyzeRoute } from '../engine/route.js';
+import { analyzeRoute } from './route.js';
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function createLegacyRouteApi(app) {
+export function createEngineRoute(app) {
   const scanOrder = app.config.scanOrder;
 
   function findNeighborStartMove(r, c, rows, cols) {
@@ -102,13 +102,8 @@ function createLegacyRouteApi(app) {
   };
 }
 
-export function installLegacyEngine({ windowRef = window } = {}) {
-  const app = windowRef.SnailGame;
+export function createGameEngine({ app }) {
   const { engine: engineText } = app.text;
-
-  app.createEngineRoute = function createEngineRoute() {
-    return createLegacyRouteApi(app);
-  };
 
   async function showTurnTryAgain() {
     app.ui.showTurnHintModal({
@@ -160,7 +155,7 @@ export function installLegacyEngine({ windowRef = window } = {}) {
     }
   }
 
-  const routeApi = app.createEngineRoute();
+  const routeApi = createEngineRoute(app);
 
   async function run() {
     const start = app.getStart();
@@ -328,13 +323,11 @@ export function installLegacyEngine({ windowRef = window } = {}) {
     app.ui.refreshLevelUi();
   }
 
-  app.engine = {
+  return {
     analyzeCurrentRoute: routeApi.analyzeCurrentRoute,
     clearAll,
     delay,
     findNeighborStartMove: routeApi.findNeighborStartMove,
     run
   };
-
-  return app.engine;
 }

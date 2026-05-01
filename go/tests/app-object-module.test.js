@@ -23,14 +23,23 @@ function createElement(tagName) {
   };
 }
 
-test('legacy globals module installs the old main.js contract from ES modules', async () => {
-  const { installLegacyGlobals } = await importModule('js/app/legacyGlobals.js');
-  const windowRef = {};
-  const documentRef = { createElement };
+test('composition creates the app object from explicit ES modules', async () => {
+  const { createAppComposition } = await importModule('js/app/composition.js');
+  const documentRef = {
+    createElement,
+    getElementById(id) {
+      return { id };
+    }
+  };
+  const windowRef = {
+    addEventListener() {},
+    location: { protocol: 'file:' },
+    sessionStorage: null
+  };
 
-  const app = installLegacyGlobals({ documentRef, windowRef });
+  const composition = createAppComposition({ documentRef, navigatorRef: {}, windowRef });
+  const { app } = composition;
 
-  assert.equal(app, windowRef.SnailGame);
   assert.equal(app.tileDefs.length, 12);
   assert.equal(app.levels.length, 20);
   assert.equal(app.levels[0].id, 1);
@@ -50,12 +59,5 @@ test('legacy globals module installs the old main.js contract from ES modules', 
 
   assert.equal(app.createTileIconByDir('right').src, './assets/straight_right.svg');
   assert.equal(app.createTileIconByDir('missing'), null);
-});
-
-test('legacy globals module is limited to the compatibility bridge', () => {
-  const fs = require('node:fs');
-  const source = fs.readFileSync(path.join(root, 'js/app/legacyGlobals.js'), 'utf8');
-
-  assert.doesNotMatch(source, /sessionStorage|localStorage/);
-  assert.doesNotMatch(source, /\.innerHTML\s*=/);
+  assert.equal(windowRef.SnailGame, undefined);
 });

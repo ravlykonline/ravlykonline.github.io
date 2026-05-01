@@ -9,9 +9,8 @@ import {
   resetLevelAttempt,
   setCurrentLevel,
   toSessionPayload
-} from '../state/gameState.js';
-import { clearSession, loadSession, saveSession } from '../state/sessionStore.js';
-import { getDomRefs } from '../ui/dom.js';
+} from './gameState.js';
+import { clearSession, loadSession, saveSession } from './sessionStore.js';
 
 const LEGACY_STORAGE_KEY = 'ravlyk-code-progress-v1';
 
@@ -48,15 +47,7 @@ function removeLegacySession(storage) {
   }
 }
 
-function getStorage(windowRef) {
-  try {
-    return windowRef?.sessionStorage || null;
-  } catch {
-    return null;
-  }
-}
-
-function syncLegacyState(app, moduleState) {
+function syncAppState(app, moduleState) {
   const currentLevel = getCurrentLevel(moduleState);
   app.state.currentLevel = currentLevel;
   app.state.arrows = cloneArrowMap(getLevelArrows(moduleState, currentLevel.id));
@@ -76,7 +67,7 @@ function syncLegacyState(app, moduleState) {
   app.config.cols = currentLevel.cols;
 }
 
-function syncModuleAttemptFromLegacy(app, moduleState) {
+function syncModuleAttemptFromApp(app, moduleState) {
   moduleState.snailPos = { ...app.state.snailPos };
   moduleState.snailFacing = app.state.snailFacing;
   moduleState.appleEaten = app.state.appleEaten;
@@ -89,13 +80,12 @@ function syncModuleAttemptFromLegacy(app, moduleState) {
   moduleState.touchCell = app.state.touchCell;
 }
 
-export function installLegacyState({
-  documentRef = document,
-  windowRef = window
-} = {}) {
-  const app = windowRef.SnailGame;
+export function installAppStateFacade({
+  app,
+  refs,
+  storage
+}) {
   const firstLevel = app.levels[0];
-  const storage = getStorage(windowRef);
   const moduleState = createInitialState(app.levels, loadSession(storage) || loadLegacySession(storage));
 
   app.config = {
@@ -106,7 +96,7 @@ export function installLegacyState({
     scanOrder: [...GAME_CONFIG.routeScanOrder]
   };
   app.text = app.textUk;
-  app.refs = getDomRefs(documentRef);
+  app.refs = refs;
   app.state = {
     arrows: {},
     snailPos: { ...firstLevel.start },
@@ -185,7 +175,7 @@ export function installLegacyState({
   };
 
   function saveProgress() {
-    syncModuleAttemptFromLegacy(app, moduleState);
+    syncModuleAttemptFromApp(app, moduleState);
     saveSession(toSessionPayload(moduleState), storage);
   }
 
@@ -194,9 +184,9 @@ export function installLegacyState({
     removeLegacySession(storage);
   }
 
-  app.markLevelComplete = function markLegacyLevelComplete(levelId) {
+  app.markLevelComplete = function markAppLevelComplete(levelId) {
     if (markLevelComplete(moduleState, levelId)) {
-      syncLegacyState(app, moduleState);
+      syncAppState(app, moduleState);
       saveProgress();
     }
   };
@@ -206,16 +196,16 @@ export function installLegacyState({
     saveProgress();
   };
 
-  app.resetLevelState = function resetLegacyLevelState() {
+  app.resetLevelState = function resetAppLevelState() {
     resetLevelAttempt(moduleState);
-    syncLegacyState(app, moduleState);
+    syncAppState(app, moduleState);
   };
 
-  app.setCurrentLevel = function setLegacyCurrentLevel(levelId) {
+  app.setCurrentLevel = function setAppCurrentLevel(levelId) {
     if (!setCurrentLevel(moduleState, levelId)) {
       return false;
     }
-    syncLegacyState(app, moduleState);
+    syncAppState(app, moduleState);
     saveProgress();
     return true;
   };
@@ -223,7 +213,7 @@ export function installLegacyState({
   app.restartProgress = function restartProgress() {
     restartGame(moduleState);
     clearSavedProgress();
-    syncLegacyState(app, moduleState);
+    syncAppState(app, moduleState);
     saveProgress();
   };
 
@@ -235,6 +225,6 @@ export function installLegacyState({
     legacyStorageKey: LEGACY_STORAGE_KEY
   };
 
-  syncLegacyState(app, moduleState);
+  syncAppState(app, moduleState);
   return app;
 }

@@ -36,6 +36,7 @@ test('renderPalette renders only allowed command tiles and selected state', asyn
     importModule('js/ui/renderPalette.js')
   ]);
   const selected = [];
+  const dragged = [];
   const palette = renderPalette({
     createTileIcon(tile) {
       return { iconFile: tile.iconFile };
@@ -46,6 +47,9 @@ test('renderPalette renders only allowed command tiles and selected state', asyn
     },
     onSelect(dir) {
       selected.push(dir);
+    },
+    onPointerDown(_event, button, tile) {
+      dragged.push([button.dataset.dir, tile.group]);
     },
     selectedDir: 'left-up',
     text: {
@@ -67,7 +71,9 @@ test('renderPalette renders only allowed command tiles and selected state', asyn
   assert.match(palette.children[1].className, /\bsel\b/);
 
   palette.children[1].listeners.click();
+  palette.children[0].listeners.pointerdown({ button: 0 });
   assert.deepEqual(selected, ['left-up']);
+  assert.deepEqual(dragged, [['right', 'str']]);
 });
 
 test('renderPalette exposes all tile definitions when level has no allowedTiles limit', async () => {

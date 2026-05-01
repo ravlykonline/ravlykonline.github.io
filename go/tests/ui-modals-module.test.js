@@ -106,6 +106,10 @@ function createDocument() {
   return documentRef;
 }
 
+function collectText(node) {
+  return [node.textContent || '', ...node.children.flatMap((child) => collectText(child))].join('');
+}
+
 const text = {
   mapState(isCurrent, isDone) {
     if (isCurrent) return 'поточний';
@@ -173,6 +177,122 @@ test('renderMessageModal uses explicit close and action buttons', async () => {
 
   backdrop.querySelector('#confirm').listeners.click();
   assert.equal(actions, 1);
+  assert.equal(documentRef.body.children.includes(backdrop), false);
+});
+
+test('renderTurnHintModal renders optional turn guidance', async () => {
+  const { renderTurnHintModal } = await importModule('js/ui/modals.js');
+  const documentRef = createDocument();
+
+  renderTurnHintModal({
+    documentRef,
+    includeTurnHint: true,
+    text: {
+      ui: {
+        mapClose: 'Закрити',
+        tryAgainAction: 'Добре',
+        tryAgainBody: 'Маршрут не склався.',
+        tryAgainTitle: 'Спробуй ще раз',
+        tryAgainTurns: 'Перевір повороти.'
+      }
+    }
+  });
+
+  const backdrop = documentRef.body.children[0];
+  assert.equal(backdrop.querySelector('#turn-hint-close').type, 'button');
+  assert.equal(backdrop.querySelector('#turn-hint-ok').type, 'button');
+  assert.match(collectText(backdrop), /Перевір повороти/);
+});
+
+test('renderResultModal renders icon, close and action controls', async () => {
+  const { renderResultModal } = await importModule('js/ui/modals.js');
+  const documentRef = createDocument();
+  let actions = 0;
+
+  renderResultModal({
+    actionId: 'next',
+    actionText: 'Далі',
+    bodyText: 'Рівень пройдено.',
+    closeId: 'result-close',
+    documentRef,
+    iconText: '\u{1F389}',
+    onAction() {
+      actions += 1;
+    },
+    text,
+    titleId: 'result-title',
+    titleText: 'Готово'
+  });
+
+  const backdrop = documentRef.body.children[0];
+  assert.equal(backdrop.querySelector('#result-close').type, 'button');
+  assert.equal(backdrop.querySelector('#next').type, 'button');
+  assert.match(collectText(backdrop), /Готово/);
+
+  backdrop.querySelector('#next').listeners.click();
+  assert.equal(actions, 1);
+  assert.equal(documentRef.body.children.includes(backdrop), false);
+});
+
+test('renderLevelIntroModal renders task controls and closes with callback', async () => {
+  const { renderLevelIntroModal } = await importModule('js/ui/modals.js');
+  const documentRef = createDocument();
+  const calls = { close: 0, speak: 0 };
+
+  renderLevelIntroModal({
+    completedLevelIds: [],
+    documentRef,
+    level: {
+      goal: 'Зібрати яблуко',
+      hint: 'Постав стрілку',
+      id: 1,
+      name: 'Рівень 1',
+      type: 'normal'
+    },
+    levelChipText: '1/20',
+    onClose() {
+      calls.close += 1;
+    },
+    onSpeak() {
+      calls.speak += 1;
+    },
+    text: {
+      earlyLevel: {
+        listenAction: 'Послухати',
+        startAction: 'Почати',
+        taskLabel: 'Що зробити'
+      },
+      mode(isDebug) {
+        return isDebug ? 'debug' : 'play';
+      },
+      onboarding: {
+        body: 'Навчальний старт',
+        goal: 'Дістатися яблука',
+        startAction: 'Грати',
+        taskLabel: 'Завдання',
+        taskText: 'Допоможи равлику',
+        title: 'Пригоди Равлика'
+      },
+      ui: {
+        listenTask: 'Слухати',
+        mapClose: 'Закрити',
+        startAction: 'Почати',
+        taskLabel: 'Завдання'
+      }
+    }
+  });
+
+  const backdrop = documentRef.body.children[0];
+  assert.equal(backdrop.querySelector('#level-intro-close').type, 'button');
+  assert.equal(backdrop.querySelector('#level-intro-speak').type, 'button');
+  assert.equal(backdrop.querySelector('#level-intro-start').type, 'button');
+  assert.match(collectText(backdrop), /Пригоди Равлика/);
+
+  backdrop.querySelector('#level-intro-speak').listeners.click();
+  assert.equal(calls.speak, 1);
+
+  backdrop.querySelector('#level-intro-start').listeners.click();
+  assert.equal(calls.close, 1);
   assert.equal(documentRef.body.children.includes(backdrop), false);
 });
 

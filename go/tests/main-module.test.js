@@ -47,7 +47,7 @@ function createDocument() {
   };
 }
 
-test('candidate module entrypoint bootstraps composition and legacy compatibility', async () => {
+test('candidate module entrypoint bootstraps composition and app modules', async () => {
   const previousDocument = globalThis.document;
   const previousNavigator = globalThis.navigator;
   const previousWindow = globalThis.window;
@@ -75,10 +75,11 @@ test('candidate module entrypoint bootstraps composition and legacy compatibilit
     });
 
     assert.equal(composition.levels.length, 20);
-    assert.equal(windowRef.SnailGame.tileDefs.length, 12);
-    assert.equal(typeof windowRef.SnailGame.resolveTileExit, 'function');
-    assert.equal(typeof windowRef.SnailGame.createUiAudio, 'function');
-    assert.equal(typeof windowRef.SnailGame.createUiModals, 'function');
+    assert.equal(composition.app.tileDefs.length, 12);
+    assert.equal(typeof composition.app.resolveTileExit, 'function');
+    assert.equal(typeof composition.app.createUiAudio, 'function');
+    assert.equal(typeof composition.app.createUiModals, 'function');
+    assert.equal(windowRef.SnailGame, undefined);
   } finally {
     globalThis.document = previousDocument;
     Object.defineProperty(globalThis, 'navigator', {

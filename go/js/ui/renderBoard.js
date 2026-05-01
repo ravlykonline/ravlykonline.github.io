@@ -7,6 +7,7 @@ export function createBoardGrid({
   documentRef = document,
   onCellAction,
   onCellFocus,
+  onCellKeyDown,
   rows
 }) {
   const grid = documentRef.createElement('div');
@@ -24,6 +25,9 @@ export function createBoardGrid({
       cell.setAttribute('tabindex', row === 0 && col === 0 ? '0' : '-1');
       cell.addEventListener('click', () => onCellAction?.(row, col));
       cell.addEventListener('focus', () => onCellFocus?.(row, col));
+      if (onCellKeyDown) {
+        cell.addEventListener('keydown', (event) => onCellKeyDown(event, row, col));
+      }
       grid.appendChild(cell);
     }
   }

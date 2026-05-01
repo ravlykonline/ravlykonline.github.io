@@ -16,6 +16,10 @@ export function createAssetIcon({ className, documentRef = document, filename })
   return img;
 }
 
+export function createAssetIconMarkup(filename, className) {
+  return `<img src="${assetPath(filename)}" class="${assetClassName(className)}" alt="" aria-hidden="true" draggable="false">`;
+}
+
 export function createTileIconByDir({ className = 'tile-icon', documentRef = document, dir, tileDefs }) {
   const tileDef = tileDefs.find((item) => item.dir === dir);
   if (!tileDef) {

@@ -15,7 +15,7 @@ https://ravlyk.org/go
 - `index.html` підключає один entrypoint: `<script type="module" src="./js/main.js"></script>`.
 - Старий ланцюжок classic scripts видалено з кореня `js/`.
 - Дані, стан, engine, UI та feature-логіка винесені в ES-модулі.
-- У `js/app/legacy*.js` ще є тимчасовий compatibility-шар, який збирає старий runtime-контракт під час поступового демонтажу `window.SnailGame`.
+- Compatibility-шар `js/app/legacy*.js` видалено; app object створюється в `js/app/composition.js`.
 - Service worker кешує тільки актуальні модульні файли й assets.
 - Прогрес зберігається тільки в `sessionStorage` у межах поточної вкладки.
 
@@ -48,7 +48,6 @@ https://ravlyk.org/go
 
     app/
       composition.js
-      legacy*.js
 
     core/
       config.js
@@ -59,6 +58,7 @@ https://ravlyk.org/go
     engine/
       levelRules.js
       route.js
+      runtime.js
       simulator.js
       validation.js
 
@@ -69,23 +69,29 @@ https://ravlyk.org/go
       speech.js
 
     state/
+      appStateFacade.js
       gameState.js
       sessionStore.js
 
     ui/
+      appUi.js
       assets.js
       dom.js
       focus.js
       modals.js
+      render.js
       renderBoard.js
+      renderDrag.js
+      renderLevelHeader.js
       renderLevelMap.js
       renderPalette.js
       renderProgress.js
+      renderSnail.js
 
   tests/
 ```
 
-`js/app/legacy*.js` — тимчасовий перехідний шар. Його треба поступово розкладати в чисті `engine/*`, `ui/*`, `features/*` і після цього видалити.
+`js/app/composition.js` створює app object і явно підключає `engine/*`, `ui/*`, `features/*` та `state/*`.
 
 ## Запуск Локально
 
@@ -130,8 +136,6 @@ navigator.serviceWorker.register('./sw.js');
 
 ## Наступний Рефакторинг
 
-1. Розкласти `js/app/legacyUi.js` на чисті UI-модулі.
-2. Розкласти `js/app/legacyEngine.js` у `engine/*`.
-3. Прибрати залежність runtime від `window.SnailGame`.
-4. Видалити `js/app/legacy*.js`, коли їхній контракт більше не потрібен.
-5. Повторно перевірити PWA offline після фінального демонтажу compatibility-шару.
+1. Розкласти залишок `js/ui/appUi.js` на чисті UI/controller-модулі.
+2. Повторно перевірити PWA offline після демонтажу compatibility-шару.
+3. Далі зменшувати app facade там, де це спрощує код без зміни UX.

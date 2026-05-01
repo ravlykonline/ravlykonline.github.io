@@ -31,18 +31,17 @@ export async function bootstrapApp(options = {}) {
     throw new Error('Level validation failed');
   }
 
-  composition.installLegacyGlobals();
-  composition.installLegacyState();
-  composition.installLegacyEngine();
-  composition.installLegacyRenderDrag();
-  composition.installLegacyRenderSnail();
-  composition.installLegacyRender();
-  composition.installLegacyUiAudio();
-  composition.installLegacyUiModals();
+  composition.installAppState();
+  composition.installEngine();
+  composition.installRenderDrag();
+  composition.installRenderSnail();
+  composition.installRender();
+  composition.installUiAudio();
+  composition.installUiModals();
   composition.registerPwa();
 
   if (options.initializeUi !== false) {
-    composition.installLegacyUi();
+    composition.installUi();
   }
 
   if (options.loadLegacyRuntime !== false) {

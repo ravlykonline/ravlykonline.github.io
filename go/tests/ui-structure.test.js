@@ -6,17 +6,19 @@ const path = require('node:path');
 const { htmlPath, root } = require('./testHelpers.cjs');
 
 test('ui rebuilds palette, updates level meta and progress widgets', () => {
-  const ui = fs.readFileSync(path.join(root, 'js/app/legacyUi.js'), 'utf8');
+  const ui = fs.readFileSync(path.join(root, 'js/ui/appUi.js'), 'utf8');
+  const renderLevelHeader = fs.readFileSync(path.join(root, 'js/ui/renderLevelHeader.js'), 'utf8');
 
   assert.match(ui, /function loadCurrentLevel\(\)[\s\S]*app\.render\.buildPalette\(\)[\s\S]*app\.render\.buildGrid\(\)/);
-  assert.match(ui, /levelModeEl\.textContent/);
-  assert.match(ui, /levelGoalEl\.textContent/);
-  assert.match(ui, /levelHintEl\.textContent/);
-  assert.match(ui, /debugNoteEl\.textContent/);
+  assert.match(ui, /renderLevelHeader\(/);
+  assert.match(renderLevelHeader, /levelModeEl\.textContent/);
+  assert.match(renderLevelHeader, /levelGoalEl\.textContent/);
+  assert.match(renderLevelHeader, /levelHintEl\.textContent/);
+  assert.match(renderLevelHeader, /debugNoteEl\.textContent/);
   assert.match(ui, /refreshProgressUi/);
   assert.match(ui, /modalApi\.openLevelMap/);
   assert.match(ui, /btnMap\.addEventListener\('click', modalApi\.openLevelMap\)/);
-  assert.match(ui, /progressFillEl\.style\.width/);
+  assert.match(ui, /renderProgress\(/);
   assert.match(ui, /setLevelIntroStatus/);
   assert.match(ui, /function shouldAutoOpenIntroOnSessionStart\(\)/);
   assert.match(ui, /shouldAutoOpenIntroOnSessionStart\(\)[\s\S]*modalApi\.openLevelIntro\(\)/);
@@ -24,37 +26,37 @@ test('ui rebuilds palette, updates level meta and progress widgets', () => {
 });
 
 test('win and already-solved modals support next level and full restart after final win', () => {
-  const uiModals = fs.readFileSync(path.join(root, 'js/app/legacyUiModals.js'), 'utf8');
+  const modalRenderers = fs.readFileSync(path.join(root, 'js/ui/modals.js'), 'utf8');
 
-  assert.match(uiModals, /function showAlreadySolvedModal\(\)/);
-  assert.match(uiModals, /const hasNext = app\.hasNextLevel\(\)/);
-  assert.match(uiModals, /const isFinalWin = !hasNext/);
-  assert.match(uiModals, /app\.restartProgress\(\)/);
-  assert.match(uiModals, /loadCurrentLevel\(\{ showIntro: true \}\)/);
-  assert.match(uiModals, /closeButton\('win-close'\)/);
-  assert.match(uiModals, /textEl\('button', 'mok', text\.winAction\(hasNext\), 'mok'\)/);
-  assert.match(uiModals, /textEl\('button', 'mok', text\.winAction\(hasNext\), 'already-solved-action'\)/);
+  assert.match(modalRenderers, /function showAlreadySolvedModal\(\)/);
+  assert.match(modalRenderers, /const hasNext = app\.hasNextLevel\(\)/);
+  assert.match(modalRenderers, /const isFinalWin = !hasNext/);
+  assert.match(modalRenderers, /app\.restartProgress\(\)/);
+  assert.match(modalRenderers, /loadCurrentLevel\(\{ showIntro: true \}\)/);
+  assert.match(modalRenderers, /renderResultModal\(/);
+  assert.match(modalRenderers, /closeId: 'win-close'/);
+  assert.match(modalRenderers, /actionId: 'mok'/);
+  assert.match(modalRenderers, /actionId: 'already-solved-action'/);
 });
 
 test('secondary modals use close icons instead of duplicate close buttons', () => {
-  const uiModals = fs.readFileSync(path.join(root, 'js/app/legacyUiModals.js'), 'utf8');
+  const modalRenderers = fs.readFileSync(path.join(root, 'js/ui/modals.js'), 'utf8');
 
-  assert.match(uiModals, /function closeButton\(id\)/);
-  assert.match(uiModals, /function textEl\(tagName, className, textValue, id\)/);
-  assert.match(uiModals, /createModalCloseButton\(\{ documentRef, id, text \}\)/);
-  assert.match(uiModals, /badges\.appendChild\(textEl\('span', 'goal-chip', introGoal\)\)/);
-  assert.match(uiModals, /closeButton\('clear-close'\)/);
-  assert.match(uiModals, /closeButton\('level-intro-close'\)/);
-  assert.match(uiModals, /const chip = textEl\('span', 'level-chip', levelChipEl\.textContent\)/);
-  assert.match(uiModals, /const taskCard = documentRef\.createElement\('div'\);/);
-  assert.match(uiModals, /taskCard\.append\(taskLabel, taskText, speakButton\)/);
-  assert.match(uiModals, /closeButton\('map-close'\)/);
-  assert.match(uiModals, /textEl\('span', 'map-level-name', level\.name\)/);
-  assert.match(uiModals, /button\.append\(/);
-  assert.match(uiModals, /closeButton\('turn-hint-close'\)/);
-  assert.match(uiModals, /closeButton\('already-solved-close'\)/);
-  assert.match(uiModals, /box\.append\(close, icon, title, body, actions\)/);
-  assert.doesNotMatch(uiModals, /id="clear-cancel"/);
+  assert.match(modalRenderers, /renderLevelIntroModal\(/);
+  assert.match(modalRenderers, /levelChipText: levelChipEl\.textContent/);
+  assert.match(modalRenderers, /createModalCloseButton\(\{ documentRef, id: 'level-intro-close', text \}\)/);
+  assert.match(modalRenderers, /badges\.appendChild\(createTextElement\(\{ documentRef, tagName: 'span', className: 'goal-chip', text: introGoal \}\)\)/);
+  assert.match(modalRenderers, /renderMessageModal\(/);
+  assert.match(modalRenderers, /closeId: 'clear-close'/);
+  assert.match(modalRenderers, /const taskCard = documentRef\.createElement\('div'\);/);
+  assert.match(modalRenderers, /taskCard\.append\(taskLabel, taskText, speakButton\)/);
+  assert.match(modalRenderers, /renderLevelMapModal\(/);
+  assert.match(modalRenderers, /currentLevelId: app\.state\.currentLevel\.id/);
+  assert.match(modalRenderers, /loadCurrentLevel\(\{ showIntro: false \}\)/);
+  assert.match(modalRenderers, /renderTurnHintModal\(/);
+  assert.match(modalRenderers, /includeTurnHint/);
+  assert.match(modalRenderers, /closeId: 'already-solved-close'/);
+  assert.doesNotMatch(modalRenderers, /id="clear-cancel"/);
 });
 
 test('index.html includes level card, progress UI and map button', () => {
@@ -93,17 +95,17 @@ test('game CSS contains responsive layout, debug styling and level map styles', 
 });
 
 test('safe delete flow keeps pending-delete and preset arrow markers', () => {
-  const gameState = fs.readFileSync(path.join(root, 'js/app/legacyState.js'), 'utf8');
-  const render = fs.readFileSync(path.join(root, 'js/app/legacyRender.js'), 'utf8');
+  const appStateFacade = fs.readFileSync(path.join(root, 'js/state/appStateFacade.js'), 'utf8');
+  const render = fs.readFileSync(path.join(root, 'js/ui/render.js'), 'utf8');
   const renderBoard = fs.readFileSync(path.join(root, 'js/ui/renderBoard.js'), 'utf8');
-  const renderDrag = fs.readFileSync(path.join(root, 'js/app/legacyRenderDrag.js'), 'utf8');
-  const renderSnail = fs.readFileSync(path.join(root, 'js/app/legacyRenderSnail.js'), 'utf8');
-  const ui = fs.readFileSync(path.join(root, 'js/app/legacyUi.js'), 'utf8');
+  const renderDrag = fs.readFileSync(path.join(root, 'js/ui/renderDrag.js'), 'utf8');
+  const renderSnail = fs.readFileSync(path.join(root, 'js/ui/renderSnail.js'), 'utf8');
+  const ui = fs.readFileSync(path.join(root, 'js/ui/appUi.js'), 'utf8');
   const gameCss = fs.readFileSync(path.join(root, 'css/game.css'), 'utf8');
 
-  assert.match(gameState, /pendingDeleteKey/);
-  assert.match(gameState, /saveProgress/);
-  assert.match(gameState, /loadProgress/);
+  assert.match(appStateFacade, /pendingDeleteKey/);
+  assert.match(appStateFacade, /saveProgress/);
+  assert.match(appStateFacade, /loadProgress/);
   assert.match(render, /function clearPendingDelete\(/);
   assert.match(render, /function setPendingDelete\(/);
   assert.match(renderDrag, /function beginPointerDrag\(/);
@@ -120,10 +122,12 @@ test('safe delete flow keeps pending-delete and preset arrow markers', () => {
 });
 
 test('runtime confetti respects reduced motion and avoids innerHTML clearing', () => {
-  const ui = fs.readFileSync(path.join(root, 'js/app/legacyUi.js'), 'utf8');
+  const ui = fs.readFileSync(path.join(root, 'js/ui/appUi.js'), 'utf8');
+  const confetti = fs.readFileSync(path.join(root, 'js/features/confetti.js'), 'utf8');
 
-  assert.match(ui, /prefers-reduced-motion: reduce/);
-  assert.match(ui, /confEl\.replaceChildren\(\)/);
-  assert.doesNotMatch(ui, /confEl\.innerHTML\s*=/);
-  assert.doesNotMatch(ui, /part\.style\.cssText/);
+  assert.match(ui, /launchFeatureConfetti/);
+  assert.match(confetti, /prefers-reduced-motion: reduce/);
+  assert.match(confetti, /confettiRoot\.replaceChildren\(\)/);
+  assert.doesNotMatch(confetti, /innerHTML\s*=/);
+  assert.doesNotMatch(confetti, /style\.cssText/);
 });

@@ -74,11 +74,10 @@ async function bootstrapCore(savedProgress = null, storageOverride = null) {
   const navigatorRef = {};
   const { createAppComposition } = await importModule('js/app/composition.js');
   const composition = createAppComposition({ documentRef, navigatorRef, windowRef });
-  composition.installLegacyGlobals();
-  composition.installLegacyState();
-  composition.installLegacyEngine();
+  composition.installAppState();
+  composition.installEngine();
 
-  return { app: windowRef.SnailGame, storage, context: windowRef, composition };
+  return { app: composition.app, storage, context: windowRef, composition };
 }
 
 async function bootstrapEngineHarness(levelOverride) {

@@ -1,12 +1,14 @@
-export function installLegacyUi({
+import { launchConfetti as launchFeatureConfetti } from '../features/confetti.js';
+import { renderLevelHeader } from './renderLevelHeader.js';
+import { renderProgress } from './renderProgress.js';
+
+export function createAppUi({
+  app,
   documentRef = document,
-  navigatorRef = navigator,
   windowRef = window
 } = {}) {
   const document = documentRef;
-  const navigator = navigatorRef;
   const window = windowRef;
-  const app = window.SnailGame;
   const {
     btnRun,
     btnClr,
@@ -16,15 +18,6 @@ export function installLegacyUi({
     btnSpeakTask,
     btnMap,
     confEl,
-    levelChipEl,
-    levelTitleEl,
-    levelModeEl,
-    levelGoalEl,
-    levelHintEl,
-    debugNoteEl,
-    progressTextEl,
-    progressTrackEl,
-    progressFillEl,
     sicoEl,
     snailEl,
     statusEl,
@@ -162,66 +155,34 @@ export function installLegacyUi({
     return text.taskSpeech(app.state.currentLevel);
   }
 
-  function getLevelTaskButtonLabels() {
-    const isEarlyLevel = app.state.currentLevel.id <= 3 && app.state.currentLevel.type !== 'debug';
-    if (isEarlyLevel) {
-      return {
-        infoText: text.static.earlyLevelInfoButton,
-        speakText: text.static.earlyLevelSpeakButton,
-        speakAria: text.static.earlyLevelSpeakAria,
-        speakTitle: text.static.earlyLevelSpeakTitle
-      };
-    }
-
-    return {
-      infoText: text.static.infoButton,
-      speakText: text.static.speakButton,
-      speakAria: text.static.speakAria,
-      speakTitle: text.static.speakTitle
-    };
-  }
-
   function updateResponsiveLabels() {
     const compactToolbar = window.innerWidth <= 640;
     btnMap.textContent = compactToolbar ? 'Рівні' : text.static.mapButton;
   }
 
   function refreshProgressUi() {
-    const completed = app.state.completedLevelIds.length;
-    const total = app.getTotalLevels();
-    const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
-
-    progressTextEl.textContent = text.progress(completed, total);
-    progressFillEl.style.width = `${percent}%`;
-    progressTrackEl.setAttribute('aria-valuenow', String(percent));
+    renderProgress({
+      completedLevelIds: app.state.completedLevelIds,
+      refs: app.refs,
+      text,
+      totalLevels: app.getTotalLevels()
+    });
   }
 
   function refreshLevelUi() {
-    const index = app.getCurrentLevelIndex();
-    const total = app.getTotalLevels();
-    const current = app.state.currentLevel;
-    const done = app.state.completedLevelIds.includes(current.id);
-    const isDebug = current.type === 'debug';
-
-    levelChipEl.textContent = text.levelChip(index, total, done);
-    levelTitleEl.textContent = current.name;
-    levelModeEl.textContent = text.mode(isDebug);
-    levelModeEl.className = `mode-chip ${isDebug ? 'debug' : 'play'}`;
-    levelGoalEl.textContent = current.goal;
-    levelHintEl.textContent = current.hint;
-    debugNoteEl.hidden = !isDebug;
-    debugNoteEl.textContent = isDebug
-      ? text.ui.debugNote
-      : '';
-    const taskButtons = getLevelTaskButtonLabels();
-    btnLevelInfo.textContent = taskButtons.infoText;
-    btnSpeakTask.textContent = taskButtons.speakText;
-    btnSpeakTask.setAttribute('aria-label', taskButtons.speakAria);
-    btnSpeakTask.setAttribute('title', taskButtons.speakTitle);
+    renderLevelHeader({
+      canGoNext: app.hasNextLevel(),
+      canGoPrev: app.hasPrevLevel(),
+      completedLevelIds: app.state.completedLevelIds,
+      documentRef: document,
+      isRunning: app.state.running,
+      level: app.state.currentLevel,
+      levelIndex: app.getCurrentLevelIndex(),
+      refs: app.refs,
+      text,
+      totalLevels: app.getTotalLevels()
+    });
     updateResponsiveLabels();
-    document.body.classList.toggle('debug-mode', isDebug);
-    btnPrev.disabled = !app.hasPrevLevel() || app.state.running;
-    btnNext.disabled = !app.hasNextLevel() || app.state.running;
     refreshProgressUi();
   }
 
@@ -302,31 +263,7 @@ export function installLegacyUi({
   }
 
   function launchConfetti() {
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-      return;
-    }
-
-    const colors = ['#3a7d44', '#e8623a', '#f5c842', '#5b9cf6', '#e86fa3', '#a3d977', '#ff9966', '#1a6fc2'];
-    confEl.replaceChildren();
-
-    for (let i = 0; i < 75; i += 1) {
-      const part = document.createElement('div');
-      part.className = 'cp';
-      part.style.left = `${Math.random() * 100}vw`;
-      part.style.background = colors[i % colors.length];
-      part.style.width = `${6 + Math.random() * 9}px`;
-      part.style.height = `${10 + Math.random() * 12}px`;
-      part.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
-      part.style.transform = `rotate(${Math.random() * 360}deg)`;
-      part.style.animationDuration = `${1.1 + Math.random() * 1.9}s`;
-      part.style.animationDelay = `${Math.random() * 0.5}s`;
-      part.style.opacity = '.9';
-      confEl.appendChild(part);
-    }
-
-    setTimeout(() => {
-      confEl.replaceChildren();
-    }, 4500);
+    launchFeatureConfetti({ documentRef: document, root: confEl, windowRef: window });
   }
 
   function loadCurrentLevel() {
@@ -411,18 +348,6 @@ export function installLegacyUi({
     });
   }
 
-  function registerServiceWorker() {
-    if (!('serviceWorker' in navigator) || window.location.protocol === 'file:') {
-      return;
-    }
-
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch(() => {
-        // Keep the game playable even when service workers are unavailable.
-      });
-    }, { once: true });
-  }
-
   function bindGlobalEvents() {
     audioApi.initTaskSpeech();
 
@@ -503,7 +428,6 @@ export function installLegacyUi({
     app.render.buildGrid();
     app.render.clearPendingDelete();
     app.render.renderAll();
-    registerServiceWorker();
     bindGlobalEvents();
     refreshLevelUi();
 
@@ -521,7 +445,7 @@ export function installLegacyUi({
     });
   }
 
-  app.ui = {
+  const ui = {
     clearRunHint,
     clearStatus,
     flashCell,
@@ -551,5 +475,7 @@ export function installLegacyUi({
     syncSizes
   };
 
+  app.ui = ui;
   init();
+  return ui;
 }

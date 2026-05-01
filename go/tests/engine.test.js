@@ -29,13 +29,13 @@ test('helper modal also opens when the start command is not next to the snail', 
 });
 
 test('turn hint modal keeps turn-specific copy guarded behind turn-tile levels', () => {
-  const engine = fs.readFileSync(path.join(root, 'js/app/legacyEngine.js'), 'utf8');
-  const uiModals = fs.readFileSync(path.join(root, 'js/app/legacyUiModals.js'), 'utf8');
-  const engineRoute = fs.readFileSync(path.join(root, 'js/app/legacyEngine.js'), 'utf8');
+  const engine = fs.readFileSync(path.join(root, 'js/engine/runtime.js'), 'utf8');
+  const modalRenderers = fs.readFileSync(path.join(root, 'js/ui/modals.js'), 'utf8');
+  const engineRoute = fs.readFileSync(path.join(root, 'js/engine/runtime.js'), 'utf8');
 
   assert.ok(engine.includes('includeTurnHint: app.levelUsesTurnTiles()'));
-  assert.ok(uiModals.includes('function showTurnHintModal(options = {})'));
-  assert.ok(uiModals.includes('if (includeTurnHint)'));
+  assert.ok(modalRenderers.includes('function showTurnHintModal(options = {})'));
+  assert.ok(modalRenderers.includes('if (includeTurnHint)'));
   assert.ok(engineRoute.includes('function findNeighborStartMove('));
   assert.ok(engineRoute.includes('function analyzeCurrentRoute('));
   assert.ok(engineRoute.includes('function resolveRouteStep('));
