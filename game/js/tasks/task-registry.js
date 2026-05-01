@@ -8,6 +8,7 @@ import { ShapePatternTask } from './task-types/shape-pattern.js';
 import { SimpleSubtractionTask } from './task-types/simple-subtraction.js';
 import { LogicPairsTask } from './task-types/logic-pairs.js';
 import { taskPools } from './task-data/task-pools.js';
+import { validateTask } from './task-validator.js';
 
 const TASK_TYPES = {
     [SequenceNextTask.type]: SequenceNextTask,
@@ -20,6 +21,8 @@ const TASK_TYPES = {
     [SimpleSubtractionTask.type]: SimpleSubtractionTask,
     [LogicPairsTask.type]: LogicPairsTask
 };
+
+const TASK_TYPE_NAMES = Object.keys(TASK_TYPES);
 
 function pickRandom(items, random) {
     const index = Math.floor(random() * items.length);
@@ -41,11 +44,13 @@ export const TaskRegistry = {
             throw new Error(`Unknown task type: ${entry.type}`);
         }
 
-        return taskType.createTask({
+        const task = taskType.createTask({
             random,
             options: entry.options,
             poolId
         });
+
+        return validateTask(task, { knownTypes: TASK_TYPE_NAMES });
     },
 
     renderTask({ task, container, setStatus, onSolved }) {
@@ -55,6 +60,7 @@ export const TaskRegistry = {
             throw new Error(`Unknown task type: ${task.type}`);
         }
 
+        validateTask(task, { knownTypes: TASK_TYPE_NAMES });
         container.innerHTML = '';
         taskType.render({
             task,

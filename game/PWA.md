@@ -74,7 +74,7 @@ Offline mode має відкривати гру або offline page, але не
 У `sw.js` є:
 
 ```js
-const STATIC_CACHE = 'ravlyk-static-v6';
+const STATIC_CACHE = 'ravlyk-static-v7';
 ```
 
 Коли змінюється будь-який файл зі списку `STATIC_ASSETS`, треба оновити версію кешу:

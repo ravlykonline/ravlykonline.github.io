@@ -4,25 +4,32 @@ import { HUDController } from '../ui/hud-controller.js';
 export const ScoreSystem = {
     apples: 0,
     stars: 0,
+    unsubscribe: [],
 
     init({ eventBus, dom }) {
+        this.resetSubscriptions();
         this.apples = 0;
         this.stars = 0;
         this.dom = dom;
         this.updateUI();
 
-        eventBus.on('item:collected', (data) => {
+        this.unsubscribe.push(eventBus.on('item:collected', (data) => {
             if (data.type === 'apple') {
                 this.apples += data.value;
             }
 
             this.updateUI();
-        });
+        }));
 
-        eventBus.on('puzzle:completed', (data) => {
+        this.unsubscribe.push(eventBus.on('puzzle:completed', (data) => {
             this.stars += data.stars;
             this.updateUI();
-        });
+        }));
+    },
+
+    resetSubscriptions() {
+        this.unsubscribe.forEach((unsubscribe) => unsubscribe());
+        this.unsubscribe = [];
     },
 
     updateUI() {

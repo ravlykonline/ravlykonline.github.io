@@ -1,4 +1,4 @@
-const STATIC_CACHE = 'ravlyk-static-v6';
+const STATIC_CACHE = 'ravlyk-static-v7';
 const STATIC_ASSETS = [
     './',
     './index.html',
@@ -18,6 +18,7 @@ const STATIC_ASSETS = [
     './js/game/rules.js',
     './js/game/level-data.js',
     './js/game/task-picker.js',
+    './js/game/session-state.js',
     './js/tasks/task-registry.js',
     './js/tasks/task-ui-helpers.js',
     './js/tasks/task-data/sequence-next-variants.js',

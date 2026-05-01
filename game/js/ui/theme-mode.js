@@ -27,7 +27,7 @@ export const ThemeModeController = {
         if (this.dom.themeToggleBtn) {
             const labelKey = this.mode === 'dark' ? 'hud.themeToggleLight' : 'hud.themeToggleDark';
             this.dom.themeToggleBtn.setAttribute('aria-pressed', String(this.mode === 'dark'));
-            this.dom.themeToggleBtn.setAttribute('aria-label', t(labelKey));
+            this.dom.themeToggleBtn.setAttribute('aria-label', t('hud.themeToggleLabel'));
             this.dom.themeToggleBtn.textContent = t(labelKey);
         }
 

@@ -1,4 +1,5 @@
 export const Input = {
+    initialized: false,
     keys: {},
     pressed: {},
     mouse: { x: 0, y: 0, isDown: false, intentTarget: null },
@@ -32,6 +33,12 @@ export const Input = {
     },
 
     init(announcer) {
+        if (this.initialized) {
+            return;
+        }
+
+        this.initialized = true;
+
         window.addEventListener('keydown', (event) => {
             if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
                 return;

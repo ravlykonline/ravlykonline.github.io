@@ -30,10 +30,7 @@ export const LogicPairsTask = {
         pairCard.className = 'task-card task-card--centered';
         pairCard.textContent = task.pairLabel;
 
-        const choices = createChoiceGrid(task, onSolved, setStatus, 'task-options-grid--wide');
-        choices.querySelectorAll('.task-option-btn').forEach((button) => {
-            button.classList.add('task-option-btn--word');
-        });
+        const choices = createChoiceGrid(task, onSolved, setStatus, 'task-options-grid--wide', 'task-option-btn--word');
 
         container.append(intro, pairCard, choices);
     }

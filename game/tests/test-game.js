@@ -1,13 +1,56 @@
 import { TaskPicker } from '../js/game/task-picker.js';
+import { EventBus } from '../js/core/event-bus.js';
+import { LevelData } from '../js/game/level-data.js';
+import { createInitialSessionState } from '../js/game/session-state.js';
+import { getDistanceFromRectCenter, rectsOverlap, canPlaceRect } from '../js/game/spawn-rules.js';
+import { positionNpcs } from '../js/game/npc-spawner.js';
+import { generateWorld } from '../js/game/world-generator.js';
 import { approach, normalizeAngleDifference, updateAngle } from '../js/core/motion.js';
 import { isNpcWithinRange, shouldCollectApple, pickNearestByDistance } from '../js/game/rules.js';
 import { TaskRegistry } from '../js/tasks/task-registry.js';
+import { taskPools } from '../js/tasks/task-data/task-pools.js';
+import { evaluateSingleChoice } from '../js/tasks/task-evaluators/single-choice.js';
+import { validateTask } from '../js/tasks/task-validator.js';
+import { ScoreSystem } from '../js/systems/score-system.js';
 import { HUDController } from '../js/ui/hud-controller.js';
 import { ThemeModeController } from '../js/ui/theme-mode.js';
+import { t } from '../js/i18n/index.js';
 
 const results = document.getElementById('results');
 const summary = document.getElementById('summary');
 const testResults = [];
+
+const TEST_WORLD_CONFIG = {
+    worldWidth: 1000,
+    worldHeight: 1000,
+    obstacleCount: 2,
+    appleCount: 2
+};
+
+const TEST_NPCS = [
+    {
+        id: 'mouse_test',
+        nameKey: 'npc.mouseName',
+        taskPoolId: 'observation.beginner',
+        type: 'mouse',
+        x: 10,
+        y: 20,
+        w: 48,
+        h: 48,
+        completed: false
+    },
+    {
+        id: 'beetle_test',
+        nameKey: 'npc.beetleName',
+        taskPoolId: 'logic.beginner',
+        type: 'beetle',
+        x: 70,
+        y: 20,
+        w: 48,
+        h: 48,
+        completed: false
+    }
+];
 
 function assert(condition, message) {
     if (!condition) {
@@ -32,6 +75,135 @@ test('TaskPicker вибирає перше завдання при random=0', ()
 test('TaskPicker вибирає останнє завдання при random близькому до 1', () => {
     const selected = TaskPicker.pickRandomTask('logic.beginner', () => 0.99);
     assert(selected.type === 'logic-pairs', 'Очікувався останній тип задачі з logic.beginner.');
+});
+
+test('SessionState створює чисту сесію без збереженого прогресу', () => {
+    const session = createInitialSessionState({
+        playerStart: { x: 100, y: 120 },
+        npcs: [
+            {
+                id: 'mouse_test',
+                nameKey: 'npc.mouseName',
+                taskPoolId: 'observation.beginner',
+                type: 'mouse',
+                x: 10,
+                y: 20,
+                w: 48,
+                h: 48,
+                completed: false
+            }
+        ]
+    }, { random: () => 0 });
+
+    assert(session.player.x === 100 && session.player.y === 120, 'SessionState має брати стартову позицію гравця.');
+    assert(session.apples.length === 0, 'Нова сесія стартує без згенерованих яблук до world generation.');
+    assert(session.obstacles.length === 0, 'Нова сесія стартує без згенерованих перешкод до world generation.');
+    assert(session.npcs.length === 1, 'SessionState має створювати NPC сесії.');
+    assert(session.npcs[0].completed === false, 'NPC у новій сесії не має бути виконаним.');
+    assert(Boolean(session.npcs[0].activeTask), 'NPC має отримати випадкове завдання на сесію.');
+    assert(session.flags.completedNpcIds.size === 0, 'Нова сесія не має збережених completed NPC.');
+});
+
+test('WorldGenerator створює перешкоди й яблука без накладання на перешкоди', () => {
+    const values = [
+        0.1, 0.1, 0.1, 0.1, 0.1,
+        0.1, 0.1, 0.1, 0.9, 0.9,
+        0.5, 0.1,
+        0.1, 0.5
+    ];
+    let index = 0;
+    const random = () => {
+        const value = values[index % values.length];
+        index += 1;
+        return value;
+    };
+    const player = { x: 500, y: 500 };
+    const world = generateWorld({
+        config: TEST_WORLD_CONFIG,
+        player,
+        random
+    });
+
+    assert(world.obstacles.length === TEST_WORLD_CONFIG.obstacleCount, 'Має створювати потрібну кількість перешкод.');
+    assert(world.apples.length === TEST_WORLD_CONFIG.appleCount, 'Має створювати потрібну кількість яблук.');
+    assert(
+        world.obstacles.every((obstacle) => getDistanceFromRectCenter(obstacle, player) >= 220),
+        'Перешкоди не мають з’являтися біля старту Равлика.'
+    );
+    assert(
+        world.apples.every((apple) => !world.obstacles.some((obstacle) => rectsOverlap(apple, obstacle))),
+        'Яблука не мають з’являтися всередині перешкод.'
+    );
+});
+
+test('NpcSpawner розставляє NPC поза перешкодами і стартовою зоною', () => {
+    const values = [0.1, 0.1, 0.85, 0.85, 0.18, 0.82, 0.82, 0.18];
+    let index = 0;
+    const random = () => {
+        const value = values[index % values.length];
+        index += 1;
+        return value;
+    };
+    const player = { x: 500, y: 500 };
+    const blockers = [{ x: 130, y: 130, w: 90, h: 90 }];
+    const npcs = positionNpcs({
+        npcs: TEST_NPCS,
+        config: TEST_WORLD_CONFIG,
+        player,
+        blockers,
+        random
+    });
+
+    assert(npcs.length === TEST_NPCS.length, 'Spawner має повернути всіх NPC.');
+    assert(npcs.every((npc) => !blockers.some((blocker) => rectsOverlap(npc, blocker))), 'NPC не мають стояти в перешкодах.');
+    assert(npcs.every((npc) => getDistanceFromRectCenter(npc, player) >= 280), 'NPC не мають стояти біля старту Равлика.');
+    assert(rectsOverlap(npcs[0], npcs[1]) === false, 'NPC не мають накладатися один на одного.');
+});
+
+test('WorldGenerator не ставить яблука поверх NPC', () => {
+    const values = [
+        0.1, 0.1, 0.1, 0.1, 0.1,
+        0.1, 0.1, 0.1, 0.9, 0.9,
+        0.85, 0.85,
+        0.18, 0.82,
+        0.85, 0.85,
+        0.5, 0.1,
+        0.1, 0.5
+    ];
+    let index = 0;
+    const random = () => {
+        const value = values[index % values.length];
+        index += 1;
+        return value;
+    };
+    const world = generateWorld({
+        config: TEST_WORLD_CONFIG,
+        player: { x: 500, y: 500 },
+        npcs: TEST_NPCS.slice(0, 1),
+        random
+    });
+
+    assert(world.npcs.length === 1, 'WorldGenerator має повернути позиціонованих NPC.');
+    assert(
+        world.apples.every((apple) => !world.npcs.some((npc) => rectsOverlap(apple, npc))),
+        'Яблука не мають з’являтися поверх NPC.'
+    );
+});
+
+test('SpawnRules перевіряє відстань і накладання прямокутників', () => {
+    const blockers = [{ x: 10, y: 10, w: 40, h: 40 }];
+    const overlapping = { x: 35, y: 35, w: 20, h: 20 };
+    const clear = { x: 120, y: 120, w: 20, h: 20 };
+    const start = { x: 130, y: 130 };
+
+    assert(rectsOverlap(overlapping, blockers[0]) === true, 'Перетин прямокутників має визначатися.');
+    assert(rectsOverlap(clear, blockers[0]) === false, 'Окремі прямокутники не мають вважатися перетином.');
+    assert(canPlaceRect(overlapping, { blockers }) === false, 'Не можна ставити об’єкт поверх blocker.');
+    assert(canPlaceRect(clear, { blockers }) === true, 'Можна ставити об’єкт без перетину.');
+    assert(
+        canPlaceRect(clear, { blockers, avoidPoint: start, minDistanceFromPoint: 50 }) === false,
+        'Об’єкт не можна ставити надто близько до забороненої точки.'
+    );
 });
 
 test('approach рухається до цілі без перескоку', () => {
@@ -160,6 +332,117 @@ test('TaskRegistry створює логічну пару', () => {
     const task = TaskRegistry.createTask('logic.beginner', () => 0.95);
     assert(task.type === 'logic-pairs', 'Має створюватися задача logic-pairs.');
     assert(task.pairLabel.includes('→'), 'У logic-pairs має бути опорна пара.');
+});
+
+test('TaskValidator пропускає валідну задачу з варіантами', () => {
+    const task = {
+        id: 'test-task',
+        type: 'sequence-next',
+        prompt: 'Обери фігуру',
+        instructions: 'Подивись і натисни відповідь.',
+        reward: { stars: 1 },
+        choices: [
+            { id: 'a', label: '△' },
+            { id: 'b', label: '○' }
+        ],
+        correctChoiceId: 'a'
+    };
+
+    assert(validateTask(task, { knownTypes: ['sequence-next'] }) === task, 'Валідатор має повернути задачу без змін.');
+});
+
+test('TaskValidator відхиляє варіанти без правильної відповіді', () => {
+    const task = {
+        id: 'broken-task',
+        type: 'sequence-next',
+        prompt: 'Обери фігуру',
+        instructions: 'Подивись і натисни відповідь.',
+        reward: { stars: 1 },
+        choices: [
+            { id: 'a', label: '△' },
+            { id: 'b', label: '○' }
+        ],
+        correctChoiceId: 'c'
+    };
+
+    let didThrow = false;
+
+    try {
+        validateTask(task, { knownTypes: ['sequence-next'] });
+    } catch (error) {
+        didThrow = error.message.includes('правильна відповідь');
+    }
+
+    assert(didThrow, 'Валідатор має відхилити задачу, якщо correctChoiceId не існує серед choices.');
+});
+
+test('SingleChoiceEvaluator порівнює вибір із правильною відповіддю', () => {
+    const task = { correctChoiceId: 3 };
+
+    assert(evaluateSingleChoice(task, '3') === true, 'Evaluator має підтримувати числові й текстові id.');
+    assert(evaluateSingleChoice(task, '2') === false, 'Evaluator має повертати false для хибного вибору.');
+});
+
+test('EventBus дозволяє відписатися і очистити listeners', () => {
+    EventBus.reset();
+    let calls = 0;
+    const unsubscribe = EventBus.on('test:event', () => {
+        calls += 1;
+    });
+
+    EventBus.emit('test:event');
+    unsubscribe();
+    EventBus.emit('test:event');
+
+    assert(calls === 1, 'Після unsubscribe listener не має викликатися.');
+
+    EventBus.on('test:event', () => {
+        calls += 1;
+    });
+    EventBus.reset();
+    EventBus.emit('test:event');
+
+    assert(calls === 1, 'Після reset listeners не мають викликатися.');
+});
+
+test('ScoreSystem не дублює підписки після повторного init', () => {
+    EventBus.reset();
+    const dom = {
+        scoreDisplay: document.createElement('div'),
+        applesCount: document.createElement('span'),
+        starsCount: document.createElement('span'),
+        hudSession: document.createElement('p'),
+        hudObjective: document.createElement('p'),
+        hudContext: document.createElement('p'),
+        hudNpcBadge: document.createElement('span')
+    };
+
+    HUDController.init({ dom });
+    ScoreSystem.init({ eventBus: EventBus, dom });
+    ScoreSystem.init({ eventBus: EventBus, dom });
+    EventBus.emit('item:collected', { type: 'apple', value: 1 });
+    EventBus.emit('puzzle:completed', { stars: 1 });
+
+    assert(ScoreSystem.apples === 1, 'Яблуко має зарахуватися один раз після повторного init.');
+    assert(ScoreSystem.stars === 1, 'Зірка має зарахуватися один раз після повторного init.');
+
+    EventBus.reset();
+    ScoreSystem.resetSubscriptions();
+});
+
+test('LevelData contains target NPC count with valid tasks and text keys', () => {
+    const npcs = LevelData.level1.npcs;
+    const ids = new Set(npcs.map((npc) => npc.id));
+
+    assert(npcs.length >= 20 && npcs.length <= 25, 'Level should contain 20-25 NPCs.');
+    assert(ids.size === npcs.length, 'NPC ids should be unique.');
+
+    npcs.forEach((npc) => {
+        const iconKey = `entities.${npc.type}Icon`;
+        assert(taskPools[npc.taskPoolId], `Task pool "${npc.taskPoolId}" should exist.`);
+        assert(t(npc.nameKey) !== npc.nameKey, `Name key "${npc.nameKey}" should be translated.`);
+        assert(t(iconKey) !== iconKey, `NPC type "${npc.type}" should have an icon.`);
+    });
 });
 
 function renderResults() {

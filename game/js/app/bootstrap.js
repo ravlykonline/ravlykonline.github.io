@@ -36,6 +36,7 @@ export function bootGame() {
     FontModeController.init({ dom: DOM });
     ThemeModeController.init({ dom: DOM });
     resetSceneManager();
+    EventBus.reset();
     ScoreSystem.init({ eventBus: EventBus, dom: DOM });
 
     SceneManager.push(new IntroScene({

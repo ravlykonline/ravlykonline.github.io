@@ -1,4 +1,5 @@
 import { t } from '../i18n/index.js';
+import { evaluateSingleChoice } from './task-evaluators/single-choice.js';
 
 export function createTaskIntro(text) {
     const intro = document.createElement('p');
@@ -14,19 +15,19 @@ export function createHelperLabel(text) {
     return label;
 }
 
-export function createChoiceGrid(task, onSolved, setStatus, extraClassName = '') {
+export function createChoiceGrid(task, onSolved, setStatus, extraClassName = '', optionClassName = '') {
     const choices = document.createElement('div');
     choices.className = `task-options-grid ${extraClassName}`.trim();
 
     task.choices.forEach((choice) => {
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = 'task-option-btn';
+        button.className = `task-option-btn ${optionClassName}`.trim();
         button.dataset.choiceId = choice.id;
         button.textContent = choice.label;
 
         button.addEventListener('click', () => {
-            if (choice.id === task.correctChoiceId) {
+            if (evaluateSingleChoice(task, choice.id)) {
                 setStatus(t('taskUi.correct'));
                 disableChoiceButtons(choices);
                 onSolved();

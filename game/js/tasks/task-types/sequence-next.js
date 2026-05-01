@@ -1,5 +1,6 @@
 import { t } from '../../i18n/index.js';
 import { sequenceNextVariants } from '../task-data/sequence-next-variants.js';
+import { createChoiceGrid, createTaskIntro } from '../task-ui-helpers.js';
 
 function pickVariant(random) {
     const index = Math.floor(random() * sequenceNextVariants.length);
@@ -24,10 +25,7 @@ export const SequenceNextTask = {
     },
 
     render({ task, container, setStatus, onSolved }) {
-        const intro = document.createElement('p');
-        intro.className = 'task-intro';
-        intro.textContent = task.instructions;
-
+        const intro = createTaskIntro(task.instructions);
         const series = document.createElement('div');
         series.className = 'task-sequence';
 
@@ -43,38 +41,7 @@ export const SequenceNextTask = {
         questionChip.textContent = '?';
         series.appendChild(questionChip);
 
-        const choices = document.createElement('div');
-        choices.className = 'task-options-grid';
-
-        task.choices.forEach((choice) => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'task-option-btn';
-            button.dataset.choiceId = choice.id;
-            button.textContent = choice.label;
-
-            button.addEventListener('click', () => {
-                if (choice.id === task.correctChoiceId) {
-                    setStatus(t('taskUi.correct'));
-                    disableChoiceButtons(choices);
-                    onSolved();
-                    return;
-                }
-
-                setStatus(t('taskUi.tryAgain'));
-                button.classList.add('is-wrong');
-                setTimeout(() => button.classList.remove('is-wrong'), 450);
-            });
-
-            choices.appendChild(button);
-        });
-
+        const choices = createChoiceGrid(task, onSolved, setStatus);
         container.append(intro, series, choices);
     }
 };
-
-function disableChoiceButtons(container) {
-    container.querySelectorAll('button').forEach((button) => {
-        button.disabled = true;
-    });
-}

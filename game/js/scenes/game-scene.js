@@ -1,11 +1,18 @@
 import { CONFIG } from '../core/config.js';
 import { approach, normalizeAngleDifference, updateAngle } from '../core/motion.js';
 import { LevelData } from '../game/level-data.js';
-import { TaskPicker } from '../game/task-picker.js';
+import { createInitialSessionState } from '../game/session-state.js';
+import { generateWorld } from '../game/world-generator.js';
 import { isNpcWithinRange, shouldCollectApple, pickNearestByDistance } from '../game/rules.js';
 import { t } from '../i18n/index.js';
 import { HUDController } from '../ui/hud-controller.js';
 import { DialogScene } from './dialog-scene.js';
+
+function getNpcIcon(npc) {
+    const iconKey = `entities.${npc.type}Icon`;
+    const icon = t(iconKey);
+    return icon === iconKey ? npc.name.slice(0, 1) : icon;
+}
 
 export class GameScene {
     constructor(deps) {
@@ -15,22 +22,12 @@ export class GameScene {
         this.eventBus = deps.eventBus;
         this.sceneManager = deps.sceneManager;
 
-        this.state = {
-            x: 2000,
-            y: 2000,
-            velocityX: 0,
-            velocityY: 0,
-            angle: 0,
-            targetAngle: 0,
-            camera: { x: 0, y: 0 },
-            targetCamera: { x: 0, y: 0 },
-            lastA11yUpdate: 0
-        };
-
-        this.obstacles = [];
-        this.apples = [];
-        this.npcs = LevelData.level1.npcs.map((npc) => TaskPicker.buildNpcSessionState(npc));
-        this.nearbyNpcId = null;
+        this.session = createInitialSessionState(LevelData.level1);
+        this.state = this.session.player;
+        this.obstacles = this.session.obstacles;
+        this.apples = this.session.apples;
+        this.npcs = this.session.npcs;
+        this.nearbyNpcId = this.session.nearbyNpcId;
 
         this.generateWorld();
     }
@@ -42,68 +39,15 @@ export class GameScene {
     }
 
     generateWorld() {
-        const obstacleTypes = ['rock', 'bush', 'twig'];
+        const world = generateWorld({
+            config: CONFIG,
+            player: this.state,
+            npcs: this.npcs
+        });
 
-        for (let index = 0; index < CONFIG.obstacleCount; index += 1) {
-            let placed = false;
-            let attempts = 0;
-
-            while (!placed && attempts < 50) {
-                const type = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
-                const isHorizontal = Math.random() > 0.5;
-                const w = type === 'twig'
-                    ? (isHorizontal ? Math.random() * 100 + 80 : 24)
-                    : Math.random() * 60 + 48;
-                const h = type === 'twig'
-                    ? (isHorizontal ? 24 : Math.random() * 100 + 80)
-                    : w;
-                const x = Math.random() * (CONFIG.worldWidth - w - 200) + 100;
-                const y = Math.random() * (CONFIG.worldHeight - h - 200) + 100;
-
-                if (Math.hypot((x + w / 2) - this.state.x, (y + h / 2) - this.state.y) < 220) {
-                    attempts += 1;
-                    continue;
-                }
-
-                const overlap = this.obstacles.some((obstacle) =>
-                    x < obstacle.x + obstacle.w + 40 &&
-                    x + w + 40 > obstacle.x &&
-                    y < obstacle.y + obstacle.h + 40 &&
-                    y + h + 40 > obstacle.y
-                );
-
-                if (!overlap) {
-                    this.obstacles.push({ x, y, w, h, type });
-                    placed = true;
-                }
-
-                attempts += 1;
-            }
-        }
-
-        for (let index = 0; index < CONFIG.appleCount; index += 1) {
-            let placed = false;
-            let attempts = 0;
-
-            while (!placed && attempts < 50) {
-                const x = Math.random() * (CONFIG.worldWidth - 240) + 120;
-                const y = Math.random() * (CONFIG.worldHeight - 240) + 120;
-
-                const overlap = this.obstacles.some((obstacle) =>
-                    x < obstacle.x + obstacle.w &&
-                    x + 28 > obstacle.x &&
-                    y < obstacle.y + obstacle.h &&
-                    y + 28 > obstacle.y
-                );
-
-                if (!overlap) {
-                    this.apples.push({ id: index, x, y, w: 28, h: 28 });
-                    placed = true;
-                }
-
-                attempts += 1;
-            }
-        }
+        this.obstacles.push(...world.obstacles);
+        this.apples.push(...world.apples);
+        this.npcs.splice(0, this.npcs.length, ...world.npcs);
     }
 
     init() {
@@ -168,7 +112,7 @@ export class GameScene {
             element.setAttribute('role', 'button');
             element.setAttribute('tabindex', '0');
             element.setAttribute('aria-label', t('entities.npcPrompt', { name: npc.name }));
-            element.textContent = npc.type === 'beetle' ? t('entities.beetleIcon') : t('entities.mouseIcon');
+            element.textContent = getNpcIcon(npc);
 
             element.addEventListener('click', () => {
                 this.tryInteractWithNpc(npc);
@@ -359,6 +303,7 @@ export class GameScene {
         });
 
         this.nearbyNpcId = nearestNpc ? nearestNpc.id : null;
+        this.session.nearbyNpcId = this.nearbyNpcId;
 
         if (nearestNpc && !nearestNpc.hasPrompted) {
             nearestNpc.hasPrompted = true;

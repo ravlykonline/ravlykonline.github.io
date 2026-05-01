@@ -3,10 +3,15 @@ export const EventBus = {
 
     on(event, callback) {
         if (!this.listeners[event]) {
-            this.listeners[event] = [];
+            this.listeners[event] = new Set();
         }
 
-        this.listeners[event].push(callback);
+        this.listeners[event].add(callback);
+        return () => this.off(event, callback);
+    },
+
+    off(event, callback) {
+        this.listeners[event]?.delete(callback);
     },
 
     emit(event, data) {
@@ -15,5 +20,9 @@ export const EventBus = {
         }
 
         this.listeners[event].forEach((callback) => callback(data));
+    },
+
+    reset() {
+        this.listeners = {};
     }
 };
