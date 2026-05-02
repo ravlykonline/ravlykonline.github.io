@@ -21,6 +21,10 @@ export const Input = {
         this.keyboard.cameraY = y;
     },
 
+    isInteractiveTarget(target) {
+        return Boolean(target?.closest?.('[data-game-interactive]'));
+    },
+
     consumeKey(...keys) {
         for (const key of keys) {
             if (this.pressed[key]) {
@@ -38,7 +42,6 @@ export const Input = {
         }
 
         this.initialized = true;
-        const isInteractiveOverlay = (target) => target.closest?.('#ui-layer, #dialog-layer, .npc');
 
         window.addEventListener('keydown', (event) => {
             if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
@@ -70,7 +73,7 @@ export const Input = {
         });
 
         window.addEventListener('mousedown', (event) => {
-            if (isInteractiveOverlay(event.target)) {
+            if (this.isInteractiveTarget(event.target)) {
                 return;
             }
 
@@ -94,7 +97,7 @@ export const Input = {
         });
 
         window.addEventListener('touchstart', (event) => {
-            if (isInteractiveOverlay(event.target)) {
+            if (this.isInteractiveTarget(event.target)) {
                 return;
             }
 

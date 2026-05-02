@@ -110,6 +110,7 @@ export class GameScene {
             element.style.width = `${npc.w}px`;
             element.style.height = `${npc.h}px`;
             element.dataset.id = npc.id;
+            element.dataset.gameInteractive = '';
             element.setAttribute('role', 'button');
             element.setAttribute('tabindex', '0');
             element.setAttribute('aria-label', t('entities.npcPrompt', { name: npc.name }));

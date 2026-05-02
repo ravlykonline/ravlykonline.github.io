@@ -16,6 +16,7 @@ import { ScoreSystem } from '../js/systems/score-system.js';
 import { HUDController } from '../js/ui/hud-controller.js';
 import { ThemeModeController } from '../js/ui/theme-mode.js';
 import { t } from '../js/i18n/index.js';
+import { Input } from '../js/core/input.js';
 
 const results = document.getElementById('results');
 const summary = document.getElementById('summary');
@@ -328,6 +329,19 @@ test('HUDController оновлює сесію, ціль і контекст ок
 
     HUDController.setNearbyNpc(null);
     assert(dom.hudNpcBadge.classList.contains('hidden') === true, 'Бейдж NPC має ховатися, коли поруч нікого немає.');
+});
+
+test('Input recognizes only explicit interactive game UI targets', () => {
+    const interactive = document.createElement('button');
+    const child = document.createElement('span');
+    const passive = document.createElement('div');
+
+    interactive.dataset.gameInteractive = '';
+    interactive.appendChild(child);
+
+    assert(Input.isInteractiveTarget(interactive) === true, 'Interactive element should be skipped by movement input.');
+    assert(Input.isInteractiveTarget(child) === true, 'Child of interactive element should be skipped by movement input.');
+    assert(Input.isInteractiveTarget(passive) === false, 'Plain game element should remain available for movement input.');
 });
 
 test('TaskRegistry створює задачу на продовження послідовності', () => {
