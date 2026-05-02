@@ -6,6 +6,7 @@ export const CONFIG = {
     worldWidth: 4000,
     worldHeight: 4000,
     cameraThreshold: 250,
+    topHudSafeArea: 72,
     cameraLerp: 0.08,
     rotationLerp: 0.18,
     rotationSnapThreshold: 0.8,

@@ -34,7 +34,7 @@ body[data-font-mode="readable"] {
 }
 
 :root {
-    --hud-collapsed-height: 104px;
+    --hud-collapsed-height: 58px;
 }
 
 /* Skip Link */
@@ -76,9 +76,8 @@ body[data-font-mode="readable"] {
    ============================================ */
 #viewport {
     position: absolute;
-    top: var(--hud-collapsed-height);
     width: 100vw;
-    height: calc(100vh - var(--hud-collapsed-height));
+    height: 100vh;
     overflow: hidden;
     touch-action: none;
     /* Prevent default touch actions for game */
@@ -530,14 +529,14 @@ body[data-font-mode="readable"] {
     left: 50%;
     transform: translateX(-50%);
     z-index: var(--z-ui);
-    width: min(44rem, calc(100vw - 1rem));
+    width: min(22rem, calc(100vw - 1rem));
     pointer-events: none;
 }
 
 .hud-panel {
     position: relative;
     overflow: hidden;
-    padding: var(--space-2) var(--space-3) var(--space-3);
+    padding: var(--space-2) var(--space-2) var(--space-3);
     border: 1px solid var(--color-border);
     border-top: 0;
     border-radius: 0 0 var(--radius-lg) var(--radius-lg);
@@ -557,11 +556,14 @@ body[data-font-mode="readable"] {
 }
 
 .hud-panel__header {
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2);
-    min-height: 2.75rem;
+}
+
+.hud-panel--expanded .hud-panel__header {
+    display: flex;
 }
 
 .hud-kicker {
@@ -620,7 +622,7 @@ body[data-font-mode="readable"] {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-2);
-    margin-top: var(--space-2);
+    margin-top: 0;
 }
 
 .hud-stat {
@@ -628,8 +630,8 @@ body[data-font-mode="readable"] {
     grid-template-columns: auto auto;
     align-items: center;
     justify-content: center;
-    gap: var(--space-3);
-    padding: var(--space-2) var(--space-3);
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-2);
     border-radius: var(--radius-md);
     background: var(--color-surface-raised);
     border: 1px solid var(--color-border);
@@ -639,10 +641,10 @@ body[data-font-mode="readable"] {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 1.85rem;
+    height: 1.85rem;
     border-radius: 50%;
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-lg);
 }
 
 .hud-stat--apples .hud-stat__icon {
@@ -665,8 +667,24 @@ body[data-font-mode="readable"] {
 }
 
 .hud-stat__value {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-xl);
     line-height: 1;
+}
+
+.hud-actions {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+}
+
+.hud-panel--expanded .hud-actions {
+    position: static;
+}
+
+.hud-action-btn {
+    width: 34px;
+    height: 34px;
+    font-size: var(--font-size-sm);
 }
 
 .hud-toggle-btn {
@@ -1144,10 +1162,10 @@ body[data-font-mode="readable"] {
 @media (max-width: 480px) {
     #ui-layer {
         top: 0;
-        left: 0;
-        right: 0;
-        width: 100vw;
-        transform: none;
+        left: 50%;
+        right: auto;
+        width: min(20rem, calc(100vw - 1rem));
+        transform: translateX(-50%);
     }
 
     .dialog-box {

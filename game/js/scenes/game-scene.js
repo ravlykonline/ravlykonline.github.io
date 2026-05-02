@@ -267,6 +267,10 @@ export class GameScene {
     }
 
     isCollision(px, py) {
+        if (py < CONFIG.playerRadius + CONFIG.topHudSafeArea) {
+            return true;
+        }
+
         return hasWorldCollision({
             x: px,
             y: py,
@@ -392,6 +396,7 @@ export class GameScene {
 
     updateCamera() {
         const viewport = this.getViewportSize();
+        const topCameraThreshold = CONFIG.cameraThreshold + CONFIG.topHudSafeArea;
         const screenX = this.state.x - this.state.targetCamera.x;
         const screenY = this.state.y - this.state.targetCamera.y;
 
@@ -401,8 +406,8 @@ export class GameScene {
             this.state.targetCamera.x += screenX - (viewport.width - CONFIG.cameraThreshold);
         }
 
-        if (screenY < CONFIG.cameraThreshold) {
-            this.state.targetCamera.y -= (CONFIG.cameraThreshold - screenY);
+        if (screenY < topCameraThreshold) {
+            this.state.targetCamera.y -= (topCameraThreshold - screenY);
         } else if (screenY > viewport.height - CONFIG.cameraThreshold) {
             this.state.targetCamera.y += screenY - (viewport.height - CONFIG.cameraThreshold);
         }
