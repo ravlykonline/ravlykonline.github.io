@@ -282,7 +282,7 @@ no third-party runtime dependencies by default
 
 - тема;
 - читабельний шрифт;
-- звук, якщо буде доданий;
+- звук;
 - інші налаштування доступності.
 
 ### Дозволено в `sessionStorage`

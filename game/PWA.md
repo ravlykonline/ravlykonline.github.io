@@ -15,6 +15,7 @@ offline.html
 icons/icon-192.svg
 icons/icon-512.svg
 js/pwa/register-sw.js
+js/ui/reward-effects.js
 ```
 
 `register-sw.js` реєструє Service Worker після завантаження сторінки.
@@ -196,7 +197,7 @@ JSON-категорії задач у `js/tasks/task-data/categories/*.json` є 
 5. Перевірити online-гру.
 6. Під час фінального PWA-проходу перевірити offline-гру.
 
-Поки PWA-синхронізація відкладена до фінального етапу рефакторингу, нові JSON-файли треба явно тримати в списку PWA-ризиків.
+Поки PWA-синхронізація відкладена до фінального етапу рефакторингу, нові JSON, CSS і JS-файли треба явно тримати в списку PWA-ризиків. Станом на 2026-05-02 окремо перевірити `js/ui/reward-effects.js`.
 
 ---
 
