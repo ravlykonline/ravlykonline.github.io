@@ -90,6 +90,7 @@ async function run() {
         '../js/tasks/task-types/shape-pattern.js',
         '../js/tasks/task-types/simple-subtraction.js',
         '../js/tasks/task-types/logic-pairs.js',
+        '../js/tasks/task-types/magic-square.js',
         '../js/ui/hud-controller.js',
         '../js/ui/theme-mode.js',
         '../js/scenes/intro-scene.js',

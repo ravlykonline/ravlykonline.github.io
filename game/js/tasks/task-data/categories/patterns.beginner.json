@@ -7,6 +7,10 @@
     { "id": "sequence-next-plants-repeat", "type": "sequence-next", "variant": { "series": ["🌱", "🌿", "🌱", "🌿"], "choices": ["🌿", "🌱", "🌳"], "correctChoiceId": "🌱" } },
     { "id": "shape-pattern-color-loop", "type": "shape-pattern", "variant": { "series": ["🔴", "🔵", "🔴", "🔵"], "choices": ["🔴", "🟡", "🔵"], "correctChoiceId": "🔴" } },
     { "id": "shape-pattern-three-step", "type": "shape-pattern", "variant": { "series": ["▲", "■", "●", "▲", "■"], "choices": ["●", "▲", "■"], "correctChoiceId": "●" } },
-    { "id": "shape-pattern-size", "type": "shape-pattern", "variant": { "series": ["●", "⬤", "●", "⬤"], "choices": ["●", "◆", "⬤"], "correctChoiceId": "●" } }
+    { "id": "shape-pattern-size", "type": "shape-pattern", "variant": { "series": ["●", "⬤", "●", "⬤"], "choices": ["●", "◆", "⬤"], "correctChoiceId": "●" } },
+    { "id": "magic-square-shapes-diagonal", "type": "magic-square", "variant": { "grid": ["▲", "●", "■", "●", null, "▲", "■", "▲", "●"], "choices": [{ "id": "square", "label": "■" }, { "id": "circle", "label": "●" }, { "id": "triangle", "label": "▲" }], "correctChoiceId": "square" } },
+    { "id": "magic-square-shapes-row-shift", "type": "magic-square", "variant": { "grid": ["◆", "●", "▲", "●", "▲", "◆", "▲", null, "●"], "choices": [{ "id": "diamond", "label": "◆" }, { "id": "circle", "label": "●" }, { "id": "triangle", "label": "▲" }], "correctChoiceId": "diamond" } },
+    { "id": "magic-square-emoji-fruits", "type": "magic-square", "variant": { "grid": ["🍎", "🍐", "🍇", "🍐", "🍇", "🍎", "🍇", null, "🍐"], "choices": [{ "id": "apple", "label": "🍎" }, { "id": "pear", "label": "🍐" }, { "id": "grapes", "label": "🍇" }], "correctChoiceId": "apple" } },
+    { "id": "magic-square-emoji-weather", "type": "magic-square", "variant": { "grid": ["☀️", "🌧️", "⭐", "🌧️", null, "☀️", "⭐", "☀️", "🌧️"], "choices": [{ "id": "sun", "label": "☀️" }, { "id": "rain", "label": "🌧️" }, { "id": "star", "label": "⭐" }], "correctChoiceId": "star" } }
   ]
 }

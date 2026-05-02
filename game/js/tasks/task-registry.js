@@ -7,6 +7,7 @@ import { SimpleAdditionTask } from './task-types/simple-addition.js';
 import { ShapePatternTask } from './task-types/shape-pattern.js';
 import { SimpleSubtractionTask } from './task-types/simple-subtraction.js';
 import { LogicPairsTask } from './task-types/logic-pairs.js';
+import { MagicSquareTask } from './task-types/magic-square.js';
 import { TaskCatalog } from './task-catalog.js';
 import { validateTask } from './task-validator.js';
 
@@ -19,7 +20,8 @@ const TASK_TYPES = {
     [SimpleAdditionTask.type]: SimpleAdditionTask,
     [ShapePatternTask.type]: ShapePatternTask,
     [SimpleSubtractionTask.type]: SimpleSubtractionTask,
-    [LogicPairsTask.type]: LogicPairsTask
+    [LogicPairsTask.type]: LogicPairsTask,
+    [MagicSquareTask.type]: MagicSquareTask
 };
 
 const TASK_TYPE_NAMES = Object.keys(TASK_TYPES);

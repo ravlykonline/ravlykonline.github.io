@@ -10,6 +10,12 @@
     { "id": "order-numbers-asc-6-3-4", "type": "order-numbers", "options": { "direction": "asc" }, "variant": { "numbers": [6, 3, 4] } },
     { "id": "order-numbers-desc-1-3-2", "type": "order-numbers", "options": { "direction": "desc" }, "variant": { "numbers": [1, 3, 2] } },
     { "id": "order-numbers-desc-4-2-5", "type": "order-numbers", "options": { "direction": "desc" }, "variant": { "numbers": [4, 2, 5] } },
-    { "id": "order-numbers-desc-6-3-4", "type": "order-numbers", "options": { "direction": "desc" }, "variant": { "numbers": [6, 3, 4] } }
+    { "id": "order-numbers-desc-6-3-4", "type": "order-numbers", "options": { "direction": "desc" }, "variant": { "numbers": [6, 3, 4] } },
+    { "id": "compare-sets-more-6-4", "type": "compare-sets", "variant": { "mode": "more", "leftCount": 6, "rightCount": 4, "correctChoiceId": "left" } },
+    { "id": "compare-sets-more-3-7", "type": "compare-sets", "variant": { "mode": "more", "leftCount": 3, "rightCount": 7, "correctChoiceId": "right" } },
+    { "id": "compare-sets-less-1-4", "type": "compare-sets", "variant": { "mode": "less", "leftCount": 1, "rightCount": 4, "correctChoiceId": "left" } },
+    { "id": "compare-sets-less-5-2", "type": "compare-sets", "variant": { "mode": "less", "leftCount": 5, "rightCount": 2, "correctChoiceId": "right" } },
+    { "id": "count-and-match-six", "type": "count-and-match", "variant": { "count": 6, "choices": ["5", "6", "7"], "correctChoiceId": "6" } },
+    { "id": "count-and-match-seven", "type": "count-and-match", "variant": { "count": 7, "choices": ["6", "7", "8"], "correctChoiceId": "7" } }
   ]
 }

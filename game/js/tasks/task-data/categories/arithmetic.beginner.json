@@ -7,6 +7,11 @@
     { "id": "simple-addition-1-4", "type": "simple-addition", "variant": { "left": 1, "right": 4, "choices": ["5", "3", "6"], "correctChoiceId": "5" } },
     { "id": "simple-subtraction-4-1", "type": "simple-subtraction", "variant": { "left": 4, "right": 1, "choices": ["2", "3", "4"], "correctChoiceId": "3" } },
     { "id": "simple-subtraction-5-2", "type": "simple-subtraction", "variant": { "left": 5, "right": 2, "choices": ["3", "2", "4"], "correctChoiceId": "3" } },
-    { "id": "simple-subtraction-6-3", "type": "simple-subtraction", "variant": { "left": 6, "right": 3, "choices": ["2", "3", "5"], "correctChoiceId": "3" } }
+    { "id": "simple-subtraction-6-3", "type": "simple-subtraction", "variant": { "left": 6, "right": 3, "choices": ["2", "3", "5"], "correctChoiceId": "3" } },
+    { "id": "simple-addition-2-3", "type": "simple-addition", "variant": { "left": 2, "right": 3, "choices": ["4", "5", "6"], "correctChoiceId": "5" } },
+    { "id": "simple-addition-4-2", "type": "simple-addition", "variant": { "left": 4, "right": 2, "choices": ["5", "6", "7"], "correctChoiceId": "6" } },
+    { "id": "simple-addition-3-3", "type": "simple-addition", "variant": { "left": 3, "right": 3, "choices": ["5", "6", "7"], "correctChoiceId": "6" } },
+    { "id": "simple-subtraction-7-2", "type": "simple-subtraction", "variant": { "left": 7, "right": 2, "choices": ["4", "5", "6"], "correctChoiceId": "5" } },
+    { "id": "simple-subtraction-8-4", "type": "simple-subtraction", "variant": { "left": 8, "right": 4, "choices": ["3", "4", "5"], "correctChoiceId": "4" } }
   ]
 }

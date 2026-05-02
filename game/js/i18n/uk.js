@@ -164,6 +164,8 @@ export const uk = {
         simpleSubtractionInstructions: 'Обчисли приклад на віднімання і обери правильну відповідь.',
         logicPairsPrompt: 'Знайди правильну пару',
         logicPairsInstructions: 'Подивись на першу пару і обери іншу пару з таким самим зв’язком.',
+        magicSquarePrompt: 'Заповни чарівний квадрат',
+        magicSquareInstructions: 'Подивись на рядки й стовпчики. Обери, що має бути в порожній клітинці.',
         orderAscPrompt: 'Розмісти числа від меншого до більшого',
         orderAscInstructions: 'Натискай числа по черзі: спочатку найменше, потім більше.',
         orderDescPrompt: 'Розмісти числа від більшого до меншого',

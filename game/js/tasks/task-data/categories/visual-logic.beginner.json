@@ -10,6 +10,10 @@
     { "id": "compare-sets-less-left", "type": "compare-sets", "variant": { "mode": "less", "leftCount": 2, "rightCount": 5, "correctChoiceId": "left" } },
     { "id": "logic-pairs-baby-parent", "type": "logic-pairs", "variant": { "promptPair": "🐣 → 🐔", "choices": ["🐛 → 🦋", "🍎 → 🍐", "🌧️ → ⭐"], "correctChoiceId": "🐛 → 🦋" } },
     { "id": "logic-pairs-tool-use", "type": "logic-pairs", "variant": { "promptPair": "🔑 → 🚪", "choices": ["🖍️ → 📄", "🍄 → 🌧️", "⭐ → 🐌"], "correctChoiceId": "🖍️ → 📄" } },
-    { "id": "logic-pairs-home", "type": "logic-pairs", "variant": { "promptPair": "🐝 → 🐝🏠", "choices": ["🐦 → 🪺", "🍎 → 🧺", "🌿 → 🪨"], "correctChoiceId": "🐦 → 🪺" } }
+    { "id": "logic-pairs-home", "type": "logic-pairs", "variant": { "promptPair": "🐝 → 🐝🏠", "choices": ["🐦 → 🪺", "🍎 → 🧺", "🌿 → 🪨"], "correctChoiceId": "🐦 → 🪺" } },
+    { "id": "compare-sets-more-flowers", "type": "compare-sets", "variant": { "mode": "more", "leftCount": 7, "rightCount": 5, "correctChoiceId": "left" } },
+    { "id": "compare-sets-less-flowers", "type": "compare-sets", "variant": { "mode": "less", "leftCount": 4, "rightCount": 6, "correctChoiceId": "left" } },
+    { "id": "magic-square-emoji-animals", "type": "magic-square", "variant": { "grid": ["🐌", "🐝", "🦋", "🐝", "🦋", "🐌", "🦋", null, "🐝"], "choices": [{ "id": "snail", "label": "🐌" }, { "id": "bee", "label": "🐝" }, { "id": "butterfly", "label": "🦋" }], "correctChoiceId": "snail" } },
+    { "id": "magic-square-shapes-corners", "type": "magic-square", "variant": { "grid": ["■", "▲", "●", "▲", "●", "■", "●", null, "▲"], "choices": [{ "id": "square", "label": "■" }, { "id": "triangle", "label": "▲" }, { "id": "circle", "label": "●" }], "correctChoiceId": "square" } }
   ]
 }

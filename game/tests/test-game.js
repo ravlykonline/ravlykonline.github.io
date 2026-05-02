@@ -392,6 +392,17 @@ test('TaskRegistry створює логічну пару', () => {
     assert(task.pairLabel.includes('→'), 'У logic-pairs має бути опорна пара.');
 });
 
+test('TaskRegistry створює магічний квадрат з фігурами', () => {
+    const entry = TaskCatalog.getTasks('patterns.beginner')
+        .find((task) => task.type === 'magic-square');
+    const task = TaskRegistry.createTaskFromEntry(entry);
+
+    assert(task.type === 'magic-square', 'Має створюватися задача magic-square.');
+    assert(task.grid.length === 9, 'Магічний квадрат має мати 9 клітинок.');
+    assert(task.grid.includes(null), 'Магічний квадрат має містити одну порожню клітинку.');
+    assert(task.choices.length >= 3, 'Магічний квадрат має мати варіанти відповіді.');
+});
+
 test('TaskValidator пропускає валідну задачу з варіантами', () => {
     const task = {
         id: 'test-task',
@@ -527,7 +538,9 @@ test('TaskCatalog exposes JSON categories with stable task ids', () => {
     assert(categoryIds.includes('counting.beginner'), 'Catalog should include counting category.');
     assert(categoryIds.includes('arithmetic.beginner'), 'Catalog should include arithmetic category.');
     assert(patternTasks.length >= 6, 'Pattern category should contain a useful starter task bank.');
-    assert(countingTasks.length >= 9, 'Counting category should contain a useful starter task bank.');
+    assert(patternTasks.some((task) => task.type === 'magic-square'), 'Pattern category should include magic square tasks.');
+    assert(countingTasks.length >= 15, 'Counting category should contain a useful starter task bank.');
+    assert(countingTasks.some((task) => task.type === 'compare-sets'), 'Counting category should include more/less comparison tasks.');
     assert(visualLogicTasks.every((task) => task.poolId === 'visual-logic.beginner'), 'Catalog should attach source pool id.');
 });
 
