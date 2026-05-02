@@ -92,6 +92,7 @@
     background-color: var(--color-surface-raised);
     border: 2px solid var(--color-border-strong);
     cursor: pointer;
+    pointer-events: auto;
     transition: transform 0.2s, box-shadow 0.2s;
 }
 

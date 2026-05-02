@@ -1,5 +1,6 @@
 import { t } from '../../i18n/index.js';
 import { orderNumbersVariants } from '../task-data/order-numbers-variants.js';
+import { RewardEffects } from '../../ui/reward-effects.js';
 
 function pickVariant(list, random) {
     const index = Math.floor(random() * list.length);
@@ -30,12 +31,12 @@ export const OrderNumbersTask = {
         let answer = [];
 
         const intro = document.createElement('p');
-        intro.className = 'task-intro';
+        intro.className = 'task-intro task-intro--compact';
         intro.textContent = task.instructions;
 
         const answerLabel = document.createElement('p');
         answerLabel.className = 'task-helper-label';
-        answerLabel.textContent = t('taskUi.answerLabel');
+        answerLabel.textContent = task.direction === 'desc' ? '9 → 1' : '1 → 9';
 
         const answerRow = document.createElement('div');
         answerRow.className = 'task-answer-row';
@@ -52,6 +53,7 @@ export const OrderNumbersTask = {
         clearButton.className = 'task-secondary-btn';
         clearButton.textContent = t('taskUi.clearAnswer');
         clearButton.addEventListener('click', () => {
+            RewardEffects.playTap();
             answer = [];
             renderAnswer();
         });
@@ -68,17 +70,20 @@ export const OrderNumbersTask = {
                     return;
                 }
 
+                RewardEffects.playTap();
                 answer = [...answer, `${value}`];
                 renderAnswer();
 
                 if (answer.length === task.correctOrder.length) {
                     if (answer.join('|') === task.correctOrder.join('|')) {
+                        RewardEffects.playSuccess();
                         setStatus(t('taskUi.correct'));
                         disableButtons(bank, clearButton, answerRow);
                         onSolved();
                         return;
                     }
 
+                    RewardEffects.playTryAgain();
                     setStatus(t('taskUi.orderRetry'));
                     answer = [];
                     renderAnswer();

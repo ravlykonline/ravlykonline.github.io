@@ -2,6 +2,7 @@ import { ModalScene } from './modal-scene.js';
 import { HUDController } from '../ui/hud-controller.js';
 import { t } from '../i18n/index.js';
 import { TaskRegistry } from '../tasks/task-registry.js';
+import { RewardEffects } from '../ui/reward-effects.js';
 
 export class DialogScene extends ModalScene {
     constructor(deps) {
@@ -24,7 +25,7 @@ export class DialogScene extends ModalScene {
     init() {
         super.init();
 
-        this.setStatus(this.npc.activeTask.instructions);
+        this.setStatus('');
         TaskRegistry.renderTask({
             task: this.npc.activeTask,
             container: this.dom.dialogContent,
@@ -61,6 +62,7 @@ export class DialogScene extends ModalScene {
 
         this.dom.dialogBtn.textContent = t('dialog.complete');
         this.setStatus(t('taskUi.successWithStar'), 'success');
+        RewardEffects.showStarCelebration(this.dom.dialogLayer);
         HUDController.setContext(t('announcer.puzzleCompleted', { name: this.npc.name }));
         HUDController.setNearbyNpc(null);
         HUDController.setObjective(t('hud.objectiveText'));

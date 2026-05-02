@@ -29,6 +29,7 @@ export class GameScene {
         this.apples = this.session.apples;
         this.npcs = this.session.npcs;
         this.nearbyNpcId = this.session.nearbyNpcId;
+        this.handleWorldClickBind = this.handleWorldClick.bind(this);
 
         this.generateWorld();
     }
@@ -56,6 +57,7 @@ export class GameScene {
         this.renderObstacles();
         this.renderApples();
         this.renderNpcs();
+        this.dom.gameArea.addEventListener('click', this.handleWorldClickBind);
         this.syncCameraToPlayer();
         HUDController.setObjective(t('hud.objectiveText'));
         HUDController.setContext(t('hud.contextIntro'));
@@ -67,6 +69,10 @@ export class GameScene {
     pause() {
         this.input.clearTarget();
         this.input.deactivateKeyboardMode();
+    }
+
+    destroy() {
+        this.dom.gameArea.removeEventListener('click', this.handleWorldClickBind);
     }
 
     resume() {
@@ -117,12 +123,19 @@ export class GameScene {
             element.textContent = getNpcIcon(npc);
 
             const stopNpcPointer = (event) => {
+                if (event.cancelable) {
+                    event.preventDefault();
+                }
                 event.stopPropagation();
                 this.input.mouse.isDown = false;
                 this.input.clearTarget();
             };
 
             element.addEventListener('pointerdown', stopNpcPointer);
+            element.addEventListener('pointerup', (event) => {
+                stopNpcPointer(event);
+                this.tryInteractWithNpc(npc);
+            });
             element.addEventListener('mousedown', stopNpcPointer);
             element.addEventListener('touchstart', stopNpcPointer, { passive: true });
 
@@ -142,6 +155,24 @@ export class GameScene {
         });
     }
 
+    handleWorldClick(event) {
+        if (this.input.isInteractiveTarget(event.target)) {
+            return;
+        }
+
+        const point = this.getWorldPointFromClient(event.clientX, event.clientY);
+        const npc = this.findNpcAtWorldPoint(point.x, point.y);
+
+        if (!npc) {
+            return;
+        }
+
+        event.preventDefault();
+        this.input.mouse.isDown = false;
+        this.input.clearTarget();
+        this.tryInteractWithNpc(npc);
+    }
+
     getViewportSize() {
         return {
             width: this.dom.viewport?.clientWidth || window.innerWidth,
@@ -159,12 +190,28 @@ export class GameScene {
     }
 
     getPointerWorldTarget() {
+        return this.getWorldPointFromClient(this.input.mouse.x, this.input.mouse.y);
+    }
+
+    getWorldPointFromClient(clientX, clientY) {
         const rect = this.getViewportRect();
 
         return {
-            x: this.input.mouse.x - rect.left + this.state.camera.x,
-            y: this.input.mouse.y - rect.top + this.state.camera.y
+            x: clientX - rect.left + this.state.camera.x,
+            y: clientY - rect.top + this.state.camera.y
         };
+    }
+
+    findNpcAtWorldPoint(x, y) {
+        const hitPadding = 14;
+
+        return this.npcs.find((npc) => (
+            !npc.completed
+            && x >= npc.x - hitPadding
+            && x <= npc.x + npc.w + hitPadding
+            && y >= npc.y - hitPadding
+            && y <= npc.y + npc.h + hitPadding
+        )) ?? null;
     }
 
     syncCameraToPlayer() {
@@ -223,7 +270,7 @@ export class GameScene {
             const dy = this.input.mouse.intentTarget.y - this.state.y;
             const distance = Math.hypot(dx, dy);
 
-            if (distance > CONFIG.maxSpeed) {
+            if (distance > CONFIG.pointerArrivalRadius) {
                 intentX = dx / distance;
                 intentY = dy / distance;
             } else {
@@ -296,7 +343,7 @@ export class GameScene {
     updateRotation() {
         const speed = Math.hypot(this.state.velocityX, this.state.velocityY);
 
-        if (speed > 0.05) {
+        if (speed > CONFIG.rotationMinSpeed) {
             this.state.targetAngle = Math.atan2(this.state.velocityY, this.state.velocityX) * (180 / Math.PI);
         }
 
@@ -353,6 +400,10 @@ export class GameScene {
     }
 
     tryInteractWithNpc(npc) {
+        if (this.sceneManager.active !== this) {
+            return;
+        }
+
         if (npc.completed) {
             return;
         }

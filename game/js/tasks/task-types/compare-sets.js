@@ -30,6 +30,7 @@ export const CompareSetsTask = {
 
     render({ task, container, setStatus, onSolved }) {
         const intro = createTaskIntro(task.instructions);
+        intro.classList.add('task-intro--compact');
         const groups = createCompareColumns(task.leftCount, task.rightCount);
         const choices = createChoiceGrid(task, onSolved, setStatus);
         container.append(intro, groups, choices);

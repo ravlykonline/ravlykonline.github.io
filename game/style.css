@@ -428,10 +428,14 @@ body[data-font-mode="readable"] {
 }
 
 .dialog-status {
-    min-height: 1.5rem;
+    min-height: 0;
     margin: 0 0 var(--space-4);
     font-size: var(--font-size-sm);
     color: var(--color-text-muted);
+}
+
+.dialog-status:empty {
+    display: none;
 }
 
 .dialog-status--success {
@@ -483,6 +487,70 @@ body[data-font-mode="readable"] {
 
 .dialog-btn:active {
     transform: translateY(0);
+}
+
+.reward-burst {
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--z-modal) + 1);
+    pointer-events: none;
+    display: grid;
+    place-items: center;
+}
+
+.reward-star {
+    display: grid;
+    place-items: center;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--color-warning) 24%, var(--color-surface));
+    border: 4px solid var(--color-warning);
+    color: var(--color-warning);
+    font-size: 4rem;
+    line-height: 1;
+    text-shadow: 0 2px 0 var(--color-white);
+    box-shadow: var(--shadow-3);
+    animation: rewardStarPop 900ms ease-out both;
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 16px;
+    border-radius: 3px;
+    background: var(--confetti-color);
+    transform: rotate(var(--angle)) translateY(0);
+    animation: confettiFly 1100ms ease-out both;
+}
+
+@keyframes rewardStarPop {
+    0% {
+        transform: scale(0.35) rotate(-18deg);
+        opacity: 0;
+    }
+
+    45% {
+        transform: scale(1.18) rotate(8deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1) rotate(0);
+        opacity: 0;
+    }
+}
+
+@keyframes confettiFly {
+    0% {
+        opacity: 1;
+        transform: rotate(var(--angle)) translateY(0) scale(0.7);
+    }
+
+    100% {
+        opacity: 0;
+        transform: rotate(var(--angle)) translateY(var(--distance)) scale(1);
+    }
 }
 
 /* Secondary button style if needed */

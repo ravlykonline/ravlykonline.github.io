@@ -1,5 +1,6 @@
 import { t } from '../i18n/index.js';
 import { evaluateSingleChoice } from './task-evaluators/single-choice.js';
+import { RewardEffects } from '../ui/reward-effects.js';
 
 export function createTaskIntro(text) {
     const intro = document.createElement('p');
@@ -28,12 +29,14 @@ export function createChoiceGrid(task, onSolved, setStatus, extraClassName = '',
 
         button.addEventListener('click', () => {
             if (evaluateSingleChoice(task, choice.id)) {
+                RewardEffects.playSuccess();
                 setStatus(t('taskUi.correct'));
                 disableChoiceButtons(choices);
                 onSolved();
                 return;
             }
 
+            RewardEffects.playTryAgain();
             setStatus(t('taskUi.tryAgain'));
             button.classList.add('is-wrong');
             setTimeout(() => button.classList.remove('is-wrong'), 450);
@@ -84,11 +87,11 @@ export function createCompareColumns(leftCount, rightCount) {
     layout.className = 'task-compare-layout';
 
     const leftCard = document.createElement('div');
-    leftCard.className = 'task-card';
+    leftCard.className = 'task-card task-compare-card task-compare-card--left';
     leftCard.append(createHelperLabel(t('taskUi.leftGroupLabel')), createCountDots(leftCount));
 
     const rightCard = document.createElement('div');
-    rightCard.className = 'task-card';
+    rightCard.className = 'task-card task-compare-card task-compare-card--right';
     rightCard.append(createHelperLabel(t('taskUi.rightGroupLabel')), createCountDots(rightCount));
 
     layout.append(leftCard, rightCard);

@@ -10,6 +10,8 @@ export const CONFIG = {
     cameraLerp: 0.08,
     rotationLerp: 0.08,
     rotationSnapThreshold: 0.8,
+    rotationMinSpeed: 0.18,
+    pointerArrivalRadius: 16,
     obstacleCount: 70,
     appleCount: 24,
     interactionRadius: 120

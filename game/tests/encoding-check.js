@@ -92,6 +92,7 @@ async function run() {
         '../js/tasks/task-types/logic-pairs.js',
         '../js/tasks/task-types/magic-square.js',
         '../js/ui/hud-controller.js',
+        '../js/ui/reward-effects.js',
         '../js/ui/theme-mode.js',
         '../js/scenes/intro-scene.js',
         '../js/scenes/dialog-scene.js',

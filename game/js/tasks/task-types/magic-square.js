@@ -35,6 +35,7 @@ export const MagicSquareTask = {
 
     render({ task, container, setStatus, onSolved }) {
         const intro = createTaskIntro(task.instructions);
+        intro.classList.add('task-intro--compact');
         const square = document.createElement('div');
         square.className = 'task-magic-square';
         square.setAttribute('aria-label', task.prompt);
