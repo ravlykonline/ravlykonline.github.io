@@ -760,7 +760,18 @@ task-registry
 ```txt
 tokens.css
 style.css
+css/entities.css
+css/hud.css
+css/tasks.css
 ```
+
+`style.css` тримає базу сторінки, світ, Равлика, діалог, accessibility і загальні responsive-правила.
+
+Окремі CSS-файли:
+
+- `css/entities.css` — перешкоди, яблука, NPC і їхні touch/high-contrast стани;
+- `css/hud.css` — верхня HUD-шторка, статистика, підказки й responsive для HUD;
+- `css/tasks.css` — DOM-стилі навчальних задач у діалозі.
 
 Правила:
 

@@ -45,6 +45,10 @@ function hasSuspiciousEncodingArtifacts(text) {
 async function run() {
     const filesToCheck = [
         '../index.html',
+        '../style.css',
+        '../css/entities.css',
+        '../css/hud.css',
+        '../css/tasks.css',
         '../js/i18n/uk.js',
         '../js/i18n/index.js',
         '../js/app/bootstrap.js',
