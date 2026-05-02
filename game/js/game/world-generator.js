@@ -1,5 +1,6 @@
 import { canPlaceRect } from './spawn-rules.js';
 import { positionNpcs } from './npc-spawner.js';
+import { createDistributionCells, positionRectInCell } from './distribution-rules.js';
 
 const OBSTACLE_TYPES = ['rock', 'bush', 'twig'];
 const APPLE_SIZE = 28;
@@ -9,7 +10,7 @@ const START_CLEAR_RADIUS = 220;
 const OBSTACLE_GAP = 40;
 const MAX_PLACEMENT_ATTEMPTS = 50;
 
-function createObstacle(random, config) {
+function createObstacle(random, config, cell = null) {
     const type = OBSTACLE_TYPES[Math.floor(random() * OBSTACLE_TYPES.length)];
     const isHorizontal = random() > 0.5;
     const w = type === 'twig'
@@ -18,21 +19,33 @@ function createObstacle(random, config) {
     const h = type === 'twig'
         ? (isHorizontal ? 24 : random() * 100 + 80)
         : w;
-    const x = random() * (config.worldWidth - w - WORLD_PADDING * 2) + WORLD_PADDING;
-    const y = random() * (config.worldHeight - h - WORLD_PADDING * 2) + WORLD_PADDING;
+    const position = cell
+        ? positionRectInCell({ w, h }, cell, random)
+        : {
+            x: random() * (config.worldWidth - w - WORLD_PADDING * 2) + WORLD_PADDING,
+            y: random() * (config.worldHeight - h - WORLD_PADDING * 2) + WORLD_PADDING
+        };
 
-    return { x, y, w, h, type };
+    return { x: position.x, y: position.y, w, h, type };
 }
 
 export function generateObstacles({ config, player, random = Math.random }) {
     const obstacles = [];
+    const cells = createDistributionCells({
+        count: config.obstacleCount,
+        width: config.worldWidth,
+        height: config.worldHeight,
+        padding: WORLD_PADDING,
+        random
+    });
 
     for (let index = 0; index < config.obstacleCount; index += 1) {
         let placed = false;
         let attempts = 0;
 
         while (!placed && attempts < MAX_PLACEMENT_ATTEMPTS) {
-            const obstacle = createObstacle(random, config);
+            const cell = cells[(index + attempts) % cells.length];
+            const obstacle = createObstacle(random, config, cell);
 
             if (canPlaceRect(obstacle, {
                 blockers: obstacles,
@@ -53,16 +66,25 @@ export function generateObstacles({ config, player, random = Math.random }) {
 
 export function generateApples({ config, blockers, random = Math.random }) {
     const apples = [];
+    const cells = createDistributionCells({
+        count: config.appleCount,
+        width: config.worldWidth,
+        height: config.worldHeight,
+        padding: APPLE_PADDING,
+        random
+    });
 
     for (let index = 0; index < config.appleCount; index += 1) {
         let placed = false;
         let attempts = 0;
 
         while (!placed && attempts < MAX_PLACEMENT_ATTEMPTS) {
+            const cell = cells[(index + attempts) % cells.length];
+            const position = positionRectInCell({ w: APPLE_SIZE, h: APPLE_SIZE }, cell, random);
             const apple = {
                 id: index,
-                x: random() * (config.worldWidth - APPLE_PADDING * 2) + APPLE_PADDING,
-                y: random() * (config.worldHeight - APPLE_PADDING * 2) + APPLE_PADDING,
+                x: position.x,
+                y: position.y,
                 w: APPLE_SIZE,
                 h: APPLE_SIZE
             };

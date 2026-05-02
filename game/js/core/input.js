@@ -38,6 +38,7 @@ export const Input = {
         }
 
         this.initialized = true;
+        const isInteractiveOverlay = (target) => target.closest?.('#ui-layer, #dialog-layer, .npc');
 
         window.addEventListener('keydown', (event) => {
             if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
@@ -69,11 +70,12 @@ export const Input = {
         });
 
         window.addEventListener('mousedown', (event) => {
-            if (event.target.closest?.('#ui-layer, #dialog-layer')) {
+            if (isInteractiveOverlay(event.target)) {
                 return;
             }
 
             if (event.button === 0 && !this.keyboard.active) {
+                event.preventDefault();
                 this.mouse.isDown = true;
                 this.mouse.x = event.clientX;
                 this.mouse.y = event.clientY;
@@ -92,7 +94,7 @@ export const Input = {
         });
 
         window.addEventListener('touchstart', (event) => {
-            if (event.target.closest?.('#ui-layer, #dialog-layer')) {
+            if (isInteractiveOverlay(event.target)) {
                 return;
             }
 

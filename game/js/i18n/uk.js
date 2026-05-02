@@ -1,20 +1,20 @@
 export const uk = {
     meta: {
-        title: 'Равлик-бродилка',
+        title: 'Равлик-мандрівник',
         themeColor: '#7cb342',
         themeColorLight: '#7cb342',
         themeColorDark: '#1f3a14'
     },
     app: {
-        heading: 'Равлик-бродилка',
+        heading: 'Равлик-мандрівник',
         skipLink: 'Перейти до гри',
-        viewportLabel: 'Гра Равлик-бродилка. Керування: WASD або стрілки для руху, T для режиму вибору цілі, Enter для взаємодії',
+        viewportLabel: 'Гра Равлик-мандрівник. Керування: WASD або стрілки для руху, клік або Enter для взаємодії',
         gameAreaLabel: 'Ігровий світ. Равлик рухається по траві, збирає яблука та розв’язує завдання',
         scoreLabel: 'Рахунок',
         controlsLabel: 'Керування',
-        controlsHint: 'WASD / стрілки / клік / Enter / T для прицілу',
+        controlsHint: 'WASD / стрілки / клік / Enter',
         keyboardMode: 'Режим вибору цілі активовано',
-        dialogTitleFallback: 'Равлик-бродилка',
+        dialogTitleFallback: 'Равлик-мандрівник',
         dialogTextFallback: 'Текст діалогу...',
         dialogButtonFallback: 'Далі'
     },
@@ -23,9 +23,9 @@ export const uk = {
         applesLabel: 'Яблука',
         starsLabel: 'Зірочки',
         objectiveLabel: 'Ціль',
-        objectiveText: 'Збирай яблука і підходь до друзів, щоб відкривати нові завдання.',
-        objectiveMeetNpc: 'Підійди до {name}, щоб відкрити нове завдання.',
-        objectiveApplesRemaining: 'Чудово! У саду залишилося ще {count} яблук.',
+        objectiveText: 'Збирай яблука. Підходь до друзів.',
+        objectiveMeetNpc: 'Підійди до {name}.',
+        objectiveApplesRemaining: 'Залишилось яблук: {count}.',
         fontToggle: 'Aa',
         fontToggleLabel: 'Перемкнути шрифт для читання',
         themeToggleDark: '☾',
@@ -38,14 +38,14 @@ export const uk = {
         sessionStatusDefault: 'Нова прогулянка почалася: 0 яблук і 0 зірочок.',
         sessionStatus: 'У цій грі вже зібрано {apples} яблук і {stars} зірочок.',
         contextLabel: 'Поруч зараз',
-        contextIdle: 'Спокійно оглянь галявину і обери, куди рухатись далі.',
-        contextIntro: 'Равлику час роздивитись галявину, зібрати яблука і знайти друзів із завданнями.',
-        contextExplore: 'На галявині є яблука та друзі з новими головоломками. Рухайся в зручному темпі.',
+        contextIdle: 'Шукай яблука й друзів.',
+        contextIntro: 'Збирай яблука й шукай друзів.',
+        contextExplore: 'На галявині є яблука та завдання.',
         nearbyNpcBadge: 'Поруч: {name}'
     },
     intro: {
         title: 'Почнемо нову гру',
-        text: 'Рухайся стрілками або WASD, збирай яблука, підходь до друзів і натискай Enter або клік, щоб відкрити випадкове завдання.',
+        text: 'Збирай яблука. Підходь до друзів і відкривай завдання.',
         button: 'Почати'
     },
     dialog: {
@@ -61,9 +61,9 @@ export const uk = {
         keyboardModeOn: 'Режим вибору цілі активовано. Використовуйте стрілки, Enter для підтвердження, T або Escape для виходу.',
         keyboardModeOff: 'Режим вибору цілі вимкнено',
         targetSet: 'Ціль встановлено',
-        newGameStarted: 'Нова гра почалась. Збирайте яблука, а потім підходьте до друзів по завдання.',
+        newGameStarted: 'Нова гра почалась. Збирай яблука й шукай друзів.',
         gameResumed: 'Гра продовжується',
-        npcNearby: 'Поруч {name}. Натисніть Enter або клікніть, щоб відкрити завдання.',
+        npcNearby: 'Поруч {name}. Enter або клік відкриє завдання.',
         moveCloser: 'Підійдіть ближче, щоб поговорити.',
         puzzleCompleted: 'Завдання від {name} виконано. Ви отримали зірочку!',
         applesRemaining: 'Яблуко зібрано. Залишилось {count} яблук.'

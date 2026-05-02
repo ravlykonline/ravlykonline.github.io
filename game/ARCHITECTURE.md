@@ -1,4 +1,4 @@
-# ARCHITECTURE.md — архітектура проєкту «Равлик-бродилка»
+# ARCHITECTURE.md — архітектура проєкту «Равлик-мандрівник»
 
 Цей документ описує поточну архітектуру гри, межі відповідальності модулів, правила розширення й бажаний напрям рефакторингу.
 
@@ -244,6 +244,7 @@ js/game/task-picker.js
 js/game/session-state.js
 js/game/world-generator.js
 js/game/spawn-rules.js
+js/game/distribution-rules.js
 js/game/collision-system.js
 js/game/apple-system.js
 js/game/npc-system.js

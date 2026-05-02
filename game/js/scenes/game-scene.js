@@ -115,7 +115,18 @@ export class GameScene {
             element.setAttribute('aria-label', t('entities.npcPrompt', { name: npc.name }));
             element.textContent = getNpcIcon(npc);
 
-            element.addEventListener('click', () => {
+            const stopNpcPointer = (event) => {
+                event.stopPropagation();
+                this.input.mouse.isDown = false;
+                this.input.clearTarget();
+            };
+
+            element.addEventListener('pointerdown', stopNpcPointer);
+            element.addEventListener('mousedown', stopNpcPointer);
+            element.addEventListener('touchstart', stopNpcPointer, { passive: true });
+
+            element.addEventListener('click', (event) => {
+                stopNpcPointer(event);
                 this.tryInteractWithNpc(npc);
             });
 

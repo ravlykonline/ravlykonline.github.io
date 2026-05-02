@@ -230,7 +230,7 @@ manifest.json
 
 ```json
 {
-  "name": "Равлик-бродилка",
+  "name": "Равлик-мандрівник",
   "short_name": "Равлик",
   "start_url": "./index.html",
   "display": "standalone",

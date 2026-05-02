@@ -21,6 +21,29 @@ const results = document.getElementById('results');
 const summary = document.getElementById('summary');
 const testResults = [];
 
+function createSeededRandom(seed) {
+    let value = seed;
+
+    return () => {
+        value = (value * 1664525 + 1013904223) >>> 0;
+        return value / 4294967296;
+    };
+}
+
+function countOccupiedQuadrants(items, config) {
+    const quadrants = new Set();
+
+    items.forEach((item) => {
+        const centerX = item.x + item.w / 2;
+        const centerY = item.y + item.h / 2;
+        const column = centerX < config.worldWidth / 2 ? 0 : 1;
+        const row = centerY < config.worldHeight / 2 ? 0 : 1;
+        quadrants.add(`${column}:${row}`);
+    });
+
+    return quadrants.size;
+}
+
 const TEST_WORLD_CONFIG = {
     worldWidth: 1000,
     worldHeight: 1000,
@@ -464,6 +487,29 @@ test('LevelData contains target NPC count with valid tasks and text keys', () =>
         assert(t(npc.nameKey) !== npc.nameKey, `Name key "${npc.nameKey}" should be translated.`);
         assert(t(iconKey) !== iconKey, `NPC type "${npc.type}" should have an icon.`);
     });
+});
+
+test('WorldGenerator spreads obstacles, apples and NPCs across the meadow', () => {
+    const config = {
+        worldWidth: 1600,
+        worldHeight: 1600,
+        obstacleCount: 16,
+        appleCount: 12
+    };
+    const npcs = Array.from({ length: 8 }, (_, index) => ({
+        ...TEST_NPCS[index % TEST_NPCS.length],
+        id: `npc_spread_${index}`
+    }));
+    const world = generateWorld({
+        config,
+        player: { x: 800, y: 800 },
+        npcs,
+        random: createSeededRandom(42)
+    });
+
+    assert(countOccupiedQuadrants(world.obstacles, config) >= 3, 'Obstacles should not cluster in one small area.');
+    assert(countOccupiedQuadrants(world.apples, config) >= 3, 'Apples should be spread across the meadow.');
+    assert(countOccupiedQuadrants(world.npcs, config) >= 3, 'NPCs should be spread across the meadow.');
 });
 
 function renderResults() {

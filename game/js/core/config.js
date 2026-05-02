@@ -8,7 +8,7 @@ export const CONFIG = {
     cameraThreshold: 250,
     topHudSafeArea: 72,
     cameraLerp: 0.08,
-    rotationLerp: 0.18,
+    rotationLerp: 0.08,
     rotationSnapThreshold: 0.8,
     obstacleCount: 70,
     appleCount: 24,

@@ -45,6 +45,7 @@ function hasSuspiciousEncodingArtifacts(text) {
 async function run() {
     const filesToCheck = [
         '../index.html',
+        '../manifest.json',
         '../style.css',
         '../css/entities.css',
         '../css/hud.css',
@@ -60,6 +61,7 @@ async function run() {
         '../js/game/level-data.js',
         '../js/game/session-state.js',
         '../js/game/spawn-rules.js',
+        '../js/game/distribution-rules.js',
         '../js/game/npc-spawner.js',
         '../js/game/world-generator.js',
         '../js/tasks/task-data/sequence-next-variants.js',

@@ -9,6 +9,8 @@
     z-index: var(--z-ui);
     width: min(22rem, calc(100vw - 1rem));
     pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .hud-panel {
