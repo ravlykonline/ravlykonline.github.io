@@ -1,6 +1,6 @@
 # Поточний стан проєкту «Равлик-мандрівник»
 
-> Оновлено: 2026-04-18
+> Оновлено: 2026-05-02
 
 ## Продуктове бачення
 
@@ -43,6 +43,9 @@
 - Равлик плавно рухається з м'якшим прискоренням, сповільненням і розворотом.
 - Яблука збираються у світі на DOM-елементах.
 - NPC мають випадкове завдання на кожну нову гру.
+- Завдання беруться з JSON-категорій через `TaskCatalog`.
+- У межах однієї сесії `TaskPicker` не видає кільком NPC однаковий `task.id`, доки в доступних категоріях є невикористані задачі.
+- NPC мають педагогічні `taskPoolIds`, тобто можуть брати задачі з кількох близьких категорій.
 - Для NPC уже працює базова система головоломок із кількома варіантами в кожному типі.
 - Уже є типи задач: продовження послідовності, пошук зайвого предмета, впорядкування чисел за зростанням і спаданням, порівняння множин, лічба предметів, просте додавання, візерунки з фігур, просте віднімання й логічні пари.
 - Після виконання завдання NPC дитина отримує зірочки.
@@ -77,7 +80,7 @@
 
 - Є браузерні unit/integration тести.
 - Є окремий тест на артефакти кодування українського тексту.
-- Покриті критичні правила руху, випадковий вибір завдань, `taskRegistry`, theme mode і HUD controller.
+- Покриті критичні правила руху, випадковий вибір завдань, унікальність task id у сесії, `TaskCatalog`, `TaskRegistry`, theme mode і HUD controller.
 - Інтеграційний контур уже перевіряє основний цикл `NPC -> puzzle -> stars -> HUD`.
 
 ## Поточні принципи, які вже зафіксовані
@@ -97,9 +100,10 @@
 - [js/scenes/game-scene.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/scenes/game-scene.js): поточна логіка ігрової сцени
 - [js/game/task-picker.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/game/task-picker.js): вибір випадкового завдання для NPC
 - [js/game/level-data.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/game/level-data.js): дані рівня та NPC
-- [js/tasks/task-registry.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/tasks/task-registry.js): вибір і створення структурованих задач із пулів
+- [js/tasks/task-catalog.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/tasks/task-catalog.js): реєстр JSON-категорій задач
+- [js/tasks/task-registry.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/tasks/task-registry.js): створення структурованих задач із catalog entries
 - [js/tasks/task-ui-helpers.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/tasks/task-ui-helpers.js): спільні UI-будівельники для puzzle-компонентів
-- [js/tasks/task-data](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/tasks/task-data): data-driven набори варіантів задач і конфігурація пулів
+- [js/tasks/task-data/categories](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/tasks/task-data/categories): JSON-категорії задач
 - [js/tasks/task-types](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/tasks/task-types): окремі модулі типів головоломок
 - [js/scenes/dialog-scene.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/scenes/dialog-scene.js): універсальний puzzle dialog для NPC
 - [js/ui/hud-controller.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/ui/hud-controller.js): стан HUD
@@ -122,9 +126,11 @@
 
 ### 1. Що вже закладено як фундамент
 
-- Є `taskPoolId` у NPC замість жорстко пришитих текстових реплік.
-- Є `taskRegistry`, який випадково підтягує структуровану задачу з пулу.
-- Є окремий шар `task-data`, де лежать варіанти задач і конфігурація пулів.
+- Є `taskPoolIds` у NPC замість жорстко пришитих текстових реплік.
+- Є `TaskCatalog`, який читає JSON-категорії задач.
+- Є `TaskRegistry`, який створює структуровану задачу з catalog entry.
+- Є `session.usedTaskIds`, щоб однакове завдання не випадало кільком тваринкам в одній сесії.
+- Є окремий шар `task-data/categories`, де лежать JSON-банки задач.
 - Є окремі `task-types`, які можна розширювати без переписування `GameScene`.
 - Є drag-free puzzle dialog, який рендерить різні типи взаємодії через кнопки й selection model.
 
@@ -135,7 +141,7 @@
 Рекомендований напрям:
 
 - додати `task-evaluators`, якщо логіка типів задач почне ускладнюватися;
-- далі розділити варіанти задач не лише по типах, а й по темах, складності та навчальних блоках;
+- далі поповнювати JSON-категорії задач по темах, складності та навчальних блоках;
 - додати рівні складності й тематичні набори задач;
 - дати кожному NPC власну освітню спеціалізацію.
 
@@ -180,13 +186,14 @@
 
 ### 4. Розширити NPC-модель
 
-NPC мають перейти від одного `activeTask` до моделі на основі ролі та пулу задач.
+NPC вже перейшли від одного `activeTask` до моделі на основі ролі та JSON-категорій задач.
 
 Бажаний напрям:
 
-- у кожного NPC є `taskPoolId`;
-- NPC може тягнути випадкове завдання відповідного типу;
-- у майбутньому NPC може мати тему: лічба, логіка, послідовності, форми.
+- у кожного NPC є `taskPoolIds`;
+- NPC тягне випадкове завдання з дозволених категорій;
+- категорії вже розділені на `visual-logic.beginner`, `patterns.beginner`, `counting.beginner`, `arithmetic.beginner`;
+- `observation.beginner` і `logic.beginner` лишаються сумісними mixed-категоріями.
 
 Приклад:
 
@@ -195,7 +202,7 @@ NPC мають перейти від одного `activeTask` до моделі
   id: 'mouse_1',
   type: 'mouse',
   nameKey: 'npc.mouseName',
-  taskPoolId: 'logic.beginner'
+  taskPoolIds: ['visual-logic.beginner', 'counting.beginner']
 }
 ```
 

@@ -946,7 +946,7 @@ npx html-validate ./dist/**/*.html
 ### 14.6 Architectural Regression Checks
 
 - [ ] New gameplay logic is added in focused modules instead of expanding a monolithic `script.js`
-- [ ] NPC content is assigned through `taskPoolId`/task pools, not hardcoded one-off dialog branches
+- [ ] NPC content is assigned through `taskPoolIds` and JSON task categories, not hardcoded one-off dialog branches
 - [ ] Puzzle rendering, puzzle data, and answer evaluation stay separable so new task types do not require `GameScene` rewrites
 - [ ] HUD changes are routed through the HUD controller layer instead of ad-hoc DOM mutations from unrelated modules
 

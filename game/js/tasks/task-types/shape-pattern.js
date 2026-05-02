@@ -10,10 +10,10 @@ function pickVariant(random) {
 export const ShapePatternTask = {
     type: 'shape-pattern',
 
-    createTask({ random }) {
-        const variant = pickVariant(random);
+    createTask({ random, entry = {} }) {
+        const variant = entry.variant ?? pickVariant(random);
         return {
-            id: `${this.type}-${variant.id}`,
+            id: entry.id ?? `${this.type}-${variant.id}`,
             type: this.type,
             prompt: t('taskUi.shapePatternPrompt'),
             instructions: t('taskUi.shapePatternInstructions'),

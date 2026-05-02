@@ -9,7 +9,7 @@ import { generateWorld } from '../js/game/world-generator.js';
 import { approach, normalizeAngleDifference, updateAngle } from '../js/core/motion.js';
 import { isNpcWithinRange, shouldCollectApple, pickNearestByDistance } from '../js/game/rules.js';
 import { TaskRegistry } from '../js/tasks/task-registry.js';
-import { taskPools } from '../js/tasks/task-data/task-pools.js';
+import { TaskCatalog } from '../js/tasks/task-catalog.js';
 import { evaluateSingleChoice } from '../js/tasks/task-evaluators/single-choice.js';
 import { validateTask } from '../js/tasks/task-validator.js';
 import { ScoreSystem } from '../js/systems/score-system.js';
@@ -497,10 +497,38 @@ test('LevelData contains target NPC count with valid tasks and text keys', () =>
 
     npcs.forEach((npc) => {
         const iconKey = `entities.${npc.type}Icon`;
-        assert(taskPools[npc.taskPoolId], `Task pool "${npc.taskPoolId}" should exist.`);
+        const poolIds = npc.taskPoolIds ?? [npc.taskPoolId];
+
+        assert(poolIds.length >= 1, 'NPC should have at least one task pool.');
+        poolIds.forEach((poolId) => {
+            assert(TaskCatalog.getCategory(poolId), `Task pool "${poolId}" should exist.`);
+        });
         assert(t(npc.nameKey) !== npc.nameKey, `Name key "${npc.nameKey}" should be translated.`);
         assert(t(iconKey) !== iconKey, `NPC type "${npc.type}" should have an icon.`);
     });
+});
+
+test('SessionState assigns unique task ids while catalog has enough tasks', () => {
+    const session = createInitialSessionState(LevelData.level1, { random: createSeededRandom(7) });
+    const taskIds = session.npcs.map((npc) => npc.activeTask.id);
+    const uniqueTaskIds = new Set(taskIds);
+
+    assert(uniqueTaskIds.size === taskIds.length, 'NPCs should not receive duplicate tasks in one session.');
+    assert(session.usedTaskIds.size === taskIds.length, 'Session should remember every assigned task id.');
+});
+
+test('TaskCatalog exposes JSON categories with stable task ids', () => {
+    const categoryIds = TaskCatalog.categories.map((category) => category.id);
+    const patternTasks = TaskCatalog.getTasks('patterns.beginner');
+    const countingTasks = TaskCatalog.getTasks('counting.beginner');
+    const visualLogicTasks = TaskCatalog.getTasks('visual-logic.beginner');
+
+    assert(categoryIds.includes('patterns.beginner'), 'Catalog should include pattern category.');
+    assert(categoryIds.includes('counting.beginner'), 'Catalog should include counting category.');
+    assert(categoryIds.includes('arithmetic.beginner'), 'Catalog should include arithmetic category.');
+    assert(patternTasks.length >= 6, 'Pattern category should contain a useful starter task bank.');
+    assert(countingTasks.length >= 9, 'Counting category should contain a useful starter task bank.');
+    assert(visualLogicTasks.every((task) => task.poolId === 'visual-logic.beginner'), 'Catalog should attach source pool id.');
 });
 
 test('WorldGenerator spreads obstacles, apples and NPCs across the meadow', () => {

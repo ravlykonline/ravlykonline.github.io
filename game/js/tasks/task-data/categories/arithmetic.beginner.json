@@ -1,0 +1,12 @@
+{
+  "id": "arithmetic.beginner",
+  "title": "Додавання і віднімання",
+  "tasks": [
+    { "id": "simple-addition-2-1", "type": "simple-addition", "variant": { "left": 2, "right": 1, "choices": ["2", "3", "4"], "correctChoiceId": "3" } },
+    { "id": "simple-addition-3-2", "type": "simple-addition", "variant": { "left": 3, "right": 2, "choices": ["4", "5", "6"], "correctChoiceId": "5" } },
+    { "id": "simple-addition-1-4", "type": "simple-addition", "variant": { "left": 1, "right": 4, "choices": ["5", "3", "6"], "correctChoiceId": "5" } },
+    { "id": "simple-subtraction-4-1", "type": "simple-subtraction", "variant": { "left": 4, "right": 1, "choices": ["2", "3", "4"], "correctChoiceId": "3" } },
+    { "id": "simple-subtraction-5-2", "type": "simple-subtraction", "variant": { "left": 5, "right": 2, "choices": ["3", "2", "4"], "correctChoiceId": "3" } },
+    { "id": "simple-subtraction-6-3", "type": "simple-subtraction", "variant": { "left": 6, "right": 3, "choices": ["2", "3", "5"], "correctChoiceId": "3" } }
+  ]
+}

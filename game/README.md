@@ -102,6 +102,7 @@
 │   ├── systems/
 │   │   └── score-system.js
 │   ├── tasks/
+│   │   ├── task-catalog.js
 │   │   ├── task-registry.js
 │   │   ├── task-ui-helpers.js
 │   │   ├── task-data/
@@ -182,11 +183,15 @@ function gameLoop() {
 
 ### `js/tasks/task-registry.js`
 
-Створює завдання з пулів і делегує рендер конкретному `task-type`.
+Створює завдання через `TaskCatalog` і делегує рендер конкретному `task-type`.
+
+### `js/tasks/task-catalog.js`
+
+Реєструє JSON-категорії завдань і повертає конкретні task entries для сесії.
 
 ### `js/tasks/task-data/`
 
-Data-driven варіанти завдань.
+Data-driven задачі. Поточні категорії лежать у `js/tasks/task-data/categories/*.json`.
 
 ### `js/tasks/task-types/`
 
@@ -216,8 +221,8 @@ Service Worker для PWA/offline режиму.
 2. Додати NPC у масив `LevelData.level1.npcs`.
 3. Дати унікальний `id`.
 4. Додати `nameKey` у `js/i18n/uk.js`.
-5. Вказати `taskPoolId`.
-6. Перевірити, що такий пул є в `js/tasks/task-data/task-pools.js`.
+5. Вказати `taskPoolIds`.
+6. Перевірити, що така категорія є в `js/tasks/task-data/categories/*.json`.
 7. Перевірити, що NPC не стоїть у перешкоді й не перекриває стартову зону.
 
 Приклад:
@@ -226,7 +231,7 @@ Service Worker для PWA/offline режиму.
 {
     id: 'owl_1',
     nameKey: 'npc.owlName',
-    taskPoolId: 'logic.beginner',
+    taskPoolIds: ['visual-logic.beginner', 'patterns.beginner', 'counting.beginner'],
     type: 'owl',
     x: 2300,
     y: 1850,
@@ -246,9 +251,9 @@ Service Worker для PWA/offline режиму.
 
 1. Створити файл у `js/tasks/task-types/`.
 2. Додати `type`, `createTask`, `render`.
-3. Додати варіанти в `js/tasks/task-data/`.
+3. Додати task entries у відповідний `js/tasks/task-data/categories/*.json`.
 4. Додати тип у `TaskRegistry`.
-5. Додати його в потрібний `taskPool`.
+5. Додати або оновити категорію в `TaskCatalog`, якщо це новий JSON-файл.
 6. Додати тест.
 7. Перевірити keyboard/touch-доступність.
 
@@ -369,8 +374,8 @@ PROJECT_STATUS_AND_ROADMAP.md
 1. Винести частину логіки з `GameScene` у системи світу.
 2. Додати контракт і валідацію задач.
 3. Додати `task-evaluators` для складніших типів завдань.
-4. Додати smoke-тести для всіх task pools.
+4. Додати smoke-тести для всіх task categories.
 5. Додати перевірку `STATIC_ASSETS` у `sw.js`.
 6. Додати фінальний екран сесії.
-7. Розширити NPC ролями: лічба, логіка, послідовності, форми.
+7. Розширити NPC ролями й категоріями: лічба, логіка, послідовності, форми.
 8. Перенести ідеї з окремого математичного скрипта у нову task-архітектуру, але не копіювати його як моноліт.

@@ -9,13 +9,13 @@ function pickVariant(list, random) {
 export const OrderNumbersTask = {
     type: 'order-numbers',
 
-    createTask({ random, options = {} }) {
+    createTask({ random, options = {}, entry = {} }) {
         const direction = options.direction === 'desc' ? 'desc' : 'asc';
-        const numbers = pickVariant(orderNumbersVariants[direction], random);
+        const numbers = entry.variant?.numbers ?? pickVariant(orderNumbersVariants[direction], random);
         const correctOrder = [...numbers].sort((left, right) => direction === 'desc' ? right - left : left - right);
 
         return {
-            id: `${this.type}-${direction}-${numbers.join('-')}`,
+            id: entry.id ?? `${this.type}-${direction}-${numbers.join('-')}`,
             type: this.type,
             prompt: direction === 'desc' ? t('taskUi.orderDescPrompt') : t('taskUi.orderAscPrompt'),
             instructions: direction === 'desc' ? t('taskUi.orderDescInstructions') : t('taskUi.orderAscInstructions'),

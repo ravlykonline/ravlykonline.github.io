@@ -167,7 +167,7 @@ js/game/session-state.js
 Поточний мінімум:
 
 ```txt
-task-data -> task-pools -> task-registry -> task-type
+task-data/categories -> task-catalog -> task-registry -> task-type
 ```
 
 Бажаний напрям:
@@ -186,7 +186,7 @@ task-data -> task-validator -> task-renderer -> task-evaluator
 2. Якщо потрібні дані — створити файл у `js/tasks/task-data/`.
 3. Не використовувати `innerHTML` для змінних текстів.
 4. Зареєструвати тип у `js/tasks/task-registry.js`.
-5. Додати entry у `js/tasks/task-data/task-pools.js`.
+5. Додати entry у відповідний `js/tasks/task-data/categories/*.json`.
 6. Додати або оновити i18n-тексти.
 7. Додати тест.
 8. Перевірити keyboard/touch.

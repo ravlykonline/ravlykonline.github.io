@@ -45,11 +45,12 @@ js/tasks/task-types/
 Поточний потік:
 
 ```txt
-NPC має taskPoolId
+NPC має taskPoolIds
   -> TaskPicker.buildNpcSessionState()
-  -> TaskRegistry.createTask(poolId)
-  -> taskPools[poolId]
-  -> випадковий entry
+  -> TaskRegistry.createTask(taskPoolIds)
+  -> TaskCatalog.getTasks(taskPoolIds)
+  -> випадковий невикористаний entry
+  -> session.usedTaskIds.add(task.id)
   -> відповідний taskType.createTask()
   -> validateTask()
   -> DialogScene
@@ -60,22 +61,26 @@ NPC має taskPoolId
 
 ---
 
-## 3. Поточні task pools
+## 3. Поточні task categories
 
 Файл:
 
 ```txt
-js/tasks/task-data/task-pools.js
+js/tasks/task-data/categories/*.json
+js/tasks/task-catalog.js
 ```
 
-Поточні пули:
+Поточні JSON-категорії:
 
 ```js
-'observation.beginner'
-'logic.beginner'
+'visual-logic.beginner'
+'patterns.beginner'
+'counting.beginner'
+'arithmetic.beginner'
 ```
 
-`taskPoolId` задається в NPC у `js/game/level-data.js`.
+`taskPoolIds` задається в NPC у `js/game/level-data.js`.
+Під час створення сесії `TaskPicker` вибирає конкретний `task.id` з JSON-категорій і додає його в `session.usedTaskIds`, щоб однакове завдання не випало кільком тваринкам в межах однієї сесії.
 
 Приклад:
 
@@ -83,7 +88,7 @@ js/tasks/task-data/task-pools.js
 {
     id: 'mouse_1',
     nameKey: 'npc.mouseName',
-    taskPoolId: 'observation.beginner',
+    taskPoolIds: ['visual-logic.beginner', 'counting.beginner'],
     type: 'mouse'
 }
 ```
@@ -324,26 +329,42 @@ js/tasks/task-evaluators/single-choice.js
 
 ## 11. Як додати просту задачу з вибором відповіді
 
-1. Створити файл:
+1. Додати task entry у відповідний JSON-файл категорії:
 
 ```txt
-js/tasks/task-data/example-variants.js
+js/tasks/task-data/categories/*.json
 ```
 
 2. Додати дані:
 
-```js
-export const exampleVariants = [
+```json
+{
+  "id": "example-compare-01",
+  "type": "example",
+  "variant": {
+    "choices": [
+      { "id": "4", "label": "4" },
+      { "id": "7", "label": "7" }
+    ],
+    "correctChoiceId": "7"
+  }
+}
+```
+
+Якщо це нова категорія, файл має мати форму:
+
+```json
+{
+  "id": "example.beginner",
+  "title": "Приклад",
+  "tasks": [
     {
-        prompt: 'Яке число більше?',
-        instructions: 'Обери більше число.',
-        choices: [
-            { id: '4', label: '4' },
-            { id: '7', label: '7' }
-        ],
-        correctChoiceId: '7'
+      "id": "example-compare-01",
+      "type": "example",
+      "variant": {}
     }
-];
+  ]
+}
 ```
 
 3. Створити task type:
@@ -354,7 +375,7 @@ js/tasks/task-types/example.js
 
 4. Зареєструвати його в `task-registry.js`.
 
-5. Додати в `task-pools.js`:
+5. Додати task entry у відповідний JSON-файл категорії:
 
 ```js
 { type: 'example' }
@@ -596,12 +617,12 @@ math-machine
 Заєць — порядок і прості послідовності
 ```
 
-Тоді `taskPoolId` буде не випадковим, а педагогічно осмисленим:
+Тоді `taskPoolIds` будуть не випадковими, а педагогічно осмисленими:
 
 ```js
 {
     id: 'owl_1',
-    taskPoolId: 'patterns.beginner'
+    taskPoolIds: ['visual-logic.beginner', 'patterns.beginner', 'counting.beginner']
 }
 ```
 

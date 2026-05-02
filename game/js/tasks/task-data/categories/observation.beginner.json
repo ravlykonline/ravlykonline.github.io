@@ -1,0 +1,27 @@
+{
+  "id": "observation.beginner",
+  "title": "Спостереження",
+  "tasks": [
+    { "id": "odd-one-out-forest-food", "type": "odd-one-out", "variant": { "items": [{ "id": "apple-1", "label": "🍎" }, { "id": "apple-2", "label": "🍎" }, { "id": "mushroom", "label": "🍄" }, { "id": "apple-3", "label": "🍎" }], "correctChoiceId": "mushroom" } },
+    { "id": "odd-one-out-shapes", "type": "odd-one-out", "variant": { "items": [{ "id": "circle-1", "label": "○" }, { "id": "circle-2", "label": "○" }, { "id": "square", "label": "□" }, { "id": "circle-3", "label": "○" }], "correctChoiceId": "square" } },
+    { "id": "odd-one-out-animals", "type": "odd-one-out", "variant": { "items": [{ "id": "snail-1", "label": "🐌" }, { "id": "snail-2", "label": "🐌" }, { "id": "rabbit", "label": "🐰" }, { "id": "snail-3", "label": "🐌" }], "correctChoiceId": "rabbit" } },
+    { "id": "compare-sets-more-left", "type": "compare-sets", "variant": { "mode": "more", "leftCount": 5, "rightCount": 3, "correctChoiceId": "left" } },
+    { "id": "compare-sets-more-right", "type": "compare-sets", "variant": { "mode": "more", "leftCount": 2, "rightCount": 4, "correctChoiceId": "right" } },
+    { "id": "compare-sets-less-left", "type": "compare-sets", "variant": { "mode": "less", "leftCount": 2, "rightCount": 5, "correctChoiceId": "left" } },
+    { "id": "count-and-match-three", "type": "count-and-match", "variant": { "count": 3, "choices": ["2", "3", "4"], "correctChoiceId": "3" } },
+    { "id": "count-and-match-four", "type": "count-and-match", "variant": { "count": 4, "choices": ["4", "5", "6"], "correctChoiceId": "4" } },
+    { "id": "count-and-match-five", "type": "count-and-match", "variant": { "count": 5, "choices": ["3", "5", "6"], "correctChoiceId": "5" } },
+    { "id": "order-numbers-asc-1-3-2", "type": "order-numbers", "options": { "direction": "asc" }, "variant": { "numbers": [1, 3, 2] } },
+    { "id": "order-numbers-asc-4-2-5", "type": "order-numbers", "options": { "direction": "asc" }, "variant": { "numbers": [4, 2, 5] } },
+    { "id": "order-numbers-asc-6-3-4", "type": "order-numbers", "options": { "direction": "asc" }, "variant": { "numbers": [6, 3, 4] } },
+    { "id": "order-numbers-desc-1-3-2", "type": "order-numbers", "options": { "direction": "desc" }, "variant": { "numbers": [1, 3, 2] } },
+    { "id": "order-numbers-desc-4-2-5", "type": "order-numbers", "options": { "direction": "desc" }, "variant": { "numbers": [4, 2, 5] } },
+    { "id": "order-numbers-desc-6-3-4", "type": "order-numbers", "options": { "direction": "desc" }, "variant": { "numbers": [6, 3, 4] } },
+    { "id": "sequence-next-numbers-even", "type": "sequence-next", "variant": { "series": ["2", "4", "6"], "choices": ["8", "7", "5"], "correctChoiceId": "8" } },
+    { "id": "sequence-next-shapes-repeat", "type": "sequence-next", "variant": { "series": ["△", "○", "△", "○"], "choices": ["△", "□", "○"], "correctChoiceId": "△" } },
+    { "id": "sequence-next-plants-repeat", "type": "sequence-next", "variant": { "series": ["🌱", "🌿", "🌱", "🌿"], "choices": ["🌿", "🌱", "🌳"], "correctChoiceId": "🌱" } },
+    { "id": "shape-pattern-color-loop", "type": "shape-pattern", "variant": { "series": ["🔴", "🔵", "🔴", "🔵"], "choices": ["🔴", "🟡", "🔵"], "correctChoiceId": "🔴" } },
+    { "id": "shape-pattern-three-step", "type": "shape-pattern", "variant": { "series": ["▲", "■", "●", "▲", "■"], "choices": ["●", "▲", "■"], "correctChoiceId": "●" } },
+    { "id": "shape-pattern-size", "type": "shape-pattern", "variant": { "series": ["●", "⬤", "●", "⬤"], "choices": ["●", "◆", "⬤"], "correctChoiceId": "●" } }
+  ]
+}

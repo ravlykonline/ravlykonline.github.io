@@ -1,0 +1,15 @@
+{
+  "id": "visual-logic.beginner",
+  "title": "Візуальна логіка",
+  "tasks": [
+    { "id": "odd-one-out-forest-food", "type": "odd-one-out", "variant": { "items": [{ "id": "apple-1", "label": "🍎" }, { "id": "apple-2", "label": "🍎" }, { "id": "mushroom", "label": "🍄" }, { "id": "apple-3", "label": "🍎" }], "correctChoiceId": "mushroom" } },
+    { "id": "odd-one-out-shapes", "type": "odd-one-out", "variant": { "items": [{ "id": "circle-1", "label": "○" }, { "id": "circle-2", "label": "○" }, { "id": "square", "label": "□" }, { "id": "circle-3", "label": "○" }], "correctChoiceId": "square" } },
+    { "id": "odd-one-out-animals", "type": "odd-one-out", "variant": { "items": [{ "id": "snail-1", "label": "🐌" }, { "id": "snail-2", "label": "🐌" }, { "id": "rabbit", "label": "🐰" }, { "id": "snail-3", "label": "🐌" }], "correctChoiceId": "rabbit" } },
+    { "id": "compare-sets-more-left", "type": "compare-sets", "variant": { "mode": "more", "leftCount": 5, "rightCount": 3, "correctChoiceId": "left" } },
+    { "id": "compare-sets-more-right", "type": "compare-sets", "variant": { "mode": "more", "leftCount": 2, "rightCount": 4, "correctChoiceId": "right" } },
+    { "id": "compare-sets-less-left", "type": "compare-sets", "variant": { "mode": "less", "leftCount": 2, "rightCount": 5, "correctChoiceId": "left" } },
+    { "id": "logic-pairs-baby-parent", "type": "logic-pairs", "variant": { "promptPair": "🐣 → 🐔", "choices": ["🐛 → 🦋", "🍎 → 🍐", "🌧️ → ⭐"], "correctChoiceId": "🐛 → 🦋" } },
+    { "id": "logic-pairs-tool-use", "type": "logic-pairs", "variant": { "promptPair": "🔑 → 🚪", "choices": ["🖍️ → 📄", "🍄 → 🌧️", "⭐ → 🐌"], "correctChoiceId": "🖍️ → 📄" } },
+    { "id": "logic-pairs-home", "type": "logic-pairs", "variant": { "promptPair": "🐝 → 🐝🏠", "choices": ["🐦 → 🪺", "🍎 → 🧺", "🌿 → 🪨"], "correctChoiceId": "🐦 → 🪺" } }
+  ]
+}

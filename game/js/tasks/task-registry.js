@@ -7,7 +7,7 @@ import { SimpleAdditionTask } from './task-types/simple-addition.js';
 import { ShapePatternTask } from './task-types/shape-pattern.js';
 import { SimpleSubtractionTask } from './task-types/simple-subtraction.js';
 import { LogicPairsTask } from './task-types/logic-pairs.js';
-import { taskPools } from './task-data/task-pools.js';
+import { TaskCatalog } from './task-catalog.js';
 import { validateTask } from './task-validator.js';
 
 const TASK_TYPES = {
@@ -30,14 +30,17 @@ function pickRandom(items, random) {
 }
 
 export const TaskRegistry = {
-    createTask(poolId, random = Math.random) {
-        const pool = taskPools[poolId];
-
-        if (!pool || pool.length === 0) {
-            throw new Error(`Unknown task pool: ${poolId}`);
-        }
-
+    createTask(poolId, random = Math.random, options = {}) {
+        const excludedTaskIds = options.excludedTaskIds ?? new Set();
+        const allEntries = TaskCatalog.getTasks(poolId);
+        const availableEntries = allEntries.filter((entry) => !excludedTaskIds.has(entry.id));
+        const pool = availableEntries.length > 0 ? availableEntries : allEntries;
         const entry = pickRandom(pool, random);
+
+        return this.createTaskFromEntry(entry, random);
+    },
+
+    createTaskFromEntry(entry, random = Math.random) {
         const taskType = TASK_TYPES[entry.type];
 
         if (!taskType) {
@@ -47,7 +50,8 @@ export const TaskRegistry = {
         const task = taskType.createTask({
             random,
             options: entry.options,
-            poolId
+            poolId: entry.poolId,
+            entry
         });
 
         return validateTask(task, { knownTypes: TASK_TYPE_NAMES });

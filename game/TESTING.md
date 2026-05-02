@@ -137,8 +137,8 @@ js/tasks/task-registry.js
 - `isNpcWithinRange()` повертає true/false правильно;
 - `shouldCollectApple()` спрацьовує на правильній відстані;
 - `pickNearestByDistance()` знаходить найближчий об'єкт;
-- `TaskRegistry.createTask()` створює задачу з пулу;
-- невідомий pool кидає помилку в dev-тесті.
+- `TaskRegistry.createTask()` створює задачу з JSON-категорії;
+- невідома категорія задач кидає помилку в dev-тесті.
 
 ---
 

@@ -10,10 +10,10 @@ function pickVariant(random) {
 export const CompareSetsTask = {
     type: 'compare-sets',
 
-    createTask({ random }) {
-        const variant = pickVariant(random);
+    createTask({ random, entry = {} }) {
+        const variant = entry.variant ?? pickVariant(random);
         return {
-            id: `${this.type}-${variant.id}`,
+            id: entry.id ?? `${this.type}-${variant.id}`,
             type: this.type,
             prompt: variant.mode === 'less' ? t('taskUi.compareLessPrompt') : t('taskUi.compareMorePrompt'),
             instructions: variant.mode === 'less' ? t('taskUi.compareLessInstructions') : t('taskUi.compareMoreInstructions'),

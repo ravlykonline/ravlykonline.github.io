@@ -46,7 +46,7 @@
 ```js
 {
     id: 'mouse_1',
-    taskPoolId: 'observation.beginner'
+    taskPoolIds: ['visual-logic.beginner', 'counting.beginner']
 }
 ```
 
@@ -257,6 +257,7 @@ js/game/camera-controller.js
 
 ```txt
 js/tasks/task-registry.js
+js/tasks/task-catalog.js
 js/tasks/task-ui-helpers.js
 js/tasks/task-data/
 js/tasks/task-types/
@@ -273,7 +274,8 @@ js/tasks/task-types/
 
 ```txt
 TaskRegistry
-  -> taskPools
+  -> TaskCatalog
+  -> JSON category tasks
   -> taskType.createTask()
   -> taskType.render()
 ```

@@ -15,12 +15,13 @@ export function createInitialPlayerState({ x = 2000, y = 2000 } = {}) {
 }
 
 export function createInitialSessionState(levelData, { random = Math.random } = {}) {
-    return {
+    const session = {
         player: createInitialPlayerState(levelData?.playerStart),
         obstacles: [],
         apples: [],
-        npcs: (levelData?.npcs ?? []).map((npc) => TaskPicker.buildNpcSessionState(npc, random)),
+        npcs: [],
         nearbyNpcId: null,
+        usedTaskIds: new Set(),
         flags: {
             completedNpcIds: new Set()
         },
@@ -28,4 +29,8 @@ export function createInitialSessionState(levelData, { random = Math.random } = 
             seed: null
         }
     };
+
+    session.npcs = (levelData?.npcs ?? []).map((npc) => TaskPicker.buildNpcSessionState(npc, random, session));
+
+    return session;
 }

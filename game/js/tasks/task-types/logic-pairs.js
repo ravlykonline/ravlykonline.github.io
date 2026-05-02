@@ -10,10 +10,10 @@ function pickVariant(random) {
 export const LogicPairsTask = {
     type: 'logic-pairs',
 
-    createTask({ random }) {
-        const variant = pickVariant(random);
+    createTask({ random, entry = {} }) {
+        const variant = entry.variant ?? pickVariant(random);
         return {
-            id: `${this.type}-${variant.id}`,
+            id: entry.id ?? `${this.type}-${variant.id}`,
             type: this.type,
             prompt: t('taskUi.logicPairsPrompt'),
             instructions: t('taskUi.logicPairsInstructions'),

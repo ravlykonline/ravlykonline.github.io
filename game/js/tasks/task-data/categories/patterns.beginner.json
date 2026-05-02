@@ -1,0 +1,12 @@
+{
+  "id": "patterns.beginner",
+  "title": "Візерунки",
+  "tasks": [
+    { "id": "sequence-next-numbers-even", "type": "sequence-next", "variant": { "series": ["2", "4", "6"], "choices": ["8", "7", "5"], "correctChoiceId": "8" } },
+    { "id": "sequence-next-shapes-repeat", "type": "sequence-next", "variant": { "series": ["△", "○", "△", "○"], "choices": ["△", "□", "○"], "correctChoiceId": "△" } },
+    { "id": "sequence-next-plants-repeat", "type": "sequence-next", "variant": { "series": ["🌱", "🌿", "🌱", "🌿"], "choices": ["🌿", "🌱", "🌳"], "correctChoiceId": "🌱" } },
+    { "id": "shape-pattern-color-loop", "type": "shape-pattern", "variant": { "series": ["🔴", "🔵", "🔴", "🔵"], "choices": ["🔴", "🟡", "🔵"], "correctChoiceId": "🔴" } },
+    { "id": "shape-pattern-three-step", "type": "shape-pattern", "variant": { "series": ["▲", "■", "●", "▲", "■"], "choices": ["●", "▲", "■"], "correctChoiceId": "●" } },
+    { "id": "shape-pattern-size", "type": "shape-pattern", "variant": { "series": ["●", "⬤", "●", "⬤"], "choices": ["●", "◆", "⬤"], "correctChoiceId": "●" } }
+  ]
+}
