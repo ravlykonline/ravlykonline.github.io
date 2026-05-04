@@ -401,6 +401,7 @@
 
 .xbtn,
 .btn-run,
+.btn-stop,
 .btn-reset,
 #show-code-btn,
 .btn-next {
@@ -429,6 +430,17 @@
   font-size: var(--font-size-lg);
   font-weight: 800;
   box-shadow: 0 0.25rem 0 var(--color-orange-dark);
+}
+
+.btn-stop {
+  min-height: var(--size-touch-primary);
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-pill);
+  background: var(--color-feedback-error);
+  color: var(--color-surface);
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  box-shadow: 0 0.25rem 0 #8b0000;
 }
 
 .btn-reset {
@@ -554,6 +566,89 @@
   color: var(--color-text-soft);
   font-size: var(--font-size-base);
   line-height: 1.5;
+}
+
+.ws-history-controls {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.btn-history {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-block-surface-muted);
+  color: var(--color-surface);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  transition: opacity 0.1s;
+}
+
+.btn-history:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.btn-history:not(:disabled):hover {
+  opacity: 0.85;
+}
+
+.wb-ctrl-group {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  flex-shrink: 0;
+}
+
+.wb-ctrl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-block-surface-strong);
+  color: var(--color-surface);
+  font-size: 0.7rem;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.1s;
+}
+
+.wb-ctrl-btn:hover,
+.wb-ctrl-btn:focus {
+  opacity: 1;
+}
+
+.wb-insert-btn {
+  padding: 0.15rem var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-block-surface-strong);
+  color: var(--color-surface);
+  font-size: 0.65rem;
+  font-weight: 800;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.1s;
+  white-space: nowrap;
+}
+
+.wb-insert-btn:hover,
+.wb-insert-btn:focus {
+  opacity: 1;
+}
+
+.wb.insert-target {
+  outline: 0.2rem solid var(--color-teal-light);
+  outline-offset: 0.15rem;
+}
+
+.wb:focus {
+  outline: 0.2rem solid var(--color-surface);
+  outline-offset: 0.1rem;
 }
 
 .confirm-actions {

@@ -3,14 +3,48 @@ import { buildProgramCode } from './core/codegen.js';
 import { moveSnail, sleep } from './core/engine.js';
 import { evaluateGoal } from './core/goals.js';
 import { appState, markLessonDone, resetRuntimeState, setActiveBlock, setLesson, setRunning, toggleCodePanelState } from './core/state.js';
-import { addBlock, addBlockAt, clearWorkspace, countBlocks, flattenBlocks, moveBlock, removeBlock, updateRepeatCount } from './core/workspace.js';
+import { addBlock, addBlockAt, clearWorkspace, countBlocks, flattenBlocks, moveBlock, moveBlockDown, moveBlockOut, moveBlockUp, removeBlock, updateRepeatCount } from './core/workspace.js';
+import { validateProgram } from './runtime/execution-limits.js';
+import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from './state/history.js';
+import { trapFocus } from './utils/focus-trap.js';
 import { clearTrail, drawTrail, placeSnail, renderLessonGuide, setupCanvas, wiggleSnail } from './ui/canvas.js';
 import { getDomReferences } from './ui/dom.js';
-import { clearFeedback, hideSuccess, renderBlockCount, renderCode, renderControls, renderLessonHeader, renderLessonNavigation, renderPalette, renderWorkspace, showFeedback, showSuccess } from './ui/render.js';
+import { clearFeedback, hideSuccess, renderBlockCount, renderCode, renderControls, renderHistoryControls, renderLessonHeader, renderLessonNavigation, renderPalette, renderWorkspace, showFeedback, showSuccess } from './ui/render.js';
 
 const dom = getDomReferences();
 const SUCCESS_CELEBRATION_DELAY_MS = 900;
 let workspaceDragDepth = 0;
+let cancelRequested = false;
+let lastFocusedBlockId = null;
+
+// --- focus helpers ---
+
+function focusBlockById(id) {
+  const el = dom.workspaceInner.querySelector(`[data-block-id="${id}"]`);
+  if (el) el.focus();
+}
+
+function rememberFocus() {
+  const el = document.activeElement;
+  const blockEl = el?.closest('[data-block-id]');
+  lastFocusedBlockId = blockEl ? Number(blockEl.dataset.blockId) : null;
+}
+
+function restoreFocus() {
+  if (lastFocusedBlockId !== null) {
+    focusBlockById(lastFocusedBlockId);
+    lastFocusedBlockId = null;
+  }
+}
+
+// --- insert target ---
+
+function setInsertTarget(id) {
+  appState.insertTargetId = id;
+  updateWorkspaceUi();
+}
+
+// --- drag ---
 
 function setWorkspaceDragActive(isActive) {
   dom.workspaceSection.classList.toggle('workspace-drag-active', isActive);
@@ -25,7 +59,7 @@ function setResetConfirmOpen(isOpen) {
   dom.resetConfirmOverlay.setAttribute('aria-hidden', String(!isOpen));
 
   if (isOpen) {
-    dom.resetConfirmButton.focus();
+    dom.resetCancelButton.focus();
   } else {
     dom.resetButton.focus();
   }
@@ -37,43 +71,69 @@ function resetWorkspaceDragState() {
   setWorkspaceDropTarget(false);
 }
 
+// --- code panel ---
+
 function updateCodePanel() {
   renderCode(dom, buildProgramCode(appState.workspace), appState.codePanelOpen);
 }
 
+// --- workspace mutation helpers (all go through history) ---
+
+function withSnapshot(mutate, focusId = null) {
+  pushSnapshot(appState.workspace);
+  const result = mutate();
+  refreshUi();
+  if (focusId !== null) focusBlockById(focusId);
+  return result;
+}
+
 function handleDrop(parentId, index, payload) {
-  if (appState.running) {
-    return;
-  }
+  if (appState.running) return;
 
   if (payload.paletteType) {
-    addBlockAt(payload.paletteType, parentId, index);
-    refreshUi();
+    withSnapshot(() => addBlockAt(payload.paletteType, parentId, index));
     return;
   }
 
   const blockId = Number.parseInt(payload.blockId, 10);
-  if (Number.isFinite(blockId) && moveBlock(blockId, parentId, index)) {
-    refreshUi();
+  if (Number.isFinite(blockId)) {
+    withSnapshot(() => moveBlock(blockId, parentId, index), blockId);
   }
 }
 
 function updateWorkspaceUi() {
   renderWorkspace(dom, appState, {
     onRemoveBlock: (id) => {
-      removeBlock(id);
-      refreshUi();
+      rememberFocus();
+      withSnapshot(() => {
+        removeBlock(id);
+        if (appState.insertTargetId === id) appState.insertTargetId = null;
+      });
+      restoreFocus();
     },
     onUpdateRepeatCount: (id, value) => {
-      updateRepeatCount(id, value);
-      refreshUi();
+      withSnapshot(() => updateRepeatCount(id, value), id);
     },
+    onMoveBlockUp: (id) => {
+      withSnapshot(() => moveBlockUp(id), id);
+    },
+    onMoveBlockDown: (id) => {
+      withSnapshot(() => moveBlockDown(id), id);
+    },
+    onMoveBlockOut: (id) => {
+      withSnapshot(() => {
+        moveBlockOut(id);
+        if (appState.insertTargetId === id) appState.insertTargetId = null;
+      }, id);
+    },
+    onSetInsertTarget: (id) => setInsertTarget(id),
     onDrop: handleDrop,
     onDragStart: () => setWorkspaceDragActive(true),
     onDragEnd: resetWorkspaceDragState,
   });
 
   renderBlockCount(dom, countBlocks());
+  renderHistoryControls(dom, canUndo(), canRedo());
   updateCodePanel();
 }
 
@@ -82,8 +142,11 @@ function refreshUi() {
   renderLessonNavigation(dom, appState, loadLesson);
   renderPalette(dom, appState.currentLesson, {
     onAddBlock: (type) => {
-      addBlock(type);
-      refreshUi();
+      const targetId = appState.insertTargetId;
+      withSnapshot(() => {
+        const block = addBlockAt(type, targetId);
+        return block;
+      });
     },
     onDragStart: () => setWorkspaceDragActive(true),
     onDragEnd: resetWorkspaceDragState,
@@ -96,11 +159,13 @@ function refreshUi() {
 function resetBoard() {
   clearTrail(dom);
   placeSnail(dom, appState.snail, true);
-  dom.canvasStatus.textContent = `Snail is at column ${appState.snail.x + 1}, row ${appState.snail.y + 1}.`;
+  dom.canvasStatus.textContent = `Равлик на стовпці ${appState.snail.x + 1}, рядку ${appState.snail.y + 1}.`;
 }
 
 function loadLesson(index) {
   setLesson(index);
+  clearHistory();
+  appState.insertTargetId = null;
   clearFeedback(dom);
   hideSuccess(dom);
   resetWorkspaceDragState();
@@ -110,8 +175,10 @@ function loadLesson(index) {
 }
 
 function performResetLesson() {
+  pushSnapshot(appState.workspace);
   clearWorkspace();
   resetRuntimeState();
+  appState.insertTargetId = null;
   clearFeedback(dom);
   hideSuccess(dom);
   resetWorkspaceDragState();
@@ -122,28 +189,53 @@ function performResetLesson() {
 }
 
 function requestResetLesson() {
-  if (appState.running) {
-    return;
-  }
-
+  if (appState.running) return;
   if (appState.workspace.length === 0) {
     performResetLesson();
     return;
   }
-
   setResetConfirmOpen(true);
 }
 
-async function runProgram() {
-  if (appState.running) {
-    return;
+function stopProgram() {
+  cancelRequested = true;
+}
+
+function performUndo() {
+  if (!canUndo() || appState.running) return;
+  const snapshot = undo(appState.workspace);
+  if (snapshot) {
+    appState.workspace = snapshot;
+    appState.insertTargetId = null;
+    updateWorkspaceUi();
   }
+}
+
+function performRedo() {
+  if (!canRedo() || appState.running) return;
+  const snapshot = redo(appState.workspace);
+  if (snapshot) {
+    appState.workspace = snapshot;
+    appState.insertTargetId = null;
+    updateWorkspaceUi();
+  }
+}
+
+async function runProgram() {
+  if (appState.running) return;
 
   if (appState.workspace.length === 0) {
-    showFeedback(dom, 'Add at least one block first.');
+    showFeedback(dom, 'Додай хоча б одну команду.');
     return;
   }
 
+  const validation = validateProgram(appState.workspace);
+  if (!validation.ok) {
+    showFeedback(dom, validation.message);
+    return;
+  }
+
+  cancelRequested = false;
   setRunning(true);
   clearFeedback(dom);
   resetRuntimeState();
@@ -155,9 +247,7 @@ async function runProgram() {
 
   const actions = flattenBlocks();
   for (const action of actions) {
-    if (!appState.running) {
-      break;
-    }
+    if (!appState.running || cancelRequested) break;
 
     setActiveBlock(action.id);
     updateWorkspaceUi();
@@ -168,7 +258,7 @@ async function runProgram() {
     placeSnail(dom, appState.snail);
     drawTrail(dom, appState.currentLesson, previousSnail, appState.snail);
     appState.trailPoints.push([appState.snail.x, appState.snail.y]);
-    dom.canvasStatus.textContent = `Snail moved to column ${appState.snail.x + 1}, row ${appState.snail.y + 1}.`;
+    dom.canvasStatus.textContent = `Равлик перемістився до стовпця ${appState.snail.x + 1}, рядку ${appState.snail.y + 1}.`;
     await sleep(340);
   }
 
@@ -176,6 +266,12 @@ async function runProgram() {
   setRunning(false);
   renderControls(dom, appState);
   updateWorkspaceUi();
+
+  if (cancelRequested) {
+    showFeedback(dom, 'Програму зупинено.', 'info');
+    cancelRequested = false;
+    return;
+  }
 
   const result = evaluateGoal(appState.currentLesson, appState.trailPoints);
   if (result.ok) {
@@ -205,58 +301,72 @@ function toggleCodePanel() {
 
 function bindEvents() {
   dom.runButton.addEventListener('click', runProgram);
+  dom.stopButton.addEventListener('click', stopProgram);
   dom.resetButton.addEventListener('click', requestResetLesson);
   dom.resetConfirmButton.addEventListener('click', performResetLesson);
   dom.resetCancelButton.addEventListener('click', () => setResetConfirmOpen(false));
   dom.codeToggleButton.addEventListener('click', toggleCodePanel);
   dom.nextButton.addEventListener('click', goToNextLesson);
+  dom.undoButton.addEventListener('click', performUndo);
+  dom.redoButton.addEventListener('click', performRedo);
 
   dom.resetConfirmOverlay.addEventListener('click', (event) => {
-    if (event.target === dom.resetConfirmOverlay) {
-      setResetConfirmOpen(false);
-    }
+    if (event.target === dom.resetConfirmOverlay) setResetConfirmOpen(false);
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && dom.resetConfirmOverlay.classList.contains('show')) {
-      setResetConfirmOpen(false);
+    const { key, ctrlKey } = event;
+    const isInput = document.activeElement?.tagName === 'INPUT';
+
+    if (key === 'Escape') {
+      if (dom.resetConfirmOverlay.classList.contains('show')) {
+        setResetConfirmOpen(false);
+      } else if (appState.insertTargetId !== null) {
+        setInsertTarget(null);
+      }
+    }
+
+    if (ctrlKey && !isInput) {
+      if (key === 'z' || key === 'Z') {
+        event.preventDefault();
+        performUndo();
+      } else if (key === 'y' || key === 'Y') {
+        event.preventDefault();
+        performRedo();
+      } else if (key === 'Enter') {
+        event.preventDefault();
+        runProgram();
+      }
     }
   });
 
   dom.workspaceSection.addEventListener('dragenter', (event) => {
-    if (!dom.workspaceSection.classList.contains('workspace-drag-active')) {
-      return;
-    }
-
+    if (!dom.workspaceSection.classList.contains('workspace-drag-active')) return;
     event.preventDefault();
     workspaceDragDepth += 1;
     setWorkspaceDropTarget(true);
   });
 
   dom.workspaceSection.addEventListener('dragover', (event) => {
-    if (!dom.workspaceSection.classList.contains('workspace-drag-active')) {
-      return;
-    }
-
+    if (!dom.workspaceSection.classList.contains('workspace-drag-active')) return;
     event.preventDefault();
     setWorkspaceDropTarget(true);
   });
 
   dom.workspaceSection.addEventListener('dragleave', () => {
-    if (!dom.workspaceSection.classList.contains('workspace-drag-active')) {
-      return;
-    }
-
+    if (!dom.workspaceSection.classList.contains('workspace-drag-active')) return;
     workspaceDragDepth = Math.max(0, workspaceDragDepth - 1);
-    if (workspaceDragDepth === 0) {
-      setWorkspaceDropTarget(false);
-    }
+    if (workspaceDragDepth === 0) setWorkspaceDropTarget(false);
   });
 
   dom.workspaceSection.addEventListener('drop', () => {
     workspaceDragDepth = 0;
     setWorkspaceDropTarget(false);
   });
+
+  // focus traps for modals
+  trapFocus(dom.resetConfirmOverlay.querySelector('.confirm-card'));
+  trapFocus(dom.overlay.querySelector('.success-card'));
 }
 
 function init() {

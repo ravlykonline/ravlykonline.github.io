@@ -5,7 +5,7 @@ export function blocksToCode(list, indent = '  ') {
 
   for (const block of list) {
     if (block.type === 'repeat') {
-      output += `${indent}repeat ${block.count} times {\n`;
+      output += `${indent}повторити ${block.count} разів {\n`;
       output += blocksToCode(block.blocks, `${indent}  `);
       output += `${indent}}\n`;
     } else {
@@ -17,5 +17,5 @@ export function blocksToCode(list, indent = '  ') {
 }
 
 export function buildProgramCode(workspace) {
-  return `when run {\n${blocksToCode(workspace)}}`;
+  return `коли запущено {\n${blocksToCode(workspace)}}`;
 }

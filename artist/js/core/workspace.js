@@ -188,6 +188,35 @@ export function countBlocks(list = appState.workspace) {
   return total;
 }
 
+export function moveBlockUp(id) {
+  if (appState.running) return false;
+  const location = findBlockLocation(appState.workspace, id);
+  if (!location || location.index === 0) return false;
+  const { list, index } = location;
+  [list[index - 1], list[index]] = [list[index], list[index - 1]];
+  return true;
+}
+
+export function moveBlockDown(id) {
+  if (appState.running) return false;
+  const location = findBlockLocation(appState.workspace, id);
+  if (!location || location.index >= location.list.length - 1) return false;
+  const { list, index } = location;
+  [list[index], list[index + 1]] = [list[index + 1], list[index]];
+  return true;
+}
+
+export function moveBlockOut(id) {
+  if (appState.running) return false;
+  const location = findBlockLocation(appState.workspace, id);
+  if (!location || location.parentId === null) return false;
+  const parentLocation = findBlockLocation(appState.workspace, location.parentId);
+  if (!parentLocation) return false;
+  const [removedBlock] = location.list.splice(location.index, 1);
+  parentLocation.list.splice(parentLocation.index + 1, 0, removedBlock);
+  return true;
+}
+
 export function flattenBlocks(list = appState.workspace) {
   const actions = [];
 

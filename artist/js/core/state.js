@@ -13,6 +13,7 @@ export const appState = {
   doneLessons: new Set(),
   trailPoints: [],
   activeBlockId: null,
+  insertTargetId: null,
   codePanelOpen: false,
 };
 

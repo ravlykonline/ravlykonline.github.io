@@ -5,7 +5,9 @@ import { buildProgramCode } from '../js/core/codegen.js';
 import { cellToGridIntersection, moveSnail } from '../js/core/engine.js';
 import { evaluateGoal } from '../js/core/goals.js';
 import { appState } from '../js/core/state.js';
-import { clearWorkspace, countBlocks, createBlock, findBlock, flattenBlocks, insertBlock, moveBlockInList } from '../js/core/workspace.js';
+import { clearWorkspace, countBlocks, createBlock, findBlock, flattenBlocks, insertBlock, moveBlockInList, moveBlockUp, moveBlockDown, moveBlockOut } from '../js/core/workspace.js';
+import { validateProgram } from '../js/runtime/execution-limits.js';
+import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from '../js/state/history.js';
 import { getBrushTransform, getLessonGuidePoints, getSnailScreenPosition } from '../js/ui/canvas.js';
 
 function runTest(name, fn) {
@@ -22,6 +24,13 @@ runTest('lessons expose stable ids and order', () => {
   assert.equal(lessons.length, 6);
   assert.equal(lessons[0].id, 'lesson-01');
   assert.equal(lessons[5].order, 6);
+});
+
+runTest('lessons use instruction instead of instructionHtml', () => {
+  for (const lesson of lessons) {
+    assert.equal(typeof lesson.instruction, 'string', `${lesson.id} має мати поле instruction`);
+    assert.equal('instructionHtml' in lesson, false, `${lesson.id} не повинен мати instructionHtml`);
+  }
 });
 
 runTest('moveSnail clamps to board edges', () => {
@@ -51,7 +60,7 @@ runTest('getBrushTransform rotates only the brush toward the movement direction'
   assert.equal(getBrushTransform('N'), 'rotate(-90 36 36)');
 });
 
-runTest('buildProgramCode prints nested repeat blocks', () => {
+runTest('buildProgramCode prints nested repeat blocks in Ukrainian', () => {
   const workspace = [
     {
       type: 'repeat',
@@ -61,12 +70,25 @@ runTest('buildProgramCode prints nested repeat blocks', () => {
     },
   ];
 
-  assert.equal(buildProgramCode(workspace), 'when run {\n  repeat 2 times {\n    move(down)\n  }\n}');
+  assert.equal(buildProgramCode(workspace), 'коли запущено {\n  повторити 2 разів {\n    рухатися(вниз)\n  }\n}');
 });
 
-runTest('evaluateGoal accepts matching path lessons', () => {
+runTest('evaluateGoal accepts exact matching path for exact-path lessons', () => {
   const result = evaluateGoal(lessons[0], [[4, 2], [4, 3], [4, 4], [4, 5]]);
   assert.equal(result.ok, true);
+});
+
+runTest('evaluateGoal rejects wrong-length path for exact-path lessons', () => {
+  const tooShort = evaluateGoal(lessons[0], [[4, 2], [4, 3]]);
+  assert.equal(tooShort.ok, false);
+
+  const tooLong = evaluateGoal(lessons[0], [[4, 2], [4, 3], [4, 4], [4, 5], [4, 6]]);
+  assert.equal(tooLong.ok, false);
+});
+
+runTest('evaluateGoal rejects wrong-order path for exact-path lessons', () => {
+  const wrongOrder = evaluateGoal(lessons[0], [[4, 5], [4, 4], [4, 3], [4, 2]]);
+  assert.equal(wrongOrder.ok, false);
 });
 
 runTest('evaluateGoal enforces minimum step lessons', () => {
@@ -75,6 +97,26 @@ runTest('evaluateGoal enforces minimum step lessons', () => {
 
   assert.equal(failResult.ok, false);
   assert.equal(successResult.ok, true);
+});
+
+runTest('validateProgram rejects programs exceeding expanded action limit', () => {
+  const workspace = [
+    { type: 'repeat', id: 1, count: 20, blocks: [
+      { type: 'repeat', id: 2, count: 20, blocks: [
+        { type: 'repeat', id: 3, count: 20, blocks: [{ type: 'move_s', id: 4 }] },
+      ]},
+    ]},
+  ];
+  const result = validateProgram(workspace);
+  assert.equal(result.ok, false);
+});
+
+runTest('validateProgram accepts a reasonable program', () => {
+  const workspace = [
+    { type: 'repeat', id: 1, count: 3, blocks: [{ type: 'move_s', id: 2 }] },
+  ];
+  const result = validateProgram(workspace);
+  assert.equal(result.ok, true);
 });
 
 runTest('workspace helpers support nested lookup, count, and flatten', () => {
@@ -131,6 +173,75 @@ runTest('moveBlockInList reorders blocks across root and nested repeat container
   assert.equal(moveBlockInList(workspace, 1, 2, 1), true);
   assert.deepEqual(workspace.map((block) => block.id), [4, 2]);
   assert.deepEqual(findBlock(workspace, 2).blocks.map((block) => block.id), [3, 1]);
+});
+
+runTest('moveBlockUp and moveBlockDown reorder blocks in-place', () => {
+  appState.workspace = [createBlock('move_n', 1), createBlock('move_s', 2), createBlock('move_e', 3)];
+
+  assert.equal(moveBlockUp(2), true);
+  assert.deepEqual(appState.workspace.map((b) => b.id), [2, 1, 3]);
+
+  assert.equal(moveBlockUp(2), false); // already first
+  assert.equal(moveBlockDown(3), false); // already last
+
+  assert.equal(moveBlockDown(1), true);
+  assert.deepEqual(appState.workspace.map((b) => b.id), [2, 3, 1]);
+
+  clearWorkspace();
+});
+
+runTest('moveBlockOut moves nested block after its parent repeat', () => {
+  appState.workspace = [
+    { type: 'repeat', id: 10, count: 2, blocks: [createBlock('move_s', 11), createBlock('move_e', 12)] },
+    createBlock('move_w', 13),
+  ];
+
+  assert.equal(moveBlockOut(11), true);
+  assert.deepEqual(appState.workspace.map((b) => b.id), [10, 11, 13]);
+  assert.deepEqual(appState.workspace[0].blocks.map((b) => b.id), [12]);
+
+  assert.equal(moveBlockOut(10), false); // already at root
+  clearWorkspace();
+});
+
+runTest('history supports undo and redo', () => {
+  clearHistory();
+  appState.workspace = [createBlock('move_s', 21)];
+
+  pushSnapshot(appState.workspace);
+  appState.workspace.push(createBlock('move_e', 22));
+
+  assert.equal(canUndo(), true);
+  assert.equal(canRedo(), false);
+
+  const restored = undo(appState.workspace);
+  appState.workspace = restored;
+  assert.deepEqual(appState.workspace.map((b) => b.id), [21]);
+  assert.equal(canRedo(), true);
+
+  const redone = redo(appState.workspace);
+  appState.workspace = redone;
+  assert.deepEqual(appState.workspace.map((b) => b.id), [21, 22]);
+
+  clearWorkspace();
+  clearHistory();
+});
+
+runTest('pushSnapshot clears redo stack on new action', () => {
+  clearHistory();
+  appState.workspace = [createBlock('move_s', 31)];
+
+  pushSnapshot(appState.workspace);
+  appState.workspace.push(createBlock('move_e', 32));
+
+  undo(appState.workspace); // creates redo entry
+  assert.equal(canRedo(), true);
+
+  pushSnapshot(appState.workspace); // new action clears redo
+  assert.equal(canRedo(), false);
+
+  clearWorkspace();
+  clearHistory();
 });
 
 runTest('moveBlockInList prevents moving a repeat block into its own descendants', () => {

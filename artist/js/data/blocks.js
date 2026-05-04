@@ -1,7 +1,7 @@
 export const blockDefinitions = {
-  move_n: { label: 'move up', className: 'move', icon: '\u2191', direction: 'N', code: 'move(up)' },
-  move_s: { label: 'move down', className: 'move', icon: '\u2193', direction: 'S', code: 'move(down)' },
-  move_e: { label: 'move right', className: 'move', icon: '\u2192', direction: 'E', code: 'move(right)' },
-  move_w: { label: 'move left', className: 'move', icon: '\u2190', direction: 'W', code: 'move(left)' },
-  repeat: { label: 'repeat', className: 'repeat', icon: '\u21bb', code: 'repeat' },
+  move_n: { label: 'вгору', className: 'move', icon: '↑', direction: 'N', code: 'рухатися(вгору)' },
+  move_s: { label: 'вниз', className: 'move', icon: '↓', direction: 'S', code: 'рухатися(вниз)' },
+  move_e: { label: 'вправо', className: 'move', icon: '→', direction: 'E', code: 'рухатися(вправо)' },
+  move_w: { label: 'вліво', className: 'move', icon: '←', direction: 'W', code: 'рухатися(вліво)' },
+  repeat: { label: 'повторити', className: 'repeat', icon: '↻', code: 'повторити' },
 };

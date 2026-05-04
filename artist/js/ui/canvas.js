@@ -18,7 +18,8 @@ function getBrushElement(dom) {
 }
 
 export function getLessonGuidePoints(lesson) {
-  if (!lesson?.success || lesson.success.mode !== 'path-match') {
+  const mode = lesson?.success?.mode;
+  if (mode !== 'path-match' && mode !== 'exact-path') {
     return [];
   }
 
