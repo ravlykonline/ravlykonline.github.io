@@ -205,57 +205,89 @@ export const levels = [
   }),
   createLevel({
     id: 12,
-    name: 'Зайва команда',
+    name: 'Поворот занадто рано',
     type: 'debug', rows: 6, cols: 8,
-    start: { r: 3, c: 1 }, apple: { r: 3, c: 6 }, obstacles: [],
-    allowedTiles: ['right', 'down'],
+    start: { r: 3, c: 0 }, apple: { r: 3, c: 7 },
+    obstacles: [
+      { r: 3, c: 2, kind: 'rock', label: 'Каміння' },
+      { r: 3, c: 3, kind: 'log', label: 'Колода' },
+      { r: 3, c: 4, kind: 'rock', label: 'Каміння' },
+      { r: 4, c: 2, kind: 'log', label: 'Колода' },
+      { r: 4, c: 5, kind: 'rock', label: 'Каміння' }
+    ],
+    allowedTiles: ['up', 'right', 'down', 'left-up', 'down-right', 'left-down'],
     presetArrows: {
-      '3,2': 'right',
-      '3,3': 'right',
-      '3,4': 'down',
-      '3,5': 'right'
+      '3,1': 'left-up',
+      '2,1': 'down-right',
+      '2,2': 'right',
+      '2,3': 'right',
+      '2,4': 'left-down',
+      '2,5': 'left-down',
+      '3,5': 'up-right',
+      '3,6': 'right'
     },
-    hint: 'Маршрут майже готовий, але одна команда зайва — вона відводить равлика не туди. Знайди її й видали.',
-    goal: 'Зрозуміти, що зайва команда в алгоритмі — теж помилка.'
+    hint: 'Маршрут майже готовий, але один поворот стоїть занадто рано і веде до перешкоди. Запусти, подивись на зупинку й заміни цю команду.',
+    goal: 'Навчитись бачити не лише неправильну стрілку, а й неправильне місце для правильної стрілки.'
   }),
   createLevel({
     id: 13,
     name: 'Два повороти підряд',
     type: 'play', rows: 6, cols: 8,
-    start: { r: 2, c: 1 }, apple: { r: 4, c: 6 }, obstacles: [],
-    allowedTiles: ['right', 'down', 'left-down', 'up-right'],
-    presetArrows: {},
-    hint: 'Тут знадобляться два повороти один за одним — спершу вниз, потім вправо. Знайди де їх поставити.',
-    goal: 'Навчитись ставити два повороти підряд без прямих стрілок між ними.'
-  }),
-  createLevel({
-    id: 14,
-    name: 'Загублена команда',
-    type: 'debug', rows: 6, cols: 8,
-    start: { r: 3, c: 1 }, apple: { r: 3, c: 6 }, obstacles: [],
-    allowedTiles: ['right'],
-    presetArrows: {
-      '3,2': 'right',
-      '3,3': 'right',
-      '3,5': 'right'
-    },
-    hint: 'Рівник зупиниться посеред шляху — там немає команди. Знайди порожнє місце і заповни його.',
-    goal: 'Зрозуміти, що алгоритм має бути повним — без жодного пропуску.'
-  }),
-  createLevel({
-    id: 15,
-    name: 'Довга дорога',
-    type: 'play', rows: 6, cols: 8,
-    start: { r: 0, c: 0 }, apple: { r: 5, c: 7 },
+    start: { r: 2, c: 1 }, apple: { r: 3, c: 6 },
     obstacles: [
-      { r: 2, c: 3, kind: 'rock', label: 'Каміння' },
-      { r: 3, c: 3, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 3, kind: 'rock', label: 'Каміння' }
+      { r: 2, c: 4, kind: 'rock', label: 'Каміння' },
+      { r: 2, c: 5, kind: 'log', label: 'Колода' },
+      { r: 3, c: 2, kind: 'rock', label: 'Каміння' },
+      { r: 4, c: 3, kind: 'log', label: 'Колода' }
     ],
     allowedTiles: ['right', 'down', 'left-down', 'up-right'],
     presetArrows: {},
-    hint: 'Шлях довгий — клади стрілки по одній і перевіряй кожен крок.',
-    goal: 'Навчитись терпляче будувати довгий маршрут крок за кроком.'
+    hint: 'Прямий шлях перекрито. Постав два повороти поруч: спочатку вправо → вниз, а одразу після нього вниз → вправо.',
+    goal: 'Навчитись читати два сусідні повороти як одну маленьку “сходинку” маршруту.'
+  }),
+  createLevel({
+    id: 14,
+    name: 'Загублена команда в обході',
+    type: 'debug', rows: 6, cols: 8,
+    start: { r: 4, c: 0 }, apple: { r: 1, c: 7 },
+    obstacles: [
+      { r: 4, c: 2, kind: 'rock', label: 'Каміння' },
+      { r: 4, c: 3, kind: 'log', label: 'Колода' },
+      { r: 3, c: 3, kind: 'rock', label: 'Каміння' },
+      { r: 3, c: 5, kind: 'log', label: 'Колода' },
+      { r: 4, c: 5, kind: 'rock', label: 'Каміння' }
+    ],
+    allowedTiles: ['up', 'right', 'left-up', 'down-right'],
+    presetArrows: {
+      '4,1': 'left-up',
+      '3,1': 'up',
+      '2,1': 'down-right',
+      '2,2': 'right',
+      '2,4': 'left-up',
+      '1,4': 'down-right',
+      '1,5': 'right',
+      '1,6': 'right'
+    },
+    hint: 'У готовому обході загубилася одна команда. Запусти маршрут і знайди порожню клітинку, де равлик зупиняється.',
+    goal: 'Навчитись знаходити пропуск у вже складеному маршруті, а не будувати все з нуля.'
+  }),
+  createLevel({
+    id: 15,
+    name: 'Довга дорога з пастками',
+    type: 'play', rows: 6, cols: 8,
+    start: { r: 3, c: 0 }, apple: { r: 5, c: 7 },
+    obstacles: [
+      { r: 3, c: 1, kind: 'rock', label: 'Каміння' },
+      { r: 3, c: 2, kind: 'log', label: 'Колода' },
+      { r: 4, c: 1, kind: 'rock', label: 'Каміння' },
+      { r: 5, c: 3, kind: 'log', label: 'Колода' },
+      { r: 3, c: 3, kind: 'rock', label: 'Каміння' },
+      { r: 3, c: 4, kind: 'log', label: 'Колода' }
+    ],
+    allowedTiles: ['down', 'right', 'down-right', 'up-right', 'left-up', 'left-down'],
+    presetArrows: {},
+    hint: 'Перешкоди стоять просто перед равликом, тому спершу треба обійти їх знизу, а потім повернутися до яблука.',
+    goal: 'Навчитись будувати довший маршрут з кількома поворотами, коли прямий шлях одразу заблокований.'
   }),
   createLevel({
     id: 16,
@@ -277,26 +309,44 @@ export const levels = [
   }),
   createLevel({
     id: 17,
-    name: 'Дві помилки',
+    name: 'Дві помилки на довгій дорозі',
     type: 'debug', rows: 6, cols: 8,
-    start: { r: 3, c: 1 }, apple: { r: 3, c: 6 }, obstacles: [],
-    allowedTiles: ['right', 'up', 'left'],
+    start: { r: 3, c: 0 }, apple: { r: 5, c: 7 },
+    obstacles: [
+      { r: 3, c: 1, kind: 'rock', label: 'Каміння' },
+      { r: 3, c: 2, kind: 'log', label: 'Колода' },
+      { r: 4, c: 1, kind: 'rock', label: 'Каміння' },
+      { r: 5, c: 3, kind: 'log', label: 'Колода' },
+      { r: 3, c: 3, kind: 'rock', label: 'Каміння' },
+      { r: 3, c: 4, kind: 'log', label: 'Колода' }
+    ],
+    allowedTiles: ['down', 'right', 'down-right', 'up-right', 'left-up', 'left-down'],
     presetArrows: {
-      '3,2': 'right',
-      '3,3': 'up',
-      '3,4': 'right',
-      '3,5': 'right',
-      '2,3': 'right'
+      '4,0': 'down',
+      '5,0': 'up-right',
+      '5,1': 'right',
+      '5,2': 'right',
+      '4,2': 'down-right',
+      '4,3': 'right',
+      '5,4': 'right',
+      '5,5': 'right',
+      '5,6': 'right'
     },
-    hint: 'Тут дві помилки, не одна. Виправ першу, запусти — і шукай другу.',
-    goal: 'Навчитись шукати помилки по черзі, перевіряючи маршрут крок за кроком.'
+    hint: 'Тут дві помилки. Виправ першу, запусти ще раз — і тільки тоді шукай другу.',
+    goal: 'Навчитись налагоджувати довший алгоритм поступово: одна перевірка — одна помилка.'
   }),
   createLevel({
     id: 18,
-    name: 'Переплутані повороти',
+    name: 'Переплутані сусідні повороти',
     type: 'debug', rows: 6, cols: 8,
-    start: { r: 2, c: 1 }, apple: { r: 4, c: 6 }, obstacles: [],
+    start: { r: 2, c: 1 }, apple: { r: 3, c: 6 },
     startFacing: 'right',
+    obstacles: [
+      { r: 2, c: 4, kind: 'rock', label: 'Каміння' },
+      { r: 2, c: 5, kind: 'log', label: 'Колода' },
+      { r: 3, c: 2, kind: 'rock', label: 'Каміння' },
+      { r: 4, c: 3, kind: 'log', label: 'Колода' }
+    ],
     allowedTiles: ['right', 'down', 'left-down', 'up-right'],
     presetArrows: {
       '2,2': 'right',
@@ -305,8 +355,8 @@ export const levels = [
       '3,4': 'right',
       '3,5': 'right'
     },
-    hint: 'Маршрут складений, але два повороти переплутані місцями. Запусти — і дивись де рівник зупинився.',
-    goal: 'Навчитись розрізняти схожі повороти і розуміти куди кожен веде.'
+    hint: 'Дві сусідні поворотні стрілки переплутали місцями. Подивись, з якого боку равлик заходить у кожен поворот, і поміняй їх.',
+    goal: 'Навчитись розрізняти повороти не за формою, а за входом і виходом.'
   }),
   createLevel({
     id: 19,
