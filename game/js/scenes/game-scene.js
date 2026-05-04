@@ -432,7 +432,8 @@ export class GameScene {
     collectNearbyApples() {
         for (let index = this.apples.length - 1; index >= 0; index -= 1) {
             const apple = this.apples[index];
-            const distance = Math.hypot(this.state.x - (apple.x + 14), this.state.y - (apple.y + 14));
+            const appleRadius = (apple.w ?? 28) / 2;
+            const distance = Math.hypot(this.state.x - (apple.x + appleRadius), this.state.y - (apple.y + appleRadius));
 
             if (!shouldCollectApple(distance, CONFIG.playerRadius)) {
                 continue;
@@ -506,7 +507,10 @@ export class GameScene {
     }
 
     findNearestApple() {
-        return pickNearestByDistance(this.apples, (apple) => Math.hypot(this.state.x - apple.x, this.state.y - apple.y));
+        return pickNearestByDistance(this.apples, (apple) => {
+            const appleRadius = (apple.w ?? 28) / 2;
+            return Math.hypot(this.state.x - (apple.x + appleRadius), this.state.y - (apple.y + appleRadius));
+        });
     }
 
     findNearestNpc() {

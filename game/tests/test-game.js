@@ -345,49 +345,57 @@ test('Input recognizes only explicit interactive game UI targets', () => {
 });
 
 test('TaskRegistry створює задачу на продовження послідовності', () => {
-    const task = TaskRegistry.createTask('logic.beginner', () => 0);
+    const entry = TaskCatalog.getTasks('logic.beginner').find((candidate) => candidate.type === 'sequence-next');
+    const task = TaskRegistry.createTaskFromEntry(entry);
     assert(task.type === 'sequence-next', 'Має створюватися задача sequence-next.');
     assert(task.choices.length >= 3, 'У sequence-next мають бути варіанти відповіді.');
 });
 
 test('TaskRegistry створює задачу на впорядкування чисел', () => {
-    const task = TaskRegistry.createTask('observation.beginner', () => 0.51);
+    const entry = TaskCatalog.getTasks('counting.beginner').find((candidate) => candidate.type === 'order-numbers');
+    const task = TaskRegistry.createTaskFromEntry(entry);
     assert(task.type === 'order-numbers', 'Має створюватися задача order-numbers.');
     assert(task.correctOrder.length === task.numbers.length, 'Порядок відповіді має відповідати кількості чисел.');
 });
 
 test('TaskRegistry створює задачу на порівняння множин', () => {
-    const task = TaskRegistry.createTask('observation.beginner', () => 0.2);
+    const entry = TaskCatalog.getTasks('visual-logic.beginner').find((candidate) => candidate.type === 'compare-sets');
+    const task = TaskRegistry.createTaskFromEntry(entry);
     assert(task.type === 'compare-sets', 'Має створюватися задача compare-sets.');
     assert(task.leftCount !== task.rightCount, 'У compare-sets групи мають відрізнятися.');
 });
 
 test('TaskRegistry створює задачу на лічбу', () => {
-    const task = TaskRegistry.createTask('observation.beginner', () => 0.34);
+    const entry = TaskCatalog.getTasks('counting.beginner').find((candidate) => candidate.type === 'count-and-match');
+    const task = TaskRegistry.createTaskFromEntry(entry);
     assert(task.type === 'count-and-match', 'Має створюватися задача count-and-match.');
     assert(task.correctChoiceId === `${task.count}`, 'Правильна відповідь має збігатися з кількістю предметів.');
 });
 
 test('TaskRegistry створює задачу на просте додавання', () => {
-    const task = TaskRegistry.createTask('logic.beginner', () => 0.34);
+    const entry = TaskCatalog.getTasks('arithmetic.beginner').find((candidate) => candidate.type === 'simple-addition');
+    const task = TaskRegistry.createTaskFromEntry(entry);
     assert(task.type === 'simple-addition', 'Має створюватися задача simple-addition.');
     assert(task.equation.includes('+'), 'У simple-addition має бути приклад на додавання.');
 });
 
 test('TaskRegistry створює задачу на візерунок з фігур', () => {
-    const task = TaskRegistry.createTask('observation.beginner', () => 0.9);
+    const entry = TaskCatalog.getTasks('patterns.beginner').find((candidate) => candidate.type === 'shape-pattern');
+    const task = TaskRegistry.createTaskFromEntry(entry);
     assert(task.type === 'shape-pattern', 'Має створюватися задача shape-pattern.');
     assert(task.series.length >= 4, 'У shape-pattern має бути ряд фігур.');
 });
 
 test('TaskRegistry створює задачу на віднімання', () => {
-    const task = TaskRegistry.createTask('logic.beginner', () => 0.82);
+    const entry = TaskCatalog.getTasks('arithmetic.beginner').find((candidate) => candidate.type === 'simple-subtraction');
+    const task = TaskRegistry.createTaskFromEntry(entry);
     assert(task.type === 'simple-subtraction', 'Має створюватися задача simple-subtraction.');
     assert(task.equation.includes('-'), 'У simple-subtraction має бути приклад на віднімання.');
 });
 
 test('TaskRegistry створює логічну пару', () => {
-    const task = TaskRegistry.createTask('logic.beginner', () => 0.95);
+    const entry = TaskCatalog.getTasks('visual-logic.beginner').find((candidate) => candidate.type === 'logic-pairs');
+    const task = TaskRegistry.createTaskFromEntry(entry);
     assert(task.type === 'logic-pairs', 'Має створюватися задача logic-pairs.');
     assert(task.pairLabel.includes('→'), 'У logic-pairs має бути опорна пара.');
 });
@@ -503,7 +511,7 @@ test('LevelData contains target NPC count with valid tasks and text keys', () =>
     const npcs = LevelData.level1.npcs;
     const ids = new Set(npcs.map((npc) => npc.id));
 
-    assert(npcs.length >= 20 && npcs.length <= 25, 'Level should contain 20-25 NPCs.');
+    assert(npcs.length >= 26 && npcs.length <= 30, 'Level should contain 26-30 NPCs.');
     assert(ids.size === npcs.length, 'NPC ids should be unique.');
 
     npcs.forEach((npc) => {

@@ -1,20 +1,32 @@
 export const logicPairsVariants = [
     {
-        id: 'winter-snow',
-        promptPair: 'зима → сніг',
-        choices: ['літо → ковзани', 'осінь → листя', 'ніч → сонце'],
-        correctChoiceId: 'осінь → листя'
+        id: 'baby-parent',
+        promptPair: '🐣 → 🐔',
+        choices: ['🐛 → 🦋', '🍎 → 🍐', '🌧️ → ⭐'],
+        correctChoiceId: '🐛 → 🦋'
     },
     {
-        id: 'bird-nest',
-        promptPair: 'пташка → гніздо',
-        choices: ['рибка → вода', 'бджола → велосипед', 'кіт → хмара'],
-        correctChoiceId: 'рибка → вода'
+        id: 'tool-use',
+        promptPair: '🔑 → 🚪',
+        choices: ['🖍️ → 📄', '🍄 → 🌧️', '⭐ → 🐌'],
+        correctChoiceId: '🖍️ → 📄'
     },
     {
-        id: 'book-read',
-        promptPair: 'книжка → читати',
-        choices: ['м’яч → грати', 'ложка → літати', 'черевики → плавати'],
-        correctChoiceId: 'м’яч → грати'
+        id: 'bee-flower',
+        promptPair: '🐝 → 🌼',
+        choices: ['🦋 → 🌼', '🍄 → ⭐', '🐌 → ☁️'],
+        correctChoiceId: '🦋 → 🌼'
+    },
+    {
+        id: 'dog-bone',
+        promptPair: '🐶 → 🦴',
+        choices: ['🐰 → 🥕', '🍎 → 🌙', '⭐ → 🐌'],
+        correctChoiceId: '🐰 → 🥕'
+    },
+    {
+        id: 'rain-umbrella',
+        promptPair: '🌧️ → ☂️',
+        choices: ['☀️ → 🕶️', '🍎 → 🪨', '🐝 → ❄️'],
+        correctChoiceId: '☀️ → 🕶️'
     }
 ];

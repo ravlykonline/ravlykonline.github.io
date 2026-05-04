@@ -31,7 +31,7 @@
 .task-answer-row {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2);
+    gap: var(--space-3);
 }
 
 .task-collection,
@@ -40,7 +40,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-2);
+    flex-wrap: wrap;
+    gap: var(--space-3);
 }
 
 .task-compare-layout {
@@ -80,7 +81,7 @@
 
 .task-magic-square {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 56px));
+    grid-template-columns: repeat(3, minmax(0, 72px));
     justify-content: center;
     gap: var(--space-2);
 }
@@ -94,7 +95,7 @@
     border-radius: var(--radius-md);
     border: 1px solid var(--color-border);
     background: var(--color-surface-raised);
-    font-size: var(--font-size-xl);
+    font-size: clamp(2rem, 1.4rem + 1.8vw, 2.8rem);
     font-weight: 700;
     box-shadow: inset 0 -2px 0 var(--color-shadow-soft);
 }
@@ -129,7 +130,7 @@
 
 .task-options-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(124px, 1fr));
     gap: var(--space-2);
 }
 
@@ -140,7 +141,7 @@
 .task-token,
 .task-option-btn,
 .task-secondary-btn {
-    min-height: 48px;
+    min-height: 60px;
     border-radius: var(--radius-md);
     border: 1px solid var(--color-border);
     font: inherit;
@@ -150,15 +151,15 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 48px;
+    min-width: 60px;
     padding: var(--space-2) var(--space-3);
     background: var(--color-surface-raised);
 }
 
 .task-token--display,
 .task-token--filled {
-    font-size: var(--font-size-lg);
-    font-weight: 700;
+    font-size: clamp(1.55rem, 1.15rem + 1.2vw, 2.25rem);
+    font-weight: 800;
 }
 
 .task-token--question,
@@ -169,20 +170,20 @@
 }
 
 .task-dot {
-    width: 0.85rem;
-    height: 0.85rem;
+    width: 1.18rem;
+    height: 1.18rem;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--color-primary), #2563eb);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary-soft) 75%, transparent), inset 0 -2px 2px var(--color-shadow-soft);
 }
 
 .task-equation {
-    min-height: 56px;
+    min-height: 68px;
     padding: var(--space-3);
     border-radius: var(--radius-lg);
     background: color-mix(in srgb, var(--color-primary-soft) 52%, var(--color-surface));
     border: 1px solid var(--color-border);
-    font-size: var(--font-size-2xl);
+    font-size: clamp(2rem, 1.4rem + 1.5vw, 2.8rem);
     font-weight: 700;
 }
 
@@ -193,6 +194,12 @@
     color: var(--color-text);
     cursor: pointer;
     transition: transform 0.2s, border-color 0.2s, background-color 0.2s;
+}
+
+.task-option-btn {
+    font-size: clamp(1.35rem, 1rem + 0.8vw, 1.9rem);
+    font-weight: 800;
+    line-height: 1.15;
 }
 
 .task-option-btn:hover,
@@ -210,8 +217,36 @@
 }
 
 .task-option-btn--symbol {
-    font-size: var(--font-size-xl);
+    font-size: clamp(2rem, 1.4rem + 1.8vw, 2.8rem);
     font-weight: 700;
+}
+
+
+.task-card--centered {
+    font-size: clamp(1.7rem, 1.25rem + 1.2vw, 2.5rem);
+}
+
+.task-card--centered .task-dots,
+.task-compare-card .task-dots {
+    max-width: 12rem;
+}
+
+.task-option-btn--symbol {
+    min-height: 72px;
+    font-size: clamp(2rem, 1.35rem + 2vw, 3rem);
+    line-height: 1.1;
+}
+
+.task-option-btn--word {
+    font-size: clamp(1.45rem, 1.05rem + 1vw, 2.1rem);
+    line-height: 1.2;
+}
+
+.task-token--display,
+.task-token--filled,
+.task-token--question,
+.task-token--slot {
+    line-height: 1.1;
 }
 
 @keyframes missingCellPulse {
@@ -251,5 +286,13 @@
 @media (max-width: 480px) {
     .task-compare-layout {
         grid-template-columns: 1fr;
+    }
+
+    .task-magic-square {
+        grid-template-columns: repeat(3, minmax(0, 64px));
+    }
+
+    .task-options-grid {
+        grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
     }
 }

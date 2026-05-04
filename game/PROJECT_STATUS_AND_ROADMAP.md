@@ -1,10 +1,10 @@
 # Поточний стан проєкту «Равлик-мандрівник»
 
-> Оновлено: 2026-05-02
+> Оновлено: 2026-05-04
 
 ## Продуктове бачення
 
-Проєкт розвивається як сесійна дослідницька гра-бродилка для дітей 5-7 років. Дитина керує Равликом, досліджує територію, збирає яблука й зустрічає звірів, які дають короткі візуальні завдання.
+Проєкт розвивається як сесійна дослідницька гра-бродилка для дітей 5–7 років. Дитина керує Равликом, досліджує територію, збирає яблука й зустрічає звірів, які дають короткі візуальні завдання.
 
 Головна ігрова петля:
 
@@ -27,7 +27,7 @@
 
 ## Призначення
 
-Проєкт розвивається як урокова сесійна гра для дітей 1–2 класу. На одному комп'ютері можуть грати різні діти, тому після перезавантаження сторінки або повторного відкриття браузера має стартувати нова гра без відновлення попереднього проходження.
+Проєкт розвивається як урокова сесійна гра для дітей 5–7 років. На одному комп'ютері можуть грати різні діти, тому після перезавантаження сторінки або повторного відкриття браузера має стартувати нова гра без відновлення попереднього проходження.
 
 ## Що вже є зараз
 
@@ -35,8 +35,8 @@
 
 - Код розбитий на модулі замість одного великого `script.js`.
 - Є окремі шари для сцен, систем, базових утиліт, i18n, UI-контролерів і PWA.
-- Точка входу: [js/main.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/main.js)
-- Bootstrap застосунку: [js/app/bootstrap.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/app/bootstrap.js)
+- Точка входу: [js/main.js](js/main.js)
+- Bootstrap застосунку: [js/app/bootstrap.js](js/app/bootstrap.js)
 
 ### Гра
 
@@ -56,7 +56,7 @@
 
 ### HUD та UI
 
-- HUD винесений у керований шар через [js/ui/hud-controller.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/ui/hud-controller.js).
+- HUD винесений у керований шар через [js/ui/hud-controller.js](js/ui/hud-controller.js).
 - У HUD уже є:
 - статистика яблук і зірочок;
 - окремий сесійний статус;
@@ -65,6 +65,7 @@
 - перемикач читабельного шрифту;
 - перемикач світлої/темної теми.
 - У задачах скорочено текст і додано візуальні акценти: підсвічені порожні клітинки, кольорові групи та помітну зону відповіді.
+- Після тестування з дітьми збільшено візуальні елементи задач: емодзі, фігури, клітинки магічного квадрата, кнопки-відповіді та крапки для лічби.
 
 ### Доступність
 
@@ -92,28 +93,28 @@
 - Після reload або нового відкриття браузера стартує нова гра.
 - Це не вважається втратою прогресу і не повинно "виправлятися" автозбереженням без окремої teacher-facing вимоги.
 - Розробка ведеться саме в межах папки `game`: це окрема гра-бродилка, не AST/parser/runtime середовище з кореня репозиторію.
-- Основна цільова аудиторія — діти 5-7 років, тому нові UX-рішення мають зменшувати текст і підтримувати гру через візуальні об'єкти.
+- Основна цільова аудиторія — діти 5–7 років, тому нові UX-рішення мають зменшувати текст і підтримувати гру через візуальні об'єкти.
 - Дитина має мати право не виконати завдання: діалог зі звіром можна закрити без покарання й продовжити дослідження.
-- Довгострокова ціль світу — приблизно 20-25 звірів, рівномірно розкиданих по полі й доступних для взаємодії.
+- Поточна ціль світу після тестування з дітьми — приблизно 26–30 звірів; зараз у `level1` є 28 звірів, 42 яблука й 88 перешкод, рівномірно розкиданих по полі й доступних для взаємодії.
 - Рішення в UI і логіці мають мінімізувати технічний борг через окремі контролери, токени та модулі.
 - Усе нове бажано додавати через окремі модулі, а не через розростання `GameScene`.
 
 ## Найважливіші технічні опори на зараз
 
-- [js/scenes/game-scene.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/scenes/game-scene.js): поточна логіка ігрової сцени
-- [js/game/task-picker.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/game/task-picker.js): вибір випадкового завдання для NPC
-- [js/game/level-data.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/game/level-data.js): дані рівня та NPC
-- [js/tasks/task-catalog.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/tasks/task-catalog.js): реєстр JSON-категорій задач
-- [js/tasks/task-registry.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/tasks/task-registry.js): створення структурованих задач із catalog entries
-- [js/tasks/task-ui-helpers.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/tasks/task-ui-helpers.js): спільні UI-будівельники для puzzle-компонентів
-- [js/tasks/task-data/categories](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/tasks/task-data/categories): JSON-категорії задач
-- [js/tasks/task-types](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/tasks/task-types): окремі модулі типів головоломок
-- [js/scenes/dialog-scene.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/scenes/dialog-scene.js): універсальний puzzle dialog для NPC
-- [js/ui/hud-controller.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/ui/hud-controller.js): стан HUD
-- [js/ui/theme-mode.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/ui/theme-mode.js): керування темою
-- [js/ui/font-mode.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/ui/font-mode.js): керування шрифтом
-- [js/ui/reward-effects.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/js/ui/reward-effects.js): короткі звуки, зірка й конфетті після успіху
-- [tests/test-game.js](C:/Users/artem/Documents/GitHub/ravlykonline.github.io/game/tests/test-game.js): критичні unit-style тести
+- [js/scenes/game-scene.js](js/scenes/game-scene.js): поточна логіка ігрової сцени
+- [js/game/task-picker.js](js/game/task-picker.js): вибір випадкового завдання для NPC
+- [js/game/level-data.js](js/game/level-data.js): дані рівня та NPC
+- [js/tasks/task-catalog.js](js/tasks/task-catalog.js): реєстр JSON-категорій задач
+- [js/tasks/task-registry.js](js/tasks/task-registry.js): створення структурованих задач із catalog entries
+- [js/tasks/task-ui-helpers.js](js/tasks/task-ui-helpers.js): спільні UI-будівельники для puzzle-компонентів
+- [js/tasks/task-data/categories](js/tasks/task-data/categories): JSON-категорії задач
+- [js/tasks/task-types](js/tasks/task-types): окремі модулі типів головоломок
+- [js/scenes/dialog-scene.js](js/scenes/dialog-scene.js): універсальний puzzle dialog для NPC
+- [js/ui/hud-controller.js](js/ui/hud-controller.js): стан HUD
+- [js/ui/theme-mode.js](js/ui/theme-mode.js): керування темою
+- [js/ui/font-mode.js](js/ui/font-mode.js): керування шрифтом
+- [js/ui/reward-effects.js](js/ui/reward-effects.js): короткі звуки, зірка й конфетті після успіху
+- [tests/test-game.js](tests/test-game.js): критичні unit-style тести
 
 ## План розвитку
 
@@ -122,7 +123,7 @@
 Найближчий розвиток має підтримати гру як легку бродилку:
 
 - тримати HUD мінімальним: яблука, зірки, короткий контекст;
-- розвивати задачі як короткі візуальні взаємодії для дітей 5-7 років;
+- розвивати задачі як короткі візуальні взаємодії для дітей 5–7 років;
 - не перетворювати гру на тестову платформу з довгими текстами.
 
 ### 1. Що вже закладено як фундамент
@@ -173,7 +174,7 @@
 }
 ```
 
-Можливі наступні типи задач для віку 5-7 років:
+Можливі наступні типи задач для віку 5–7 років:
 
 - `visual-groups`
 - `missing-item`

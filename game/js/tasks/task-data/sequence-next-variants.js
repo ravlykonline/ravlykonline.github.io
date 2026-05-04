@@ -7,14 +7,26 @@ export const sequenceNextVariants = [
     },
     {
         id: 'shapes-repeat',
-        series: ['△', '○', '△', '○'],
-        choices: ['△', '□', '○'],
-        correctChoiceId: '△'
+        series: ['▲', '●', '▲', '●'],
+        choices: ['▲', '■', '●'],
+        correctChoiceId: '▲'
     },
     {
         id: 'plants-repeat',
         series: ['🌱', '🌿', '🌱', '🌿'],
         choices: ['🌿', '🌱', '🌳'],
         correctChoiceId: '🌱'
+    },
+    {
+        id: 'day-night',
+        series: ['☀️', '🌙', '☀️', '🌙'],
+        choices: ['☀️', '⭐', '🌙'],
+        correctChoiceId: '☀️'
+    },
+    {
+        id: 'fruits-repeat',
+        series: ['🍎', '🍐', '🍎', '🍐'],
+        choices: ['🍐', '🍎', '🍇'],
+        correctChoiceId: '🍎'
     }
 ];

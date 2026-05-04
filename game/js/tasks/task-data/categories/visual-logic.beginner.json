@@ -2,18 +2,451 @@
   "id": "visual-logic.beginner",
   "title": "Візуальна логіка",
   "tasks": [
-    { "id": "odd-one-out-forest-food", "type": "odd-one-out", "variant": { "items": [{ "id": "apple-1", "label": "🍎" }, { "id": "apple-2", "label": "🍎" }, { "id": "mushroom", "label": "🍄" }, { "id": "apple-3", "label": "🍎" }], "correctChoiceId": "mushroom" } },
-    { "id": "odd-one-out-shapes", "type": "odd-one-out", "variant": { "items": [{ "id": "circle-1", "label": "○" }, { "id": "circle-2", "label": "○" }, { "id": "square", "label": "□" }, { "id": "circle-3", "label": "○" }], "correctChoiceId": "square" } },
-    { "id": "odd-one-out-animals", "type": "odd-one-out", "variant": { "items": [{ "id": "snail-1", "label": "🐌" }, { "id": "snail-2", "label": "🐌" }, { "id": "rabbit", "label": "🐰" }, { "id": "snail-3", "label": "🐌" }], "correctChoiceId": "rabbit" } },
-    { "id": "compare-sets-more-left", "type": "compare-sets", "variant": { "mode": "more", "leftCount": 5, "rightCount": 4, "correctChoiceId": "left" } },
-    { "id": "compare-sets-more-right", "type": "compare-sets", "variant": { "mode": "more", "leftCount": 4, "rightCount": 5, "correctChoiceId": "right" } },
-    { "id": "compare-sets-less-left", "type": "compare-sets", "variant": { "mode": "less", "leftCount": 3, "rightCount": 4, "correctChoiceId": "left" } },
-    { "id": "logic-pairs-baby-parent", "type": "logic-pairs", "variant": { "promptPair": "🐣 → 🐔", "choices": ["🐛 → 🦋", "🍎 → 🍐", "🌧️ → ⭐"], "correctChoiceId": "🐛 → 🦋" } },
-    { "id": "logic-pairs-tool-use", "type": "logic-pairs", "variant": { "promptPair": "🔑 → 🚪", "choices": ["🖍️ → 📄", "🍄 → 🌧️", "⭐ → 🐌"], "correctChoiceId": "🖍️ → 📄" } },
-    { "id": "logic-pairs-home", "type": "logic-pairs", "variant": { "promptPair": "🐝 → 🐝🏠", "choices": ["🐦 → 🪺", "🍎 → 🧺", "🌿 → 🪨"], "correctChoiceId": "🐦 → 🪺" } },
-    { "id": "compare-sets-more-flowers", "type": "compare-sets", "variant": { "mode": "more", "leftCount": 7, "rightCount": 5, "correctChoiceId": "left" } },
-    { "id": "compare-sets-less-flowers", "type": "compare-sets", "variant": { "mode": "less", "leftCount": 4, "rightCount": 6, "correctChoiceId": "left" } },
-    { "id": "magic-square-emoji-animals", "type": "magic-square", "variant": { "grid": ["🐌", "🐝", "🦋", "🐝", "🦋", "🐌", "🦋", null, "🐝"], "choices": [{ "id": "snail", "label": "🐌" }, { "id": "bee", "label": "🐝" }, { "id": "butterfly", "label": "🦋" }], "correctChoiceId": "snail" } },
-    { "id": "magic-square-shapes-corners", "type": "magic-square", "variant": { "grid": ["■", "▲", "●", "▲", "●", "■", "●", null, "▲"], "choices": [{ "id": "square", "label": "■" }, { "id": "triangle", "label": "▲" }, { "id": "circle", "label": "●" }], "correctChoiceId": "square" } }
+    {
+      "id": "odd-one-out-forest-food",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          {
+            "id": "apple-1",
+            "label": "🍎"
+          },
+          {
+            "id": "apple-2",
+            "label": "🍎"
+          },
+          {
+            "id": "mushroom",
+            "label": "🍄"
+          },
+          {
+            "id": "apple-3",
+            "label": "🍎"
+          }
+        ],
+        "correctChoiceId": "mushroom"
+      }
+    },
+    {
+      "id": "odd-one-out-shapes",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          {
+            "id": "circle-1",
+            "label": "○"
+          },
+          {
+            "id": "circle-2",
+            "label": "○"
+          },
+          {
+            "id": "square",
+            "label": "□"
+          },
+          {
+            "id": "circle-3",
+            "label": "○"
+          }
+        ],
+        "correctChoiceId": "square"
+      }
+    },
+    {
+      "id": "odd-one-out-animals",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          {
+            "id": "snail-1",
+            "label": "🐌"
+          },
+          {
+            "id": "snail-2",
+            "label": "🐌"
+          },
+          {
+            "id": "rabbit",
+            "label": "🐰"
+          },
+          {
+            "id": "snail-3",
+            "label": "🐌"
+          }
+        ],
+        "correctChoiceId": "rabbit"
+      }
+    },
+    {
+      "id": "compare-sets-more-left",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "more",
+        "leftCount": 5,
+        "rightCount": 4,
+        "correctChoiceId": "left"
+      }
+    },
+    {
+      "id": "compare-sets-more-right",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "more",
+        "leftCount": 4,
+        "rightCount": 5,
+        "correctChoiceId": "right"
+      }
+    },
+    {
+      "id": "compare-sets-less-left",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "less",
+        "leftCount": 3,
+        "rightCount": 4,
+        "correctChoiceId": "left"
+      }
+    },
+    {
+      "id": "logic-pairs-baby-parent",
+      "type": "logic-pairs",
+      "variant": {
+        "promptPair": "🐣 → 🐔",
+        "choices": [
+          "🐛 → 🦋",
+          "🍎 → 🍐",
+          "🌧️ → ⭐"
+        ],
+        "correctChoiceId": "🐛 → 🦋"
+      }
+    },
+    {
+      "id": "logic-pairs-tool-use",
+      "type": "logic-pairs",
+      "variant": {
+        "promptPair": "🔑 → 🚪",
+        "choices": [
+          "🖍️ → 📄",
+          "🍄 → 🌧️",
+          "⭐ → 🐌"
+        ],
+        "correctChoiceId": "🖍️ → 📄"
+      }
+    },
+    {
+      "id": "logic-pairs-home",
+      "type": "logic-pairs",
+      "variant": {
+        "promptPair": "🐝 → 🐝🏠",
+        "choices": [
+          "🐦 → 🪺",
+          "🍎 → 🧺",
+          "🌿 → 🪨"
+        ],
+        "correctChoiceId": "🐦 → 🪺"
+      }
+    },
+    {
+      "id": "compare-sets-more-flowers",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "more",
+        "leftCount": 7,
+        "rightCount": 5,
+        "correctChoiceId": "left"
+      }
+    },
+    {
+      "id": "compare-sets-less-flowers",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "less",
+        "leftCount": 4,
+        "rightCount": 6,
+        "correctChoiceId": "left"
+      }
+    },
+    {
+      "id": "magic-square-emoji-animals",
+      "type": "magic-square",
+      "variant": {
+        "grid": [
+          "🐌",
+          "🐝",
+          "🦋",
+          "🐝",
+          "🦋",
+          "🐌",
+          "🦋",
+          null,
+          "🐝"
+        ],
+        "choices": [
+          {
+            "id": "snail",
+            "label": "🐌"
+          },
+          {
+            "id": "bee",
+            "label": "🐝"
+          },
+          {
+            "id": "butterfly",
+            "label": "🦋"
+          }
+        ],
+        "correctChoiceId": "snail"
+      }
+    },
+    {
+      "id": "magic-square-shapes-corners",
+      "type": "magic-square",
+      "variant": {
+        "grid": [
+          "■",
+          "▲",
+          "●",
+          "▲",
+          "●",
+          "■",
+          "●",
+          null,
+          "▲"
+        ],
+        "choices": [
+          {
+            "id": "square",
+            "label": "■"
+          },
+          {
+            "id": "triangle",
+            "label": "▲"
+          },
+          {
+            "id": "circle",
+            "label": "●"
+          }
+        ],
+        "correctChoiceId": "square"
+      }
+    },
+    {
+      "id": "odd-one-out-birds-butterfly",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          {
+            "id": "bird-1",
+            "label": "🐦"
+          },
+          {
+            "id": "bird-2",
+            "label": "🐦"
+          },
+          {
+            "id": "butterfly",
+            "label": "🦋"
+          },
+          {
+            "id": "bird-3",
+            "label": "🐦"
+          }
+        ],
+        "correctChoiceId": "butterfly"
+      }
+    },
+    {
+      "id": "odd-one-out-leaves-acorn",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          {
+            "id": "leaf-1",
+            "label": "🍃"
+          },
+          {
+            "id": "leaf-2",
+            "label": "🍃"
+          },
+          {
+            "id": "acorn",
+            "label": "🌰"
+          },
+          {
+            "id": "leaf-3",
+            "label": "🍃"
+          }
+        ],
+        "correctChoiceId": "acorn"
+      }
+    },
+    {
+      "id": "odd-one-out-stars-heart",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          {
+            "id": "star-1",
+            "label": "⭐"
+          },
+          {
+            "id": "star-2",
+            "label": "⭐"
+          },
+          {
+            "id": "heart",
+            "label": "❤️"
+          },
+          {
+            "id": "star-3",
+            "label": "⭐"
+          }
+        ],
+        "correctChoiceId": "heart"
+      }
+    },
+    {
+      "id": "compare-sets-more-8-6",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "more",
+        "leftCount": 8,
+        "rightCount": 6,
+        "correctChoiceId": "left"
+      }
+    },
+    {
+      "id": "compare-sets-more-6-8",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "more",
+        "leftCount": 6,
+        "rightCount": 8,
+        "correctChoiceId": "right"
+      }
+    },
+    {
+      "id": "compare-sets-less-5-7",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "less",
+        "leftCount": 5,
+        "rightCount": 7,
+        "correctChoiceId": "left"
+      }
+    },
+    {
+      "id": "compare-sets-less-7-5",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "less",
+        "leftCount": 7,
+        "rightCount": 5,
+        "correctChoiceId": "right"
+      }
+    },
+    {
+      "id": "logic-pairs-bee-flower",
+      "type": "logic-pairs",
+      "variant": {
+        "promptPair": "🐝 → 🌼",
+        "choices": [
+          "🦋 → 🌼",
+          "🍄 → ⭐",
+          "🐌 → ☁️"
+        ],
+        "correctChoiceId": "🦋 → 🌼"
+      }
+    },
+    {
+      "id": "logic-pairs-dog-bone",
+      "type": "logic-pairs",
+      "variant": {
+        "promptPair": "🐶 → 🦴",
+        "choices": [
+          "🐰 → 🥕",
+          "🍎 → 🌙",
+          "⭐ → 🐌"
+        ],
+        "correctChoiceId": "🐰 → 🥕"
+      }
+    },
+    {
+      "id": "logic-pairs-rain-umbrella",
+      "type": "logic-pairs",
+      "variant": {
+        "promptPair": "🌧️ → ☂️",
+        "choices": [
+          "☀️ → 🕶️",
+          "🍎 → 🪨",
+          "🐝 → ❄️"
+        ],
+        "correctChoiceId": "☀️ → 🕶️"
+      }
+    },
+    {
+      "id": "magic-square-emoji-garden",
+      "type": "magic-square",
+      "variant": {
+        "grid": [
+          "🌼",
+          "🍄",
+          "🍃",
+          "🍄",
+          "🍃",
+          "🌼",
+          "🍃",
+          null,
+          "🍄"
+        ],
+        "choices": [
+          {
+            "id": "flower",
+            "label": "🌼"
+          },
+          {
+            "id": "mushroom",
+            "label": "🍄"
+          },
+          {
+            "id": "leaf",
+            "label": "🍃"
+          }
+        ],
+        "correctChoiceId": "flower"
+      }
+    },
+    {
+      "id": "magic-square-emoji-sky",
+      "type": "magic-square",
+      "variant": {
+        "grid": [
+          "☁️",
+          "⭐",
+          "🌙",
+          "⭐",
+          "🌙",
+          "☁️",
+          "🌙",
+          null,
+          "⭐"
+        ],
+        "choices": [
+          {
+            "id": "cloud",
+            "label": "☁️"
+          },
+          {
+            "id": "star",
+            "label": "⭐"
+          },
+          {
+            "id": "moon",
+            "label": "🌙"
+          }
+        ],
+        "correctChoiceId": "cloud"
+      }
+    }
   ]
 }

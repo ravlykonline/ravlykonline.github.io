@@ -94,14 +94,20 @@ export const uk = {
         raccoonIcon: '🦝',
         birdIcon: '🐦',
         butterflyIcon: '🦋',
-        moleIcon: 'К',
+        moleIcon: '🕳️',
         snailFriendIcon: '🐌',
         ladybugIcon: '🐞',
         beeIcon: '🐝',
         catIcon: '🐱',
         dogIcon: '🐶',
         goatIcon: '🐐',
-        duckIcon: '🦆'
+        duckIcon: '🦆',
+        hamsterIcon: '🐹',
+        bearCubIcon: '🐻',
+        otterIcon: '🦦',
+        chickenIcon: '🐔',
+        lambIcon: '🐑',
+        antIcon: '🐜'
     },
     directions: {
         right: 'праворуч',
@@ -135,7 +141,13 @@ export const uk = {
         catName: 'Котик',
         dogName: 'Песик',
         goatName: 'Кізочка',
-        duckName: 'Качечка'
+        duckName: 'Качечка',
+        hamsterName: 'Хом’ячок',
+        bearCubName: 'Ведмежа',
+        otterName: 'Видра',
+        chickenName: 'Курочка',
+        lambName: 'Ягнятко',
+        antName: 'Мурашка'
     },
     tasks: {
         m1_p1: 'Привіт! Я Мишка. Завдання: знайди, де більше кружечків — ліворуч чи праворуч?',
@@ -165,7 +177,7 @@ export const uk = {
         logicPairsPrompt: 'Знайди правильну пару',
         logicPairsInstructions: 'Знайди таку саму пару.',
         magicSquarePrompt: 'Заповни чарівний квадрат',
-        magicSquareInstructions: 'Що сховалось у ?',
+        magicSquareInstructions: 'Що сховалось?',
         orderAscPrompt: 'Від меншого до більшого',
         orderAscInstructions: 'Натискай по черзі.',
         orderDescPrompt: 'Від більшого до меншого',

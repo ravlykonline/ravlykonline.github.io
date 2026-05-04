@@ -398,7 +398,7 @@ body[data-font-mode="readable"] {
     border-radius: var(--radius-lg);
     padding: var(--space-5);
     width: 100%;
-    max-width: 500px;
+    max-width: 560px;
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: var(--shadow-3);
@@ -417,13 +417,13 @@ body[data-font-mode="readable"] {
 .dialog-text {
     font-size: var(--font-size-lg);
     margin-bottom: var(--space-3);
-    line-height: 1.6;
+    line-height: 1.45;
     color: var(--color-text);
 }
 
 .dialog-content {
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-4);
     margin-bottom: var(--space-3);
 }
 

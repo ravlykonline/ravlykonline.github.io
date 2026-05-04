@@ -19,5 +19,12 @@ export const compareSetsVariants = [
         rightCount: 4,
         mode: 'more',
         correctChoiceId: 'left'
+    },
+    {
+        id: 'flowers-less',
+        leftCount: 5,
+        rightCount: 8,
+        mode: 'less',
+        correctChoiceId: 'left'
     }
 ];

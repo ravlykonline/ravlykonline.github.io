@@ -41,7 +41,7 @@ export const ShapePatternTask = {
         questionChip.textContent = '?';
         series.appendChild(questionChip);
 
-        const choices = createChoiceGrid(task, onSolved, setStatus);
+        const choices = createChoiceGrid(task, onSolved, setStatus, '', 'task-option-btn--symbol');
         container.append(intro, series, choices);
     }
 };

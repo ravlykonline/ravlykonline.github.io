@@ -2,15 +2,413 @@
   "id": "patterns.beginner",
   "title": "Візерунки",
   "tasks": [
-    { "id": "sequence-next-numbers-even", "type": "sequence-next", "variant": { "series": ["2", "4", "6"], "choices": ["8", "7", "5"], "correctChoiceId": "8" } },
-    { "id": "sequence-next-shapes-repeat", "type": "sequence-next", "variant": { "series": ["△", "○", "△", "○"], "choices": ["△", "□", "○"], "correctChoiceId": "△" } },
-    { "id": "sequence-next-plants-repeat", "type": "sequence-next", "variant": { "series": ["🌱", "🌿", "🌱", "🌿"], "choices": ["🌿", "🌱", "🌳"], "correctChoiceId": "🌱" } },
-    { "id": "shape-pattern-color-loop", "type": "shape-pattern", "variant": { "series": ["🔴", "🔵", "🔴", "🔵"], "choices": ["🔴", "🟡", "🔵"], "correctChoiceId": "🔴" } },
-    { "id": "shape-pattern-three-step", "type": "shape-pattern", "variant": { "series": ["▲", "■", "●", "▲", "■"], "choices": ["●", "▲", "■"], "correctChoiceId": "●" } },
-    { "id": "shape-pattern-size", "type": "shape-pattern", "variant": { "series": ["●", "⬤", "●", "⬤"], "choices": ["●", "◆", "⬤"], "correctChoiceId": "●" } },
-    { "id": "magic-square-shapes-diagonal", "type": "magic-square", "variant": { "grid": ["▲", "●", "■", "●", null, "▲", "■", "▲", "●"], "choices": [{ "id": "square", "label": "■" }, { "id": "circle", "label": "●" }, { "id": "triangle", "label": "▲" }], "correctChoiceId": "square" } },
-    { "id": "magic-square-shapes-row-shift", "type": "magic-square", "variant": { "grid": ["◆", "●", "▲", "●", "▲", "◆", "▲", null, "●"], "choices": [{ "id": "diamond", "label": "◆" }, { "id": "circle", "label": "●" }, { "id": "triangle", "label": "▲" }], "correctChoiceId": "diamond" } },
-    { "id": "magic-square-emoji-fruits", "type": "magic-square", "variant": { "grid": ["🍎", "🍐", "🍇", "🍐", "🍇", "🍎", "🍇", null, "🍐"], "choices": [{ "id": "apple", "label": "🍎" }, { "id": "pear", "label": "🍐" }, { "id": "grapes", "label": "🍇" }], "correctChoiceId": "apple" } },
-    { "id": "magic-square-emoji-weather", "type": "magic-square", "variant": { "grid": ["☀️", "🌧️", "⭐", "🌧️", null, "☀️", "⭐", "☀️", "🌧️"], "choices": [{ "id": "sun", "label": "☀️" }, { "id": "rain", "label": "🌧️" }, { "id": "star", "label": "⭐" }], "correctChoiceId": "star" } }
+    {
+      "id": "sequence-next-numbers-even",
+      "type": "sequence-next",
+      "variant": {
+        "series": [
+          "2",
+          "4",
+          "6"
+        ],
+        "choices": [
+          "8",
+          "7",
+          "5"
+        ],
+        "correctChoiceId": "8"
+      }
+    },
+    {
+      "id": "sequence-next-shapes-repeat",
+      "type": "sequence-next",
+      "variant": {
+        "series": [
+          "△",
+          "○",
+          "△",
+          "○"
+        ],
+        "choices": [
+          "△",
+          "□",
+          "○"
+        ],
+        "correctChoiceId": "△"
+      }
+    },
+    {
+      "id": "sequence-next-plants-repeat",
+      "type": "sequence-next",
+      "variant": {
+        "series": [
+          "🌱",
+          "🌿",
+          "🌱",
+          "🌿"
+        ],
+        "choices": [
+          "🌿",
+          "🌱",
+          "🌳"
+        ],
+        "correctChoiceId": "🌱"
+      }
+    },
+    {
+      "id": "shape-pattern-color-loop",
+      "type": "shape-pattern",
+      "variant": {
+        "series": [
+          "🔴",
+          "🔵",
+          "🔴",
+          "🔵"
+        ],
+        "choices": [
+          "🔴",
+          "🟡",
+          "🔵"
+        ],
+        "correctChoiceId": "🔴"
+      }
+    },
+    {
+      "id": "shape-pattern-three-step",
+      "type": "shape-pattern",
+      "variant": {
+        "series": [
+          "▲",
+          "■",
+          "●",
+          "▲",
+          "■"
+        ],
+        "choices": [
+          "●",
+          "▲",
+          "■"
+        ],
+        "correctChoiceId": "●"
+      }
+    },
+    {
+      "id": "shape-pattern-size",
+      "type": "shape-pattern",
+      "variant": {
+        "series": [
+          "●",
+          "⬤",
+          "●",
+          "⬤"
+        ],
+        "choices": [
+          "●",
+          "◆",
+          "⬤"
+        ],
+        "correctChoiceId": "●"
+      }
+    },
+    {
+      "id": "magic-square-shapes-diagonal",
+      "type": "magic-square",
+      "variant": {
+        "grid": [
+          "▲",
+          "●",
+          "■",
+          "●",
+          null,
+          "▲",
+          "■",
+          "▲",
+          "●"
+        ],
+        "choices": [
+          {
+            "id": "square",
+            "label": "■"
+          },
+          {
+            "id": "circle",
+            "label": "●"
+          },
+          {
+            "id": "triangle",
+            "label": "▲"
+          }
+        ],
+        "correctChoiceId": "square"
+      }
+    },
+    {
+      "id": "magic-square-shapes-row-shift",
+      "type": "magic-square",
+      "variant": {
+        "grid": [
+          "◆",
+          "●",
+          "▲",
+          "●",
+          "▲",
+          "◆",
+          "▲",
+          null,
+          "●"
+        ],
+        "choices": [
+          {
+            "id": "diamond",
+            "label": "◆"
+          },
+          {
+            "id": "circle",
+            "label": "●"
+          },
+          {
+            "id": "triangle",
+            "label": "▲"
+          }
+        ],
+        "correctChoiceId": "diamond"
+      }
+    },
+    {
+      "id": "magic-square-emoji-fruits",
+      "type": "magic-square",
+      "variant": {
+        "grid": [
+          "🍎",
+          "🍐",
+          "🍇",
+          "🍐",
+          "🍇",
+          "🍎",
+          "🍇",
+          null,
+          "🍐"
+        ],
+        "choices": [
+          {
+            "id": "apple",
+            "label": "🍎"
+          },
+          {
+            "id": "pear",
+            "label": "🍐"
+          },
+          {
+            "id": "grapes",
+            "label": "🍇"
+          }
+        ],
+        "correctChoiceId": "apple"
+      }
+    },
+    {
+      "id": "magic-square-emoji-weather",
+      "type": "magic-square",
+      "variant": {
+        "grid": [
+          "☀️",
+          "🌧️",
+          "⭐",
+          "🌧️",
+          null,
+          "☀️",
+          "⭐",
+          "☀️",
+          "🌧️"
+        ],
+        "choices": [
+          {
+            "id": "sun",
+            "label": "☀️"
+          },
+          {
+            "id": "rain",
+            "label": "🌧️"
+          },
+          {
+            "id": "star",
+            "label": "⭐"
+          }
+        ],
+        "correctChoiceId": "star"
+      }
+    },
+    {
+      "id": "sequence-next-day-night",
+      "type": "sequence-next",
+      "variant": {
+        "series": [
+          "☀️",
+          "🌙",
+          "☀️",
+          "🌙"
+        ],
+        "choices": [
+          "☀️",
+          "⭐",
+          "🌙"
+        ],
+        "correctChoiceId": "☀️"
+      }
+    },
+    {
+      "id": "sequence-next-fruits-repeat",
+      "type": "sequence-next",
+      "variant": {
+        "series": [
+          "🍎",
+          "🍐",
+          "🍎",
+          "🍐"
+        ],
+        "choices": [
+          "🍐",
+          "🍎",
+          "🍇"
+        ],
+        "correctChoiceId": "🍎"
+      }
+    },
+    {
+      "id": "sequence-next-shapes-ab",
+      "type": "sequence-next",
+      "variant": {
+        "series": [
+          "■",
+          "▲",
+          "■",
+          "▲"
+        ],
+        "choices": [
+          "■",
+          "●",
+          "▲"
+        ],
+        "correctChoiceId": "■"
+      }
+    },
+    {
+      "id": "shape-pattern-flower-leaf",
+      "type": "shape-pattern",
+      "variant": {
+        "series": [
+          "🌼",
+          "🍃",
+          "🌼",
+          "🍃"
+        ],
+        "choices": [
+          "🌼",
+          "🍄",
+          "🍃"
+        ],
+        "correctChoiceId": "🌼"
+      }
+    },
+    {
+      "id": "shape-pattern-star-moon",
+      "type": "shape-pattern",
+      "variant": {
+        "series": [
+          "⭐",
+          "🌙",
+          "⭐",
+          "🌙"
+        ],
+        "choices": [
+          "☁️",
+          "⭐",
+          "🌙"
+        ],
+        "correctChoiceId": "⭐"
+      }
+    },
+    {
+      "id": "shape-pattern-triangle-circle",
+      "type": "shape-pattern",
+      "variant": {
+        "series": [
+          "▲",
+          "●",
+          "▲",
+          "●"
+        ],
+        "choices": [
+          "▲",
+          "■",
+          "●"
+        ],
+        "correctChoiceId": "▲"
+      }
+    },
+    {
+      "id": "magic-square-shapes-soft-colors",
+      "type": "magic-square",
+      "variant": {
+        "grid": [
+          "🟦",
+          "🟨",
+          "🟩",
+          "🟨",
+          "🟩",
+          "🟦",
+          "🟩",
+          null,
+          "🟨"
+        ],
+        "choices": [
+          {
+            "id": "blue",
+            "label": "🟦"
+          },
+          {
+            "id": "yellow",
+            "label": "🟨"
+          },
+          {
+            "id": "green",
+            "label": "🟩"
+          }
+        ],
+        "correctChoiceId": "blue"
+      }
+    },
+    {
+      "id": "magic-square-emoji-forest",
+      "type": "magic-square",
+      "variant": {
+        "grid": [
+          "🌲",
+          "🍄",
+          "🌰",
+          "🍄",
+          "🌰",
+          "🌲",
+          "🌰",
+          null,
+          "🍄"
+        ],
+        "choices": [
+          {
+            "id": "tree",
+            "label": "🌲"
+          },
+          {
+            "id": "mushroom",
+            "label": "🍄"
+          },
+          {
+            "id": "acorn",
+            "label": "🌰"
+          }
+        ],
+        "correctChoiceId": "tree"
+      }
+    }
   ]
 }

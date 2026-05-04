@@ -75,13 +75,13 @@ Offline mode має відкривати гру або offline page, але не
 У `sw.js` є:
 
 ```js
-const STATIC_CACHE = 'ravlyk-static-v7';
+const STATIC_CACHE = 'ravlyk-static-v8';
 ```
 
 Коли змінюється будь-який файл зі списку `STATIC_ASSETS`, треба оновити версію кешу:
 
 ```js
-const STATIC_CACHE = 'ravlyk-static-v7';
+const STATIC_CACHE = 'ravlyk-static-v8';
 ```
 
 Якщо цього не зробити, користувач може бачити стару версію файлів.
@@ -186,7 +186,7 @@ navigation: network first, fallback to offline.html
 
 ## 9. Що робити при додаванні JSON-даних задач
 
-JSON-категорії задач у `js/tasks/task-data/categories/*.json` є частиною runtime.
+JSON-категорії задач у `js/tasks/task-data/categories/*.json`, CSS у `css/*.css`, task types, task evaluators і world-generation модулі є частиною runtime та мають бути внесені до `STATIC_ASSETS` у `sw.js`.
 
 Якщо додається або перейменовується JSON-файл категорії:
 

@@ -3,12 +3,12 @@ import { positionNpcs } from './npc-spawner.js';
 import { createDistributionCells, positionRectInCell } from './distribution-rules.js';
 
 const OBSTACLE_TYPES = ['rock', 'bush', 'twig'];
-const APPLE_SIZE = 28;
+const APPLE_SIZE = 32;
 const WORLD_PADDING = 100;
 const APPLE_PADDING = 120;
 const START_CLEAR_RADIUS = 220;
 const OBSTACLE_GAP = 40;
-const MAX_PLACEMENT_ATTEMPTS = 50;
+const MAX_PLACEMENT_ATTEMPTS = 90;
 
 function createObstacle(random, config, cell = null) {
     const type = OBSTACLE_TYPES[Math.floor(random() * OBSTACLE_TYPES.length)];

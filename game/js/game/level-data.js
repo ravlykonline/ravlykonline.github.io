@@ -1,9 +1,10 @@
-const NPC_SIZE = 48;
+const NPC_SIZE = 56;
 const OBSERVE_POOLS = ['visual-logic.beginner', 'counting.beginner'];
 const PATTERN_POOLS = ['patterns.beginner', 'visual-logic.beginner'];
 const LOGIC_POOLS = ['visual-logic.beginner', 'patterns.beginner', 'counting.beginner'];
 const COUNTING_POOLS = ['counting.beginner', 'visual-logic.beginner'];
 const MATH_POOLS = ['arithmetic.beginner', 'counting.beginner', 'patterns.beginner'];
+const GENTLE_POOLS = ['visual-logic.beginner', 'patterns.beginner', 'counting.beginner'];
 
 function createNpc(id, type, nameKey, taskPoolIds) {
     return {
@@ -44,7 +45,13 @@ export const LevelData = {
             createNpc('cat_1', 'cat', 'npc.catName', OBSERVE_POOLS),
             createNpc('dog_1', 'dog', 'npc.dogName', LOGIC_POOLS),
             createNpc('goat_1', 'goat', 'npc.goatName', MATH_POOLS),
-            createNpc('duck_1', 'duck', 'npc.duckName', COUNTING_POOLS)
+            createNpc('duck_1', 'duck', 'npc.duckName', COUNTING_POOLS),
+            createNpc('hamster_1', 'hamster', 'npc.hamsterName', OBSERVE_POOLS),
+            createNpc('bear_cub_1', 'bearCub', 'npc.bearCubName', GENTLE_POOLS),
+            createNpc('otter_1', 'otter', 'npc.otterName', LOGIC_POOLS),
+            createNpc('chicken_1', 'chicken', 'npc.chickenName', COUNTING_POOLS),
+            createNpc('lamb_1', 'lamb', 'npc.lambName', GENTLE_POOLS),
+            createNpc('ant_1', 'ant', 'npc.antName', COUNTING_POOLS)
         ]
     }
 };
