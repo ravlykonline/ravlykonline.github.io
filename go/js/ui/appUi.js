@@ -109,8 +109,10 @@ export function createAppUi({
   const ui = {
     clearRunHint: statusApi.clearRunHint,
     clearStatus: statusApi.clearStatus,
+    clearStopMark: effectsApi.clearStopMark,
     flashCell: effectsApi.flashCell,
     flashNeighbours: effectsApi.flashNeighbours,
+    setStopMark: effectsApi.setStopMark,
     goToNextLevel: flowApi.goToNextLevel,
     init,
     launchConfetti: effectsApi.launchConfetti,

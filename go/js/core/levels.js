@@ -114,10 +114,11 @@ export const levels = [
     id: 6,
     name: 'Поворот до яблука',
     type: 'play', rows: 6, cols: 8,
-    start: { r: 3, c: 2 }, apple: { r: 2, c: 5 }, obstacles: [],
-    allowedTiles: ['up', 'right', 'down', 'left', 'left-up'], presetArrows: {},
-    hint: 'Склади маршрут до яблука і спробуй використати поворот.',
-    goal: 'Познайомся з першим поворотом на маршруті.'
+    start: { r: 3, c: 2 }, apple: { r: 1, c: 5 }, obstacles: [],
+    allowedTiles: ['up', 'right', 'left-up'],
+    presetArrows: { '3,5': 'left-up' },
+    hint: 'На полі вже стоїть поворотна стрілка — вона повертає равлика вгору. Поклади прямі стрілки вправо до неї, а потім вгору після неї.',
+    goal: 'Зрозуміти, що робить поворотна стрілка.'
   }),
   createLevel({
     id: 7,
@@ -204,190 +205,129 @@ export const levels = [
   }),
   createLevel({
     id: 12,
-    name: 'Мандрівка між перешкодами',
-    type: 'play', rows: 6, cols: 8,
-    start: { r: 3, c: 1 }, apple: { r: 3, c: 5 },
-    obstacles: [
-      { r: 0, c: 4, kind: 'rock', label: 'Каміння' },
-      { r: 1, c: 4, kind: 'log', label: 'Колода' },
-      { r: 2, c: 2, kind: 'rock', label: 'Каміння' },
-      { r: 2, c: 4, kind: 'rock', label: 'Каміння' },
-      { r: 3, c: 2, kind: 'log', label: 'Колода' },
-      { r: 3, c: 4, kind: 'log', label: 'Колода' },
-      { r: 4, c: 2, kind: 'rock', label: 'Каміння' },
-      { r: 5, c: 2, kind: 'log', label: 'Колода' }
-    ],
-    allowedTiles: ALL_TILES, presetArrows: {},
-    hint: 'На цьому рівні відкриті всі стрілки. Знайди найкращий маршрут між перешкодами.',
-    goal: 'Навчись самостійно обирати потрібні стрілки серед усіх доступних.'
+    name: 'Зайва команда',
+    type: 'debug', rows: 6, cols: 8,
+    start: { r: 3, c: 1 }, apple: { r: 3, c: 6 }, obstacles: [],
+    allowedTiles: ['right', 'down'],
+    presetArrows: {
+      '3,2': 'right',
+      '3,3': 'right',
+      '3,4': 'down',
+      '3,5': 'right'
+    },
+    hint: 'Маршрут майже готовий, але одна команда зайва — вона відводить равлика не туди. Знайди її й видали.',
+    goal: 'Зрозуміти, що зайва команда в алгоритмі — теж помилка.'
   }),
   createLevel({
     id: 13,
-    name: 'Прогулянка в лісі',
+    name: 'Два повороти підряд',
     type: 'play', rows: 6, cols: 8,
-    start: { r: 4, c: 6 }, apple: { r: 1, c: 1 },
-    startFacing: 'left',
-    obstacles: [
-      { r: 0, c: 2, kind: 'rock', label: 'Каміння' },
-      { r: 1, c: 2, kind: 'log', label: 'Колода' },
-      { r: 2, c: 2, kind: 'rock', label: 'Каміння' },
-      { r: 3, c: 5, kind: 'log', label: 'Колода' },
-      { r: 4, c: 5, kind: 'rock', label: 'Каміння' },
-      { r: 5, c: 5, kind: 'log', label: 'Колода' }
-    ],
-    allowedTiles: ALL_TILES, presetArrows: {},
-    hint: 'Склади маршрут до яблука, оминаючи перешкоди на полі.',
-    goal: 'Навчись планувати довший шлях серед різних перешкод.'
+    start: { r: 2, c: 1 }, apple: { r: 4, c: 6 }, obstacles: [],
+    allowedTiles: ['right', 'down', 'left-down', 'up-right'],
+    presetArrows: {},
+    hint: 'Тут знадобляться два повороти один за одним — спершу вниз, потім вправо. Знайди де їх поставити.',
+    goal: 'Навчитись ставити два повороти підряд без прямих стрілок між ними.'
   }),
   createLevel({
     id: 14,
-    name: 'Шлях між перешкодами',
+    name: 'Загублена команда',
+    type: 'debug', rows: 6, cols: 8,
+    start: { r: 3, c: 1 }, apple: { r: 3, c: 6 }, obstacles: [],
+    allowedTiles: ['right'],
+    presetArrows: {
+      '3,2': 'right',
+      '3,3': 'right',
+      '3,5': 'right'
+    },
+    hint: 'Рівник зупиниться посеред шляху — там немає команди. Знайди порожнє місце і заповни його.',
+    goal: 'Зрозуміти, що алгоритм має бути повним — без жодного пропуску.'
+  }),
+  createLevel({
+    id: 15,
+    name: 'Довга дорога',
+    type: 'play', rows: 6, cols: 8,
+    start: { r: 0, c: 0 }, apple: { r: 5, c: 7 },
+    obstacles: [
+      { r: 2, c: 3, kind: 'rock', label: 'Каміння' },
+      { r: 3, c: 3, kind: 'rock', label: 'Каміння' },
+      { r: 4, c: 3, kind: 'rock', label: 'Каміння' }
+    ],
+    allowedTiles: ['right', 'down', 'left-down', 'up-right'],
+    presetArrows: {},
+    hint: 'Шлях довгий — клади стрілки по одній і перевіряй кожен крок.',
+    goal: 'Навчитись терпляче будувати довгий маршрут крок за кроком.'
+  }),
+  createLevel({
+    id: 16,
+    name: 'Лісовий лабіринт',
+    type: 'play', rows: 6, cols: 8,
+    start: { r: 0, c: 0 }, apple: { r: 5, c: 6 },
+    obstacles: [
+      { r: 0, c: 2, kind: 'rock', label: 'Каміння' },
+      { r: 1, c: 2, kind: 'log',  label: 'Колода' },
+      { r: 2, c: 4, kind: 'rock', label: 'Каміння' },
+      { r: 3, c: 4, kind: 'log',  label: 'Колода' },
+      { r: 4, c: 2, kind: 'rock', label: 'Каміння' },
+      { r: 4, c: 4, kind: 'log',  label: 'Колода' }
+    ],
+    allowedTiles: ALL_TILES,
+    presetArrows: {},
+    hint: 'Тут доступні всі стрілки. Спочатку подивись на все поле, потім починай складати маршрут.',
+    goal: 'Навчитись планувати маршрут перш ніж починати.'
+  }),
+  createLevel({
+    id: 17,
+    name: 'Дві помилки',
+    type: 'debug', rows: 6, cols: 8,
+    start: { r: 3, c: 1 }, apple: { r: 3, c: 6 }, obstacles: [],
+    allowedTiles: ['right', 'up', 'left'],
+    presetArrows: {
+      '3,2': 'right',
+      '3,3': 'up',
+      '3,4': 'right',
+      '3,5': 'right',
+      '2,3': 'right'
+    },
+    hint: 'Тут дві помилки, не одна. Виправ першу, запусти — і шукай другу.',
+    goal: 'Навчитись шукати помилки по черзі, перевіряючи маршрут крок за кроком.'
+  }),
+  createLevel({
+    id: 18,
+    name: 'Переплутані повороти',
+    type: 'debug', rows: 6, cols: 8,
+    start: { r: 2, c: 1 }, apple: { r: 4, c: 6 }, obstacles: [],
+    startFacing: 'right',
+    allowedTiles: ['right', 'down', 'left-down', 'up-right'],
+    presetArrows: {
+      '2,2': 'right',
+      '2,3': 'up-right',
+      '3,3': 'left-down',
+      '3,4': 'right',
+      '3,5': 'right'
+    },
+    hint: 'Маршрут складений, але два повороти переплутані місцями. Запусти — і дивись де рівник зупинився.',
+    goal: 'Навчитись розрізняти схожі повороти і розуміти куди кожен веде.'
+  }),
+  createLevel({
+    id: 19,
+    name: 'Через весь ліс',
     type: 'play', rows: 6, cols: 8,
     start: { r: 0, c: 7 }, apple: { r: 5, c: 0 },
     startFacing: 'left',
     obstacles: [
-      { r: 0, c: 3, kind: 'rock', label: 'Каміння' },
-      { r: 0, c: 6, kind: 'log', label: 'Колода' },
-      { r: 1, c: 3, kind: 'log', label: 'Колода' },
-      { r: 1, c: 6, kind: 'rock', label: 'Каміння' },
-      { r: 2, c: 1, kind: 'log', label: 'Колода' },
-      { r: 2, c: 6, kind: 'log', label: 'Колода' },
-      { r: 3, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 3, c: 6, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 1, kind: 'log', label: 'Колода' },
-      { r: 4, c: 3, kind: 'rock', label: 'Каміння' },
-      { r: 5, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 5, c: 3, kind: 'log', label: 'Колода' }
-    ],
-    allowedTiles: ALL_TILES, presetArrows: {},
-    hint: 'Проклади звивистий маршрут між колодами та камінням.',
-    goal: 'Навчись планувати довгий шлях серед перешкод.'
-  }),
-  createLevel({
-    id: 15,
-    name: 'На іншому боці лісу',
-    type: 'play', rows: 6, cols: 8,
-    start: { r: 0, c: 7 }, apple: { r: 0, c: 0 },
-    startFacing: 'left',
-    obstacles: [
-      { r: 0, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 0, c: 3, kind: 'log', label: 'Колода' },
-      { r: 0, c: 6, kind: 'log', label: 'Колода' },
-      { r: 1, c: 1, kind: 'log', label: 'Колода' },
-      { r: 1, c: 6, kind: 'rock', label: 'Каміння' },
-      { r: 2, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 2, c: 3, kind: 'rock', label: 'Каміння' },
-      { r: 2, c: 6, kind: 'log', label: 'Колода' },
-      { r: 3, c: 1, kind: 'log', label: 'Колода' },
-      { r: 3, c: 6, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 3, kind: 'rock', label: 'Каміння' },
-      { r: 5, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 5, c: 6, kind: 'log', label: 'Колода' }
-    ],
-    allowedTiles: ALL_TILES, presetArrows: {},
-    hint: 'Знайди шлях до яблука та обійди перешкоди.',
-    goal: 'Навчись планувати довгий маршрут.'
-  }),
-  createLevel({
-    id: 16,
-    name: 'Звивистий шлях у лісі',
-    type: 'play', rows: 6, cols: 8,
-    start: { r: 0, c: 0 }, apple: { r: 4, c: 2 },
-    obstacles: [
       { r: 0, c: 4, kind: 'rock', label: 'Каміння' },
-      { r: 1, c: 0, kind: 'rock', label: 'Каміння' },
-      { r: 1, c: 1, kind: 'log', label: 'Колода' },
-      { r: 1, c: 2, kind: 'rock', label: 'Каміння' },
-      { r: 1, c: 6, kind: 'rock', label: 'Каміння' },
-      { r: 2, c: 3, kind: 'log', label: 'Колода' },
+      { r: 1, c: 4, kind: 'log',  label: 'Колода' },
+      { r: 2, c: 2, kind: 'rock', label: 'Каміння' },
       { r: 2, c: 4, kind: 'rock', label: 'Каміння' },
-      { r: 2, c: 5, kind: 'log', label: 'Колода' },
-      { r: 3, c: 1, kind: 'log', label: 'Колода' },
-      { r: 3, c: 7, kind: 'log', label: 'Колода' },
-      { r: 4, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 3, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 4, kind: 'log', label: 'Колода' },
-      { r: 4, c: 6, kind: 'rock', label: 'Каміння' },
-      { r: 5, c: 6, kind: 'log', label: 'Колода' }
-    ],
-    allowedTiles: ALL_TILES, presetArrows: {},
-    hint: 'Знайди шлях до яблука крізь щільно розставлені перешкоди.',
-    goal: 'Навчись планувати маршрут серед перешкод.'
-  }),
-  createLevel({
-    id: 17,
-    name: 'Полоса перешкод',
-    type: 'play', rows: 6, cols: 8,
-    start: { r: 3, c: 0 }, apple: { r: 2, c: 6 },
-    obstacles: [
-      { r: 1, c: 1, kind: 'log', label: 'Колода' },
-      { r: 1, c: 3, kind: 'rock', label: 'Каміння' },
-      { r: 1, c: 5, kind: 'rock', label: 'Каміння' },
-      { r: 1, c: 7, kind: 'log', label: 'Колода' },
-      { r: 2, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 2, c: 3, kind: 'log', label: 'Колода' },
-      { r: 2, c: 5, kind: 'log', label: 'Колода' },
-      { r: 2, c: 7, kind: 'rock', label: 'Каміння' },
-      { r: 3, c: 1, kind: 'log', label: 'Колода' },
-      { r: 3, c: 3, kind: 'log', label: 'Колода' },
+      { r: 3, c: 2, kind: 'log',  label: 'Колода' },
       { r: 3, c: 5, kind: 'rock', label: 'Каміння' },
-      { r: 3, c: 7, kind: 'log', label: 'Колода' },
-      { r: 4, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 3, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 5, kind: 'log', label: 'Колода' },
-      { r: 4, c: 7, kind: 'rock', label: 'Каміння' }
+      { r: 4, c: 5, kind: 'log',  label: 'Колода' },
+      { r: 5, c: 3, kind: 'rock', label: 'Каміння' }
     ],
-    allowedTiles: ALL_TILES, presetArrows: {},
-    hint: 'Знайди прохід крізь щільну мережу перешкод.',
-    goal: 'Навчись бачити шлях серед колод та каміння.'
-  }),
-  createLevel({
-    id: 18,
-    name: 'Великий лабіринт лісу',
-    type: 'play', rows: 6, cols: 8,
-    start: { r: 5, c: 0 }, apple: { r: 0, c: 7 },
-    obstacles: [
-      { r: 0, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 0, c: 3, kind: 'rock', label: 'Каміння' },
-      { r: 0, c: 5, kind: 'rock', label: 'Каміння' },
-      { r: 1, c: 0, kind: 'rock', label: 'Каміння' },
-      { r: 2, c: 1, kind: 'log', label: 'Колода' },
-      { r: 2, c: 3, kind: 'log', label: 'Колода' },
-      { r: 2, c: 5, kind: 'log', label: 'Колода' },
-      { r: 2, c: 7, kind: 'log', label: 'Колода' },
-      { r: 4, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 3, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 5, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 7, kind: 'rock', label: 'Каміння' },
-      { r: 5, c: 1, kind: 'log', label: 'Колода' }
-    ],
-    allowedTiles: ALL_TILES, presetArrows: {},
-    hint: 'Знайди найкращий маршрут крізь великий лабіринт.',
-    goal: 'Навчись планувати довгий шлях через багато перешкод.'
-  }),
-  createLevel({
-    id: 19,
-    name: 'Густі хащі',
-    type: 'play', rows: 6, cols: 8,
-    start: { r: 5, c: 0 }, apple: { r: 3, c: 5 },
-    obstacles: [
-      { r: 1, c: 2, kind: 'rock', label: 'Каміння' },
-      { r: 1, c: 3, kind: 'log', label: 'Колода' },
-      { r: 1, c: 4, kind: 'rock', label: 'Каміння' },
-      { r: 1, c: 5, kind: 'log', label: 'Колода' },
-      { r: 2, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 2, c: 6, kind: 'log', label: 'Колода' },
-      { r: 3, c: 3, kind: 'log', label: 'Колода' },
-      { r: 3, c: 6, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 0, kind: 'log', label: 'Колода' },
-      { r: 4, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 2, kind: 'log', label: 'Колода' },
-      { r: 4, c: 4, kind: 'log', label: 'Колода' },
-      { r: 4, c: 5, kind: 'rock', label: 'Каміння' }
-    ],
-    allowedTiles: ALL_TILES, presetArrows: {},
-    hint: 'Проклади маршрут крізь густі хащі лісу.',
-    goal: 'Навчись бачити проходи в щільно заповненому лісі.'
+    allowedTiles: ALL_TILES,
+    presetArrows: {},
+    hint: 'Довгий шлях через цілий ліс. Плануй крок за кроком.',
+    goal: 'Застосуй усі вивчені команди разом.'
   }),
   createLevel({
     id: 20,
@@ -395,24 +335,21 @@ export const levels = [
     type: 'play', rows: 6, cols: 8,
     start: { r: 0, c: 0 }, apple: { r: 5, c: 7 },
     obstacles: [
-      { r: 0, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 0, c: 4, kind: 'rock', label: 'Каміння' },
-      { r: 0, c: 6, kind: 'rock', label: 'Каміння' },
-      { r: 1, c: 1, kind: 'log', label: 'Колода' },
-      { r: 2, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 2, c: 4, kind: 'rock', label: 'Каміння' },
-      { r: 2, c: 6, kind: 'log', label: 'Колода' },
-      { r: 3, c: 3, kind: 'log', label: 'Колода' },
+      { r: 0, c: 3, kind: 'rock', label: 'Каміння' },
+      { r: 1, c: 3, kind: 'log',  label: 'Колода' },
+      { r: 1, c: 6, kind: 'rock', label: 'Каміння' },
+      { r: 2, c: 1, kind: 'log',  label: 'Колода' },
+      { r: 2, c: 5, kind: 'rock', label: 'Каміння' },
+      { r: 3, c: 3, kind: 'log',  label: 'Колода' },
       { r: 3, c: 6, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 1, kind: 'log', label: 'Колода' },
-      { r: 4, c: 6, kind: 'log', label: 'Колода' },
-      { r: 5, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 5, c: 4, kind: 'log', label: 'Колода' },
-      { r: 5, c: 6, kind: 'log', label: 'Колода' }
+      { r: 4, c: 1, kind: 'rock', label: 'Каміння' },
+      { r: 4, c: 5, kind: 'log',  label: 'Колода' },
+      { r: 5, c: 3, kind: 'log',  label: 'Колода' }
     ],
-    allowedTiles: ALL_TILES, presetArrows: {},
-    hint: 'Фінальний рівень: подивись на все поле, сплануй шлях і приведи равлика до яблука.',
-    goal: 'Застосуй всі навички планування маршруту на одному великому полі.'
+    allowedTiles: ALL_TILES,
+    presetArrows: {},
+    hint: 'Це фінал! Поглянь на все поле, знайди прохід і проведи равлика до яблука.',
+    goal: 'Застосуй усе, чого навчився, у великій подорожі.'
   })
 ];
 export function getLevelById(levelId) {

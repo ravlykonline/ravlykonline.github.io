@@ -140,6 +140,7 @@ export function createGameEngine({ app }) {
 
     if (flash) {
       app.ui.flashCell(flash.r, flash.c, flash.color);
+      app.ui.setStopMark(flash.r, flash.c);
     }
 
     if (bumpDir) {
@@ -179,6 +180,7 @@ export function createGameEngine({ app }) {
     app.render.clearTrail();
     app.render.clearPendingDelete();
     app.render.clearStartHighlight();
+    app.ui.clearStopMark?.();
     app.state.snailPos = { ...start };
     app.state.snailFacing = app.getStartFacing();
     app.render.posSnail(app.state.snailPos.r, app.state.snailPos.c, false, app.state.snailFacing);

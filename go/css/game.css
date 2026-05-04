@@ -430,6 +430,16 @@ body.debug-mode .gwrap {
   box-shadow: var(--debug-cell-outline);
 }
 
+.cell.cell--stop {
+  box-shadow: var(--stop-cell-outline);
+  animation: stop-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes stop-pulse {
+  0%, 100% { box-shadow: var(--stop-cell-outline); }
+  50%       { box-shadow: inset 0 0 0 3px rgba(217, 77, 26, 0.25); }
+}
+
 .cell-arrow.preset-arrow {
   box-shadow: var(--debug-preset-ring);
 }

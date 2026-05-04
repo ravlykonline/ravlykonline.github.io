@@ -18,6 +18,25 @@ export function createAppUiEffects({
     }, 1200);
   }
 
+  let stopMarkEl = null;
+
+  function setStopMark(r, c) {
+    if (stopMarkEl) {
+      stopMarkEl.classList.remove('cell--stop');
+    }
+    stopMarkEl = app.render.cellEl(r, c);
+    if (stopMarkEl) {
+      stopMarkEl.classList.add('cell--stop');
+    }
+  }
+
+  function clearStopMark() {
+    if (stopMarkEl) {
+      stopMarkEl.classList.remove('cell--stop');
+      stopMarkEl = null;
+    }
+  }
+
   function flashNeighbours(r, c) {
     const rows = app.config.rows;
     const cols = app.config.cols;
@@ -57,9 +76,11 @@ export function createAppUiEffects({
   }
 
   return {
+    clearStopMark,
     flashCell,
     flashNeighbours,
     launchConfetti,
+    setStopMark,
     syncSizes
   };
 }

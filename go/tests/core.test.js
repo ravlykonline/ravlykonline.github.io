@@ -33,14 +33,18 @@ test('all JS files have valid syntax', () => {
   assert.match(fs.readFileSync(path.join(root, 'js/main.js'), 'utf8'), /import \{ bootstrapApp \}/);
 });
 
-test('game exposes 20 levels and unlocks all tiles after level 10', async () => {
+test('game exposes 20 levels and open-exploration levels unlock all tiles', async () => {
   const { app } = await bootstrapCore();
 
   assert.equal(app.levels.length, 20);
   assert.equal(app.getTotalLevels(), 20);
   assert.equal(app.getNextLevelId(), 2);
 
-  for (let id = 12; id <= 20; id += 1) {
+  for (const level of app.levels) {
+    assert.ok(level.allowedTiles.length >= 1, `Level ${level.id} must have at least one allowed tile`);
+  }
+
+  for (const id of [16, 19, 20]) {
     assert.equal(app.getLevelById(id)?.allowedTiles.length, app.tileDefs.length, `Level ${id} should expose all tiles`);
   }
 });
@@ -82,7 +86,7 @@ test('executed levels keep readable Ukrainian names and hints', async () => {
   assert.equal(app.getLevelById(1)?.name, '\u041f\u0440\u044f\u043c\u0430 \u0434\u043e\u0440\u0456\u0436\u043a\u0430');
   assert.equal(app.getLevelById(2)?.name, '\u041a\u0440\u043e\u043a\u0443\u0454\u043c\u043e \u0432\u0433\u043e\u0440\u0443');
   assert.equal(app.getLevelById(20)?.name, '\u0412\u0435\u043b\u0438\u043a\u0430 \u043f\u043e\u0434\u043e\u0440\u043e\u0436 \u0440\u0430\u0432\u043b\u0438\u043a\u0430');
-  assert.equal(app.getLevelById(20)?.hint, '\u0424\u0456\u043d\u0430\u043b\u044c\u043d\u0438\u0439 \u0440\u0456\u0432\u0435\u043d\u044c: \u043f\u043e\u0434\u0438\u0432\u0438\u0441\u044c \u043d\u0430 \u0432\u0441\u0435 \u043f\u043e\u043b\u0435, \u0441\u043f\u043b\u0430\u043d\u0443\u0439 \u0448\u043b\u044f\u0445 \u0456 \u043f\u0440\u0438\u0432\u0435\u0434\u0438 \u0440\u0430\u0432\u043b\u0438\u043a\u0430 \u0434\u043e \u044f\u0431\u043b\u0443\u043a\u0430.');
+  assert.equal(app.getLevelById(20)?.hint, '\u0426\u0435 \u0444\u0456\u043d\u0430\u043b! \u041f\u043e\u0433\u043b\u044f\u043d\u044c \u043d\u0430 \u0432\u0441\u0435 \u043f\u043e\u043b\u0435, \u0437\u043d\u0430\u0439\u0434\u0438 \u043f\u0440\u043e\u0445\u0456\u0434 \u0456 \u043f\u0440\u043e\u0432\u0435\u0434\u0438 \u0440\u0430\u0432\u043b\u0438\u043a\u0430 \u0434\u043e \u044f\u0431\u043b\u0443\u043a\u0430.');
 });
 test('route analysis respects the level start facing', async () => {
   const { app } = await bootstrapCore();

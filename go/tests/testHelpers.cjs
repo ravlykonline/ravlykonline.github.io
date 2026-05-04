@@ -99,6 +99,8 @@ async function bootstrapEngineHarness(levelOverride) {
     setStatus() {},
     flashCell() {},
     flashNeighbours() {},
+    setStopMark() {},
+    clearStopMark() {},
     setDisabled() {},
     playStepSound() {},
     playSuccessSound() {},
