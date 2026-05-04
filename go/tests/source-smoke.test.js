@@ -68,7 +68,7 @@ test('core JS files keep expected symbols for game logic and progress', () => {
   assert.ok(levels.includes('id: 20'));
   assert.ok(levels.includes('id: 19'));
   assert.ok(textsUk.includes('Пригоди Равлика'));
-  assert.ok(textsUk.includes('Тягни команди на поле'));
+  assert.ok(textsUk.includes('Постав стрілки'));
   assert.ok(textsUk.includes('Що робити'));
   assert.ok(textsUk.includes('Пояснити завдання'));
   assert.ok(appStateFacade.includes('createInitialState'));

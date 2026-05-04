@@ -69,8 +69,8 @@ export const levels = [
     type: 'play', rows: 6, cols: 8,
     start: { r: 2, c: 2 }, apple: { r: 2, c: 5 }, obstacles: [],
     allowedTiles: ['right'], presetArrows: {},
-    hint: 'Перетягни стрілочку праворуч на клітинки між равликом і яблуком.',
-    goal: 'Навчись рухатися праворуч.'
+    hint: 'Постав стрілки вправо до яблука.',
+    goal: 'Рух праворуч.'
   }),
   createLevel({
     id: 2,
@@ -78,8 +78,8 @@ export const levels = [
     type: 'play', rows: 6, cols: 8,
     start: { r: 4, c: 3 }, apple: { r: 1, c: 3 }, obstacles: [],
     allowedTiles: ['up'], presetArrows: {},
-    hint: 'Тепер яблуко нагорі. Яка стрілка тут потрібна?',
-    goal: 'Навчись рухатися вгору.'
+    hint: 'Яблуко нагорі. Постав стрілки вгору.',
+    goal: 'Рух угору.'
   }),
   createLevel({
     id: 3,
@@ -88,8 +88,8 @@ export const levels = [
     start: { r: 2, c: 6 }, apple: { r: 2, c: 1 }, obstacles: [],
     startFacing: 'left',
     allowedTiles: ['left'], presetArrows: {},
-    hint: 'Яблуко ліворуч! Поклади правильні стрілки й доведи равлика до нього.',
-    goal: 'Навчись рухатися ліворуч.'
+    hint: 'Яблуко ліворуч. Постав стрілки вліво.',
+    goal: 'Рух ліворуч.'
   }),
   createLevel({
     id: 4,
@@ -97,8 +97,8 @@ export const levels = [
     type: 'play', rows: 6, cols: 8,
     start: { r: 0, c: 3 }, apple: { r: 5, c: 3 }, obstacles: [],
     allowedTiles: ['down'], presetArrows: {},
-    hint: 'Тепер равлик іде вниз. Проклади шлях донизу.',
-    goal: 'Навчись рухатися вниз.'
+    hint: 'Яблуко внизу. Постав стрілки вниз.',
+    goal: 'Рух униз.'
   }),
   createLevel({
     id: 5,
@@ -107,8 +107,8 @@ export const levels = [
     start: { r: 3, c: 1 }, apple: { r: 3, c: 6 }, obstacles: [],
     allowedTiles: ['left', 'right'],
     presetArrows: { '3,2': 'right', '3,3': 'right', '3,4': 'left', '3,5': 'left' },
-    hint: 'Маршрут уже готовий, але щось пішло не так. Знайди помилки і виправ їх.',
-    goal: 'Навчись перевіряти і виправляти послідовність стрілок.'
+    hint: 'Маршрут уже є. Запусти равлика й виправ помилку.',
+    goal: 'Знайди помилку.'
   }),
   createLevel({
     id: 6,
@@ -117,8 +117,8 @@ export const levels = [
     start: { r: 3, c: 2 }, apple: { r: 1, c: 5 }, obstacles: [],
     allowedTiles: ['up', 'right', 'left-up'],
     presetArrows: { '3,5': 'left-up' },
-    hint: 'На полі вже стоїть поворотна стрілка — вона повертає равлика вгору. Поклади прямі стрілки вправо до неї, а потім вгору після неї.',
-    goal: 'Зрозуміти, що робить поворотна стрілка.'
+    hint: 'На полі вже є поворот. Доведи равлика до нього, а потім — до яблука.',
+    goal: 'Перший поворот.'
   }),
   createLevel({
     id: 7,
@@ -126,8 +126,8 @@ export const levels = [
     type: 'play', rows: 6, cols: 8,
     start: { r: 1, c: 2 }, apple: { r: 4, c: 5 }, obstacles: [],
     allowedTiles: ['up', 'right', 'down', 'left', 'left-down', 'up-right'], presetArrows: {},
-    hint: 'Склади маршрут до яблука, використовуючи наявні стрілки з поворотами.',
-    goal: 'Навчись поєднувати прямі стрілки з поворотами.'
+    hint: 'Постав прямі стрілки й повороти до яблука.',
+    goal: 'Прямо і поворот.'
   }),
   createLevel({
     id: 8,
@@ -141,8 +141,8 @@ export const levels = [
       { r: 3, c: 5, kind: 'log', label: 'Колода' }
     ],
     allowedTiles: ['up', 'right', 'down', 'left', 'down-right', 'left-down'], presetArrows: {},
-    hint: 'Склади безпечний маршрут до яблука та обійди перешкоди на шляху.',
-    goal: 'Навчись планувати шлях в обхід каміння й колод.'
+    hint: 'Перед равликом перешкоди. Обійди їх.',
+    goal: 'Обхід перешкод.'
   }),
   createLevel({
     id: 9,
@@ -156,8 +156,8 @@ export const levels = [
       { r: 2, c: 5, kind: 'log', label: 'Колода' }
     ],
     allowedTiles: ['up', 'right', 'down', 'left', 'up-right', 'left-up'], presetArrows: {},
-    hint: 'Побудуй маршрут до яблука з новими поворотами.',
-    goal: 'Навчись обирати правильну пару поворотів для обходу.'
+    hint: 'Обійди перешкоди іншою стороною.',
+    goal: 'Інший обхід.'
   }),
   createLevel({
     id: 10,
@@ -173,8 +173,8 @@ export const levels = [
       { r: 4, c: 3, kind: 'log', label: 'Колода' }
     ],
     allowedTiles: ['up', 'right', 'down', 'left', 'left-down', 'up-right'], presetArrows: {},
-    hint: 'Проклади маршрут між перешкодами, використовуючи потрібні повороти.',
-    goal: 'Навчись будувати складніший шлях між перешкодами.'
+    hint: 'Проведи равлика між перешкодами.',
+    goal: 'Шлях між камінням.'
   }),
   createLevel({
     id: 11,
@@ -200,8 +200,8 @@ export const levels = [
       '3,2': 'right-down',
       '4,2': 'down-left'
     },
-    hint: 'Маршрут уже готовий, але щось пішло не так. Знайди, де саме потрібно виправити стрілки.',
-    goal: 'Навчись відлагоджувати складні маршрути з поворотами.'
+    hint: 'Маршрут уже є. Запусти й знайди неправильний поворот.',
+    goal: 'Помилка в повороті.'
   }),
   createLevel({
     id: 12,
@@ -226,8 +226,8 @@ export const levels = [
       '3,5': 'up-right',
       '3,6': 'right'
     },
-    hint: 'Маршрут майже готовий, але один поворот стоїть занадто рано і веде до перешкоди. Запусти, подивись на зупинку й заміни цю команду.',
-    goal: 'Навчитись бачити не лише неправильну стрілку, а й неправильне місце для правильної стрілки.'
+    hint: 'Один поворот стоїть зарано. Запусти й виправ місце зупинки.',
+    goal: 'Поворот не там.'
   }),
   createLevel({
     id: 13,
@@ -242,8 +242,8 @@ export const levels = [
     ],
     allowedTiles: ['right', 'down', 'left-down', 'up-right'],
     presetArrows: {},
-    hint: 'Прямий шлях перекрито. Постав два повороти поруч: спочатку вправо → вниз, а одразу після нього вниз → вправо.',
-    goal: 'Навчитись читати два сусідні повороти як одну маленьку “сходинку” маршруту.'
+    hint: 'Прямо не пройти. Зроби маленьку сходинку з двох поворотів.',
+    goal: 'Два повороти поруч.'
   }),
   createLevel({
     id: 14,
@@ -268,8 +268,8 @@ export const levels = [
       '1,5': 'right',
       '1,6': 'right'
     },
-    hint: 'У готовому обході загубилася одна команда. Запусти маршрут і знайди порожню клітинку, де равлик зупиняється.',
-    goal: 'Навчитись знаходити пропуск у вже складеному маршруті, а не будувати все з нуля.'
+    hint: 'В обході бракує однієї стрілки. Знайди порожнє місце.',
+    goal: 'Загублена стрілка.'
   }),
   createLevel({
     id: 15,
@@ -286,8 +286,8 @@ export const levels = [
     ],
     allowedTiles: ['down', 'right', 'down-right', 'up-right', 'left-up', 'left-down'],
     presetArrows: {},
-    hint: 'Перешкоди стоять просто перед равликом, тому спершу треба обійти їх знизу, а потім повернутися до яблука.',
-    goal: 'Навчитись будувати довший маршрут з кількома поворотами, коли прямий шлях одразу заблокований.'
+    hint: 'Попереду перешкоди. Обійди їх знизу.',
+    goal: 'Довший шлях.'
   }),
   createLevel({
     id: 16,
@@ -304,59 +304,71 @@ export const levels = [
     ],
     allowedTiles: ALL_TILES,
     presetArrows: {},
-    hint: 'Тут доступні всі стрілки. Спочатку подивись на все поле, потім починай складати маршрут.',
-    goal: 'Навчитись планувати маршрут перш ніж починати.'
+    hint: 'Подивись на все поле. Потім складай шлях.',
+    goal: 'Плануй шлях.'
   }),
   createLevel({
     id: 17,
-    name: 'Дві помилки на довгій дорозі',
+    name: 'Дві помилки на звивистій дорозі',
     type: 'debug', rows: 6, cols: 8,
-    start: { r: 3, c: 0 }, apple: { r: 5, c: 7 },
+    start: { r: 5, c: 0 }, apple: { r: 1, c: 7 },
     obstacles: [
-      { r: 3, c: 1, kind: 'rock', label: 'Каміння' },
-      { r: 3, c: 2, kind: 'log', label: 'Колода' },
       { r: 4, c: 1, kind: 'rock', label: 'Каміння' },
       { r: 5, c: 3, kind: 'log', label: 'Колода' },
-      { r: 3, c: 3, kind: 'rock', label: 'Каміння' },
-      { r: 3, c: 4, kind: 'log', label: 'Колода' }
+      { r: 4, c: 3, kind: 'rock', label: 'Каміння' },
+      { r: 3, c: 1, kind: 'log', label: 'Колода' },
+      { r: 3, c: 5, kind: 'rock', label: 'Каміння' },
+      { r: 2, c: 3, kind: 'log', label: 'Колода' },
+      { r: 2, c: 5, kind: 'rock', label: 'Каміння' },
+      { r: 1, c: 3, kind: 'log', label: 'Колода' }
     ],
-    allowedTiles: ['down', 'right', 'down-right', 'up-right', 'left-up', 'left-down'],
+    allowedTiles: ['right', 'up', 'left-up', 'down-right'],
     presetArrows: {
-      '4,0': 'down',
-      '5,0': 'up-right',
       '5,1': 'right',
-      '5,2': 'right',
-      '4,2': 'down-right',
-      '4,3': 'right',
-      '5,4': 'right',
-      '5,5': 'right',
-      '5,6': 'right'
+      '5,2': 'left-up',
+      '4,2': 'up',
+      '3,2': 'up',
+      '3,3': 'right',
+      '3,4': 'left-up',
+      '2,4': 'up',
+      '1,4': 'down-right',
+      '1,5': 'right'
     },
-    hint: 'Тут дві помилки. Виправ першу, запусти ще раз — і тільки тоді шукай другу.',
-    goal: 'Навчитись налагоджувати довший алгоритм поступово: одна перевірка — одна помилка.'
+    hint: 'Тут дві помилки. Виправ одну, потім шукай другу.',
+    goal: 'Дві помилки.'
   }),
   createLevel({
     id: 18,
-    name: 'Переплутані сусідні повороти',
+    name: 'Переплутані повороти в лабіринті',
     type: 'debug', rows: 6, cols: 8,
-    start: { r: 2, c: 1 }, apple: { r: 3, c: 6 },
+    start: { r: 4, c: 0 }, apple: { r: 5, c: 7 },
     startFacing: 'right',
     obstacles: [
-      { r: 2, c: 4, kind: 'rock', label: 'Каміння' },
-      { r: 2, c: 5, kind: 'log', label: 'Колода' },
-      { r: 3, c: 2, kind: 'rock', label: 'Каміння' },
-      { r: 4, c: 3, kind: 'log', label: 'Колода' }
+      { r: 1, c: 4, kind: 'log', label: 'Колода' },
+      { r: 2, c: 3, kind: 'rock', label: 'Каміння' },
+      { r: 2, c: 6, kind: 'rock', label: 'Каміння' },
+      { r: 3, c: 3, kind: 'log', label: 'Колода' },
+      { r: 4, c: 5, kind: 'rock', label: 'Каміння' },
+      { r: 4, c: 6, kind: 'log', label: 'Колода' },
+      { r: 5, c: 4, kind: 'rock', label: 'Каміння' },
+      { r: 5, c: 5, kind: 'log', label: 'Колода' }
     ],
-    allowedTiles: ['right', 'down', 'left-down', 'up-right'],
+    allowedTiles: ['right', 'up', 'down', 'left-up', 'down-right', 'left-down', 'up-right'],
     presetArrows: {
-      '2,2': 'right',
-      '2,3': 'up-right',
-      '3,3': 'left-down',
-      '3,4': 'right',
-      '3,5': 'right'
+      '4,1': 'right',
+      '4,2': 'right',
+      '4,3': 'right',
+      '4,4': 'left-up',
+      '3,4': 'up',
+      '2,4': 'down-right',
+      '2,5': 'up-right',
+      '3,5': 'left-down',
+      '3,6': 'right',
+      '3,7': 'left-down',
+      '4,7': 'down'
     },
-    hint: 'Дві сусідні поворотні стрілки переплутали місцями. Подивись, з якого боку равлик заходить у кожен поворот, і поміняй їх.',
-    goal: 'Навчитись розрізняти повороти не за формою, а за входом і виходом.'
+    hint: 'Два повороти стоять не на своїх місцях. Поміняй їх.',
+    goal: 'Повороти місцями.'
   }),
   createLevel({
     id: 19,
@@ -376,8 +388,8 @@ export const levels = [
     ],
     allowedTiles: ALL_TILES,
     presetArrows: {},
-    hint: 'Довгий шлях через цілий ліс. Плануй крок за кроком.',
-    goal: 'Застосуй усі вивчені команди разом.'
+    hint: 'Довгий шлях через ліс. Іди крок за кроком.',
+    goal: 'Великий маршрут.'
   }),
   createLevel({
     id: 20,
@@ -398,8 +410,8 @@ export const levels = [
     ],
     allowedTiles: ALL_TILES,
     presetArrows: {},
-    hint: 'Це фінал! Поглянь на все поле, знайди прохід і проведи равлика до яблука.',
-    goal: 'Застосуй усе, чого навчився, у великій подорожі.'
+    hint: 'Фінал! Знайди прохід до яблука.',
+    goal: 'Велика подорож.'
   })
 ];
 export function getLevelById(levelId) {

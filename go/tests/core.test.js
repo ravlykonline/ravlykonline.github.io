@@ -86,7 +86,7 @@ test('executed levels keep readable Ukrainian names and hints', async () => {
   assert.equal(app.getLevelById(1)?.name, '\u041f\u0440\u044f\u043c\u0430 \u0434\u043e\u0440\u0456\u0436\u043a\u0430');
   assert.equal(app.getLevelById(2)?.name, '\u041a\u0440\u043e\u043a\u0443\u0454\u043c\u043e \u0432\u0433\u043e\u0440\u0443');
   assert.equal(app.getLevelById(20)?.name, '\u0412\u0435\u043b\u0438\u043a\u0430 \u043f\u043e\u0434\u043e\u0440\u043e\u0436 \u0440\u0430\u0432\u043b\u0438\u043a\u0430');
-  assert.equal(app.getLevelById(20)?.hint, '\u0426\u0435 \u0444\u0456\u043d\u0430\u043b! \u041f\u043e\u0433\u043b\u044f\u043d\u044c \u043d\u0430 \u0432\u0441\u0435 \u043f\u043e\u043b\u0435, \u0437\u043d\u0430\u0439\u0434\u0438 \u043f\u0440\u043e\u0445\u0456\u0434 \u0456 \u043f\u0440\u043e\u0432\u0435\u0434\u0438 \u0440\u0430\u0432\u043b\u0438\u043a\u0430 \u0434\u043e \u044f\u0431\u043b\u0443\u043a\u0430.');
+  assert.equal(app.getLevelById(20)?.hint, 'Фінал! Знайди прохід до яблука.');
 });
 test('route analysis respects the level start facing', async () => {
   const { app } = await bootstrapCore();
