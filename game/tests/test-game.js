@@ -519,12 +519,27 @@ test('LevelData contains target NPC count with valid tasks and text keys', () =>
         const poolIds = npc.taskPoolIds ?? [npc.taskPoolId];
 
         assert(poolIds.length >= 1, 'NPC should have at least one task pool.');
+        assert(Boolean(npc.distributionGroup), 'NPC should have a distribution group for map interleaving.');
         poolIds.forEach((poolId) => {
             assert(TaskCatalog.getCategory(poolId), `Task pool "${poolId}" should exist.`);
         });
         assert(t(npc.nameKey) !== npc.nameKey, `Name key "${npc.nameKey}" should be translated.`);
         assert(t(iconKey) !== iconKey, `NPC type "${npc.type}" should have an icon.`);
     });
+});
+
+test('LevelData keeps distribution groups distinct from task pool ids', () => {
+    const npcs = LevelData.level1.npcs;
+    const visualFirstPoolGroups = new Set(
+        npcs
+            .filter((npc) => npc.taskPoolId === 'visual-logic.beginner')
+            .map((npc) => npc.distributionGroup)
+    );
+
+    assert(visualFirstPoolGroups.has('observe'), 'Observe NPCs should remain a separate distribution group.');
+    assert(visualFirstPoolGroups.has('logic'), 'Logic NPCs should remain a separate distribution group.');
+    assert(visualFirstPoolGroups.has('gentle'), 'Gentle NPCs should remain a separate distribution group.');
+    assert(visualFirstPoolGroups.size >= 3, 'NPC distribution should not collapse to the first taskPoolId.');
 });
 
 test('SessionState assigns unique task ids while catalog has enough tasks', () => {

@@ -14,9 +14,10 @@ export function createDistributionCells({
     width,
     height,
     padding = 0,
-    random = Math.random
+    random = Math.random,
+    oversampling = 1.6
 }) {
-    const safeCount = Math.max(1, count);
+    const safeCount = Math.max(1, Math.ceil(count * oversampling));
     const usableWidth = Math.max(1, width - padding * 2);
     const usableHeight = Math.max(1, height - padding * 2);
     const aspectRatio = usableWidth / usableHeight;

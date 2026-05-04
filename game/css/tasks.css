@@ -108,6 +108,13 @@
     animation: missingCellPulse 1.2s ease-in-out infinite;
 }
 
+.task-magic-cell--revealed {
+    border: 3px solid var(--color-success);
+    background: color-mix(in srgb, var(--color-success) 14%, var(--color-surface));
+    color: var(--color-text);
+    animation: revealedCellPop 0.35s ease-out;
+}
+
 .task-card {
     display: grid;
     gap: var(--space-2);
@@ -136,6 +143,10 @@
 
 .task-options-grid--wide {
     grid-template-columns: 1fr;
+}
+
+.task-options-grid--odd-one-out {
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .task-token,
@@ -249,6 +260,12 @@
     line-height: 1.1;
 }
 
+@keyframes revealedCellPop {
+    0% { transform: scale(0.7); opacity: 0.4; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
 @keyframes missingCellPulse {
     0%,
     100% {
@@ -261,7 +278,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .task-magic-cell--missing {
+    .task-magic-cell--missing,
+    .task-magic-cell--revealed {
         animation: none;
     }
 }
@@ -280,7 +298,8 @@
 }
 
 .task-secondary-btn {
-    justify-self: start;
+    justify-self: center;
+    min-width: 120px;
 }
 
 @media (max-width: 480px) {

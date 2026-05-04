@@ -29,7 +29,6 @@ export function createChoiceGrid(task, onSolved, setStatus, extraClassName = '',
 
         button.addEventListener('click', () => {
             if (evaluateSingleChoice(task, choice.id)) {
-                RewardEffects.playSuccess();
                 setStatus(t('taskUi.correct'));
                 disableChoiceButtons(choices);
                 onSolved();

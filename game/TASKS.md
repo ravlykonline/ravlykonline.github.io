@@ -87,6 +87,8 @@ js/tasks/task-catalog.js
 `taskPoolIds` задається в NPC у `js/game/level-data.js`.
 Під час створення сесії `TaskPicker` вибирає конкретний `task.id` з JSON-категорій і додає його в `session.usedTaskIds`, щоб однакове завдання не випало кільком тваринкам в межах однієї сесії.
 
+Окремо від `taskPoolIds` у NPC є `distributionGroup`. Це ключ для рівномірного розкидання звірів по карті. Його не можна замінювати першим `taskPoolId`, бо OBSERVE, LOGIC і GENTLE можуть починатися з `visual-logic.beginner`, але педагогічно це різні групи.
+
 Приклад:
 
 ```js
@@ -94,6 +96,7 @@ js/tasks/task-catalog.js
     id: 'mouse_1',
     nameKey: 'npc.mouseName',
     taskPoolIds: ['visual-logic.beginner', 'counting.beginner'],
+    distributionGroup: 'observe',
     type: 'mouse'
 }
 ```
@@ -813,3 +816,15 @@ function evaluate() {
 - [ ] працює touch;
 - [ ] є тест;
 - [ ] немає console errors.
+
+
+## 9. Звуки винагороди в задачах
+
+Успішний звук має бути тільки в одному місці: `RewardEffects.showStarCelebration()` у `js/scenes/dialog-scene.js`.
+
+Типи завдань можуть програвати:
+
+- `RewardEffects.playTap()` для проміжної дії;
+- `RewardEffects.playTryAgain()` для помилки.
+
+Типи завдань не повинні напряму викликати `RewardEffects.playSuccess()`, інакше фанфари звучать двічі: один раз у самому завданні й другий раз під час показу зірки.

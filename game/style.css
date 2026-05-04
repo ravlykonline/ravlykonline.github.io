@@ -403,6 +403,8 @@ body[data-font-mode="readable"] {
     overflow-y: auto;
     box-shadow: var(--shadow-3);
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .dialog-title {
@@ -414,6 +416,10 @@ body[data-font-mode="readable"] {
     line-height: 1.3;
 }
 
+#dialog-layer .dialog-title--intro {
+    font-size: clamp(1.8rem, 1.4rem + 1.5vw, 2.6rem);
+}
+
 .dialog-text {
     font-size: var(--font-size-lg);
     margin-bottom: var(--space-3);
@@ -421,21 +427,35 @@ body[data-font-mode="readable"] {
     color: var(--color-text);
 }
 
+.intro-list {
+    list-style: none;
+    margin: 0 0 var(--space-4) 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2);
+}
+
+.intro-list li {
+    font-size: var(--font-size-xl);
+    line-height: 1.4;
+    color: var(--color-text);
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-surface-raised);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+}
+
 .dialog-content {
     display: grid;
     gap: var(--space-4);
-    margin-bottom: var(--space-3);
 }
 
 .dialog-status {
-    min-height: 0;
-    margin: 0 0 var(--space-4);
+    min-height: 2.2em;
+    margin: var(--space-3) 0 0;
     font-size: var(--font-size-sm);
     color: var(--color-text-muted);
-}
-
-.dialog-status:empty {
-    display: none;
+    font-weight: 600;
 }
 
 .dialog-status--success {
@@ -451,6 +471,7 @@ body[data-font-mode="readable"] {
     display: flex;
     gap: var(--space-3);
     justify-content: center;
+    margin-top: var(--space-3);
 }
 
 .dialog-btn {

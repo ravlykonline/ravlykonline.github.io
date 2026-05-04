@@ -7,6 +7,7 @@ import { generateWorld } from '../game/world-generator.js';
 import { isNpcWithinRange, shouldCollectApple, pickNearestByDistance } from '../game/rules.js';
 import { t } from '../i18n/index.js';
 import { HUDController } from '../ui/hud-controller.js';
+import { RewardEffects } from '../ui/reward-effects.js';
 import { DialogScene } from './dialog-scene.js';
 
 function getNpcIcon(npc) {
@@ -439,6 +440,7 @@ export class GameScene {
                 continue;
             }
 
+            RewardEffects.playApple();
             this.eventBus.emit('item:collected', { type: 'apple', value: 1 });
 
             const appleEl = document.getElementById(`apple-${apple.id}`);

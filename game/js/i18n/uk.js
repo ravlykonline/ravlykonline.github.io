@@ -44,9 +44,9 @@ export const uk = {
         nearbyNpcBadge: 'Поруч: {name}'
     },
     intro: {
-        title: 'Почнемо нову гру',
-        text: 'Збирай яблука. Підходь до друзів і відкривай завдання.',
-        button: 'Почати'
+        title: '🐌 Равлик-мандрівник',
+        text: '🍎 Збирай яблука по галявині\n🐾 Підходь до лісових друзів\n⭐ Розв\'язуй завдання і збирай зірочки!',
+        button: '🌿 Вирушити в подорож!'
     },
     dialog: {
         complete: 'Готово',
@@ -81,20 +81,20 @@ export const uk = {
         npcPrompt: '{name}. Підійдіть ближче і натисніть Enter або клікніть.',
         npcCompleted: '{name}. Завдання виконано, отримано зірочку.',
         mouseIcon: '🐭',
-        beetleIcon: '🪲',
+        beetleIcon: '🐛',
         owlIcon: '🦉',
-        squirrelIcon: '🐿️',
+        squirrelIcon: '🐿',
         hedgehogIcon: '🦔',
         rabbitIcon: '🐰',
         frogIcon: '🐸',
         foxIcon: '🦊',
-        badgerIcon: '🦡',
+        badgerIcon: '🦫',
         turtleIcon: '🐢',
         deerIcon: '🦌',
         raccoonIcon: '🦝',
         birdIcon: '🐦',
         butterflyIcon: '🦋',
-        moleIcon: '🕳️',
+        moleIcon: '🐀',
         snailFriendIcon: '🐌',
         ladybugIcon: '🐞',
         beeIcon: '🐝',

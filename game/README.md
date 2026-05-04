@@ -224,8 +224,9 @@ Service Worker для PWA/offline режиму.
 3. Дати унікальний `id`.
 4. Додати `nameKey` у `js/i18n/uk.js`.
 5. Вказати `taskPoolIds`.
-6. Перевірити, що така категорія є в `js/tasks/task-data/categories/*.json`.
-7. Перевірити, що NPC не стоїть у перешкоді й не перекриває стартову зону.
+6. Вказати `distributionGroup`, якщо NPC належить до окремої педагогічної групи розподілу на карті.
+7. Перевірити, що така категорія є в `js/tasks/task-data/categories/*.json`.
+8. Перевірити, що NPC не стоїть у перешкоді й не перекриває стартову зону.
 
 Приклад:
 
@@ -234,6 +235,7 @@ Service Worker для PWA/offline режиму.
     id: 'owl_1',
     nameKey: 'npc.owlName',
     taskPoolIds: ['visual-logic.beginner', 'patterns.beginner', 'counting.beginner'],
+    distributionGroup: 'logic',
     type: 'owl',
     x: 2300,
     y: 1850,

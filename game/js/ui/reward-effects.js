@@ -46,6 +46,11 @@ export const RewardEffects = {
         playTone(420, 0.05);
     },
 
+    playApple() {
+        playTone(660, 0.06);
+        playTone(880, 0.07, 0.06);
+    },
+
     playTryAgain() {
         playTone(220, 0.08);
         playTone(180, 0.1, 0.08);

@@ -76,7 +76,6 @@ export const OrderNumbersTask = {
 
                 if (answer.length === task.correctOrder.length) {
                     if (answer.join('|') === task.correctOrder.join('|')) {
-                        RewardEffects.playSuccess();
                         setStatus(t('taskUi.correct'));
                         disableButtons(bank, clearButton, answerRow);
                         onSolved();

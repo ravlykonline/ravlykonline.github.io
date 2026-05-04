@@ -69,9 +69,10 @@
     --space-7: 48px;
     --space-8: 64px;
 
-    --font-family-base: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    --font-family-readable: "Atkinson Hyperlegible", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    --font-family-accent: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    --font-family-emoji: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Android Emoji", sans-serif;
+    --font-family-base: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, var(--font-family-emoji), sans-serif;
+    --font-family-readable: "Atkinson Hyperlegible", "Segoe UI", Tahoma, Geneva, Verdana, var(--font-family-emoji), sans-serif;
+    --font-family-accent: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, var(--font-family-emoji), sans-serif;
     --font-size-xs: 0.75rem;
     --font-size-sm: 0.875rem;
     --font-size-base: 1rem;
