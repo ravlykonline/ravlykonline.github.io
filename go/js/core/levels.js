@@ -226,7 +226,7 @@ export const levels = [
       '3,5': 'up-right',
       '3,6': 'right'
     },
-    hint: 'Один поворот стоїть зарано. Запусти й виправ місце зупинки.',
+    hint: 'Рівник звернув не там. Запусти й подивись де він зупинився.',
     goal: 'Поворот не там.'
   }),
   createLevel({
@@ -286,7 +286,7 @@ export const levels = [
     ],
     allowedTiles: ['down', 'right', 'down-right', 'up-right', 'left-up', 'left-down'],
     presetArrows: {},
-    hint: 'Попереду перешкоди. Обійди їх знизу.',
+    hint: 'Прямо не пройти. Знайди обхід.',
     goal: 'Довший шлях.'
   }),
   createLevel({
