@@ -12,24 +12,37 @@ export class IntroScene extends ModalScene {
 
         this.sceneManager = deps.sceneManager;
         this.createGameScene = deps.createGameScene;
+        this.introList = null;
     }
 
     init() {
         super.init();
         this.dom.dialogTitle.classList.add('dialog-title--intro');
+        this.dom.dialogText.classList.add('sr-only');
 
         const rawText = t('intro.text');
-        const lines = rawText.split('\n');
         const list = document.createElement('ul');
         list.className = 'intro-list';
+        this.introList = list;
 
-        lines.forEach((line) => {
+        rawText.split('\n').forEach((line) => {
             const item = document.createElement('li');
             item.textContent = line;
             list.appendChild(item);
         });
 
-        this.dom.dialogText.replaceWith(list);
+        this.dom.dialogContent.appendChild(list);
+    }
+
+    destroy() {
+        if (this.introList) {
+            this.introList.remove();
+            this.introList = null;
+        }
+        this.dom.dialogTitle.classList.remove('dialog-title--intro');
+        this.dom.dialogText.classList.remove('sr-only');
+        this.dom.dialogText.textContent = '';
+        super.destroy();
     }
 
     handleAction() {

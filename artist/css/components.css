@@ -131,6 +131,14 @@
   background: var(--color-move-block);
 }
 
+.pblock.turn {
+  background: var(--color-turn-block);
+}
+
+.pblock.pen {
+  background: var(--color-pen-block);
+}
+
 .pblock.repeat {
   background: var(--color-repeat-block);
 }
@@ -299,6 +307,16 @@
 .wb.move {
   background: var(--color-move-block);
   box-shadow: 0 0.125rem 0 var(--color-move-block-dark);
+}
+
+.wb.turn {
+  background: var(--color-turn-block);
+  box-shadow: 0 0.125rem 0 var(--color-turn-block-dark);
+}
+
+.wb.pen {
+  background: var(--color-pen-block);
+  box-shadow: 0 0.125rem 0 var(--color-pen-block-dark);
 }
 
 .wb.repeat {

@@ -25,6 +25,10 @@ export class DialogScene extends ModalScene {
     init() {
         super.init();
 
+        // The task prompt is re-rendered inside the task widget (task-intro pill).
+        // Hide the shared dialogText element to avoid duplication and prevent scroll.
+        this.dom.dialogText.classList.add('sr-only');
+
         this.setStatus('');
         TaskRegistry.renderTask({
             task: this.npc.activeTask,
@@ -69,6 +73,11 @@ export class DialogScene extends ModalScene {
 
         this.eventBus.emit('puzzle:completed', { npcId: this.npc.id, stars: this.npc.activeTask.reward?.stars ?? 1 });
         this.announcer.announce(t('announcer.puzzleCompleted', { name: this.npc.name }), 'assertive');
+    }
+
+    destroy() {
+        this.dom.dialogText.classList.remove('sr-only');
+        super.destroy();
     }
 
     handleAction() {

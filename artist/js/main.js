@@ -8,7 +8,7 @@ import { addBlock, addBlockAt, clearWorkspace, countBlocks, flattenBlocks, moveB
 import { validateProgram } from './runtime/execution-limits.js';
 import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from './state/history.js';
 import { trapFocus } from './utils/focus-trap.js';
-import { clearTrail, clearTurtleCanvas, drawTrail, placeSnail, renderLessonGuide, renderTurtle, setupCanvas, setupTurtleMode, teardownTurtleMode, wiggleSnail } from './ui/canvas.js';
+import { clearTrail, clearTurtleCanvas, drawTrail, placeSnail, renderLessonGuide, renderTurtle, renderTurtleGuide, setupCanvas, setupTurtleMode, teardownTurtleMode, wiggleSnail } from './ui/canvas.js';
 import { getDomReferences } from './ui/dom.js';
 import { clearFeedback, hideSuccess, renderBlockCount, renderCode, renderControls, renderHistoryControls, renderLessonHeader, renderLessonNavigation, renderPalette, renderWorkspace, showFeedback, showSuccess } from './ui/render.js';
 
@@ -167,8 +167,9 @@ function isTurtleLesson() {
 function resetBoard() {
   if (isTurtleLesson()) {
     clearTurtleCanvas(dom);
-    const t = createTurtle({ x: appState.currentLesson.start.x, y: appState.currentLesson.start.y, heading: appState.currentLesson.start.heading ?? 0 });
-    renderTurtle(dom, t, []);
+    const lesson = appState.currentLesson;
+    const t = createTurtle({ x: lesson.start.x ?? 0, y: lesson.start.y ?? 0, heading: lesson.start.heading ?? 0 });
+    renderTurtle(dom, t, [], lesson.goalSegments);
     dom.canvasStatus.textContent = 'Черепаха готова малювати.';
   } else {
     clearTrail(dom);
@@ -251,6 +252,9 @@ async function runTurtleProgram() {
   let turtle = createTurtle({ x: start.x ?? 0, y: start.y ?? 0, heading: start.heading ?? 0 });
   appState.turtleSegments = [];
 
+  // Draw ghost guide before first step (renderTurtle handles the guide internally)
+  renderTurtle(dom, turtle, [], lesson.goalSegments);
+
   const actions = flattenBlocks();
   for (const action of actions) {
     if (!appState.running || cancelRequested) break;
@@ -274,7 +278,7 @@ async function runTurtleProgram() {
       turtle = penDown(turtle);
     }
 
-    renderTurtle(dom, turtle, appState.turtleSegments);
+    renderTurtle(dom, turtle, appState.turtleSegments, lesson.goalSegments);
     dom.canvasStatus.textContent = `Черепаха: x=${Math.round(turtle.x)}, y=${Math.round(turtle.y)}, напрямок=${turtle.heading}°.`;
     await sleep(300);
   }

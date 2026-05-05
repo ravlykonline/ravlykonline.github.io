@@ -22,22 +22,31 @@ function runTest(name, fn) {
 }
 
 runTest('lessons expose stable ids and order', () => {
-  assert.equal(lessons.length, 10);
+  assert.equal(lessons.length, 14);
   assert.equal(lessons[0].id, 'lesson-01');
   assert.equal(lessons[5].order, 6);
   assert.equal(lessons[6].id, 'lesson-07');
-  assert.equal(lessons[9].order, 10);
+  assert.equal(lessons[13].order, 14);
 });
 
 runTest('turtle levels have mode turtle and valid toolbox', () => {
   const turtleLessons = lessons.filter((l) => l.mode === 'turtle');
-  assert.equal(turtleLessons.length, 4);
+  assert.equal(turtleLessons.length, 8);
   for (const lesson of turtleLessons) {
     assert.ok(Array.isArray(lesson.toolbox));
     assert.ok(lesson.toolbox.some((t) => t.startsWith('turtle_')));
     assert.equal(lesson.success.mode, 'turtle-minimum');
     assert.ok(lesson.success.minSegments >= 1);
   }
+
+  // Levels with goal segments have a ghost guide
+  const withGoal = turtleLessons.filter((l) => l.goalSegments);
+  assert.equal(withGoal.length, 7); // level 14 (free) has no ghost
+
+  // Last turtle level is free drawing — no ghost
+  const lastTurtle = turtleLessons.at(-1);
+  assert.equal(lastTurtle.id, 'lesson-14');
+  assert.equal(lastTurtle.goalSegments, undefined);
 });
 
 runTest('lessons use instruction instead of instructionHtml', () => {
@@ -353,8 +362,12 @@ runTest('buildProgramCode generates РАВЛИК turtle code', () => {
 
 runTest('evaluateGoal turtle-minimum passes when enough segments drawn', () => {
   const lesson = lessons.find((l) => l.id === 'lesson-07');
-  assert.equal(evaluateGoal(lesson, 1).ok, true);
+  assert.equal(evaluateGoal(lesson, 1).ok, true);  // minSegments = 1
   assert.equal(evaluateGoal(lesson, 0).ok, false);
+
+  const star = lessons.find((l) => l.id === 'lesson-13');
+  assert.equal(evaluateGoal(star, 5).ok, true);    // minSegments = 5
+  assert.equal(evaluateGoal(star, 4).ok, false);
 });
 
 runTest('moveBlockInList prevents moving a repeat block into its own descendants', () => {

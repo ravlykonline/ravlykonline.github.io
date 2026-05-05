@@ -7,22 +7,10 @@
       "type": "odd-one-out",
       "variant": {
         "items": [
-          {
-            "id": "apple-1",
-            "label": "🍎"
-          },
-          {
-            "id": "apple-2",
-            "label": "🍎"
-          },
-          {
-            "id": "mushroom",
-            "label": "🍄"
-          },
-          {
-            "id": "apple-3",
-            "label": "🍎"
-          }
+          { "id": "mushroom", "label": "🍄" },
+          { "id": "apple-1", "label": "🍎" },
+          { "id": "apple-2", "label": "🍎" },
+          { "id": "apple-3", "label": "🍎" }
         ],
         "correctChoiceId": "mushroom"
       }
@@ -32,22 +20,10 @@
       "type": "odd-one-out",
       "variant": {
         "items": [
-          {
-            "id": "circle-1",
-            "label": "○"
-          },
-          {
-            "id": "circle-2",
-            "label": "○"
-          },
-          {
-            "id": "square",
-            "label": "□"
-          },
-          {
-            "id": "circle-3",
-            "label": "○"
-          }
+          { "id": "circle-1", "label": "○" },
+          { "id": "square", "label": "□" },
+          { "id": "circle-2", "label": "○" },
+          { "id": "circle-3", "label": "○" }
         ],
         "correctChoiceId": "square"
       }
@@ -57,24 +33,12 @@
       "type": "odd-one-out",
       "variant": {
         "items": [
-          {
-            "id": "snail-1",
-            "label": "🐌"
-          },
-          {
-            "id": "snail-2",
-            "label": "🐌"
-          },
-          {
-            "id": "rabbit",
-            "label": "🐰"
-          },
-          {
-            "id": "snail-3",
-            "label": "🐌"
-          }
+          { "id": "rabbit-1", "label": "🐰" },
+          { "id": "rabbit-2", "label": "🐰" },
+          { "id": "bee", "label": "🐝" },
+          { "id": "rabbit-3", "label": "🐰" }
         ],
-        "correctChoiceId": "rabbit"
+        "correctChoiceId": "bee"
       }
     },
     {
@@ -108,42 +72,48 @@
       }
     },
     {
-      "id": "logic-pairs-baby-parent",
+      "id": "logic-pairs-dog-bone",
       "type": "logic-pairs",
       "variant": {
-        "promptPair": "🐣 → 🐔",
+        "id": "dog-bone",
+        "promptItem": "🐶",
         "choices": [
-          "🐛 → 🦋",
-          "🍎 → 🍐",
-          "🌧️ → ⭐"
+          { "id": "bone", "label": "🦴" },
+          { "id": "carrot", "label": "🥕" },
+          { "id": "flower", "label": "🌸" },
+          { "id": "mushroom", "label": "🍄" }
         ],
-        "correctChoiceId": "🐛 → 🦋"
+        "correctChoiceId": "bone"
       }
     },
     {
-      "id": "logic-pairs-tool-use",
+      "id": "logic-pairs-rabbit-carrot",
       "type": "logic-pairs",
       "variant": {
-        "promptPair": "🔑 → 🚪",
+        "id": "rabbit-carrot",
+        "promptItem": "🐰",
         "choices": [
-          "🖍️ → 📄",
-          "🍄 → 🌧️",
-          "⭐ → 🐌"
+          { "id": "bone", "label": "🦴" },
+          { "id": "carrot", "label": "🥕" },
+          { "id": "star", "label": "⭐" },
+          { "id": "rock", "label": "🪨" }
         ],
-        "correctChoiceId": "🖍️ → 📄"
+        "correctChoiceId": "carrot"
       }
     },
     {
-      "id": "logic-pairs-home",
+      "id": "logic-pairs-rain-umbrella",
       "type": "logic-pairs",
       "variant": {
-        "promptPair": "🐝 → 🐝🏠",
+        "id": "rain-umbrella",
+        "promptItem": "🌧️",
         "choices": [
-          "🐦 → 🪺",
-          "🍎 → 🧺",
-          "🌿 → 🪨"
+          { "id": "flower", "label": "🌸" },
+          { "id": "apple", "label": "🍎" },
+          { "id": "umbrella", "label": "☂️" },
+          { "id": "bone", "label": "🦴" }
         ],
-        "correctChoiceId": "🐦 → 🪺"
+        "correctChoiceId": "umbrella"
       }
     },
     {
@@ -170,30 +140,11 @@
       "id": "magic-square-emoji-animals",
       "type": "magic-square",
       "variant": {
-        "grid": [
-          "🐌",
-          "🐝",
-          "🦋",
-          "🐝",
-          "🦋",
-          "🐌",
-          "🦋",
-          null,
-          "🐝"
-        ],
+        "grid": ["🐌", "🐝", "🦋", "🐝", "🦋", "🐌", "🦋", null, "🐝"],
         "choices": [
-          {
-            "id": "snail",
-            "label": "🐌"
-          },
-          {
-            "id": "bee",
-            "label": "🐝"
-          },
-          {
-            "id": "butterfly",
-            "label": "🦋"
-          }
+          { "id": "snail", "label": "🐌" },
+          { "id": "bee", "label": "🐝" },
+          { "id": "butterfly", "label": "🦋" }
         ],
         "correctChoiceId": "snail"
       }
@@ -202,30 +153,11 @@
       "id": "magic-square-shapes-corners",
       "type": "magic-square",
       "variant": {
-        "grid": [
-          "■",
-          "▲",
-          "●",
-          "▲",
-          "●",
-          "■",
-          "●",
-          null,
-          "▲"
-        ],
+        "grid": ["■", "▲", "●", "▲", "●", "■", "●", null, "▲"],
         "choices": [
-          {
-            "id": "square",
-            "label": "■"
-          },
-          {
-            "id": "triangle",
-            "label": "▲"
-          },
-          {
-            "id": "circle",
-            "label": "●"
-          }
+          { "id": "square", "label": "■" },
+          { "id": "triangle", "label": "▲" },
+          { "id": "circle", "label": "●" }
         ],
         "correctChoiceId": "square"
       }
@@ -235,22 +167,10 @@
       "type": "odd-one-out",
       "variant": {
         "items": [
-          {
-            "id": "bird-1",
-            "label": "🐦"
-          },
-          {
-            "id": "bird-2",
-            "label": "🐦"
-          },
-          {
-            "id": "butterfly",
-            "label": "🦋"
-          },
-          {
-            "id": "bird-3",
-            "label": "🐦"
-          }
+          { "id": "bird-1", "label": "🐦" },
+          { "id": "bird-2", "label": "🐦" },
+          { "id": "bird-3", "label": "🐦" },
+          { "id": "butterfly", "label": "🦋" }
         ],
         "correctChoiceId": "butterfly"
       }
@@ -260,22 +180,10 @@
       "type": "odd-one-out",
       "variant": {
         "items": [
-          {
-            "id": "leaf-1",
-            "label": "🍃"
-          },
-          {
-            "id": "leaf-2",
-            "label": "🍃"
-          },
-          {
-            "id": "acorn",
-            "label": "🌰"
-          },
-          {
-            "id": "leaf-3",
-            "label": "🍃"
-          }
+          { "id": "acorn", "label": "🌰" },
+          { "id": "leaf-1", "label": "🍃" },
+          { "id": "leaf-2", "label": "🍃" },
+          { "id": "leaf-3", "label": "🍃" }
         ],
         "correctChoiceId": "acorn"
       }
@@ -285,22 +193,10 @@
       "type": "odd-one-out",
       "variant": {
         "items": [
-          {
-            "id": "star-1",
-            "label": "⭐"
-          },
-          {
-            "id": "star-2",
-            "label": "⭐"
-          },
-          {
-            "id": "heart",
-            "label": "❤️"
-          },
-          {
-            "id": "star-3",
-            "label": "⭐"
-          }
+          { "id": "star-1", "label": "⭐" },
+          { "id": "heart", "label": "❤️" },
+          { "id": "star-2", "label": "⭐" },
+          { "id": "star-3", "label": "⭐" }
         ],
         "correctChoiceId": "heart"
       }
@@ -346,72 +242,59 @@
       }
     },
     {
+      "id": "logic-pairs-key-door",
+      "type": "logic-pairs",
+      "variant": {
+        "id": "key-door",
+        "promptItem": "🔑",
+        "choices": [
+          { "id": "apple", "label": "🍎" },
+          { "id": "cloud", "label": "☁️" },
+          { "id": "mushroom", "label": "🍄" },
+          { "id": "door", "label": "🚪" }
+        ],
+        "correctChoiceId": "door"
+      }
+    },
+    {
+      "id": "logic-pairs-chick-hen",
+      "type": "logic-pairs",
+      "variant": {
+        "id": "chick-hen",
+        "promptItem": "🐣",
+        "choices": [
+          { "id": "hen", "label": "🐔" },
+          { "id": "rain", "label": "🌧️" },
+          { "id": "fish", "label": "🐟" },
+          { "id": "leaf", "label": "🍃" }
+        ],
+        "correctChoiceId": "hen"
+      }
+    },
+    {
       "id": "logic-pairs-bee-flower",
       "type": "logic-pairs",
       "variant": {
-        "promptPair": "🐝 → 🌼",
+        "id": "bee-flower",
+        "promptItem": "🐝",
         "choices": [
-          "🦋 → 🌼",
-          "🍄 → ⭐",
-          "🐌 → ☁️"
+          { "id": "cloud", "label": "☁️" },
+          { "id": "rock", "label": "🪨" },
+          { "id": "star", "label": "⭐" },
+          { "id": "flower", "label": "🌼" }
         ],
-        "correctChoiceId": "🦋 → 🌼"
-      }
-    },
-    {
-      "id": "logic-pairs-dog-bone",
-      "type": "logic-pairs",
-      "variant": {
-        "promptPair": "🐶 → 🦴",
-        "choices": [
-          "🐰 → 🥕",
-          "🍎 → 🌙",
-          "⭐ → 🐌"
-        ],
-        "correctChoiceId": "🐰 → 🥕"
-      }
-    },
-    {
-      "id": "logic-pairs-rain-umbrella",
-      "type": "logic-pairs",
-      "variant": {
-        "promptPair": "🌧️ → ☂️",
-        "choices": [
-          "☀️ → 🕶️",
-          "🍎 → 🪨",
-          "🐝 → ❄️"
-        ],
-        "correctChoiceId": "☀️ → 🕶️"
+        "correctChoiceId": "flower"
       }
     },
     {
       "id": "magic-square-emoji-garden",
       "type": "magic-square",
       "variant": {
-        "grid": [
-          "🌼",
-          "🍄",
-          "🍃",
-          "🍄",
-          "🍃",
-          "🌼",
-          "🍃",
-          null,
-          "🍄"
-        ],
+        "grid": ["🌼", "🍄", "🍃", "🍄", "🍃", "🌼", "🍃", null, "🍄"],
         "choices": [
-          {
-            "id": "flower",
-            "label": "🌼"
-          },
-          {
-            "id": "mushroom",
-            "label": "🍄"
-          },
-          {
-            "id": "leaf",
-            "label": "🍃"
-          }
+          { "id": "flower", "label": "🌼" },
+          { "id": "mushroom", "label": "🍄" },
+          { "id": "leaf", "label": "🍃" }
         ],
         "correctChoiceId": "flower"
       }
@@ -420,30 +303,11 @@
       "id": "magic-square-emoji-sky",
       "type": "magic-square",
       "variant": {
-        "grid": [
-          "☁️",
-          "⭐",
-          "🌙",
-          "⭐",
-          "🌙",
-          "☁️",
-          "🌙",
-          null,
-          "⭐"
-        ],
+        "grid": ["☁️", "⭐", "🌙", "⭐", "🌙", "☁️", "🌙", null, "⭐"],
         "choices": [
-          {
-            "id": "cloud",
-            "label": "☁️"
-          },
-          {
-            "id": "star",
-            "label": "⭐"
-          },
-          {
-            "id": "moon",
-            "label": "🌙"
-          }
+          { "id": "cloud", "label": "☁️" },
+          { "id": "star", "label": "⭐" },
+          { "id": "moon", "label": "🌙" }
         ],
         "correctChoiceId": "cloud"
       }

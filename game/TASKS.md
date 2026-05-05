@@ -828,3 +828,87 @@ function evaluate() {
 - `RewardEffects.playTryAgain()` для помилки.
 
 Типи завдань не повинні напряму викликати `RewardEffects.playSuccess()`, інакше фанфари звучать двічі: один раз у самому завданні й другий раз під час показу зірки.
+
+---
+
+## 26. Спільний DOM і lifecycle сцен
+
+`ModalScene` та її підкласи (`IntroScene`, `DialogScene`) поділяють один і той самий набір DOM-елементів через синглтон `js/core/dom.js`:
+
+```txt
+#dialog-title
+#dialog-text
+#dialog-content
+#dialog-status
+#dialog-btn
+```
+
+**Критичне правило:** ніколи не видаляти ці елементи з DOM за допомогою `.replaceWith()`, `.remove()` або будь-яких методів, що фізично від'єднують вузол. DOM-синглтон зберігає посилання на момент ініціалізації; після від'єднання всі подальші сцени отримають stale reference.
+
+**Правильний патерн** для сцен, яким потрібен додатковий DOM:
+
+```js
+init() {
+    super.init();
+    this.dom.dialogText.classList.add('sr-only');   // сховати, не видаляти
+    const extra = document.createElement('ul');
+    this.myList = extra;
+    this.dom.dialogContent.appendChild(extra);       // додати поруч
+}
+
+destroy() {
+    if (this.myList) {
+        this.myList.remove();                        // видалити свій елемент
+        this.myList = null;
+    }
+    this.dom.dialogText.classList.remove('sr-only'); // відновити стан
+    this.dom.dialogText.textContent = '';
+    super.destroy();
+}
+```
+
+`DialogScene` приховує `dialogText` за допомогою `sr-only` одразу у `init()` — щоб не показувати prompt двічі (він також присутній у `task-intro` pill). У `destroy()` клас знімається автоматично.
+
+---
+
+## 27. Формат задачі `logic-pairs`
+
+Тип `logic-pairs` реалізує завдання «Що підходить?»: дитина бачить один великий емодзі-символ і вибирає відповідну пару з чотирьох варіантів у сітці 2×2.
+
+Формат даних у JSON-категорії або `logic-pairs-variants.js`:
+
+```js
+{
+    id: 'dog-bone',
+    promptItem: '🐶',         // один символ-підказка
+    choices: [                 // рівно 4 варіанти
+        { id: 'bone',     label: '🦴' },
+        { id: 'carrot',   label: '🥕' },
+        { id: 'flower',   label: '🌸' },
+        { id: 'mushroom', label: '🍄' }
+    ],
+    correctChoiceId: 'bone'
+}
+```
+
+Ключові правила:
+- `choices` містить **рівно 4 елементи**.
+- Позиція `correctChoiceId` у списку навмисно різниться між варіантами (не завжди перший чи третій).
+- `LogicPairsTask.createTask()` **перемішує** `choices` через Fisher-Yates при кожному виклику, тому навіть якщо у JSON правильний варіант перший — дитина не може вгадати по позиції.
+- CSS-клас контейнера: `task-options-grid--logic-pairs` (2×2 grid).
+- CSS-клас картки-підказки: `task-card--prompt-item` (великий шрифт, центрована).
+
+---
+
+## 28. Правила різноманітності `odd-one-out`
+
+Задача «Що зайве?» не має бути передбачуваною:
+
+1. **Позиція зайвого елемента** має варіюватися між варіантами (0, 1, 2, 3). Уникати ситуації, коли у всіх варіантах однієї категорії зайвий елемент завжди на позиції index 2.
+
+2. **Категорійна різноманітність.** Зайвий елемент має належати до **іншої смислової групи**, а не просто бути іншою формою:
+   - правильно: ссавці + комаха (`🐰🐰🐝🐰`);
+   - правильно: птахи + комаха (`🐦🐦🐦🦋`);
+   - слабко: три ідентичні форми + інша форма (дитина відповідає механічно, не розуміючи категорії).
+
+3. `odd-one-out` у `visual-logic.beginner.json` задає `items` з фіксованими позиціями; `OddOneOutTask.createTask()` **не перемішує** items, тому відповідальність за рознесення позицій лежить на авторі JSON-даних.

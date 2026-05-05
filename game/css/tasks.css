@@ -145,8 +145,15 @@
     grid-template-columns: 1fr;
 }
 
-.task-options-grid--odd-one-out {
+.task-options-grid--odd-one-out,
+.task-options-grid--logic-pairs {
     grid-template-columns: repeat(2, 1fr);
+}
+
+.task-card--prompt-item {
+    font-size: 2.8rem;
+    padding: 0.5rem 1.5rem;
+    align-self: center;
 }
 
 .task-token,

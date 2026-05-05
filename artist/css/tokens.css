@@ -19,6 +19,10 @@
   --color-text-accent: #2f1364;
   --color-move-block: #1a9080;
   --color-move-block-dark: #0e5a4e;
+  --color-turn-block: #7b3f9e;
+  --color-turn-block-dark: #5a2d77;
+  --color-pen-block: #1e66c8;
+  --color-pen-block-dark: #1450a0;
   --color-repeat-block: #c72070;
   --color-repeat-block-dark: #8a1550;
   --color-event-block: #e8940a;

@@ -204,6 +204,30 @@ export function clearTurtleCanvas(dom) {
 }
 
 /**
+ * Draws ghost (expected) segments in a translucent grey dashed style.
+ * goalSegments = [{from:[x,y], to:[x,y]}, ...]  (pixel coords relative to center)
+ */
+export function renderTurtleGuide(dom, goalSegments) {
+  if (!goalSegments || goalSegments.length === 0) return;
+  const ctx = dom.trailCanvas.getContext('2d');
+
+  ctx.save();
+  ctx.strokeStyle = 'rgba(130, 100, 200, 0.28)';
+  ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+  ctx.setLineDash([12, 10]);
+
+  for (const seg of goalSegments) {
+    ctx.beginPath();
+    ctx.moveTo(TURTLE_ORIGIN_X + seg.from[0], TURTLE_ORIGIN_Y + seg.from[1]);
+    ctx.lineTo(TURTLE_ORIGIN_X + seg.to[0], TURTLE_ORIGIN_Y + seg.to[1]);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+/**
  * Draws a line segment. segment = { from: [x, y], to: [x, y], color, width }
  * Coordinates are in pixels relative to center.
  */
@@ -231,8 +255,11 @@ export function drawTurtleSegment(dom, segment) {
  * Renders the turtle indicator (small triangle) at turtle's position + heading.
  * Redraws all segments + indicator on each call.
  */
-export function renderTurtle(dom, turtle, segments) {
+export function renderTurtle(dom, turtle, segments, goalSegments = null) {
   clearTurtleCanvas(dom);
+
+  // ghost guide below user segments
+  if (goalSegments) renderTurtleGuide(dom, goalSegments);
 
   for (const seg of segments) {
     drawTurtleSegment(dom, seg);
