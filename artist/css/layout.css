@@ -18,11 +18,8 @@
   font-weight: 900;
 }
 
-.logo-box {
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-md);
-  background: var(--color-orange);
-  font-size: var(--font-size-md);
+.logo-snail {
+  font-size: 1.5rem;
 }
 
 .lesson-title {
@@ -30,15 +27,18 @@
   left: 50%;
   transform: translateX(-50%);
   color: var(--color-surface);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   font-weight: 700;
   opacity: 0.9;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .lesson-nav {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1);
+  flex-wrap: nowrap;
 }
 
 .folk-divider {

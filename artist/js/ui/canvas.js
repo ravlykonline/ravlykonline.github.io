@@ -186,16 +186,17 @@ export function drawTrail(dom, lesson, from, to) {
 // ── Turtle mode ──────────────────────────────────────────────────────────────
 
 export function setupTurtleMode(dom) {
-  dom.gridSvg.style.display = 'none';
-  dom.snailElement.style.display = 'none';
+  // visibility:hidden keeps layout so canvas (position:absolute) stays in flow
+  dom.gridSvg.style.visibility = 'hidden';
+  dom.snailElement.style.visibility = 'hidden';
   dom.trailCanvas.width = GRID_WIDTH;
   dom.trailCanvas.height = GRID_HEIGHT;
   clearTurtleCanvas(dom);
 }
 
 export function teardownTurtleMode(dom) {
-  dom.gridSvg.style.display = '';
-  dom.snailElement.style.display = '';
+  dom.gridSvg.style.visibility = '';
+  dom.snailElement.style.visibility = '';
 }
 
 export function clearTurtleCanvas(dom) {
@@ -269,21 +270,27 @@ export function renderTurtle(dom, turtle, segments, goalSegments = null) {
   const px = TURTLE_ORIGIN_X + turtle.x;
   const py = TURTLE_ORIGIN_Y + turtle.y;
   const rad = (turtle.heading - 90) * (Math.PI / 180);
-  const size = 10;
+  const size = 16;
 
   ctx.save();
   ctx.translate(px, py);
   ctx.rotate(rad);
-  ctx.fillStyle = 'var(--color-trail-orange, #f97316)';
-  ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 1.5;
+  // body
+  ctx.fillStyle = '#1a9080';
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(0, -size);
-  ctx.lineTo(size * 0.6, size * 0.6);
-  ctx.lineTo(-size * 0.6, size * 0.6);
+  ctx.lineTo(size * 0.65, size * 0.65);
+  ctx.lineTo(-size * 0.65, size * 0.65);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
+  // head dot
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(0, -size + 4, 3, 0, Math.PI * 2);
+  ctx.fill();
   ctx.restore();
 }
 

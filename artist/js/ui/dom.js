@@ -30,5 +30,11 @@ export function getDomReferences() {
     gridSvg: document.getElementById('grid-svg'),
     trailCanvas: document.getElementById('trail-canvas'),
     snailElement: document.getElementById('snail-el'),
+    introOverlay: document.getElementById('intro-overlay'),
+    introIcon: document.getElementById('intro-icon'),
+    introTitle: document.getElementById('intro-title'),
+    introBody: document.getElementById('intro-body'),
+    introCode: document.getElementById('intro-code'),
+    introOkButton: document.getElementById('btn-intro-ok'),
   };
 }

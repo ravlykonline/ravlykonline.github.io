@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ravlyk Artist</title>
+<title>Равлик Художник</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
@@ -17,8 +17,8 @@
 
 <header id="hdr">
   <div class="logo">
-    <div class="logo-box">ART</div>
-    Ravlyk Artist
+    <span class="logo-snail" aria-hidden="true">🐌</span>
+    Равлик Художник
   </div>
   <div class="lesson-title" id="lesson-title">Рівень 1</div>
   <nav class="lesson-nav" id="lesson-nav" aria-label="Навігація по рівнях"></nav>
@@ -96,6 +96,16 @@
     <h2 id="success-title">Чудова робота!</h2>
     <p id="success-msg">Равлик виконав завдання.</p>
     <button class="btn-next" id="btn-next" type="button">Наступний рівень →</button>
+  </div>
+</div>
+
+<div id="intro-overlay" aria-hidden="true">
+  <div class="intro-card" role="dialog" aria-modal="true" aria-labelledby="intro-title" aria-describedby="intro-body">
+    <div class="intro-icon" id="intro-icon" aria-hidden="true"></div>
+    <h2 class="intro-title" id="intro-title"></h2>
+    <p class="intro-body" id="intro-body"></p>
+    <pre class="intro-code" id="intro-code" aria-label="Приклад коду"></pre>
+    <button class="btn-intro-ok" id="btn-intro-ok" type="button">Зрозуміло! →</button>
   </div>
 </div>
 

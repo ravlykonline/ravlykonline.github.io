@@ -8,7 +8,8 @@ import { addBlock, addBlockAt, clearWorkspace, countBlocks, flattenBlocks, moveB
 import { validateProgram } from './runtime/execution-limits.js';
 import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from './state/history.js';
 import { trapFocus } from './utils/focus-trap.js';
-import { clearTrail, clearTurtleCanvas, drawTrail, placeSnail, renderLessonGuide, renderTurtle, renderTurtleGuide, setupCanvas, setupTurtleMode, teardownTurtleMode, wiggleSnail } from './ui/canvas.js';
+import { playSuccess, playFailure } from './utils/sounds.js';
+import { clearTrail, clearTurtleCanvas, drawTrail, placeSnail, renderLessonGuide, renderTurtle, setupCanvas, setupTurtleMode, teardownTurtleMode, wiggleSnail } from './ui/canvas.js';
 import { getDomReferences } from './ui/dom.js';
 import { clearFeedback, hideSuccess, renderBlockCount, renderCode, renderControls, renderHistoryControls, renderLessonHeader, renderLessonNavigation, renderPalette, renderWorkspace, showFeedback, showSuccess } from './ui/render.js';
 
@@ -64,6 +65,26 @@ function setResetConfirmOpen(isOpen) {
   } else {
     dom.resetButton.focus();
   }
+}
+
+function setIntroOpen(isOpen) {
+  dom.introOverlay.classList.toggle('show', isOpen);
+  dom.introOverlay.setAttribute('aria-hidden', String(!isOpen));
+  if (isOpen) dom.introOkButton.focus();
+}
+
+function showIntroIfNeeded(lesson) {
+  if (!lesson.intro) return;
+  dom.introIcon.textContent = lesson.intro.icon ?? '';
+  dom.introTitle.textContent = lesson.intro.title;
+  dom.introBody.textContent = lesson.intro.body;
+  if (lesson.intro.code) {
+    dom.introCode.textContent = lesson.intro.code;
+    dom.introCode.hidden = false;
+  } else {
+    dom.introCode.hidden = true;
+  }
+  setIntroOpen(true);
 }
 
 function resetWorkspaceDragState() {
@@ -197,6 +218,7 @@ function loadLesson(index) {
 
   refreshUi();
   resetBoard();
+  showIntroIfNeeded(appState.currentLesson);
 }
 
 function performResetLesson() {
@@ -343,6 +365,7 @@ async function runProgram() {
   const goalData = isTurtleLesson() ? appState.turtleSegments.length : appState.trailPoints;
   const result = evaluateGoal(appState.currentLesson, goalData);
   if (result.ok) {
+    playSuccess();
     markLessonDone(appState.currentLessonIndex);
     refreshUi();
     wiggleSnail(dom);
@@ -350,6 +373,7 @@ async function runProgram() {
     await sleep(SUCCESS_CELEBRATION_DELAY_MS);
     showSuccess(dom, appState.currentLesson, appState.currentLessonIndex === lessons.length - 1);
   } else {
+    playFailure();
     showFeedback(dom, result.message);
   }
 }
@@ -378,6 +402,11 @@ function bindEvents() {
   dom.undoButton.addEventListener('click', performUndo);
   dom.redoButton.addEventListener('click', performRedo);
 
+  dom.introOkButton.addEventListener('click', () => setIntroOpen(false));
+  dom.introOverlay.addEventListener('click', (event) => {
+    if (event.target === dom.introOverlay) setIntroOpen(false);
+  });
+
   dom.resetConfirmOverlay.addEventListener('click', (event) => {
     if (event.target === dom.resetConfirmOverlay) setResetConfirmOpen(false);
   });
@@ -387,7 +416,9 @@ function bindEvents() {
     const isInput = document.activeElement?.tagName === 'INPUT';
 
     if (key === 'Escape') {
-      if (dom.resetConfirmOverlay.classList.contains('show')) {
+      if (dom.introOverlay.classList.contains('show')) {
+        setIntroOpen(false);
+      } else if (dom.resetConfirmOverlay.classList.contains('show')) {
         setResetConfirmOpen(false);
       } else if (appState.insertTargetId !== null) {
         setInsertTarget(null);
@@ -433,6 +464,7 @@ function bindEvents() {
   });
 
   // focus traps for modals
+  trapFocus(dom.introOverlay.querySelector('.intro-card'));
   trapFocus(dom.resetConfirmOverlay.querySelector('.confirm-card'));
   trapFocus(dom.overlay.querySelector('.success-card'));
 }
