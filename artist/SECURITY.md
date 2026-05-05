@@ -1,331 +1,130 @@
 # SECURITY.md — безпека Ravlyk Artist
 
-Ravlyk Artist — дитячий освітній сайт. Навіть якщо він статичний і простий, безпека має бути закладена з самого початку: мінімум зовнішніх залежностей, нуль персональних даних, контроль HTML, CSP, offline-first і передбачувана поведінка у шкільному середовищі.
-
 ---
 
 ## 1. Поточна модель ризиків
 
-Зараз проєкт:
+**Вирішено після Фази 1:**
+- ✅ `instructionHtml` → `instruction` + `textContent` (XSS прибрано)
+- ✅ Legacy-файли ізольовано у `legacy/`, не активні
+- ✅ Execution limits — вкладені repeat не зависять браузер
+- ✅ Stop button — runtime можна перервати
 
-- не має backend;
-- не має логіну;
-- не має API;
-- не має платежів;
-- не має користувацького контенту;
-- не використовує cookies;
-- не зберігає персональні дані;
-- не має зовнішніх JS-бібліотек.
-
-Це дуже добре для дитячого продукту.
-
-Поточні ризики:
-
-1. `instructionHtml` рендериться через `innerHTML`.
-2. У `ui/icons.js` є великі inline SVG-рядки, які також вставляються як HTML.
-3. Підключаються Google Fonts.
-4. Немає CSP.
-5. Немає service worker/offline security policy.
-6. Немає формального правила щодо `localStorage`/`sessionStorage`.
-7. Є legacy-файли, які можуть випадково стати активними.
+**Залишаються:**
+- ⚠️ Inline SVG у `ui/icons.js` — допустимо (статичний, без user data)
+- ⚠️ Google Fonts підключено зовні — треба self-host для повного CSP
+- ⚠️ Немає CSP заголовків (P3)
+- ⚠️ Немає service worker (P3)
 
 ---
 
 ## 2. Головне правило
 
-Проєкт не має приймати або рендерити неперевірений HTML.
+Проєкт не приймає і не рендерить неперевірений HTML.
 
-Особливо заборонено:
+Заборонено:
+- `innerHTML` для текстів рівнів або будь-яких даних
+- HTML-теги в полі `instruction`
+- User-generated HTML будь-де
 
-- вставляти тексти рівнів через `innerHTML`, якщо вони можуть редагуватися не розробником;
-- дозволяти в рівнях довільні HTML-теги;
-- завантажувати рівні з Google Sheet/CMS/GitHub raw без sanitize;
-- додавати user-generated HTML;
-- зберігати й потім рендерити введений користувачем HTML.
+Дозволено:
+- Inline SVG з `icons.js` (статичний, контрольований)
+- `textContent` для всіх текстів
 
 ---
 
 ## 3. Політика щодо дитячих даних
 
-За замовчуванням не збирати:
-
-- ім’я дитини;
-- прізвище;
-- клас;
-- школу;
-- email;
-- телефон;
-- фото;
-- IP на власному backend;
-- результати конкретної дитини;
-- аналітику на рівні користувача.
+Не збирати: ім'я, прізвище, клас, школу, email, IP, результати конкретної дитини.
 
 Дозволено:
+- JS state (пам'ять вкладки)
+- `sessionStorage` для технічного прогресу
 
-- локальний стан у пам’яті вкладки;
-- `sessionStorage` для технічного прогресу в межах поточної сесії;
-- анонімна загальна аналітика тільки після окремого рішення і з privacy-first налаштуваннями.
-
-Не використовувати `localStorage` для прогресу за замовчуванням, бо на шкільному комп’ютері можуть працювати різні діти.
+Не використовувати `localStorage` за замовчуванням — на шкільному комп'ютері можуть працювати різні діти.
 
 ---
 
-## 4. Storage policy
+## 4. XSS-захист (реалізовано)
 
-### MVP
-
-- Workspace зберігається тільки в JS state.
-- Пройдені рівні можна зберігати в `sessionStorage`.
-- Після закриття вкладки все починається з нуля.
-
-### Опційно пізніше
-
-Можна додати перемикач:
-
-```text
-Зберігати прогрес на цьому пристрої
+**До (Фаза 0):**
+```js
+dom.instructionText.innerHTML = lesson.instructionHtml; // ❌
 ```
 
-Тільки після явної дії користувача можна використовувати `localStorage`.
-
-Обов’язково додати:
-
-```text
-Очистити прогрес на цьому пристрої
+**Після (Фаза 1):**
+```js
+dom.instructionText.textContent = lesson.instruction;   // ✅
 ```
+
+Тест `lessons use instruction instead of instructionHtml` — у `tests/art.core.test.js`.
 
 ---
 
-## 5. XSS-захист
-
-### Проблема
-
-Зараз є:
+## 5. Execution limits (реалізовано)
 
 ```js
-dom.instructionText.innerHTML = lesson.instructionHtml;
+// js/runtime/execution-limits.js
+MAX_EXPANDED_ACTIONS = 500
+MAX_REPEAT_COUNT     = 20
+MAX_NESTING_DEPTH    = 4
 ```
 
-Це треба замінити.
-
-### Рекомендоване рішення
-
-Використовувати структуровані інструкції:
-
-```js
-instruction: [
-  { type: 'text', value: 'Проведи Равлика ' },
-  { type: 'strong', value: 'вниз на 4 клітинки' },
-  { type: 'text', value: '.' }
-]
-```
-
-Рендерити через `textContent` і `document.createElement`:
-
-```js
-function renderInstruction(parts, container) {
-  container.replaceChildren();
-
-  for (const part of parts) {
-    if (part.type === 'strong') {
-      const strong = document.createElement('strong');
-      strong.textContent = part.value;
-      container.appendChild(strong);
-      continue;
-    }
-
-    container.appendChild(document.createTextNode(part.value));
-  }
-}
-```
-
-### Тимчасове рішення
-
-Якщо треба залишити HTML, дозволити тільки whitelist:
-
-- `strong`;
-- `em`;
-- `br`.
-
-Все інше видаляти.
+Перевіряється в `validateProgram()` до запуску. При перевищенні — дружнє повідомлення, runtime не запускається.
 
 ---
 
-## 6. Inline SVG
+## 6. Content Security Policy (планується, P3)
 
-Inline SVG-равлик допустимий, якщо:
+Після self-host fonts:
 
-- SVG є статичним файлом/рядком у репозиторії;
-- не містить скриптів;
-- не містить зовнішніх посилань;
-- не формується з користувацьких даних.
-
-Краще в майбутньому перенести SVG у:
-
-```text
-assets/icons/snail.svg
+```
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self';
+  style-src 'self';
+  img-src 'self' data:;
+  font-src 'self';
+  connect-src 'self';
+  object-src 'none';
+  base-uri 'self';
+  frame-ancestors 'none';
+  form-action 'none';
 ```
 
-І вставляти через `<img>` або безпечний loader.
+Для Cloudflare Pages — `_headers` файл (P3.4).
 
----
-
-## 7. Content Security Policy
-
-Після self-host fonts рекомендований CSP:
-
-```http
-Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none';
+Поки Google Fonts:
 ```
-
-Для Cloudflare Pages можна налаштувати `_headers`:
-
-```text
-/*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: no-referrer
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=(), magnetometer=()
-```
-
-Якщо тимчасово залишаються Google Fonts:
-
-```http
-style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+style-src 'self' https://fonts.googleapis.com;
 font-src 'self' https://fonts.gstatic.com;
 ```
 
-Але краще прибрати Google Fonts і self-host `Nunito`.
+---
+
+## 7. Inline SVG
+
+Допустимо, якщо SVG:
+- статичний рядок у репозиторії
+- не містить `<script>` або зовнішніх посилань
+- не формується з user data
+
+Майбутнє (P3): перенести в `assets/icons/snail.svg`.
 
 ---
 
-## 8. Зовнішні залежності
+## 8. Security checklist
 
-Для MVP бажано не додавати зовнішні JS-залежності.
-
-Дозволено:
-
-- власний JS;
-- власний CSS;
-- self-host fonts;
-- self-host icons.
-
-Не додавати без сильного обґрунтування:
-
-- важкі UI-фреймворки;
-- сторонні drag-and-drop бібліотеки;
-- analytics scripts;
-- CDN-скрипти;
-- tracking pixels.
-
----
-
-## 9. Service worker security
-
-Service worker має кешувати тільки власні файли:
-
-- HTML;
-- CSS;
-- JS;
-- fonts;
-- icons;
-- offline page.
-
-Не кешувати:
-
-- сторонні домени;
-- аналітику;
-- неперевірені JSON-рівні;
-- користувацький контент.
-
-Деталі — у `PWA.md`.
-
----
-
-## 10. Захист від зависань
-
-Безпека — це не тільки XSS. Дитячий сайт не має зависати від помилкової програми.
-
-Обов’язково реалізувати:
-
-```js
-const MAX_EXPANDED_ACTIONS = 500;
-const MAX_REPEAT_COUNT = 20;
-const MAX_NESTING_DEPTH = 4;
-```
-
-Якщо програма більша — не запускати.
-
-Під час виконання має бути кнопка:
-
-```text
-Зупинити
-```
-
----
-
-## 11. Error handling
-
-Не показувати технічні помилки дітям.
-
-Погано:
-
-```text
-TypeError: Cannot read properties of undefined
-```
-
-Добре:
-
-```text
-Щось пішло не так. Спробуй очистити програму й запустити ще раз.
-```
-
-У dev-режимі можна логувати деталі в console.
-
----
-
-## 12. GitHub Pages / Cloudflare Pages
-
-Для раннього етапу GitHub Pages достатньо.
-
-Для кращого security-аудиту бажано Cloudflare Pages, бо там легше:
-
-- налаштувати security headers;
-- контролювати кешування;
-- додати `_headers`;
-- додати redirects;
-- перевірити PWA.
-
----
-
-## 13. Security checklist перед релізом
-
-- [ ] Немає активних legacy-файлів.
-- [ ] Немає `innerHTML` для текстів рівнів.
-- [ ] Усі UI-тексти через `textContent` або безпечний renderer.
-- [ ] Google Fonts прибрано або обґрунтовано.
-- [ ] CSP налаштовано.
-- [ ] `X-Content-Type-Options: nosniff` налаштовано.
-- [ ] `Referrer-Policy: no-referrer` налаштовано.
-- [ ] `Permissions-Policy` забороняє непотрібні API.
-- [ ] Немає cookies.
-- [ ] Немає збору персональних даних.
-- [ ] Немає сторонніх JS-CDN.
-- [ ] Є execution limit.
-- [ ] Є кнопка stop.
-- [ ] Є дружні помилки.
-- [ ] Service worker кешує тільки власні файли.
-
----
-
-## 14. Що реалізувати першочергово
-
-1. Замінити `instructionHtml` на structured instruction.
-2. Додати `utils/sanitize.js`, якщо тимчасово потрібен HTML.
-3. Self-host fonts.
-4. Додати `_headers` для Cloudflare Pages.
-5. Додати execution limits.
-6. Додати stop/cancel runtime.
-7. Прибрати legacy-файли з production.
-8. Перевірити всі `innerHTML`.
-9. Додати security smoke-test у документацію релізу.
+- [x] Немає активних legacy-файлів
+- [x] Немає `innerHTML` для текстів рівнів
+- [x] Усі UI-тексти через `textContent`
+- [x] Є execution limit
+- [x] Є кнопка Stop
+- [x] Є дружні повідомлення про помилки
+- [ ] Google Fonts self-hosted (P3)
+- [ ] CSP налаштовано (P3)
+- [ ] `X-Content-Type-Options: nosniff` (P3)
+- [ ] `Referrer-Policy: no-referrer` (P3)
+- [ ] Service worker кешує тільки власні файли (P3)
+- [ ] Немає cookies ✅ (ніколи не було)
+- [ ] Немає збору персональних даних ✅

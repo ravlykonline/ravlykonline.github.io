@@ -1,4 +1,7 @@
 import { CELL_SIZE, GRID_HEIGHT, GRID_WIDTH, SNAIL_SIZE, directionRotation } from '../core/constants.js';
+
+export const TURTLE_ORIGIN_X = GRID_WIDTH / 2;
+export const TURTLE_ORIGIN_Y = GRID_HEIGHT / 2;
 import { cellToGridIntersection } from '../core/engine.js';
 import { avatarSvg, snailSvg } from './icons.js';
 
@@ -178,6 +181,83 @@ export function drawTrail(dom, lesson, from, to) {
   context.arc(toX, toY, 4.5, 0, Math.PI * 2);
   context.fill();
   context.restore();
+}
+
+// ── Turtle mode ──────────────────────────────────────────────────────────────
+
+export function setupTurtleMode(dom) {
+  dom.gridSvg.style.display = 'none';
+  dom.snailElement.style.display = 'none';
+  dom.trailCanvas.width = GRID_WIDTH;
+  dom.trailCanvas.height = GRID_HEIGHT;
+  clearTurtleCanvas(dom);
+}
+
+export function teardownTurtleMode(dom) {
+  dom.gridSvg.style.display = '';
+  dom.snailElement.style.display = '';
+}
+
+export function clearTurtleCanvas(dom) {
+  const ctx = dom.trailCanvas.getContext('2d');
+  ctx.clearRect(0, 0, GRID_WIDTH, GRID_HEIGHT);
+}
+
+/**
+ * Draws a line segment. segment = { from: [x, y], to: [x, y], color, width }
+ * Coordinates are in pixels relative to center.
+ */
+export function drawTurtleSegment(dom, segment) {
+  const ctx = dom.trailCanvas.getContext('2d');
+  const fx = TURTLE_ORIGIN_X + segment.from[0];
+  const fy = TURTLE_ORIGIN_Y + segment.from[1];
+  const tx = TURTLE_ORIGIN_X + segment.to[0];
+  const ty = TURTLE_ORIGIN_Y + segment.to[1];
+
+  ctx.save();
+  ctx.strokeStyle = segment.color;
+  ctx.lineWidth = segment.width;
+  ctx.lineCap = 'round';
+  ctx.shadowColor = segment.color;
+  ctx.shadowBlur = 4;
+  ctx.beginPath();
+  ctx.moveTo(fx, fy);
+  ctx.lineTo(tx, ty);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/**
+ * Renders the turtle indicator (small triangle) at turtle's position + heading.
+ * Redraws all segments + indicator on each call.
+ */
+export function renderTurtle(dom, turtle, segments) {
+  clearTurtleCanvas(dom);
+
+  for (const seg of segments) {
+    drawTurtleSegment(dom, seg);
+  }
+
+  const ctx = dom.trailCanvas.getContext('2d');
+  const px = TURTLE_ORIGIN_X + turtle.x;
+  const py = TURTLE_ORIGIN_Y + turtle.y;
+  const rad = (turtle.heading - 90) * (Math.PI / 180);
+  const size = 10;
+
+  ctx.save();
+  ctx.translate(px, py);
+  ctx.rotate(rad);
+  ctx.fillStyle = 'var(--color-trail-orange, #f97316)';
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, -size);
+  ctx.lineTo(size * 0.6, size * 0.6);
+  ctx.lineTo(-size * 0.6, size * 0.6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
 }
 
 export function wiggleSnail(dom) {

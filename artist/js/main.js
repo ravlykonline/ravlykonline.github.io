@@ -1,13 +1,14 @@
 import { lessons } from './data/lessons.js';
 import { buildProgramCode } from './core/codegen.js';
 import { moveSnail, sleep } from './core/engine.js';
+import { createTurtle, moveForward, turnLeft, turnRight, penUp, penDown } from './domain/turtle.js';
 import { evaluateGoal } from './core/goals.js';
 import { appState, markLessonDone, resetRuntimeState, setActiveBlock, setLesson, setRunning, toggleCodePanelState } from './core/state.js';
-import { addBlock, addBlockAt, clearWorkspace, countBlocks, flattenBlocks, moveBlock, moveBlockDown, moveBlockOut, moveBlockUp, removeBlock, updateRepeatCount } from './core/workspace.js';
+import { addBlock, addBlockAt, clearWorkspace, countBlocks, flattenBlocks, moveBlock, moveBlockDown, moveBlockOut, moveBlockUp, removeBlock, updateBlockParam, updateRepeatCount } from './core/workspace.js';
 import { validateProgram } from './runtime/execution-limits.js';
 import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from './state/history.js';
 import { trapFocus } from './utils/focus-trap.js';
-import { clearTrail, drawTrail, placeSnail, renderLessonGuide, setupCanvas, wiggleSnail } from './ui/canvas.js';
+import { clearTrail, clearTurtleCanvas, drawTrail, placeSnail, renderLessonGuide, renderTurtle, setupCanvas, setupTurtleMode, teardownTurtleMode, wiggleSnail } from './ui/canvas.js';
 import { getDomReferences } from './ui/dom.js';
 import { clearFeedback, hideSuccess, renderBlockCount, renderCode, renderControls, renderHistoryControls, renderLessonHeader, renderLessonNavigation, renderPalette, renderWorkspace, showFeedback, showSuccess } from './ui/render.js';
 
@@ -114,6 +115,9 @@ function updateWorkspaceUi() {
     onUpdateRepeatCount: (id, value) => {
       withSnapshot(() => updateRepeatCount(id, value), id);
     },
+    onUpdateBlockParam: (id, paramKey, value) => {
+      withSnapshot(() => updateBlockParam(id, paramKey, value), id);
+    },
     onMoveBlockUp: (id) => {
       withSnapshot(() => moveBlockUp(id), id);
     },
@@ -156,13 +160,25 @@ function refreshUi() {
   renderControls(dom, appState);
 }
 
+function isTurtleLesson() {
+  return appState.currentLesson.mode === 'turtle';
+}
+
 function resetBoard() {
-  clearTrail(dom);
-  placeSnail(dom, appState.snail, true);
-  dom.canvasStatus.textContent = `Равлик на стовпці ${appState.snail.x + 1}, рядку ${appState.snail.y + 1}.`;
+  if (isTurtleLesson()) {
+    clearTurtleCanvas(dom);
+    const t = createTurtle({ x: appState.currentLesson.start.x, y: appState.currentLesson.start.y, heading: appState.currentLesson.start.heading ?? 0 });
+    renderTurtle(dom, t, []);
+    dom.canvasStatus.textContent = 'Черепаха готова малювати.';
+  } else {
+    clearTrail(dom);
+    placeSnail(dom, appState.snail, true);
+    dom.canvasStatus.textContent = `Равлик на стовпці ${appState.snail.x + 1}, рядку ${appState.snail.y + 1}.`;
+  }
 }
 
 function loadLesson(index) {
+  const prevWasTurtle = isTurtleLesson();
   setLesson(index);
   clearHistory();
   appState.insertTargetId = null;
@@ -170,6 +186,14 @@ function loadLesson(index) {
   hideSuccess(dom);
   resetWorkspaceDragState();
   setResetConfirmOpen(false);
+
+  const nowTurtle = isTurtleLesson();
+  if (nowTurtle && !prevWasTurtle) {
+    setupTurtleMode(dom);
+  } else if (!nowTurtle && prevWasTurtle) {
+    teardownTurtleMode(dom);
+  }
+
   refreshUi();
   resetBoard();
 }
@@ -221,6 +245,41 @@ function performRedo() {
   }
 }
 
+async function runTurtleProgram() {
+  const lesson = appState.currentLesson;
+  const start = lesson.start;
+  let turtle = createTurtle({ x: start.x ?? 0, y: start.y ?? 0, heading: start.heading ?? 0 });
+  appState.turtleSegments = [];
+
+  const actions = flattenBlocks();
+  for (const action of actions) {
+    if (!appState.running || cancelRequested) break;
+
+    setActiveBlock(action.id);
+    updateWorkspaceUi();
+
+    let segment = null;
+    if (action.type === 'turtle_forward') {
+      const result = moveForward(turtle, action.steps ?? 50);
+      turtle = result.turtle;
+      segment = result.segment;
+      if (segment) appState.turtleSegments.push(segment);
+    } else if (action.type === 'turtle_right') {
+      turtle = turnRight(turtle, action.degrees ?? 90);
+    } else if (action.type === 'turtle_left') {
+      turtle = turnLeft(turtle, action.degrees ?? 90);
+    } else if (action.type === 'turtle_pen_up') {
+      turtle = penUp(turtle);
+    } else if (action.type === 'turtle_pen_down') {
+      turtle = penDown(turtle);
+    }
+
+    renderTurtle(dom, turtle, appState.turtleSegments);
+    dom.canvasStatus.textContent = `Черепаха: x=${Math.round(turtle.x)}, y=${Math.round(turtle.y)}, напрямок=${turtle.heading}°.`;
+    await sleep(300);
+  }
+}
+
 async function runProgram() {
   if (appState.running) return;
 
@@ -245,21 +304,25 @@ async function runProgram() {
 
   await sleep(120);
 
-  const actions = flattenBlocks();
-  for (const action of actions) {
-    if (!appState.running || cancelRequested) break;
+  if (isTurtleLesson()) {
+    await runTurtleProgram();
+  } else {
+    const actions = flattenBlocks();
+    for (const action of actions) {
+      if (!appState.running || cancelRequested) break;
 
-    setActiveBlock(action.id);
-    updateWorkspaceUi();
+      setActiveBlock(action.id);
+      updateWorkspaceUi();
 
-    const previousSnail = { ...appState.snail };
-    appState.snail = moveSnail(appState.snail, action.type);
+      const previousSnail = { ...appState.snail };
+      appState.snail = moveSnail(appState.snail, action.type);
 
-    placeSnail(dom, appState.snail);
-    drawTrail(dom, appState.currentLesson, previousSnail, appState.snail);
-    appState.trailPoints.push([appState.snail.x, appState.snail.y]);
-    dom.canvasStatus.textContent = `Равлик перемістився до стовпця ${appState.snail.x + 1}, рядку ${appState.snail.y + 1}.`;
-    await sleep(340);
+      placeSnail(dom, appState.snail);
+      drawTrail(dom, appState.currentLesson, previousSnail, appState.snail);
+      appState.trailPoints.push([appState.snail.x, appState.snail.y]);
+      dom.canvasStatus.textContent = `Равлик перемістився до стовпця ${appState.snail.x + 1}, рядку ${appState.snail.y + 1}.`;
+      await sleep(340);
+    }
   }
 
   setActiveBlock(null);
@@ -273,7 +336,8 @@ async function runProgram() {
     return;
   }
 
-  const result = evaluateGoal(appState.currentLesson, appState.trailPoints);
+  const goalData = isTurtleLesson() ? appState.turtleSegments.length : appState.trailPoints;
+  const result = evaluateGoal(appState.currentLesson, goalData);
   if (result.ok) {
     markLessonDone(appState.currentLessonIndex);
     refreshUi();

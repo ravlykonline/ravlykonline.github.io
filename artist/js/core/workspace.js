@@ -1,4 +1,5 @@
 import { appState, nextBlockId } from './state.js';
+import { blockDefinitions } from '../data/blocks.js';
 
 export function findBlock(list, id) {
   for (const block of list) {
@@ -36,9 +37,23 @@ export function findBlockLocation(list, id, parentId = null) {
 }
 
 export function createBlock(type, id = nextBlockId()) {
-  return type === 'repeat'
-    ? { type: 'repeat', id, count: 3, blocks: [] }
-    : { type, id };
+  if (type === 'repeat') return { type, id, count: 3, blocks: [] };
+
+  const def = blockDefinitions[type];
+  if (def?.paramKey) {
+    return { type, id, [def.paramKey]: def.paramDefault };
+  }
+
+  return { type, id };
+}
+
+export function updateBlockParam(id, paramKey, rawValue) {
+  const block = findBlock(appState.workspace, id);
+  if (!block) return;
+  const def = blockDefinitions[block.type];
+  if (!def?.paramKey || def.paramKey !== paramKey) return;
+  const parsed = Number.parseInt(rawValue, 10);
+  block[paramKey] = Math.max(def.paramMin, Math.min(def.paramMax, Number.isFinite(parsed) ? parsed : def.paramDefault));
 }
 
 export function getBlockChildren(list, parentId = null) {

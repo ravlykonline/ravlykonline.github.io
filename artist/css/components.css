@@ -651,6 +651,36 @@
   outline-offset: 0.1rem;
 }
 
+/* Parameterized turtle block inputs */
+.wb-param {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-inline-start: var(--space-2);
+}
+
+.wb-param-input {
+  width: 3.8rem;
+  padding: 0.1rem var(--space-1);
+  border: 0.1rem solid rgba(255 255 255 / 0.4);
+  border-radius: var(--radius-sm);
+  background: rgba(0 0 0 / 0.2);
+  color: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  text-align: center;
+}
+
+.wb-param-input:focus {
+  outline: 0.15rem solid #fff;
+  outline-offset: 0.05rem;
+}
+
+.wb-param-label {
+  font-size: var(--font-size-xs);
+  opacity: 0.8;
+}
+
 .confirm-actions {
   display: flex;
   justify-content: center;

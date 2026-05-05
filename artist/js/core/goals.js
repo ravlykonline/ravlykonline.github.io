@@ -51,5 +51,18 @@ export function evaluateGoal(lesson, trailPoints) {
     };
   }
 
+  if (mode === 'turtle-minimum') {
+    const minimum = lesson.success.minSegments ?? 1;
+    const segments = trailPoints; // for turtle mode trailPoints = segment count
+    if (segments >= minimum) {
+      return { ok: true, message: lesson.successMessage };
+    }
+
+    return {
+      ok: false,
+      message: `Намалюй більше ліній. Потрібно щонайменше ${minimum}.`,
+    };
+  }
+
   return { ok: false, message: 'Невідомий режим перевірки.' };
 }

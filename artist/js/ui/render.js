@@ -222,7 +222,33 @@ function buildBlockElement(block, state, handlers, ctx = { isFirst: true, isLast
 
   const row = document.createElement('div');
   row.className = 'wb-row';
-  row.append(createBlockTitle(definition), createCtrlGroup(block, handlers, ctx));
+  row.appendChild(createBlockTitle(definition));
+
+  if (definition.paramKey) {
+    const paramWrap = document.createElement('span');
+    paramWrap.className = 'wb-param';
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'wb-param-input';
+    input.min = String(definition.paramMin);
+    input.max = String(definition.paramMax);
+    input.value = String(block[definition.paramKey]);
+    input.setAttribute('aria-label', definition.paramLabel);
+    input.addEventListener('click', (e) => e.stopPropagation());
+    input.addEventListener('change', (event) => {
+      handlers.onUpdateBlockParam(block.id, definition.paramKey, event.target.value);
+    });
+
+    const paramLabel = document.createElement('span');
+    paramLabel.className = 'wb-param-label';
+    paramLabel.textContent = definition.paramLabel;
+
+    paramWrap.append(input, paramLabel);
+    row.appendChild(paramWrap);
+  }
+
+  row.appendChild(createCtrlGroup(block, handlers, ctx));
   blockElement.appendChild(row);
 
   return blockElement;

@@ -12,6 +12,7 @@ export const appState = {
   running: false,
   doneLessons: new Set(),
   trailPoints: [],
+  turtleSegments: [],
   activeBlockId: null,
   insertTargetId: null,
   codePanelOpen: false,
@@ -34,6 +35,7 @@ export function setLesson(index) {
 export function resetRuntimeState() {
   appState.snail = createSnail(appState.currentLesson);
   appState.trailPoints = [];
+  appState.turtleSegments = [];
   appState.activeBlockId = null;
 }
 
