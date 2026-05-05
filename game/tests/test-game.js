@@ -397,7 +397,10 @@ test('TaskRegistry створює логічну пару', () => {
     const entry = TaskCatalog.getTasks('visual-logic.beginner').find((candidate) => candidate.type === 'logic-pairs');
     const task = TaskRegistry.createTaskFromEntry(entry);
     assert(task.type === 'logic-pairs', 'Має створюватися задача logic-pairs.');
-    assert(task.pairLabel.includes('→'), 'У logic-pairs має бути опорна пара.');
+    assert(typeof task.promptItem === 'string' && task.promptItem.length > 0, 'У logic-pairs має бути promptItem — один символ-підказка.');
+    assert(Array.isArray(task.choices) && task.choices.length === 4, 'У logic-pairs має бути рівно 4 варіанти відповіді.');
+    assert(task.choices.every((c) => c.id && c.label), 'Кожен варіант logic-pairs має мати id і label.');
+    assert(task.choices.some((c) => c.id === task.correctChoiceId), 'Правильна відповідь має бути серед варіантів.');
 });
 
 test('TaskRegistry створює магічний квадрат з фігурами', () => {

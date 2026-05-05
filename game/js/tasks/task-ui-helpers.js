@@ -4,7 +4,7 @@ import { RewardEffects } from '../ui/reward-effects.js';
 
 export function createTaskIntro(text) {
     const intro = document.createElement('p');
-    intro.className = 'task-intro';
+    intro.className = 'task-intro task-intro--compact';
     intro.textContent = text;
     return intro;
 }

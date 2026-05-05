@@ -66,7 +66,7 @@ export class DialogScene extends ModalScene {
 
         this.dom.dialogBtn.textContent = t('dialog.complete');
         this.setStatus(t('taskUi.successWithStar'), 'success');
-        RewardEffects.showStarCelebration(this.dom.dialogLayer);
+        RewardEffects.showStarCelebration();
         HUDController.setContext(t('announcer.puzzleCompleted', { name: this.npc.name }));
         HUDController.setNearbyNpc(null);
         HUDController.setObjective(t('hud.objectiveText'));

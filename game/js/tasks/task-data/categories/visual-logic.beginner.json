@@ -3,42 +3,42 @@
   "title": "Візуальна логіка",
   "tasks": [
     {
-      "id": "odd-one-out-forest-food",
+      "id": "odd-one-out-mammals-bird",
       "type": "odd-one-out",
       "variant": {
         "items": [
-          { "id": "mushroom", "label": "🍄" },
-          { "id": "apple-1", "label": "🍎" },
-          { "id": "apple-2", "label": "🍎" },
-          { "id": "apple-3", "label": "🍎" }
+          { "id": "fox", "label": "🦊" },
+          { "id": "eagle", "label": "🦅" },
+          { "id": "wolf", "label": "🐺" },
+          { "id": "lion", "label": "🦁" }
         ],
-        "correctChoiceId": "mushroom"
+        "correctChoiceId": "eagle"
       }
     },
     {
-      "id": "odd-one-out-shapes",
+      "id": "odd-one-out-water-land",
       "type": "odd-one-out",
       "variant": {
         "items": [
-          { "id": "circle-1", "label": "○" },
-          { "id": "square", "label": "□" },
-          { "id": "circle-2", "label": "○" },
-          { "id": "circle-3", "label": "○" }
+          { "id": "fish", "label": "🐟" },
+          { "id": "rabbit", "label": "🐰" },
+          { "id": "tropical-fish", "label": "🐠" },
+          { "id": "dolphin", "label": "🐬" }
         ],
-        "correctChoiceId": "square"
+        "correctChoiceId": "rabbit"
       }
     },
     {
-      "id": "odd-one-out-animals",
+      "id": "odd-one-out-living-nonliving",
       "type": "odd-one-out",
       "variant": {
         "items": [
-          { "id": "rabbit-1", "label": "🐰" },
-          { "id": "rabbit-2", "label": "🐰" },
-          { "id": "bee", "label": "🐝" },
-          { "id": "rabbit-3", "label": "🐰" }
+          { "id": "flower", "label": "🌸" },
+          { "id": "gem", "label": "💎" },
+          { "id": "sunflower", "label": "🌻" },
+          { "id": "herb", "label": "🌿" }
         ],
-        "correctChoiceId": "bee"
+        "correctChoiceId": "gem"
       }
     },
     {
@@ -167,38 +167,220 @@
       "type": "odd-one-out",
       "variant": {
         "items": [
-          { "id": "bird-1", "label": "🐦" },
-          { "id": "bird-2", "label": "🐦" },
-          { "id": "bird-3", "label": "🐦" },
-          { "id": "butterfly", "label": "🦋" }
+          { "id": "eagle", "label": "🦅" },
+          { "id": "owl", "label": "🦉" },
+          { "id": "butterfly", "label": "🦋" },
+          { "id": "penguin", "label": "🐧" }
         ],
         "correctChoiceId": "butterfly"
       }
     },
     {
-      "id": "odd-one-out-leaves-acorn",
+      "id": "odd-one-out-plants-animal",
       "type": "odd-one-out",
       "variant": {
         "items": [
-          { "id": "acorn", "label": "🌰" },
-          { "id": "leaf-1", "label": "🍃" },
-          { "id": "leaf-2", "label": "🍃" },
-          { "id": "leaf-3", "label": "🍃" }
+          { "id": "pine", "label": "🌲" },
+          { "id": "bear", "label": "🐻" },
+          { "id": "broadleaf", "label": "🌳" },
+          { "id": "palm", "label": "🌴" }
         ],
-        "correctChoiceId": "acorn"
+        "correctChoiceId": "bear"
       }
     },
     {
-      "id": "odd-one-out-stars-heart",
+      "id": "odd-one-out-transport-living",
       "type": "odd-one-out",
       "variant": {
         "items": [
-          { "id": "star-1", "label": "⭐" },
-          { "id": "heart", "label": "❤️" },
-          { "id": "star-2", "label": "⭐" },
-          { "id": "star-3", "label": "⭐" }
+          { "id": "car", "label": "🚗" },
+          { "id": "bus", "label": "🚌" },
+          { "id": "bird", "label": "🐦" },
+          { "id": "train", "label": "🚂" }
         ],
-        "correctChoiceId": "heart"
+        "correctChoiceId": "bird"
+      }
+    },
+    {
+      "id": "odd-one-out-pets-wild",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "dog", "label": "🐶" },
+          { "id": "fox", "label": "🦊" },
+          { "id": "cat", "label": "🐱" },
+          { "id": "rabbit-pet", "label": "🐇" }
+        ],
+        "correctChoiceId": "fox"
+      }
+    },
+    {
+      "id": "odd-one-out-sea-land",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "dolphin", "label": "🐬" },
+          { "id": "shark", "label": "🦈" },
+          { "id": "wolf", "label": "🐺" },
+          { "id": "octopus", "label": "🐙" }
+        ],
+        "correctChoiceId": "wolf"
+      }
+    },
+    {
+      "id": "odd-one-out-insects-bird",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "bee", "label": "🐝" },
+          { "id": "caterpillar", "label": "🐛" },
+          { "id": "eagle", "label": "🦅" },
+          { "id": "butterfly2", "label": "🦋" }
+        ],
+        "correctChoiceId": "eagle"
+      }
+    },
+    {
+      "id": "odd-one-out-fruits-vegetable",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "apple2", "label": "🍎" },
+          { "id": "grapes", "label": "🍇" },
+          { "id": "broccoli", "label": "🥦" },
+          { "id": "banana", "label": "🍌" }
+        ],
+        "correctChoiceId": "broccoli"
+      }
+    },
+    {
+      "id": "odd-one-out-vegetables-fruit",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "carrot2", "label": "🥕" },
+          { "id": "orange", "label": "🍊" },
+          { "id": "corn", "label": "🌽" },
+          { "id": "eggplant", "label": "🍆" }
+        ],
+        "correctChoiceId": "orange"
+      }
+    },
+    {
+      "id": "odd-one-out-air-land-transport",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "plane", "label": "✈️" },
+          { "id": "helicopter", "label": "🚁" },
+          { "id": "car2", "label": "🚗" },
+          { "id": "rocket", "label": "🚀" }
+        ],
+        "correctChoiceId": "car2"
+      }
+    },
+    {
+      "id": "odd-one-out-sky-animal",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "sun", "label": "☀️" },
+          { "id": "moon", "label": "🌙" },
+          { "id": "dolphin2", "label": "🐬" },
+          { "id": "star2", "label": "⭐" }
+        ],
+        "correctChoiceId": "dolphin2"
+      }
+    },
+    {
+      "id": "odd-one-out-instruments-animal",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "guitar", "label": "🎸" },
+          { "id": "piano", "label": "🎹" },
+          { "id": "bear2", "label": "🐻" },
+          { "id": "trumpet", "label": "🎺" }
+        ],
+        "correctChoiceId": "bear2"
+      }
+    },
+    {
+      "id": "odd-one-out-sports-food",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "soccer", "label": "⚽" },
+          { "id": "basketball", "label": "🏀" },
+          { "id": "apple3", "label": "🍊" },
+          { "id": "tennis", "label": "🎾" }
+        ],
+        "correctChoiceId": "apple3"
+      }
+    },
+    {
+      "id": "odd-one-out-birds-fish",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "owl", "label": "🦉" },
+          { "id": "peacock", "label": "🦚" },
+          { "id": "fish2", "label": "🐟" },
+          { "id": "eagle2", "label": "🦅" }
+        ],
+        "correctChoiceId": "fish2"
+      }
+    },
+    {
+      "id": "odd-one-out-land-sea-transport",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "car3", "label": "🚗" },
+          { "id": "ship", "label": "🚢" },
+          { "id": "bus2", "label": "🚌" },
+          { "id": "train2", "label": "🚂" }
+        ],
+        "correctChoiceId": "ship"
+      }
+    },
+    {
+      "id": "odd-one-out-winter-summer",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "snowflake", "label": "❄️" },
+          { "id": "snowman", "label": "⛄" },
+          { "id": "sun2", "label": "☀️" },
+          { "id": "snowman2", "label": "☃️" }
+        ],
+        "correctChoiceId": "sun2"
+      }
+    },
+    {
+      "id": "odd-one-out-clothing-animal",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "hat", "label": "👒" },
+          { "id": "gloves", "label": "🧤" },
+          { "id": "cat2", "label": "🐱" },
+          { "id": "sneakers", "label": "👟" }
+        ],
+        "correctChoiceId": "cat2"
+      }
+    },
+    {
+      "id": "odd-one-out-flowers-tree",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "cherry-blossom", "label": "🌸" },
+          { "id": "hibiscus", "label": "🌺" },
+          { "id": "pine2", "label": "🌲" },
+          { "id": "sunflower2", "label": "🌻" }
+        ],
+        "correctChoiceId": "pine2"
       }
     },
     {

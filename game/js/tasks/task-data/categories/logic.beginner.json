@@ -332,39 +332,45 @@
       "id": "logic-pairs-baby-parent",
       "type": "logic-pairs",
       "variant": {
-        "promptPair": "🐣 → 🐔",
+        "id": "baby-parent",
+        "promptItem": "🐣",
         "choices": [
-          "🐛 → 🦋",
-          "🍎 → 🍐",
-          "🌧️ → ⭐"
+          { "id": "hen", "label": "🐔" },
+          { "id": "rain", "label": "🌧️" },
+          { "id": "fish", "label": "🐟" },
+          { "id": "star", "label": "⭐" }
         ],
-        "correctChoiceId": "🐛 → 🦋"
+        "correctChoiceId": "hen"
       }
     },
     {
-      "id": "logic-pairs-tool-use",
+      "id": "logic-pairs-pencil-paper",
       "type": "logic-pairs",
       "variant": {
-        "promptPair": "🔑 → 🚪",
+        "id": "pencil-paper",
+        "promptItem": "✏️",
         "choices": [
-          "🖍️ → 📄",
-          "🍄 → 🌧️",
-          "⭐ → 🐌"
+          { "id": "apple", "label": "🍎" },
+          { "id": "star", "label": "⭐" },
+          { "id": "paper", "label": "📄" },
+          { "id": "fish", "label": "🐟" }
         ],
-        "correctChoiceId": "🖍️ → 📄"
+        "correctChoiceId": "paper"
       }
     },
     {
-      "id": "logic-pairs-home",
+      "id": "logic-pairs-fish-sea",
       "type": "logic-pairs",
       "variant": {
-        "promptPair": "🐝 → 🐝🏠",
+        "id": "fish-sea",
+        "promptItem": "🐠",
         "choices": [
-          "🐦 → 🪺",
-          "🍎 → 🧺",
-          "🌿 → 🪨"
+          { "id": "wave", "label": "🌊" },
+          { "id": "bone", "label": "🦴" },
+          { "id": "star", "label": "⭐" },
+          { "id": "apple", "label": "🍎" }
         ],
-        "correctChoiceId": "🐦 → 🪺"
+        "correctChoiceId": "wave"
       }
     },
     {
@@ -436,42 +442,48 @@
       }
     },
     {
-      "id": "logic-pairs-bee-flower",
+      "id": "logic-pairs-bee-honey",
       "type": "logic-pairs",
       "variant": {
-        "promptPair": "🐝 → 🌼",
+        "id": "bee-honey",
+        "promptItem": "🐝",
         "choices": [
-          "🦋 → 🌼",
-          "🍄 → ⭐",
-          "🐌 → ☁️"
+          { "id": "cloud", "label": "☁️" },
+          { "id": "honey", "label": "🍯" },
+          { "id": "rock", "label": "🔮" },
+          { "id": "star", "label": "⭐" }
         ],
-        "correctChoiceId": "🦋 → 🌼"
+        "correctChoiceId": "honey"
       }
     },
     {
-      "id": "logic-pairs-dog-bone",
+      "id": "logic-pairs-cat-fish",
       "type": "logic-pairs",
       "variant": {
-        "promptPair": "🐶 → 🦴",
+        "id": "cat-fish",
+        "promptItem": "🐱",
         "choices": [
-          "🐰 → 🥕",
-          "🍎 → 🌙",
-          "⭐ → 🐌"
+          { "id": "fish", "label": "🐟" },
+          { "id": "bone", "label": "🦴" },
+          { "id": "apple", "label": "🍎" },
+          { "id": "star", "label": "⭐" }
         ],
-        "correctChoiceId": "🐰 → 🥕"
+        "correctChoiceId": "fish"
       }
     },
     {
-      "id": "logic-pairs-rain-umbrella",
+      "id": "logic-pairs-snow-cold",
       "type": "logic-pairs",
       "variant": {
-        "promptPair": "🌧️ → ☂️",
+        "id": "snow-cold",
+        "promptItem": "❄️",
         "choices": [
-          "☀️ → 🕶️",
-          "🍎 → 🪨",
-          "🐝 → ❄️"
+          { "id": "flower", "label": "🌸" },
+          { "id": "apple", "label": "🍎" },
+          { "id": "fish", "label": "🐟" },
+          { "id": "snowman", "label": "⛄" }
         ],
-        "correctChoiceId": "☀️ → 🕶️"
+        "correctChoiceId": "snowman"
       }
     }
   ]
