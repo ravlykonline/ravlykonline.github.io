@@ -269,7 +269,8 @@ export function renderTurtle(dom, turtle, segments, goalSegments = null) {
   const ctx = dom.trailCanvas.getContext('2d');
   const px = TURTLE_ORIGIN_X + turtle.x;
   const py = TURTLE_ORIGIN_Y + turtle.y;
-  const rad = (turtle.heading - 90) * (Math.PI / 180);
+  // heading 0 = up, triangle tip at (0,-size) — rotate clockwise by heading degrees
+  const rad = turtle.heading * (Math.PI / 180);
   const size = 16;
 
   ctx.save();

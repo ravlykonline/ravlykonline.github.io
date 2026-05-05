@@ -191,7 +191,7 @@ function resetBoard() {
     const lesson = appState.currentLesson;
     const t = createTurtle({ x: lesson.start.x ?? 0, y: lesson.start.y ?? 0, heading: lesson.start.heading ?? 0 });
     renderTurtle(dom, t, [], lesson.goalSegments);
-    dom.canvasStatus.textContent = 'Черепаха готова малювати.';
+    dom.canvasStatus.textContent = 'Равлик готовий малювати.';
   } else {
     clearTrail(dom);
     placeSnail(dom, appState.snail, true);
@@ -301,7 +301,7 @@ async function runTurtleProgram() {
     }
 
     renderTurtle(dom, turtle, appState.turtleSegments, lesson.goalSegments);
-    dom.canvasStatus.textContent = `Черепаха: x=${Math.round(turtle.x)}, y=${Math.round(turtle.y)}, напрямок=${turtle.heading}°.`;
+    dom.canvasStatus.textContent = `Равлик: x=${Math.round(turtle.x)}, y=${Math.round(turtle.y)}, напрямок=${turtle.heading}°.`;
     await sleep(300);
   }
 }
