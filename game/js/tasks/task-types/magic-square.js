@@ -2,6 +2,11 @@ import { t } from '../../i18n/index.js';
 import { createTaskIntro } from '../task-ui-helpers.js';
 import { RewardEffects } from '../../ui/reward-effects.js';
 import { evaluateSingleChoice } from '../task-evaluators/single-choice.js';
+import { magicSquareVariants } from '../task-data/magic-square-variants.js';
+
+function pickVariant(random) {
+    return magicSquareVariants[Math.floor(random() * magicSquareVariants.length)];
+}
 
 function normalizeChoice(choice) {
     if (choice && typeof choice === 'object') {
@@ -13,11 +18,11 @@ function normalizeChoice(choice) {
 export const MagicSquareTask = {
     type: 'magic-square',
 
-    createTask({ entry = {} }) {
-        const variant = entry.variant;
+    createTask({ random = Math.random, entry = {} }) {
+        const variant = entry.variant ?? pickVariant(random);
 
         return {
-            id: entry.id,
+            id: entry.id ?? `${this.type}-${variant.id}`,
             type: this.type,
             prompt: t('taskUi.magicSquarePrompt'),
             instructions: t('taskUi.magicSquareInstructions'),

@@ -656,6 +656,37 @@ test('Logic-pairs у logic.beginner.json мають новий формат (pro
     });
 });
 
+test('MagicSquare: JS fallback має валідну структуру (grid 9 клітинок, одна null, choices, correctChoiceId)', async () => {
+    const { magicSquareVariants } = await import('../js/tasks/task-data/magic-square-variants.js');
+    assert(magicSquareVariants.length >= 5, 'JS fallback має містити щонайменше 5 magic-square варіантів.');
+
+    magicSquareVariants.forEach((variant) => {
+        assert(Array.isArray(variant.grid) && variant.grid.length === 9,
+            `${variant.id}: grid має містити рівно 9 клітинок.`);
+        const nullCount = variant.grid.filter((c) => c === null).length;
+        assert(nullCount === 1, `${variant.id}: grid має містити рівно одну null-клітинку.`);
+        assert(Array.isArray(variant.choices) && variant.choices.length === 3,
+            `${variant.id}: choices має містити рівно 3 варіанти.`);
+        assert(variant.choices.every((c) => c.id && c.label),
+            `${variant.id}: кожен choice має мати id і label.`);
+        assert(variant.choices.some((c) => c.id === variant.correctChoiceId),
+            `${variant.id}: correctChoiceId має бути серед choices.`);
+        const nonNullLabels = variant.grid.filter(Boolean);
+        const symbols = new Set([...nonNullLabels, ...variant.choices.map((c) => c.label)]);
+        assert(symbols.size === 3, `${variant.id}: у grid і choices мають використовуватись рівно 3 унікальні символи.`);
+    });
+});
+
+test('MagicSquare: createTask працює без entry (JS fallback)', () => {
+    const random = createSeededRandom(42);
+    const task = TaskRegistry.createTaskFromEntry({ type: 'magic-square' }, random);
+    assert(task.type === 'magic-square', 'Тип має бути magic-square.');
+    assert(task.grid.length === 9, 'Grid має мати 9 клітинок.');
+    assert(task.grid.includes(null), 'Grid має містити null-клітинку.');
+    assert(task.choices.length === 3, 'Має бути 3 варіанти відповіді.');
+    assert(task.choices.some((c) => c.id === task.correctChoiceId), 'Правильна відповідь має бути серед choices.');
+});
+
 test('Немає дублікатів task.id між усіма JSON-категоріями', () => {
     const allIds = [];
     TaskCatalog.categories.forEach((category) => {

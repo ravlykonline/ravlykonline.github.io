@@ -1,4 +1,4 @@
-const STATIC_CACHE = 'ravlyk-static-v11';
+const STATIC_CACHE = 'ravlyk-static-v12';
 const STATIC_ASSETS = [
     './',
     './index.html',
@@ -50,6 +50,7 @@ const STATIC_ASSETS = [
     './js/tasks/task-data/compare-sets-variants.js',
     './js/tasks/task-data/count-and-match-variants.js',
     './js/tasks/task-data/logic-pairs-variants.js',
+    './js/tasks/task-data/magic-square-variants.js',
     './js/tasks/task-data/odd-one-out-variants.js',
     './js/tasks/task-data/order-numbers-variants.js',
     './js/tasks/task-data/sequence-next-variants.js',
