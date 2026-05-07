@@ -78,7 +78,7 @@
       }
     },
     {
-      "id": "compare-sets-more-left",
+      "id": "compare-sets-obs-more-left",
       "type": "compare-sets",
       "variant": {
         "mode": "more",
@@ -88,7 +88,7 @@
       }
     },
     {
-      "id": "compare-sets-more-right",
+      "id": "compare-sets-obs-more-right",
       "type": "compare-sets",
       "variant": {
         "mode": "more",
@@ -98,7 +98,7 @@
       }
     },
     {
-      "id": "compare-sets-less-left",
+      "id": "compare-sets-obs-less-left",
       "type": "compare-sets",
       "variant": {
         "mode": "less",
@@ -108,7 +108,7 @@
       }
     },
     {
-      "id": "count-and-match-three",
+      "id": "count-and-match-obs-three",
       "type": "count-and-match",
       "variant": {
         "count": 3,
@@ -121,7 +121,7 @@
       }
     },
     {
-      "id": "count-and-match-four",
+      "id": "count-and-match-obs-four",
       "type": "count-and-match",
       "variant": {
         "count": 4,
@@ -134,7 +134,7 @@
       }
     },
     {
-      "id": "count-and-match-five",
+      "id": "count-and-match-obs-five",
       "type": "count-and-match",
       "variant": {
         "count": 5,
@@ -147,7 +147,7 @@
       }
     },
     {
-      "id": "order-numbers-asc-1-3-2",
+      "id": "order-numbers-obs-asc-1-3-2",
       "type": "order-numbers",
       "options": {
         "direction": "asc"
@@ -161,7 +161,7 @@
       }
     },
     {
-      "id": "order-numbers-asc-4-2-5",
+      "id": "order-numbers-obs-asc-4-2-5",
       "type": "order-numbers",
       "options": {
         "direction": "asc"
@@ -175,7 +175,7 @@
       }
     },
     {
-      "id": "order-numbers-asc-6-3-4",
+      "id": "order-numbers-obs-asc-6-3-4",
       "type": "order-numbers",
       "options": {
         "direction": "asc"
@@ -189,7 +189,7 @@
       }
     },
     {
-      "id": "order-numbers-desc-1-3-2",
+      "id": "order-numbers-obs-desc-1-3-2",
       "type": "order-numbers",
       "options": {
         "direction": "desc"
@@ -203,7 +203,7 @@
       }
     },
     {
-      "id": "order-numbers-desc-4-2-5",
+      "id": "order-numbers-obs-desc-4-2-5",
       "type": "order-numbers",
       "options": {
         "direction": "desc"
@@ -217,7 +217,7 @@
       }
     },
     {
-      "id": "order-numbers-desc-6-3-4",
+      "id": "order-numbers-obs-desc-6-3-4",
       "type": "order-numbers",
       "options": {
         "direction": "desc"
@@ -231,7 +231,7 @@
       }
     },
     {
-      "id": "sequence-next-numbers-even",
+      "id": "sequence-next-obs-numbers-even",
       "type": "sequence-next",
       "variant": {
         "series": [
@@ -248,7 +248,7 @@
       }
     },
     {
-      "id": "sequence-next-shapes-repeat",
+      "id": "sequence-next-obs-shapes-repeat",
       "type": "sequence-next",
       "variant": {
         "series": [
@@ -266,7 +266,7 @@
       }
     },
     {
-      "id": "sequence-next-plants-repeat",
+      "id": "sequence-next-obs-plants-repeat",
       "type": "sequence-next",
       "variant": {
         "series": [
@@ -284,7 +284,7 @@
       }
     },
     {
-      "id": "shape-pattern-color-loop",
+      "id": "shape-pattern-obs-color-loop",
       "type": "shape-pattern",
       "variant": {
         "series": [
@@ -302,7 +302,7 @@
       }
     },
     {
-      "id": "shape-pattern-three-step",
+      "id": "shape-pattern-obs-three-step",
       "type": "shape-pattern",
       "variant": {
         "series": [
@@ -321,7 +321,7 @@
       }
     },
     {
-      "id": "shape-pattern-size",
+      "id": "shape-pattern-obs-size",
       "type": "shape-pattern",
       "variant": {
         "series": [
@@ -339,26 +339,14 @@
       }
     },
     {
-      "id": "odd-one-out-birds-butterfly",
+      "id": "odd-one-out-obs-birds-butterfly",
       "type": "odd-one-out",
       "variant": {
         "items": [
-          {
-            "id": "bird-1",
-            "label": "🐦"
-          },
-          {
-            "id": "bird-2",
-            "label": "🐦"
-          },
-          {
-            "id": "butterfly",
-            "label": "🦋"
-          },
-          {
-            "id": "bird-3",
-            "label": "🐦"
-          }
+          { "id": "owl",       "label": "🦉" },
+          { "id": "penguin",   "label": "🐧" },
+          { "id": "parrot",    "label": "🦜" },
+          { "id": "butterfly", "label": "🦋" }
         ],
         "correctChoiceId": "butterfly"
       }
@@ -389,7 +377,7 @@
       }
     },
     {
-      "id": "sequence-next-day-night",
+      "id": "sequence-next-obs-day-night",
       "type": "sequence-next",
       "variant": {
         "series": [
@@ -407,7 +395,7 @@
       }
     },
     {
-      "id": "shape-pattern-flower-leaf",
+      "id": "shape-pattern-obs-flower-leaf",
       "type": "shape-pattern",
       "variant": {
         "series": [
@@ -425,7 +413,7 @@
       }
     },
     {
-      "id": "count-and-match-two",
+      "id": "count-and-match-obs-two",
       "type": "count-and-match",
       "variant": {
         "count": 2,
@@ -438,7 +426,7 @@
       }
     },
     {
-      "id": "count-and-match-eight",
+      "id": "count-and-match-obs-eight",
       "type": "count-and-match",
       "variant": {
         "count": 8,

@@ -3,7 +3,7 @@
   "title": "Логіка",
   "tasks": [
     {
-      "id": "sequence-next-numbers-even",
+      "id": "sequence-next-logic-numbers-even",
       "type": "sequence-next",
       "variant": {
         "series": [
@@ -20,7 +20,7 @@
       }
     },
     {
-      "id": "sequence-next-shapes-repeat",
+      "id": "sequence-next-logic-shapes-repeat",
       "type": "sequence-next",
       "variant": {
         "series": [
@@ -38,7 +38,7 @@
       }
     },
     {
-      "id": "sequence-next-plants-repeat",
+      "id": "sequence-next-logic-plants-repeat",
       "type": "sequence-next",
       "variant": {
         "series": [
@@ -56,82 +56,46 @@
       }
     },
     {
-      "id": "odd-one-out-forest-food",
+      "id": "odd-one-out-logic-forest-food",
       "type": "odd-one-out",
       "variant": {
         "items": [
-          {
-            "id": "apple-1",
-            "label": "🍎"
-          },
-          {
-            "id": "apple-2",
-            "label": "🍎"
-          },
-          {
-            "id": "mushroom",
-            "label": "🍄"
-          },
-          {
-            "id": "apple-3",
-            "label": "🍎"
-          }
+          { "id": "apple",  "label": "🍎" },
+          { "id": "pear",   "label": "🍐" },
+          { "id": "cherry", "label": "🍒" },
+          { "id": "mushroom", "label": "🍄" }
         ],
         "correctChoiceId": "mushroom"
       }
     },
     {
-      "id": "odd-one-out-shapes",
+      "id": "odd-one-out-logic-shapes",
       "type": "odd-one-out",
       "variant": {
         "items": [
-          {
-            "id": "circle-1",
-            "label": "○"
-          },
-          {
-            "id": "circle-2",
-            "label": "○"
-          },
-          {
-            "id": "square",
-            "label": "□"
-          },
-          {
-            "id": "circle-3",
-            "label": "○"
-          }
+          { "id": "circle",   "label": "○" },
+          { "id": "oval",     "label": "◯" },
+          { "id": "dot",      "label": "●" },
+          { "id": "square",   "label": "□" }
         ],
         "correctChoiceId": "square"
       }
     },
     {
-      "id": "odd-one-out-animals",
+      "id": "odd-one-out-logic-animals",
       "type": "odd-one-out",
       "variant": {
         "items": [
-          {
-            "id": "snail-1",
-            "label": "🐌"
-          },
-          {
-            "id": "snail-2",
-            "label": "🐌"
-          },
-          {
-            "id": "rabbit",
-            "label": "🐰"
-          },
-          {
-            "id": "snail-3",
-            "label": "🐌"
-          }
+          { "id": "snail",      "label": "🐌" },
+          { "id": "bee",        "label": "🐝" },
+          { "id": "ladybug",    "label": "🐞" },
+          { "id": "rabbit",     "label": "🐰" }
         ],
         "correctChoiceId": "rabbit"
       }
     },
     {
-      "id": "simple-addition-2-1",
+      "id": "simple-addition-logic-2-1",
       "type": "simple-addition",
       "variant": {
         "left": 2,
@@ -145,7 +109,7 @@
       }
     },
     {
-      "id": "simple-addition-3-2",
+      "id": "simple-addition-logic-3-2",
       "type": "simple-addition",
       "variant": {
         "left": 3,
@@ -159,7 +123,7 @@
       }
     },
     {
-      "id": "simple-addition-1-4",
+      "id": "simple-addition-logic-1-4",
       "type": "simple-addition",
       "variant": {
         "left": 1,
@@ -173,7 +137,7 @@
       }
     },
     {
-      "id": "order-numbers-asc-1-3-2",
+      "id": "order-numbers-logic-asc-1-3-2",
       "type": "order-numbers",
       "options": {
         "direction": "asc"
@@ -187,7 +151,7 @@
       }
     },
     {
-      "id": "order-numbers-asc-4-2-5",
+      "id": "order-numbers-logic-asc-4-2-5",
       "type": "order-numbers",
       "options": {
         "direction": "asc"
@@ -201,7 +165,7 @@
       }
     },
     {
-      "id": "order-numbers-asc-6-3-4",
+      "id": "order-numbers-logic-asc-6-3-4",
       "type": "order-numbers",
       "options": {
         "direction": "asc"
@@ -215,7 +179,7 @@
       }
     },
     {
-      "id": "order-numbers-desc-1-3-2",
+      "id": "order-numbers-logic-desc-1-3-2",
       "type": "order-numbers",
       "options": {
         "direction": "desc"
@@ -229,7 +193,7 @@
       }
     },
     {
-      "id": "order-numbers-desc-4-2-5",
+      "id": "order-numbers-logic-desc-4-2-5",
       "type": "order-numbers",
       "options": {
         "direction": "desc"
@@ -243,7 +207,7 @@
       }
     },
     {
-      "id": "order-numbers-desc-6-3-4",
+      "id": "order-numbers-logic-desc-6-3-4",
       "type": "order-numbers",
       "options": {
         "direction": "desc"
@@ -257,7 +221,7 @@
       }
     },
     {
-      "id": "compare-sets-more-left",
+      "id": "compare-sets-logic-more-left",
       "type": "compare-sets",
       "variant": {
         "mode": "more",
@@ -267,7 +231,7 @@
       }
     },
     {
-      "id": "compare-sets-more-right",
+      "id": "compare-sets-logic-more-right",
       "type": "compare-sets",
       "variant": {
         "mode": "more",
@@ -277,7 +241,7 @@
       }
     },
     {
-      "id": "compare-sets-less-left",
+      "id": "compare-sets-logic-less-left",
       "type": "compare-sets",
       "variant": {
         "mode": "less",
@@ -287,7 +251,7 @@
       }
     },
     {
-      "id": "simple-subtraction-4-1",
+      "id": "simple-subtraction-logic-4-1",
       "type": "simple-subtraction",
       "variant": {
         "left": 4,
@@ -301,7 +265,7 @@
       }
     },
     {
-      "id": "simple-subtraction-5-2",
+      "id": "simple-subtraction-logic-5-2",
       "type": "simple-subtraction",
       "variant": {
         "left": 5,
@@ -315,7 +279,7 @@
       }
     },
     {
-      "id": "simple-subtraction-6-3",
+      "id": "simple-subtraction-logic-6-3",
       "type": "simple-subtraction",
       "variant": {
         "left": 6,
@@ -374,7 +338,7 @@
       }
     },
     {
-      "id": "sequence-next-day-night",
+      "id": "sequence-next-logic-day-night",
       "type": "sequence-next",
       "variant": {
         "series": [
@@ -392,7 +356,7 @@
       }
     },
     {
-      "id": "shape-pattern-flower-leaf",
+      "id": "shape-pattern-logic-flower-leaf",
       "type": "shape-pattern",
       "variant": {
         "series": [
@@ -410,7 +374,7 @@
       }
     },
     {
-      "id": "magic-square-emoji-garden",
+      "id": "magic-square-logic-emoji-garden",
       "type": "magic-square",
       "variant": {
         "grid": [

@@ -608,4 +608,72 @@ function renderResults() {
     });
 }
 
+// ── Нові тести: структура odd-one-out і дублікати task.id ───────
+
+test('OddOneOut: кожен варіант має 4 різних label і correctChoiceId серед items (JSON)', () => {
+    const tasks = TaskCatalog.getTasks('visual-logic.beginner').filter((t) => t.type === 'odd-one-out');
+    assert(tasks.length >= 6, 'visual-logic.beginner має містити щонайменше 6 odd-one-out задач.');
+
+    tasks.forEach((entry) => {
+        const items = entry.variant?.items ?? [];
+        assert(items.length === 4, `${entry.id}: odd-one-out має мати рівно 4 items.`);
+        const labels = items.map((i) => i.label);
+        const uniqueLabels = new Set(labels);
+        assert(uniqueLabels.size === labels.length, `${entry.id}: всі 4 label мають бути різними.`);
+        assert(items.some((i) => i.id === entry.variant.correctChoiceId),
+            `${entry.id}: correctChoiceId має бути серед items.`);
+    });
+});
+
+test('OddOneOut: кожен fallback-варіант має 4 різних label і correctChoiceId серед items (JS)', async () => {
+    const { oddOneOutVariants } = await import('../js/tasks/task-data/odd-one-out-variants.js');
+    assert(oddOneOutVariants.length >= 10, 'JS fallback має містити щонайменше 10 odd-one-out варіантів.');
+
+    oddOneOutVariants.forEach((variant) => {
+        const labels = variant.items.map((i) => i.label);
+        const uniqueLabels = new Set(labels);
+        assert(variant.items.length === 4, `${variant.id}: odd-one-out має мати рівно 4 items.`);
+        assert(uniqueLabels.size === labels.length, `${variant.id}: всі 4 label мають бути різними.`);
+        assert(variant.items.some((i) => i.id === variant.correctChoiceId),
+            `${variant.id}: correctChoiceId має бути серед items.`);
+    });
+});
+
+test('Logic-pairs у logic.beginner.json мають новий формат (promptItem + 4 choices)', () => {
+    const tasks = TaskCatalog.getTasks('logic.beginner').filter((t) => t.type === 'logic-pairs');
+    assert(tasks.length >= 6, 'logic.beginner має містити щонайменше 6 logic-pairs задач.');
+
+    tasks.forEach((entry) => {
+        const v = entry.variant;
+        assert(typeof v.promptItem === 'string' && v.promptItem.length > 0,
+            `${entry.id}: logic-pairs має мати promptItem.`);
+        assert(Array.isArray(v.choices) && v.choices.length === 4,
+            `${entry.id}: logic-pairs має мати рівно 4 choices.`);
+        assert(v.choices.every((c) => c.id && c.label),
+            `${entry.id}: кожен choice має мати id і label.`);
+        assert(v.choices.some((c) => c.id === v.correctChoiceId),
+            `${entry.id}: correctChoiceId має бути серед choices.`);
+    });
+});
+
+test('Немає дублікатів task.id між усіма JSON-категоріями', () => {
+    const allIds = [];
+    TaskCatalog.categories.forEach((category) => {
+        const tasks = TaskCatalog.getTasks(category.id);
+        tasks.forEach((task) => allIds.push({ id: task.id, pool: category.id }));
+    });
+
+    const seen = new Map();
+    const duplicates = [];
+    allIds.forEach(({ id, pool }) => {
+        if (seen.has(id)) {
+            duplicates.push(`"${id}" у ${pool} і ${seen.get(id)}`);
+        } else {
+            seen.set(id, pool);
+        }
+    });
+
+    assert(duplicates.length === 0, `Знайдено дублікати task.id: ${duplicates.join('; ')}`);
+});
+
 renderResults();
