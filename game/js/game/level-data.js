@@ -1,7 +1,7 @@
 const NPC_SIZE = 56;
-const OBSERVE_POOLS = ['visual-logic.beginner', 'counting.beginner'];
+const OBSERVE_POOLS = ['visual-logic.beginner', 'counting.beginner', 'observation.beginner'];
 const PATTERN_POOLS = ['patterns.beginner', 'visual-logic.beginner'];
-const LOGIC_POOLS = ['visual-logic.beginner', 'patterns.beginner', 'counting.beginner'];
+const LOGIC_POOLS = ['visual-logic.beginner', 'patterns.beginner', 'counting.beginner', 'logic.beginner'];
 const COUNTING_POOLS = ['counting.beginner', 'visual-logic.beginner'];
 const MATH_POOLS = ['arithmetic.beginner', 'counting.beginner', 'patterns.beginner'];
 const GENTLE_POOLS = ['visual-logic.beginner', 'patterns.beginner', 'counting.beginner'];

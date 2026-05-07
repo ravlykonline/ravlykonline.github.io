@@ -3,66 +3,13 @@
   "title": "Логіка",
   "tasks": [
     {
-      "id": "sequence-next-logic-numbers-even",
-      "type": "sequence-next",
-      "variant": {
-        "series": [
-          "2",
-          "4",
-          "6"
-        ],
-        "choices": [
-          "8",
-          "7",
-          "5"
-        ],
-        "correctChoiceId": "8"
-      }
-    },
-    {
-      "id": "sequence-next-logic-shapes-repeat",
-      "type": "sequence-next",
-      "variant": {
-        "series": [
-          "△",
-          "○",
-          "△",
-          "○"
-        ],
-        "choices": [
-          "△",
-          "□",
-          "○"
-        ],
-        "correctChoiceId": "△"
-      }
-    },
-    {
-      "id": "sequence-next-logic-plants-repeat",
-      "type": "sequence-next",
-      "variant": {
-        "series": [
-          "🌱",
-          "🌿",
-          "🌱",
-          "🌿"
-        ],
-        "choices": [
-          "🌿",
-          "🌱",
-          "🌳"
-        ],
-        "correctChoiceId": "🌱"
-      }
-    },
-    {
       "id": "odd-one-out-logic-forest-food",
       "type": "odd-one-out",
       "variant": {
         "items": [
-          { "id": "apple",  "label": "🍎" },
-          { "id": "pear",   "label": "🍐" },
-          { "id": "cherry", "label": "🍒" },
+          { "id": "apple",    "label": "🍎" },
+          { "id": "pear",     "label": "🍐" },
+          { "id": "cherry",   "label": "🍒" },
           { "id": "mushroom", "label": "🍄" }
         ],
         "correctChoiceId": "mushroom"
@@ -86,210 +33,12 @@
       "type": "odd-one-out",
       "variant": {
         "items": [
-          { "id": "snail",      "label": "🐌" },
-          { "id": "bee",        "label": "🐝" },
-          { "id": "ladybug",    "label": "🐞" },
-          { "id": "rabbit",     "label": "🐰" }
+          { "id": "snail",    "label": "🐌" },
+          { "id": "bee",      "label": "🐝" },
+          { "id": "ladybug",  "label": "🐞" },
+          { "id": "rabbit",   "label": "🐰" }
         ],
         "correctChoiceId": "rabbit"
-      }
-    },
-    {
-      "id": "simple-addition-logic-2-1",
-      "type": "simple-addition",
-      "variant": {
-        "left": 2,
-        "right": 1,
-        "choices": [
-          "2",
-          "3",
-          "4"
-        ],
-        "correctChoiceId": "3"
-      }
-    },
-    {
-      "id": "simple-addition-logic-3-2",
-      "type": "simple-addition",
-      "variant": {
-        "left": 3,
-        "right": 2,
-        "choices": [
-          "4",
-          "5",
-          "6"
-        ],
-        "correctChoiceId": "5"
-      }
-    },
-    {
-      "id": "simple-addition-logic-1-4",
-      "type": "simple-addition",
-      "variant": {
-        "left": 1,
-        "right": 4,
-        "choices": [
-          "5",
-          "3",
-          "6"
-        ],
-        "correctChoiceId": "5"
-      }
-    },
-    {
-      "id": "order-numbers-logic-asc-1-3-2",
-      "type": "order-numbers",
-      "options": {
-        "direction": "asc"
-      },
-      "variant": {
-        "numbers": [
-          1,
-          3,
-          2
-        ]
-      }
-    },
-    {
-      "id": "order-numbers-logic-asc-4-2-5",
-      "type": "order-numbers",
-      "options": {
-        "direction": "asc"
-      },
-      "variant": {
-        "numbers": [
-          4,
-          2,
-          5
-        ]
-      }
-    },
-    {
-      "id": "order-numbers-logic-asc-6-3-4",
-      "type": "order-numbers",
-      "options": {
-        "direction": "asc"
-      },
-      "variant": {
-        "numbers": [
-          6,
-          3,
-          4
-        ]
-      }
-    },
-    {
-      "id": "order-numbers-logic-desc-1-3-2",
-      "type": "order-numbers",
-      "options": {
-        "direction": "desc"
-      },
-      "variant": {
-        "numbers": [
-          1,
-          3,
-          2
-        ]
-      }
-    },
-    {
-      "id": "order-numbers-logic-desc-4-2-5",
-      "type": "order-numbers",
-      "options": {
-        "direction": "desc"
-      },
-      "variant": {
-        "numbers": [
-          4,
-          2,
-          5
-        ]
-      }
-    },
-    {
-      "id": "order-numbers-logic-desc-6-3-4",
-      "type": "order-numbers",
-      "options": {
-        "direction": "desc"
-      },
-      "variant": {
-        "numbers": [
-          6,
-          3,
-          4
-        ]
-      }
-    },
-    {
-      "id": "compare-sets-logic-more-left",
-      "type": "compare-sets",
-      "variant": {
-        "mode": "more",
-        "leftCount": 5,
-        "rightCount": 3,
-        "correctChoiceId": "left"
-      }
-    },
-    {
-      "id": "compare-sets-logic-more-right",
-      "type": "compare-sets",
-      "variant": {
-        "mode": "more",
-        "leftCount": 2,
-        "rightCount": 4,
-        "correctChoiceId": "right"
-      }
-    },
-    {
-      "id": "compare-sets-logic-less-left",
-      "type": "compare-sets",
-      "variant": {
-        "mode": "less",
-        "leftCount": 2,
-        "rightCount": 5,
-        "correctChoiceId": "left"
-      }
-    },
-    {
-      "id": "simple-subtraction-logic-4-1",
-      "type": "simple-subtraction",
-      "variant": {
-        "left": 4,
-        "right": 1,
-        "choices": [
-          "2",
-          "3",
-          "4"
-        ],
-        "correctChoiceId": "3"
-      }
-    },
-    {
-      "id": "simple-subtraction-logic-5-2",
-      "type": "simple-subtraction",
-      "variant": {
-        "left": 5,
-        "right": 2,
-        "choices": [
-          "3",
-          "2",
-          "4"
-        ],
-        "correctChoiceId": "3"
-      }
-    },
-    {
-      "id": "simple-subtraction-logic-6-3",
-      "type": "simple-subtraction",
-      "variant": {
-        "left": 6,
-        "right": 3,
-        "choices": [
-          "2",
-          "3",
-          "5"
-        ],
-        "correctChoiceId": "3"
       }
     },
     {
@@ -299,7 +48,7 @@
         "id": "baby-parent",
         "promptItem": "🐣",
         "choices": [
-          { "id": "hen", "label": "🐔" },
+          { "id": "hen",  "label": "🐔" },
           { "id": "rain", "label": "🌧️" },
           { "id": "fish", "label": "🐟" },
           { "id": "star", "label": "⭐" }
@@ -315,9 +64,9 @@
         "promptItem": "✏️",
         "choices": [
           { "id": "apple", "label": "🍎" },
-          { "id": "star", "label": "⭐" },
+          { "id": "star",  "label": "⭐" },
           { "id": "paper", "label": "📄" },
-          { "id": "fish", "label": "🐟" }
+          { "id": "fish",  "label": "🐟" }
         ],
         "correctChoiceId": "paper"
       }
@@ -332,77 +81,9 @@
           { "id": "wave", "label": "🌊" },
           { "id": "bone", "label": "🦴" },
           { "id": "star", "label": "⭐" },
-          { "id": "apple", "label": "🍎" }
+          { "id": "leaf", "label": "🍃" }
         ],
         "correctChoiceId": "wave"
-      }
-    },
-    {
-      "id": "sequence-next-logic-day-night",
-      "type": "sequence-next",
-      "variant": {
-        "series": [
-          "☀️",
-          "🌙",
-          "☀️",
-          "🌙"
-        ],
-        "choices": [
-          "☀️",
-          "⭐",
-          "🌙"
-        ],
-        "correctChoiceId": "☀️"
-      }
-    },
-    {
-      "id": "shape-pattern-logic-flower-leaf",
-      "type": "shape-pattern",
-      "variant": {
-        "series": [
-          "🌼",
-          "🍃",
-          "🌼",
-          "🍃"
-        ],
-        "choices": [
-          "🌼",
-          "🍄",
-          "🍃"
-        ],
-        "correctChoiceId": "🌼"
-      }
-    },
-    {
-      "id": "magic-square-logic-emoji-garden",
-      "type": "magic-square",
-      "variant": {
-        "grid": [
-          "🌼",
-          "🍄",
-          "🍃",
-          "🍄",
-          "🍃",
-          "🌼",
-          "🍃",
-          null,
-          "🍄"
-        ],
-        "choices": [
-          {
-            "id": "flower",
-            "label": "🌼"
-          },
-          {
-            "id": "mushroom",
-            "label": "🍄"
-          },
-          {
-            "id": "leaf",
-            "label": "🍃"
-          }
-        ],
-        "correctChoiceId": "flower"
       }
     },
     {
@@ -412,10 +93,10 @@
         "id": "bee-honey",
         "promptItem": "🐝",
         "choices": [
-          { "id": "cloud", "label": "☁️" },
-          { "id": "honey", "label": "🍯" },
-          { "id": "rock", "label": "🔮" },
-          { "id": "star", "label": "⭐" }
+          { "id": "cloud",  "label": "☁️" },
+          { "id": "honey",  "label": "🍯" },
+          { "id": "gem",    "label": "💎" },
+          { "id": "star",   "label": "⭐" }
         ],
         "correctChoiceId": "honey"
       }
@@ -427,10 +108,10 @@
         "id": "cat-fish",
         "promptItem": "🐱",
         "choices": [
-          { "id": "fish", "label": "🐟" },
-          { "id": "bone", "label": "🦴" },
-          { "id": "apple", "label": "🍎" },
-          { "id": "star", "label": "⭐" }
+          { "id": "fish",   "label": "🐟" },
+          { "id": "bone",   "label": "🦴" },
+          { "id": "apple",  "label": "🍎" },
+          { "id": "star",   "label": "⭐" }
         ],
         "correctChoiceId": "fish"
       }
@@ -442,9 +123,9 @@
         "id": "snow-cold",
         "promptItem": "❄️",
         "choices": [
-          { "id": "flower", "label": "🌸" },
-          { "id": "apple", "label": "🍎" },
-          { "id": "fish", "label": "🐟" },
+          { "id": "flower",  "label": "🌸" },
+          { "id": "apple",   "label": "🍎" },
+          { "id": "fish",    "label": "🐟" },
           { "id": "snowman", "label": "⛄" }
         ],
         "correctChoiceId": "snowman"

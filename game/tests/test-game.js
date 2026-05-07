@@ -687,6 +687,28 @@ test('MagicSquare: createTask працює без entry (JS fallback)', () => {
     assert(task.choices.some((c) => c.id === task.correctChoiceId), 'Правильна відповідь має бути серед choices.');
 });
 
+test('logic.beginner і observation.beginner підключені до NPC пулів', () => {
+    const npcs = LevelData.level1.npcs;
+    const allPools = new Set(npcs.flatMap((npc) => npc.taskPoolIds ?? [npc.taskPoolId]));
+    assert(allPools.has('logic.beginner'),
+        'logic.beginner має бути у taskPoolIds щонайменше одного NPC (LOGIC_POOLS).');
+    assert(allPools.has('observation.beginner'),
+        'observation.beginner має бути у taskPoolIds щонайменше одного NPC (OBSERVE_POOLS).');
+});
+
+test('observation.beginner має лише category-diverse odd-one-out (4 унікальних label)', () => {
+    const tasks = TaskCatalog.getTasks('observation.beginner');
+    assert(tasks.length >= 4, 'observation.beginner має містити щонайменше 4 задачі.');
+    tasks.filter((t) => t.type === 'odd-one-out').forEach((entry) => {
+        const items = entry.variant?.items ?? [];
+        assert(items.length === 4, `${entry.id}: має бути 4 items.`);
+        const labels = items.map((i) => i.label);
+        assert(new Set(labels).size === 4, `${entry.id}: всі 4 label мають бути різними.`);
+        assert(items.some((i) => i.id === entry.variant.correctChoiceId),
+            `${entry.id}: correctChoiceId має бути серед items.`);
+    });
+});
+
 test('Немає дублікатів task.id між усіма JSON-категоріями', () => {
     const allIds = [];
     TaskCatalog.categories.forEach((category) => {
