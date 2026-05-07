@@ -230,6 +230,14 @@ js/scenes/dialog-scene.js
 js/game/level-data.js
 js/game/rules.js
 js/game/task-picker.js
+js/game/session-state.js
+js/game/world-generator.js
+js/game/spawn-rules.js
+js/game/distribution-rules.js
+js/game/collision-system.js
+js/game/apple-system.js
+js/game/camera-system.js
+js/game/npc-spawner.js
 ```
 
 Відповідальність:
@@ -237,19 +245,16 @@ js/game/task-picker.js
 - дані рівнів;
 - чисті правила гри;
 - вибір задач для NPC;
-- допоміжні game-specific функції.
+- генерація й розміщення об'єктів у світі;
+- чисті функції яблук, камери, колізій.
 
-Бажаний розвиток цього шару:
+`apple-system.js` і `camera-system.js` є набором чистих іменованих функцій (без класів, без `this`) і повністю покриті unit-тестами.
+
+Можливий майбутній розвиток:
 
 ```txt
-js/game/session-state.js
-js/game/world-generator.js
-js/game/spawn-rules.js
-js/game/distribution-rules.js
-js/game/collision-system.js
-js/game/apple-system.js
 js/game/npc-system.js
-js/game/camera-controller.js
+js/game/player-controller.js
 ```
 
 ---
@@ -521,132 +526,74 @@ destroy()
 
 ---
 
-## 9. Поточна проблема `EventBus`
+## 9. `EventBus` — стан
 
-Зараз `EventBus` має `on()` і `emit()`, але не має:
+`EventBus` реалізований і має:
 
-- `off()`;
-- `once()`;
-- `reset()`;
-- захисту від повторної ініціалізації.
+- `on(event, callback)` — повертає функцію відписки;
+- `off(event, callback)`;
+- `emit(event, data)`;
+- `reset()` — очищає всі listeners (використовується в тестах).
 
-Це може створити дублювання подій, якщо `bootGame()` викличеться повторно в тестах або dev-сценаріях.
-
-Рекомендоване покращення:
-
-```js
-export const EventBus = {
-    listeners: {},
-
-    on(event, callback) {
-        if (!this.listeners[event]) this.listeners[event] = new Set();
-        this.listeners[event].add(callback);
-        return () => this.off(event, callback);
-    },
-
-    off(event, callback) {
-        this.listeners[event]?.delete(callback);
-    },
-
-    emit(event, data) {
-        this.listeners[event]?.forEach((callback) => callback(data));
-    },
-
-    reset() {
-        this.listeners = {};
-    }
-};
-```
+`ScoreSystem` підписки є idempotent через `resetSubscriptions()`. Повторний виклик `init()` не дублює події.
 
 ---
 
-## 10. Поточна проблема `Input`
+## 10. `Input` — стан
 
-`Input.init()` додає глобальні listeners на `window`. Якщо викликати `Input.init()` більше одного разу, listeners можуть дублюватися.
-
-Рекомендовані рішення:
-
-1. Зробити `Input.init()` ідемпотентним:
-
-```js
-if (this.initialized) return;
-this.initialized = true;
-```
-
-2. Або додати `Input.destroy()` для тестів і перезапуску.
-
-Перший варіант простіший і достатній для цього проєкту.
+`Input.init()` захищений від повторного виклику: якщо вже ініціалізований, повторний виклик повертається без дублювання listeners. Ідемпотентність забезпечена.
 
 ---
 
-## 11. Поточна проблема `GameScene`
+## 11. `GameScene` — поточний стан
 
-`GameScene` зараз відповідає за надто багато. Це головний архітектурний ризик.
+`GameScene` рефакторована: camera і apple логіка виокремлені у власні модулі. Розмір зменшився з 552 до 471 рядка.
 
-Поточні відповідальності:
+Поточні відповідальності `GameScene`:
 
-- створення перешкод;
-- створення яблук;
-- рендер перешкод;
-- рендер яблук;
-- рендер NPC;
-- рух Равлика;
-- камера;
-- колізії;
-- збір яблук;
-- визначення найближчого NPC;
-- відкриття діалогу;
+- рендер перешкод і NPC;
+- рух Равлика (velocity, collision resolve, rotation);
+- визначення найближчого NPC і стану взаємодії;
+- відкриття DialogScene;
 - оновлення HUD;
-- accessibility announcements.
+- accessibility announcements;
+- координація camera-system і apple-system.
 
-Бажаний рефакторинг:
+Делеговано у зовнішні модулі:
 
 ```txt
-js/game/world-generator.js
-js/game/spawn-rules.js
-js/game/collision-system.js
-js/game/apple-system.js
+js/game/world-generator.js    — генерація світу
+js/game/collision-system.js   — колізії
+js/game/apple-system.js       — рендер, збір і пошук яблук
+js/game/camera-system.js      — viewport, snap, scroll-follow
+js/game/session-state.js      — початковий стан сесії
+```
+
+Залишається бажаним, але ще не зробленим:
+
+```txt
 js/game/npc-system.js
-js/game/camera-controller.js
 js/game/player-controller.js
 ```
 
-Після рефакторингу `GameScene` має координувати системи, а не містити всю логіку.
-
 ---
 
-## 12. Бажана майбутня структура `GameScene`
+## 12. Напрям подальшого рефакторингу `GameScene`
+
+Поточна `GameScene` вже делегує camera і apple логіку. Наступний бажаний крок — винести player movement і NPC interaction:
 
 ```js
-export class GameScene {
-    constructor(deps) {
-        this.deps = deps;
-        this.session = createSessionState(LevelData.level1);
-    }
-
-    init() {
-        WorldRenderer.mount(this.session, this.deps.dom);
-        HUDController.setObjective(...);
-    }
-
-    update() {
-        PlayerController.update(this.session, this.deps.input);
-        CollisionSystem.resolve(this.session);
-        AppleSystem.update(this.session, this.deps.eventBus);
-        NpcSystem.update(this.session, this.deps);
-        CameraController.update(this.session);
-    }
-
-    render() {
-        WorldRenderer.render(this.session);
-        CameraController.render(this.session, this.deps.dom);
-    }
-
-    destroy() {
-        WorldRenderer.unmount(this.deps.dom);
-    }
+// Бажана майбутня структура
+update() {
+    PlayerController.update(this.session, this.deps.input);
+    CollisionSystem.resolve(this.session);
+    collectNearbyApples({ apples, playerX, playerY, ... }); // вже є
+    NpcSystem.update(this.session, this.deps);
+    updateCamera(this.state, CONFIG, getViewportSize(this.dom)); // вже є
 }
 ```
+
+Поточна реальність вже близька до цього патерну для camera та apple.
 
 ---
 
@@ -828,12 +775,12 @@ css/tasks.css
 
 ## 22. Рекомендований порядок фундаментального рефакторингу
 
-1. Додати `EventBus.reset()` або idempotent subscriptions.
-2. Зробити `Input.init()` ідемпотентним.
-3. Додати PWA asset check і синхронізувати `sw.js` з поточними CSS/JS/JSON файлами.
-4. Винести apple effects з `GameScene`.
-5. Винести NPC interaction logic з `GameScene`.
-6. Винести camera logic з `GameScene`.
+1. ✅ Додати `EventBus.reset()` та idempotent subscriptions.
+2. ✅ Зробити `Input.init()` ідемпотентним.
+3. ✅ Синхронізувати `sw.js` з поточними CSS/JS/JSON файлами (v14).
+4. ✅ Винести apple logic з `GameScene` → `apple-system.js`.
+5. ✅ Винести camera logic з `GameScene` → `camera-system.js`.
+6. Винести NPC interaction logic з `GameScene` → `npc-system.js`.
 7. Розширити інтеграційні тести для кількох NPC і кількох task type.
 8. Додавати нові типи задач лише як короткі візуальні взаємодії, без монолітного math-module.
 

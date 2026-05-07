@@ -144,16 +144,22 @@ pwa/        Service Worker реєстрація
 
 Не додавати в `GameScene` нові великі блоки логіки, якщо їх можна винести.
 
-Перевага для нових модулів:
+Вже виокремлені модулі:
 
 ```txt
-js/game/world-generator.js
-js/game/spawn-rules.js
-js/game/collision-system.js
-js/game/apple-system.js
+js/game/world-generator.js    ✅
+js/game/spawn-rules.js        ✅
+js/game/collision-system.js   ✅
+js/game/apple-system.js       ✅
+js/game/camera-system.js      ✅
+js/game/session-state.js      ✅
+```
+
+Ще не виокремлені (бажані):
+
+```txt
 js/game/npc-system.js
-js/game/camera-controller.js
-js/game/session-state.js
+js/game/player-controller.js
 ```
 
 Якщо зміна збільшує `GameScene`, агент має пояснити, чому це виправдано.
@@ -422,15 +428,16 @@ js/i18n/uk.js
 
 Якщо агенту дали загальну задачу “покращити проєкт”, працювати в такому порядку:
 
-1. Захистити session policy.
-2. Зробити `Input`/`EventBus` безпечними від повторної ініціалізації.
-3. Винести логіку з `GameScene`.
-4. Додати task validation.
-5. Додати task evaluators.
-6. Додати тести для task-data.
-7. Додати PWA asset check.
-8. Додати нові математичні задачі.
-9. Поліпшити UX фінального екрану.
+1. ✅ Захистити session policy.
+2. ✅ Зробити `Input`/`EventBus` безпечними від повторної ініціалізації.
+3. ✅ Винести `apple-system` і `camera-system` з `GameScene`.
+4. ✅ Додати task validation.
+5. ✅ Додати task evaluators.
+6. ✅ Додати тести для task-data (50 тестів, всі проходять).
+7. ✅ Синхронізувати PWA asset list (`sw.js` v14).
+8. Винести NPC interaction logic у `npc-system.js`.
+9. Додати нові типи задач (пріоритет — короткі візуальні).
+10. Поліпшити UX фінального екрану.
 
 Не починати з декоративних змін, якщо є архітектурні ризики.
 

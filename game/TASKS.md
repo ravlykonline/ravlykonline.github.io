@@ -82,9 +82,9 @@ js/tasks/task-catalog.js
 'arithmetic.beginner'
 ```
 
-Станом на 2026-05-07 банки задач містять понад 170 унікальних `task.id` у 6 JSON-категоріях. Усі `task.id` унікальні між категоріями — дублікати усунено у рамках технічного боргу 2026-05-07. `TaskPicker` використовує `session.usedTaskIds`, щоб у межах однієї гри не видати двом звірям однакове завдання, доки в доступних пулах є невикористані варіанти.
+Станом на 2026-05-07 банки задач містять понад 170 унікальних `task.id` у 6 JSON-категоріях. Усі `task.id` унікальні між категоріями — тест `test-game.js` автоматично перевіряє відсутність дублікатів при кожному запуску. `TaskPicker` використовує `session.usedTaskIds`, щоб у межах однієї гри не видати двом звірям однакове завдання, доки в доступних пулах є невикористані варіанти.
 
-> **Примітка щодо архітектури:** `logic.beginner.json` і `observation.beginner.json` містять задачі всіх типів (sequence-next, odd-one-out, compare-sets, magic-square тощо), щоб NPC різних педагогічних груп мали достатньо варіантів. Їхні task.id мають суфікс `-logic-` або `-obs-`, щоб не конфліктувати з canonical-категоріями (`patterns.beginner`, `counting.beginner`, `arithmetic.beginner`, `visual-logic.beginner`). Тест `test-game.js` автоматично перевіряє відсутність дублікатів між усіма категоріями.
+Усі 6 JSON-категорій підключені до NPC-пулів у `level-data.js`. `logic.beginner` і `observation.beginner` містять власний унікальний контент (logic-pairs, odd-one-out категорійного типу) і є рівноправними категоріями поруч із `visual-logic.beginner`, `patterns.beginner`, `counting.beginner`, `arithmetic.beginner`.
 
 `taskPoolIds` задається в NPC у `js/game/level-data.js`.
 Під час створення сесії `TaskPicker` вибирає конкретний `task.id` з JSON-категорій і додає його в `session.usedTaskIds`, щоб однакове завдання не випало кільком тваринкам в межах однієї сесії.
