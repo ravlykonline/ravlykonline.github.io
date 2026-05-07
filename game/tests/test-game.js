@@ -345,7 +345,7 @@ test('Input recognizes only explicit interactive game UI targets', () => {
 });
 
 test('TaskRegistry створює задачу на продовження послідовності', () => {
-    const entry = TaskCatalog.getTasks('logic.beginner').find((candidate) => candidate.type === 'sequence-next');
+    const entry = TaskCatalog.getTasks('patterns.beginner').find((candidate) => candidate.type === 'sequence-next');
     const task = TaskRegistry.createTaskFromEntry(entry);
     assert(task.type === 'sequence-next', 'Має створюватися задача sequence-next.');
     assert(task.choices.length >= 3, 'У sequence-next мають бути варіанти відповіді.');
