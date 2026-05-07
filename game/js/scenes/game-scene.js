@@ -4,10 +4,11 @@ import { hasWorldCollision } from '../game/collision-system.js';
 import { LevelData } from '../game/level-data.js';
 import { createInitialSessionState } from '../game/session-state.js';
 import { generateWorld } from '../game/world-generator.js';
-import { isNpcWithinRange, shouldCollectApple, pickNearestByDistance } from '../game/rules.js';
+import { isNpcWithinRange, pickNearestByDistance } from '../game/rules.js';
+import { getViewportSize, getViewportRect, getWorldPointFromClient, syncCameraToPlayer, updateCamera } from '../game/camera-system.js';
+import { renderApples, collectNearbyApples, findNearestApple } from '../game/apple-system.js';
 import { t } from '../i18n/index.js';
 import { HUDController } from '../ui/hud-controller.js';
-import { RewardEffects } from '../ui/reward-effects.js';
 import { DialogScene } from './dialog-scene.js';
 
 function getNpcIcon(npc) {
@@ -96,16 +97,7 @@ export class GameScene {
     }
 
     renderApples() {
-        this.apples.forEach((apple) => {
-            const element = document.createElement('div');
-            element.className = 'apple';
-            element.id = `apple-${apple.id}`;
-            element.style.left = `${apple.x}px`;
-            element.style.top = `${apple.y}px`;
-            element.setAttribute('role', 'img');
-            element.setAttribute('aria-label', t('entities.apple'));
-            this.dom.itemsContainer.appendChild(element);
-        });
+        renderApples(this.apples, this.dom.itemsContainer);
     }
 
     renderNpcs() {
@@ -174,33 +166,14 @@ export class GameScene {
         this.tryInteractWithNpc(npc);
     }
 
-    getViewportSize() {
-        return {
-            width: this.dom.viewport?.clientWidth || window.innerWidth,
-            height: this.dom.viewport?.clientHeight || window.innerHeight
-        };
-    }
-
-    getViewportRect() {
-        return this.dom.viewport?.getBoundingClientRect() ?? {
-            left: 0,
-            top: 0,
-            width: window.innerWidth,
-            height: window.innerHeight
-        };
-    }
-
     getPointerWorldTarget() {
-        return this.getWorldPointFromClient(this.input.mouse.x, this.input.mouse.y);
+        const rect = getViewportRect(this.dom);
+        return getWorldPointFromClient(this.input.mouse.x, this.input.mouse.y, this.state.camera, rect);
     }
 
     getWorldPointFromClient(clientX, clientY) {
-        const rect = this.getViewportRect();
-
-        return {
-            x: clientX - rect.left + this.state.camera.x,
-            y: clientY - rect.top + this.state.camera.y
-        };
+        const rect = getViewportRect(this.dom);
+        return getWorldPointFromClient(clientX, clientY, this.state.camera, rect);
     }
 
     findNpcAtWorldPoint(x, y) {
@@ -216,17 +189,7 @@ export class GameScene {
     }
 
     syncCameraToPlayer() {
-        const viewport = this.getViewportSize();
-        this.state.targetCamera.x = Math.max(0, Math.min(
-            this.state.x - viewport.width / 2,
-            CONFIG.worldWidth - viewport.width
-        ));
-        this.state.targetCamera.y = Math.max(0, Math.min(
-            this.state.y - viewport.height / 2,
-            CONFIG.worldHeight - viewport.height
-        ));
-        this.state.camera.x = this.state.targetCamera.x;
-        this.state.camera.y = this.state.targetCamera.y;
+        syncCameraToPlayer(this.state, CONFIG, getViewportSize(this.dom));
     }
 
     update() {
@@ -431,58 +394,18 @@ export class GameScene {
     }
 
     collectNearbyApples() {
-        for (let index = this.apples.length - 1; index >= 0; index -= 1) {
-            const apple = this.apples[index];
-            const appleRadius = (apple.w ?? 28) / 2;
-            const distance = Math.hypot(this.state.x - (apple.x + appleRadius), this.state.y - (apple.y + appleRadius));
-
-            if (!shouldCollectApple(distance, CONFIG.playerRadius)) {
-                continue;
-            }
-
-            RewardEffects.playApple();
-            this.eventBus.emit('item:collected', { type: 'apple', value: 1 });
-
-            const appleEl = document.getElementById(`apple-${apple.id}`);
-            if (appleEl) {
-                appleEl.style.transform = 'scale(1.3)';
-                appleEl.style.opacity = '0';
-                setTimeout(() => appleEl.remove(), 180);
-            }
-
-            this.apples.splice(index, 1);
-
-            if (this.apples.length % 4 === 0) {
-                HUDController.setObjective(t('hud.objectiveApplesRemaining', { count: this.apples.length }));
-                HUDController.setContext(t('announcer.applesRemaining', { count: this.apples.length }));
-                this.announcer.announce(t('announcer.applesRemaining', { count: this.apples.length }));
-            }
-        }
+        collectNearbyApples({
+            apples: this.apples,
+            playerX: this.state.x,
+            playerY: this.state.y,
+            playerRadius: CONFIG.playerRadius,
+            eventBus: this.eventBus,
+            announcer: this.announcer
+        });
     }
 
     updateCamera() {
-        const viewport = this.getViewportSize();
-        const topCameraThreshold = CONFIG.cameraThreshold + CONFIG.topHudSafeArea;
-        const screenX = this.state.x - this.state.targetCamera.x;
-        const screenY = this.state.y - this.state.targetCamera.y;
-
-        if (screenX < CONFIG.cameraThreshold) {
-            this.state.targetCamera.x -= (CONFIG.cameraThreshold - screenX);
-        } else if (screenX > viewport.width - CONFIG.cameraThreshold) {
-            this.state.targetCamera.x += screenX - (viewport.width - CONFIG.cameraThreshold);
-        }
-
-        if (screenY < topCameraThreshold) {
-            this.state.targetCamera.y -= (topCameraThreshold - screenY);
-        } else if (screenY > viewport.height - CONFIG.cameraThreshold) {
-            this.state.targetCamera.y += screenY - (viewport.height - CONFIG.cameraThreshold);
-        }
-
-        this.state.targetCamera.x = Math.max(0, Math.min(this.state.targetCamera.x, CONFIG.worldWidth - viewport.width));
-        this.state.targetCamera.y = Math.max(0, Math.min(this.state.targetCamera.y, CONFIG.worldHeight - viewport.height));
-
-        this.state.camera.x += (this.state.targetCamera.x - this.state.camera.x) * CONFIG.cameraLerp;
-        this.state.camera.y += (this.state.targetCamera.y - this.state.camera.y) * CONFIG.cameraLerp;
+        updateCamera(this.state, CONFIG, getViewportSize(this.dom));
     }
 
     updateAccessibilityDescription() {
@@ -509,10 +432,7 @@ export class GameScene {
     }
 
     findNearestApple() {
-        return pickNearestByDistance(this.apples, (apple) => {
-            const appleRadius = (apple.w ?? 28) / 2;
-            return Math.hypot(this.state.x - (apple.x + appleRadius), this.state.y - (apple.y + appleRadius));
-        });
+        return findNearestApple(this.apples, this.state.x, this.state.y);
     }
 
     findNearestNpc() {

@@ -1,4 +1,4 @@
-const STATIC_CACHE = 'ravlyk-static-v13';
+const STATIC_CACHE = 'ravlyk-static-v14';
 const STATIC_ASSETS = [
     './',
     './index.html',
@@ -19,6 +19,8 @@ const STATIC_ASSETS = [
     './js/core/event-bus.js',
     './js/core/input.js',
     './js/core/motion.js',
+    './js/game/apple-system.js',
+    './js/game/camera-system.js',
     './js/game/collision-system.js',
     './js/game/distribution-rules.js',
     './js/game/level-data.js',
