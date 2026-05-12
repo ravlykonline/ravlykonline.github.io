@@ -221,7 +221,7 @@
   transition: opacity 0.12s ease, transform 0.12s ease;
 }
 
-.workspace-drag-active.workspace-drop-target .ws-drop-zone {
+.workspace-drag-active .ws-drop-zone {
   opacity: 1;
   pointer-events: auto;
 }
@@ -286,6 +286,18 @@
   border-color: var(--color-teal-light);
   background: var(--color-ghost-active-surface);
   box-shadow: 0 0 0 0.125rem var(--color-ghost-active-surface);
+}
+
+/* touch drag-over highlight (mirrors .active) */
+.ws-drop-zone-line.drag-over::before {
+  background: var(--color-teal-light);
+  box-shadow: 0 0 0 0.125rem var(--color-ghost-ring);
+}
+
+.ws-drop-zone-placeholder-root.drag-over::before,
+.ws-drop-zone-placeholder-nested.drag-over::before {
+  border-color: var(--color-teal-light);
+  background: var(--color-ghost-active-surface);
 }
 
 .wb {

@@ -5,4 +5,5 @@ export const GRID_WIDTH = COLS * CELL_SIZE;
 export const GRID_HEIGHT = ROWS * CELL_SIZE;
 export const SNAIL_SIZE = 48;
 
+// After SVG body-flip, head faces RIGHT (East) at 0 deg. CSS clockwise rotations:
 export const directionRotation = { E: 0, S: 90, W: 180, N: -90 };

@@ -89,7 +89,7 @@ export function generateApples({ config, blockers, random = Math.random }) {
                 h: APPLE_SIZE
             };
 
-            if (canPlaceRect(apple, { blockers })) {
+            if (canPlaceRect(apple, { blockers: [...blockers, ...apples] })) {
                 apples.push(apple);
                 placed = true;
             }

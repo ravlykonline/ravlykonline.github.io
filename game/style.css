@@ -85,8 +85,9 @@ body[data-font-mode="readable"] {
 
 #game-area {
     position: absolute;
-    width: 4000px;
-    height: 4000px;
+    /* ВАЖЛИВО: розміри мають відповідати CONFIG.worldWidth × CONFIG.worldHeight у js/core/config.js */
+    width: 4200px;
+    height: 4200px;
     background-color: var(--color-grass-dark);
     background-image: radial-gradient(var(--color-grass-pattern) 2px, transparent 2px);
     background-size: 40px 40px;
@@ -115,6 +116,32 @@ body[data-font-mode="readable"] {
 
 #npcs-container {
     z-index: var(--z-npcs);
+}
+
+/* ============================================
+   MOVE TARGET INDICATOR
+   ============================================ */
+#move-target {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2.5px solid var(--color-apple, #e53935);
+    background: rgba(229, 57, 53, 0.18);
+    margin-left: -12px;
+    margin-top: -12px;
+    pointer-events: none;
+    z-index: var(--z-player, 10);
+    animation: move-target-pulse 0.55s ease-in-out infinite alternate;
+}
+
+@keyframes move-target-pulse {
+    from { transform: scale(0.75); opacity: 0.55; }
+    to   { transform: scale(1.15); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #move-target { animation: none; opacity: 0.8; }
 }
 
 /* ============================================

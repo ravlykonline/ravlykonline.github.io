@@ -395,8 +395,17 @@ body.dragging-active {
 }
 
 .mode-chip.debug {
-  background: var(--chip-mode-debug-bg);
-  color: var(--chip-mode-debug-text);
+  background: var(--chip-mode-debug-solid-bg);
+  color: var(--chip-mode-debug-solid-text);
+  font-size: 1rem;
+  min-height: 40px;
+  padding: 8px var(--space-4);
+  animation: debug-chip-pulse 2s ease-in-out infinite;
+}
+
+@keyframes debug-chip-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--chip-mode-debug-glow); }
+  50%       { box-shadow: 0 0 0 5px transparent; }
 }
 
 .goal-chip {

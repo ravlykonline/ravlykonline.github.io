@@ -9,7 +9,7 @@ import { validateProgram } from './runtime/execution-limits.js';
 import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from './state/history.js';
 import { trapFocus } from './utils/focus-trap.js';
 import { playSuccess, playFailure } from './utils/sounds.js';
-import { clearTrail, clearTurtleCanvas, drawTrail, placeSnail, renderLessonGuide, renderTurtle, setupCanvas, setupTurtleMode, teardownTurtleMode, wiggleSnail } from './ui/canvas.js';
+import { clearTrail, clearTurtleCanvas, drawTurtleSegment, drawTrail, initTurtleCanvas, placeSnail, placeTurtleSnail, renderLessonGuide, setupCanvas, setupTurtleMode, teardownTurtleMode, wiggleSnail } from './ui/canvas.js';
 import { getDomReferences } from './ui/dom.js';
 import { clearFeedback, hideSuccess, renderBlockCount, renderCode, renderControls, renderHistoryControls, renderLessonHeader, renderLessonNavigation, renderPalette, renderWorkspace, showFeedback, showSuccess } from './ui/render.js';
 
@@ -187,10 +187,10 @@ function isTurtleLesson() {
 
 function resetBoard() {
   if (isTurtleLesson()) {
-    clearTurtleCanvas(dom);
     const lesson = appState.currentLesson;
     const t = createTurtle({ x: lesson.start.x ?? 0, y: lesson.start.y ?? 0, heading: lesson.start.heading ?? 0 });
-    renderTurtle(dom, t, [], lesson.goalSegments);
+    initTurtleCanvas(dom, lesson.goalSegments);
+    placeTurtleSnail(dom, t);
     dom.canvasStatus.textContent = 'Равлик готовий малювати.';
   } else {
     clearTrail(dom);
@@ -274,8 +274,8 @@ async function runTurtleProgram() {
   let turtle = createTurtle({ x: start.x ?? 0, y: start.y ?? 0, heading: start.heading ?? 0 });
   appState.turtleSegments = [];
 
-  // Draw ghost guide before first step (renderTurtle handles the guide internally)
-  renderTurtle(dom, turtle, [], lesson.goalSegments);
+  initTurtleCanvas(dom, lesson.goalSegments);
+  placeTurtleSnail(dom, turtle);
 
   const actions = flattenBlocks();
   for (const action of actions) {
@@ -284,12 +284,14 @@ async function runTurtleProgram() {
     setActiveBlock(action.id);
     updateWorkspaceUi();
 
-    let segment = null;
     if (action.type === 'turtle_forward') {
       const result = moveForward(turtle, action.steps ?? 50);
+      const segment = result.segment;
       turtle = result.turtle;
-      segment = result.segment;
-      if (segment) appState.turtleSegments.push(segment);
+      if (segment) {
+        appState.turtleSegments.push(segment);
+        drawTurtleSegment(dom, { ...segment, color: lesson.trailColor, width: 5 });
+      }
     } else if (action.type === 'turtle_right') {
       turtle = turnRight(turtle, action.degrees ?? 90);
     } else if (action.type === 'turtle_left') {
@@ -300,7 +302,7 @@ async function runTurtleProgram() {
       turtle = penDown(turtle);
     }
 
-    renderTurtle(dom, turtle, appState.turtleSegments, lesson.goalSegments);
+    placeTurtleSnail(dom, turtle);
     dom.canvasStatus.textContent = `Равлик: x=${Math.round(turtle.x)}, y=${Math.round(turtle.y)}, напрямок=${turtle.heading}°.`;
     await sleep(300);
   }
@@ -462,6 +464,12 @@ function bindEvents() {
     workspaceDragDepth = 0;
     setWorkspaceDropTarget(false);
   });
+
+  document.addEventListener('touch-drag-start', () => {
+    setWorkspaceDragActive(true);
+    setWorkspaceDropTarget(true);
+  });
+  document.addEventListener('touch-drag-end', resetWorkspaceDragState);
 
   // focus traps for modals
   trapFocus(dom.introOverlay.querySelector('.intro-card'));

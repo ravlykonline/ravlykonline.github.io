@@ -1,5 +1,6 @@
 import { lessons } from '../data/lessons.js';
 import { blockDefinitions } from '../data/blocks.js';
+import { makeTouchDraggable, makeDropTarget } from '../utils/touch-drag.js';
 
 function getBlockWord(count) {
   const mod10 = count % 10;
@@ -41,6 +42,10 @@ function createDropZone(parentId, index, handlers, variant = 'line') {
     event.preventDefault();
     dropZone.classList.remove('active');
     handlers.onDrop(parentId, index, readDragPayload(event));
+  });
+
+  makeDropTarget(dropZone, (payload) => {
+    handlers.onDrop(parentId, index, payload);
   });
 
   return dropZone;
@@ -141,6 +146,12 @@ function buildBlockElement(block, state, handlers, ctx = { isFirst: true, isLast
     blockElement.classList.remove('dragging');
     handlers.onDragEnd();
   });
+  makeTouchDraggable(
+    blockElement,
+    () => ({ blockId: String(block.id) }),
+    handlers.onDragStart,
+    handlers.onDragEnd,
+  );
 
   blockElement.addEventListener('keydown', (event) => {
     const { key, ctrlKey, shiftKey } = event;
@@ -302,6 +313,12 @@ export function renderPalette(dom, lesson, handlers) {
       handlers.onDragStart();
     });
     button.addEventListener('dragend', handlers.onDragEnd);
+    makeTouchDraggable(
+      button,
+      () => ({ paletteType: type }),
+      handlers.onDragStart,
+      handlers.onDragEnd,
+    );
     dom.paletteList.appendChild(button);
   });
 }

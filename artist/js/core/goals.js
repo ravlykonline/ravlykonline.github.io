@@ -1,3 +1,9 @@
+function segmentWord(n) {
+  if (n % 10 === 1 && n % 100 !== 11) return 'відрізок';
+  if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return 'відрізки';
+  return 'відрізків';
+}
+
 export function evaluateGoal(lesson, trailPoints) {
   const { mode } = lesson.success;
 
@@ -60,7 +66,7 @@ export function evaluateGoal(lesson, trailPoints) {
 
     return {
       ok: false,
-      message: `Намалюй більше ліній. Потрібно щонайменше ${minimum}.`,
+      message: `Рівалик намалював лише ${segments} ${segmentWord(segments)} — потрібно щонайменше ${minimum}. Додай більше команд «вперед».`,
     };
   }
 

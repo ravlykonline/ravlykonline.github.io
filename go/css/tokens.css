@@ -139,6 +139,9 @@
   --chip-mode-play-text: #21572a;
   --chip-mode-debug-bg: rgba(36, 100, 191, 0.14);
   --chip-mode-debug-text: #184d95;
+  --chip-mode-debug-solid-bg: #e05c00;
+  --chip-mode-debug-solid-text: #ffffff;
+  --chip-mode-debug-glow: rgba(224, 92, 0, 0.4);
   --chip-goal-bg: rgba(245, 200, 66, 0.2);
   --chip-goal-text: #563d00;
 
@@ -274,6 +277,9 @@
     --chip-mode-play-text: #daf5d9;
     --chip-mode-debug-bg: rgba(111, 169, 255, 0.18);
     --chip-mode-debug-text: #d8e8ff;
+    --chip-mode-debug-solid-bg: #c44f00;
+    --chip-mode-debug-solid-text: #fff7f0;
+    --chip-mode-debug-glow: rgba(196, 79, 0, 0.5);
     --chip-goal-bg: rgba(245, 200, 66, 0.2);
     --chip-goal-text: #ffe7a0;
     --info-btn-bg: #5d531d;

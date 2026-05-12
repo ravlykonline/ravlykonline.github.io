@@ -59,6 +59,7 @@ export class GameScene {
         this.renderObstacles();
         this.renderApples();
         this.renderNpcs();
+        this.mountMoveTarget();
         this.dom.gameArea.addEventListener('click', this.handleWorldClickBind);
         this.syncCameraToPlayer();
         HUDController.setObjective(t('hud.objectiveText'));
@@ -68,6 +69,14 @@ export class GameScene {
         this.announcer.announce(t('announcer.newGameStarted'), 'assertive');
     }
 
+    mountMoveTarget() {
+        this.moveTargetEl = document.createElement('div');
+        this.moveTargetEl.id = 'move-target';
+        this.moveTargetEl.setAttribute('aria-hidden', 'true');
+        this.moveTargetEl.hidden = true;
+        this.dom.gameArea.appendChild(this.moveTargetEl);
+    }
+
     pause() {
         this.input.clearTarget();
         this.input.deactivateKeyboardMode();
@@ -75,6 +84,10 @@ export class GameScene {
 
     destroy() {
         this.dom.gameArea.removeEventListener('click', this.handleWorldClickBind);
+        if (this.moveTargetEl) {
+            this.moveTargetEl.remove();
+            this.moveTargetEl = null;
+        }
     }
 
     resume() {
@@ -467,5 +480,24 @@ export class GameScene {
         this.dom.playerInner.classList.toggle('is-idle', speed <= 0.12);
         this.dom.playerInner.classList.toggle('is-turning-left', angleDiff < -8);
         this.dom.playerInner.classList.toggle('is-turning-right', angleDiff > 8);
+
+        this.renderMoveTarget();
+    }
+
+    renderMoveTarget() {
+        if (!this.moveTargetEl) {
+            return;
+        }
+
+        const target = this.input.mouse.intentTarget;
+        const visible = Boolean(target) && !this.input.keyboard.active;
+
+        if (visible) {
+            this.moveTargetEl.style.left = `${target.x}px`;
+            this.moveTargetEl.style.top = `${target.y}px`;
+            this.moveTargetEl.hidden = false;
+        } else {
+            this.moveTargetEl.hidden = true;
+        }
     }
 }

@@ -44,7 +44,7 @@ export const textsUk = {
     speechStart: "Слухаємо завдання.",
     speechError: "Не вдалося озвучити завдання.",
     debugNote: "Стрілки вже стоять. У них сховалась помилка.",
-    modeDebug: "Виправ помилку",
+    modeDebug: "🔍 Виправ помилку!",
     modePlay: "Склади шлях",
     completedSuffix: " ✓ пройдено",
     levelWord: "Рівень",

@@ -313,7 +313,12 @@ export function createGameEngine({ app }) {
       return;
     }
 
+    const levelId = String(app.state.currentLevel.id);
+    const initialArrows = { ...(app.state.currentLevel.presetArrows || {}) };
+    app.state.arrowsByLevel[levelId] = { ...initialArrows };
+
     app.resetLevelState();
+    app.ui.clearStopMark?.();
     app.persistCurrentArrows?.();
     app.render.clearTrail();
     app.render.clearStartHighlight();

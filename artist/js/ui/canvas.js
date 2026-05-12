@@ -16,8 +16,9 @@ function ensureGuideLayer(gridSvg) {
   return guideLayer;
 }
 
-function getBrushElement(dom) {
-  return dom.snailElement.querySelector('[data-brush]');
+/** Returns the CSS rotation degree for a given grid direction letter. */
+function snailCssDeg(dir) {
+  return directionRotation[dir] ?? 0;
 }
 
 export function getLessonGuidePoints(lesson) {
@@ -144,11 +145,7 @@ export function placeSnail(dom, snail, immediate = false) {
   const { left, top } = getSnailScreenPosition(snail);
   dom.snailElement.style.left = `${left}px`;
   dom.snailElement.style.top = `${top}px`;
-
-  const brush = getBrushElement(dom);
-  if (brush) {
-    brush.setAttribute('transform', getBrushTransform(snail.dir));
-  }
+  dom.snailElement.style.transform = `rotate(${snailCssDeg(snail.dir)}deg)`;
 
   if (immediate) {
     window.requestAnimationFrame(() => {
@@ -186,22 +183,36 @@ export function drawTrail(dom, lesson, from, to) {
 // ── Turtle mode ──────────────────────────────────────────────────────────────
 
 export function setupTurtleMode(dom) {
-  // visibility:hidden keeps layout so canvas (position:absolute) stays in flow
+  // hide the grid, keep snailElement visible — it becomes the turtle indicator
   dom.gridSvg.style.visibility = 'hidden';
-  dom.snailElement.style.visibility = 'hidden';
   dom.trailCanvas.width = GRID_WIDTH;
   dom.trailCanvas.height = GRID_HEIGHT;
-  clearTurtleCanvas(dom);
 }
 
 export function teardownTurtleMode(dom) {
   dom.gridSvg.style.visibility = '';
-  dom.snailElement.style.visibility = '';
+  // reset snail transforms that may have been set in turtle mode
+  dom.snailElement.style.transition = 'none';
+  dom.snailElement.style.transform = '';
+  window.requestAnimationFrame(() => { dom.snailElement.style.transition = ''; });
 }
 
 export function clearTurtleCanvas(dom) {
   const ctx = dom.trailCanvas.getContext('2d');
   ctx.clearRect(0, 0, GRID_WIDTH, GRID_HEIGHT);
+}
+
+/**
+ * Positions and rotates the snail element at a turtle's canvas coordinates.
+ * heading: 0=up, 90=right, 180=down, 270=left.
+ * CSS rotation: heading - 90  (because snail head faces RIGHT at 0°)
+ */
+export function placeTurtleSnail(dom, turtle) {
+  const cx = TURTLE_ORIGIN_X + turtle.x;
+  const cy = TURTLE_ORIGIN_Y + turtle.y;
+  dom.snailElement.style.left = `${cx - SNAIL_SIZE / 2}px`;
+  dom.snailElement.style.top  = `${cy - SNAIL_SIZE / 2}px`;
+  dom.snailElement.style.transform = `rotate(${turtle.heading - 90}deg)`;
 }
 
 /**
@@ -253,46 +264,12 @@ export function drawTurtleSegment(dom, segment) {
 }
 
 /**
- * Renders the turtle indicator (small triangle) at turtle's position + heading.
- * Redraws all segments + indicator on each call.
+ * Initialises the turtle canvas: clears it and draws the ghost guide.
+ * Call once at the start of a run or on reset.
  */
-export function renderTurtle(dom, turtle, segments, goalSegments = null) {
+export function initTurtleCanvas(dom, goalSegments) {
   clearTurtleCanvas(dom);
-
-  // ghost guide below user segments
   if (goalSegments) renderTurtleGuide(dom, goalSegments);
-
-  for (const seg of segments) {
-    drawTurtleSegment(dom, seg);
-  }
-
-  const ctx = dom.trailCanvas.getContext('2d');
-  const px = TURTLE_ORIGIN_X + turtle.x;
-  const py = TURTLE_ORIGIN_Y + turtle.y;
-  // heading 0 = up, triangle tip at (0,-size) — rotate clockwise by heading degrees
-  const rad = turtle.heading * (Math.PI / 180);
-  const size = 16;
-
-  ctx.save();
-  ctx.translate(px, py);
-  ctx.rotate(rad);
-  // body
-  ctx.fillStyle = '#1a9080';
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(0, -size);
-  ctx.lineTo(size * 0.65, size * 0.65);
-  ctx.lineTo(-size * 0.65, size * 0.65);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  // head dot
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  ctx.arc(0, -size + 4, 3, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
 }
 
 export function wiggleSnail(dom) {

@@ -1,0 +1,2647 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Равлик вчиться — Майстерня Вмінь</title>
+    <style>
+        @import url('https://cdn.fontsource.org/fontsource-roboto/400/400.css');
+        @import url('https://cdn.fontsource.org/fontsource-roboto/500/500.css');
+        @import url('https://cdn.fontsource.org/fontsource-roboto/700/700.css');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 40%, #a5d6a7 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* ===== INTRO SCREEN ===== */
+        #intro-screen {
+            background: linear-gradient(180deg, #fff8e1 0%, #ffecb3 50%, #ffe082 100%);
+        }
+
+        .intro-title {
+            font-size: clamp(28px, 6vw, 56px);
+            font-weight: 700;
+            color: #4e342e;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .intro-subtitle {
+            font-size: clamp(16px, 3vw, 24px);
+            color: #6d4c41;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .intro-snail {
+            width: 200px;
+            height: 180px;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .intro-snail svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .intro-text {
+            max-width: 600px;
+            text-align: center;
+            font-size: clamp(14px, 2.5vw, 18px);
+            color: #5d4037;
+            line-height: 1.6;
+            padding: 0 20px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 36px;
+            font-size: clamp(16px, 3vw, 22px);
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #66bb6a, #43a047);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #42a5f5, #1e88e5);
+            color: white;
+        }
+
+        .btn-orange {
+            background: linear-gradient(135deg, #ffa726, #fb8c00);
+            color: white;
+        }
+
+        .btn-pink {
+            background: linear-gradient(135deg, #ec407a, #d81b60);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 8px 20px;
+            font-size: clamp(12px, 2vw, 16px);
+        }
+
+        /* ===== MAP SCREEN ===== */
+        #map-screen {
+            background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 30%, #c8e6c9 60%, #a5d6a7 100%);
+        }
+
+        .map-header {
+            width: 100%;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .map-header h2 {
+            font-size: clamp(18px, 3vw, 24px);
+            color: #2e7d32;
+        }
+
+        .map-snail-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .map-snail-info span {
+            font-size: 16px;
+            color: #4e342e;
+            font-weight: 500;
+        }
+
+        .map-valley {
+            flex: 1;
+            width: 100%;
+            position: relative;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .map-valley-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding-bottom: 100px;
+        }
+
+        .skill-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .skill-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .skill-card.locked:hover {
+            transform: none;
+        }
+
+        .skill-card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin-bottom: 12px;
+        }
+
+        .skill-card h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .skill-card .animal-name {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .skill-level-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .skill-level-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .skill-level-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .skill-card .lock-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            border-radius: 20px;
+        }
+
+        /* ===== GAME SCREEN ===== */
+        #game-screen {
+            background: linear-gradient(180deg, #fff9c4 0%, #fff176 100%);
+        }
+
+        .game-header {
+            width: 100%;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .game-header .back-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .game-header h3 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .game-area {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .game-canvas-wrapper {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        canvas {
+            display: block;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .game-message {
+            text-align: center;
+            font-size: clamp(16px, 3vw, 22px);
+            color: #333;
+            margin-bottom: 15px;
+            min-height: 30px;
+            padding: 0 20px;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .progress-display {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .progress-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.filled {
+            background: #66bb6a;
+            box-shadow: 0 0 6px rgba(102, 187, 106, 0.5);
+        }
+
+        .progress-dot.current {
+            background: #ffa726;
+            box-shadow: 0 0 8px rgba(255, 167, 38, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        /* ===== TEACHING SCREEN ===== */
+        #teach-screen {
+            background: linear-gradient(180deg, #fce4ec 0%, #f8bbd0 50%, #f48fb1 100%);
+        }
+
+        .teach-content {
+            max-width: 600px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .teach-content h2 {
+            font-size: clamp(24px, 4vw, 36px);
+            color: #880e4f;
+            margin-bottom: 15px;
+        }
+
+        .teach-content p {
+            font-size: clamp(14px, 2.5vw, 18px);
+            color: #ad1457;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .teach-animal {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+        }
+
+        .teach-steps {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .teach-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: #5d4037;
+        }
+
+        .teach-step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #ec407a;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        /* ===== ALBUM SCREEN ===== */
+        #album-screen {
+            background: linear-gradient(180deg, #efebe9 0%, #d7ccc8 100%);
+        }
+
+        .album-content {
+            max-width: 700px;
+            width: 100%;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .album-content h2 {
+            font-size: clamp(22px, 4vw, 32px);
+            color: #4e342e;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .album-pages {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .album-page {
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .album-page h4 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .album-page canvas {
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .album-page .effort-label {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .album-page .result-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* ===== DIALOGUE ===== */
+        .dialogue-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .dialogue-box {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .dialogue-box .character-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        .dialogue-box .char-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #5d4037;
+            margin-bottom: 8px;
+        }
+
+        .dialogue-box .dialogue-text {
+            font-size: clamp(14px, 2.5vw, 18px);
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .encourage-text {
+            color: #2e7d32;
+            font-weight: 500;
+        }
+
+        /* ===== TEACHING MINI-GAME ===== */
+        .teach-mini-canvas {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        /* ===== CELEBRATION ===== */
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .celebration-box {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease;
+        }
+
+        .celebration-box h2 {
+            font-size: 28px;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .celebration-box .big-icon {
+            font-size: 80px;
+            margin: 15px 0;
+        }
+
+        .medal-display {
+            width: 100px;
+            height: 100px;
+            margin: 15px auto;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .map-valley-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .album-pages {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* ===== PARTICLES ===== */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 300;
+            animation: particleFloat 1.5s ease forwards;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(0.5);
+            }
+        }
+
+        .floating-leaves {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .leaf {
+            position: absolute;
+            font-size: 20px;
+            animation: leafFall linear infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes leafFall {
+            0% {
+                transform: translateY(-30px) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .nav-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 12px 20px;
+            z-index: 50;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-bottom button {
+            background: none;
+            border: none;
+            font-size: 14px;
+            color: #555;
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-family: 'Roboto', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .nav-bottom button:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-bottom button.active {
+            color: #2e7d32;
+            font-weight: 700;
+            background: rgba(46, 125, 50, 0.1);
+        }
+
+        .tree-progress {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 10px auto;
+        }
+
+        .tree-trunk {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            background: #8d6e63;
+            border-radius: 4px;
+            transition: height 0.5s ease;
+        }
+
+        .tree-crown {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: #66bb6a;
+            border-radius: 50%;
+            transition: all 0.5s ease;
+        }
+
+        .snail-avatar {
+            display: inline-block;
+            font-size: 24px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="game-container">
+
+        <!-- INTRO SCREEN -->
+        <div id="intro-screen" class="screen active">
+            <div class="floating-leaves" id="intro-leaves"></div>
+            <div class="intro-title">🐌 Равлик вчиться</div>
+            <div class="intro-subtitle">Майстерня Вмінь</div>
+            <div class="intro-snail">
+                <svg viewBox="0 0 200 180">
+                    <!-- Snail shell -->
+                    <ellipse cx="100" cy="80" rx="60" ry="50" fill="#8d6e63" />
+                    <ellipse cx="100" cy="80" rx="60" ry="50" fill="url(#shellGrad)" />
+                    <path d="M60 80 Q80 50 100 80 Q120 110 140 80" stroke="#6d4c41" stroke-width="3" fill="none" />
+                    <path d="M70 80 Q85 60 100 80 Q115 100 130 80" stroke="#6d4c41" stroke-width="2" fill="none" />
+                    <!-- Snail body -->
+                    <ellipse cx="80" cy="130" rx="55" ry="20" fill="#a1887f" />
+                    <!-- Eyes -->
+                    <line x1="50" y1="125" x2="35" y2="100" stroke="#a1887f" stroke-width="4" stroke-linecap="round" />
+                    <line x1="65" y1="125" x2="55" y2="98" stroke="#a1887f" stroke-width="4" stroke-linecap="round" />
+                    <circle cx="33" cy="97" r="6" fill="white" />
+                    <circle cx="33" cy="97" r="3" fill="#333" />
+                    <circle cx="53" cy="95" r="6" fill="white" />
+                    <circle cx="53" cy="95" r="3" fill="#333" />
+                    <!-- Smile -->
+                    <path d="M40 135 Q50 145 60 135" stroke="#5d4037" stroke-width="2" fill="none"
+                        stroke-linecap="round" />
+                    <!-- Foot -->
+                    <ellipse cx="80" cy="148" rx="50" ry="8" fill="#bcaaa4" opacity="0.6" />
+                    <!-- Shell highlight -->
+                    <defs>
+                        <radialGradient id="shellGrad" cx="40%" cy="35%">
+                            <stop offset="0%" stop-color="rgba(255,255,255,0.3)" />
+                            <stop offset="100%" stop-color="rgba(0,0,0,0)" />
+                        </radialGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div class="intro-text">
+                Равлик потрапив до <b>Долини Вмінь</b>. Тут усі звірята щось уміють — але жодне з них не народилося
+                вмілим!
+                <br><br>
+                Кожен показує Равлику свій <b>альбом спроб</b>: перший місток, перша мелодія, перша доріжка...
+                <br><br>
+                А потім — тренувався. І навчився.
+                <br><br>
+                <em>А тепер Равлик теж почне вчитися! 🌱</em>
+            </div>
+            <button class="btn btn-primary" onclick="startGame()">Почати пригоду 🌿</button>
+        </div>
+
+        <!-- MAP SCREEN -->
+        <div id="map-screen" class="screen">
+            <div class="map-header">
+                <h2>🏔️ Долина Вмінь</h2>
+                <div class="map-snail-info">
+                    <span>🐌 Равлик</span>
+                    <span id="total-skills">0/4</span>
+                </div>
+            </div>
+            <div class="map-valley">
+                <div class="map-valley-inner" id="skill-cards">
+                    <!-- Cards generated by JS -->
+                </div>
+            </div>
+            <div class="nav-bottom">
+                <button class="active" onclick="showMap()">🗺️ Долина</button>
+                <button onclick="showAlbum()">📖 Мій альбом</button>
+            </div>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <button class="back-btn" onclick="showMap()">← Назад</button>
+                <h3 id="game-title">Назва гри</h3>
+                <div class="progress-display" id="game-progress"></div>
+            </div>
+            <div class="game-area" id="game-area">
+                <!-- Dynamic game content -->
+            </div>
+        </div>
+
+        <!-- TEACHING SCREEN -->
+        <div id="teach-screen" class="screen">
+            <div class="teach-content" id="teach-content">
+                <!-- Dynamic teaching content -->
+            </div>
+        </div>
+
+        <!-- ALBUM SCREEN -->
+        <div id="album-screen" class="screen">
+            <div class="album-content">
+                <h2>📖 Мій альбом спроб</h2>
+                <div class="album-pages" id="album-pages">
+                    <!-- Dynamic album pages -->
+                </div>
+                <div style="text-align:center; margin-top:20px;">
+                    <button class="btn btn-secondary" onclick="showMap()">← До долини</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ===== GAME STATE =====
+        const GameState = {
+            skills: {
+                bridge: { name: "Будуємо місток", animal: "Бобер Бобик", icon: "🦫", emoji: "🌉", level: 0, attempts: [], unlocked: true, color: "#42a5f5" },
+                path: { name: "Малюємо доріжку", animal: "Їжачок Шурх", icon: "🦔", emoji: "🛤️", level: 0, attempts: [], unlocked: false, color: "#66bb6a" },
+                sort: { name: "Сортуємо скарби", animal: "Білочка Зіна", icon: "🐿️", emoji: "🧺", level: 0, attempts: [], unlocked: false, color: "#ffa726" },
+                melody: { name: "Граємо мелодію", animal: "Сова Мудра", icon: "🦉", emoji: "🎵", level: 0, attempts: [], unlocked: false, color: "#ec407a" }
+            },
+            currentSkill: null,
+            currentAttempt: 0,
+            totalMastery: 0,
+            albumData: {}
+        };
+
+        const LEVEL_NAMES = ["Пробую", "Вже краще", "Виходить", "Вмію", "Можу навчити"];
+        const LEVEL_COLORS = ["#bdbdbd", "#81c784", "#4caf50", "#2e7d32", "#ffd54f"];
+        const ENCOURAGE_MESSAGES = [
+            "Сьогодні вийшло краще, ніж минулого разу! 🌟",
+            "Ти вже точніше керуєш! 💪",
+            "Ти зробив менше зайвих рухів! ✨",
+            "Ти швидше знайшов рішення! 🎯",
+            "Твоя лінія стала рівнішою! 📏",
+            "Ти запам'ятав кращий шлях! 🧠",
+            "Кожна спроба робить тебе майстернішим! 🌱",
+            "Бачиш, як ти покращився? Це результат твоїх тренувань! 🏆",
+            "Ти вже майстер! А тепер час навчити когось! 🤝"
+        ];
+
+        // ===== NAVIGATION =====
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function showMap() {
+            renderMap();
+            showScreen('map-screen');
+        }
+
+        function showAlbum() {
+            renderAlbum();
+            showScreen('album-screen');
+        }
+
+        function startGame() {
+            showScreen('map-screen');
+            renderMap();
+        }
+
+        // ===== MAP RENDERING =====
+        function renderMap() {
+            const container = document.getElementById('skill-cards');
+            container.innerHTML = '';
+            const skillKeys = Object.keys(GameState.skills);
+            let masteredCount = 0;
+
+            skillKeys.forEach(key => {
+                const skill = GameState.skills[key];
+                if (skill.level >= 5) masteredCount++;
+
+                const card = document.createElement('div');
+                card.className = 'skill-card' + (skill.unlocked ? '' : ' locked');
+
+                const levelPercent = (skill.level / 5) * 100;
+
+                card.innerHTML = `
+      <div class="skill-card-icon" style="background:${skill.color}20;">
+        ${skill.icon}
+      </div>
+      <h3>${skill.name}</h3>
+      <div class="animal-name">${skill.animal}</div>
+      <div class="skill-level-bar">
+        <div class="skill-level-fill" style="width:${levelPercent}%;background:${LEVEL_COLORS[skill.level]};"></div>
+      </div>
+      <div class="skill-level-label">${skill.level >= 5 ? '⭐ Мастер! Навчити інших' : LEVEL_NAMES[skill.level]}</div>
+      ${!skill.unlocked ? '<div class="lock-overlay">🔒</div>' : ''}
+    `;
+
+                if (skill.unlocked) {
+                    card.onclick = () => openSkill(key);
+                }
+
+                container.appendChild(card);
+            });
+
+            document.getElementById('total-skills').textContent = `${masteredCount}/4`;
+
+            // Unlock next skill
+            for (let i = 0; i < skillKeys.length - 1; i++) {
+                if (GameState.skills[skillKeys[i]].level >= 2) {
+                    GameState.skills[skillKeys[i + 1]].unlocked = true;
+                }
+            }
+        }
+
+        // ===== OPEN SKILL =====
+        function openSkill(key) {
+            const skill = GameState.skills[key];
+            GameState.currentSkill = key;
+            GameState.currentAttempt = 0;
+
+            document.getElementById('game-title').textContent = `${skill.icon} ${skill.name}`;
+            updateProgressDots();
+
+            if (skill.level >= 5) {
+                showTeachingScreen(key);
+                return;
+            }
+
+            showScreen('game-screen');
+
+            switch (key) {
+                case 'bridge': initBridgeGame(); break;
+                case 'path': initPathGame(); break;
+                case 'sort': initSortGame(); break;
+                case 'melody': initMelodyGame(); break;
+            }
+        }
+
+        function updateProgressDots() {
+            const container = document.getElementById('game-progress');
+            const skill = GameState.skills[GameState.currentSkill];
+            container.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'progress-dot';
+                if (i < skill.level) dot.classList.add('filled');
+                if (i === skill.level) dot.classList.add('current');
+                container.appendChild(dot);
+            }
+        }
+
+        // ===== BRIDGE GAME =====
+        function initBridgeGame() {
+            const area = document.getElementById('game-area');
+            area.innerHTML = `
+    <div class="game-message" id="bridge-msg">Проведи лінію від одного берега до іншого, щоб побудувати місток!</div>
+    <div class="game-canvas-wrapper">
+      <canvas id="bridge-canvas" width="500" height="300"></canvas>
+    </div>
+    <div class="game-controls">
+      <button class="btn btn-primary btn-small" id="bridge-start">Почати будувати 🏗️</button>
+      <button class="btn btn-secondary btn-small" id="bridge-reset">Спробувати ще 🔄</button>
+    </div>
+  `;
+
+            const canvas = document.getElementById('bridge-canvas');
+            const ctx = canvas.getContext('2d');
+            const skill = GameState.skills.bridge;
+
+            // Adjust canvas for mobile
+            const maxW = Math.min(500, window.innerWidth - 60);
+            canvas.width = maxW;
+            canvas.height = maxW * 0.6;
+
+            let isDrawing = false;
+            let points = [];
+            let attemptNum = 0;
+
+            function drawScene() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Sky
+                const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                skyGrad.addColorStop(0, '#e3f2fd');
+                skyGrad.addColorStop(1, '#bbdefb');
+                ctx.fillStyle = skyGrad;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // River
+                ctx.fillStyle = '#42a5f5';
+                ctx.fillRect(0, canvas.height * 0.5, canvas.width, canvas.height * 0.25);
+
+                // River animation
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 5; i++) {
+                    ctx.beginPath();
+                    const y = canvas.height * 0.55 + i * 10;
+                    for (let x = 0; x < canvas.width; x += 5) {
+                        ctx.lineTo(x, y + Math.sin(x * 0.05 + Date.now() * 0.002 + i) * 3);
+                    }
+                    ctx.stroke();
+                }
+
+                // Left bank
+                ctx.fillStyle = '#8d6e63';
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height * 0.45);
+                ctx.quadraticCurveTo(canvas.width * 0.12, canvas.height * 0.45, canvas.width * 0.15, canvas.height * 0.5);
+                ctx.lineTo(canvas.width * 0.15, canvas.height);
+                ctx.lineTo(0, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+
+                // Grass left
+                ctx.fillStyle = '#66bb6a';
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height * 0.42);
+                ctx.quadraticCurveTo(canvas.width * 0.12, canvas.height * 0.42, canvas.width * 0.15, canvas.height * 0.47);
+                ctx.lineTo(canvas.width * 0.15, canvas.height * 0.5);
+                ctx.quadraticCurveTo(canvas.width * 0.12, canvas.height * 0.45, 0, canvas.height * 0.45);
+                ctx.closePath();
+                ctx.fill();
+
+                // Right bank
+                ctx.fillStyle = '#8d6e63';
+                ctx.beginPath();
+                ctx.moveTo(canvas.width, canvas.height * 0.45);
+                ctx.quadraticCurveTo(canvas.width * 0.88, canvas.height * 0.45, canvas.width * 0.85, canvas.height * 0.5);
+                ctx.lineTo(canvas.width * 0.85, canvas.height);
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+
+                // Grass right
+                ctx.fillStyle = '#66bb6a';
+                ctx.beginPath();
+                ctx.moveTo(canvas.width, canvas.height * 0.42);
+                ctx.quadraticCurveTo(canvas.width * 0.88, canvas.height * 0.42, canvas.width * 0.85, canvas.height * 0.47);
+                ctx.lineTo(canvas.width * 0.85, canvas.height * 0.5);
+                ctx.quadraticCurveTo(canvas.width * 0.88, canvas.height * 0.45, canvas.width, canvas.height * 0.45);
+                ctx.closePath();
+                ctx.fill();
+
+                // Snail on left bank
+                drawSnail(ctx, canvas.width * 0.1, canvas.height * 0.44, skill.level);
+
+                // Draw user line
+                if (points.length > 1) {
+                    ctx.strokeStyle = '#8d6e63';
+                    ctx.lineWidth = 8;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(points[0].x, points[0].y);
+                    for (let i = 1; i < points.length; i++) {
+                        ctx.lineTo(points[i].x, points[i].y);
+                    }
+                    ctx.stroke();
+
+                    ctx.strokeStyle = '#a1887f';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.moveTo(points[0].x, points[0].y);
+                    for (let i = 1; i < points.length; i++) {
+                        ctx.lineTo(points[i].x, points[i].y);
+                    }
+                    ctx.stroke();
+
+                    // Planks
+                    ctx.fillStyle = '#bcaaa4';
+                    for (let i = 0; i < points.length; i += 3) {
+                        const p = points[i];
+                        ctx.save();
+                        ctx.translate(p.x, p.y);
+                        ctx.fillRect(-6, -3, 12, 6);
+                        ctx.restore();
+                    }
+                }
+
+                // Target zone (right bank edge)
+                ctx.strokeStyle = 'rgba(255,215,0,0.5)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.arc(canvas.width * 0.85, canvas.height * 0.5, 20, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                requestAnimationFrame(drawScene);
+            }
+
+            function getCanvasPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+            }
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', endDraw);
+            canvas.addEventListener('touchstart', startDraw, { passive: false });
+            canvas.addEventListener('touchmove', draw, { passive: false });
+            canvas.addEventListener('touchend', endDraw);
+
+            function startDraw(e) {
+                e.preventDefault();
+                isDrawing = true;
+                points = [];
+                const pos = getCanvasPos(e);
+                points.push(pos);
+            }
+
+            function draw(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const pos = getCanvasPos(e);
+                points.push(pos);
+            }
+
+            function endDraw(e) {
+                if (!isDrawing) return;
+                isDrawing = false;
+
+                // Check if line reached the other side
+                const lastPoint = points[points.length - 1];
+                const targetX = canvas.width * 0.85;
+                const targetY = canvas.height * 0.5;
+                const dist = Math.sqrt((lastPoint.x - targetX) ** 2 + (lastPoint.y - targetY) ** 2);
+
+                if (dist < 50 && points.length > 10) {
+                    // Success!
+                    evaluateBridge(points, attemptNum);
+                } else {
+                    showMessage('bridge-msg', 'Місток не дійшов до іншого берега! Спробуй ще раз 🌊');
+                }
+            }
+
+            document.getElementById('bridge-start').onclick = () => {
+                attemptNum++;
+                points = [];
+                showMessage('bridge-msg', `Спроба ${attemptNum}: проведи лінію від лівого берега до правого!`);
+            };
+
+            document.getElementById('bridge-reset').onclick = () => {
+                attemptNum++;
+                points = [];
+                showMessage('bridge-msg', 'Спробуй інакше! Можливо, пряміше? 🌉');
+            };
+
+            drawScene();
+        }
+
+        function evaluateBridge(points, attemptNum) {
+            const canvas = document.getElementById('bridge-canvas');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Calculate straightness
+            const start = points[0];
+            const end = points[points.length - 1];
+            const directDist = Math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2);
+
+            let pathLength = 0;
+            for (let i = 1; i < points.length; i++) {
+                pathLength += Math.sqrt((points[i].x - points[i - 1].x) ** 2 + (points[i].y - points[i - 1].y) ** 2);
+            }
+
+            const straightness = directDist / pathLength; // 1 = perfectly straight
+            const avgY = points.reduce((s, p) => s + p.y, 0) / points.length;
+            const targetY = h * 0.5;
+            const verticalAccuracy = 1 - Math.abs(avgY - targetY) / (h * 0.3);
+
+            const score = straightness * 0.6 + verticalAccuracy * 0.4;
+
+            const skill = GameState.skills.bridge;
+            skill.attempts.push({ score, attempt: attemptNum, points: points.map(p => ({ x: p.x / w, y: p.y / h })), timestamp: Date.now() });
+
+            // Save to album
+            if (!GameState.albumData.bridge) GameState.albumData.bridge = [];
+            GameState.albumData.bridge.push({
+                score, attempt: attemptNum, level: skill.level,
+                dataUrl: canvas.toDataURL()
+            });
+
+            // Evaluate level
+            const levelThresholds = [0.3, 0.45, 0.6, 0.75];
+            let newLevel = 0;
+            for (let i = levelThresholds.length - 1; i >= 0; i--) {
+                if (score >= levelThresholds[i]) { newLevel = i + 1; break; }
+            }
+
+            if (newLevel > skill.level) skill.level = newLevel;
+            if (skill.level >= 5) skill.level = 5;
+
+            const msg = ENCOURAGE_MESSAGES[Math.min(skill.level, ENCOURAGE_MESSAGES.length - 1)];
+
+            if (skill.level >= 5) {
+                showDialogue('🦫', 'Бобер Бобик',
+                    `Неймовірно! Твій місток ідеальний!<br><br><span class="encourage-text">${msg}</span><br><br>А тепер до тебе приходить маленьке звірятко...`,
+                    'Навчити малюка 🤝'
+                );
+                document.querySelector('.dialogue-box .btn:last-child').onclick = () => closeDialogue();
+                document.querySelector('.dialogue-box .btn:last-child').onclick = () => {
+                    closeDialogue();
+                    showTeachingScreen('bridge');
+                };
+                return;
+            }
+
+            // Check if enough attempts to level up
+            const neededAttempts = [3, 3, 3, 3];
+            if (skill.attempts.length >= neededAttempts[skill.level - 1] || skill.level >= newLevel) {
+                showDialogue('🦫', 'Бобер Бобик',
+                    `От це так!<br><br><span class="encourage-text">${msg}</span><br><br>Рівень: ${LEVEL_NAMES[skill.level]}`,
+                    'Далі ➡️'
+                );
+                document.querySelector('.dialogue-box .btn:last-child').onclick = () => {
+                    closeDialogue();
+                    updateProgressDots();
+                    renderMap();
+                };
+            } else {
+                showMessage('bridge-msg', `<span class="encourage-text">${msg}</span><br>Рівень: ${LEVEL_NAMES[skill.level]} | Спробуй ще, щоб покращити!`);
+                points = [];
+            }
+        }
+
+        // ===== PATH GAME =====
+        function initPathGame() {
+            const area = document.getElementById('game-area');
+            area.innerHTML = `
+    <div class="game-message" id="path-msg">Проведи Равлика по доріжці до хатки! Старайся не виходити за межі 🏠</div>
+    <div class="game-canvas-wrapper">
+      <canvas id="path-canvas" width="500" height="350"></canvas>
+    </div>
+    <div class="game-controls">
+      <button class="btn btn-primary btn-small" id="path-start">Почати 🚶</button>
+      <button class="btn btn-secondary btn-small" id="path-reset">Ще раз 🔄</button>
+    </div>
+  `;
+
+            const canvas = document.getElementById('path-canvas');
+            const ctx = canvas.getContext('2d');
+            const skill = GameState.skills.path;
+
+            const maxW = Math.min(500, window.innerWidth - 60);
+            canvas.width = maxW;
+            canvas.height = maxW * 0.7;
+
+            const w = canvas.width, h = canvas.height;
+
+            // Generate winding path
+            const pathPoints = [];
+            const steps = 50;
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const x = w * 0.1 + t * w * 0.8;
+                const y = h * 0.5 + Math.sin(t * Math.PI * (2 + skill.level)) * h * 0.3 + Math.cos(t * Math.PI * 1.5) * h * 0.1;
+                pathPoints.push({ x, y });
+            }
+
+            let isTracing = false;
+            let tracePoints = [];
+            let offPathCount = 0;
+            let attemptNum = 0;
+
+            function drawScene() {
+                ctx.clearRect(0, 0, w, h);
+
+                // Background
+                ctx.fillStyle = '#c8e6c9';
+                ctx.fillRect(0, 0, w, h);
+
+                // Path
+                ctx.strokeStyle = '#bcaaa4';
+                ctx.lineWidth = 30;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+                ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+                for (let i = 1; i < pathPoints.length; i++) {
+                    ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
+                }
+                ctx.stroke();
+
+                // Path center line
+                ctx.strokeStyle = '#8d6e63';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([8, 8]);
+                ctx.beginPath();
+                ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+                for (let i = 1; i < pathPoints.length; i++) {
+                    ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Start marker
+                ctx.fillStyle = '#66bb6a';
+                ctx.beginPath();
+                ctx.arc(pathPoints[0].x, pathPoints[0].y, 15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = 'white';
+                ctx.font = '14px Roboto';
+                ctx.textAlign = 'center';
+                ctx.fillText('СТАРТ', pathPoints[0].x, pathPoints[0].y + 4);
+
+                // End marker (house)
+                const last = pathPoints[pathPoints.length - 1];
+                ctx.fillStyle = '#ff7043';
+                ctx.fillRect(last.x - 12, last.y - 20, 24, 20);
+                ctx.beginPath();
+                ctx.moveTo(last.x - 16, last.y - 20);
+                ctx.lineTo(last.x, last.y - 32);
+                ctx.lineTo(last.x + 16, last.y - 20);
+                ctx.fill();
+
+                // Trace
+                if (tracePoints.length > 1) {
+                    ctx.strokeStyle = '#42a5f5';
+                    ctx.lineWidth = 4;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(tracePoints[0].x, tracePoints[0].y);
+                    for (let i = 1; i < tracePoints.length; i++) {
+                        ctx.lineTo(tracePoints[i].x, tracePoints[i].y);
+                    }
+                    ctx.stroke();
+                }
+
+                // Snail
+                if (isTracing && tracePoints.length > 0) {
+                    const lastT = tracePoints[tracePoints.length - 1];
+                    drawSnail(ctx, lastT.x, lastT.y - 15, skill.level);
+                } else {
+                    drawSnail(ctx, pathPoints[0].x, pathPoints[0].y - 15, skill.level);
+                }
+
+                requestAnimationFrame(drawScene);
+            }
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = w / rect.width;
+                const scaleY = h / rect.height;
+                const cx = e.touches ? e.touches[0].clientX : e.clientX;
+                const cy = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: (cx - rect.left) * scaleX, y: (cy - rect.top) * scaleY };
+            }
+
+            function findNearestPath(px, py) {
+                let minDist = Infinity;
+                for (const pp of pathPoints) {
+                    const d = Math.sqrt((px - pp.x) ** 2 + (py - pp.y) ** 2);
+                    if (d < minDist) minDist = d;
+                }
+                return minDist;
+            }
+
+            function startTrace(e) {
+                e.preventDefault();
+                isTracing = true;
+                tracePoints = [];
+                offPathCount = 0;
+                const pos = getPos(e);
+                tracePoints.push(pos);
+            }
+
+            function trace(e) {
+                if (!isTracing) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                tracePoints.push(pos);
+
+                const dist = findNearestPath(pos.x, pos.y);
+                if (dist > 20) offPathCount++;
+            }
+
+            function endTrace(e) {
+                if (!isTracing) return;
+                isTracing = false;
+
+                // Check if reached end
+                const last = tracePoints[tracePoints.length - 1];
+                const endPoint = pathPoints[pathPoints.length - 1];
+                const distToEnd = Math.sqrt((last.x - endPoint.x) ** 2 + (last.y - endPoint.y) ** 2);
+
+                if (distToEnd < 30) {
+                    evaluatePath(attemptNum, offPathCount);
+                } else {
+                    showMessage('path-msg', 'Равлик не дійшов до хатки! Спробуй ще раз 🏠');
+                    tracePoints = [];
+                }
+            }
+
+            canvas.addEventListener('mousedown', startTrace);
+            canvas.addEventListener('mousemove', trace);
+            canvas.addEventListener('mouseup', endTrace);
+            canvas.addEventListener('touchstart', startTrace, { passive: false });
+            canvas.addEventListener('touchmove', trace, { passive: false });
+            canvas.addEventListener('touchend', endTrace);
+
+            document.getElementById('path-start').onclick = () => {
+                attemptNum++;
+                tracePoints = [];
+                offPathCount = 0;
+                showMessage('path-msg', `Спроба ${attemptNum}: веди Равлика по доріжці до хатки!`);
+            };
+
+            document.getElementById('path-reset').onclick = () => {
+                attemptNum++;
+                tracePoints = [];
+                offPathCount = 0;
+                showMessage('path-msg', 'Спробуй триматися ближче до центру доріжки! 🛤️');
+            };
+
+            drawScene();
+        }
+
+        function evaluatePath(attemptNum, offPathCount) {
+            const canvas = document.getElementById('path-canvas');
+            const skill = GameState.skills.path;
+            const maxOff = 50;
+            const accuracy = Math.max(0, 1 - offPathCount / maxOff);
+
+            skill.attempts.push({ accuracy, attempt: attemptNum, offPathCount, timestamp: Date.now() });
+
+            if (!GameState.albumData.path) GameState.albumData.path = [];
+            GameState.albumData.path.push({ accuracy, attempt: attemptNum, level: skill.level, dataUrl: canvas.toDataURL() });
+
+            const levelThresholds = [0.5, 0.7, 0.85, 0.95];
+            let newLevel = 0;
+            for (let i = levelThresholds.length - 1; i >= 0; i--) {
+                if (accuracy >= levelThresholds[i]) { newLevel = i + 1; break; }
+            }
+
+            if (newLevel > skill.level) skill.level = newLevel;
+            if (skill.level >= 5) skill.level = 5;
+
+            const msg = ENCOURAGE_MESSAGES[Math.min(skill.level, ENCOURAGE_MESSAGES.length - 1)];
+
+            if (skill.level >= 5) {
+                showDialogue('🦔', 'Їжачок Шурх',
+                    `Доріжка ідеальна! Жодного зайвого кроку!<br><br><span class="encourage-text">${msg}</span><br><br>Маленький їжачок просить: "Навчи мене!"`,
+                    'Навчити малюка 🤝'
+                );
+                document.querySelector('.dialogue-box .btn:last-child').onclick = () => {
+                    closeDialogue();
+                    showTeachingScreen('path');
+                };
+                return;
+            }
+
+            showDialogue('🦔', 'Їжачок Шурх',
+                `Дуже добре!<br><br><span class="encourage-text">${msg}</span><br><br>Рівень: ${LEVEL_NAMES[skill.level]}`,
+                'Далі ➡️'
+            );
+            document.querySelector('.dialogue-box .btn:last-child').onclick = () => {
+                closeDialogue();
+                updateProgressDots();
+                renderMap();
+            };
+        }
+
+        // ===== SORT GAME =====
+        function initSortGame() {
+            const area = document.getElementById('game-area');
+            area.innerHTML = `
+    <div class="game-message" id="sort-msg">Перетягни предмети у правильні кошики: яблука до 🧺, гриби до 🪵!</div>
+    <div class="game-canvas-wrapper">
+      <canvas id="sort-canvas" width="500" height="400"></canvas>
+    </div>
+    <div class="game-controls">
+      <button class="btn btn-primary btn-small" id="sort-start">Нова гра 🎯</button>
+    </div>
+  `;
+
+            const canvas = document.getElementById('sort-canvas');
+            const ctx = canvas.getContext('2d');
+            const skill = GameState.skills.sort;
+
+            const maxW = Math.min(500, window.innerWidth - 60);
+            canvas.width = maxW;
+            canvas.height = maxW * 0.8;
+
+            const w = canvas.width, h = canvas.height;
+
+            const items = [];
+            const itemCount = 5 + skill.level * 2;
+            let attemptNum = 0;
+            let correctCount = 0;
+            let dragItem = null;
+            let dragOffset = { x: 0, y: 0 };
+            let gameActive = false;
+
+            const basketY = h * 0.7;
+
+            function initItems() {
+                items.length = 0;
+                for (let i = 0; i < itemCount; i++) {
+                    const isApple = Math.random() > 0.5;
+                    items.push({
+                        type: isApple ? 'apple' : 'mushroom',
+                        x: 40 + Math.random() * (w - 80),
+                        y: 40 + Math.random() * (h * 0.4),
+                        origX: 0, origY: 0,
+                        placed: false,
+                        size: 25 + Math.random() * 10
+                    });
+                    items[i].origX = items[i].x;
+                    items[i].origY = items[i].y;
+                }
+                correctCount = 0;
+                gameActive = true;
+            }
+
+            function drawScene() {
+                ctx.clearRect(0, 0, w, h);
+
+                // Background
+                ctx.fillStyle = '#fff8e1';
+                ctx.fillRect(0, 0, w, h);
+
+                // Baskets
+                // Apple basket
+                ctx.fillStyle = '#e8f5e9';
+                ctx.strokeStyle = '#66bb6a';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.ellipse(w * 0.25, basketY, 60, 35, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 16px Roboto';
+                ctx.textAlign = 'center';
+                ctx.fillText('🍎 Яблука', w * 0.25, basketY + 5);
+
+                // Mushroom basket
+                ctx.fillStyle = '#fff3e0';
+                ctx.strokeStyle = '#ffa726';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.ellipse(w * 0.75, basketY, 60, 35, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = '#333';
+                ctx.fillText('🍄 Гриби', w * 0.75, basketY + 5);
+
+                // Items
+                for (const item of items) {
+                    if (item.placed) continue;
+                    if (item === dragItem) continue;
+
+                    ctx.font = `${item.size}px serif`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(item.type === 'apple' ? '🍎' : '🍄', item.x, item.y + item.size * 0.3);
+                }
+
+                // Dragged item
+                if (dragItem) {
+                    ctx.font = `${dragItem.size}px serif`;
+                    ctx.textAlign = 'center';
+                    ctx.globalAlpha = 0.8;
+                    ctx.fillText(dragItem.type === 'apple' ? '🍎' : '🍄', dragItem.x, dragItem.y + dragItem.size * 0.3);
+                    ctx.globalAlpha = 1;
+                }
+
+                requestAnimationFrame(drawScene);
+            }
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = w / rect.width;
+                const scaleY = h / rect.height;
+                const cx = e.touches ? e.touches[0].clientX : e.clientX;
+                const cy = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: (cx - rect.left) * scaleX, y: (cy - rect.top) * scaleY };
+            }
+
+            function hitTest(pos) {
+                for (let i = items.length - 1; i >= 0; i--) {
+                    const item = items[i];
+                    if (item.placed) continue;
+                    const dist = Math.sqrt((pos.x - item.x) ** 2 + (pos.y - item.y) ** 2);
+                    if (dist < item.size) return item;
+                }
+                return null;
+            }
+
+            function startDrag(e) {
+                if (!gameActive) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                const item = hitTest(pos);
+                if (item) {
+                    dragItem = item;
+                    dragOffset.x = pos.x - item.x;
+                    dragOffset.y = pos.y - item.y;
+                }
+            }
+
+            function doDrag(e) {
+                if (!dragItem) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                dragItem.x = pos.x - dragOffset.x;
+                dragItem.y = pos.y - dragOffset.y;
+            }
+
+            function endDrag(e) {
+                if (!dragItem) return;
+                e.preventDefault();
+
+                // Check if dropped in correct basket
+                let droppedIn = null;
+                if (dragItem.x < w * 0.5) droppedIn = 'apple';
+                else droppedIn = 'mushroom';
+
+                if (dragItem.type === droppedIn) {
+                    dragItem.placed = true;
+                    correctCount++;
+
+                    // Move to basket
+                    dragItem.x = droppedIn === 'apple' ? w * 0.25 + (Math.random() - 0.5) * 40 : w * 0.75 + (Math.random() - 0.5) * 40;
+                    dragItem.y = basketY + (Math.random() - 0.5) * 15;
+                } else {
+                    // Wrong basket - return to original position
+                    dragItem.x = dragItem.origX;
+                    dragItem.y = dragItem.origY;
+                    showMessage('sort-msg', 'Ой, не туди! Спробуй інший кошик 🧺');
+                }
+
+                dragItem = null;
+
+                // Check if all placed
+                if (items.every(i => i.placed)) {
+                    gameActive = false;
+                    evaluateSort(correctCount, items.length, attemptNum);
+                }
+            }
+
+            canvas.addEventListener('mousedown', startDrag);
+            canvas.addEventListener('mousemove', doDrag);
+            canvas.addEventListener('mouseup', endDrag);
+            canvas.addEventListener('touchstart', startDrag, { passive: false });
+            canvas.addEventListener('touchmove', doDrag, { passive: false });
+            canvas.addEventListener('touchend', endDrag);
+
+            document.getElementById('sort-start').onclick = () => {
+                attemptNum++;
+                initItems();
+                showMessage('sort-msg', `Спроба ${attemptNum}: розклади предмети по кошиках!`);
+            };
+
+            initItems();
+            drawScene();
+        }
+
+        function evaluateSort(correct, total, attemptNum) {
+            const canvas = document.getElementById('sort-canvas');
+            const skill = GameState.skills.sort;
+            const accuracy = correct / total;
+
+            skill.attempts.push({ accuracy, attempt: attemptNum, correct, total, timestamp: Date.now() });
+
+            if (!GameState.albumData.sort) GameState.albumData.sort = [];
+            GameState.albumData.sort.push({ accuracy, attempt: attemptNum, level: skill.level, dataUrl: canvas.toDataURL() });
+
+            const levelThresholds = [0.5, 0.7, 0.85, 0.95];
+            let newLevel = 0;
+            for (let i = levelThresholds.length - 1; i >= 0; i--) {
+                if (accuracy >= levelThresholds[i]) { newLevel = i + 1; break; }
+            }
+
+            if (newLevel > skill.level) skill.level = newLevel;
+            if (skill.level >= 5) skill.level = 5;
+
+            const msg = ENCOURAGE_MESSAGES[Math.min(skill.level, ENCOURAGE_MESSAGES.length - 1)];
+
+            if (skill.level >= 5) {
+                showDialogue('🐿️', 'Білочка Зіна',
+                    `Всі предмети на місці! Ідеальне сортування!<br><br><span class="encourage-text">${msg}</span><br><br>Маленька білочка хоче навчитися!`,
+                    'Навчити малюка 🤝'
+                );
+                document.querySelector('.dialogue-box .btn:last-child').onclick = () => {
+                    closeDialogue();
+                    showTeachingScreen('sort');
+                };
+                return;
+            }
+
+            showDialogue('🐿️', 'Білочка Зіна',
+                `${correct} з ${total} правильно!<br><br><span class="encourage-text">${msg}</span><br><br>Рівень: ${LEVEL_NAMES[skill.level]}`,
+                'Далі ➡️'
+            );
+            document.querySelector('.dialogue-box .btn:last-child').onclick = () => {
+                closeDialogue();
+                updateProgressDots();
+                renderMap();
+            };
+        }
+
+        // ===== MELODY GAME =====
+        function initMelodyGame() {
+            const area = document.getElementById('game-area');
+            area.innerHTML = `
+    <div class="game-message" id="melody-msg">Запам'ятай мелодію, а потім повтор її! Натискай на нотки 🎵</div>
+    <div class="game-canvas-wrapper">
+      <canvas id="melody-canvas" width="500" height="350"></canvas>
+    </div>
+    <div class="game-controls">
+      <button class="btn btn-primary btn-small" id="melody-start">Слухати мелодію 👂</button>
+      <button class="btn btn-orange btn-small" id="melody-play">Грати! 🎶</button>
+    </div>
+  `;
+
+            const canvas = document.getElementById('melody-canvas');
+            const ctx = canvas.getContext('2d');
+            const skill = GameState.skills.melody;
+
+            const maxW = Math.min(500, window.innerWidth - 60);
+            canvas.width = maxW;
+            canvas.height = maxW * 0.7;
+
+            const w = canvas.width, h = canvas.height;
+
+            const noteCount = 3 + skill.level;
+            const colors = ['#ef5350', '#42a5f5', '#66bb6a', '#ffa726', '#ab47bc', '#26c6da', '#ff7043'];
+            const notes = [];
+            const cols = 3;
+            const rows = Math.ceil(noteCount / cols);
+            const noteW = Math.min(80, (w - 60) / cols);
+            const noteH = noteW;
+            const startX = (w - cols * noteW) / 2;
+            const startY = 40;
+
+            // Audio context
+            let audioCtx = null;
+            let sequence = [];
+            let playerSequence = [];
+            let showingSequence = false;
+            let attemptNum = 0;
+
+            function initNotes() {
+                notes.length = 0;
+                sequence = [];
+                playerSequence = [];
+
+                for (let i = 0; i < noteCount; i++) {
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+                    notes.push({
+                        x: startX + col * (noteW + 15),
+                        y: startY + row * (noteH + 15),
+                        w: noteW,
+                        h: noteH,
+                        color: colors[i % colors.length],
+                        index: i,
+                        freq: 261.63 * Math.pow(1.05946, i * 3), // Musical frequencies
+                        lit: false,
+                        litTimer: 0
+                    });
+                    sequence.push(i);
+                }
+            }
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = w / rect.width;
+                const scaleY = h / rect.height;
+                const cx = e.touches ? e.touches[0].clientX : e.clientX;
+                const cy = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: (cx - rect.left) * scaleX, y: (cy - rect.top) * scaleY };
+            }
+
+            function playNote(note) {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = note.freq;
+                gain.gain.value = 0.3;
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            }
+
+            function showSequence() {
+                showingSequence = true;
+                playerSequence = [];
+                let idx = 0;
+
+                const interval = setInterval(() => {
+                    if (idx >= sequence.length) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            showingSequence = false;
+                            showMessage('melody-msg', 'Тепер твоя черга! Натискай нотки в тому ж порядку 🎶');
+                        }, 300);
+                        return;
+                    }
+
+                    const note = notes[sequence[idx]];
+                    note.lit = true;
+                    note.litTimer = 30;
+                    playNote(note);
+                    idx++;
+                }, 800 - skill.level * 80); // Faster as skill increases
+            }
+
+            function drawScene() {
+                ctx.clearRect(0, 0, w, h);
+
+                // Background
+                ctx.fillStyle = '#fce4ec';
+                ctx.fillRect(0, 0, w, h);
+
+                // Owl character
+                ctx.font = '50px serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('🦉', w * 0.5, h - 30);
+
+                // Notes
+                for (const note of notes) {
+                    if (note.litTimer > 0) note.litTimer--;
+                    const isLit = note.lit || note.litTimer > 0;
+                    if (isLit && note.litTimer === 0) note.lit = false;
+
+                    ctx.fillStyle = isLit ? note.color + 'ff' : note.color + '60';
+                    ctx.beginPath();
+                    ctx.roundRect(note.x, note.y, note.w, note.h, 15);
+                    ctx.fill();
+
+                    ctx.strokeStyle = isLit ? '#fff' : note.color;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.roundRect(note.x, note.y, note.w, note.h, 15);
+                    ctx.stroke();
+
+                    // Note symbol
+                    ctx.fillStyle = isLit ? '#fff' : '#333';
+                    ctx.font = 'bold 24px Roboto';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(note.index + 1, note.x + note.w / 2, note.y + note.h / 2);
+                }
+
+                // Status
+                ctx.fillStyle = '#333';
+                ctx.font = '14px Roboto';
+                ctx.textBaseline = 'alphabetic';
+                ctx.textAlign = 'center';
+                if (showingSequence) {
+                    ctx.fillText('👂 Слухай мелодію...', w / 2, startY + rows * (noteH + 15) + 30);
+                } else if (playerSequence.length > 0) {
+                    ctx.fillText(`Вже натиснуто: ${playerSequence.length} / ${sequence.length}`, w / 2, startY + rows * (noteH + 15) + 30);
+                }
+
+                requestAnimationFrame(drawScene);
+            }
+
+            canvas.addEventListener('click', handleClick);
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = w / rect.width;
+                const scaleY = h / rect.height;
+                const touch = e.changedTouches[0];
+                handleClick({ clientX: touch.clientX, clientY: touch.clientY });
+            });
+
+            function handleClick(e) {
+                if (showingSequence) return;
+
+                const pos = getPos(e);
+                for (const note of notes) {
+                    if (pos.x >= note.x && pos.x <= note.x + note.w && pos.y >= note.y && pos.y <= note.y + note.h) {
+                        playNote(note);
+                        note.lit = true;
+                        note.litTimer = 15;
+
+                        playerSequence.push(note.index);
+
+                        // Check if correct
+                        const idx = playerSequence.length - 1;
+                        if (playerSequence[idx] !== sequence[idx]) {
+                            // Wrong note
+                            showMessage('melody-msg', 'Не та нотка! Спробуй ще раз 🎵');
+                            playerSequence = [];
+                            return;
+                        }
+
+                        // Check if sequence complete
+                        if (playerSequence.length === sequence.length) {
+                            // Success!
+                            evaluateMelody(attemptNum);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            document.getElementById('melody-start').onclick = () => {
+                attemptNum++;
+                initNotes();
+                showMessage('melody-msg', 'Слухай уважно! Запам\'ятай порядок ноток 🎵');
+                showSequence();
+            };
+
+            document.getElementById('melody-play').onclick = () => {
+                if (showingSequence) return;
+                playerSequence = [];
+                showMessage('melody-msg', 'Грай мелодію! Натискай нотки по порядку 🎶');
+            };
+
+            initNotes();
+            drawScene();
+        }
+
+        function evaluateMelody(attemptNum) {
+            const canvas = document.getElementById('melody-canvas');
+            const skill = GameState.skills.melody;
+            const accuracy = 1; // If they got here, they got it right
+
+            skill.attempts.push({ accuracy, attempt: attemptNum, timestamp: Date.now() });
+
+            if (!GameState.albumData.melody) GameState.albumData.melody = [];
+            GameState.albumData.melody.push({ accuracy, attempt: attemptNum, level: skill.level, dataUrl: canvas.toDataURL() });
+
+            // Each successful attempt increases level
+            skill.level = Math.min(5, skill.level + 1);
+
+            const msg = ENCOURAGE_MESSAGES[Math.min(skill.level, ENCOURAGE_MESSAGES.length - 1)];
+
+            if (skill.level >= 5) {
+                showDialogue('🦉', 'Сова Мудра',
+                    `Ти запам'ятав найдовшу мелодію! Це справжній талант!<br><br><span class="encourage-text">${msg}</span><br><br>Маленька сова просить: "Навчи мене грати!"`,
+                    'Навчити малюка 🤝'
+                );
+                document.querySelector('.dialogue-box .btn:last-child').onclick = () => {
+                    closeDialogue();
+                    showTeachingScreen('melody');
+                };
+                return;
+            }
+
+            showDialogue('🦉', 'Сова Мудра',
+                `Чудово! Ти почув і повторив мелодію!<br><br><span class="encourage-text">${msg}</span><br><br>Рівень: ${LEVEL_NAMES[skill.level]}`,
+                'Далі ➡️'
+            );
+            document.querySelector('.dialogue-box .btn:last-child').onclick = () => {
+                closeDialogue();
+                updateProgressDots();
+                renderMap();
+            };
+        }
+
+        // ===== TEACHING SCREEN =====
+        function showTeachingScreen(skillKey) {
+            const skill = GameState.skills[skillKey];
+            const content = document.getElementById('teach-content');
+
+            const teachingSteps = {
+                bridge: [
+                    "Спочатку покажи, де почати місток",
+                    "Потім проведи рівну лінію",
+                    "Не забувай дивитися, куди ведеш",
+                    "Ось так — місток готовий!"
+                ],
+                path: [
+                    "Покажи, де починається доріжка",
+                    "Веди повільно по центру стежки",
+                    "Якщо збився — не хвилюйся, просто продовжуй",
+                    "Ось і хатка! Молодець!"
+                ],
+                sort: [
+                    "Подивись на предмет уважно",
+                    "Яблука — до зеленого кошика",
+                    "Гриби — до помаранчевого",
+                    "Розкладай спокійно, один за одним"
+                ],
+                melody: [
+                    "Уважно слухай першу нотку",
+                    "Запам'ятай порядок",
+                    "Натискай нотки по черзі",
+                    "Ось мелодія готова!"
+                ]
+            };
+
+            const animalIcons = { bridge: '🦫', path: '🦔', sort: '🐿️', melody: '🦉' };
+            const animalNames = { bridge: 'Бобренятко', path: 'Їжаченя', sort: 'Білченя', melody: 'Совеня' };
+
+            content.innerHTML = `
+    <h2>🌟 Час навчати!</h2>
+    <div style="font-size:80px;margin:20px 0;">🐌</div>
+    <p>Ти так добре навчився, що тепер можеш допомогти іншому!<br>До тебе прийшло ${animalNames[skillKey]}:</p>
+    <div style="font-size:60px;margin:20px 0;">${animalIcons[skillKey]}</div>
+    <p><em>"Я теж хочу навчитися ${skill.name.toLowerCase()}! Покажеш мені?"</em></p>
+    <div class="teach-steps">
+      <h3 style="margin-bottom:15px;color:#880e4f;">Прості кроки для навчання:</h3>
+      ${teachingSteps[skillKey].map((step, i) => `
+        <div class="teach-step">
+          <div class="teach-step-num">${i + 1}</div>
+          <span>${step}</span>
+        </div>
+      `).join('')}
+    </div>
+    <button class="btn btn-pink" onclick="startTeaching('${skillKey}')">Почати навчати 🎓</button>
+    <br><br>
+    <button class="btn btn-secondary btn-small" onclick="showMap()">← До долини</button>
+  `;
+
+            showScreen('teach-screen');
+        }
+
+        function startTeaching(skillKey) {
+            const skill = GameState.skills[skillKey];
+
+            // Show teaching mini-game
+            const area = document.getElementById('teach-content');
+            area.innerHTML = `
+    <h2>🎓 Навчаємо ${skillKey === 'bridge' ? 'Бобр' : skillKey === 'path' ? 'Їжачка' : skillKey === 'sort' ? 'Білочку' : 'Совеня'}!</h2>
+    <p>Покажи, як треба робити. Демонструй кожен крок!</p>
+    <div class="teach-mini-canvas">
+      <canvas id="teach-canvas" width="400" height="250"></canvas>
+    </div>
+    <div id="teach-step-text" style="font-size:18px;color:#880e4f;margin-bottom:15px;min-height:30px;">Крок 1: Починаємо!</div>
+    <div class="game-controls">
+      <button class="btn btn-primary btn-small" id="teach-next">Далі ➡️</button>
+      <button class="btn btn-orange btn-small" id="teach-demo">Показати ще 👀</button>
+    </div>
+  `;
+
+            const canvas = document.getElementById('teach-canvas');
+            const ctx = canvas.getContext('2d');
+            const maxW = Math.min(400, window.innerWidth - 60);
+            canvas.width = maxW;
+            canvas.height = maxW * 0.625;
+
+            const w = canvas.width, h = canvas.height;
+            let teachStep = 0;
+            let animFrame = 0;
+
+            const teachTexts = {
+                bridge: [
+                    "Крок 1: Став Равлика на лівий берег 🐌",
+                    "Крок 2: Уважно веди лінію через річку 🏗️",
+                    "Крок 3: Не поспішай, тримай рівно 📏",
+                    "Крок 4: Ось місток! Тепер ти теж можеш! 🌉"
+                ],
+                path: [
+                    "Крок 1: Став на початок доріжки 🐌",
+                    "Крок 2: Повільно йди по центру 🛤️",
+                    "Крок 3: Дивись вперед, шукай повороти 👀",
+                    "Крок 4: Дійшов! Тепер ти теж можеш! 🏠"
+                ],
+                sort: [
+                    "Крок 1: Подивись на предмет 🍎",
+                    "Крок 2: Це яблуко — до зеленого кошика! 🧺",
+                    "Крок 3: А це гриб — до помаранчевого! 🍄",
+                    "Крок 4: Розкладено! Тепер ти теж можеш! ✅"
+                ],
+                melody: [
+                    "Крок 1: Слухай першу нотку 🎵",
+                    "Крок 2: Запам'ятай, яка була наступна 🎶",
+                    "Крок 3: Натискай в тому ж порядку 🎹",
+                    "Крок 4: Мелодія готова! Тепер ти теж можеш! 🎉"
+                ]
+            };
+
+            function drawTeachScene() {
+                ctx.clearRect(0, 0, w, h);
+
+                if (skillKey === 'bridge') {
+                    drawTeachBridge(ctx, w, h, teachStep, animFrame);
+                } else if (skillKey === 'path') {
+                    drawTeachPath(ctx, w, h, teachStep, animFrame);
+                } else if (skillKey === 'sort') {
+                    drawTeachSort(ctx, w, h, teachStep, animFrame);
+                } else if (skillKey === 'melody') {
+                    drawTeachMelody(ctx, w, h, teachStep, animFrame);
+                }
+
+                animFrame++;
+                requestAnimationFrame(drawTeachScene);
+            }
+
+            drawTeachScene();
+
+            document.getElementById('teach-next').onclick = () => {
+                teachStep++;
+                if (teachStep >= teachTexts[skillKey].length) {
+                    // Teaching complete!
+                    showCelebration(skillKey);
+                    return;
+                }
+                document.getElementById('teach-step-text').textContent = teachTexts[skillKey][teachStep];
+            };
+
+            document.getElementById('teach-demo').onclick = () => {
+                animFrame = 0; // Restart animation
+                document.getElementById('teach-step-text').textContent = teachTexts[skillKey][teachStep] + " (демонстрація)";
+            };
+        }
+
+        function drawTeachBridge(ctx, w, h, step, frame) {
+            // Sky
+            ctx.fillStyle = '#e3f2fd';
+            ctx.fillRect(0, 0, w, h);
+
+            // River
+            ctx.fillStyle = '#42a5f5';
+            ctx.fillRect(0, h * 0.45, w, h * 0.2);
+
+            // Banks
+            ctx.fillStyle = '#8d6e63';
+            ctx.beginPath();
+            ctx.moveTo(0, h * 0.4);
+            ctx.quadraticCurveTo(w * 0.15, h * 0.4, w * 0.15, h * 0.5);
+            ctx.lineTo(w * 0.15, h);
+            ctx.lineTo(0, h);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#8d6e63';
+            ctx.beginPath();
+            ctx.moveTo(w, h * 0.4);
+            ctx.quadraticCurveTo(w * 0.85, h * 0.4, w * 0.85, h * 0.5);
+            ctx.lineTo(w * 0.85, h);
+            ctx.lineTo(w, h);
+            ctx.closePath();
+            ctx.fill();
+
+            // Grass
+            ctx.fillStyle = '#66bb6a';
+            ctx.fillRect(0, h * 0.38, w * 0.15, h * 0.05);
+            ctx.fillRect(w * 0.85, h * 0.38, w * 0.15, h * 0.05);
+
+            // Bridge progress
+            const progress = Math.min(1, (step + frame * 0.01) / 3);
+            if (progress > 0) {
+                const bridgeEnd = w * 0.15 + progress * w * 0.7;
+                ctx.strokeStyle = '#8d6e63';
+                ctx.lineWidth = 8;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(w * 0.15, h * 0.5);
+                ctx.lineTo(bridgeEnd, h * 0.5);
+                ctx.stroke();
+
+                ctx.strokeStyle = '#a1887f';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(w * 0.15, h * 0.5);
+                ctx.lineTo(bridgeEnd, h * 0.5);
+                ctx.stroke();
+            }
+
+            // Snail
+            const snailX = w * 0.15 + Math.min(progress * w * 0.7, w * 0.7);
+            drawSnail(ctx, snailX, h * 0.42, 4);
+
+            // Baby animal
+            if (step >= 3) {
+                ctx.font = '30px serif';
+                ctx.fillText('🦫', w * 0.85, h * 0.42);
+                ctx.font = '14px Roboto';
+                ctx.fillStyle = '#333';
+                ctx.textAlign = 'center';
+                ctx.fillText('Дякую! Тепер я теж умію!', w * 0.85, h * 0.7);
+            }
+        }
+
+        function drawTeachPath(ctx, w, h, step, frame) {
+            ctx.fillStyle = '#c8e6c9';
+            ctx.fillRect(0, 0, w, h);
+
+            // Path
+            ctx.strokeStyle = '#bcaaa4';
+            ctx.lineWidth = 25;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(w * 0.1, h * 0.5);
+            ctx.quadraticCurveTo(w * 0.3, h * 0.2, w * 0.5, h * 0.5);
+            ctx.quadraticCurveTo(w * 0.7, h * 0.8, w * 0.9, h * 0.5);
+            ctx.stroke();
+
+            // Center line
+            ctx.strokeStyle = '#8d6e63';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 6]);
+            ctx.beginPath();
+            ctx.moveTo(w * 0.1, h * 0.5);
+            ctx.quadraticCurveTo(w * 0.3, h * 0.2, w * 0.5, h * 0.5);
+            ctx.quadraticCurveTo(w * 0.7, h * 0.8, w * 0.9, h * 0.5);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Progress
+            const progress = Math.min(1, (step + frame * 0.01) / 3);
+
+            // Snail on path
+            const t = progress;
+            const sx = (1 - t) * (1 - t) * (1 - t) * w * 0.1 + 3 * (1 - t) * (1 - t) * t * w * 0.3 + 3 * (1 - t) * t * t * w * 0.7 + t * t * t * w * 0.9;
+            const sy = (1 - t) * (1 - t) * (1 - t) * h * 0.5 + 3 * (1 - t) * (1 - t) * t * h * 0.2 + 3 * (1 - t) * t * t * h * 0.5 + t * t * t * h * 0.5;
+
+            drawSnail(ctx, sx, sy - 12, 4);
+
+            // House
+            ctx.font = '24px serif';
+            ctx.fillText('🏠', w * 0.88, h * 0.5 + 8);
+
+            // Baby
+            if (step >= 3) {
+                ctx.font = '28px serif';
+                ctx.fillText('🦔', w * 0.1, h * 0.8);
+                ctx.font = '14px Roboto';
+                ctx.fillStyle = '#333';
+                ctx.textAlign = 'center';
+                ctx.fillText('Я навчився! Дякую!', w * 0.15, h * 0.9);
+            }
+        }
+
+        function drawTeachSort(ctx, w, h, step, frame) {
+            ctx.fillStyle = '#fff8e1';
+            ctx.fillRect(0, 0, w, h);
+
+            // Baskets
+            ctx.fillStyle = '#e8f5e9';
+            ctx.strokeStyle = '#66bb6a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(w * 0.25, h * 0.6, 45, 25, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#fff3e0';
+            ctx.strokeStyle = '#ffa726';
+            ctx.beginPath();
+            ctx.ellipse(w * 0.75, h * 0.6, 45, 25, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.font = '12px Roboto';
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'center';
+            ctx.fillText('🍎', w * 0.25, h * 0.6 + 4);
+            ctx.fillText('🍄', w * 0.75, h * 0.6 + 4);
+
+            // Items
+            const items = [
+                { type: 'apple', x: w * 0.3, y: h * 0.2 },
+                { type: 'mushroom', x: w * 0.5, y: h * 0.2 },
+                { type: 'apple', x: w * 0.7, y: h * 0.2 },
+                { type: 'mushroom', x: w * 0.4, y: h * 0.35 },
+                { type: 'apple', x: w * 0.6, y: h * 0.35 }
+            ];
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (i < step) {
+                    // Animated to basket
+                    const t = Math.min(1, frame * 0.02);
+                    const targetX = item.type === 'apple' ? w * 0.25 : w * 0.75;
+                    const targetY = h * 0.55;
+                    const animX = item.x + (targetX - item.x) * t;
+                    const animY = item.y + (targetY - item.y) * t;
+                    ctx.font = '22px serif';
+                    ctx.fillText(item.type === 'apple' ? '🍎' : '🍄', animX, animY);
+                } else {
+                    ctx.font = '22px serif';
+                    ctx.fillText(item.type === 'apple' ? '🍎' : '🍄', item.x, item.y);
+                }
+            }
+
+            if (step >= 3) {
+                ctx.font = '28px serif';
+                ctx.fillText('🐿️', w * 0.5, h * 0.9);
+                ctx.font = '14px Roboto';
+                ctx.fillStyle = '#333';
+                ctx.textAlign = 'center';
+                ctx.fillText('Ура! Тепер я теж умію!', w * 0.5, h * 0.96);
+            }
+        }
+
+        function drawTeachMelody(ctx, w, h, step, frame) {
+            ctx.fillStyle = '#fce4ec';
+            ctx.fillRect(0, 0, w, h);
+
+            const noteCount = 4;
+            const noteW = Math.min(60, (w - 80) / noteCount);
+            const noteH = noteW;
+            const startX = (w - noteCount * (noteW + 10)) / 2;
+            const startY = h * 0.2;
+            const colors = ['#ef5350', '#42a5f5', '#66bb6a', '#ffa726'];
+
+            for (let i = 0; i < noteCount; i++) {
+                const isLit = i <= step;
+                ctx.fillStyle = isLit ? colors[i] : colors[i] + '40';
+                ctx.beginPath();
+                ctx.roundRect(startX + i * (noteW + 10), startY, noteW, noteH, 10);
+                ctx.fill();
+
+                ctx.fillStyle = isLit ? '#fff' : '#333';
+                ctx.font = 'bold 18px Roboto';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(i + 1, startX + i * (noteW + 10) + noteW / 2, startY + noteH / 2);
+            }
+
+            // Owl
+            ctx.font = '40px serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillText('🦉', w * 0.5, h * 0.85);
+
+            if (step >= 3) {
+                ctx.font = '28px serif';
+                ctx.fillText('🦉', w * 0.5, h * 0.65);
+                ctx.font = '14px Roboto';
+                ctx.fillStyle = '#333';
+                ctx.textAlign = 'center';
+                ctx.fillText('Дякую! Я запам\'ятав!', w * 0.5, h * 0.92);
+            }
+        }
+
+        // ===== CELEBRATION =====
+        function showCelebration(skillKey) {
+            const skill = GameState.skills[skillKey];
+
+            const overlay = document.createElement('div');
+            overlay.className = 'celebration-overlay';
+            overlay.innerHTML = `
+    <div class="celebration-box">
+      <h2>🎉 Вітаємо!</h2>
+      <div class="big-icon">🏆</div>
+      <p style="font-size:18px;color:#333;margin-bottom:15px;">
+        Ти не тільки навчився ${skill.name.toLowerCase()},<br>
+        а й навчив іншого!
+      </p>
+      <p style="font-size:16px;color:#2e7d32;font-weight:500;margin-bottom:20px;">
+        "Я можу пояснити іншому,<br>бо сам навчився через спроби."
+      </p>
+      <button class="btn btn-primary" onclick="this.closest('.celebration-overlay').remove(); renderMap(); showMap();">
+        До долини 🏔️
+      </button>
+      <br><br>
+      <button class="btn btn-secondary btn-small" onclick="this.closest('.celebration-overlay').remove(); showAlbum();">
+        Подивитись альбом 📖
+      </button>
+    </div>
+  `;
+
+            document.body.appendChild(overlay);
+
+            // Confetti effect
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6bcb'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.cssText = `
+        position: fixed;
+        top: -10px;
+        left: ${Math.random() * 100}vw;
+        width: 10px;
+        height: 10px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        pointer-events: none;
+        z-index: 300;
+        animation: confettiFall ${2 + Math.random() * 2}s linear forwards;
+      `;
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 50);
+            }
+
+            const style = document.createElement('style');
+            style.textContent = `
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+  `;
+            document.head.appendChild(style);
+        }
+
+        // ===== ALBUM =====
+        function renderAlbum() {
+            const container = document.getElementById('album-pages');
+            container.innerHTML = '';
+
+            const skillKeys = Object.keys(GameState.skills);
+
+            for (const key of skillKeys) {
+                const data = GameState.albumData[key];
+                if (!data || data.length === 0) continue;
+
+                const skill = GameState.skills[key];
+                const page = document.createElement('div');
+                page.className = 'album-page';
+
+                const first = data[0];
+                const last = data[data.length - 1];
+
+                page.innerHTML = `
+      <h4>${skill.icon} ${skill.name}</h4>
+      <canvas id="album-${key}-first" width="150" height="100"></canvas>
+      <div class="effort-label">Перша спроба</div>
+      <div style="margin:10px 0;font-size:20px;">⬇️</div>
+      <canvas id="album-${key}-last" width="150" height="100"></canvas>
+      <div class="result-label">Найкраща спроба ✨</div>
+      <div style="margin-top:8px;font-size:13px;color:#888;">Рівень: ${LEVEL_NAMES[skill.level]}</div>
+    `;
+
+                container.appendChild(page);
+
+                // Draw mini canvases
+                setTimeout(() => {
+                    const firstCanvas = document.getElementById(`album-${key}-first`);
+                    const lastCanvas = document.getElementById(`album-${key}-last`);
+
+                    if (firstCanvas && first.dataUrl) {
+                        const fCtx = firstCanvas.getContext('2d');
+                        const img = new Image();
+                        img.onload = () => {
+                            fCtx.drawImage(img, 0, 0, 150, 100);
+                        };
+                        img.src = first.dataUrl;
+                    }
+
+                    if (lastCanvas && last.dataUrl) {
+                        const lCtx = lastCanvas.getContext('2d');
+                        const img = new Image();
+                        img.onload = () => {
+                            lCtx.drawImage(img, 0, 0, 150, 100);
+                        };
+                        img.src = last.dataUrl;
+                    }
+                }, 100);
+            }
+
+            if (container.children.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999;grid-column:1/-1;">Тут ще порожньо. Спробуй якісь навички! 🌱</p>';
+            }
+        }
+
+        // ===== DIALOGUE =====
+        function showDialogue(icon, name, text, btnText) {
+            const overlay = document.createElement('div');
+            overlay.className = 'dialogue-overlay';
+            overlay.id = 'dialogue';
+            overlay.innerHTML = `
+    <div class="dialogue-box">
+      <div class="character-icon">${icon}</div>
+      <div class="char-name">${name}</div>
+      <div class="dialogue-text">${text}</div>
+      <button class="btn btn-primary btn-small">${btnText}</button>
+    </div>
+  `;
+            document.body.appendChild(overlay);
+        }
+
+        function closeDialogue() {
+            const d = document.getElementById('dialogue');
+            if (d) d.remove();
+        }
+
+        // ===== UTILITY =====
+        function showMessage(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = text;
+        }
+
+        // ===== DRAW SNAIL =====
+        function drawSnail(ctx, x, y, level) {
+            const scale = 0.6;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            // Shell color changes with level
+            const shellColors = ['#bdbdbd', '#a5d6a7', '#66bb6a', '#43a047', '#ffd54f'];
+            const shellColor = shellColors[level] || shellColors[0];
+
+            // Body
+            ctx.fillStyle = '#a1887f';
+            ctx.beginPath();
+            ctx.ellipse(10, 25, 35, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Shell
+            ctx.fillStyle = shellColor;
+            ctx.beginPath();
+            ctx.ellipse(10, 10, 25, 22, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Shell pattern
+            ctx.strokeStyle = '#6d4c41';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.ellipse(10, 10, 18, 15, 0, -0.5, 2.5);
+            ctx.stroke();
+
+            // Eyes
+            const eyeConfidence = level >= 3 ? 0 : -3;
+            // Left eye
+            ctx.strokeStyle = '#a1887f';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(-5, 22);
+            ctx.lineTo(-15, 5 + eyeConfidence);
+            ctx.stroke();
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(-15, 4 + eyeConfidence, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(-15, 4 + eyeConfidence, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Right eye
+            ctx.strokeStyle = '#a1887f';
+            ctx.beginPath();
+            ctx.moveTo(5, 22);
+            ctx.lineTo(10, 3 + eyeConfidence);
+            ctx.stroke();
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(10, 2 + eyeConfidence, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(10, 2 + eyeConfidence, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Mouth - gets more confident
+            ctx.strokeStyle = '#5d4037';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            if (level <= 1) {
+                // Uncertain mouth
+                ctx.arc(-5, 28, 5, 0.1, Math.PI - 0.1);
+            } else if (level <= 3) {
+                // Smile
+                ctx.arc(-5, 26, 6, 0, Math.PI);
+            } else {
+                // Big confident smile
+                ctx.arc(-5, 24, 8, 0, Math.PI);
+                ctx.lineWidth = 3;
+            }
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // ===== FLOATING LEAVES ON INTRO =====
+        function createLeaves() {
+            const container = document.getElementById('intro-leaves');
+            if (!container) return;
+            const leafEmojis = ['🍃', '🌿', '🍂', '🌱', '☘️'];
+            for (let i = 0; i < 12; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'leaf';
+                leaf.textContent = leafEmojis[Math.floor(Math.random() * leafEmojis.length)];
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.animationDuration = (5 + Math.random() * 8) + 's';
+                leaf.style.animationDelay = Math.random() * 5 + 's';
+                leaf.style.fontSize = (14 + Math.random() * 16) + 'px';
+                container.appendChild(leaf);
+            }
+        }
+
+        createLeaves();
+
+        // ===== CANVAS ROUNDRECT POLYFILL =====
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+                if (typeof r === 'number') r = [r, r, r, r];
+                const [tl, tr, br, bl] = r;
+                this.moveTo(x + tl, y);
+                this.lineTo(x + w - tr, y);
+                this.quadraticCurveTo(x + w, y, x + w, y + tr);
+                this.lineTo(x + w, y + h - br);
+                this.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+                this.lineTo(x + bl, y + h);
+                this.quadraticCurveTo(x, y + h, x, y + h - bl);
+                this.lineTo(x, y + tl);
+                this.quadraticCurveTo(x, y, x + tl, y);
+                this.closePath();
+                return this;
+            };
+        }
+    </script>
+
+</body>
+
+</html>
