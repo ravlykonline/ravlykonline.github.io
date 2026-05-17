@@ -17,6 +17,8 @@ export const DOM = {
     hudNpcBadge: document.getElementById('hud-npc-badge'),
     fontToggleBtn: document.getElementById('font-toggle-btn'),
     themeToggleBtn: document.getElementById('theme-toggle-btn'),
+    musicToggleBtn: document.getElementById('music-toggle-btn'),
+    pauseBtn: document.getElementById('pause-btn'),
     dialogLayer: document.getElementById('dialog-layer'),
     dialogTitle: document.getElementById('dialog-title'),
     dialogText: document.getElementById('dialog-text'),

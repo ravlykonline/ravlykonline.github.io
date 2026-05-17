@@ -42,7 +42,7 @@ export const OddOneOutTask = {
 
     render({ task, container, setStatus, onSolved }) {
         const intro = createTaskIntro(task.instructions);
-        const choices = createChoiceGrid(task, onSolved, setStatus, 'task-options-grid--odd-one-out', 'task-option-btn--symbol');
+        const choices = createChoiceGrid(task, onSolved, setStatus, 'task-options-grid--odd-one-out', 'task-option-btn--symbol', t('taskUi.oddOneOutHint'));
 
         container.append(intro, choices);
     }

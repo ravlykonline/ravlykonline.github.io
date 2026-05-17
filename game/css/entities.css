@@ -122,27 +122,28 @@
     box-shadow: 0 0 0 4px var(--color-shadow-outline-soft), var(--shadow-3);
 }
 
-/* Completed indicator - not just color */
+/* Completed indicator */
 .npc.completed {
-    opacity: 0.7;
-    filter: grayscale(100%);
+    opacity: 0.6;
+    filter: grayscale(60%);
+    cursor: default;
+    pointer-events: none;  /* prevent accidental re-clicks */
 }
 
 .npc.completed::after {
-    content: '\2713';
+    content: '\2605'; /* ★ solid star */
     position: absolute;
-    top: -5px;
-    right: -5px;
-    background: var(--color-success);
-    color: var(--color-white);
-    width: 28px;
-    height: 28px;
+    top: -8px;
+    right: -8px;
+    background: var(--color-warning, #f59e0b);
+    color: #fff;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--font-size-base);
-    border: 2px solid var(--color-white);
+    text-align: center;
+    line-height: 24px;
+    font-size: 0.85rem;
+    border: 2px solid #fff;
     box-shadow: var(--shadow-1);
 }
 

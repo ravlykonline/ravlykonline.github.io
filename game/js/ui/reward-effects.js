@@ -1,26 +1,13 @@
+import { getSharedAudioContext } from '../core/audio-context.js';
+
 const AUDIO_VOLUME = 0.08;
-let audioContext = null;
 
 function prefersReducedMotion() {
     return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 }
 
-function getAudioContext() {
-    if (audioContext) {
-        return audioContext;
-    }
-
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) {
-        return null;
-    }
-
-    audioContext = new AudioContextClass();
-    return audioContext;
-}
-
 function playTone(frequency, duration = 0.08, offset = 0) {
-    const context = getAudioContext();
+    const context = getSharedAudioContext();
     if (!context) {
         return;
     }

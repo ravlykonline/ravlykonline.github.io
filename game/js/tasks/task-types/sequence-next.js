@@ -41,7 +41,7 @@ export const SequenceNextTask = {
         questionChip.textContent = '?';
         series.appendChild(questionChip);
 
-        const choices = createChoiceGrid(task, onSolved, setStatus, '', 'task-option-btn--symbol');
+        const choices = createChoiceGrid(task, onSolved, setStatus, '', 'task-option-btn--symbol', t('taskUi.sequenceHint'));
         container.append(intro, series, choices);
     }
 };

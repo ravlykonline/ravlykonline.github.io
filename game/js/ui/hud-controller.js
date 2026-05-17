@@ -7,11 +7,14 @@ function setTextContent(element, value) {
 }
 
 export const HUDController = {
-    init({ dom }) {
+    init({ dom, onPause }) {
         this.dom = dom;
         this.isExpanded = false;
         this.dom.hudToggleBtn?.addEventListener('click', () => {
             this.setExpanded(!this.isExpanded);
+        });
+        this.dom.pauseBtn?.addEventListener('click', () => {
+            onPause?.();
         });
         this.setExpanded(false);
         this.setSessionSummary({ apples: 0, stars: 0 });

@@ -80,7 +80,7 @@ export const MagicSquareTask = {
                 }
 
                 RewardEffects.playTryAgain();
-                setStatus(t('taskUi.tryAgain'));
+                setStatus(t('taskUi.magicSquareHint'));
                 button.classList.add('is-wrong');
                 setTimeout(() => button.classList.remove('is-wrong'), 450);
             });

@@ -1,5 +1,5 @@
 export const CONFIG = {
-    playerRadius: 24,
+    playerRadius: 26,
     maxSpeed: 2.6,
     acceleration: 0.18,
     deceleration: 0.14,

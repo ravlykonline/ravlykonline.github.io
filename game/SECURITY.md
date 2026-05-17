@@ -110,16 +110,26 @@
 | Дублювання event listeners | Середня | Може давати подвійні бали або дивні стани |
 | Збереження прогресу на спільному ПК | Висока | Приватність і UX-проблема |
 | Некоректні task-data | Середня | Ламає навчальний досвід |
-| Clickjacking | Низька/середня | Варто закрити через headers |
+| Clickjacking | Середня — частково закрито JS frame-busting | `js/frame-guard.js` активний; `frame-ancestors` через HTTP-заголовок неможливий на GitHub Pages |
 
 ---
 
 ## 5. Content Security Policy
 
-Для production бажано виставити такі headers на Cloudflare або іншому хостингу:
+GitHub Pages не підтримує власні HTTP-заголовки, тому CSP застосовується через `<meta http-equiv="Content-Security-Policy">` в `index.html` і `offline.html`.
+
+Поточний вміст meta CSP:
 
 ```txt
-Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'; manifest-src 'self'; worker-src 'self'
+default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; manifest-src 'self'; worker-src 'self'
+```
+
+Важливо: директива `frame-ancestors` у meta CSP **не захищає від clickjacking** — вона ігнорується браузерами в meta-тегу (діє лише через HTTP-заголовок). Для захисту від clickjacking на GitHub Pages використовується `js/frame-guard.js`.
+
+Для production на Cloudflare або іншому хостингу з підтримкою кастомних заголовків бажано виставити:
+
+```txt
+Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; manifest-src 'self'; worker-src 'self'
 Referrer-Policy: no-referrer
 X-Content-Type-Options: nosniff
 Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), clipboard-read=(), clipboard-write=()
@@ -220,6 +230,8 @@ tests/task-data-validation.js
 3. У dev-режимі вміти швидко вимкнути Service Worker.
 4. Не кешувати персональні дані, бо їх не повинно бути.
 5. Не кешувати сторонні ресурси без рішення.
+
+Виправлено: `skipWaiting()` тепер викликається всередині `.then()` після `cache.addAll()`. Service Worker більше не активується до повного заповнення кешу — race condition усунено.
 
 Детальніше: [PWA.md](PWA.md).
 
@@ -366,6 +378,10 @@ frame-ancestors 'none'
 frame-ancestors 'self' https://example.edu.ua
 ```
 
+**GitHub Pages і практична митигація.** GitHub Pages не підтримує кастомні HTTP-заголовки, тому `frame-ancestors` через HTTP неможливий. Директива `frame-ancestors` у CSP meta-тегу **не захищає** від clickjacking (браузери ігнорують її в meta).
+
+Реалізована практична митигація: `js/frame-guard.js` — синхронний скрипт (без `defer`/`async`), підключений до `index.html` і `offline.html`. Якщо сторінка відкрита всередині `<iframe>`, він негайно виконує `window.top.location.replace(window.self.location.href)`, виходячи з iframe. Скрипт підключений через `<script src>`, а не inline, щоб не порушувати CSP `script-src 'self'`.
+
 ---
 
 ## 16. Permissions Policy
@@ -381,6 +397,14 @@ frame-ancestors 'self' https://example.edu.ua
 - clipboard.
 
 Тому ці можливості мають бути заборонені через `Permissions-Policy`.
+
+Реалізовано через `<meta http-equiv="Permissions-Policy">` у `index.html` і `offline.html`:
+
+```txt
+camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=()
+```
+
+Примітка: як і `frame-ancestors`, `Permissions-Policy` у meta-тегу має обмежену підтримку браузерами порівняно з HTTP-заголовком. На хостингу з кастомними заголовками слід додатково виставити заголовок.
 
 ---
 

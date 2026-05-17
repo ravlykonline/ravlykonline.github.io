@@ -29,9 +29,9 @@ export const SceneManager = {
         }
     },
 
-    update() {
+    update(deltaMs = 16.667) {
         if (this.active?.update) {
-            this.active.update();
+            this.active.update(deltaMs);
         }
     },
 

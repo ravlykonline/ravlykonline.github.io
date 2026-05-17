@@ -12,6 +12,7 @@ export class IntroScene extends ModalScene {
 
         this.sceneManager = deps.sceneManager;
         this.createGameScene = deps.createGameScene;
+        this.onStart = deps.onStart ?? null;
         this.introList = null;
     }
 
@@ -46,6 +47,8 @@ export class IntroScene extends ModalScene {
     }
 
     handleAction() {
+        // Start music here — we're inside a user-gesture, so AudioContext can unlock
+        this.onStart?.();
         this.sceneManager.pop();
         this.sceneManager.push(this.createGameScene());
     }

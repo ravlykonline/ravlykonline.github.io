@@ -30,7 +30,7 @@ export const CountAndMatchTask = {
         group.className = 'task-card task-card--centered';
         group.append(createCountDots(task.count));
 
-        const choices = createChoiceGrid(task, onSolved, setStatus);
+        const choices = createChoiceGrid(task, onSolved, setStatus, '', '', t('taskUi.countAndMatchHint'));
         container.append(intro, group, choices);
     }
 };

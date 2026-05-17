@@ -299,6 +299,25 @@
     background: var(--color-error-bg);
 }
 
+.task-option-btn.is-correct-reveal {
+    border-color: var(--color-success);
+    background: color-mix(in srgb, var(--color-success) 18%, var(--color-surface));
+    animation: reveal-pulse 0.6s ease-in-out 2;
+}
+
+@keyframes reveal-pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.07); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .task-option-btn.is-correct-reveal { animation: none; }
+}
+
+.task-option-btn.is-dimmed {
+    opacity: 0.35;
+}
+
 .task-option-btn:disabled,
 .task-secondary-btn:disabled,
 .task-token:disabled {
@@ -310,6 +329,29 @@
 .task-secondary-btn {
     justify-self: center;
     min-width: 120px;
+}
+
+/* ── Compare-sets clickable groups ────────────────────────────────── */
+.task-compare-group--clickable {
+    cursor: pointer;
+    transition: outline 0.15s, transform 0.15s;
+}
+
+.task-compare-group--clickable:hover,
+.task-compare-group--clickable:focus {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
+    transform: scale(1.03);
+}
+
+.task-compare-group--correct {
+    outline: 3px solid var(--color-success, #4caf50);
+    outline-offset: 2px;
+}
+
+.task-compare-group--wrong {
+    outline: 3px solid var(--color-error, #e53935);
+    outline-offset: 2px;
 }
 
 @media (max-width: 480px) {

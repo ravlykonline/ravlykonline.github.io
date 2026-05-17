@@ -4,6 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <!-- Content Security Policy: allow only same-origin resources; no inline scripts/styles -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; media-src 'self'; connect-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'">
+    <!-- Restrict access to sensitive browser APIs not needed by this game -->
+    <meta http-equiv="Permissions-Policy"
+        content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=()">
     <meta name="theme-color" content="">
     <title data-i18n-title="meta.title"></title>
     <link rel="manifest" href="manifest.json">
@@ -51,6 +57,10 @@
                         data-i18n-aria-label="hud.fontToggleLabel"></button>
                     <button id="theme-toggle-btn" class="hud-action-btn" type="button" data-i18n="hud.themeToggleDark"
                         data-i18n-aria-label="hud.themeToggleLabel"></button>
+                    <button id="music-toggle-btn" class="hud-action-btn" type="button" data-i18n="hud.musicToggle"
+                        data-i18n-aria-label="hud.musicToggleLabel"></button>
+                    <button id="pause-btn" class="hud-action-btn" type="button"
+                        aria-label="Пауза (Escape)">⏸</button>
                 </div>
             </div>
 
@@ -117,6 +127,10 @@
     <div id="game-state-description" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
     <script type="module" src="js/main.js"></script>
+    <!-- Frame-busting: redirect to top if this page is embedded in an iframe.
+         Cannot rely on CSP frame-ancestors via meta tag (only HTTP headers enforce it).
+         This JS defence is the practical mitigation for GitHub Pages deployments. -->
+    <script src="js/frame-guard.js"></script>
 </body>
 
 </html>

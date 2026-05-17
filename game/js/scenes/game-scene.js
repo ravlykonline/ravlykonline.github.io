@@ -10,6 +10,9 @@ import { renderApples, collectNearbyApples, findNearestApple } from '../game/app
 import { t } from '../i18n/index.js';
 import { HUDController } from '../ui/hud-controller.js';
 import { DialogScene } from './dialog-scene.js';
+import { PauseScene } from './pause-scene.js';
+import { TaskPicker } from '../game/task-picker.js';
+import { Joystick } from '../ui/joystick.js';
 
 function getNpcIcon(npc) {
     const iconKey = `entities.${npc.type}Icon`;
@@ -32,6 +35,9 @@ export class GameScene {
         this.npcs = this.session.npcs;
         this.nearbyNpcId = this.session.nearbyNpcId;
         this.handleWorldClickBind = this.handleWorldClick.bind(this);
+        this.handleKeydownBind = this.handleKeydown.bind(this);
+        this._npcElements = new Map(); // npc.id → DOM element cache
+        this._earnedStars = 0;        // tracks stars for adaptive difficulty
 
         this.generateWorld();
     }
@@ -40,6 +46,7 @@ export class GameScene {
         this.dom.obstaclesContainer.innerHTML = '';
         this.dom.itemsContainer.innerHTML = '';
         this.dom.npcsContainer.innerHTML = '';
+        this._npcElements.clear();
     }
 
     generateWorld() {
@@ -61,12 +68,18 @@ export class GameScene {
         this.renderNpcs();
         this.mountMoveTarget();
         this.dom.gameArea.addEventListener('click', this.handleWorldClickBind);
+        document.addEventListener('keydown', this.handleKeydownBind);
         this.syncCameraToPlayer();
         HUDController.setObjective(t('hud.objectiveText'));
         HUDController.setContext(t('hud.contextIntro'));
         HUDController.setNearbyNpc(null);
         this.updateAccessibilityDescription();
         this.announcer.announce(t('announcer.newGameStarted'), 'assertive');
+
+        // Track stars earned this session for adaptive difficulty
+        this._earnedStarsUnsub = this.eventBus.on('puzzle:completed', (data) => {
+            this._earnedStars += data.stars ?? 1;
+        });
     }
 
     mountMoveTarget() {
@@ -83,11 +96,31 @@ export class GameScene {
     }
 
     destroy() {
+        this._earnedStarsUnsub?.();
         this.dom.gameArea.removeEventListener('click', this.handleWorldClickBind);
+        document.removeEventListener('keydown', this.handleKeydownBind);
         if (this.moveTargetEl) {
             this.moveTargetEl.remove();
             this.moveTargetEl = null;
         }
+    }
+
+    handleKeydown(event) {
+        // Only handle Escape when GameScene is the active scene (not covered by a dialog)
+        if (this.sceneManager.active !== this) return;
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            this.openPause();
+        }
+    }
+
+    openPause() {
+        this.sceneManager.push(new PauseScene({
+            dom: this.dom,
+            input: this.input,
+            announcer: this.announcer,
+            sceneManager: this.sceneManager
+        }));
     }
 
     resume() {
@@ -122,11 +155,25 @@ export class GameScene {
             element.style.width = `${npc.w}px`;
             element.style.height = `${npc.h}px`;
             element.dataset.id = npc.id;
-            element.dataset.gameInteractive = '';
-            element.setAttribute('role', 'button');
-            element.setAttribute('tabindex', '0');
-            element.setAttribute('aria-label', t('entities.npcPrompt', { name: npc.name }));
+
+            if (npc.completed) {
+                // NPC already completed (e.g. restored from saved progress)
+                element.classList.add('completed');
+                element.setAttribute('aria-label', t('entities.npcCompleted', { name: npc.name }));
+            } else {
+                element.dataset.gameInteractive = '';
+                element.setAttribute('role', 'button');
+                element.setAttribute('tabindex', '0');
+                element.setAttribute('aria-label', t('entities.npcPrompt', { name: npc.name }));
+            }
             element.textContent = getNpcIcon(npc);
+
+            // Completed NPCs are purely decorative — no interaction needed
+            if (npc.completed) {
+                this._npcElements.set(npc.id, element);
+                this.dom.npcsContainer.appendChild(element);
+                return;
+            }
 
             const stopNpcPointer = (event) => {
                 if (event.cancelable) {
@@ -157,6 +204,7 @@ export class GameScene {
                 }
             });
 
+            this._npcElements.set(npc.id, element);
             this.dom.npcsContainer.appendChild(element);
         });
     }
@@ -170,6 +218,12 @@ export class GameScene {
         const npc = this.findNpcAtWorldPoint(point.x, point.y);
 
         if (!npc) {
+            // Click-to-move: single click on empty ground sets the destination.
+            // Player moves there and stops automatically when arrived.
+            // Hold-to-drag (mouse.isDown) still works alongside this.
+            if (!this.input.keyboard.active) {
+                this.input.mouse.intentTarget = point;
+            }
             return;
         }
 
@@ -205,7 +259,9 @@ export class GameScene {
         syncCameraToPlayer(this.state, CONFIG, getViewportSize(this.dom));
     }
 
-    update() {
+    update(deltaMs = 16.667) {
+        const scale = deltaMs / 16.667;
+
         this.input.updateCameraOffset(this.state.camera.x, this.state.camera.y);
 
         this.collectNearbyApples();
@@ -219,9 +275,9 @@ export class GameScene {
         }
 
         const intent = this.getMovementIntent();
-        this.updateVelocity(intent.x, intent.y);
-        this.updateRotation();
-        this.updateCamera();
+        this.updateVelocity(intent.x, intent.y, scale);
+        this.updateRotation(scale);
+        this.updateCamera(scale);
 
         if (performance.now() - this.state.lastA11yUpdate > 1200) {
             this.updateAccessibilityDescription();
@@ -237,10 +293,17 @@ export class GameScene {
             this.input.mouse.intentTarget = this.getPointerWorldTarget();
         }
 
-        if (this.input.keys.w || this.input.keys.ArrowUp) intentY -= 1;
-        if (this.input.keys.s || this.input.keys.ArrowDown) intentY += 1;
-        if (this.input.keys.a || this.input.keys.ArrowLeft) intentX -= 1;
-        if (this.input.keys.d || this.input.keys.ArrowRight) intentX += 1;
+        // Virtual joystick (touch) takes priority over keyboard keys
+        const joy = Joystick.getIntent();
+        if (joy.x !== 0 || joy.y !== 0) {
+            intentX = joy.x;
+            intentY = joy.y;
+        } else {
+            if (this.input.keys.w || this.input.keys.ArrowUp) intentY -= 1;
+            if (this.input.keys.s || this.input.keys.ArrowDown) intentY += 1;
+            if (this.input.keys.a || this.input.keys.ArrowLeft) intentX -= 1;
+            if (this.input.keys.d || this.input.keys.ArrowRight) intentX += 1;
+        }
 
         if (intentX === 0 && intentY === 0 && this.input.mouse.intentTarget) {
             const dx = this.input.mouse.intentTarget.x - this.state.x;
@@ -263,43 +326,50 @@ export class GameScene {
         return { x: intentX / length, y: intentY / length };
     }
 
-    updateVelocity(intentX, intentY) {
+    updateVelocity(intentX, intentY, scale = 1) {
         const targetVelocityX = intentX * CONFIG.maxSpeed;
         const targetVelocityY = intentY * CONFIG.maxSpeed;
         const hasIntent = intentX !== 0 || intentY !== 0;
         const delta = hasIntent ? CONFIG.acceleration : CONFIG.deceleration;
 
-        this.state.velocityX = approach(this.state.velocityX, targetVelocityX, delta);
-        this.state.velocityY = approach(this.state.velocityY, targetVelocityY, delta);
+        this.state.velocityX = approach(this.state.velocityX, targetVelocityX, delta, scale);
+        this.state.velocityY = approach(this.state.velocityY, targetVelocityY, delta, scale);
 
         if (Math.abs(this.state.velocityX) < 0.01) this.state.velocityX = 0;
         if (Math.abs(this.state.velocityY) < 0.01) this.state.velocityY = 0;
 
-        this.resolveMovement(this.state.velocityX, this.state.velocityY);
+        this.resolveMovement(this.state.velocityX * scale, this.state.velocityY * scale);
     }
 
     resolveMovement(dx, dy) {
-        if (dx !== 0) {
-            const nextX = this.state.x + dx;
+        // Try full diagonal move first
+        const nx = this.state.x + dx;
+        const ny = this.state.y + dy;
 
-            if (this.isCollision(nextX, this.state.y)) {
-                this.state.velocityX = 0;
-                this.input.clearTarget();
-            } else {
-                this.state.x = nextX;
-            }
+        if (!this.isCollision(nx, ny)) {
+            this.state.x = nx;
+            this.state.y = ny;
+            return;
         }
 
-        if (dy !== 0) {
-            const nextY = this.state.y + dy;
-
-            if (this.isCollision(this.state.x, nextY)) {
-                this.state.velocityY = 0;
-                this.input.clearTarget();
-            } else {
-                this.state.y = nextY;
-            }
+        // Diagonal blocked — try sliding along X axis only
+        if (dx !== 0 && !this.isCollision(nx, this.state.y)) {
+            this.state.x = nx;
+            this.state.velocityY = 0;
+            return;
         }
+
+        // Try sliding along Y axis only
+        if (dy !== 0 && !this.isCollision(this.state.x, ny)) {
+            this.state.y = ny;
+            this.state.velocityX = 0;
+            return;
+        }
+
+        // Fully blocked — stop and clear click-to-move target
+        this.state.velocityX = 0;
+        this.state.velocityY = 0;
+        this.input.clearTarget();
     }
 
     isCollision(px, py) {
@@ -317,7 +387,7 @@ export class GameScene {
         });
     }
 
-    updateRotation() {
+    updateRotation(scale = 1) {
         const speed = Math.hypot(this.state.velocityX, this.state.velocityY);
 
         if (speed > CONFIG.rotationMinSpeed) {
@@ -328,7 +398,8 @@ export class GameScene {
             this.state.angle,
             this.state.targetAngle,
             CONFIG.rotationLerp,
-            CONFIG.rotationSnapThreshold
+            CONFIG.rotationSnapThreshold,
+            scale
         );
     }
 
@@ -337,7 +408,7 @@ export class GameScene {
         let nearestDistance = Infinity;
 
         this.npcs.forEach((npc) => {
-            const npcEl = document.querySelector(`.npc[data-id="${npc.id}"]`);
+            const npcEl = this._npcElements.get(npc.id) ?? null;
             const distance = Math.hypot(
                 this.state.x - (npc.x + npc.w / 2),
                 this.state.y - (npc.y + npc.h / 2)
@@ -396,6 +467,14 @@ export class GameScene {
             return;
         }
 
+        // Re-pick task adaptively based on stars earned so far this session
+        npc.activeTask = TaskPicker.pickAdaptiveTask(
+            npc.taskPoolIds,
+            this._earnedStars,
+            Math.random,
+            this.session
+        );
+
         this.sceneManager.push(new DialogScene({
             dom: this.dom,
             input: this.input,
@@ -417,8 +496,8 @@ export class GameScene {
         });
     }
 
-    updateCamera() {
-        updateCamera(this.state, CONFIG, getViewportSize(this.dom));
+    updateCamera(scale = 1) {
+        updateCamera(this.state, CONFIG, getViewportSize(this.dom), scale);
     }
 
     updateAccessibilityDescription() {

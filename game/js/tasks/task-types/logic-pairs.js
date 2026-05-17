@@ -47,7 +47,8 @@ export const LogicPairsTask = {
             onSolved,
             setStatus,
             'task-options-grid--logic-pairs',
-            'task-option-btn--symbol'
+            'task-option-btn--symbol',
+            t('taskUi.logicPairsHint')
         );
 
         container.append(intro, promptCard, choices);

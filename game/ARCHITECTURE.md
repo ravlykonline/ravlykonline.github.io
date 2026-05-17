@@ -130,24 +130,31 @@ puzzle:completed
 
 ```txt
 index.html
+  -> js/frame-guard.js (синхронний — перевірка iframe)
   -> js/main.js
     -> bootGame()
       -> applyDocumentTranslations()
       -> Announcer.init()
       -> Input.init()
-      -> HUDController.init()
+      -> HUDController.init({dom, onPause})
       -> FontModeController.init()
       -> ThemeModeController.init()
       -> ScoreSystem.init()
+      -> MusicController.init({dom})
+      -> Joystick.init()
+      -> підписка на game:won → SceneManager.push(WinScene)
       -> SceneManager.push(IntroScene)
     -> requestAnimationFrame(gameLoop)
 ```
 
-`gameLoop`:
+`gameLoop` з delta time:
 
 ```js
-function gameLoop() {
-    SceneManager.update();
+let lastTimestamp = 0;
+function gameLoop(timestamp) {
+    const deltaMs = lastTimestamp === 0 ? 16.667 : Math.min(timestamp - lastTimestamp, 50);
+    lastTimestamp = timestamp;
+    SceneManager.update(deltaMs);
     SceneManager.render();
     requestAnimationFrame(gameLoop);
 }
@@ -182,6 +189,7 @@ js/app/bootstrap.js
 
 ```txt
 js/core/announcer.js
+js/core/audio-context.js
 js/core/config.js
 js/core/dom.js
 js/core/event-bus.js
@@ -211,6 +219,8 @@ js/scenes/intro-scene.js
 js/scenes/game-scene.js
 js/scenes/modal-scene.js
 js/scenes/dialog-scene.js
+js/scenes/pause-scene.js
+js/scenes/win-scene.js
 ```
 
 Відповідальність:
@@ -328,6 +338,8 @@ apple-effects-system.js
 ```txt
 js/ui/font-mode.js
 js/ui/hud-controller.js
+js/ui/joystick.js
+js/ui/music-controller.js
 js/ui/theme-mode.js
 ```
 
@@ -365,9 +377,11 @@ js/i18n/uk.js
 
 ```txt
 js/pwa/register-sw.js
+js/frame-guard.js
 sw.js
 manifest.json
 offline.html
+css/offline.css
 ```
 
 Відповідальність:
@@ -477,7 +491,7 @@ destroy()
 
 - `init()` створює DOM або підключає scene-specific listeners;
 - `destroy()` має прибирати DOM і listeners, якщо вони додані сценою;
-- `update()` не має напряму змінювати глобальні налаштування UI без потреби;
+- `update(deltaMs)` отримує час кадру в мілісекундах; `scale = deltaMs / 16.667` використовується для frame-rate independent руху;
 - `render()` має бути максимально передбачуваним і не створювати нові listeners.
 
 **Особливість ModalScene і спільного DOM.** `ModalScene`, `IntroScene` та `DialogScene` поділяють один набір DOM-елементів через `js/core/dom.js` (`#dialog-title`, `#dialog-text`, `#dialog-content` тощо). DOM-синглтон не оновлюється автоматично: посилання зберігаються з моменту ініціалізації.
@@ -516,6 +530,19 @@ destroy()
 }
 ```
 
+### `game:won`
+
+Коли зібрано всі яблука та виконано всі завдання. Емітується `ScoreSystem` один раз на сесію після 1400ms затримки.
+
+```js
+{
+    apples: N,
+    stars: N,
+    totalApples: N,
+    totalStars: N
+}
+```
+
 Правила для нових подій:
 
 - назва у форматі `domain:action`;
@@ -547,17 +574,19 @@ destroy()
 
 ## 11. `GameScene` — поточний стан
 
-`GameScene` рефакторована: camera і apple логіка виокремлені у власні модулі. Розмір зменшився з 552 до 471 рядка.
+`GameScene` рефакторована: camera і apple логіка виокремлені у власні модулі. Розмір зменшився з 552 рядків, нові можливості значно розширили файл.
 
 Поточні відповідальності `GameScene`:
 
-- рендер перешкод і NPC;
-- рух Равлика (velocity, collision resolve, rotation);
+- рендер перешкод і NPC (з кешуванням елементів у `_npcElements` Map);
+- рух Равлика з delta time (velocity, corner sliding, rotation);
 - визначення найближчого NPC і стану взаємодії;
-- відкриття DialogScene;
+- click-to-move (`intentTarget`) і joystick intent;
+- відкриття `DialogScene`, `PauseScene` (по Escape або кнопці ⏸);
+- адаптивний вибір завдань через `TaskPicker.pickAdaptiveTask(..., this._earnedStars)`;
 - оновлення HUD;
 - accessibility announcements;
-- координація camera-system і apple-system.
+- координація `camera-system` і `apple-system`.
 
 Делеговано у зовнішні модулі:
 
@@ -721,6 +750,7 @@ tokens.css
 style.css
 css/entities.css
 css/hud.css
+css/offline.css
 css/tasks.css
 ```
 
@@ -728,9 +758,10 @@ css/tasks.css
 
 Окремі CSS-файли:
 
-- `css/entities.css` — перешкоди, яблука, NPC і їхні touch/high-contrast стани;
+- `css/entities.css` — перешкоди, яблука, NPC і їхні touch/high-contrast стани; `.npc.completed` показує ★ і стає неінтерактивним;
 - `css/hud.css` — верхня HUD-шторка, статистика, підказки й responsive для HUD;
-- `css/tasks.css` — DOM-стилі навчальних задач у діалозі, візуальні акценти, порожні клітинки, групи порівняння й зони відповіді.
+- `css/offline.css` — стилі для `offline.html` (раніше були inline в HTML);
+- `css/tasks.css` — DOM-стилі навчальних задач у діалозі; включає `.is-correct-reveal` (pulse-анімація для правильної відповіді), `.is-dimmed` (затемнені варіанти), `@media prefers-reduced-motion`.
 
 Правила:
 
@@ -777,12 +808,16 @@ css/tasks.css
 
 1. ✅ Додати `EventBus.reset()` та idempotent subscriptions.
 2. ✅ Зробити `Input.init()` ідемпотентним.
-3. ✅ Синхронізувати `sw.js` з поточними CSS/JS/JSON файлами (v14).
+3. ✅ Синхронізувати `sw.js` з поточними CSS/JS/JSON файлами (v25).
 4. ✅ Винести apple logic з `GameScene` → `apple-system.js`.
 5. ✅ Винести camera logic з `GameScene` → `camera-system.js`.
-6. Винести NPC interaction logic з `GameScene` → `npc-system.js`.
-7. Розширити інтеграційні тести для кількох NPC і кількох task type.
-8. Додавати нові типи задач лише як короткі візуальні взаємодії, без монолітного math-module.
+6. ✅ Delta-time game loop: `update(deltaMs)`, `scale` у `motion.js` і `camera-system.js`.
+7. ✅ WinScene, PauseScene, MusicController, Joystick реалізовані.
+8. ✅ Адаптивна складність через `TaskPicker.pickAdaptiveTask`.
+9. ✅ Corner sliding у `resolveMovement`.
+10. Винести NPC interaction logic з `GameScene` → `npc-system.js`.
+11. Розширити інтеграційні тести для кількох NPC і кількох task type.
+12. Додавати нові типи задач лише як короткі візуальні взаємодії, без монолітного math-module.
 
 ---
 

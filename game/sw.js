@@ -1,4 +1,4 @@
-const STATIC_CACHE = 'ravlyk-static-v16';
+const STATIC_CACHE = 'ravlyk-static-v25';
 const STATIC_ASSETS = [
     './',
     './index.html',
@@ -14,6 +14,7 @@ const STATIC_ASSETS = [
     './js/main.js',
     './js/app/bootstrap.js',
     './js/core/announcer.js',
+    './js/core/audio-context.js',
     './js/core/config.js',
     './js/core/dom.js',
     './js/core/event-bus.js',
@@ -37,7 +38,9 @@ const STATIC_ASSETS = [
     './js/scenes/game-scene.js',
     './js/scenes/intro-scene.js',
     './js/scenes/modal-scene.js',
+    './js/scenes/pause-scene.js',
     './js/scenes/scene-manager.js',
+    './js/scenes/win-scene.js',
     './js/systems/score-system.js',
     './js/tasks/task-catalog.js',
     './js/tasks/task-registry.js',
@@ -73,15 +76,23 @@ const STATIC_ASSETS = [
     './js/tasks/task-types/simple-subtraction.js',
     './js/ui/font-mode.js',
     './js/ui/hud-controller.js',
+    './js/ui/joystick.js',
+    './js/ui/music-controller.js',
     './js/ui/reward-effects.js',
-    './js/ui/theme-mode.js'
+    './js/ui/theme-mode.js',
+    './js/frame-guard.js',
+    './css/offline.css'
 ];
 
 self.addEventListener('install', (event) => {
+    // skipWaiting() is called AFTER addAll() resolves so the SW never
+    // activates before the cache is fully populated (prevents serving
+    // partial/stale assets during the install→activate transition).
     event.waitUntil(
-        caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS))
+        caches.open(STATIC_CACHE)
+            .then((cache) => cache.addAll(STATIC_ASSETS))
+            .then(() => self.skipWaiting())
     );
-    self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {

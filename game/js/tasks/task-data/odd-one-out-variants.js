@@ -191,7 +191,7 @@ export const oddOneOutVariants = [
         items: [
             { id: 'snowflake', label: '❄️' },
             { id: 'snowman',   label: '⛄' },
-            { id: 'snow-cloud', label: '🌨️' },
+            { id: 'mountain',  label: '🏔️' },
             { id: 'sun',       label: '☀️' }
         ],
         correctChoiceId: 'sun'

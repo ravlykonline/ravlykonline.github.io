@@ -72,7 +72,7 @@ export function syncCameraToPlayer(state, config, viewportSize) {
  * @param {{ worldWidth: number, worldHeight: number, cameraThreshold: number, topHudSafeArea: number, cameraLerp: number }} config
  * @param {{ width: number, height: number }} viewportSize
  */
-export function updateCamera(state, config, viewportSize) {
+export function updateCamera(state, config, viewportSize, scale = 1) {
     const topCameraThreshold = config.cameraThreshold + config.topHudSafeArea;
     const screenX = state.x - state.targetCamera.x;
     const screenY = state.y - state.targetCamera.y;
@@ -92,6 +92,7 @@ export function updateCamera(state, config, viewportSize) {
     state.targetCamera.x = Math.max(0, Math.min(state.targetCamera.x, config.worldWidth - viewportSize.width));
     state.targetCamera.y = Math.max(0, Math.min(state.targetCamera.y, config.worldHeight - viewportSize.height));
 
-    state.camera.x += (state.targetCamera.x - state.camera.x) * config.cameraLerp;
-    state.camera.y += (state.targetCamera.y - state.camera.y) * config.cameraLerp;
+    const cameraLerpFactor = scale === 1 ? config.cameraLerp : 1 - Math.pow(1 - config.cameraLerp, scale);
+    state.camera.x += (state.targetCamera.x - state.camera.x) * cameraLerpFactor;
+    state.camera.y += (state.targetCamera.y - state.camera.y) * cameraLerpFactor;
 }

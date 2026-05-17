@@ -74,6 +74,10 @@
 ├── manifest.json
 ├── offline.html
 ├── sw.js
+├── js/
+│   └── frame-guard.js
+├── css/
+│   └── offline.css
 ├── icons/
 ├── js/
 │   ├── main.js
@@ -81,6 +85,7 @@
 │   │   └── bootstrap.js
 │   ├── core/
 │   │   ├── announcer.js
+│   │   ├── audio-context.js
 │   │   ├── config.js
 │   │   ├── dom.js
 │   │   ├── event-bus.js
@@ -100,7 +105,9 @@
 │   │   ├── game-scene.js
 │   │   ├── intro-scene.js
 │   │   ├── modal-scene.js
-│   │   └── scene-manager.js
+│   │   ├── pause-scene.js
+│   │   ├── scene-manager.js
+│   │   └── win-scene.js
 │   ├── systems/
 │   │   └── score-system.js
 │   ├── tasks/
@@ -112,6 +119,8 @@
 │   └── ui/
 │       ├── font-mode.js
 │       ├── hud-controller.js
+│       ├── joystick.js
+│       ├── music-controller.js
 │       └── theme-mode.js
 └── tests/
 ```
@@ -154,24 +163,30 @@ npx http-server .
 
 ```txt
 index.html
+  -> js/frame-guard.js (синхронний — перевірка iframe)
   -> js/main.js
     -> bootGame() з js/app/bootstrap.js
       -> ініціалізація DOM, Input, HUD, теми, шрифту, ScoreSystem
+      -> MusicController.init({dom}), Joystick.init()
+      -> підписка на game:won → pushes WinScene
       -> SceneManager.push(IntroScene)
-      -> після старту IntroScene створює GameScene
+      -> після старту IntroScene: MusicController.start(), потім GameScene
 ```
 
-Основний цикл:
+Основний цикл із delta time:
 
 ```js
-function gameLoop() {
-    SceneManager.update();
+let lastTimestamp = 0;
+function gameLoop(timestamp) {
+    const deltaMs = lastTimestamp === 0 ? 16.667 : Math.min(timestamp - lastTimestamp, 50);
+    lastTimestamp = timestamp;
+    SceneManager.update(deltaMs);
     SceneManager.render();
     requestAnimationFrame(gameLoop);
 }
 ```
 
-У кожному кадрі активна сцена оновлюється й рендериться через `SceneManager`.
+У кожному кадрі активна сцена оновлюється й рендериться через `SceneManager`. `deltaMs` забезпечує незалежність від частоти кадрів.
 
 ---
 
@@ -207,13 +222,37 @@ Data-driven задачі. Поточні категорії лежать у `js/
 
 Оновлює HUD: мету, статус сесії, контекст поруч із NPC, яблука й зірочки.
 
+### `js/core/audio-context.js`
+
+Синглтон спільного `AudioContext`. Надає `getSharedAudioContext()` і `resumeSharedAudioContext()`. Усі модулі, що потребують Web Audio API, використовують цей спільний контекст.
+
+### `js/ui/music-controller.js`
+
+Процедурна фонова музика через Web Audio API. Пентатонічний арпеджіо (C D E G A), sine-хвилі, без аудіо-файлів. API: `init({dom})`, `start()`, `toggle()`, `isMuted()`, `destroy()`.
+
+### `js/ui/joystick.js`
+
+Віртуальний джойстик для сенсорних пристроїв (`pointer: coarse`). Активується лише на touch-екранах, з'являється в точці дотику. Dead zone 8px, outer radius 52px. `getIntent()` повертає нормалізований `{x, y}`.
+
+### `js/scenes/win-scene.js`
+
+Екран перемоги. Розширює `ModalScene`. Показує статистику сесії (яблука, зірочки), три хвилі зіркового конфетті та кнопку "Грати знову". Викликається через подію `game:won`.
+
+### `js/scenes/pause-scene.js`
+
+Сцена паузи. Розширює `ModalScene`. Показує оверлей паузи та кнопку "Продовжити", яка робить `SceneManager.pop()`. Відкривається по Escape або кнопці ⏸ у HUD.
+
+### `js/frame-guard.js`
+
+Синхронний скрипт frame-busting (без `defer`/`async`). Якщо сторінка відкрита всередині `<iframe>`, негайно перенаправляє `window.top.location` на повну URL гри. Підключений до `index.html` і `offline.html`.
+
 ### `js/core/input.js`
 
 Клавіатура, миша, touch-взаємодія, режим клавіатурного курсора.
 
 ### `sw.js`
 
-Service Worker для PWA/offline режиму.
+Service Worker для PWA/offline режиму. Поточна версія: **v25**.
 
 ---
 
@@ -315,6 +354,8 @@ tests/encoding-check.html
 
 Детальніше: [PWA.md](PWA.md).
 
+Поточна версія Service Worker: **v25**. Список `STATIC_ASSETS` включає всі JS-модулі, CSS-файли, JSON-категорії та нові файли (`audio-context.js`, `music-controller.js`, `joystick.js`, `win-scene.js`, `pause-scene.js`, `frame-guard.js`, `css/offline.css`).
+
 ---
 
 ## 11. Безпека й приватність
@@ -375,9 +416,8 @@ PROJECT_STATUS_AND_ROADMAP.md
 
 ## 14. Найближчі рекомендовані роботи
 
-1. Додати PWA asset check і фінально синхронізувати `sw.js` з новими CSS/JS/JSON-файлами.
-2. Розширити інтеграційні тести: reload reset, кілька NPC, повторне відкриття completed NPC, task type smoke-тести.
-3. Продовжити виносити логіку з `GameScene`: NPC interaction, apple effects, camera controller.
-4. Після тестування з дітьми підтримувати поточний масштаб світу: 28 звірів, 42 яблука, 88 перешкод.
-5. Поповнювати JSON-категорії короткими візуальними задачами для 5–7 років.
-6. Додати тихий звук збору яблука.
+1. Розширити інтеграційні тести: reload reset, кілька NPC, відсутність повторної зірки, WinScene trigger.
+2. Винести NPC interaction logic з `GameScene` у `npc-system.js`.
+3. Поповнювати JSON-категорії задач короткими візуальними прикладами.
+4. Додати автоматичний тест на існування всіх `STATIC_ASSETS`.
+5. Розглянути вимкнення SW на localhost для зручності розробки.

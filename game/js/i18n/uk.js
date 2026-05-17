@@ -31,6 +31,8 @@ export const uk = {
         themeToggleDark: '☾',
         themeToggleLight: '☀',
         themeToggleLabel: 'Перемкнути тему',
+        musicToggle: '♫',
+        musicToggleLabel: 'Увімкнути або вимкнути музику',
         settingsLabel: 'Налаштування інтерфейсу',
         statsLabel: 'Статистика гри',
         toggleDetailsLabel: 'Показати або сховати підказки гри',
@@ -54,8 +56,8 @@ export const uk = {
         announce: 'Діалог з персонажем {name}. {task}'
     },
     score: {
-        display: 'Яблука: {apples} | Зірочки: {stars}',
-        aria: 'Зібрано яблук: {apples}, отримано зірочок: {stars}'
+        display: '🍎 {apples}/{totalApples} | ⭐ {stars}/{totalStars}',
+        aria: 'Зібрано яблук: {apples} з {totalApples}. Отримано зірочок: {stars} з {totalStars}.'
     },
     announcer: {
         keyboardModeOn: 'Режим вибору цілі активовано. Використовуйте стрілки, Enter для підтвердження, T або Escape для виходу.',
@@ -149,6 +151,19 @@ export const uk = {
         lambName: 'Ягнятко',
         antName: 'Мурашка'
     },
+    pause: {
+        title: '⏸ Пауза',
+        text: 'Гра на паузі. Натисни кнопку щоб продовжити.',
+        button: '▶ Продовжити'
+    },
+    win: {
+        title: '🎉 Ти справжній мандрівник!',
+        summary: 'Ти зібрав усі яблука й познайомився з усіма лісовими друзями!',
+        applesLabel: 'яблук зібрано',
+        starsLabel: 'зірочок отримано',
+        button: '🌿 Грати ще раз!',
+        announce: 'Вітаємо! Гру завершено. Зібрано {apples} яблук і {stars} зірочок. Натисни кнопку щоб грати знову.'
+    },
     tasks: {
         m1_p1: 'Привіт! Я Мишка. Завдання: знайди, де більше кружечків — ліворуч чи праворуч?',
         m1_p2: 'Привіт! Я Мишка. Завдання: де менше квадратиків?',
@@ -177,7 +192,7 @@ export const uk = {
         logicPairsPrompt: 'Що підходить?',
         logicPairsInstructions: 'Знайди пару.',
         magicSquarePrompt: 'Заповни чарівний квадрат',
-        magicSquareInstructions: 'Що сховалось?',
+        magicSquareInstructions: 'У кожному рядку та стовпці — кожен символ рівно раз. Що сховалось?',
         orderAscPrompt: 'Від меншого до більшого',
         orderAscInstructions: 'Натисни числа від найменшого до найбільшого.',
         orderDescPrompt: 'Від більшого до меншого',
@@ -191,7 +206,16 @@ export const uk = {
         clearAnswer: 'Очистити',
         correct: 'Правильно! Ще мить і зірочка твоя.',
         tryAgain: 'Спробуй ще раз.',
+        magicSquareHint: 'Підказка: у кожному рядку і стовпці є кожен символ рівно один раз.',
+        oddOneOutHint: 'Підказка: три предмети схожі — знайди той, що з іншої групи.',
+        logicPairsHint: 'Підказка: знайди, що підходить до цього предмета.',
+        compareSetsHint: 'Підказка: порахуй крапки в кожній групі.',
+        sequenceHint: 'Підказка: знайди правило — що повторюється?',
+        shapePatternHint: 'Підказка: знайди, що чергується в ряду.',
+        countAndMatchHint: 'Підказка: уважно порахуй усі крапки.',
+        orderHint: 'Підказка: натискай числа по одному в потрібному порядку.',
         orderRetry: 'Порядок ще не той. Склади ряд заново.',
-        successWithStar: 'Чудово! Завдання виконано, можна забирати зірочку.'
+        successWithStar: 'Чудово! Завдання виконано, можна забирати зірочку.',
+        answerRevealed: 'Ось правильна відповідь! Запам\'ятай її.'
     }
 };

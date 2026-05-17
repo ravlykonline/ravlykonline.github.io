@@ -77,28 +77,28 @@ export const magicSquareVariants = [
     {
         id: 'transport',
         grid: ['🚗', '🚂', '✈️',
-               '✈️', '🚗', '🚂',
-               '🚂', null, '🚗'],
+               '🚂', '✈️', '🚗',
+               '✈️', null, '🚂'],
         choices: [
             { id: 'car',   label: '🚗' },
             { id: 'train', label: '🚂' },
             { id: 'plane', label: '✈️' }
         ],
-        correctChoiceId: 'plane'
+        correctChoiceId: 'car'
     },
 
     // ── Морські ───────────────────────────────────────────────────
     {
         id: 'sea',
         grid: ['🐟', '🐙', '🦀',
-               '🦀', '🐟', '🐙',
-               '🐙', null, '🐟'],
+               '🐙', '🦀', '🐟',
+               '🦀', null, '🐙'],
         choices: [
             { id: 'fish',     label: '🐟' },
             { id: 'octopus',  label: '🐙' },
             { id: 'crab',     label: '🦀' }
         ],
-        correctChoiceId: 'crab'
+        correctChoiceId: 'fish'
     },
 
     // ── Форми ─────────────────────────────────────────────────────
