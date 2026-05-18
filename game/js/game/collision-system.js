@@ -4,7 +4,11 @@ export function circleIntersectsRect(circle, rect) {
     return Math.hypot(circle.x - testX, circle.y - testY) <= circle.radius;
 }
 
-export function hasWorldCollision({ x, y, radius, worldWidth, worldHeight, rects }) {
+// Extra margin (px) added to obstacle rects to prevent the player's circle
+// from visually entering the rounded CSS corners of obstacle elements.
+const BORDER_RADIUS_MARGIN = 6;
+
+export function hasWorldCollision({ x, y, radius, worldWidth, worldHeight, rects, margin = BORDER_RADIUS_MARGIN }) {
     if (
         x < radius ||
         x > worldWidth - radius ||
@@ -15,5 +19,13 @@ export function hasWorldCollision({ x, y, radius, worldWidth, worldHeight, rects
     }
 
     const circle = { x, y, radius };
-    return rects.some((rect) => circleIntersectsRect(circle, rect));
+    return rects.some((rect) => {
+        const expanded = {
+            x: rect.x - margin,
+            y: rect.y - margin,
+            w: rect.w + margin * 2,
+            h: rect.h + margin * 2,
+        };
+        return circleIntersectsRect(circle, expanded);
+    });
 }

@@ -258,7 +258,9 @@ js/game/npc-spawner.js
 - генерація й розміщення об'єктів у світі;
 - чисті функції яблук, камери, колізій.
 
-`apple-system.js` і `camera-system.js` є набором чистих іменованих функцій (без класів, без `this`) і повністю покриті unit-тестами.
+`apple-system.js`, `camera-system.js` і `collision-system.js` є набором чистих іменованих функцій (без класів, без `this`) і повністю покриті unit-тестами.
+
+`collision-system.js` надає параметр `margin` (за замовчуванням `BORDER_RADIUS_MARGIN = 6px`), який розширює rect перешкоди при перевірці колізії, запобігаючи зоровому ефекту заїзду на заокруглені CSS-кути.
 
 Можливий майбутній розвиток:
 
@@ -759,7 +761,7 @@ css/tasks.css
 Окремі CSS-файли:
 
 - `css/entities.css` — перешкоди, яблука, NPC і їхні touch/high-contrast стани; `.npc.completed` показує ★ і стає неінтерактивним;
-- `css/hud.css` — верхня HUD-шторка, статистика, підказки й responsive для HUD;
+- `css/hud.css` — HUD-панель: завжди-видима topbar (`.hud-topbar`) зі статистикою (`.hud-stats`) і кнопками-налаштуваннями (`.hud-actions`), рядок NPC-badge (`.hud-npc-row`), рукоятка згортання (`.hud-toggle-btn`) і колапсний блок деталей (`.hud-details`); responsive для HUD;
 - `css/offline.css` — стилі для `offline.html` (раніше були inline в HTML);
 - `css/tasks.css` — DOM-стилі навчальних задач у діалозі; включає `.is-correct-reveal` (pulse-анімація для правильної відповіді), `.is-dimmed` (затемнені варіанти), `@media prefers-reduced-motion`.
 
@@ -808,16 +810,18 @@ css/tasks.css
 
 1. ✅ Додати `EventBus.reset()` та idempotent subscriptions.
 2. ✅ Зробити `Input.init()` ідемпотентним.
-3. ✅ Синхронізувати `sw.js` з поточними CSS/JS/JSON файлами (v25).
+3. ✅ Синхронізувати `sw.js` з поточними CSS/JS/JSON файлами (v27).
 4. ✅ Винести apple logic з `GameScene` → `apple-system.js`.
 5. ✅ Винести camera logic з `GameScene` → `camera-system.js`.
 6. ✅ Delta-time game loop: `update(deltaMs)`, `scale` у `motion.js` і `camera-system.js`.
 7. ✅ WinScene, PauseScene, MusicController, Joystick реалізовані.
 8. ✅ Адаптивна складність через `TaskPicker.pickAdaptiveTask`.
 9. ✅ Corner sliding у `resolveMovement`.
-10. Винести NPC interaction logic з `GameScene` → `npc-system.js`.
-11. Розширити інтеграційні тести для кількох NPC і кількох task type.
-12. Додавати нові типи задач лише як короткі візуальні взаємодії, без монолітного math-module.
+10. ✅ Реструктуризація HUD: завжди-видима topbar, NPC-badge row, auto-expand on game start.
+11. ✅ Collision margin у `hasWorldCollision` — гравець не заїжджає на заокруглені кути перешкод.
+12. Винести NPC interaction logic з `GameScene` → `npc-system.js`.
+13. Розширити інтеграційні тести для кількох NPC і кількох task type.
+14. Додавати нові типи задач лише як короткі візуальні взаємодії, без монолітного math-module.
 
 ---
 

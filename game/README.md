@@ -220,7 +220,7 @@ Data-driven задачі. Поточні категорії лежать у `js/
 
 ### `js/ui/hud-controller.js`
 
-Оновлює HUD: мету, статус сесії, контекст поруч із NPC, яблука й зірочки.
+Керує HUD-панеллю. Завжди-видима topbar містить лічильники яблук і зірочок та кнопки-налаштування (шрифт, тема, музика, пауза). Нижче — рядок NPC-badge (показується тільки коли гравець поруч зі звіром). Деталізована частина (ціль, контекст) розгортається/згортається. `expandTemporarily(ms)` автоматично розгортає панель на старті гри й через 2 секунди згортає — показує гравцеві, що всередині є інформація.
 
 ### `js/core/audio-context.js`
 
@@ -252,7 +252,7 @@ Data-driven задачі. Поточні категорії лежать у `js/
 
 ### `sw.js`
 
-Service Worker для PWA/offline режиму. Поточна версія: **v25**.
+Service Worker для PWA/offline режиму. Поточна версія: **v27**.
 
 ---
 
@@ -354,7 +354,7 @@ tests/encoding-check.html
 
 Детальніше: [PWA.md](PWA.md).
 
-Поточна версія Service Worker: **v25**. Список `STATIC_ASSETS` включає всі JS-модулі, CSS-файли, JSON-категорії та нові файли (`audio-context.js`, `music-controller.js`, `joystick.js`, `win-scene.js`, `pause-scene.js`, `frame-guard.js`, `css/offline.css`).
+Поточна версія Service Worker: **v27**. Список `STATIC_ASSETS` включає всі JS-модулі, CSS-файли, JSON-категорії та нові файли (`audio-context.js`, `music-controller.js`, `joystick.js`, `win-scene.js`, `pause-scene.js`, `frame-guard.js`, `css/offline.css`).
 
 ---
 

@@ -76,7 +76,7 @@ Offline mode має відкривати гру або offline page, але не
 У `sw.js` є:
 
 ```js
-const STATIC_CACHE = 'ravlyk-static-v25';
+const STATIC_CACHE = 'ravlyk-static-v27';
 ```
 
 Коли змінюється будь-який файл зі списку `STATIC_ASSETS`, треба оновити версію кешу. Якщо цього не зробити, користувач може бачити стару версію файлів.
@@ -192,7 +192,7 @@ JSON-категорії задач у `js/tasks/task-data/categories/*.json`, CS
 5. Перевірити online-гру.
 6. Під час фінального PWA-проходу перевірити offline-гру.
 
-PWA-синхронізація актуальна: `sw.js` v25 включає всі нові файли (`audio-context.js`, `music-controller.js`, `joystick.js`, `win-scene.js`, `pause-scene.js`, `frame-guard.js`, `css/offline.css`). Після додавання нових файлів завжди оновлювати `STATIC_ASSETS` і версію кешу.
+PWA-синхронізація актуальна: `sw.js` v27 включає всі нові файли (`audio-context.js`, `music-controller.js`, `joystick.js`, `win-scene.js`, `pause-scene.js`, `frame-guard.js`, `css/offline.css`). Після додавання нових файлів завжди оновлювати `STATIC_ASSETS` і версію кешу.
 
 ---
 
