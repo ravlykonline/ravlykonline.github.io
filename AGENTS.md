@@ -40,10 +40,10 @@
 
 ### P1 — високо
 
-1. Немає semantic validator.
-2. Reserved names не перевіряються повністю.
-3. Дублікати параметрів функцій не заборонені.
-4. Зайві аргументи функцій можуть ігноруватися.
+1. ✓ ~~Немає semantic validator.~~ — додано `js/modules/semanticValidator.js`; контракт ще розширюється.
+2. ✓ ~~Reserved names не перевіряються повністю.~~ — базові команди, control keywords і random aliases перевіряються для змінних, функцій і параметрів.
+3. ✓ ~~Дублікати параметрів функцій не заборонені.~~ — заборонено semantic validator-ом.
+4. ✓ ~~Зайві аргументи функцій можуть ігноруватися.~~ — кількість аргументів функції перевіряється semantic validator-ом.
 5. Share-link через `#code=` може випадково потрапити в analytics page_location.
 6. Service Worker має root scope і широке кешування.
 
@@ -82,17 +82,17 @@
 - ✓ `tests/encoding.test.js` — UTF-8, BOM, структурні регресії, відсутність `/v4beta/`-шляхів
 - ✓ Перевірка security-контрактів вбудована в unit-тести
 
-## Крок 3. Додати semantic validator
+## Крок 3. Додати semantic validator ✓ частково
 
-Створити:
+Створено:
 
 ```text
 js/modules/semanticValidator.js
 ```
 
-Він має приймати AST і повертати checked AST або кидати `RavlykError`.
+Він приймає AST і повертає checked AST або кидає дружню `RavlykError`-сумісну помилку.
 
-Мінімальні перевірки:
+Поточні перевірки:
 
 - reserved function names;
 - reserved variable names;
@@ -100,10 +100,13 @@ js/modules/semanticValidator.js
 - duplicate functions;
 - duplicate parameters;
 - variable/function conflicts;
+- unknown function calls;
 - wrong function argument count;
 - empty function body;
-- game mode top-level rules;
-- max AST nodes;
+- game mode top-level rules.
+
+Ще треба додати:
+
 - max parse depth або nesting depth.
 
 Після парсингу у `ravlykParser` або в `executionController` має бути етап:
@@ -313,7 +316,7 @@ PR можна вважати готовим, якщо:
 2. ✓ ~~Виправити GitHub Actions.~~
 3. ✓ ~~Прибрати BOM / виправити workflow.~~
 4. ✓ ~~Додати static security checks та CSP.~~
-5. Додати semantic validator.
+5. ✓ ~~Додати semantic validator.~~ — базовий контракт додано; залишився parse depth budget.
 6. Додати runtime operation budgets.
 7. Виправити analytics hash privacy.
 8. Обмежити Service Worker scope/cache.

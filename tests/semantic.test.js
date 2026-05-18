@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { RavlykParser } from '../js/modules/ravlykParser.js';
 import { validateProgramAst } from '../js/modules/semanticValidator.js';
+import { MAX_AST_NODES } from '../js/modules/constants.js';
 import { runTest } from './testUtils.js';
 
 function parse(code) {
@@ -40,6 +41,12 @@ runTest('semantic: valid variable creation passes', () => {
 
 runTest('semantic: valid function creation passes', () => {
     assert.doesNotThrow(() => validate('створити квадрат(n) (\n  вперед n\n)\nквадрат(50)'));
+});
+
+runTest('semantic: valid nested function call passes', () => {
+    assert.doesNotThrow(() => validate(
+        'створити лінія(n) ( вперед n )\nстворити дві(n) ( лінія(n) лінія(n) )\nдві(20)'
+    ));
 });
 
 runTest('semantic: valid function creation no params passes', () => {
@@ -146,4 +153,97 @@ runTest('semantic: empty function body is rejected', () => {
         'створити f() ()',
         'f'
     );
+});
+
+// --- Function calls ---
+
+runTest('semantic: unknown function call is rejected', () => {
+    assertValidationError(
+        'невідома(10)',
+        'Я не знаю команди'
+    );
+});
+
+runTest('semantic: function call with missing argument is rejected', () => {
+    assertValidationError(
+        'створити f(x) ( вперед x )\nf()',
+        'очікує 1, а отримала 0'
+    );
+});
+
+runTest('semantic: function call with extra argument is rejected', () => {
+    assertValidationError(
+        'створити f(x) ( вперед x )\nf(1, 2)',
+        'очікує 1, а отримала 2'
+    );
+});
+
+runTest('semantic: function call inside function body checks argument count', () => {
+    assertValidationError(
+        'створити лінія(x) ( вперед x )\nстворити f() ( лінія() )',
+        'очікує 1, а отримала 0'
+    );
+});
+
+// --- Game contract ---
+
+runTest('semantic: game block allows top-level declarations only', () => {
+    assert.doesNotThrow(() => validate(
+        'створити крок = 5\nстворити рух(n) ( вперед n )\nграти ( рух(крок) )'
+    ));
+});
+
+runTest('semantic: two game blocks are rejected', () => {
+    assertValidationError(
+        'грати ( вперед 1 )\nграти ( вперед 2 )',
+        'лише один блок'
+    );
+});
+
+runTest('semantic: nested game block is rejected', () => {
+    assertValidationError(
+        'повторити 1 ( грати ( вперед 1 ) )',
+        'не можна вкладати'
+    );
+});
+
+runTest('semantic: drawing command next to game block is rejected', () => {
+    assertValidationError(
+        'вперед 10\nграти ( вперед 1 )',
+        'на верхньому рівні дозволені лише'
+    );
+});
+
+runTest('semantic: assignment without create next to game block is rejected', () => {
+    assertValidationError(
+        'створити x = 1\nx = 2\nграти ( вперед x )',
+        'на верхньому рівні дозволені лише'
+    );
+});
+
+// --- AST size budget ---
+
+runTest('semantic: AST node budget allows normal small programs', () => {
+    const ast = parse('повторити 4 ( вперед 10 праворуч 90 )');
+    assert.doesNotThrow(() => validateProgramAst(ast, { maxAstNodes: 10 }));
+});
+
+runTest('semantic: AST node budget rejects oversized programs', () => {
+    const ast = {
+        type: 'Program',
+        body: [
+            { type: 'MoveStmt', distance: { type: 'NumberLiteral', value: 1 } },
+            { type: 'TurnStmt', angle: { type: 'NumberLiteral', value: 90 } },
+        ],
+    };
+
+    assert.throws(
+        () => validateProgramAst(ast, { maxAstNodes: 3 }),
+        (error) => error?.name === 'RavlykError' && error.message.includes('забагато частин')
+    );
+});
+
+runTest('semantic: default AST node budget is exported as a positive limit', () => {
+    assert.equal(Number.isInteger(MAX_AST_NODES), true);
+    assert.ok(MAX_AST_NODES > 0);
 });

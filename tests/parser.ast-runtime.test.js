@@ -465,7 +465,9 @@ await runAsyncTest('game contract rejects top-level drawing command when game bl
     const interpreter = createInterpreter();
     await assert.rejects(
         interpreter.executeCommands('forward 5 game ( forward 1 )'),
-        (error) => error && error.name === 'RavlykError' && error.messageKey === 'GAME_MODE_TOP_LEVEL_ONLY'
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.message.includes('на верхньому рівні дозволені лише')
     );
 });
 

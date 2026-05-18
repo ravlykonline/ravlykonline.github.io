@@ -37,9 +37,10 @@ export const MAX_RECURSION_DEPTH = 20;
 export const MAX_REPEATS_IN_LOOP = 500;
 export const EXECUTION_TIMEOUT_MS = 180000;
 export const MAX_CODE_LENGTH_CHARS = 10000;
+export const MAX_COMMAND_QUEUE_LENGTH = 50000;
 ```
 
-Цих лімітів недостатньо.
+Цих лімітів недостатньо. `MAX_COMMAND_QUEUE_LENGTH` уже захищає від частини випадків розгортання AST у legacy queue, але він не замінює повний operation budget.
 
 ### Проблемний приклад
 
@@ -73,16 +74,16 @@ export const MAX_CODE_LENGTH_CHARS = 10000;
 
 ### Обов'язкове рішення
 
-Додати кілька незалежних бюджетів:
+Додати кілька незалежних бюджетів. Поточний статус:
 
 ```js
-export const MAX_AST_NODES = 5000;
-export const MAX_PARSE_DEPTH = 30;
-export const MAX_EXPRESSION_DEPTH = 100;
-export const MAX_TOTAL_OPERATIONS = 20000;
-export const MAX_COMMAND_QUEUE_LENGTH = 20000;
-export const MAX_GAME_TICK_OPERATIONS = 1000;
-export const MAX_FUNCTION_CALLS_PER_RUN = 5000;
+export const MAX_AST_NODES = 5000; // уже є
+export const MAX_PARSE_DEPTH = 30; // ще треба додати
+export const MAX_EXPRESSION_DEPTH = 100; // ще треба додати або явно відкласти
+export const MAX_TOTAL_OPERATIONS = 20000; // ще треба додати
+export const MAX_COMMAND_QUEUE_LENGTH = 50000; // уже є
+export const MAX_GAME_TICK_OPERATIONS = 1000; // ще треба додати
+export const MAX_FUNCTION_CALLS_PER_RUN = 5000; // ще треба додати або замінити на runtime budget
 ```
 
 Краще рішення — не розгортати цикли в плоский масив команд. Runtime має виконувати AST ліниво, крок за кроком, з бюджетом операцій.
@@ -303,7 +304,7 @@ grep -R "eval\|new Function\|document.write" js && exit 1 || exit 0
 
 ## 12. Reserved names і semantic security
 
-Проблема із зарезервованими іменами — це не тільки UX, а й security-hardening. Користувач не має мати змоги перевизначити базові команди:
+Проблема із зарезервованими іменами — це не тільки UX, а й security-hardening. Semantic validator уже забороняє перевизначати базові команди як змінні, функції або параметри:
 
 ```ravlyk
 створити вперед() (
@@ -311,7 +312,7 @@ grep -R "eval\|new Function\|document.write" js && exit 1 || exit 0
 )
 ```
 
-Потрібен список reserved words:
+Поточний список reserved words живе в `js/modules/semanticValidator.js` і має залишатися синхронним із `LANGUAGE_SPEC.md`:
 
 ```js
 const RESERVED_WORDS = new Set([

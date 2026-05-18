@@ -94,6 +94,7 @@ export const MAX_REPEATS_IN_LOOP = 500;
 export const MAX_CANVAS_SIZE_PX = 3000; // Не використовується активно в поточній логіці
 export const EXECUTION_TIMEOUT_MS = 180000; // 180 секунд, як зазначено в документації
 export const MAX_CODE_LENGTH_CHARS = 10000;
+export const MAX_AST_NODES = 5000;
 export const MAX_COMMAND_QUEUE_LENGTH = 50000;
 export const RANDOM_SAFE_MARGIN_PX = 100;
 export const RANDOM_MIN_DISTANCE_PX = 20;
@@ -134,6 +135,7 @@ export const ERROR_MESSAGES = {
     EXECUTION_TIMEOUT: 'Програма виконувалась занадто довго (більше ' + (EXECUTION_TIMEOUT_MS / 1000) + ' секунд).',
     EXECUTION_STOPPED_BY_USER: 'Виконання зупинено.',
     CODE_TOO_LONG: 'Код завеликий. Максимальна довжина — ' + MAX_CODE_LENGTH_CHARS + ' символів.',
+    AST_TOO_LARGE: 'У програмі забагато частин (більше ' + MAX_AST_NODES + '). Спробуй розбити її на менші кроки або спростити повторення.',
     CANVAS_OUT_OF_BOUNDS: 'Равлик намагається вийти за межі полотна!',
     SAVE_IMAGE_ERROR: (msg) => 'Не вдалося зберегти малюнок: ' + msg,
     SAVE_IMAGE_SECURITY_ERROR: 'Браузер не дозволив зберегти малюнок (обмеження безпеки). Спробуй зробити скріншот.',
@@ -149,6 +151,7 @@ export const ERROR_MESSAGES = {
     FUNCTION_BODY_EMPTY: (name) => 'Функція "' + name + '" порожня. Додай хоча б одну команду.',
     FUNCTION_ALREADY_EXISTS: (name) => 'Функція "' + name + '" вже існує.',
     FUNCTION_CALL_SYNTAX: (name) => 'Виклик "' + name + '" записано неправильно. Має бути так: ' + name + '(число).',
+    FUNCTION_ARGUMENT_COUNT: (name, expected, actual) => 'У виклику "' + name + '" неправильна кількість аргументів. Функція очікує ' + expected + ', а отримала ' + actual + '.',
     FUNCTION_ARGUMENT_INVALID: (name, value) => 'У виклику "' + name + '" аргумент "' + value + '" має бути числом.',
     VARIABLE_DECLARATION_SYNTAX: 'Я не зрозумів створення змінної. Використай формат: створити назва = число.',
     VARIABLE_NAME_INVALID: (name) => 'Назва змінної "' + name + '" не підходить. Використовуй літери, цифри, _ або -.',

@@ -148,23 +148,24 @@ for (let idx = 0; idx < countValue; idx++) {
 - Виконувати цикл ліниво: один крок за раз.
 - Додати глобальний бюджет операцій `MAX_TOTAL_OPERATIONS`.
 
-## 7.3. Відсутній semantic analyzer
+## 7.3. Semantic analyzer додано, але контракт ще розширюється
 
-У `constants.js` є повідомлення для таких помилок:
+У `js/modules/semanticValidator.js` уже є semantic validation етап після парсингу. Він перевіряє:
 
-- `FUNCTION_NAME_RESERVED`;
-- `VARIABLE_NAME_RESERVED`;
-- `FUNCTION_ALREADY_EXISTS`;
-- `FUNCTION_NAME_CONFLICT_VARIABLE`;
-- `VARIABLE_NAME_CONFLICT_FUNCTION`;
-- `FUNCTION_PARAM_RESERVED`;
-- `FUNCTION_BODY_EMPTY`.
+- reserved names для функцій, змінних і параметрів;
+- дублікати функцій;
+- дублікати параметрів;
+- конфлікти змінна/функція;
+- порожні функції;
+- невідомі виклики функцій;
+- точну кількість аргументів функцій;
+- top-level правила `грати`.
 
-Але в `parserCreateStatement.js` більшість цих перевірок фактично не виконується.
+Validator підключено в `RavlykParser.parseCodeToAst`, тож AST проходить перевірку до runtime.
 
-### Наслідки
+### Виправлені приклади
 
-Можливі некоректні програми:
+Такі програми тепер мають зупинятися дружньою semantic-помилкою:
 
 ```ravlyk
 створити вперед() (
@@ -192,15 +193,11 @@ for (let idx = 0; idx < countValue; idx++) {
 f(10, 20)
 ```
 
-### Рішення
+### Що залишилось
 
-Створити модуль:
-
-```text
-js/modules/semanticValidator.js
-```
-
-Він має проходити AST після парсингу і до виконання.
+- додати `MAX_PARSE_DEPTH` / nesting depth;
+- формально покрити semantic validator-ом майбутні правила нових команд;
+- не змішувати цей етап із повним переписуванням runtime.
 
 ## 7.4. Service Worker прив'язаний до кореня сайту
 
@@ -328,19 +325,21 @@ tests/
 
 ### Етап 2. Обмеження виконання
 
-- Додати `MAX_AST_NODES`.
+- ✓ Додано `MAX_AST_NODES`.
 - Додати `MAX_PARSE_DEPTH`.
 - Додати `MAX_TOTAL_OPERATIONS`.
 - Додати `MAX_GAME_TICK_OPERATIONS`.
 - Заборонити експоненційне розгортання циклів.
 
-### Етап 3. Semantic validation
+### Етап 3. Semantic validation ✓ частково
 
-- Додати symbol table.
-- Заборонити reserved names.
-- Заборонити дублікати функцій і параметрів.
-- Перевіряти кількість аргументів.
-- Перевіряти top-level правила `грати`.
+- ✓ Додано symbol table.
+- ✓ Заборонено reserved names для змінних, функцій і параметрів.
+- ✓ Заборонено дублікати функцій і параметрів.
+- ✓ Перевіряється кількість аргументів.
+- ✓ Перевіряються top-level правила `грати`.
+- ✓ Додано AST node budget.
+- Залишилось: parse/nesting depth budget.
 
 ### Етап 4. Єдиний AST runtime (частково ✓)
 
@@ -352,7 +351,7 @@ tests/
 
 ### Етап 5. Компоненти й PWA
 
-- Уніфікувати accessibility panel.
+- ✓ Уніфікувати accessibility panel і частину HTML/navigation partials.
 - Переписати Service Worker на allowlist + bounded runtime cache.
 - Додати окремий режим dev/prod для SW.
 
