@@ -1,4 +1,4 @@
-const CACHE_VERSION = '2026-03-13-2';
+const CACHE_VERSION = '2026-05-18-1';
 const APP_CACHE = `ravlyk-app-${CACHE_VERSION}`;
 const OFFLINE_FALLBACK_URL = '/index.html';
 

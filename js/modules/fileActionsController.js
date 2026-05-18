@@ -186,6 +186,7 @@ export function createFileActionsController({
             URL.revokeObjectURL(url);
 
             showSuccessMessage('GIF збережено!');
+            onGifProgress?.(null, 0);
         } catch (error) {
             gifCapture.stop();
             if (interpreter.gifCapture) interpreter.gifCapture = null;

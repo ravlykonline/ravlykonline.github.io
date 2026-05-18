@@ -165,6 +165,9 @@ test.describe('Ravlyk UI smoke', () => {
     const downloadModal = page.locator('#download-modal-overlay');
     await expect(downloadModal).not.toHaveClass(/hidden/);
     await expect(page.locator('#download-image-btn')).toBeVisible();
+    await expect(page.locator('#download-image-btn')).toHaveText('Зберегти як малюнок');
+    await expect(page.locator('#download-gif-btn')).toHaveText('Зберегти як анімацію');
+    await expect(page.locator('#download-code-btn')).toHaveText('Зберегти як код');
     await expect(page.locator('#download-code-btn')).toBeVisible();
 
     await page.keyboard.press('Escape');
@@ -177,7 +180,28 @@ test.describe('Ravlyk UI smoke', () => {
 
     await page.locator('#download-btn').click();
     await expect(page.locator('#download-modal-overlay')).not.toHaveClass(/hidden/);
-    await expectButtonsNotToOverflow(page, ['download-image-btn', 'download-code-btn', 'close-download-modal-btn']);
+    await expectButtonsNotToOverflow(page, ['download-image-btn', 'download-gif-btn', 'download-code-btn', 'close-download-modal-btn']);
+  });
+
+  test('download save options stay in one row above cancel button on desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 900, height: 650 });
+    await page.locator('#download-btn').click();
+    await expect(page.locator('#download-modal-overlay')).not.toHaveClass(/hidden/);
+
+    const layout = await page.evaluate(() => {
+      const ids = ['download-image-btn', 'download-gif-btn', 'download-code-btn', 'close-download-modal-btn'];
+      const rects = Object.fromEntries(ids.map((id) => {
+        const rect = document.getElementById(id).getBoundingClientRect();
+        return [id, { top: rect.top, bottom: rect.bottom, left: rect.left }];
+      }));
+      return rects;
+    });
+
+    expect(Math.abs(layout['download-image-btn'].top - layout['download-gif-btn'].top)).toBeLessThan(2);
+    expect(Math.abs(layout['download-gif-btn'].top - layout['download-code-btn'].top)).toBeLessThan(2);
+    expect(layout['download-image-btn'].left).toBeLessThan(layout['download-gif-btn'].left);
+    expect(layout['download-gif-btn'].left).toBeLessThan(layout['download-code-btn'].left);
+    expect(layout['close-download-modal-btn'].top).toBeGreaterThan(layout['download-image-btn'].bottom);
   });
 
   test('all modal action buttons stay readable in high-contrast larger-text mode', async ({ page }) => {

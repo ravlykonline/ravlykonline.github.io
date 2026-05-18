@@ -842,18 +842,28 @@
     align-items: stretch;
     gap: 12px;
 }
+.download-actions .btn {
+    flex: 0 1 auto;
+}
 .download-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
 }
 .download-row .btn {
-    flex: 1;
     white-space: normal;
     text-align: center;
     line-height: 1.25;
+    min-width: 0;
 }
 .download-cancel {
     width: 100%;
+}
+
+@media (max-width: 560px) {
+    .download-row {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ── GIF progress overlay ──────────────────────────────────────── */
