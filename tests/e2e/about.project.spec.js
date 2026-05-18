@@ -26,8 +26,8 @@ test.describe('About project page and footer navigation', () => {
     test('about page explains Logo-like origin and Ravlyk-specific contribution', async ({ page }) => {
         await page.goto('/about.html');
 
-        await expect(page.locator('main#main-content')).toContainText('У мові програмування Logo є черепаха');
-        await expect(page.locator('main#main-content')).toContainText('у власній українськомовній формі');
-        await expect(page.locator('main#main-content')).toContainText('не претендує на авторство самої ідеї');
+        await expect(page.locator('main#main-content')).toContainText('РАВЛИК продовжує та розвиває ідеї мови LOGO');
+        await expect(page.locator('main#main-content')).toContainText('українськомовна реалізація РАВЛИКА');
+        await expect(page.locator('main#main-content')).toContainText('Ідея навчальної мови такого типу належить не одному проєкту');
     });
 });
