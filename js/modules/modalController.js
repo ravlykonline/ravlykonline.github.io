@@ -51,6 +51,7 @@ export function createModalController({
         stopConfirmBtn,
         stopCancelBtn,
         downloadImageBtn,
+        downloadGifBtn,
         downloadCodeBtn,
         closeDownloadModalBtn,
     }) {
@@ -84,6 +85,12 @@ export function createModalController({
             downloadImageBtn.addEventListener('click', () => {
                 fileActions.saveDrawing();
                 hideDownloadModal();
+            });
+        }
+        if (downloadGifBtn) {
+            downloadGifBtn.addEventListener('click', () => {
+                hideDownloadModal();
+                fileActions.saveGif();
             });
         }
         if (downloadCodeBtn) {

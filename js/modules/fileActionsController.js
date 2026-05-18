@@ -4,6 +4,8 @@ import {
     copyTextToClipboard,
 } from './share.js';
 import { composeCanvasLayersForExport } from './backgroundLayer.js';
+import { createGifCapture } from './gifCapture.js';
+import { encodeGif } from './gifEncoder.js';
 
 export function createFileActionsController({
     canvas,
@@ -18,6 +20,8 @@ export function createFileActionsController({
     showInfoMessage,
     onCodeLoaded,
     getCanvasBackgroundColor,
+    interpreter,
+    onGifProgress,
 }) {
     function saveDrawing() {
         try {
@@ -127,9 +131,75 @@ export function createFileActionsController({
         }
     }
 
+    async function saveGif() {
+        if (!interpreter) return;
+        const code = codeEditor.value?.trim();
+        if (!code) {
+            showInfoMessage('Поле коду порожнє. Додай команди перед записом GIF.');
+            return;
+        }
+        if (interpreter.isExecuting) {
+            showInfoMessage('Зачекай, поки завершиться поточне виконання.');
+            return;
+        }
+
+        const gifCapture = createGifCapture({ canvas, backgroundCanvas, getCanvasBackgroundColor });
+
+        try {
+            onGifProgress?.('record', 0);
+
+            // Reset canvas and re-run with capture active
+            interpreter.reset();
+            interpreter.gifCapture = gifCapture;
+            gifCapture.start();
+
+            await interpreter.executeCommands(code);
+
+            gifCapture.stop();
+            interpreter.gifCapture = null;
+
+            if (!gifCapture.hasFrames()) {
+                showError('Не вдалося записати кадри. Перевір, чи є анімація у програмі.', 0);
+                onGifProgress?.(null, 0);
+                return;
+            }
+
+            onGifProgress?.('encode', 0);
+
+            // Yield to browser before encoding
+            await new Promise(r => setTimeout(r, 30));
+
+            const frames = gifCapture.getFrames();
+            const { w, h } = gifCapture.getDimensions();
+            const gifBytes = encodeGif(frames, w, h);
+
+            onGifProgress?.('done', 100);
+
+            const blob = new Blob([gifBytes], { type: 'image/gif' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `ravlyk-анімація-${Date.now()}.gif`;
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showSuccessMessage('GIF збережено!');
+        } catch (error) {
+            gifCapture.stop();
+            if (interpreter.gifCapture) interpreter.gifCapture = null;
+            onGifProgress?.(null, 0);
+            if (error?.messageKey !== 'EXECUTION_STOPPED_BY_USER') {
+                showError(`Не вдалося створити GIF: ${error.message ?? error}`, 0);
+            }
+        }
+    }
+
     return {
         saveDrawing,
         saveCodeToFile,
+        saveGif,
         shareCodeAsLink,
         loadCodeFromUrlHash,
     };

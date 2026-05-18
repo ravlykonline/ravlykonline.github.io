@@ -20,6 +20,7 @@ import {
     spanFromTokenMeta,
 } from './parserCoreUtils.js';
 import { createParserStatementContext } from './parserStatementContext.js';
+import { validateProgramAst } from './semanticValidator.js';
 
 const COMPARISON_OPERATORS = new Set(["=", "!=", "<", ">", "<=", ">="]);
 const KEYWORD_CREATE = "\u0441\u0442\u0432\u043e\u0440\u0438\u0442\u0438";
@@ -188,7 +189,8 @@ export class RavlykParser {
     parseCodeToAst(codeStr) {
         const { tokens, meta } = this.tokenizeWithMetadata(codeStr);
         this.lastTokenMeta = meta;
-        return this.parseTokensToAst(tokens, 0, {}, meta);
+        const ast = this.parseTokensToAst(tokens, 0, {}, meta);
+        return validateProgramAst(ast);
     }
 }
 

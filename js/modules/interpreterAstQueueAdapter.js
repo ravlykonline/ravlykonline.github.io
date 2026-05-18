@@ -40,6 +40,7 @@ export function astProgramToLegacyQueue({
     EnvironmentCtor,
     maxRecursionDepth,
     maxRepeatsInLoop,
+    maxCommandQueueLength,
     evalAstNumberExpression,
     handlePrimitiveAstStatement,
     attachAstErrorLocation,
@@ -100,6 +101,10 @@ export function astProgramToLegacyQueue({
                     runStmt(nested, localEnv, out, callDepth + 1);
                 }
                 return;
+            }
+
+            if (maxCommandQueueLength != null && out.length >= maxCommandQueueLength) {
+                throw createError('COMMAND_QUEUE_OVERFLOW');
             }
 
             if (handlePrimitiveAstStatement(stmt, env, 'queue', out)) {

@@ -78,8 +78,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const stopConfirmBtn = document.getElementById("confirm-stop-btn");
     const stopCancelBtn = document.getElementById("cancel-stop-btn");
     const downloadImageBtn = document.getElementById("download-image-btn");
+    const downloadGifBtn = document.getElementById("download-gif-btn");
     const downloadCodeBtn = document.getElementById("download-code-btn");
     const closeDownloadModalBtn = document.getElementById("close-download-modal-btn");
+    const gifProgressOverlay = document.getElementById("gif-progress-overlay");
+    const gifProgressLabel = document.getElementById("gif-progress-label");
+    const gifProgressBar = document.getElementById("gif-progress-bar");
+    const gifProgressTrack = gifProgressOverlay?.querySelector('.gif-progress-bar-track');
+
+    function onGifProgress(phase, pct) {
+        if (!gifProgressOverlay) return;
+        if (phase === null) {
+            gifProgressOverlay.classList.add('hidden');
+            return;
+        }
+        gifProgressOverlay.classList.remove('hidden');
+        if (gifProgressLabel) {
+            gifProgressLabel.textContent = phase === 'encode' ? 'Кодую GIF…' : 'Записую анімацію…';
+        }
+        if (gifProgressBar) gifProgressBar.style.width = pct + '%';
+        if (gifProgressTrack) gifProgressTrack.setAttribute('aria-valuenow', pct);
+    }
 
     if (!canvas || typeof canvas.getContext !== 'function') {
         showError(ERROR_MESSAGES.CANVAS_NOT_SUPPORTED, 0);
@@ -186,6 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showSuccessMessage,
         showInfoMessage,
         getCanvasBackgroundColor: () => interpreter.getCanvasBackgroundColor(),
+        interpreter,
+        onGifProgress,
         onCodeLoaded: () => {
             editorUi.setEditorErrorLine(null);
             editorUi.updateEditorDecorations();
@@ -247,6 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
         stopConfirmBtn,
         stopCancelBtn,
         downloadImageBtn,
+        downloadGifBtn,
         downloadCodeBtn,
         closeDownloadModalBtn,
     });

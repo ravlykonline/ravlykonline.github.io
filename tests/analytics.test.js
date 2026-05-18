@@ -8,7 +8,7 @@ function createWindowStub() {
 
     return {
         dataLayer: [],
-        location: { hostname: 'ravlyk.org' },
+        location: { hostname: 'ravlyk.org', origin: 'https://ravlyk.org', pathname: '/', search: '' },
         setTimeout(handler) {
             timers.push(handler);
             return timers.length;
@@ -97,7 +97,7 @@ await runAsyncTest('analytics initialization loads gtag lazily and configures da
         windowRef,
         documentRef,
         navigatorRef: { onLine: true },
-        locationRef: { hostname: 'ravlyk.org' },
+        locationRef: { hostname: 'ravlyk.org', origin: 'https://ravlyk.org', pathname: '/', search: '' },
     });
 
     assert.ok(documentRef.analyticsScript);
@@ -111,6 +111,7 @@ await runAsyncTest('analytics initialization loads gtag lazily and configures da
     assert.equal(windowRef.dataLayer.length, 2);
     assert.equal(windowRef.dataLayer[1][0], 'config');
     assert.equal(windowRef.dataLayer[1][1], 'G-QV58ZGT594');
+    assert.equal(windowRef.dataLayer[1][2]?.page_location, 'https://ravlyk.org/');
 
     const secondCall = await initAnalytics({
         windowRef,
@@ -133,7 +134,7 @@ await runAsyncTest('analytics retries initialization after the browser comes bac
         windowRef,
         documentRef,
         navigatorRef,
-        locationRef: { hostname: 'ravlyk.org' },
+        locationRef: { hostname: 'ravlyk.org', origin: 'https://ravlyk.org', pathname: '/', search: '' },
     });
     assert.equal(offlineResult, false);
     assert.equal(documentRef.analyticsScript, null);

@@ -32,13 +32,23 @@ function ensureDataLayer(windowRef) {
     }
 }
 
-function configureAnalytics(windowRef) {
+function safePageLocation(locationRef) {
+    if (!locationRef) return undefined;
+    const origin = locationRef.origin || '';
+    const pathname = locationRef.pathname || '';
+    const search = locationRef.search || '';
+    return origin + pathname + search || undefined;
+}
+
+function configureAnalytics(windowRef, locationRef) {
     if (analyticsConfigured) {
         return;
     }
     ensureDataLayer(windowRef);
     windowRef.gtag('js', new Date());
-    windowRef.gtag('config', ANALYTICS_MEASUREMENT_ID);
+    const pageLocation = safePageLocation(locationRef);
+    const configOptions = pageLocation ? { page_location: pageLocation } : {};
+    windowRef.gtag('config', ANALYTICS_MEASUREMENT_ID, configOptions);
     analyticsConfigured = true;
 }
 
@@ -100,7 +110,7 @@ export async function initAnalytics(options = {}) {
     if (!analyticsInitPromise) {
         analyticsInitPromise = appendAnalyticsScript({ documentRef, windowRef })
             .then(() => {
-                configureAnalytics(windowRef);
+                configureAnalytics(windowRef, locationRef);
                 return true;
             })
             .catch(() => false);

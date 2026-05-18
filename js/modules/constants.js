@@ -94,6 +94,7 @@ export const MAX_REPEATS_IN_LOOP = 500;
 export const MAX_CANVAS_SIZE_PX = 3000; // Не використовується активно в поточній логіці
 export const EXECUTION_TIMEOUT_MS = 180000; // 180 секунд, як зазначено в документації
 export const MAX_CODE_LENGTH_CHARS = 10000;
+export const MAX_COMMAND_QUEUE_LENGTH = 50000;
 export const RANDOM_SAFE_MARGIN_PX = 100;
 export const RANDOM_MIN_DISTANCE_PX = 20;
 export const CANVAS_BOUNDARY_PADDING = 5; // Зменшено, бо равлик тепер не виходить за межі
@@ -129,6 +130,7 @@ export const ERROR_MESSAGES = {
     REPEAT_EXPECT_CLOSE_PAREN: 'У команді "повторити" бракує закриваючої дужки ")".',
     TOO_MANY_NESTED_REPEATS: 'Забагато вкладених "повторити". Максимум ' + MAX_RECURSION_DEPTH + ' рівнів.',
     TOO_MANY_REPEATS_IN_LOOP: 'У цьому циклі забагато повторень. Максимум ' + MAX_REPEATS_IN_LOOP + '. Спробуй зменшити N або збільшити крок руху.',
+    COMMAND_QUEUE_OVERFLOW: 'Програма генерує надто багато команд (більше ' + MAX_COMMAND_QUEUE_LENGTH + '). Зменш кількість повторень або спрости цикли.',
     EXECUTION_TIMEOUT: 'Програма виконувалась занадто довго (більше ' + (EXECUTION_TIMEOUT_MS / 1000) + ' секунд).',
     EXECUTION_STOPPED_BY_USER: 'Виконання зупинено.',
     CODE_TOO_LONG: 'Код завеликий. Максимальна довжина — ' + MAX_CODE_LENGTH_CHARS + ' символів.',
@@ -142,6 +144,7 @@ export const ERROR_MESSAGES = {
     FUNCTION_NAME_CONFLICT_VARIABLE: (name) => 'Назва "' + name + '" вже використовується як змінна.',
     FUNCTION_PARAM_INVALID: (name) => 'Назва параметра "' + name + '" не підходить.',
     FUNCTION_PARAM_RESERVED: (name) => 'Параметр "' + name + '" не може мати назву вбудованої команди.',
+    FUNCTION_PARAM_DUPLICATE: (name) => 'Параметр "' + name + '" зустрічається двічі. Кожен параметр має мати унікальну назву.',
     FUNCTION_DECLARATION_SYNTAX: 'Я не зрозумів, як створити функцію. Використай формат: створити назва(параметр) ( ... ).',
     FUNCTION_BODY_EMPTY: (name) => 'Функція "' + name + '" порожня. Додай хоча б одну команду.',
     FUNCTION_ALREADY_EXISTS: (name) => 'Функція "' + name + '" вже існує.',
