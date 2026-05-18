@@ -56,10 +56,9 @@ Canonical набір документації:
 - Стек: HTML, CSS, JavaScript ES modules, Canvas 2D
 - Unit-тести: `npm run test:unit`
 - E2E-тести: `npm run test:e2e`
-- Encoding-перевірка: `node --experimental-default-type=module tests/encoding.test.js`
+- Encoding-перевірка: `node tests/encoding.test.js`
 - Синхронізація release version: `npm run release:sync-version -- YYYY-MM-DD-N`
 - Перед публікацією: [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md)
-- Ніч переносу на корінь: [`RELEASE_NIGHT_GUIDE.md`](RELEASE_NIGHT_GUIDE.md)
 
 ## Автор
 

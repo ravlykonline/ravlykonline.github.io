@@ -211,7 +211,7 @@ PWA/offline subsystem:
 Primary commands:
 - `npm run test:unit`
 - `npm run test:e2e`
-- `node --experimental-default-type=module tests/encoding.test.js`
+- `node tests/encoding.test.js`
 
 What the suites cover:
 - parser and interpreter correctness
@@ -236,7 +236,7 @@ Primary PWA E2E spec:
 
 For content, CSS, or documentation changes, always run:
 1. `npm run test:unit`
-2. `node --experimental-default-type=module tests/encoding.test.js`
+2. `node tests/encoding.test.js`
 
 For user-facing interaction changes, also run:
 3. `npm run test:e2e`
@@ -250,25 +250,19 @@ GitHub Pages note:
 - when shipping a public update, bump that shared release token across HTML entry pages so cached school/lab browsers fetch fresh assets
 - this is the repository-level cache-busting strategy because GitHub Pages does not provide custom cache-header control
 - `sw.js` uses the same shared release token as its cache version and should be updated when public asset behavior changes
-- do not publish the entire `v4beta` working directory into the site root because it contains dev-only artifacts such as `node_modules`, `tests`, `package*.json`, and Playwright config
-- when promoting `v4beta` to the root site, sync only the public site files and preserve repo control directories such as `.git`, `.github`, `old`, and `v4beta`
-- use `scripts/promote-to-root.ps1` from inside `v4beta` for the root promotion flow instead of manual "delete everything in root"
-- `scripts/promote-to-root.ps1` must include `sw.js` in the published root file set
 
 ## 9. Release checklist
 
 Before release or public deploy:
 1. run `npm run test:unit`
-2. run `node --experimental-default-type=module tests/encoding.test.js`
+2. run `node tests/encoding.test.js`
 3. run `npm run test:e2e`
 4. bump the shared asset version token in HTML entry pages when the release changes public CSS, JS, or manifest behavior
 5. when public offline behavior changes, keep `sw.js` cache version and the shared HTML asset token aligned
-6. if promoting from `v4beta`, run `powershell -ExecutionPolicy Bypass -File .\scripts\promote-to-root.ps1` first in dry-run mode, then rerun with `-Apply` after reviewing the planned changes
-7. visually verify `index.html`, `manual.html`, `lessons.html`, `resources.html`, `quiz.html`, `teacher_guidelines.html`, `advice_for_parents.html`, and `zen.html`
-8. visually verify `about.html`
-9. recheck links, anchors, modals, mobile layout, accessibility settings, download/share flows, and warmed offline startup
-10. run the manual P1 review from `ACCESSIBILITY_CHECKLIST.md` for screen reader and visual accessibility checks
-11. keep `README.md`, this file, `DESIGN_GUIDE.md`, and `ACCESSIBILITY_CHECKLIST.md` aligned with real repo behavior
+6. visually verify `index.html`, `manual.html`, `lessons.html`, `resources.html`, `quiz.html`, `teacher_guidelines.html`, `advice_for_parents.html`, `zen.html`, and `about.html`
+7. recheck links, anchors, modals, mobile layout, accessibility settings, download/share flows, and warmed offline startup
+8. run the manual P1 review from `ACCESSIBILITY_CHECKLIST.md` for screen reader and visual accessibility checks
+9. keep `README.md`, this file, `DESIGN_GUIDE.md`, and `ACCESSIBILITY_CHECKLIST.md` aligned with real repo behavior
 
 ## 10. Current technical debt
 

@@ -15,83 +15,23 @@
 - URL hash для поширення коду;
 - Google Analytics через `js/analytics.js`.
 
-Проєкт зараз більше схожий на статичний production snapshot, ніж на повністю підготовлений engineering-репозиторій. Є робочий код продукту, але не вистачає тестової, build- та release-інфраструктури.
+## 2. Інвентаризація репозиторію
 
-## 2. Інвентаризація архіву
+Структура репозиторію:
 
-На момент аналізу в архіві виявлено:
-
-- 9 HTML-сторінок: `index.html`, `manual.html`, `lessons.html`, `quiz.html`, `resources.html`, `teacher_guidelines.html`, `advice_for_parents.html`, `about.html`, `zen.html`;
-- 63 JavaScript-файли;
-- 11 CSS-файлів;
-- 1 Markdown-файл: `README.md`;
-- 1 GitHub Actions workflow: `.github/workflows/e2e-ui.yml`;
-- PWA-файли: `sw.js`, `site.webmanifest`, іконки;
-- навчальні зображення та PDF-ресурс `resources/Pre_CodingActivity_Ravlyk_UA.pdf`.
-
-Не виявлено:
-
-- `package.json`;
-- `package-lock.json`;
-- `tests/`;
-- `LICENSE`;
-- `TECHNICAL_GUIDE.md`;
-- `DESIGN_GUIDE.md`;
-- `CONTRIBUTING.md`;
-- `RELEASE_CHECKLIST.md`;
-- `RELEASE_NIGHT_GUIDE.md`.
-
-## 3. Важлива проблема документації
-
-`README.md` посилається на файли та команди, яких фактично немає в архіві:
-
-- `TECHNICAL_GUIDE.md`;
-- `DESIGN_GUIDE.md`;
-- `LICENSE`;
-- `LICENSE-CONTENT.md`;
-- `BRAND_POLICY.md`;
-- `CONTRIBUTING.md`;
-- `RELEASE_CHECKLIST.md`;
-- `RELEASE_NIGHT_GUIDE.md`;
-- `npm run test:unit`;
-- `npm run test:e2e`;
-- `tests/encoding.test.js`.
-
-Це потрібно виправити до подальшого розвитку. Документація має описувати реальний стан репозиторію, інакше агенти будуть робити неправильні припущення.
-
-## 4. Важлива проблема CI/CD
-
-`.github/workflows/e2e-ui.yml` налаштований на неіснуючу папку `version_4`:
-
-```yaml
-paths:
-  - 'version_4/**'
-
-defaults:
-  run:
-    working-directory: version_4
-
-cache-dependency-path: version_4/package-lock.json
-```
-
-У поточному архіві папки `version_4` немає. Отже workflow фактично не перевіряє актуальний код.
-
-### Як виправити
-
-Варіант A — якщо код має жити в корені:
-
-- прибрати `version_4/**` з paths;
-- прибрати `working-directory: version_4`;
-- додати `package.json` у корінь;
-- налаштувати команди `test:unit`, `test:e2e`, `lint`.
-
-Варіант B — якщо потрібна структура `version_4`:
-
-- перенести весь застосунок у `version_4/`;
-- додати `version_4/package.json`;
-- тримати GitHub Pages/Cloudflare налаштованими відповідно до нової структури.
-
-Рекомендований варіант для простого статичного сайту — тримати код у корені або в `src/` + `public/`, але не залишати workflow, який дивиться в неіснуючу директорію.
+- 9 HTML-сторінок: `index.html`, `manual.html`, `lessons.html`, `quiz.html`, `resources.html`, `teacher_guidelines.html`, `advice_for_parents.html`, `about.html`, `zen.html`
+- 63 JavaScript-файли в `js/` та `js/modules/`
+- 11 CSS-файлів у `css/`
+- `tests/` — unit і integration тести (Node.js)
+- `tests/e2e/` — Playwright E2E тести
+- `package.json`, `package-lock.json`, `playwright.config.js` — тестове середовище
+- `scripts/` — допоміжні скрипти (`sync-release-version.mjs`)
+- `.github/workflows/ci.yml` — CI pipeline (Node.js 24, Chromium/Firefox/WebKit)
+- PWA-файли: `sw.js`, `site.webmanifest`, іконки
+- Навчальні зображення та `resources/Pre_CodingActivity_Ravlyk_UA.pdf`
+- Документація: `README.md`, `TECHNICAL_GUIDE.md`, `DESIGN_GUIDE.md`, `ARCHITECTURE.md`, `LANGUAGE_SPEC.md`, `SECURITY.md`, `TESTING.md`, `CONTRIBUTING.md`, `RELEASE_CHECKLIST.md`, `ACCESSIBILITY_CHECKLIST.md`, `BRAND_POLICY.md`, `LICENSE`, `LICENSE-CONTENT.md`
+- Окремі незалежні підпроєкти: `artist/`, `game/`, `go/`, `maisternia/` — мають власну інфраструктуру і не є частиною основного РАВЛИК-сайту
+- `old/` — архів попередніх версій
 
 ## 5. Поточна карта модулів
 
@@ -384,14 +324,14 @@ tests/
 
 ## 10. План рефакторингу архітектури
 
-### Етап 1. Стабілізація репозиторію
+### Етап 1. Стабілізація репозиторію ✓
 
-- Виправити README.
-- Додати `package.json`.
-- Виправити GitHub Actions.
-- Додати `tests/`.
-- Додати `.editorconfig`, `.gitignore`.
-- Прибрати BOM з `.github/workflows/e2e-ui.yml`.
+- ✓ README оновлено
+- ✓ `package.json`, `package-lock.json`, `playwright.config.js` додано в корінь
+- ✓ GitHub Actions (`ci.yml`) налаштовано на корінь, Node.js 24
+- ✓ `tests/` розгорнуто з повним набором unit та E2E тестів
+- ✓ `.editorconfig`, `.gitattributes`, `.gitignore` додано
+- ✓ CSP додано до всіх 9 публічних HTML-сторінок
 
 ### Етап 2. Обмеження виконання
 

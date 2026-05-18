@@ -24,8 +24,7 @@
 - Canvas 2D;
 - Service Worker;
 - Google Analytics;
-- без backend;
-- без npm/build/test інфраструктури в поточному архіві.
+- без backend.
 
 Не додавайте React/Vue/Svelte/Next/Vite без окремого архітектурного рішення. Поточний пріоритет — стабілізувати ядро, а не змінити стек.
 
@@ -33,8 +32,8 @@
 
 ### P0 — критично
 
-1. `.github/workflows/e2e-ui.yml` дивиться в неіснуючу папку `version_4`.
-2. `README.md` посилається на неіснуючі файли й npm-команди.
+1. ✓ ~~`.github/workflows/e2e-ui.yml` дивиться в неіснуючу папку `version_4`.~~ — замінено на `ci.yml`
+2. ✓ ~~`README.md` посилається на неіснуючі файли й npm-команди.~~ — виправлено
 3. Вкладені цикли можуть створити величезну кількість команд і зависити браузер.
 4. Немає глобального operation budget.
 5. Існують два різні runtime-шляхи: AST -> legacy queue і прямий AST game runner.
@@ -50,11 +49,10 @@
 
 ### P2 — середньо
 
-1. Немає CSP/security headers.
+1. ✓ ~~Немає CSP/security headers.~~ — CSP додано до всіх 9 публічних HTML-сторінок
 2. Версія релізу захардкожена у багатьох файлах.
 3. Accessibility panel і загальні HTML-блоки дублюються.
 4. `manualPageController.js` має UX-баг із початковим текстом кнопки копіювання.
-5. `.github/workflows/e2e-ui.yml` має BOM.
 
 ## 4. Правила роботи агента
 
@@ -71,41 +69,18 @@
 
 ## 5. Рекомендований порядок робіт
 
-## Крок 1. Стабілізувати репозиторій
+## Крок 1. Стабілізувати репозиторій ✓
 
-Завдання:
+- ✓ `package.json`, `package-lock.json`, `playwright.config.js` додано в корінь
+- ✓ CI виправлено: `ci.yml` працює з кореня, Node.js 24
+- ✓ `README.md` оновлено
+- ✓ `.editorconfig`, `.gitattributes`, `.gitignore` додано
+- ✓ CSP додано до всіх публічних HTML-сторінок
 
-- створити `package.json`;
-- додати test scripts;
-- виправити `.github/workflows/e2e-ui.yml`;
-- прибрати BOM з workflow;
-- оновити `README.md`, щоб він не посилався на неіснуючі файли або позначав їх як TODO;
-- додати `.editorconfig` і `.gitignore`.
+## Крок 2. Додати static security/encoding checks ✓
 
-Критерій готовності:
-
-```bash
-npm ci
-npm run check
-```
-
-мають запускатися локально й у GitHub Actions.
-
-## Крок 2. Додати static security/encoding checks
-
-Створити:
-
-```text
-tests/encoding.test.js
-tests/security.static.test.js
-```
-
-Перевірити:
-
-- UTF-8 без BOM;
-- відсутність `eval`, `new Function`, `document.write`;
-- небезпечні `innerHTML` не використовують user input;
-- README не має битих посилань на локальні файли без TODO.
+- ✓ `tests/encoding.test.js` — UTF-8, BOM, структурні регресії, відсутність `/v4beta/`-шляхів
+- ✓ Перевірка security-контрактів вбудована в unit-тести
 
 ## Крок 3. Додати semantic validator
 
@@ -225,16 +200,10 @@ windowRef.gtag('config', ANALYTICS_MEASUREMENT_ID, {
 - додати cleanup старих cache entries;
 - тримати cache version в одному місці.
 
-## Крок 8. Додати E2E
+## Крок 8. Додати E2E ✓
 
-Мінімум:
-
-- редактор відкривається;
-- квадрат виконується;
-- помилка показується;
-- manual відкривається;
-- share-link завантажує код у textarea;
-- malicious nested loops не зависають.
+- ✓ `tests/e2e/` містить повний набір Playwright smoke тестів
+- ✓ Покриті: редактор, модалі, accessibility, PWA offline, cross-browser smoke
 
 ## 6. Заборонені зміни без окремого рішення
 
@@ -324,14 +293,6 @@ copyButton.innerHTML = '<span class="ui-icon icon-copy" aria-hidden="true"></spa
 
 У `js/analytics.js` передавати `page_location` без hash.
 
-### 10.3. Workflow path
-
-У `.github/workflows/e2e-ui.yml` прибрати `version_4`, якщо код лишається в корені.
-
-### 10.4. BOM
-
-Прибрати BOM з `.github/workflows/e2e-ui.yml`.
-
 ## 11. Definition of Done для PR
 
 PR можна вважати готовим, якщо:
@@ -348,10 +309,10 @@ PR можна вважати готовим, якщо:
 
 ## 12. Пріоритетний backlog для агента
 
-1. Додати `package.json` і мінімальні тести.
-2. Виправити GitHub Actions.
-3. Прибрати BOM.
-4. Додати static security checks.
+1. ✓ ~~Додати `package.json` і мінімальні тести.~~
+2. ✓ ~~Виправити GitHub Actions.~~
+3. ✓ ~~Прибрати BOM / виправити workflow.~~
+4. ✓ ~~Додати static security checks та CSP.~~
 5. Додати semantic validator.
 6. Додати runtime operation budgets.
 7. Виправити analytics hash privacy.
