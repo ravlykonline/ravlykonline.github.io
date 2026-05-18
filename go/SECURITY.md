@@ -196,11 +196,26 @@ img.alt = 'Равлик';
 
 ---
 
-## GitHub Pages і security headers
+## Security Headers
 
-GitHub Pages не дає такого ж прямого контролю над HTTP security headers, як Cloudflare Pages.
+Гра встановлює захисні заголовки через мета-теги в `index.html` — це єдиний спосіб задати security policy на GitHub Pages без кастомного сервера.
 
-Тому захист має забезпечуватися насамперед архітектурою:
+Поточні мета-теги в `<head>`:
+
+```html
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none';">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Referrer-Policy" content="no-referrer">
+```
+
+Що вони забезпечують:
+
+- **CSP** — браузер дозволяє завантажувати скрипти, стилі та зображення тільки з того ж origin (`'self'`). Жодних зовнішніх ресурсів, жодних inline-скриптів. `connect-src 'none'` блокує будь-які мережеві запити з JS.
+- **X-Content-Type-Options: nosniff** — браузер не «вгадує» тип файлу, виконує тільки те, що задекларовано сервером.
+- **Referrer-Policy: no-referrer** — жоден запит не передає `Referer`-заголовок.
+
+Захист також забезпечується архітектурою:
 
 - немає сторонніх скриптів;
 - немає довільного HTML;
@@ -211,17 +226,17 @@ GitHub Pages не дає такого ж прямого контролю над 
 - немає `localStorage`;
 - мінімізовано `innerHTML`.
 
-Якщо проєкт колись буде перенесено на Cloudflare Pages або власний сервер, бажано додати такі headers:
+Якщо проєкт колись буде перенесено на Cloudflare Pages або власний сервер, додати HTTP-заголовки:
 
 ```text
-Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; connect-src 'self'; form-action 'none'; upgrade-insecure-requests
+Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; img-src 'self' data:; connect-src 'none'; form-action 'none'; upgrade-insecure-requests
 X-Content-Type-Options: nosniff
 Referrer-Policy: no-referrer
 Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), magnetometer=(), gyroscope=(), accelerometer=()
 X-Frame-Options: DENY
 ```
 
-Для GitHub Pages ці headers не треба додавати в `_headers`, бо GitHub Pages їх не застосує. Але код має бути готовий до майбутнього суворого CSP.
+HTTP-заголовки мають пріоритет над мета-тегами, тому перехід до власного сервера не потребує змін в `index.html` — тільки додавання серверних заголовків.
 
 ---
 
@@ -271,6 +286,8 @@ Service worker не має:
 - [ ] У коді немає `eval` і `new Function`.
 - [ ] У коді немає сторонніх URL.
 - [ ] У `index.html` немає CDN.
+- [ ] У `index.html` присутні мета-теги CSP, `X-Content-Type-Options`, `Referrer-Policy`.
+- [ ] CSP не містить `unsafe-inline` або `unsafe-eval`.
 - [ ] У `manifest.json` немає зовнішніх іконок.
 - [ ] У `sw.js` кешуються тільки локальні файли.
 - [ ] `sessionStorage` використовується тільки через `sessionStore.js`.

@@ -195,6 +195,19 @@ navigator.serviceWorker.register('./sw.js');
 
 `APP_SHELL` має містити тільки реальні файли поточної модульної структури. Старі classic-файли не мають повертатися в кеш.
 
+## Security Headers
+
+`index.html` встановлює захисні policy через мета-теги:
+
+```html
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none';">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Referrer-Policy" content="no-referrer">
+```
+
+Не видаляти і не послаблювати CSP (не додавати `unsafe-inline`, `unsafe-eval` або зовнішні домени).
+
 ## Заборони
 
 Не використовувати:

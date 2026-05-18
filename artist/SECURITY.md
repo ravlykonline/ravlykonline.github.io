@@ -10,8 +10,12 @@
 - ✅ Execution limits — вкладені repeat не зависять браузер
 - ✅ Stop button — runtime можна перервати
 
+**Вирішено після аудиту безпеки (Фаза 3):**
+- ✅ Весь `innerHTML` замінено — проєкт повністю `innerHTML`-free
+- ✅ SVG-іконки монтуються через `DOMParser` + `replaceChildren()`, не через `innerHTML`
+- ✅ Очищення DOM (`lessonNav`, `paletteList`, `workspaceInner`, `guideLayer`) через `replaceChildren()`
+
 **Залишаються:**
-- ⚠️ Inline SVG у `ui/icons.js` — допустимо (статичний, без user data)
 - ⚠️ Google Fonts підключено зовні — треба self-host для повного CSP
 - ⚠️ Немає CSP заголовків (P3)
 - ⚠️ Немає service worker (P3)
@@ -23,13 +27,15 @@
 Проєкт не приймає і не рендерить неперевірений HTML.
 
 Заборонено:
-- `innerHTML` для текстів рівнів або будь-яких даних
+- `innerHTML` — будь-де, без винятків
 - HTML-теги в полі `instruction`
 - User-generated HTML будь-де
 
 Дозволено:
-- Inline SVG з `icons.js` (статичний, контрольований)
 - `textContent` для всіх текстів
+- `document.createElement` + DOM API для побудови UI
+- `DOMParser` для монтування статичних SVG з `icons.js`
+- `replaceChildren()` для очищення контейнерів
 
 ---
 
@@ -104,27 +110,38 @@ font-src 'self' https://fonts.gstatic.com;
 
 ## 7. Inline SVG
 
-Допустимо, якщо SVG:
-- статичний рядок у репозиторії
-- не містить `<script>` або зовнішніх посилань
-- не формується з user data
+SVG-рядки зберігаються як константи в `js/ui/icons.js`. Монтуються виключно через `DOMParser`:
 
-Майбутнє (P3): перенести в `assets/icons/snail.svg`.
+```js
+function parseSvg(svgString) {
+  return new DOMParser().parseFromString(svgString, 'image/svg+xml').documentElement;
+}
+snailElement.replaceChildren(parseSvg(snailSvg));
+```
+
+Це безпечно, тому що:
+- SVG є статичним рядком у репозиторії
+- `DOMParser` з типом `image/svg+xml` не виконує `<script>` всередині SVG
+- Результат — DOM-елемент, а не рядок — `innerHTML`-sink відсутній
+
+Майбутнє (P3): перенести в `assets/icons/snail.svg` та завантажувати через `fetch`.
 
 ---
 
 ## 8. Security checklist
 
 - [x] Немає активних legacy-файлів
-- [x] Немає `innerHTML` для текстів рівнів
+- [x] **Проєкт повністю `innerHTML`-free** — жодного `innerHTML` в JS-коді
+- [x] SVG монтується через `DOMParser`, а не через `innerHTML`
 - [x] Усі UI-тексти через `textContent`
+- [x] Очищення DOM через `replaceChildren()` замість `innerHTML = ''`
 - [x] Є execution limit
 - [x] Є кнопка Stop
 - [x] Є дружні повідомлення про помилки
+- [x] Немає cookies (ніколи не було)
+- [x] Немає збору персональних даних
 - [ ] Google Fonts self-hosted (P3)
 - [ ] CSP налаштовано (P3)
 - [ ] `X-Content-Type-Options: nosniff` (P3)
 - [ ] `Referrer-Policy: no-referrer` (P3)
 - [ ] Service worker кешує тільки власні файли (P3)
-- [ ] Немає cookies ✅ (ніколи не було)
-- [ ] Немає збору персональних даних ✅

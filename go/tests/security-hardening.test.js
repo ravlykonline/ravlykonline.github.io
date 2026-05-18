@@ -46,6 +46,37 @@ test('source files avoid persistent storage, dynamic code execution and document
   }
 });
 
+test('index.html contains required security meta tags', () => {
+  const htmlPath = path.join(root, 'index.html');
+  const html = fs.readFileSync(htmlPath, 'utf8');
+
+  assert.match(
+    html,
+    /http-equiv=["']Content-Security-Policy["']/i,
+    'index.html must have a Content-Security-Policy meta tag'
+  );
+  assert.doesNotMatch(
+    html,
+    /unsafe-inline/i,
+    'CSP must not contain unsafe-inline'
+  );
+  assert.doesNotMatch(
+    html,
+    /unsafe-eval/i,
+    'CSP must not contain unsafe-eval'
+  );
+  assert.match(
+    html,
+    /http-equiv=["']X-Content-Type-Options["']/i,
+    'index.html must have X-Content-Type-Options meta tag'
+  );
+  assert.match(
+    html,
+    /http-equiv=["']Referrer-Policy["']/i,
+    'index.html must have Referrer-Policy meta tag'
+  );
+});
+
 test('runtime source files do not introduce external URLs', () => {
   const runtimeFiles = listTextFiles().filter((file) => {
     const relativePath = path.relative(root, file).replace(/\\/g, '/');

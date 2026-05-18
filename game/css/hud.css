@@ -27,7 +27,13 @@
     transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.hud-panel__header,
+/* Always-visible row: counters on the left, action buttons on the right */
+.hud-topbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
 .hud-stats,
 .hud-ribbon,
 .hud-message,
@@ -36,45 +42,24 @@
     z-index: 1;
 }
 
-.hud-panel__header {
-    display: none;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2);
-}
-
-.hud-panel--expanded .hud-panel__header {
-    display: flex;
-}
-
-.hud-kicker {
-    margin: 0 0 var(--space-1);
-    color: var(--color-text-muted);
-    font-size: var(--font-size-xs);
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.hud-title {
-    margin: 0;
-    font-family: var(--font-family-accent);
-    font-size: var(--font-size-lg);
-    line-height: 1.15;
-}
-
 .hud-actions {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-1);
     pointer-events: auto;
-    position: absolute;
-    top: var(--space-2);
-    right: var(--space-2);
+    flex-shrink: 0;
 }
 
-.hud-panel--expanded .hud-actions {
-    position: static;
+/* NPC proximity badge row — zero height when badge hidden, auto when visible */
+.hud-npc-row {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    /* Small top gap only when content is present — achieved via badge margin */
+}
+
+.hud-npc-row .hud-badge:not(.hidden) {
+    margin-top: var(--space-1);
 }
 
 .hud-action-btn {
@@ -107,10 +92,11 @@
 }
 
 .hud-stats {
+    flex: 1;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-2);
-    margin-top: 0;
+    min-width: 0;
 }
 
 .hud-stat {
@@ -201,14 +187,7 @@
     opacity: 1;
 }
 
-.hud-ribbon {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-}
+/* .hud-ribbon is now wrapped in .sr-only in HTML — no separate hide rule needed */
 
 .hud-ribbon__label {
     margin: 0 0 var(--space-1);
@@ -317,21 +296,18 @@
         border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     }
 
-    .hud-panel__header {
-        flex-direction: row;
-        align-items: center;
-    }
-
+    /* On narrow screens reduce button gap to keep everything in one row */
     .hud-actions {
-        justify-content: flex-end;
+        gap: var(--space-1);
     }
 
-    .hud-title {
-        font-size: var(--font-size-base);
+    .hud-action-btn {
+        width: 30px;
+        height: 30px;
     }
 
     .hud-stat {
-        gap: var(--space-2);
-        padding-inline: var(--space-2);
+        gap: var(--space-1);
+        padding-inline: var(--space-1);
     }
 }

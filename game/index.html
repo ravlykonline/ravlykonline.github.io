@@ -47,64 +47,70 @@
 
     <div id="ui-layer" role="status" aria-live="polite" aria-atomic="true" data-game-interactive>
         <section id="hud-panel" class="hud-panel" aria-labelledby="hud-title">
-            <div class="hud-panel__header">
-                <div>
-                    <p id="hud-kicker" class="hud-kicker" data-i18n="hud.kicker"></p>
-                    <h2 id="hud-title" class="hud-title" data-i18n="app.heading"></h2>
+            <!-- sr-only title for accessibility — no visual duplicate of the game name -->
+            <h2 id="hud-title" class="sr-only" data-i18n="app.heading"></h2>
+
+            <!-- ① Always-visible row: counters + setting buttons -->
+            <div class="hud-topbar">
+                <div class="hud-stats" data-i18n-aria-label="hud.statsLabel">
+                    <article class="hud-stat hud-stat--apples">
+                        <span class="hud-stat__icon" aria-hidden="true">🍎</span>
+                        <span class="hud-stat__label" data-i18n="hud.applesLabel"></span>
+                        <strong id="apples-count" class="hud-stat__value">0</strong>
+                    </article>
+                    <article class="hud-stat hud-stat--stars">
+                        <span class="hud-stat__icon" aria-hidden="true">★</span>
+                        <span class="hud-stat__label" data-i18n="hud.starsLabel"></span>
+                        <strong id="stars-count" class="hud-stat__value">0</strong>
+                    </article>
                 </div>
                 <div class="hud-actions" data-i18n-aria-label="hud.settingsLabel">
-                    <button id="font-toggle-btn" class="hud-action-btn" type="button" data-i18n="hud.fontToggle"
-                        data-i18n-aria-label="hud.fontToggleLabel"></button>
-                    <button id="theme-toggle-btn" class="hud-action-btn" type="button" data-i18n="hud.themeToggleDark"
-                        data-i18n-aria-label="hud.themeToggleLabel"></button>
-                    <button id="music-toggle-btn" class="hud-action-btn" type="button" data-i18n="hud.musicToggle"
-                        data-i18n-aria-label="hud.musicToggleLabel"></button>
+                    <button id="font-toggle-btn" class="hud-action-btn" type="button"
+                        data-i18n="hud.fontToggle" data-i18n-aria-label="hud.fontToggleLabel"></button>
+                    <button id="theme-toggle-btn" class="hud-action-btn" type="button"
+                        data-i18n="hud.themeToggleDark" data-i18n-aria-label="hud.themeToggleLabel"></button>
+                    <button id="music-toggle-btn" class="hud-action-btn" type="button"
+                        data-i18n="hud.musicToggle" data-i18n-aria-label="hud.musicToggleLabel"></button>
                     <button id="pause-btn" class="hud-action-btn" type="button"
-                        aria-label="Пауза (Escape)">⏸</button>
+                        data-i18n="hud.pauseBtn" data-i18n-aria-label="hud.pauseBtnLabel"></button>
                 </div>
             </div>
 
-            <div class="hud-stats" data-i18n-aria-label="hud.statsLabel">
-                <article class="hud-stat hud-stat--apples">
-                    <span class="hud-stat__icon" aria-hidden="true">🍎</span>
-                    <span class="hud-stat__label" data-i18n="hud.applesLabel"></span>
-                    <strong id="apples-count" class="hud-stat__value">0</strong>
-                </article>
-                <article class="hud-stat hud-stat--stars">
-                    <span class="hud-stat__icon" aria-hidden="true">★</span>
-                    <span class="hud-stat__label" data-i18n="hud.starsLabel"></span>
-                    <strong id="stars-count" class="hud-stat__value">0</strong>
-                </article>
+            <!-- ② NPC proximity badge — always in DOM, shown/hidden by JS -->
+            <div class="hud-npc-row">
+                <span id="hud-npc-badge" class="hud-badge hud-badge--soft hidden"></span>
             </div>
 
+            <!-- ③ Expand / collapse handle -->
             <button id="hud-toggle-btn" class="hud-toggle-btn" type="button" aria-expanded="false"
                 data-i18n-aria-label="hud.toggleDetailsLabel">
                 <span class="hud-toggle-btn__grip" aria-hidden="true"></span>
             </button>
 
+            <!-- ④ Collapsible details: objective hint -->
             <div id="hud-details" class="hud-details">
-                <div class="hud-ribbon">
-                    <p id="hud-session-label" class="hud-ribbon__label" data-i18n="hud.sessionLabel"></p>
-                    <p id="hud-session" class="hud-ribbon__text" data-i18n="hud.sessionStatusDefault"></p>
+                <!-- Session summary: sr-only (stats visible in topbar) -->
+                <div class="sr-only">
+                    <p id="hud-session-label" data-i18n="hud.sessionLabel"></p>
+                    <p id="hud-session" data-i18n="hud.sessionStatusDefault"></p>
                 </div>
 
+                <!-- Main objective -->
                 <div class="hud-message hud-message--primary">
                     <p id="hud-objective-label" class="hud-message__label" data-i18n="hud.objectiveLabel"></p>
                     <p id="hud-objective" class="hud-message__text" data-i18n="hud.objectiveText"></p>
                 </div>
 
-                <div class="hud-message hud-message--secondary">
-                    <div class="hud-message__meta">
-                        <p id="hud-context-label" class="hud-message__label" data-i18n="hud.contextLabel"></p>
-                        <span id="hud-npc-badge" class="hud-badge hud-badge--soft hidden"></span>
-                    </div>
-                    <p id="hud-context" class="hud-message__text" data-i18n="hud.contextIdle"></p>
-                </div>
+                <!-- Context: sr-only — NPC badge above is the visual cue; this text feeds aria-live -->
+                <p id="hud-context" class="sr-only" data-i18n="hud.contextIdle"></p>
 
                 <div class="hud-footer">
-                    <div id="score-display" class="sr-only" data-i18n="score.display" data-i18n-aria-label="app.scoreLabel"></div>
-                    <p id="controls-hint" class="hud-footer__hint" data-i18n="app.controlsHint" data-i18n-aria-label="app.controlsLabel"></p>
-                    <div id="keyboard-mode-indicator" class="hud-badge hidden" aria-live="assertive" data-i18n="app.keyboardMode"></div>
+                    <div id="score-display" class="sr-only" data-i18n="score.display"
+                        data-i18n-aria-label="app.scoreLabel"></div>
+                    <p id="controls-hint" class="sr-only" data-i18n="app.controlsHint"
+                        data-i18n-aria-label="app.controlsLabel"></p>
+                    <div id="keyboard-mode-indicator" class="hud-badge hidden" aria-live="assertive"
+                        data-i18n="app.keyboardMode"></div>
                 </div>
             </div>
         </section>

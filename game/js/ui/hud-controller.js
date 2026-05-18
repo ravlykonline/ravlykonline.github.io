@@ -10,7 +10,10 @@ export const HUDController = {
     init({ dom, onPause }) {
         this.dom = dom;
         this.isExpanded = false;
+        this._autoCollapseTimer = null;
         this.dom.hudToggleBtn?.addEventListener('click', () => {
+            // Manual toggle cancels any pending auto-collapse
+            clearTimeout(this._autoCollapseTimer);
             this.setExpanded(!this.isExpanded);
         });
         this.dom.pauseBtn?.addEventListener('click', () => {
@@ -27,6 +30,19 @@ export const HUDController = {
         this.isExpanded = isExpanded;
         this.dom.hudPanel?.classList.toggle('hud-panel--expanded', isExpanded);
         this.dom.hudToggleBtn?.setAttribute('aria-expanded', String(isExpanded));
+    },
+
+    /**
+     * Expand the HUD panel, then collapse it automatically after `ms` milliseconds.
+     * Lets the player see the objective hint at game start without cluttering the screen.
+     */
+    expandTemporarily(ms = 2000) {
+        clearTimeout(this._autoCollapseTimer);
+        this.setExpanded(true);
+        this._autoCollapseTimer = setTimeout(() => {
+            this.setExpanded(false);
+            this._autoCollapseTimer = null;
+        }, ms);
     },
 
     setSessionSummary({ apples, stars }) {

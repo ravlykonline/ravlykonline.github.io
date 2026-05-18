@@ -925,6 +925,13 @@ npx html-validate ./dist/**/*.html
 - ❌ `<table>` for layout
 - ❌ `<canvas>` without an accessible DOM layer and fallback content
 
+### Security
+- ❌ `innerHTML` — **заборонено в будь-якому JS-коді**; для очищення контейнерів використовувати `replaceChildren()`, для тексту — `textContent`
+- ❌ Монтування SVG через `innerHTML` — використовувати `DOMParser` + `replaceChildren()`
+- ❌ `eval()` або `new Function(string)` з будь-якими даними
+- ❌ `document.write()`
+- ❌ `insertAdjacentHTML()` без санітизації
+
 ### CSS & Visuals
 - ❌ `outline: none` without a replacement focus indicator
 - ❌ `user-scalable=no` in viewport meta

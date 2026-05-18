@@ -74,7 +74,11 @@ export function bootGame() {
         announcer: Announcer,
         sceneManager: SceneManager,
         createGameScene,
-        onStart: () => MusicController.start()
+        onStart: () => {
+            MusicController.start();
+            // Show the objective hint for 2 s, then collapse the HUD out of the way
+            HUDController.expandTemporarily(2000);
+        }
     }));
 
     return {

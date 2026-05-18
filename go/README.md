@@ -128,6 +128,7 @@ npm test
 - відсутність зовнішніх URL;
 - відсутність `localStorage`, `eval`, `new Function`, `document.write`;
 - використання `sessionStorage` тільки через `js/state/sessionStore.js`;
+- наявність CSP, `X-Content-Type-Options` і `Referrer-Policy` мета-тегів в `index.html`;
 - PWA app shell і `/go`-сумісні шляхи;
 - ARIA progressbar;
 - модульний entrypoint без старого script-chain.

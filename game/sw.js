@@ -1,4 +1,4 @@
-const STATIC_CACHE = 'ravlyk-static-v25';
+const STATIC_CACHE = 'ravlyk-static-v26';
 const STATIC_ASSETS = [
     './',
     './index.html',

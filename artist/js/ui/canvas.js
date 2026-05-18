@@ -5,6 +5,11 @@ export const TURTLE_ORIGIN_Y = GRID_HEIGHT / 2;
 import { cellToGridIntersection } from '../core/engine.js';
 import { avatarSvg, snailSvg } from './icons.js';
 
+/** Safely parse an SVG string into a DOM element via DOMParser (avoids innerHTML). */
+function parseSvg(svgString) {
+  return new DOMParser().parseFromString(svgString, 'image/svg+xml').documentElement;
+}
+
 function ensureGuideLayer(gridSvg) {
   let guideLayer = gridSvg.querySelector('[data-guide-layer]');
   if (!guideLayer) {
@@ -96,13 +101,13 @@ export function setupCanvas(dom) {
   trailCanvas.height = GRID_HEIGHT;
   snailElement.style.width = `${SNAIL_SIZE}px`;
   snailElement.style.height = `${SNAIL_SIZE}px`;
-  snailElement.innerHTML = snailSvg;
-  avatarBox.innerHTML = avatarSvg;
+  snailElement.replaceChildren(parseSvg(snailSvg));
+  avatarBox.replaceChildren(parseSvg(avatarSvg));
 }
 
 export function renderLessonGuide(dom, lesson) {
   const guideLayer = ensureGuideLayer(dom.gridSvg);
-  guideLayer.innerHTML = '';
+  guideLayer.replaceChildren();
 
   const points = getLessonGuidePoints(lesson);
   if (points.length < 2) {

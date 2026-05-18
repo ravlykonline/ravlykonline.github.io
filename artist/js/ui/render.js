@@ -271,7 +271,7 @@ export function renderLessonHeader(dom, lesson) {
 }
 
 export function renderLessonNavigation(dom, state, onLessonSelect) {
-  dom.lessonNav.innerHTML = '';
+  dom.lessonNav.replaceChildren();
 
   lessons.forEach((lesson, index) => {
     const button = document.createElement('button');
@@ -288,7 +288,7 @@ export function renderLessonNavigation(dom, state, onLessonSelect) {
 }
 
 export function renderPalette(dom, lesson, handlers) {
-  dom.paletteList.innerHTML = '';
+  dom.paletteList.replaceChildren();
 
   lesson.toolbox.forEach((type) => {
     const definition = blockDefinitions[type];
@@ -324,7 +324,7 @@ export function renderPalette(dom, lesson, handlers) {
 }
 
 export function renderWorkspace(dom, state, handlers) {
-  dom.workspaceInner.innerHTML = '';
+  dom.workspaceInner.replaceChildren();
   dom.workspaceEmpty.hidden = state.workspace.length > 0;
 
   renderBlockSequence(dom.workspaceInner, state.workspace, null, state, handlers, 'placeholder-root');
