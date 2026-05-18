@@ -394,11 +394,13 @@
     <div id="download-modal-content" class="modal-content">
       <h2 id="download-modal-title-static" class="modal-title">Завантажити результат</h2>
       <p>Оберіть, що саме хочете завантажити:</p>
-      <div class="modal-actions">
-        <button id="download-image-btn" class="btn btn-info">Завантажити як малюнок (PNG)</button>
-        <button id="download-gif-btn" class="btn btn-info">Зберегти анімацію (GIF)</button>
-        <button id="download-code-btn" class="btn btn-primary">Завантажити як код</button>
-        <button id="close-download-modal-btn" class="btn btn-secondary">Скасувати</button>
+      <div class="modal-actions download-actions">
+        <div class="download-row">
+          <button id="download-image-btn" class="btn btn-info">🖼 PNG</button>
+          <button id="download-gif-btn" class="btn btn-info">🎞 GIF-анімація</button>
+          <button id="download-code-btn" class="btn btn-primary">📄 Код</button>
+        </div>
+        <button id="close-download-modal-btn" class="btn btn-secondary download-cancel">Скасувати</button>
       </div>
     </div>
   </div>

@@ -836,6 +836,26 @@
     color: #fff;
 }
 
+/* ── Download modal layout ─────────────────────────────────────── */
+.download-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+}
+.download-row {
+    display: flex;
+    gap: 10px;
+}
+.download-row .btn {
+    flex: 1;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
+}
+.download-cancel {
+    width: 100%;
+}
+
 /* ── GIF progress overlay ──────────────────────────────────────── */
 .gif-progress-overlay {
     position: fixed;
