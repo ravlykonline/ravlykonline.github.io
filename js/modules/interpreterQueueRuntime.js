@@ -16,6 +16,7 @@ export function runCommandQueueRuntime({
     onExecutionError,
     executeCurrentCommand,
     updateRavlykVisualState,
+    onFrameCapture = null,
 }) {
     return new Promise((resolve, reject) => {
         let lastTimestamp = nowFn();
@@ -55,7 +56,8 @@ export function runCommandQueueRuntime({
             commandIndicatorUpdater(currentCommandObject.original, currentFrame.rootIndex ?? currentFrame.index);
 
             try {
-                const deltaTime = config.animationEnabled ? (timestamp - lastTimestamp) / 1000 : Infinity;
+                const frameMs = timestamp - lastTimestamp;
+                const deltaTime = config.animationEnabled ? frameMs / 1000 : Infinity;
                 lastTimestamp = timestamp;
 
                 const commandDone = executeCurrentCommand({
@@ -66,6 +68,7 @@ export function runCommandQueueRuntime({
                 });
 
                 updateRavlykVisualState();
+                if (onFrameCapture) onFrameCapture(frameMs);
                 if (commandDone) currentFrame.index++;
                 setAnimationFrameId(requestAnimationFrameFn(processNextCommand));
             } catch (error) {

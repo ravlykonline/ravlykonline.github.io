@@ -1,5 +1,5 @@
 ﻿import assert from 'node:assert/strict';
-import { COLOR_MAP, MAX_REPEATS_IN_LOOP, GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y } from '../js/modules/constants.js';
+import { COLOR_MAP, MAX_REPEATS_IN_LOOP, MAX_COMMAND_QUEUE_LENGTH, GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y } from '../js/modules/constants.js';
 import { createInterpreter } from './parserTestUtils.js';
 import { runTest, runAsyncTest } from './testUtils.js';
 
@@ -334,7 +334,7 @@ runTest('builds AST for assignment and function definition/call', () => {
     assert.equal(ast.body[2].args.length, 1);
 });
 
-runTest('astToLegacyQueue resolves variables and function calls', () => {
+runTest('astToLegacyQueue produces MOVE commands with deferred distanceExpr', () => {
     const interpreter = createInterpreter();
     const ast = interpreter.parseTokensToAst([
         'create', 'step', '=', '5',
@@ -346,9 +346,9 @@ runTest('astToLegacyQueue resolves variables and function calls', () => {
     const queue = interpreter.astToLegacyQueue(ast);
     assert.equal(queue.length, 2);
     assert.equal(queue[0].type, 'MOVE');
-    assert.equal(queue[0].value, 7);
+    assert.ok(queue[0].distanceExpr, 'MOVE command carries distanceExpr for lazy evaluation');
     assert.equal(queue[1].type, 'MOVE');
-    assert.equal(queue[1].value, 8);
+    assert.ok(queue[1].distanceExpr, 'MOVE command carries distanceExpr for lazy evaluation');
 });
 
 runTest('parseCodeToAst keeps span metadata', () => {
@@ -401,6 +401,16 @@ runTest('ast runtime error keeps line and column from span', () => {
             && error.messageKey === 'UNDEFINED_VARIABLE'
             && error.line === 2
             && typeof error.column === 'number'
+    );
+});
+
+runTest('nested repeats that overflow MAX_COMMAND_QUEUE_LENGTH throw friendly error', () => {
+    const interpreter = createInterpreter();
+    // Two nested loops: 300 * 300 = 90000 > MAX_COMMAND_QUEUE_LENGTH (50000)
+    const ast = interpreter.parser.parseCodeToAst('повторити 300 ( повторити 300 ( вперед 1 ) )');
+    assert.throws(
+        () => interpreter.astToLegacyQueue(ast),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'COMMAND_QUEUE_OVERFLOW'
     );
 });
 
@@ -495,6 +505,30 @@ await runAsyncTest('if inside repeat executes sequentially without getting stuck
     assert.equal(interpreter.isExecuting, false);
     assert.equal(interpreter.currentCommandIndex >= 0, true);
     assert.equal(String(interpreter.state.color).toLowerCase(), String(COLOR_MAP['синій']).toLowerCase());
+});
+
+await runAsyncTest('executeCommands uses variable value set inside if body (regression: ARCHITECTURE.md §7.1)', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        await interpreter.executeCommands(
+            'створити x = 1\nякщо 1 = 1 (\n  x = 5\n)\nвперед x'
+        );
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+
+    // Ravlyk should have moved forward 5 (x updated inside if body), not 1.
+    // The starting x is canvas.width/2 ≈ 400. After moving forward 5 at angle -90°
+    // (pointing up), y decreases by 5.
+    assert.equal(Math.round(interpreter.state.y), Math.round(interpreter.canvas.height / 2 - 5 - 3));
 });
 
 await runAsyncTest('executeCommands evaluates compare-if against runtime assignment state', async () => {

@@ -270,7 +270,7 @@ Primary remaining debt:
 - CSS is improved but still partly page-local rather than componentized
 - `css/manual.css` remains the largest static styling surface
 - large static content pages still require careful manual maintenance
-- queue-mode compatibility logic remains in the runtime for non-game execution
+- queue adapter (`interpreterAstQueueAdapter.js`) still eagerly unrolls repeat loops into flat command lists; §7.2 of ARCHITECTURE.md tracks this
 
 Accessibility settings follow-up:
 - screen reader smoke is still manual and should be rerun on `index.html`, `manual.html`, and `lessons.html` before release

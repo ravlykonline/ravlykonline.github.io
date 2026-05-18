@@ -73,11 +73,12 @@
 
 - `js/modules/ravlykInterpreter.js` — головний клас інтерпретатора.
 - `js/modules/ravlykInterpreterRuntime.js` — збірка runtime-процесів.
-- `js/modules/interpreterAstQueueAdapter.js` — перетворення AST у legacy command queue.
+- `js/modules/interpreterAstRuntime.js` — спільний frame-based AST runtime; використовується і для звичайного режиму (через queue adapter), і для ігрового режиму. Один env-об'єкт на всі кадри — зміни змінних у `якщо`-блоках видимі наступним командам.
+- `js/modules/interpreterAstQueueAdapter.js` — перетворення AST у legacy command queue для animation path.
 - `js/modules/interpreterQueueRuntime.js` — виконання command queue через `requestAnimationFrame`.
-- `js/modules/interpreterCommandExecutor.js` — виконання однієї runtime-команди.
-- `js/modules/interpreterGameAstRunner.js` — пряме виконання AST для ігрового режиму.
-- `js/modules/interpreterPrimitiveStatements.js` — виконання базових AST-команд.
+- `js/modules/interpreterCommandExecutor.js` — виконання однієї runtime-команди; MOVE/TURN/GOTO зберігають вираз (`distanceExpr`/`angleExpr`/`xExpr`/`yExpr`) і обчислюють значення ліниво під час виконання.
+- `js/modules/interpreterGameAstRunner.js` — ігровий режим (`грати`): init-фаза + тік через `createAstRuntime`.
+- `js/modules/interpreterPrimitiveStatements.js` — виконання базових AST-команд у queue-режимі та immediate-режимі.
 - `js/modules/interpreterConditions.js` — перевірка умов.
 - `js/modules/interpreterAstEval.js` — обчислення числових AST-виразів.
 - `js/modules/environment.js` — середовище змінних.
@@ -105,16 +106,11 @@
 
 ## 7. Ключові архітектурні проблеми
 
-## 7.1. Два різні runtime-шляхи
+## 7.1. Два різні runtime-шляхи ✓ ВИРІШЕНО
 
-Зараз існує дві моделі виконання:
+~~Зараз існує дві моделі виконання~~. Обидва режими тепер використовують спільний `createAstRuntime` з `interpreterAstRuntime.js`.
 
-1. Звичайний режим: `AST -> legacy queue -> requestAnimationFrame runtime`.
-2. Ігровий режим: пряме виконання AST у `interpreterGameAstRunner.js`.
-
-Це створює ризик різної семантики мови в різних режимах.
-
-### Приклад проблеми
+**Що було виправлено:**
 
 ```ravlyk
 створити x = 1
@@ -124,16 +120,13 @@
 вперед x
 ```
 
-Очікувана поведінка: `вперед 5`.
+Раніше: Равлик рухався на **1** крок — значення `x` у `вперед x` заморожувалось на момент побудови черги, зміни всередині `якщо` ігнорувались.
 
-Проблема: у звичайному режимі частина команд і значень може бути обчислена під час побудови черги, тобто до фактичного виконання попередніх команд. Це може давати неочевидну поведінку зі змінними, умовами й функціями.
+Тепер: Равлик рухається на **5** кроків. `createAstRuntime` використовує один спільний env-об'єкт для всіх кадрів (без клонування), тому зміни в `якщо`-гілці одразу видимі.
 
-### Рішення
+**Ліниве обчислення виразів:** MOVE/TURN/GOTO зберігають AST-вираз у черзі (`distanceExpr`, `angleExpr`, `xExpr`/`yExpr`) і обчислюють його під час анімації проти `executionEnv`. Випадкові значення залишаються завчасно обчисленими (один random pick).
 
-- Зробити AST єдиним джерелом істини.
-- Прибрати попереднє розгортання циклів у плоску чергу.
-- Залишити `requestAnimationFrame` тільки як планувальник кроків, а не як runtime-модель мови.
-- Runtime має виконувати AST через стек кадрів: `ProgramFrame`, `RepeatFrame`, `FunctionFrame`, `IfFrame`.
+**Що залишилось:** queue adapter (`interpreterAstQueueAdapter.js`) все ще розгортає цикли в плоску чергу. Це адресується в §7.2.
 
 ## 7.2. Розгортання циклів у чергу
 
@@ -349,12 +342,13 @@ tests/
 - Перевіряти кількість аргументів.
 - Перевіряти top-level правила `грати`.
 
-### Етап 4. Єдиний AST runtime
+### Етап 4. Єдиний AST runtime (частково ✓)
 
-- Створити `astRuntime.js`.
-- Перенести звичайне виконання з legacy queue на AST runtime.
-- Ігровий режим зробити окремим scheduler-режимом того самого runtime.
-- Залишити animation layer як окремий адаптер.
+- ✓ Створено `interpreterAstRuntime.js` — frame-based runtime зі спільним env.
+- ✓ Ігровий режим (`interpreterGameAstRunner.js`) переписано на `createAstRuntime`.
+- ✓ Виправлено семантичний баг зі змінними в `якщо`-блоках (§7.1).
+- ✓ MOVE/TURN/GOTO обчислюються ліниво під час анімації.
+- Залишилось: прибрати розгортання циклів у `interpreterAstQueueAdapter.js` (§7.2).
 
 ### Етап 5. Компоненти й PWA
 

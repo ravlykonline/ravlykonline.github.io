@@ -54,36 +54,46 @@ export function handlePrimitiveAstStatement({
     };
 
     if (stmt.type === 'MoveStmt') {
-        const value = resolveMoveDistance(stmt.distance, stmt.direction);
-        if (!Number.isFinite(value)) {
-            const original = stmt.direction === 'backward' ? 'назад' : 'вперед';
-            throw createError('INVALID_DISTANCE', original, String(value));
-        }
         if (mode === 'queue') {
-            outputQueue.push({
-                type: stmt.direction === 'backward' ? 'MOVE_BACK' : 'MOVE',
-                value,
-                original: stmt.direction === 'backward' ? 'назад' : 'вперед',
-            });
+            const isRandom = stmt.distance && stmt.distance.kind === 'random';
+            const original = stmt.direction === 'backward' ? 'назад' : 'вперед';
+            const cmd = { type: stmt.direction === 'backward' ? 'MOVE_BACK' : 'MOVE', original };
+            if (isRandom) {
+                // Random values must be resolved once at queue-build time.
+                const value = resolveMoveDistance(stmt.distance, stmt.direction);
+                if (!Number.isFinite(value)) throw createError('INVALID_DISTANCE', original, String(value));
+                cmd._resolvedValue = value;
+            } else {
+                // Validate eagerly to preserve span metadata on error, but store the
+                // expression so runtime sees variable values set by preceding if/else.
+                const earlyCheck = resolveMoveDistance(stmt.distance, stmt.direction);
+                if (!Number.isFinite(earlyCheck)) throw createError('INVALID_DISTANCE', original, String(earlyCheck));
+                cmd.distanceExpr = stmt.distance;
+            }
+            outputQueue.push(cmd);
         } else {
+            const value = resolveMoveDistance(stmt.distance, stmt.direction);
+            if (!Number.isFinite(value)) {
+                const original = stmt.direction === 'backward' ? 'назад' : 'вперед';
+                throw createError('INVALID_DISTANCE', original, String(value));
+            }
             performMove(stmt.direction === 'backward' ? -value : value);
         }
         return true;
     }
 
     if (stmt.type === 'TurnStmt') {
-        const value = evalAstNumberExpression(stmt.angle, env);
-        if (!Number.isFinite(value)) {
-            const original = stmt.direction === 'left' ? 'ліворуч' : 'праворуч';
-            throw createError('INVALID_ANGLE', original, String(value));
-        }
         if (mode === 'queue') {
-            outputQueue.push({
-                type: stmt.direction === 'left' ? 'TURN_LEFT' : 'TURN',
-                value,
-                original: stmt.direction === 'left' ? 'ліворуч' : 'праворуч',
-            });
+            const original = stmt.direction === 'left' ? 'ліворуч' : 'праворуч';
+            const earlyCheck = evalAstNumberExpression(stmt.angle, env);
+            if (!Number.isFinite(earlyCheck)) throw createError('INVALID_ANGLE', original, String(earlyCheck));
+            outputQueue.push({ type: stmt.direction === 'left' ? 'TURN_LEFT' : 'TURN', angleExpr: stmt.angle, original });
         } else {
+            const value = evalAstNumberExpression(stmt.angle, env);
+            if (!Number.isFinite(value)) {
+                const original = stmt.direction === 'left' ? 'ліворуч' : 'праворуч';
+                throw createError('INVALID_ANGLE', original, String(value));
+            }
             performTurn(stmt.direction === 'left' ? -value : value);
         }
         return true;
@@ -119,16 +129,24 @@ export function handlePrimitiveAstStatement({
     }
 
     if (stmt.type === 'GotoStmt') {
-        const { x, y } = resolveGotoTarget(stmt);
-        if (!Number.isFinite(x)) {
-            throw createError('INVALID_POSITION_X', 'перейти', String(x));
-        }
-        if (!Number.isFinite(y)) {
-            throw createError('INVALID_POSITION_Y', 'перейти', String(y));
-        }
         if (mode === 'queue') {
-            outputQueue.push({ type: 'GOTO', x, y, original: 'перейти' });
+            const isRandom = stmt.target && stmt.target.kind === 'random';
+            if (isRandom) {
+                const { x, y } = resolveGotoTarget(stmt);
+                if (!Number.isFinite(x)) throw createError('INVALID_POSITION_X', 'перейти', String(x));
+                if (!Number.isFinite(y)) throw createError('INVALID_POSITION_Y', 'перейти', String(y));
+                outputQueue.push({ type: 'GOTO', x, y, original: 'перейти' });
+            } else {
+                outputQueue.push({ type: 'GOTO', xExpr: stmt.x, yExpr: stmt.y, original: 'перейти' });
+            }
         } else {
+            const { x, y } = resolveGotoTarget(stmt);
+            if (!Number.isFinite(x)) {
+                throw createError('INVALID_POSITION_X', 'перейти', String(x));
+            }
+            if (!Number.isFinite(y)) {
+                throw createError('INVALID_POSITION_Y', 'перейти', String(y));
+            }
             performGoto(x, y);
         }
         return true;

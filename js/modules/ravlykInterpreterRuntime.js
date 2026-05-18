@@ -5,6 +5,7 @@ import {
     ERROR_MESSAGES,
     MAX_RECURSION_DEPTH,
     MAX_REPEATS_IN_LOOP,
+    MAX_COMMAND_QUEUE_LENGTH,
 } from './constants.js';
 import { RavlykError } from './ravlykParser.js';
 import { Environment } from './environment.js';
@@ -87,6 +88,7 @@ export function astToLegacyQueueRuntime(runtime, programAst, options = {}) {
         EnvironmentCtor: Environment,
         maxRecursionDepth: MAX_RECURSION_DEPTH,
         maxRepeatsInLoop: MAX_REPEATS_IN_LOOP,
+        maxCommandQueueLength: MAX_COMMAND_QUEUE_LENGTH,
         evalAstNumberExpression: (expr, envRef) => runtime.evalAstNumberExpression(expr, envRef),
         handlePrimitiveAstStatement: (stmt, envRef, mode, out) => runtime.handlePrimitiveAstStatement(stmt, envRef, mode, out),
         attachAstErrorLocation: (error, node) => runtime.attachAstErrorLocation(error, node),
@@ -245,6 +247,7 @@ export function runCommandQueueWithRuntime(runtime) {
             });
         },
         updateRavlykVisualState: () => runtime.updateRavlykVisualState(),
+        onFrameCapture: runtime.gifCapture ? (ms) => runtime.gifCapture.captureFrame(ms) : null,
     });
 }
 

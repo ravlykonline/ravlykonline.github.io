@@ -38,21 +38,39 @@ export function executeInterpreterCommand({
             state.isPenDown = true;
             commandDone = animatePen(currentCommandObject, 1.0, deltaTime);
             break;
-        case 'MOVE':
-            commandDone = animateMove(currentCommandObject, currentCommandObject.value, deltaTime);
+        case 'MOVE': {
+            if (currentCommandObject._resolvedValue === undefined) {
+                currentCommandObject._resolvedValue = evalAstNumberExpression(
+                    currentCommandObject.distanceExpr,
+                    executionEnv
+                );
+            }
+            commandDone = animateMove(currentCommandObject, currentCommandObject._resolvedValue, deltaTime);
             break;
-        case 'MOVE_BACK':
-            commandDone = animateMove(currentCommandObject, -currentCommandObject.value, deltaTime);
+        }
+        case 'MOVE_BACK': {
+            if (currentCommandObject._resolvedValue === undefined) {
+                currentCommandObject._resolvedValue = evalAstNumberExpression(
+                    currentCommandObject.distanceExpr,
+                    executionEnv
+                );
+            }
+            commandDone = animateMove(currentCommandObject, -currentCommandObject._resolvedValue, deltaTime);
             break;
+        }
         case 'TURN':
-        case 'TURN_LEFT':
+        case 'TURN_LEFT': {
             resetStuckState();
-            commandDone = animateTurn(
-                currentCommandObject,
-                currentCommandObject.type === 'TURN' ? currentCommandObject.value : -currentCommandObject.value,
-                deltaTime
-            );
+            if (currentCommandObject._resolvedValue === undefined) {
+                currentCommandObject._resolvedValue = evalAstNumberExpression(
+                    currentCommandObject.angleExpr,
+                    executionEnv
+                );
+            }
+            const turnSign = currentCommandObject.type === 'TURN' ? 1 : -1;
+            commandDone = animateTurn(currentCommandObject, turnSign * currentCommandObject._resolvedValue, deltaTime);
             break;
+        }
         case 'COLOR':
             setColor(currentCommandObject.value);
             break;
@@ -62,9 +80,16 @@ export function executeInterpreterCommand({
         case 'THICKNESS':
             setThickness(currentCommandObject.value);
             break;
-        case 'GOTO':
-            performGoto(currentCommandObject.x, currentCommandObject.y);
+        case 'GOTO': {
+            let gotoX = currentCommandObject.x;
+            let gotoY = currentCommandObject.y;
+            if (gotoX === undefined) {
+                gotoX = evalAstNumberExpression(currentCommandObject.xExpr, executionEnv);
+                gotoY = evalAstNumberExpression(currentCommandObject.yExpr, executionEnv);
+            }
+            performGoto(gotoX, gotoY);
             break;
+        }
         case 'CLEAR':
             clearToDefaultSheet();
             break;

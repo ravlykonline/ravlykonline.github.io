@@ -88,7 +88,7 @@ runTest('interpreter primitive-statement helper handles queue and runtime branch
     });
     assert.equal(handledMove, true);
     assert.equal(queue[0].type, 'MOVE');
-    assert.equal(queue[0].value, 15);
+    assert.ok(queue[0].distanceExpr, 'MOVE stores distanceExpr for lazy eval');
 
     const handledPen = handlePrimitiveAstStatement({
         stmt: { type: 'PenStmt', mode: 'up' },
@@ -206,7 +206,7 @@ runTest('interpreter primitive-statement helper resolves random move distance th
     });
 
     assert.deepEqual(queue, [
-        { type: 'MOVE', value: 42, original: 'вперед' },
+        { type: 'MOVE', _resolvedValue: 42, original: 'вперед' },
     ]);
 });
 

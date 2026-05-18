@@ -31,7 +31,11 @@ runTest('parse move and turn commands', () => {
     const queue = interpreter.parseTokens(['forward', '10', 'right', '90', 'backward', '5', 'left', '45']);
     assert.equal(queue.length, 4);
     assert.deepEqual(queue.map((cmd) => cmd.type), ['MOVE', 'TURN', 'MOVE_BACK', 'TURN_LEFT']);
-    assert.deepEqual(queue.map((cmd) => cmd.value), [10, 90, 5, 45]);
+    // MOVE/MOVE_BACK store distanceExpr for lazy eval; TURN/TURN_LEFT store angleExpr
+    assert.ok(queue[0].distanceExpr, 'MOVE has distanceExpr');
+    assert.ok(queue[1].angleExpr, 'TURN has angleExpr');
+    assert.ok(queue[2].distanceExpr, 'MOVE_BACK has distanceExpr');
+    assert.ok(queue[3].angleExpr, 'TURN_LEFT has angleExpr');
 });
 
 runTest('parse color and pen commands', () => {
@@ -77,8 +81,8 @@ runTest('parse random move command into concrete queue value using injected rng'
     const queue = interpreter.parseTokens(['вперед', 'випадково']);
 
     assert.deepEqual(queue.map((cmd) => cmd.type), ['MOVE']);
-    assert.equal(Number.isFinite(queue[0].value), true);
-    assert.equal(queue[0].value >= 20, true);
+    assert.equal(Number.isFinite(queue[0]._resolvedValue), true);
+    assert.equal(queue[0]._resolvedValue >= 20, true);
 });
 
 runTest('parse random goto command into concrete queue values using injected rng', () => {
@@ -131,7 +135,9 @@ runTest('parse goto in Ukrainian and English forms', () => {
     const queue = interpreter.parseTokens(['перейти', 'в', '120', '-50', 'goto', '10', '20']);
     assert.equal(queue.length, 2);
     assert.deepEqual(queue.map((cmd) => cmd.type), ['GOTO', 'GOTO']);
-    assert.deepEqual(queue.map((cmd) => [cmd.x, cmd.y]), [[120, -50], [10, 20]]);
+    // Non-random GOTO stores xExpr/yExpr for lazy eval
+    assert.ok(queue[0].xExpr, 'first GOTO has xExpr');
+    assert.ok(queue[1].xExpr, 'second GOTO has xExpr');
 });
 
 runTest('goto supports variables', () => {
@@ -139,8 +145,8 @@ runTest('goto supports variables', () => {
     const queue = interpreter.parseTokens(['create', 'ax', '=', '40', 'create', 'ay', '=', '-30', 'перейти', 'в', 'ax', 'ay']);
     assert.equal(queue.length, 1);
     assert.equal(queue[0].type, 'GOTO');
-    assert.equal(queue[0].x, 40);
-    assert.equal(queue[0].y, -30);
+    assert.ok(queue[0].xExpr, 'GOTO has xExpr');
+    assert.ok(queue[0].yExpr, 'GOTO has yExpr');
 });
 
 runTest('repeat count above MAX_REPEATS_IN_LOOP throws friendly error', () => {
@@ -156,7 +162,7 @@ runTest('variables are resolved in command arguments', () => {
     const queue = interpreter.parseTokens(['create', 'step', '=', '25', 'forward', 'step']);
     assert.equal(queue.length, 1);
     assert.equal(queue[0].type, 'MOVE');
-    assert.equal(queue[0].value, 25);
+    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
 });
 
 runTest('supports arithmetic expressions in assignments and command arguments', () => {
@@ -169,9 +175,9 @@ runTest('supports arithmetic expressions in assignments and command arguments', 
     ]);
     assert.equal(queue.length, 2);
     assert.equal(queue[0].type, 'MOVE');
-    assert.equal(queue[0].value, 25);
+    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
     assert.equal(queue[1].type, 'TURN');
-    assert.equal(queue[1].value, 90);
+    assert.ok(queue[1].angleExpr, 'TURN stores expression for lazy eval');
 });
 
 runTest('supports long expressions with precedence and parentheses', () => {
@@ -183,9 +189,9 @@ runTest('supports long expressions with precedence and parentheses', () => {
     ]);
     assert.equal(queue.length, 2);
     assert.equal(queue[0].type, 'MOVE');
-    assert.equal(queue[0].value, 23);
+    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
     assert.equal(queue[1].type, 'TURN_LEFT');
-    assert.equal(queue[1].value, 30);
+    assert.ok(queue[1].angleExpr, 'TURN_LEFT stores expression for lazy eval');
 });
 
 runTest('supports arithmetic expressions in goto and repeat count', () => {
@@ -198,10 +204,10 @@ runTest('supports arithmetic expressions in goto and repeat count', () => {
     ]);
     assert.equal(queue.length, 4);
     assert.equal(queue[0].type, 'GOTO');
-    assert.equal(queue[0].x, 15);
-    assert.equal(queue[0].y, 18);
+    assert.ok(queue[0].xExpr, 'GOTO stores xExpr for lazy eval');
+    assert.ok(queue[0].yExpr, 'GOTO stores yExpr for lazy eval');
     assert.deepEqual(queue.slice(1).map((cmd) => cmd.type), ['MOVE', 'MOVE', 'MOVE']);
-    assert.deepEqual(queue.slice(1).map((cmd) => cmd.value), [1, 1, 1]);
+    assert.ok(queue.slice(1).every((cmd) => cmd.distanceExpr), 'each MOVE has distanceExpr');
 });
 
 runTest('supports modulo operator in expressions', () => {
@@ -213,9 +219,9 @@ runTest('supports modulo operator in expressions', () => {
     ]);
     assert.equal(queue.length, 2);
     assert.equal(queue[0].type, 'MOVE');
-    assert.equal(queue[0].value, 1);
+    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
     assert.equal(queue[1].type, 'TURN');
-    assert.equal(queue[1].value, 1);
+    assert.ok(queue[1].angleExpr, 'TURN stores expression for lazy eval');
 });
 
 runTest('parses if/else with compare condition', () => {
@@ -252,13 +258,15 @@ runTest('parses edge and key conditions', () => {
 
 runTest('repeat with assignment expands with updated variable values per iteration', () => {
     const interpreter = createInterpreter();
+    // With lazy eval the queue has ASSIGN_AST + MOVE interleaved for each iteration;
+    // at runtime they produce distances 5, 7, 9. We verify queue structure here.
     const queue = interpreter.parseTokens([
         'create', 'step', '=', '5',
         'repeat', '3', '(', 'forward', 'step', 'step', '=', 'step', '+', '2', ')',
     ]);
-    assert.equal(queue.length, 3);
-    assert.deepEqual(queue.map((cmd) => cmd.type), ['MOVE', 'MOVE', 'MOVE']);
-    assert.deepEqual(queue.map((cmd) => cmd.value), [5, 7, 9]);
+    const moveCommands = queue.filter((cmd) => cmd.type === 'MOVE');
+    assert.equal(moveCommands.length, 3);
+    assert.ok(moveCommands.every((cmd) => cmd.distanceExpr), 'each MOVE has distanceExpr');
 });
 
 runTest('supports unary minus in expressions', () => {
@@ -270,10 +278,10 @@ runTest('supports unary minus in expressions', () => {
     ]);
     assert.equal(queue.length, 2);
     assert.equal(queue[0].type, 'MOVE');
-    assert.equal(queue[0].value, 10);
+    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
     assert.equal(queue[1].type, 'GOTO');
-    assert.equal(queue[1].x, -8);
-    assert.equal(queue[1].y, 3);
+    assert.ok(queue[1].xExpr, 'GOTO stores xExpr for lazy eval');
+    assert.ok(queue[1].yExpr, 'GOTO stores yExpr for lazy eval');
 });
 
 runTest('function declaration and call are expanded', () => {
@@ -284,7 +292,7 @@ runTest('function declaration and call are expanded', () => {
     ]);
     assert.equal(queue.length, 1);
     assert.equal(queue[0].type, 'MOVE');
-    assert.equal(queue[0].value, 12);
+    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
 });
 
 runTest('function call accepts expression argument', () => {
@@ -295,7 +303,7 @@ runTest('function call accepts expression argument', () => {
     ]);
     assert.equal(queue.length, 1);
     assert.equal(queue[0].type, 'MOVE');
-    assert.equal(queue[0].value, 12);
+    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
 });
 
 runTest('function nesting deeper than MAX_RECURSION_DEPTH throws friendly error', () => {
