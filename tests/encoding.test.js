@@ -20,10 +20,13 @@ const filesToValidate = [
     'js/modules/uiMessages.js',
     'js/modules/accessibilityNotifications.js',
     'js/analytics.js',
+    'scripts/sync-html-partials.mjs',
     'css/global.css',
     'css/lessons.css',
     'css/main-editor.css',
     'css/about-project.css',
+    'partials/accessibility-panel.html',
+    'partials/main-footer.html',
     'README.md',
     'TECHNICAL_GUIDE.md',
     'about.html',
@@ -38,6 +41,101 @@ const htmlFilesToValidateTargetRel = [
         'advice_for_parents.html',
         'about.html',
     ];
+
+const publicHtmlFiles = [
+    'index.html',
+    'manual.html',
+    'lessons.html',
+    'quiz.html',
+    'resources.html',
+    'teacher_guidelines.html',
+    'advice_for_parents.html',
+    'zen.html',
+    'about.html',
+];
+
+const publicMainFooterFiles = [
+    'index.html',
+    'manual.html',
+    'lessons.html',
+    'quiz.html',
+    'resources.html',
+    'teacher_guidelines.html',
+    'advice_for_parents.html',
+    'about.html',
+];
+
+const publicSupportQuickLinkFiles = [
+    'quiz.html',
+    'teacher_guidelines.html',
+    'advice_for_parents.html',
+    'about.html',
+];
+
+const publicFooterAboutNavFiles = [
+    'index.html',
+    'quiz.html',
+    'teacher_guidelines.html',
+    'advice_for_parents.html',
+];
+
+const expectedSiteLinks = {
+    editor: '<a href="index.html" class="btn btn-success"><span class="ui-icon icon-paint-brush" aria-hidden="true"></span>До Редактора</a>',
+    lessons: '<a href="lessons.html" class="btn btn-primary"><span class="ui-icon icon-graduation-cap" aria-hidden="true"></span>До Уроків</a>',
+    manual: '<a href="manual.html" class="btn btn-primary"><span class="ui-icon icon-book-open" aria-hidden="true"></span>До Посібника</a>',
+    resources: '<a href="resources.html" class="btn btn-primary"><span class="ui-icon icon-puzzle-piece" aria-hidden="true"></span>До Ресурсів</a>',
+    about: '<a href="about.html" class="btn btn-info"><span class="ui-icon icon-info-circle" aria-hidden="true"></span>Про проєкт</a>',
+};
+
+function renderExpectedSiteLinks(linkKeys) {
+    return linkKeys.map((key) => expectedSiteLinks[key]).join('\n');
+}
+
+function renderExpectedFooterAboutNav() {
+    return renderExpectedWrappedSiteNavLinks(['about'], 'footer-site-nav site-links-uniform', 'Нижня навігація сайтом');
+}
+
+function renderExpectedWrappedSiteNavLinks(linkKeys, wrapperClass, ariaLabel, innerWrapperClass = null) {
+    const links = renderExpectedSiteLinks(linkKeys);
+
+    if (innerWrapperClass) {
+        return [
+            `<nav class="${wrapperClass}" aria-label="${ariaLabel}">`,
+            `  <div class="${innerWrapperClass}">`,
+            `    ${links.replaceAll('\n', '\n    ')}`,
+            '  </div>',
+            '</nav>',
+        ].join('\n');
+    }
+
+    return [
+        `<nav class="${wrapperClass}" aria-label="${ariaLabel}">`,
+        `  ${links.replaceAll('\n', '\n  ')}`,
+        '</nav>',
+    ].join('\n');
+}
+
+const publicExtendedFooterNavSlots = {
+    'resources.html': {
+        begin: '<!-- BEGIN shared:site-nav-links:resources-footer -->',
+        end: '<!-- END shared:site-nav-links:resources-footer -->',
+        expected: renderExpectedWrappedSiteNavLinks(
+            ['editor', 'lessons', 'manual', 'about'],
+            'nav-buttons-footer site-links-uniform',
+            'Основна навігація сайтом'
+        ),
+    },
+    'lessons.html': {
+        begin: '<!-- BEGIN shared:site-nav-links:lessons-footer -->',
+        end: '<!-- END shared:site-nav-links:lessons-footer -->',
+        expected: renderExpectedWrappedSiteNavLinks(
+            ['editor', 'manual', 'about'],
+            'bottom-nav-buttons',
+            'Основна навігація сайтом',
+            'site-links-uniform'
+        ),
+    },
+};
 
 runTest('repository defines editor and git encoding/line-ending policy files', () => {
     const editorConfig = fs.readFileSync('.editorconfig', 'utf8');
@@ -170,6 +268,34 @@ runTest('public pages and client scripts do not hardcode the temporary /v4beta p
     });
 });
 
+runTest('shared HTML partial sync exposes write and check npm commands', () => {
+    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    const syncScript = fs.readFileSync('scripts/sync-html-partials.mjs', 'utf8');
+    const testingMd = fs.readFileSync('TESTING.md', 'utf8');
+
+    assert.equal(
+        packageJson.scripts['html:sync-partials'],
+        'node scripts/sync-html-partials.mjs',
+        'package.json should expose the shared HTML sync command'
+    );
+    assert.equal(
+        packageJson.scripts['html:check-partials'],
+        'node scripts/sync-html-partials.mjs --check',
+        'package.json should expose the shared HTML check command'
+    );
+
+    [
+        "process.argv.includes('--check')",
+        'Needs update',
+        'process.exitCode = 1',
+    ].forEach((snippet) => {
+        assert.equal(syncScript.includes(snippet), true, `sync-html-partials.mjs should include check-mode snippet: ${snippet}`);
+    });
+
+    assert.equal(testingMd.includes('npm run html:sync-partials'), true, 'TESTING.md should document html:sync-partials');
+    assert.equal(testingMd.includes('npm run html:check-partials'), true, 'TESTING.md should document html:check-partials');
+});
+
 runTest('editor toolbar keeps unified download button and no legacy save buttons', () => {
     const indexHtml = fs.readFileSync('index.html', 'utf8');
     const mainJs = fs.readFileSync('js/main.js', 'utf8');
@@ -233,6 +359,148 @@ runTest('index modals keep required ARIA dialog contract', () => {
         assert.ok(indexHtml.includes(`id="${contentId}"`), `Missing modal content container: ${contentId}`);
         assert.ok(indexHtml.includes(`id="${titleId}"`), `Missing modal title element: ${titleId}`);
     });
+});
+
+runTest('public pages keep shared accessibility panel synchronized with partial', () => {
+    const partial = fs.readFileSync('partials/accessibility-panel.html', 'utf8').trim();
+    const begin = '<!-- BEGIN shared:accessibility-panel -->';
+    const end = '<!-- END shared:accessibility-panel -->';
+    const requiredSnippets = [
+        'id="accessibility-toggle"',
+        'id="accessibility-panel"',
+        'id="close-accessibility-panel-btn"',
+        'id="reset-accessibility-btn"',
+        'data-setting="high-contrast"',
+        'data-setting="larger-text"',
+        'data-setting="reduce-animations"',
+        'data-setting="sans-serif-font"',
+        'data-setting="increased-spacing"',
+    ];
+
+    publicHtmlFiles.forEach((path) => {
+        const html = fs.readFileSync(path, 'utf8');
+        assert.equal((html.match(new RegExp(begin, 'g')) || []).length, 1, `${path} should have one shared accessibility begin marker`);
+        assert.equal((html.match(new RegExp(end, 'g')) || []).length, 1, `${path} should have one shared accessibility end marker`);
+
+        const beginIndex = html.indexOf(begin);
+        const endIndex = html.indexOf(end);
+        assert.ok(endIndex > beginIndex, `${path} should have accessibility markers in the correct order`);
+
+        const block = html.slice(beginIndex + begin.length, endIndex).trim();
+        assert.equal(block, partial, `${path} accessibility panel should match partials/accessibility-panel.html`);
+
+        requiredSnippets.forEach((snippet) => {
+            assert.equal(block.includes(snippet), true, `${path} shared accessibility panel missing ${snippet}`);
+        });
+    });
+});
+
+runTest('public pages keep shared main footer synchronized with partial', () => {
+    const partial = fs.readFileSync('partials/main-footer.html', 'utf8').trim();
+    const begin = '<!-- BEGIN shared:main-footer -->';
+    const end = '<!-- END shared:main-footer -->';
+    const expectedFooterText = {
+        'index.html': '&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a>',
+        'manual.html': '&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a>',
+        'lessons.html': '&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a>',
+        'resources.html': '&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a>',
+        'quiz.html': '&copy;<span class="current-year">2026</span> РАВЛИК | Навчальна вікторина',
+        'teacher_guidelines.html': '&copy;<span class="current-year">2026</span> РАВЛИК | Методичні матеріали для вчителя',
+        'advice_for_parents.html': '&copy;<span class="current-year">2026</span> РАВЛИК | Поради для батьків',
+        'about.html': '&copy;<span class="current-year">2026</span> РАВЛИК | Про проєкт',
+    };
+
+    publicMainFooterFiles.forEach((path) => {
+        const html = fs.readFileSync(path, 'utf8');
+        assert.equal((html.match(new RegExp(begin, 'g')) || []).length, 1, `${path} should have one shared main footer begin marker`);
+        assert.equal((html.match(new RegExp(end, 'g')) || []).length, 1, `${path} should have one shared main footer end marker`);
+
+        const beginIndex = html.indexOf(begin);
+        const endIndex = html.indexOf(end);
+        assert.ok(endIndex > beginIndex, `${path} should have main footer markers in the correct order`);
+
+        const expected = partial.replace('{{FOOTER_TEXT}}', expectedFooterText[path]);
+        const block = html.slice(beginIndex + begin.length, endIndex).trim();
+        assert.equal(block, expected, `${path} main footer should match partials/main-footer.html`);
+    });
+
+    const zenHtml = fs.readFileSync('zen.html', 'utf8');
+    assert.equal(zenHtml.includes(begin), false, 'zen.html should keep its dedicated zen-footer');
+    assert.equal(zenHtml.includes('<footer class="zen-footer">'), true, 'zen.html should keep zen-footer');
+});
+
+runTest('support pages keep shared quick navigation links synchronized with partial', () => {
+    const expected = renderExpectedSiteLinks(['editor', 'lessons', 'manual', 'resources']);
+    const begin = '<!-- BEGIN shared:site-nav-links:support -->';
+    const end = '<!-- END shared:site-nav-links:support -->';
+    const requiredWrappers = {
+        'quiz.html': '<nav class="quiz-nav site-links-uniform"',
+        'teacher_guidelines.html': '<nav class="teacher-nav site-links-uniform"',
+        'advice_for_parents.html': '<nav class="parent-nav site-links-uniform"',
+        'about.html': '<nav class="about-nav site-links-uniform"',
+    };
+
+    publicSupportQuickLinkFiles.forEach((path) => {
+        const html = fs.readFileSync(path, 'utf8');
+        assert.equal((html.match(new RegExp(begin, 'g')) || []).length, 1, `${path} should have one shared quick links begin marker`);
+        assert.equal((html.match(new RegExp(end, 'g')) || []).length, 1, `${path} should have one shared quick links end marker`);
+        assert.equal(html.includes(requiredWrappers[path]), true, `${path} should keep its page-specific quick nav wrapper`);
+
+        const beginIndex = html.indexOf(begin);
+        const endIndex = html.indexOf(end);
+        assert.ok(endIndex > beginIndex, `${path} should have quick links markers in the correct order`);
+
+        const block = html.slice(beginIndex + begin.length, endIndex).trim();
+        assert.equal(block, expected, `${path} quick links should match the shared site-nav-links renderer`);
+    });
+
+    const teacherHtml = fs.readFileSync('teacher_guidelines.html', 'utf8');
+    const parentHtml = fs.readFileSync('advice_for_parents.html', 'utf8');
+    assert.equal(teacherHtml.includes('onclick="window.print()"'), true, 'teacher_guidelines.html should keep print action outside shared links');
+    assert.equal(parentHtml.includes('onclick="window.print()"'), true, 'advice_for_parents.html should keep print action outside shared links');
+});
+
+runTest('public pages keep shared footer about navigation synchronized with partial', () => {
+    const expected = renderExpectedFooterAboutNav();
+    const begin = '<!-- BEGIN shared:site-nav-links:footer-about -->';
+    const end = '<!-- END shared:site-nav-links:footer-about -->';
+
+    publicFooterAboutNavFiles.forEach((path) => {
+        const html = fs.readFileSync(path, 'utf8');
+        assert.equal((html.match(new RegExp(begin, 'g')) || []).length, 1, `${path} should have one shared footer about nav begin marker`);
+        assert.equal((html.match(new RegExp(end, 'g')) || []).length, 1, `${path} should have one shared footer about nav end marker`);
+
+        const beginIndex = html.indexOf(begin);
+        const endIndex = html.indexOf(end);
+        assert.ok(endIndex > beginIndex, `${path} should have footer about nav markers in the correct order`);
+
+        const block = html.slice(beginIndex + begin.length, endIndex).trim();
+        assert.equal(block, expected, `${path} footer about nav should match the shared site-nav-links renderer`);
+    });
+
+    const aboutHtml = fs.readFileSync('about.html', 'utf8');
+    assert.equal(aboutHtml.includes(begin), false, 'about.html should keep its dedicated current-page footer nav');
+    assert.equal(aboutHtml.includes('aria-current="page"'), true, 'about.html should keep aria-current on its footer about link');
+});
+
+runTest('public pages keep extended footer navigation slots synchronized with site links', () => {
+    Object.entries(publicExtendedFooterNavSlots).forEach(([path, { begin, end, expected }]) => {
+        const html = fs.readFileSync(path, 'utf8');
+        assert.equal((html.match(new RegExp(begin, 'g')) || []).length, 1, `${path} should have one extended footer nav begin marker`);
+        assert.equal((html.match(new RegExp(end, 'g')) || []).length, 1, `${path} should have one extended footer nav end marker`);
+
+        const beginIndex = html.indexOf(begin);
+        const endIndex = html.indexOf(end);
+        assert.ok(endIndex > beginIndex, `${path} should have extended footer nav markers in the correct order`);
+
+        const block = html.slice(beginIndex + begin.length, endIndex).trim();
+        assert.equal(block, expected, `${path} extended footer nav should match the shared site-nav-links renderer`);
+    });
+
+    const manualHtml = fs.readFileSync('manual.html', 'utf8');
+    assert.equal(manualHtml.includes('shared:site-nav-links:lessons-footer'), false, 'manual.html should keep its dedicated footer ids');
+    assert.equal(manualHtml.includes('id="manual-back-to-editor-footer"'), true, 'manual.html should keep editor footer id');
+    assert.equal(manualHtml.includes('id="manual-to-lessons-footer"'), true, 'manual.html should keep lessons footer id');
 });
 
 runTest('accessibility stylesheet keeps legacy cleanup constraints', () => {

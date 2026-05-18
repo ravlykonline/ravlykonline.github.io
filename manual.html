@@ -1463,73 +1463,71 @@ n = n + 1
             <a href="about.html" class="btn btn-info"><span class="ui-icon icon-info-circle" aria-hidden="true"></span>Про проєкт</a>
         </nav>
 
-        <footer class="main-footer">
-            <p>&copy;<span class="current-year">2024</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a
-                    href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer"
-                    style="margin-left:8px;">(Facebook)</a></p>
-        </footer>
+        <!-- BEGIN shared:main-footer -->
+<footer class="main-footer">
+  <p>&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a></p>
+</footer>
+<!-- END shared:main-footer -->
     </div>
 
-    <button id="accessibility-toggle" class="accessibility-toggle" aria-expanded="false"
-        aria-label="Налаштування доступності"><span class="ui-icon icon-universal-access" aria-hidden="true"></span></button>
-
-    <div id="accessibility-panel" class="accessibility-panel hidden" aria-labelledby="accessibility-title" role="dialog"
-        aria-modal="true">
-        <div class="accessibility-header">
-            <h3 id="accessibility-title">Налаштування доступності</h3>
-            <button id="close-accessibility-panel-btn" class="close-btn"
-                aria-label="Закрити панель налаштувань доступності">&times;</button>
-        </div>
-        <div class="accessibility-options">
-            <div class="accessibility-option">
-                <label for="high-contrast">Високий контраст</label>
-                <div class="toggle-switch">
-                    <input type="checkbox" id="high-contrast" class="accessibility-setting-input"
-                        data-setting="high-contrast">
-                    <span class="toggle-slider"></span>
-                </div>
-            </div>
-
-            <div class="accessibility-option">
-                <label for="larger-text">Збільшений текст</label>
-                <div class="toggle-switch">
-                    <input type="checkbox" id="larger-text" class="accessibility-setting-input"
-                        data-setting="larger-text">
-                    <span class="toggle-slider"></span>
-                </div>
-            </div>
-
-            <div class="accessibility-option">
-                <label for="reduce-animations">Зменшення анімації</label>
-                <div class="toggle-switch">
-                    <input type="checkbox" id="reduce-animations" class="accessibility-setting-input"
-                        data-setting="reduce-animations">
-                    <span class="toggle-slider"></span>
-                </div>
-            </div>
-
-            <div class="accessibility-option">
-                <label for="sans-serif-font">Простий шрифт</label>
-                <div class="toggle-switch">
-                    <input type="checkbox" id="sans-serif-font" class="accessibility-setting-input"
-                        data-setting="sans-serif-font">
-                    <span class="toggle-slider"></span>
-                </div>
-            </div>
-
-            <div class="accessibility-option">
-                <label for="increased-spacing">Збільшені інтервали</label>
-                <div class="toggle-switch">
-                    <input type="checkbox" id="increased-spacing" class="accessibility-setting-input"
-                        data-setting="increased-spacing">
-                    <span class="toggle-slider"></span>
-                </div>
-            </div>
-        </div>
-        <div class="accessibility-footer">
-            <button id="reset-accessibility-btn" class="btn btn-danger">Скинути налаштування</button>
-        </div>
+    <!-- BEGIN shared:accessibility-panel -->
+<div class="accessibility-floating-layer">
+  <button id="accessibility-toggle" class="accessibility-toggle" aria-expanded="false"
+    aria-controls="accessibility-panel" aria-label="Налаштування доступності"><span class="ui-icon icon-universal-access" aria-hidden="true"></span></button>
+  <div id="accessibility-panel" class="accessibility-panel hidden" role="dialog" aria-modal="true"
+    aria-labelledby="accessibility-title">
+    <div class="accessibility-header">
+      <h3 id="accessibility-title" class="accessibility-panel-title">Налаштування доступності</h3>
+      <button id="close-accessibility-panel-btn" class="close-btn"
+        aria-label="Закрити панель налаштувань доступності">&times;</button>
     </div>
+    <div class="accessibility-options">
+      <div class="accessibility-option">
+        <label for="high-contrast-input">Високий контраст</label>
+        <div class="toggle-switch">
+          <input type="checkbox" id="high-contrast-input" class="accessibility-setting-input"
+            data-setting="high-contrast">
+          <span class="toggle-slider"></span>
+        </div>
+      </div>
+      <div class="accessibility-option">
+        <label for="larger-text-input">Збільшений текст</label>
+        <div class="toggle-switch">
+          <input type="checkbox" id="larger-text-input" class="accessibility-setting-input" data-setting="larger-text">
+          <span class="toggle-slider"></span>
+        </div>
+      </div>
+      <div class="accessibility-option">
+        <label for="reduce-animations-input">Зменшення анімації</label>
+        <div class="toggle-switch">
+          <input type="checkbox" id="reduce-animations-input" class="accessibility-setting-input"
+            data-setting="reduce-animations">
+          <span class="toggle-slider"></span>
+        </div>
+      </div>
+      <div class="accessibility-option">
+        <label for="sans-serif-font-input">Простий шрифт</label>
+        <div class="toggle-switch">
+          <input type="checkbox" id="sans-serif-font-input" class="accessibility-setting-input"
+            data-setting="sans-serif-font">
+          <span class="toggle-slider"></span>
+        </div>
+      </div>
+      <div class="accessibility-option">
+        <label for="increased-spacing-input">Збільшені інтервали</label>
+        <div class="toggle-switch">
+          <input type="checkbox" id="increased-spacing-input" class="accessibility-setting-input"
+            data-setting="increased-spacing">
+          <span class="toggle-slider"></span>
+        </div>
+      </div>
+    </div>
+    <div class="accessibility-footer">
+      <button id="reset-accessibility-btn" class="btn btn-danger">Скинути налаштування</button>
+    </div>
+  </div>
+</div>
+<!-- END shared:accessibility-panel -->
 
     <script type="module" src="js/accessibility.js?v=2026-05-18-2"></script>
     <script type="module" src="js/analytics.js?v=2026-05-18-2"></script>

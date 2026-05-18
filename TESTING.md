@@ -23,6 +23,8 @@
 npm run test:unit        # усі unit-тести
 npm run test:e2e         # усі E2E-тести (Playwright)
 npm run test             # unit + E2E разом
+npm run html:sync-partials # синхронізація спільних HTML-блоків
+npm run html:check-partials # перевірка синхронізації shared HTML без запису файлів
 npm run release:sync-version -- YYYY-MM-DD-N  # синхронізація release-версії
 ```
 
@@ -51,7 +53,7 @@ tests/
   manual.test.js                 — manual-контролер та структура сторінки
   quiz.test.js                   — quiz bank, теми, контракти питань
   randomResolver.test.js         — генератор випадкових значень
-  encoding.test.js               — UTF-8, BOM, відсутність v4beta-шляхів, структурні регресії
+  encoding.test.js               — UTF-8, BOM, відсутність v4beta-шляхів, структурні регресії, shared HTML partials
   releaseVersion.test.js         — синхронізація release-версії між SW і HTML
   parserTestUtils.js             — спільні утиліти для тестів парсера
   testUtils.js                   — загальні тестові утиліти
