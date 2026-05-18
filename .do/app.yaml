@@ -2,6 +2,6 @@ name: ravlykonline
 static_sites:
   - name: ravlykonline
     source_dir: /
-    output_dir: /
+    build_command: ""
     index_document: index.html
     error_document: 404.html
