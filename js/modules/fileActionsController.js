@@ -143,7 +143,12 @@ export function createFileActionsController({
             return;
         }
 
-        const gifCapture = createGifCapture({ canvas, backgroundCanvas, getCanvasBackgroundColor });
+        const gifCapture = createGifCapture({
+            canvas,
+            backgroundCanvas,
+            getCanvasBackgroundColor,
+            onProgress: (pct) => onGifProgress?.('record', pct),
+        });
 
         try {
             onGifProgress?.('record', 0);
@@ -164,7 +169,7 @@ export function createFileActionsController({
                 return;
             }
 
-            onGifProgress?.('encode', 0);
+            onGifProgress?.('encode', 92);
 
             // Yield to browser before encoding
             await new Promise(r => setTimeout(r, 30));

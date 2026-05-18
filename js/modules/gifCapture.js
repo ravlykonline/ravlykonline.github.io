@@ -6,7 +6,7 @@ const MAX_GIF_WIDTH  = 480;
 const CAPTURE_MS     = 100;  // capture one frame every 100 ms of animation time
 const MAX_FRAMES     = 200;  // cap at ~20 seconds
 
-export function createGifCapture({ canvas, backgroundCanvas, getCanvasBackgroundColor }) {
+export function createGifCapture({ canvas, backgroundCanvas, getCanvasBackgroundColor, onProgress }) {
     const frames = [];
     let elapsed = 0;
     let lastCapture = -Infinity;
@@ -43,6 +43,7 @@ export function createGifCapture({ canvas, backgroundCanvas, getCanvasBackground
             pixels: ctx.getImageData(0, 0, w, h).data,
             delay: 5, // 5 centiseconds = 50 ms → playback at 2× real speed
         });
+        onProgress?.(Math.min(90, 8 + frames.length * 4));
     }
 
     function start()  { frames.length = 0; elapsed = 0; lastCapture = -Infinity; active = true; }

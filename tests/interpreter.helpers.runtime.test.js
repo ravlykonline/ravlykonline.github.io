@@ -18,6 +18,7 @@ import {
     applyBackgroundLayer,
     composeCanvasLayersForExport,
 } from '../js/modules/backgroundLayer.js';
+import { createGifCapture } from '../js/modules/gifCapture.js';
 import { cloneInterpreterCommand } from '../js/modules/interpreterCommandClone.js';
 import { destroyInterpreterLifecycle } from '../js/modules/interpreterLifecycleCleanup.js';
 import {
@@ -648,6 +649,48 @@ runTest('interpreter runtime-state helper handles stop/pause/resume/status contr
     resumeExecutionRuntime({ runtime });
     assert.equal(runtime.isPaused, false);
     assert.equal(wasBoundaryWarningShownRuntime({ runtime }), true);
+});
+
+runTest('gif capture reports visible progress while recording frames', () => {
+    const previousDocument = global.document;
+    const pixels = new Uint8ClampedArray(4 * 4 * 4);
+    const progressValues = [];
+    const context = {
+        fillStyle: '',
+        fillRect() {},
+        drawImage() {},
+        getImageData() {
+            return { data: pixels };
+        },
+    };
+
+    global.document = {
+        createElement(tag) {
+            assert.equal(tag, 'canvas');
+            return {
+                width: 0,
+                height: 0,
+                getContext() {
+                    return context;
+                },
+            };
+        },
+    };
+
+    const capture = createGifCapture({
+        canvas: { width: 4, height: 4 },
+        backgroundCanvas: null,
+        getCanvasBackgroundColor: () => '#fff',
+        onProgress: (pct) => progressValues.push(pct),
+    });
+
+    capture.start();
+    capture.captureFrame(120);
+
+    assert.deepEqual(progressValues, [12]);
+    assert.equal(capture.hasFrames(), true);
+
+    global.document = previousDocument;
 });
 
 console.log('Interpreter runtime helper tests completed.');
