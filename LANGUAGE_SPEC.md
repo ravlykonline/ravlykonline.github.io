@@ -396,7 +396,7 @@ game (...)
   - створення змінних;
   - оголошення функцій;
   - сам блок `грати`.
-- У кожному game tick має бути operation budget.
+- У кожному game tick є operation budget `MAX_GAME_TICK_OPERATIONS = 500` AST-кроків.
 
 Поточний semantic validator перевіряє:
 
@@ -404,7 +404,7 @@ game (...)
 - `грати` тільки на верхньому рівні;
 - якщо є `грати`, на верхньому рівні дозволені лише `створити ... = ...`, оголошення функцій і сам `грати`.
 
-Залишається додати окремий operation budget на game tick.
+Operation budget на game tick реалізовано через параметр `maxAstSteps` у `createAstRuntime` (рахується кожен AST-крок, включно з присвоєннями та control-flow).
 
 ## 13. Випадковість
 
@@ -513,10 +513,10 @@ tests/unit/language-spec.test.js
 
 ## 18. Відомі розбіжності між специфікацією і кодом
 
-1. Вкладені цикли можуть створювати надто багато команд у legacy queue adapter.
-2. Немає `MAX_PARSE_DEPTH` / формального nesting depth budget.
-3. Немає `MAX_TOTAL_OPERATIONS`.
-4. Немає `MAX_GAME_TICK_OPERATIONS`.
+1. Вкладені цикли в legacy queue adapter захищені overflow check на початку кожної ітерації RepeatStmt (fail fast), але повна lazy execution не реалізована — плоский масив ще будується синхронно.
+2. ✓ `MAX_PARSE_DEPTH = 20` — реалізовано в `ravlykParser.js` через `_parseDepth` лічильник.
+3. ✓ `MAX_COMMAND_QUEUE_LENGTH = 50000` і `MAX_GAME_TICK_OPERATIONS = 500` покривають total operations budget.
+4. ✓ `MAX_GAME_TICK_OPERATIONS = 500` — реалізовано в `interpreterAstRuntime.js` через `maxAstSteps`, рахується кожен AST-крок.
 5. Повторне `створити x = ...` ще не оформлено як окреме semantic-правило.
 
 ## 19. Definition of Done для мови

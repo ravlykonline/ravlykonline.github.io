@@ -10,6 +10,8 @@ export function createAstRuntime({
     maxRecursionDepth,
     maxRepeatsInLoop,
     maxCommandQueueLength,
+    maxAstSteps = null,         // total statement budget (counts every stmt, not just primitives)
+    maxAstStepsErrorKey = null, // error key to throw when maxAstSteps exceeded
     evalAstNumberExpression,
     evaluateCondition,
     attachAstErrorLocation,
@@ -21,6 +23,7 @@ export function createAstRuntime({
     const frameStack = [{ stmts: programAst.body || [], index: 0, env: rootEnv, type: 'program' }];
     let callDepth = 0;
     let stepCount = 0;
+    let astStepCount = 0;
 
     function isDone() {
         return frameStack.length === 0;
@@ -49,6 +52,15 @@ export function createAstRuntime({
             topFrame.index++;
 
             try {
+                // Count every statement (assignments, control-flow, primitives)
+                // so maxAstSteps covers total AST work, not just primitive output.
+                if (maxAstSteps != null) {
+                    astStepCount++;
+                    if (astStepCount > maxAstSteps) {
+                        throw new RavlykErrorCtor(maxAstStepsErrorKey || 'COMMAND_QUEUE_OVERFLOW');
+                    }
+                }
+
                 if (stmt.type === 'AssignmentStmt') {
                     const value = evalAstNumberExpression(stmt.expr, topFrame.env);
                     if (!Number.isFinite(value)) {

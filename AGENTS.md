@@ -34,8 +34,8 @@
 
 1. ✓ ~~`.github/workflows/e2e-ui.yml` дивиться в неіснуючу папку `version_4`.~~ — замінено на `ci.yml`
 2. ✓ ~~`README.md` посилається на неіснуючі файли й npm-команди.~~ — виправлено
-3. Вкладені цикли можуть створити величезну кількість команд і зависити браузер.
-4. Немає глобального operation budget.
+3. ✓ ~~Вкладені цикли можуть створити величезну кількість команд і зависити браузер.~~ — overflow check per RepeatStmt iteration; `MAX_COMMAND_QUEUE_LENGTH` enforced.
+4. ✓ ~~Немає глобального operation budget.~~ — `MAX_COMMAND_QUEUE_LENGTH = 50000`, `MAX_GAME_TICK_OPERATIONS = 500`, `MAX_PARSE_DEPTH = 20`, `MAX_AST_NODES = 5000`.
 5. Існують два різні runtime-шляхи: AST -> legacy queue і прямий AST game runner.
 
 ### P1 — високо
@@ -107,7 +107,7 @@ js/modules/semanticValidator.js
 
 Всі перевірки реалізовано, включаючи `MAX_PARSE_DEPTH = 20` (лічильник `_parseDepth` у `ravlykParser.js`).
 
-## Крок 4. Закрити DoS через цикли ✓ частково
+## Крок 4. Закрити DoS через цикли ✓ ЗАВЕРШЕНО
 
 Реалізовано:
 
@@ -115,11 +115,8 @@ js/modules/semanticValidator.js
 - `MAX_PARSE_DEPTH = 20` — перевіряється у `ravlykParser.js`
 - `MAX_COMMAND_QUEUE_LENGTH = 50000` — `stepCount` у `interpreterAstRuntime.js`
 - `MAX_REPEATS_IN_LOOP = 500` — перевіряється під час парсингу
-
-Додатково реалізовано:
-
-- ✓ `MAX_GAME_TICK_OPERATIONS = 500` — budget per game tick у `interpreterGameAstRunner.js`
-- ✓ Overflow check на початку кожної RepeatStmt ітерації — nested loops fail fast
+- ✓ `MAX_GAME_TICK_OPERATIONS = 500` — `astStepCount` у `interpreterAstRuntime.js` через `maxAstSteps`; рахує ВСІ AST-кроки (присвоєння, цикли, умови, виклики), не тільки примітиви
+- ✓ Overflow check на початку кожної RepeatStmt ітерації в `interpreterAstQueueAdapter.js` — nested loops fail fast
 
 Залишилось:
 
@@ -250,23 +247,9 @@ TypeError: Cannot read properties of undefined
 
 Ці виправлення можна зробити швидко й окремими PR:
 
-### 10.1. Manual copy button label
+### 10.1. Manual copy button label ✓
 
-У `js/modules/manualPageController.js` початковий label має бути `Скопіювати`, а не `Скопійовано`.
-
-Знайти:
-
-```js
-copyButton.innerHTML = '<span class="ui-icon icon-copy" aria-hidden="true"></span><span class="manual-code-copy-label">Скопійовано</span>';
-```
-
-Замінити початковий стан на:
-
-```js
-copyButton.innerHTML = '<span class="ui-icon icon-copy" aria-hidden="true"></span><span class="manual-code-copy-label">Скопіювати</span>';
-```
-
-Після натискання лишити `Скопійовано`, а після timeout повертати `Скопіювати`.
+Виправлено в `js/modules/manualPageController.js`: початковий і reset label — `Скопіювати`, після натискання — `Скопійовано`, після timeout — повертається `Скопіювати`.
 
 ### 10.2. Analytics safe page_location ✓
 

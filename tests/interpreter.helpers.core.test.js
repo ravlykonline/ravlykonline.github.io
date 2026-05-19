@@ -310,9 +310,10 @@ runTest('interpreter game AST runner throws GAME_TICK_OVERFLOW when tick exceeds
         constructor(code) { super(code); this.name = 'RavlykError'; this.code = code; }
     }
 
-    // Build a program with грати + повторити 600 ( вперед 1 ) — exceeds MAX_GAME_TICK_OPERATIONS=500
-    const forwardStmt = { type: 'MoveStmt', command: 'вперед', distanceExpr: { type: 'NumberLiteral', value: 1 } };
-    const repeatStmt = { type: 'RepeatStmt', count: { type: 'NumberLiteral', value: 600 }, body: [forwardStmt] };
+    // Use assignments only (no primitives) — verifies that ALL AST steps are counted, not just primitives.
+    // повторити 600 ( x = 1 ) inside грати: 1 RepeatStmt + 600 AssignmentStmt = 601 total AST steps > 500.
+    const assignStmt = { type: 'AssignmentStmt', name: 'x', expr: { type: 'NumberLiteral', value: 1 } };
+    const repeatStmt = { type: 'RepeatStmt', count: { type: 'NumberLiteral', value: 600 }, body: [assignStmt] };
     const gameStmt = { type: 'GameStmt', body: [repeatStmt] };
     const programAst = { type: 'Program', body: [gameStmt] };
 

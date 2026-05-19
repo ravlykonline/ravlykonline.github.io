@@ -40,7 +40,7 @@ export const MAX_CODE_LENGTH_CHARS = 10000;
 export const MAX_COMMAND_QUEUE_LENGTH = 50000;
 ```
 
-Цих лімітів недостатньо. `MAX_COMMAND_QUEUE_LENGTH` уже захищає від частини випадків розгортання AST у legacy queue, але він не замінює повний operation budget.
+Усі ключові ліміти реалізовані. Деталі — в §3 нижче.
 
 ### Проблемний приклад
 
@@ -75,11 +75,12 @@ export const MAX_COMMAND_QUEUE_LENGTH = 50000;
 ### Поточний стан (реалізовано)
 
 ```js
-export const MAX_AST_NODES = 5000;           // ✓ semanticValidator.js
-export const MAX_PARSE_DEPTH = 20;           // ✓ ravlykParser.js (_parseDepth counter)
-export const MAX_COMMAND_QUEUE_LENGTH = 50000; // ✓ interpreterAstRuntime.js (stepCount)
-export const MAX_REPEATS_IN_LOOP = 500;      // ✓ парсер
-export const EXECUTION_TIMEOUT_MS = 180000;  // ✓ time-based fallback
+export const MAX_AST_NODES = 5000;              // ✓ semanticValidator.js
+export const MAX_PARSE_DEPTH = 20;              // ✓ ravlykParser.js (_parseDepth counter)
+export const MAX_COMMAND_QUEUE_LENGTH = 50000;  // ✓ interpreterAstRuntime.js (stepCount)
+export const MAX_REPEATS_IN_LOOP = 500;         // ✓ парсер
+export const MAX_GAME_TICK_OPERATIONS = 500;    // ✓ interpreterAstRuntime.js (astStepCount, рахує ВСІ AST-кроки)
+export const EXECUTION_TIMEOUT_MS = 180000;     // ✓ time-based fallback
 ```
 
 Залишилось:
@@ -92,26 +93,9 @@ export const EXECUTION_TIMEOUT_MS = 180000;  // ✓ time-based fallback
 
 `ravlykParser.js` відстежує глибину вкладеності через `_parseDepth` лічильник. При перевищенні `MAX_PARSE_DEPTH = 20` кидається дружня помилка `NESTING_TOO_DEEP` з повідомленням «Програма має забагато вкладених дужок». Тести у `tests/parser.errors-boundary.test.js` покривають граничні значення (20 рівнів — OK, 25 — кидає помилку).
 
-## 5. Ризик нескінченного або надто важкого ігрового tick
+## 5. Ризик нескінченного або надто важкого ігрового tick ✓ ВИРІШЕНО
 
-`interpreterGameAstRunner.js` виконує AST напряму кожен tick гри. Там є перевірка `maxRepeatsInLoop`, але немає загального бюджету операцій на tick.
-
-### Рішення
-
-У `runGameTick` треба рахувати операції:
-
-```js
-let operationsThisTick = 0;
-
-function consumeOperation() {
-  operationsThisTick += 1;
-  if (operationsThisTick > MAX_GAME_TICK_OPERATIONS) {
-    throw new RavlykError('GAME_TICK_OPERATION_LIMIT');
-  }
-}
-```
-
-Викликати `consumeOperation()` для кожної statement/primitive operation/function call/loop iteration.
+`interpreterGameAstRunner.js` виконує AST напряму кожен tick гри через `createAstRuntime` з параметром `maxAstSteps: MAX_GAME_TICK_OPERATIONS`. Лічильник `astStepCount` у `interpreterAstRuntime.js` рахує кожен AST-крок (присвоєння, цикли, умови, виклики функцій, примітивні команди) — не тільки примітиви. При перевищенні 500 кидається `GAME_TICK_OVERFLOW`.
 
 ## 6. Ризик витоку коду через аналітику ✓ ВИРІШЕНО
 
@@ -283,7 +267,7 @@ tests/unit/security-limits.test.js
 - [ ] CI проходить на актуальному коді.
 - [ ] Немає `eval()` / `new Function()`.
 - [ ] Немає користувацького HTML через `innerHTML`.
-- [ ] Працюють ліміти `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_TOTAL_OPERATIONS`.
+- [ ] Працюють ліміти `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_COMMAND_QUEUE_LENGTH`, `MAX_GAME_TICK_OPERATIONS`.
 - [ ] Вкладені цикли не зависають.
 - [ ] `#code=` не потрапляє в analytics `page_location`.
 - [ ] CSP і security headers налаштовані в Cloudflare.
@@ -296,14 +280,14 @@ tests/unit/security-limits.test.js
 
 ### P0 — критично
 
-- Заборонити зависання через вкладені цикли.
-- Додати operation budget.
-- Виправити CI, щоб він реально запускався.
+- ✓ Заборонити зависання через вкладені цикли — overflow check per RepeatStmt iteration.
+- ✓ Додати operation budget — `MAX_COMMAND_QUEUE_LENGTH`, `MAX_GAME_TICK_OPERATIONS`.
+- ✓ Виправити CI — `ci.yml` працює.
 
 ### P1 — високо
 
-- Додати semantic validation.
-- Виправити analytics privacy.
+- ✓ Додати semantic validation — `semanticValidator.js`.
+- ✓ Виправити analytics privacy — `safePageLocation()`.
 - Переписати Service Worker scope/cache policy.
 
 ### P2 — середньо
