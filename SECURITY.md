@@ -72,57 +72,27 @@ export const MAX_COMMAND_QUEUE_LENGTH = 50000;
 
 Якщо зависання виникає під час синхронного парсингу або побудови черги команд, браузерний event loop не встигає обробити timeout. Тобто таймер не захищає від зависання під час синхронної роботи.
 
-### Обов'язкове рішення
-
-Додати кілька незалежних бюджетів. Поточний статус:
+### Поточний стан (реалізовано)
 
 ```js
-export const MAX_AST_NODES = 5000; // уже є
-export const MAX_PARSE_DEPTH = 30; // ще треба додати
-export const MAX_EXPRESSION_DEPTH = 100; // ще треба додати або явно відкласти
-export const MAX_TOTAL_OPERATIONS = 20000; // ще треба додати
-export const MAX_COMMAND_QUEUE_LENGTH = 50000; // уже є
-export const MAX_GAME_TICK_OPERATIONS = 1000; // ще треба додати
-export const MAX_FUNCTION_CALLS_PER_RUN = 5000; // ще треба додати або замінити на runtime budget
+export const MAX_AST_NODES = 5000;           // ✓ semanticValidator.js
+export const MAX_PARSE_DEPTH = 20;           // ✓ ravlykParser.js (_parseDepth counter)
+export const MAX_COMMAND_QUEUE_LENGTH = 50000; // ✓ interpreterAstRuntime.js (stepCount)
+export const MAX_REPEATS_IN_LOOP = 500;      // ✓ парсер
+export const EXECUTION_TIMEOUT_MS = 180000;  // ✓ time-based fallback
 ```
 
-Краще рішення — не розгортати цикли в плоский масив команд. Runtime має виконувати AST ліниво, крок за кроком, з бюджетом операцій.
-
-## 4. Ризик переповнення call stack у парсері
-
-`parserBlocksConditions.js` рекурсивно викликає `parseTokensToAst` для вкладених блоків:
+Залишилось:
 
 ```js
-const body = parseTokensToAst(innerTokens, 0, {}, innerMeta).body;
+export const MAX_GAME_TICK_OPERATIONS = ???; // ще треба — budget per game tick
 ```
 
-Глибоко вкладені блоки можуть викликати `RangeError: Maximum call stack size exceeded`.
+Краще довгострокове рішення — не розгортати цикли в плоский масив команд. Runtime має виконувати AST ліниво.
 
-### Приклад
+## 4. Ризик переповнення call stack у парсері ✓ ВИРІШЕНО
 
-```ravlyk
-повторити 1 (
-  повторити 1 (
-    повторити 1 (
-      повторити 1 (
-        вперед 10
-      )
-    )
-  )
-)
-```
-
-Якщо таких рівнів дуже багато, сторінка може впасти з технічною помилкою.
-
-### Рішення
-
-- Передавати `depth + 1` у рекурсивний парсинг.
-- Якщо `depth > MAX_PARSE_DEPTH`, кидати дружню помилку.
-- Додати тест на глибоку вкладеність.
-
-Рекомендоване повідомлення:
-
-> Забагато вкладених блоків. Спробуй спростити програму.
+`ravlykParser.js` відстежує глибину вкладеності через `_parseDepth` лічильник. При перевищенні `MAX_PARSE_DEPTH = 20` кидається дружня помилка `NESTING_TOO_DEEP` з повідомленням «Програма має забагато вкладених дужок». Тести у `tests/parser.errors-boundary.test.js` покривають граничні значення (20 рівнів — OK, 25 — кидає помилку).
 
 ## 5. Ризик нескінченного або надто важкого ігрового tick
 
@@ -145,47 +115,9 @@ function consumeOperation() {
 
 Викликати `consumeOperation()` для кожної statement/primitive operation/function call/loop iteration.
 
-## 6. Ризик витоку коду через аналітику
+## 6. Ризик витоку коду через аналітику ✓ ВИРІШЕНО
 
-Share-link використовує `URL hash`:
-
-```text
-https://ravlyk.org/#code=...
-```
-
-Фрагмент після `#` не надсилається серверу як частина HTTP-запиту. Але JavaScript на сторінці може бачити `window.location.href` повністю, включно з hash.
-
-У `js/analytics.js` зараз є:
-
-```js
-windowRef.gtag('config', ANALYTICS_MEASUREMENT_ID);
-```
-
-Google Analytics може отримати `page_location` із повним URL. Для дитячого продукту краще не передавати код у сторонню аналітику навіть випадково.
-
-### Рішення
-
-Варіант A — прибрати hash із page_location:
-
-```js
-const safePageLocation = windowRef.location.origin
-  + windowRef.location.pathname
-  + windowRef.location.search;
-
-windowRef.gtag('config', ANALYTICS_MEASUREMENT_ID, {
-  page_location: safePageLocation,
-});
-```
-
-Варіант B — не запускати аналітику, якщо в URL є `#code=`:
-
-```js
-if (windowRef.location.hash.startsWith('#code=')) {
-  return;
-}
-```
-
-Рекомендовано поєднати обидва варіанти.
+`js/analytics.js` використовує `safePageLocation()`, яка повертає `origin + pathname + search` без hash. `#code=` не потрапляє в `page_location` аналітики.
 
 ## 7. Content Security Policy
 

@@ -11,7 +11,8 @@
     "test": "npm run test:unit && npm run test:e2e",
     "release:sync-version": "node scripts/sync-release-version.mjs",
     "html:sync-partials": "node scripts/sync-html-partials.mjs",
-    "html:check-partials": "node scripts/sync-html-partials.mjs --check"
+    "html:check-partials": "node scripts/sync-html-partials.mjs --check",
+    "check": "npm run test:unit && npm run html:check-partials"
   },
   "devDependencies": {
     "@playwright/test": "^1.53.2"

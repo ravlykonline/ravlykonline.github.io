@@ -292,7 +292,7 @@ tests/
 
 - ✓ Додано `MAX_AST_NODES = 5000` — перевіряється у `semanticValidator.js`.
 - ✓ Додано `MAX_PARSE_DEPTH = 20` — перевіряється в `ravlykParser.js` через `_parseDepth` лічильник.
-- ✓ Додано `MAX_TOTAL_OPERATIONS` — `stepCount` в `interpreterAstRuntime.js` порівнюється з `MAX_COMMAND_QUEUE_LENGTH`.
+- ✓ Лічильник `stepCount` в `interpreterAstRuntime.js` порівнюється з `MAX_COMMAND_QUEUE_LENGTH = 50000` — виконує роль total operation budget.
 - ✓ `EXECUTION_TIMEOUT_MS = 180s` — time-based fallback.
 - Залишилось: `MAX_GAME_TICK_OPERATIONS`, заборона експоненційного розгортання циклів (§7.2).
 

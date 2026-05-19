@@ -44,15 +44,15 @@
 2. ✓ ~~Reserved names не перевіряються повністю.~~ — базові команди, control keywords і random aliases перевіряються для змінних, функцій і параметрів.
 3. ✓ ~~Дублікати параметрів функцій не заборонені.~~ — заборонено semantic validator-ом.
 4. ✓ ~~Зайві аргументи функцій можуть ігноруватися.~~ — кількість аргументів функції перевіряється semantic validator-ом.
-5. Share-link через `#code=` може випадково потрапити в analytics page_location.
+5. ✓ ~~Share-link через `#code=` може випадково потрапити в analytics page_location.~~ — `safePageLocation()` в `analytics.js` вже прибирає hash.
 6. Service Worker має root scope і широке кешування.
 
 ### P2 — середньо
 
 1. ✓ ~~Немає CSP/security headers.~~ — CSP додано до всіх 9 публічних HTML-сторінок
 2. Версія релізу захардкожена у багатьох файлах.
-3. Accessibility panel і загальні HTML-блоки дублюються.
-4. `manualPageController.js` має UX-баг із початковим текстом кнопки копіювання.
+3. ✓ ~~Accessibility panel і загальні HTML-блоки дублюються.~~ — `scripts/sync-html-partials.mjs` синхронізує партіали; regression-тести перевіряють синхронізацію в CI.
+4. ✓ ~~`manualPageController.js` має UX-баг із початковим текстом кнопки копіювання.~~ — виправлено: initial/reset label тепер «Скопіювати».
 
 ## 4. Правила роботи агента
 
@@ -82,7 +82,7 @@
 - ✓ `tests/encoding.test.js` — UTF-8, BOM, структурні регресії, відсутність `/v4beta/`-шляхів
 - ✓ Перевірка security-контрактів вбудована в unit-тести
 
-## Крок 3. Додати semantic validator ✓ частково
+## Крок 3. Додати semantic validator ✓ ЗАВЕРШЕНО
 
 Створено:
 
@@ -105,37 +105,21 @@ js/modules/semanticValidator.js
 - empty function body;
 - game mode top-level rules.
 
-Ще треба додати:
+Всі перевірки реалізовано, включаючи `MAX_PARSE_DEPTH = 20` (лічильник `_parseDepth` у `ravlykParser.js`).
 
-- max parse depth або nesting depth.
+## Крок 4. Закрити DoS через цикли ✓ частково
 
-Після парсингу у `ravlykParser` або в `executionController` має бути етап:
+Реалізовано:
 
-```js
-const ast = parser.parseCodeToAst(code);
-const checkedAst = validateProgramAst(ast, options);
-```
+- `MAX_AST_NODES = 5000` — перевіряється у `semanticValidator.js`
+- `MAX_PARSE_DEPTH = 20` — перевіряється у `ravlykParser.js`
+- `MAX_COMMAND_QUEUE_LENGTH = 50000` — `stepCount` у `interpreterAstRuntime.js`
+- `MAX_REPEATS_IN_LOOP = 500` — перевіряється під час парсингу
 
-## Крок 4. Закрити DoS через цикли
+Залишилось:
 
-Не покладатися тільки на `MAX_REPEATS_IN_LOOP`.
-
-Додати:
-
-```js
-MAX_TOTAL_OPERATIONS
-MAX_COMMAND_QUEUE_LENGTH
-MAX_GAME_TICK_OPERATIONS
-MAX_FUNCTION_CALLS_PER_RUN
-```
-
-Як тимчасовий захід до повного AST runtime:
-
-- у `interpreterAstQueueAdapter.js` рахувати довжину `output`;
-- якщо вона перевищує `MAX_COMMAND_QUEUE_LENGTH`, кидати дружню помилку;
-- у game runner рахувати operations per tick.
-
-Це не ідеальна архітектура, але швидко закриває критичний ризик.
+- `MAX_GAME_TICK_OPERATIONS` — окремий budget для одного тіку гри
+- Lazy loop execution — `interpreterAstQueueAdapter.js` ще розгортає `повторити` в плоский масив
 
 ## Крок 5. Уніфікувати runtime
 
@@ -176,21 +160,9 @@ Frame types:
 
 Кожен крок runtime виконує малу кількість операцій і повертає управління браузеру.
 
-## Крок 6. Виправити analytics privacy
+## Крок 6. Виправити analytics privacy ✓
 
-У `js/analytics.js` не передавати hash:
-
-```js
-const safePageLocation = windowRef.location.origin
-  + windowRef.location.pathname
-  + windowRef.location.search;
-
-windowRef.gtag('config', ANALYTICS_MEASUREMENT_ID, {
-  page_location: safePageLocation,
-});
-```
-
-Або не запускати analytics для `#code=`.
+`safePageLocation()` у `js/analytics.js` вже повертає `origin + pathname + search` без hash. `#code=` не потрапляє в `page_location`.
 
 ## Крок 7. Виправити Service Worker
 
@@ -292,9 +264,9 @@ copyButton.innerHTML = '<span class="ui-icon icon-copy" aria-hidden="true"></spa
 
 Після натискання лишити `Скопійовано`, а після timeout повертати `Скопіювати`.
 
-### 10.2. Analytics safe page_location
+### 10.2. Analytics safe page_location ✓
 
-У `js/analytics.js` передавати `page_location` без hash.
+`safePageLocation()` у `js/analytics.js` вже прибирає hash із `page_location`.
 
 ## 11. Definition of Done для PR
 
@@ -316,12 +288,12 @@ PR можна вважати готовим, якщо:
 2. ✓ ~~Виправити GitHub Actions.~~
 3. ✓ ~~Прибрати BOM / виправити workflow.~~
 4. ✓ ~~Додати static security checks та CSP.~~
-5. ✓ ~~Додати semantic validator.~~ — базовий контракт додано; залишився parse depth budget.
-6. Додати runtime operation budgets.
-7. Виправити analytics hash privacy.
+5. ✓ ~~Додати semantic validator.~~ — повністю реалізовано, включаючи parse depth budget.
+6. ✓ ~~Додати runtime operation budgets.~~ — `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_COMMAND_QUEUE_LENGTH` реалізовані; залишився `MAX_GAME_TICK_OPERATIONS` і lazy loops.
+7. ✓ ~~Виправити analytics hash privacy.~~ — `safePageLocation()` прибирає hash.
 8. Обмежити Service Worker scope/cache.
-9. Уніфікувати AST runtime.
-10. Прибрати дублювання HTML-компонентів.
+9. Уніфікувати AST runtime (animation path ще через queue adapter).
+10. ✓ ~~Прибрати дублювання HTML-компонентів.~~ — sync script і CI перевірка додані.
 
 ## 13. Головне архітектурне правило
 
