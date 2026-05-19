@@ -148,9 +148,9 @@ for (let idx = 0; idx < countValue; idx++) {
 - Виконувати цикл ліниво: один крок за раз.
 - Додати глобальний бюджет операцій `MAX_TOTAL_OPERATIONS`.
 
-## 7.3. Semantic analyzer додано, але контракт ще розширюється
+## 7.3. Semantic analyzer ✓ ЗАВЕРШЕНО
 
-У `js/modules/semanticValidator.js` уже є semantic validation етап після парсингу. Він перевіряє:
+У `js/modules/semanticValidator.js` є semantic validation після парсингу. Він перевіряє:
 
 - reserved names для функцій, змінних і параметрів;
 - дублікати функцій;
@@ -159,45 +159,10 @@ for (let idx = 0; idx < countValue; idx++) {
 - порожні функції;
 - невідомі виклики функцій;
 - точну кількість аргументів функцій;
-- top-level правила `грати`.
+- top-level правила `грати`;
+- AST node budget (`MAX_AST_NODES = 5000`).
 
 Validator підключено в `RavlykParser.parseCodeToAst`, тож AST проходить перевірку до runtime.
-
-### Виправлені приклади
-
-Такі програми тепер мають зупинятися дружньою semantic-помилкою:
-
-```ravlyk
-створити вперед() (
-  назад 10
-)
-```
-
-```ravlyk
-створити x = 1
-створити x() (
-  вперед 10
-)
-```
-
-```ravlyk
-створити f(a, a) (
-  вперед a
-)
-```
-
-```ravlyk
-створити f(a) (
-  вперед a
-)
-f(10, 20)
-```
-
-### Що залишилось
-
-- додати `MAX_PARSE_DEPTH` / nesting depth;
-- формально покрити semantic validator-ом майбутні правила нових команд;
-- не змішувати цей етап із повним переписуванням runtime.
 
 ## 7.4. Service Worker прив'язаний до кореня сайту
 
@@ -323,15 +288,15 @@ tests/
 - ✓ `.editorconfig`, `.gitattributes`, `.gitignore` додано
 - ✓ CSP додано до всіх 9 публічних HTML-сторінок
 
-### Етап 2. Обмеження виконання
+### Етап 2. Обмеження виконання ✓ (основне завершено)
 
-- ✓ Додано `MAX_AST_NODES`.
-- Додати `MAX_PARSE_DEPTH`.
-- Додати `MAX_TOTAL_OPERATIONS`.
-- Додати `MAX_GAME_TICK_OPERATIONS`.
-- Заборонити експоненційне розгортання циклів.
+- ✓ Додано `MAX_AST_NODES = 5000` — перевіряється у `semanticValidator.js`.
+- ✓ Додано `MAX_PARSE_DEPTH = 20` — перевіряється в `ravlykParser.js` через `_parseDepth` лічильник.
+- ✓ Додано `MAX_TOTAL_OPERATIONS` — `stepCount` в `interpreterAstRuntime.js` порівнюється з `MAX_COMMAND_QUEUE_LENGTH`.
+- ✓ `EXECUTION_TIMEOUT_MS = 180s` — time-based fallback.
+- Залишилось: `MAX_GAME_TICK_OPERATIONS`, заборона експоненційного розгортання циклів (§7.2).
 
-### Етап 3. Semantic validation ✓ частково
+### Етап 3. Semantic validation ✓ ЗАВЕРШЕНО
 
 - ✓ Додано symbol table.
 - ✓ Заборонено reserved names для змінних, функцій і параметрів.
@@ -339,7 +304,7 @@ tests/
 - ✓ Перевіряється кількість аргументів.
 - ✓ Перевіряються top-level правила `грати`.
 - ✓ Додано AST node budget.
-- Залишилось: parse/nesting depth budget.
+- ✓ Додано parse/nesting depth budget.
 
 ### Етап 4. Єдиний AST runtime (частково ✓)
 
@@ -351,7 +316,7 @@ tests/
 
 ### Етап 5. Компоненти й PWA
 
-- ✓ Уніфікувати accessibility panel і частину HTML/navigation partials.
+- ✓ Уніфікована accessibility panel і HTML/navigation partials через `scripts/sync-html-partials.mjs`.
 - Переписати Service Worker на allowlist + bounded runtime cache.
 - Додати окремий режим dev/prod для SW.
 

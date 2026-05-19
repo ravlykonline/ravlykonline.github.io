@@ -2,7 +2,7 @@
 
 Primary engineering guide for this repository.
 
-Last updated: 2026-03-13
+Last updated: 2026-05-19
 
 Related:
 - `README.md` for a short project overview
@@ -71,6 +71,12 @@ Supporting controller/module groups:
 - interpreter helpers in `js/modules/interpreter*.js`
 - editor/UI helpers in `js/modules/ui*.js`, `editorUi.js`, `workspaceTabs.js`, `executionController.js`, `fileActionsController.js`
 - page controllers in `manualPageController.js` and `lessonsPageController.js`
+- GIF export: `js/modules/gifCapture.js` (frame capture, 100ms intervals, max 200 frames) + `js/modules/gifEncoder.js` (GIF89a encoder, NeuQuant fallback, no external deps)
+
+Deployment:
+- primary host: DigitalOcean App Platform (static site, `environment_slug: html`, spec in `.do/app.yaml`)
+- output directory set to `.` in DO dashboard (root of repo served as-is)
+- `package.json` is present for test tooling only; DO does not run a build step
 
 ## 4. Repository map
 
@@ -148,10 +154,13 @@ Interpreter:
 - runs either game-mode execution or queue-mode execution
 
 Safety and limits from `js/modules/constants.js`:
-- `MAX_RECURSION_DEPTH = 20`
-- `MAX_REPEATS_IN_LOOP = 500`
-- `EXECUTION_TIMEOUT_MS = 180000`
-- `MAX_CODE_LENGTH_CHARS = 10000`
+- `MAX_RECURSION_DEPTH = 20` — max call stack depth for functions
+- `MAX_PARSE_DEPTH = 20` — max block nesting depth during parsing (enforced in `ravlykParser.js` via `_parseDepth`)
+- `MAX_REPEATS_IN_LOOP = 500` — max repeat count per single loop
+- `MAX_AST_NODES = 5000` — max AST nodes per program (enforced in `semanticValidator.js`)
+- `MAX_COMMAND_QUEUE_LENGTH = 50000` — max total steps during AST runtime execution (enforced in `interpreterAstRuntime.js`)
+- `EXECUTION_TIMEOUT_MS = 180000` — time-based execution cap (3 minutes)
+- `MAX_CODE_LENGTH_CHARS = 10000` — max raw code length
 
 Current safety posture:
 - shared-code links load code but do not auto-run it
@@ -271,6 +280,8 @@ Primary remaining debt:
 - `css/manual.css` remains the largest static styling surface
 - large static content pages still require careful manual maintenance
 - queue adapter (`interpreterAstQueueAdapter.js`) still eagerly unrolls repeat loops into flat command lists; §7.2 of ARCHITECTURE.md tracks this
+- service worker scope is hardcoded to `/`; conflicts with subdirectory deployments (§7.4 of ARCHITECTURE.md)
+- GIF export uses real-time playback (1×) with freeze frames at start/end; flicker on `фон` command may appear in edge cases with rapid background changes
 
 Accessibility settings follow-up:
 - screen reader smoke is still manual and should be rerun on `index.html`, `manual.html`, and `lessons.html` before release
