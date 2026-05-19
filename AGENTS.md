@@ -28,31 +28,23 @@
 
 Не додавайте React/Vue/Svelte/Next/Vite без окремого архітектурного рішення. Поточний пріоритет — стабілізувати ядро, а не змінити стек.
 
-## 3. Найважливіші знайдені проблеми
+## 3. Поточний стан і відкриті ризики
 
-### P0 — критично
+### Закрито
 
-1. ✓ ~~`.github/workflows/e2e-ui.yml` дивиться в неіснуючу папку `version_4`.~~ — замінено на `ci.yml`
-2. ✓ ~~`README.md` посилається на неіснуючі файли й npm-команди.~~ — виправлено
-3. ✓ ~~Вкладені цикли можуть створити величезну кількість команд і зависити браузер.~~ — overflow check per RepeatStmt iteration; `MAX_COMMAND_QUEUE_LENGTH` enforced.
-4. ✓ ~~Немає глобального operation budget.~~ — `MAX_COMMAND_QUEUE_LENGTH = 50000`, `MAX_GAME_TICK_OPERATIONS = 500`, `MAX_PARSE_DEPTH = 20`, `MAX_AST_NODES = 5000`.
-5. Існують два різні runtime-шляхи: AST -> legacy queue і прямий AST game runner.
+- CI, README, базові npm-команди й тестова інфраструктура стабілізовані.
+- Semantic validator інтегровано в `RavlykParser.parseCodeToAst`.
+- Reserved names, duplicate functions/params, conflicts, unknown function calls і argument count перевіряються validator-ом.
+- Parser/runtime limits реалізовані: `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_REPEATS_IN_LOOP`, `MAX_COMMAND_QUEUE_LENGTH`, `MAX_GAME_TICK_OPERATIONS`.
+- Analytics `page_location` не містить hash, тому `#code=` не потрапляє в Google Analytics.
+- Shared accessibility/footer/navigation HTML синхронізується через `scripts/sync-html-partials.mjs` і перевіряється в CI.
 
-### P1 — високо
+### Відкрито
 
-1. ✓ ~~Немає semantic validator.~~ — додано `js/modules/semanticValidator.js`; контракт ще розширюється.
-2. ✓ ~~Reserved names не перевіряються повністю.~~ — базові команди, control keywords і random aliases перевіряються для змінних, функцій і параметрів.
-3. ✓ ~~Дублікати параметрів функцій не заборонені.~~ — заборонено semantic validator-ом.
-4. ✓ ~~Зайві аргументи функцій можуть ігноруватися.~~ — кількість аргументів функції перевіряється semantic validator-ом.
-5. ✓ ~~Share-link через `#code=` може випадково потрапити в analytics page_location.~~ — `safePageLocation()` в `analytics.js` вже прибирає hash.
-6. Service Worker має root scope і широке кешування.
-
-### P2 — середньо
-
-1. ✓ ~~Немає CSP/security headers.~~ — CSP додано до всіх 9 публічних HTML-сторінок
-2. Версія релізу захардкожена у багатьох файлах.
-3. ✓ ~~Accessibility panel і загальні HTML-блоки дублюються.~~ — `scripts/sync-html-partials.mjs` синхронізує партіали; regression-тести перевіряють синхронізацію в CI.
-4. ✓ ~~`manualPageController.js` має UX-баг із початковим текстом кнопки копіювання.~~ — виправлено: initial/reset label тепер «Скопіювати».
+- **P1:** Service Worker має root scope і широке кешування. Потрібні production-only registration, обмежений scope, allowlist runtime cache, `try/catch` для `cache.put`, bounded cleanup.
+- **P1:** Animation path ще використовує `interpreterAstQueueAdapter.js` і будує плоску command queue. Критичний DoS-ризик закритий budget-ами, але ціль — lazy AST runtime без розгортання циклів.
+- **P2:** Повторне `створити x = ...` ще не оформлено як окреме semantic-правило.
+- **P2:** Release/cache token синхронізується скриптом і тестами, але не має одного runtime source-of-truth.
 
 ## 4. Правила роботи агента
 
@@ -82,7 +74,7 @@
 - ✓ `tests/encoding.test.js` — UTF-8, BOM, структурні регресії, відсутність `/v4beta/`-шляхів
 - ✓ Перевірка security-контрактів вбудована в unit-тести
 
-## Крок 3. Додати semantic validator ✓ ЗАВЕРШЕНО
+## Крок 3. Semantic validator ✓
 
 Створено:
 
@@ -161,7 +153,7 @@ Frame types:
 
 Кожен крок runtime виконує малу кількість операцій і повертає управління браузеру.
 
-## Крок 6. Виправити analytics privacy ✓
+## Крок 6. Analytics privacy ✓
 
 `safePageLocation()` у `js/analytics.js` вже повертає `origin + pathname + search` без hash. `#code=` не потрапляє в `page_location`.
 
@@ -243,19 +235,7 @@ TypeError: Cannot read properties of undefined
 У виклику "квадрат" не вистачає аргумента. Функція очікує 1 значення.
 ```
 
-## 10. Known quick fixes
-
-Ці виправлення можна зробити швидко й окремими PR:
-
-### 10.1. Manual copy button label ✓
-
-Виправлено в `js/modules/manualPageController.js`: початковий і reset label — `Скопіювати`, після натискання — `Скопійовано`, після timeout — повертається `Скопіювати`.
-
-### 10.2. Analytics safe page_location ✓
-
-`safePageLocation()` у `js/analytics.js` вже прибирає hash із `page_location`.
-
-## 11. Definition of Done для PR
+## 10. Definition of Done для PR
 
 PR можна вважати готовим, якщо:
 
@@ -269,19 +249,14 @@ PR можна вважати готовим, якщо:
 - Service Worker не ламає старий production cache без плану міграції;
 - дитячі повідомлення про помилки залишаються дружніми.
 
-## 12. Пріоритетний backlog для агента
+## 11. Пріоритетний backlog для агента
 
-1. ✓ ~~Додати `package.json` і мінімальні тести.~~
-2. ✓ ~~Виправити GitHub Actions.~~
-3. ✓ ~~Прибрати BOM / виправити workflow.~~
-4. ✓ ~~Додати static security checks та CSP.~~
-5. ✓ ~~Додати semantic validator.~~ — повністю реалізовано, включаючи parse depth budget.
-6. ✓ ~~Додати runtime operation budgets.~~ — всі ліміти реалізовані: `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_COMMAND_QUEUE_LENGTH`, `MAX_GAME_TICK_OPERATIONS`, overflow check per RepeatStmt iteration.
-7. ✓ ~~Виправити analytics hash privacy.~~ — `safePageLocation()` прибирає hash.
-8. Обмежити Service Worker scope/cache.
-9. Уніфікувати AST runtime (animation path ще через queue adapter).
-10. ✓ ~~Прибрати дублювання HTML-компонентів.~~ — sync script і CI перевірка додані.
+1. Обмежити Service Worker scope/cache.
+2. Прибрати повне розгортання циклів у `interpreterAstQueueAdapter.js`.
+3. Уніфікувати animation path навколо `interpreterAstRuntime.js`.
+4. Визначити semantic-правило для повторного `створити x = ...`.
+5. Розглянути одне runtime source-of-truth для release/cache version.
 
-## 13. Головне архітектурне правило
+## 12. Головне архітектурне правило
 
 Не нарощувати функції поверх крихкого runtime. Спочатку стабільність ядра, ліміти, semantic validation і тести. Після цього можна розширювати мову, ігровий режим і навчальні матеріали.

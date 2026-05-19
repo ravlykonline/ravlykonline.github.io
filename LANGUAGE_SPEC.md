@@ -1,6 +1,6 @@
 # LANGUAGE_SPEC.md
 
-Це специфікація мови програмування РАВЛИК у її поточному стані та з позначенням місць, які треба уточнити або виправити. Документ має бути джерелом істини для parser/runtime/manual/tests.
+Це специфікація мови програмування РАВЛИК у її поточному стані. Документ має бути джерелом істини для parser/runtime/manual/tests.
 
 ## 1. Призначення мови
 
@@ -511,13 +511,11 @@ random         = "випадково" | "random" ;
 tests/unit/language-spec.test.js
 ```
 
-## 18. Відомі розбіжності між специфікацією і кодом
+## 18. Відкриті рішення
 
-1. Вкладені цикли в legacy queue adapter захищені overflow check на початку кожної ітерації RepeatStmt (fail fast), але повна lazy execution не реалізована — плоский масив ще будується синхронно.
-2. ✓ `MAX_PARSE_DEPTH = 20` — реалізовано в `ravlykParser.js` через `_parseDepth` лічильник.
-3. ✓ `MAX_COMMAND_QUEUE_LENGTH = 50000` і `MAX_GAME_TICK_OPERATIONS = 500` покривають total operations budget.
-4. ✓ `MAX_GAME_TICK_OPERATIONS = 500` — реалізовано в `interpreterAstRuntime.js` через `maxAstSteps`, рахується кожен AST-крок.
-5. Повторне `створити x = ...` ще не оформлено як окреме semantic-правило.
+1. Повторне `створити x = ...` ще не оформлено як окреме semantic-правило. Треба обрати контракт: або дружня помилка з підказкою використати `x = ...`, або явно описане перевизначення.
+2. Animation path ще будує legacy command queue через `interpreterAstQueueAdapter.js`. Runtime limits захищають від зависання, але довгострокова ціль — lazy AST execution без плоского розгортання циклів.
+3. Звичайний режим і game mode мають зберігати однакову семантику функцій, змінних, умов і помилок під час подальшої уніфікації runtime.
 
 ## 19. Definition of Done для мови
 

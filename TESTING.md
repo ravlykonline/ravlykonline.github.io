@@ -23,6 +23,7 @@
 npm run test:unit        # усі unit-тести
 npm run test:e2e         # усі E2E-тести (Playwright)
 npm run test             # unit + E2E разом
+npm run check            # unit-тести + перевірка shared HTML partials
 npm run html:sync-partials # синхронізація спільних HTML-блоків
 npm run html:check-partials # перевірка синхронізації shared HTML без запису файлів
 npm run release:sync-version -- YYYY-MM-DD-N  # синхронізація release-версії
@@ -42,6 +43,7 @@ tests/
   parser.ast-runtime.test.js     — AST-генерація, змінні, функції, game block
   parser.errors-boundary.test.js — помилки парсера з метаданими рядка/колонки
   parser-helpers.test.js         — допоміжні модулі парсера
+  semantic.test.js               — semantic validator, reserved names, функції, game contract, AST node budget
   interpreter.helpers.core.test.js   — ядро інтерпретатора
   interpreter.helpers.runtime.test.js — runtime-стани, stop/pause/resume
   interpreter-helpers.test.js    — малювання, анімація, lifecycle
@@ -118,6 +120,7 @@ tests/
 - npm ci
 - npx playwright install --with-deps chromium firefox webkit
 - npm run test:unit
+- npm run html:check-partials
 - npm run test:e2e -- --reporter=dot
 ```
 

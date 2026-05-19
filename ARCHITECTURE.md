@@ -1,6 +1,6 @@
 # ARCHITECTURE.md
 
-Документ фіксує поточну архітектуру проєкту РАВЛИК, виявлені проблеми та цільовий напрям рефакторингу. Його завдання — бути практичним джерелом істини для людини-розробника, Codex, Claude Code або іншого агента, який буде змінювати код.
+Документ фіксує поточну архітектуру проєкту РАВЛИК, відкриті технічні борги та напрям подальшого рефакторингу. Він має бути практичним джерелом істини для розробника або агента, який змінює код, а не архівом уже закритих проблем.
 
 ## 1. Поточний стан проєкту
 
@@ -20,12 +20,12 @@
 Структура репозиторію:
 
 - 9 HTML-сторінок: `index.html`, `manual.html`, `lessons.html`, `quiz.html`, `resources.html`, `teacher_guidelines.html`, `advice_for_parents.html`, `about.html`, `zen.html`
-- 63 JavaScript-файли в `js/` та `js/modules/`
-- 11 CSS-файлів у `css/`
+- JavaScript entrypoints у `js/` та core/UI modules у `js/modules/`
+- CSS-файли у `css/`
 - `tests/` — unit і integration тести (Node.js)
 - `tests/e2e/` — Playwright E2E тести
 - `package.json`, `package-lock.json`, `playwright.config.js` — тестове середовище
-- `scripts/` — допоміжні скрипти (`sync-release-version.mjs`)
+- `scripts/` — допоміжні скрипти (`sync-release-version.mjs`, `sync-html-partials.mjs`)
 - `.github/workflows/ci.yml` — CI pipeline (Node.js 24, Chromium/Firefox/WebKit)
 - PWA-файли: `sw.js`, `site.webmanifest`, іконки
 - Навчальні зображення та `resources/Pre_CodingActivity_Ravlyk_UA.pdf`
@@ -104,13 +104,19 @@
 6. **Є PWA-режим.** Для школи офлайн-доступ може бути корисним.
 7. **Є accessibility-модулі.** Це сильна сторона проєкту.
 
-## 7. Ключові архітектурні проблеми
+## 7. Поточні архітектурні борги
 
-## 7.1. Два різні runtime-шляхи ✓ ВИРІШЕНО
+## 7.1. Animation path ще залежить від legacy queue
 
-~~Зараз існує дві моделі виконання~~. Обидва режими тепер використовують спільний `createAstRuntime` з `interpreterAstRuntime.js`.
+У проєкті вже є спільний frame-based `createAstRuntime` у `interpreterAstRuntime.js`. Game mode виконує AST напряму через цей runtime. Звичайний animation path поки проходить через:
 
-**Що було виправлено:**
+```text
+AST -> interpreterAstQueueAdapter.js -> command queue -> interpreterQueueRuntime.js
+```
+
+Це означає, що семантика AST уже частково уніфікована, але animation path ще будує плоску command queue.
+
+**Що вже виправлено:**
 
 ```ravlyk
 створити x = 1
@@ -126,7 +132,7 @@
 
 **Ліниве обчислення виразів:** MOVE/TURN/GOTO зберігають AST-вираз у черзі (`distanceExpr`, `angleExpr`, `xExpr`/`yExpr`) і обчислюють його під час анімації проти `executionEnv`. Випадкові значення залишаються завчасно обчисленими (один random pick).
 
-**Що залишилось:** queue adapter (`interpreterAstQueueAdapter.js`) все ще розгортає цикли в плоску чергу. Це адресується в §7.2.
+**Що залишилось:** прибрати повне розгортання циклів у `interpreterAstQueueAdapter.js` і виконувати animation path ліниво через AST runtime.
 
 ## 7.2. Розгортання циклів у чергу
 
@@ -140,13 +146,14 @@ for (let idx = 0; idx < countValue; idx++) {
 }
 ```
 
-Це архітектурно небезпечно. Навіть якщо один цикл обмежено `MAX_REPEATS_IN_LOOP = 500`, вкладені цикли можуть створити сотні тисяч або мільйони команд.
+Це архітектурно небажано. Критичний ризик зависання вже закритий overflow checks, але синхронне створення плоскої черги лишається технічним боргом.
 
-### Рішення
+### Ціль
 
-- Не створювати плоский список команд для всіх повторів.
-- Виконувати цикл ліниво: один крок за раз.
-- ✓ Глобальний бюджет операцій реалізовано через `MAX_COMMAND_QUEUE_LENGTH` (legacy queue) і `MAX_GAME_TICK_OPERATIONS` (game tick).
+- не створювати плоский список команд для всіх повторів;
+- виконувати цикл ліниво: один AST-крок за раз;
+- використати `createAstRuntime` як основу і для animation path;
+- зберегти дружні помилки при перевищенні budget.
 
 ## 7.3. Semantic analyzer ✓ ЗАВЕРШЕНО
 
@@ -166,14 +173,7 @@ Validator підключено в `RavlykParser.parseCodeToAst`, тож AST пр
 
 ## 7.4. Service Worker прив'язаний до кореня сайту
 
-`js/registerServiceWorker.js`:
-
-```js
-const SERVICE_WORKER_URL = '/sw.js?v=2026-03-13-2';
-navigator.serviceWorker.register(SERVICE_WORKER_URL, { scope: '/' });
-```
-
-Це нормально лише для production-домену в корені. Для GitHub Pages, beta-середовищ, `/go/` або підпапок це може давати конфлікти кешу.
+`js/registerServiceWorker.js` реєструє `/sw.js` зі scope `/`. Це нормально лише тоді, коли production-версія справді живе в корені домену. Для GitHub Pages, beta-середовищ або підпапок це може давати конфлікти кешу.
 
 ### Рішення
 
@@ -182,27 +182,29 @@ navigator.serviceWorker.register(SERVICE_WORKER_URL, { scope: '/' });
 - Використовувати відносний scope або явно обмежений scope.
 - Для beta/dev використовувати окремий cache namespace.
 
-## 7.5. Версія релізу захардкожена в багатьох місцях
+## 7.5. Release version синхронізується скриптом
 
-Токен `2026-03-13-2` зустрічається у HTML, JS і `sw.js`. Це крихко.
+Release/cache token присутній у кількох HTML/JS/SW entrypoints, але його синхронізація вже контролюється `scripts/sync-release-version.mjs` і `tests/releaseVersion.test.js`.
 
-### Рішення
+### Поточне правило
 
-- Ввести єдине джерело версії: `js/modules/version.js` або build-time змінну.
-- Додати script `release:sync-version`.
-- Додати тест, який падає, якщо в репозиторії є більше одного release token.
+- зміну release token робити через `npm run release:sync-version`;
+- не редагувати версію вручну в одному файлі;
+- перед релізом запускати `npm run check`.
 
-## 7.6. Компоненти дублюються в HTML
+Довгостроково можна перейти до одного runtime source-of-truth або build-time підстановки, але зараз duplication guarded tests-ами.
 
-Панель доступності, footer, navigation-патерни й частина метаданих повторюються у багатьох HTML-файлах.
+## 7.6. Shared HTML partials
 
-### Рішення
+Панель доступності, footer і повторювані навігаційні блоки синхронізуються через `scripts/sync-html-partials.mjs`.
 
-На поточному етапі без важкого фреймворку:
+### Поточне правило
 
-- створити JS-компоненти для повторюваних блоків;
-- або використовувати простий build-step з HTML partials;
-- або мінімальний static generator.
+- `npm run html:sync-partials` оновлює HTML.
+- `npm run html:check-partials` перевіряє синхронність без запису файлів.
+- CI запускає `html:check-partials`.
+
+Не додавати нові копії shared HTML вручну без маркерів partial sync.
 
 ## 8. Цільова архітектура
 
@@ -292,10 +294,10 @@ tests/
 
 - ✓ Додано `MAX_AST_NODES = 5000` — перевіряється у `semanticValidator.js`.
 - ✓ Додано `MAX_PARSE_DEPTH = 20` — перевіряється в `ravlykParser.js` через `_parseDepth` лічильник.
-- ✓ Лічильник `stepCount` в `interpreterAstRuntime.js` порівнюється з `MAX_COMMAND_QUEUE_LENGTH = 50000` — захищає від переповнення legacy queue примітивами.
+- ✓ `MAX_COMMAND_QUEUE_LENGTH = 50000` — захищає legacy queue від надмірного розгортання команд.
 - ✓ Лічильник `astStepCount` в `interpreterAstRuntime.js` (параметр `maxAstSteps`) рахує кожен AST-крок включно з присвоєннями та control-flow — використовується для game tick budget.
 - ✓ `EXECUTION_TIMEOUT_MS = 180s` — time-based fallback.
-- ✓ `MAX_GAME_TICK_OPERATIONS = 500` — передається у `createAstRuntime` через `maxAstSteps`; кидає `GAME_TICK_OVERFLOW` при перевищенні.
+- ✓ `MAX_GAME_TICK_OPERATIONS = 500` — передається у `createAstRuntime` через `maxAstSteps`; `astStepCount` рахує кожен AST-крок і кидає `GAME_TICK_OVERFLOW` при перевищенні.
 - ✓ Overflow check на початку кожної RepeatStmt ітерації в `interpreterAstQueueAdapter.js` — nested loops fail fast без побудови мільйонів команд.
 - Залишилось: повна lazy execution (не будувати плоский масив взагалі) — великий рефактор (§7.2).
 
