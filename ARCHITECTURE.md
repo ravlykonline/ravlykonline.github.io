@@ -146,7 +146,7 @@ for (let idx = 0; idx < countValue; idx++) {
 
 - Не створювати плоский список команд для всіх повторів.
 - Виконувати цикл ліниво: один крок за раз.
-- Додати глобальний бюджет операцій `MAX_TOTAL_OPERATIONS`.
+- ✓ Глобальний бюджет операцій реалізовано через `MAX_COMMAND_QUEUE_LENGTH` (legacy queue) і `MAX_GAME_TICK_OPERATIONS` (game tick).
 
 ## 7.3. Semantic analyzer ✓ ЗАВЕРШЕНО
 
@@ -292,9 +292,10 @@ tests/
 
 - ✓ Додано `MAX_AST_NODES = 5000` — перевіряється у `semanticValidator.js`.
 - ✓ Додано `MAX_PARSE_DEPTH = 20` — перевіряється в `ravlykParser.js` через `_parseDepth` лічильник.
-- ✓ Лічильник `stepCount` в `interpreterAstRuntime.js` порівнюється з `MAX_COMMAND_QUEUE_LENGTH = 50000` — виконує роль total operation budget.
+- ✓ Лічильник `stepCount` в `interpreterAstRuntime.js` порівнюється з `MAX_COMMAND_QUEUE_LENGTH = 50000` — захищає від переповнення legacy queue примітивами.
+- ✓ Лічильник `astStepCount` в `interpreterAstRuntime.js` (параметр `maxAstSteps`) рахує кожен AST-крок включно з присвоєннями та control-flow — використовується для game tick budget.
 - ✓ `EXECUTION_TIMEOUT_MS = 180s` — time-based fallback.
-- ✓ `MAX_GAME_TICK_OPERATIONS = 500` — перевіряється в `interpreterGameAstRunner.js` per tick.
+- ✓ `MAX_GAME_TICK_OPERATIONS = 500` — передається у `createAstRuntime` через `maxAstSteps`; кидає `GAME_TICK_OVERFLOW` при перевищенні.
 - ✓ Overflow check на початку кожної RepeatStmt ітерації в `interpreterAstQueueAdapter.js` — nested loops fail fast без побудови мільйонів команд.
 - Залишилось: повна lazy execution (не будувати плоский масив взагалі) — великий рефактор (§7.2).
 
