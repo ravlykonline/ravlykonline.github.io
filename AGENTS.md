@@ -116,10 +116,14 @@ js/modules/semanticValidator.js
 - `MAX_COMMAND_QUEUE_LENGTH = 50000` — `stepCount` у `interpreterAstRuntime.js`
 - `MAX_REPEATS_IN_LOOP = 500` — перевіряється під час парсингу
 
+Додатково реалізовано:
+
+- ✓ `MAX_GAME_TICK_OPERATIONS = 500` — budget per game tick у `interpreterGameAstRunner.js`
+- ✓ Overflow check на початку кожної RepeatStmt ітерації — nested loops fail fast
+
 Залишилось:
 
-- `MAX_GAME_TICK_OPERATIONS` — окремий budget для одного тіку гри
-- Lazy loop execution — `interpreterAstQueueAdapter.js` ще розгортає `повторити` в плоский масив
+- Повна lazy execution — `interpreterAstQueueAdapter.js` ще будує плоский масив; захищено overflow check, але масив будується синхронно
 
 ## Крок 5. Уніфікувати runtime
 
@@ -289,7 +293,7 @@ PR можна вважати готовим, якщо:
 3. ✓ ~~Прибрати BOM / виправити workflow.~~
 4. ✓ ~~Додати static security checks та CSP.~~
 5. ✓ ~~Додати semantic validator.~~ — повністю реалізовано, включаючи parse depth budget.
-6. ✓ ~~Додати runtime operation budgets.~~ — `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_COMMAND_QUEUE_LENGTH` реалізовані; залишився `MAX_GAME_TICK_OPERATIONS` і lazy loops.
+6. ✓ ~~Додати runtime operation budgets.~~ — всі ліміти реалізовані: `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_COMMAND_QUEUE_LENGTH`, `MAX_GAME_TICK_OPERATIONS`, overflow check per RepeatStmt iteration.
 7. ✓ ~~Виправити analytics hash privacy.~~ — `safePageLocation()` прибирає hash.
 8. Обмежити Service Worker scope/cache.
 9. Уніфікувати AST runtime (animation path ще через queue adapter).

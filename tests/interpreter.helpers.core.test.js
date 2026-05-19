@@ -297,3 +297,75 @@ runTest('interpreter AST eval helper evaluates expression and attaches location 
 });
 
 console.log('Interpreter core helper tests completed.');
+
+runTest('interpreter game AST runner throws GAME_TICK_OVERFLOW when tick exceeds budget', () => {
+    class FakeEnv {
+        constructor() { this._vars = {}; }
+        define(k, v) { this._vars[k] = v; }
+        set(k, v) { this._vars[k] = v; }
+        get(k) { return this._vars[k] ?? 0; }
+        clone() { const e = new FakeEnv(); e._vars = { ...this._vars }; return e; }
+    }
+    class FakeRavlykError extends Error {
+        constructor(code) { super(code); this.name = 'RavlykError'; this.code = code; }
+    }
+
+    // Build a program with грати + повторити 600 ( вперед 1 ) — exceeds MAX_GAME_TICK_OPERATIONS=500
+    const forwardStmt = { type: 'MoveStmt', command: 'вперед', distanceExpr: { type: 'NumberLiteral', value: 1 } };
+    const repeatStmt = { type: 'RepeatStmt', count: { type: 'NumberLiteral', value: 600 }, body: [forwardStmt] };
+    const gameStmt = { type: 'GameStmt', body: [repeatStmt] };
+    const programAst = { type: 'Program', body: [gameStmt] };
+
+    const runner = createGameAstRunner({
+        programAst,
+        EnvironmentCtor: FakeEnv,
+        RavlykErrorCtor: FakeRavlykError,
+        maxRecursionDepth: 10,
+        maxRepeatsInLoop: 1000,
+        maxGameTickOperations: 500,
+        evalAstNumberExpression(expr) { return expr.value ?? 0; },
+        handlePrimitiveAstStatement() { return false; },
+        evaluateCondition() { return false; },
+        attachAstErrorLocation() {},
+    });
+
+    assert.throws(
+        () => runner.runGameTick(),
+        (err) => err && err.name === 'RavlykError' && err.message === 'GAME_TICK_OVERFLOW'
+    );
+});
+
+runTest('interpreter queue adapter throws COMMAND_QUEUE_OVERFLOW on nested loops before exhausting memory', () => {
+    class FakeEnv {
+        constructor() { this._vars = {}; }
+        define(k, v) { this._vars[k] = v; }
+        set(k, v) { this._vars[k] = v; }
+        get(k) { return this._vars[k] ?? 0; }
+        clone() { const e = new FakeEnv(); e._vars = { ...this._vars }; return e; }
+    }
+
+    const fwd = { type: 'MoveStmt', command: 'вперед', distanceExpr: { type: 'NumberLiteral', value: 1 } };
+    const inner = { type: 'RepeatStmt', count: { type: 'NumberLiteral', value: 500 }, body: [fwd] };
+    const outer = { type: 'RepeatStmt', count: { type: 'NumberLiteral', value: 500 }, body: [inner] };
+    const programAst = { type: 'Program', body: [outer] };
+
+    const createError = (key) => { const e = new Error(key); e.name = 'RavlykError'; return e; };
+
+    assert.throws(() => {
+        astProgramToLegacyQueue({
+            programAst,
+            EnvironmentCtor: FakeEnv,
+            maxRecursionDepth: 10,
+            maxRepeatsInLoop: 500,
+            maxCommandQueueLength: 100,
+            evalAstNumberExpression: (expr) => expr.value ?? 0,
+            handlePrimitiveAstStatement: (stmt, env, mode, out) => {
+                if (stmt.type === 'RepeatStmt' || stmt.type === 'IfStmt') return false;
+                if (out) out.push({ type: 'MOVE' });
+                return true;
+            },
+            attachAstErrorLocation: () => {},
+            createError,
+        });
+    }, (err) => err && err.message === 'COMMAND_QUEUE_OVERFLOW');
+});

@@ -120,6 +120,11 @@ export function astProgramToLegacyQueue({
                     throw createError('TOO_MANY_REPEATS_IN_LOOP');
                 }
                 for (let idx = 0; idx < countValue; idx++) {
+                    // Check overflow at start of each iteration so nested loops fail fast
+                    // without building a huge intermediate queue first.
+                    if (maxCommandQueueLength != null && out.length >= maxCommandQueueLength) {
+                        throw createError('COMMAND_QUEUE_OVERFLOW');
+                    }
                     for (const nested of stmt.body || []) {
                         runStmt(nested, env, out, callDepth);
                     }

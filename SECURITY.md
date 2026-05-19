@@ -84,9 +84,7 @@ export const EXECUTION_TIMEOUT_MS = 180000;  // ✓ time-based fallback
 
 Залишилось:
 
-```js
-export const MAX_GAME_TICK_OPERATIONS = ???; // ще треба — budget per game tick
-```
+- Повна lazy execution у `interpreterAstQueueAdapter.js` (не будувати плоский масив взагалі) — зараз захищено overflow check на початку кожної RepeatStmt ітерації
 
 Краще довгострокове рішення — не розгортати цикли в плоский масив команд. Runtime має виконувати AST ліниво.
 

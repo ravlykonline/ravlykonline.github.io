@@ -97,6 +97,7 @@ export const EXECUTION_TIMEOUT_MS = 180000; // 180 секунд, як зазна
 export const MAX_CODE_LENGTH_CHARS = 10000;
 export const MAX_AST_NODES = 5000;
 export const MAX_COMMAND_QUEUE_LENGTH = 50000;
+export const MAX_GAME_TICK_OPERATIONS = 500; // max AST steps executed per single game tick
 export const RANDOM_SAFE_MARGIN_PX = 100;
 export const RANDOM_MIN_DISTANCE_PX = 20;
 export const CANVAS_BOUNDARY_PADDING = 5; // Зменшено, бо равлик тепер не виходить за межі
@@ -134,6 +135,7 @@ export const ERROR_MESSAGES = {
     NESTING_TOO_DEEP: 'Програма має забагато вкладених дужок. Максимум ' + MAX_PARSE_DEPTH + ' рівнів.',
     TOO_MANY_REPEATS_IN_LOOP: 'У цьому циклі забагато повторень. Максимум ' + MAX_REPEATS_IN_LOOP + '. Спробуй зменшити N або збільшити крок руху.',
     COMMAND_QUEUE_OVERFLOW: 'Програма генерує надто багато команд (більше ' + MAX_COMMAND_QUEUE_LENGTH + '). Зменш кількість повторень або спрости цикли.',
+    GAME_TICK_OVERFLOW: 'Один крок гри виконує надто багато дій (більше ' + MAX_GAME_TICK_OPERATIONS + '). Спрости тіло блоку "грати".',
     EXECUTION_TIMEOUT: 'Програма виконувалась занадто довго (більше ' + (EXECUTION_TIMEOUT_MS / 1000) + ' секунд).',
     EXECUTION_STOPPED_BY_USER: 'Виконання зупинено.',
     CODE_TOO_LONG: 'Код завеликий. Максимальна довжина — ' + MAX_CODE_LENGTH_CHARS + ' символів.',

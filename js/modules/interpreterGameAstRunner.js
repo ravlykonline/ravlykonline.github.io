@@ -6,6 +6,7 @@ export function createGameAstRunner({
     RavlykErrorCtor,
     maxRecursionDepth,
     maxRepeatsInLoop,
+    maxGameTickOperations,
     evalAstNumberExpression,
     handlePrimitiveAstStatement,
     evaluateCondition,
@@ -44,6 +45,7 @@ export function createGameAstRunner({
     const sharedFunctionDefs = initRuntime.functionDefs;
 
     const runGameTick = () => {
+        let tickSteps = 0;
         for (const body of gameBodies) {
             const tickRuntime = createAstRuntime({
                 programAst: { type: 'Program', body },
@@ -54,7 +56,11 @@ export function createGameAstRunner({
 
             let step = tickRuntime.step();
             while (step !== null) {
+                if (maxGameTickOperations != null && tickSteps >= maxGameTickOperations) {
+                    throw new RavlykErrorCtor('GAME_TICK_OVERFLOW');
+                }
                 handlePrimitiveAstStatement(step.stmt, step.env, 'immediate');
+                tickSteps++;
                 step = tickRuntime.step();
             }
         }

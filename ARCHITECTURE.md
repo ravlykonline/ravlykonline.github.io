@@ -294,7 +294,9 @@ tests/
 - ✓ Додано `MAX_PARSE_DEPTH = 20` — перевіряється в `ravlykParser.js` через `_parseDepth` лічильник.
 - ✓ Лічильник `stepCount` в `interpreterAstRuntime.js` порівнюється з `MAX_COMMAND_QUEUE_LENGTH = 50000` — виконує роль total operation budget.
 - ✓ `EXECUTION_TIMEOUT_MS = 180s` — time-based fallback.
-- Залишилось: `MAX_GAME_TICK_OPERATIONS`, заборона експоненційного розгортання циклів (§7.2).
+- ✓ `MAX_GAME_TICK_OPERATIONS = 500` — перевіряється в `interpreterGameAstRunner.js` per tick.
+- ✓ Overflow check на початку кожної RepeatStmt ітерації в `interpreterAstQueueAdapter.js` — nested loops fail fast без побудови мільйонів команд.
+- Залишилось: повна lazy execution (не будувати плоский масив взагалі) — великий рефактор (§7.2).
 
 ### Етап 3. Semantic validation ✓ ЗАВЕРШЕНО
 
@@ -312,7 +314,7 @@ tests/
 - ✓ Ігровий режим (`interpreterGameAstRunner.js`) переписано на `createAstRuntime`.
 - ✓ Виправлено семантичний баг зі змінними в `якщо`-блоках (§7.1).
 - ✓ MOVE/TURN/GOTO обчислюються ліниво під час анімації.
-- Залишилось: прибрати розгортання циклів у `interpreterAstQueueAdapter.js` (§7.2).
+- Залишилось: прибрати розгортання циклів у `interpreterAstQueueAdapter.js` повністю (§7.2) — зараз захищено overflow check, але масив все одно будується синхронно.
 
 ### Етап 5. Компоненти й PWA
 

@@ -6,6 +6,7 @@ import {
     MAX_RECURSION_DEPTH,
     MAX_REPEATS_IN_LOOP,
     MAX_COMMAND_QUEUE_LENGTH,
+    MAX_GAME_TICK_OPERATIONS,
 } from './constants.js';
 import { RavlykError } from './ravlykParser.js';
 import { Environment } from './environment.js';
@@ -110,6 +111,7 @@ export function executeGameProgramRuntime(runtime, programAst) {
         RavlykErrorCtor: RavlykError,
         maxRecursionDepth: MAX_RECURSION_DEPTH,
         maxRepeatsInLoop: MAX_REPEATS_IN_LOOP,
+        maxGameTickOperations: MAX_GAME_TICK_OPERATIONS,
         evalAstNumberExpression: (expr, envRef) => runtime.evalAstNumberExpression(expr, envRef),
         handlePrimitiveAstStatement: (stmt, envCtx, mode) => runtime.handlePrimitiveAstStatement(stmt, envCtx, mode),
         evaluateCondition: (condition, envCtx) => evaluateAstCondition(condition, {
