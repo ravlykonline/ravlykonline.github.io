@@ -1,6 +1,7 @@
 // js/modules/ravlykParser.js
 import {
     ERROR_MESSAGES,
+    MAX_PARSE_DEPTH,
 } from './constants.js';
 import { tokenizeWithMetadata } from './parserTokenizer.js';
 import {
@@ -155,6 +156,13 @@ export class RavlykParser {
     }
 
     parseTokensToAst(tokens, depth = 0, substitutions = {}, tokenMeta = null) {
+        this._parseDepth = (this._parseDepth || 0) + 1;
+        // _parseDepth starts at 1 for the top-level program call; each nested block adds 1.
+        // Allow MAX_PARSE_DEPTH nested block levels (top-level = 1, so limit is MAX_PARSE_DEPTH + 1).
+        if (this._parseDepth > MAX_PARSE_DEPTH + 1) {
+            this._parseDepth--;
+            throw new RavlykError("NESTING_TOO_DEEP");
+        }
         const activeTokenMeta = tokenMeta || this.lastTokenMeta;
         const statementContext = createParserStatementContext({
             parser: this,
@@ -172,15 +180,19 @@ export class RavlykParser {
         });
         const body = [];
         let i = 0;
-        while (i < tokens.length) {
-            try {
-                const parsedStatement = statementContext.parseNextStatementToAst(tokens, activeTokenMeta, i);
-                body.push(parsedStatement.stmt);
-                i = parsedStatement.nextIndex;
-            } catch (error) {
-                this.attachErrorLocation(error, i, activeTokenMeta);
-                throw error;
+        try {
+            while (i < tokens.length) {
+                try {
+                    const parsedStatement = statementContext.parseNextStatementToAst(tokens, activeTokenMeta, i);
+                    body.push(parsedStatement.stmt);
+                    i = parsedStatement.nextIndex;
+                } catch (error) {
+                    this.attachErrorLocation(error, i, activeTokenMeta);
+                    throw error;
+                }
             }
+        } finally {
+            this._parseDepth--;
         }
 
         return { type: "Program", body, span: this.spanFromMeta(activeTokenMeta, 0, tokens.length) };

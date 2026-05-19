@@ -232,3 +232,20 @@ runTest('destroy removes keyboard listeners and clears runtime flags', () => {
         globalThis.window = originalWindow;
     }
 });
+
+runTest('throws NESTING_TOO_DEEP when blocks nested more than MAX_PARSE_DEPTH', () => {
+    const interpreter = createInterpreter();
+    // Build 25 levels of nested повторити blocks (limit is 20)
+    const deep = 'повторити 1 ( '.repeat(25) + 'вперед 10' + ' )'.repeat(25);
+    assert.throws(
+        () => interpreter.parseTokens(interpreter.tokenize(deep)),
+        (error) => error && error.name === 'RavlykError' && error.message.includes('вкладених дужок')
+    );
+});
+
+runTest('allows blocks nested exactly at MAX_PARSE_DEPTH', () => {
+    const interpreter = createInterpreter();
+    // 20 levels should be fine
+    const ok = 'повторити 1 ( '.repeat(20) + 'вперед 10' + ' )'.repeat(20);
+    assert.doesNotThrow(() => interpreter.parseTokens(interpreter.tokenize(ok)));
+});

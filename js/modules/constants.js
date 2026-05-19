@@ -90,6 +90,7 @@ export const MAX_PEN_SIZE = 50;
 export const RAVLYK_INITIAL_ANGLE = -90; // Upwards
 
 export const MAX_RECURSION_DEPTH = 20;
+export const MAX_PARSE_DEPTH = 20; // max nesting level of blocks during parsing
 export const MAX_REPEATS_IN_LOOP = 500;
 export const MAX_CANVAS_SIZE_PX = 3000; // Не використовується активно в поточній логіці
 export const EXECUTION_TIMEOUT_MS = 180000; // 180 секунд, як зазначено в документації
@@ -130,6 +131,7 @@ export const ERROR_MESSAGES = {
     REPEAT_EXPECT_OPEN_PAREN: 'Після числа в команді "повторити" потрібна дужка "(".',
     REPEAT_EXPECT_CLOSE_PAREN: 'У команді "повторити" бракує закриваючої дужки ")".',
     TOO_MANY_NESTED_REPEATS: 'Забагато вкладених "повторити". Максимум ' + MAX_RECURSION_DEPTH + ' рівнів.',
+    NESTING_TOO_DEEP: 'Програма має забагато вкладених дужок. Максимум ' + MAX_PARSE_DEPTH + ' рівнів.',
     TOO_MANY_REPEATS_IN_LOOP: 'У цьому циклі забагато повторень. Максимум ' + MAX_REPEATS_IN_LOOP + '. Спробуй зменшити N або збільшити крок руху.',
     COMMAND_QUEUE_OVERFLOW: 'Програма генерує надто багато команд (більше ' + MAX_COMMAND_QUEUE_LENGTH + '). Зменш кількість повторень або спрости цикли.',
     EXECUTION_TIMEOUT: 'Програма виконувалась занадто довго (більше ' + (EXECUTION_TIMEOUT_MS / 1000) + ' секунд).',

@@ -19,13 +19,14 @@ export function parseAstBlockOrThrow({
     parseTokensToAst,
     spanFromMeta,
     createError,
+    depth = 0,
 }) {
     if (openParenIndex >= tokens.length || tokens[openParenIndex] !== '(') throw createError('REPEAT_EXPECT_OPEN_PAREN');
     const closeParenIndex = findClosingParenIndexFn(tokens, openParenIndex);
     if (closeParenIndex === -1) throw createError('REPEAT_EXPECT_CLOSE_PAREN');
     const innerTokens = tokens.slice(openParenIndex + 1, closeParenIndex);
     const innerMeta = tokenMeta ? tokenMeta.slice(openParenIndex + 1, closeParenIndex) : null;
-    const body = parseTokensToAst(innerTokens, 0, {}, innerMeta).body;
+    const body = parseTokensToAst(innerTokens, depth + 1, {}, innerMeta).body;
     return { body, nextIndex: closeParenIndex + 1, span: spanFromMeta(tokenMeta, openParenIndex, closeParenIndex + 1) };
 }
 
