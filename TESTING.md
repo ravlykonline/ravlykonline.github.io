@@ -23,7 +23,8 @@
 npm run test:unit        # усі unit-тести
 npm run test:e2e         # усі E2E-тести (Playwright)
 npm run test             # unit + E2E разом
-npm run check            # unit-тести + перевірка shared HTML partials
+npm run check            # unit-тести + перевірка shared HTML partials + ESLint
+npm run lint             # ESLint для js/ та sw.js
 npm run html:sync-partials # синхронізація спільних HTML-блоків
 npm run html:check-partials # перевірка синхронізації shared HTML без запису файлів
 npm run release:sync-version -- YYYY-MM-DD-N  # синхронізація release-версії
@@ -57,6 +58,10 @@ tests/
   randomResolver.test.js         — генератор випадкових значень
   encoding.test.js               — UTF-8, BOM, відсутність v4beta-шляхів, структурні регресії, shared HTML partials
   releaseVersion.test.js         — синхронізація release-версії між SW і HTML
+  serviceWorker.test.js          — Service Worker: production-only registration, allowlist, bounded cache
+  astAnimationRuntime.test.js    — lazy animation runtime: порожня програма, move/turn, repeat, змінні, if/else, функції, budget
+  runtimeUnification.test.js     — createAstRuntime.step() напряму: sequences, repeat, assign, if/else, функції, ColorStmt/ClearStmt
+  legacyBoundary.test.js         — CI-межа: executeCommands не викликає astToLegacyQueue і runCommandQueue
   parserTestUtils.js             — спільні утиліти для тестів парсера
   testUtils.js                   — загальні тестові утиліти
   e2e/
@@ -121,6 +126,7 @@ tests/
 - npx playwright install --with-deps chromium firefox webkit
 - npm run test:unit
 - npm run html:check-partials
+- npm run lint
 - npm run test:e2e -- --reporter=dot
 ```
 

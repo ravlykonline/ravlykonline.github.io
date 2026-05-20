@@ -73,15 +73,16 @@
 
 - `js/modules/ravlykInterpreter.js` — головний клас інтерпретатора.
 - `js/modules/ravlykInterpreterRuntime.js` — збірка runtime-процесів.
-- `js/modules/interpreterAstRuntime.js` — спільний frame-based AST runtime; використовується і для звичайного режиму (через queue adapter), і для ігрового режиму. Один env-об'єкт на всі кадри — зміни змінних у `якщо`-блоках видимі наступним командам.
-- `js/modules/interpreterAstQueueAdapter.js` — перетворення AST у legacy command queue для animation path.
-- `js/modules/interpreterQueueRuntime.js` — виконання command queue через `requestAnimationFrame`.
-- `js/modules/interpreterCommandExecutor.js` — виконання однієї runtime-команди; MOVE/TURN/GOTO зберігають вираз (`distanceExpr`/`angleExpr`/`xExpr`/`yExpr`) і обчислюють значення ліниво під час виконання.
+- `js/modules/interpreterAstRuntime.js` — спільний frame-based AST runtime для обох шляхів виконання. Один env-об'єкт на всі кадри — зміни змінних у `якщо`-блоках видимі наступним командам. Параметри `maxAstSteps` / `maxCommandQueueLength` захищають від зависання.
+- `js/modules/interpreterAstAnimationRuntime.js` — rAF-driven анімаційний цикл для звичайного режиму; тягне примітиви з `createAstRuntime.step()` по одному за кадр; бюджет `maxAstSteps = MAX_COMMAND_QUEUE_LENGTH` обмежує control-flow-only цикли.
 - `js/modules/interpreterGameAstRunner.js` — ігровий режим (`грати`): init-фаза + тік через `createAstRuntime`.
-- `js/modules/interpreterPrimitiveStatements.js` — виконання базових AST-команд у queue-режимі та immediate-режимі.
+- `js/modules/interpreterPrimitiveStatements.js` — виконання базових AST-команд у `queue`-режимі (конвертація в legacy cmd) та `immediate`-режимі.
+- `js/modules/interpreterCommandExecutor.js` — виконання однієї legacy runtime-команди; MOVE/TURN/GOTO зберігають вираз і обчислюють ліниво під час анімації.
 - `js/modules/interpreterConditions.js` — перевірка умов.
 - `js/modules/interpreterAstEval.js` — обчислення числових AST-виразів.
 - `js/modules/environment.js` — середовище змінних.
+- `js/modules/interpreterAstQueueAdapter.js` — **LEGACY COMPATIBILITY ONLY.** Перетворює AST у плоску command queue. Використовується тільки в `RavlykInterpreter.parseTokens()` (backward-compat shim) і старих тестах. Не є частиною production execution path.
+- `js/modules/interpreterQueueRuntime.js` — **LEGACY COMPATIBILITY ONLY.** rAF-цикл для виконання flat command queue. Використовується тільки разом з `interpreterAstQueueAdapter.js`.
 
 ### 5.5. UI / редактор
 
@@ -106,17 +107,19 @@
 
 ## 7. Поточні архітектурні борги
 
-## 7.1. Animation path ще залежить від legacy queue
+## 7.1. Animation path і lazy execution ✓ ЗАВЕРШЕНО
 
-У проєкті вже є спільний frame-based `createAstRuntime` у `interpreterAstRuntime.js`. Game mode виконує AST напряму через цей runtime. Звичайний animation path поки проходить через:
+Animation path повністю переведено на lazy AST execution через `interpreterAstAnimationRuntime.js`. Більше не будується плоска command queue.
+
+Новий шлях:
 
 ```text
-AST -> interpreterAstQueueAdapter.js -> command queue -> interpreterQueueRuntime.js
+AST -> interpreterAstAnimationRuntime.js -> createAstRuntime (step-by-step) -> rAF loop
 ```
 
-Це означає, що семантика AST уже частково уніфікована, але animation path ще будує плоску command queue.
+`interpreterAstQueueAdapter.js` і `interpreterQueueRuntime.js` позначено `@deprecated — LEGACY COMPATIBILITY ONLY`. Вони залишаються тільки для зворотної сумісності `parseTokens()` і старих тестів. Cleanup milestone описано в `interpreterAstQueueAdapter.js`.
 
-**Що вже виправлено:**
+**Виправлений семантичний баг зі змінними:**
 
 ```ravlyk
 створити x = 1
@@ -126,34 +129,16 @@ AST -> interpreterAstQueueAdapter.js -> command queue -> interpreterQueueRuntime
 вперед x
 ```
 
-Раніше: Равлик рухався на **1** крок — значення `x` у `вперед x` заморожувалось на момент побудови черги, зміни всередині `якщо` ігнорувались.
+Раніше: Равлик рухався на **1** крок — значення `x` заморожувалось на момент побудови черги.  
+Тепер: Равлик рухається на **5** кроків. `createAstRuntime` використовує один спільний env-об'єкт для всіх кадрів (без клонування).
 
-Тепер: Равлик рухається на **5** кроків. `createAstRuntime` використовує один спільний env-об'єкт для всіх кадрів (без клонування), тому зміни в `якщо`-гілці одразу видимі.
+**Budget захист:** `maxAstSteps: MAX_COMMAND_QUEUE_LENGTH` передається в `createAstRuntime` для animation path, тому control-flow-only програми (наприклад, 500×500 вкладених циклів) зупиняються з `COMMAND_QUEUE_OVERFLOW` замість зависання.
 
-**Ліниве обчислення виразів:** MOVE/TURN/GOTO зберігають AST-вираз у черзі (`distanceExpr`, `angleExpr`, `xExpr`/`yExpr`) і обчислюють його під час анімації проти `executionEnv`. Випадкові значення залишаються завчасно обчисленими (один random pick).
+**Legacy boundary tests:** `tests/legacyBoundary.test.js` перевіряє в CI, що `executeCommands` ніколи не викликає `astToLegacyQueue` або `runCommandQueue`.
 
-**Що залишилось:** прибрати повне розгортання циклів у `interpreterAstQueueAdapter.js` і виконувати animation path ліниво через AST runtime.
+## 7.2. Розгортання циклів у чергу ✓ ЗАВЕРШЕНО
 
-## 7.2. Розгортання циклів у чергу
-
-`interpreterAstQueueAdapter.js` розгортає `RepeatStmt` у багато команд:
-
-```js
-for (let idx = 0; idx < countValue; idx++) {
-  for (const nested of stmt.body || []) {
-    runStmt(nested, env, out, callDepth);
-  }
-}
-```
-
-Це архітектурно небажано. Критичний ризик зависання вже закритий overflow checks, але синхронне створення плоскої черги лишається технічним боргом.
-
-### Ціль
-
-- не створювати плоский список команд для всіх повторів;
-- виконувати цикл ліниво: один AST-крок за раз;
-- використати `createAstRuntime` як основу і для animation path;
-- зберегти дружні помилки при перевищенні budget.
+Усунено. Animation path більше не розгортає `RepeatStmt` у плоский масив команд. Виконання відбувається ліниво через `createAstRuntime.step()` — один AST-крок за кадр.
 
 ## 7.3. Semantic analyzer ✓ ЗАВЕРШЕНО
 
@@ -171,16 +156,15 @@ for (let idx = 0; idx < countValue; idx++) {
 
 Validator підключено в `RavlykParser.parseCodeToAst`, тож AST проходить перевірку до runtime.
 
-## 7.4. Service Worker прив'язаний до кореня сайту
+## 7.4. Service Worker ✓ ЗАВЕРШЕНО
 
-`js/registerServiceWorker.js` реєструє `/sw.js` зі scope `/`. Це нормально лише тоді, коли production-версія справді живе в корені домену. Для GitHub Pages, beta-середовищ або підпапок це може давати конфлікти кешу.
+`sw.js` переписано:
 
-### Рішення
-
-- Визначити production path: `/`, `/go/` або інше.
-- Реєструвати SW тільки в production.
-- Використовувати відносний scope або явно обмежений scope.
-- Для beta/dev використовувати окремий cache namespace.
+- Реєструється тільки для production host (`js/registerServiceWorker.js` перевіряє `location.hostname`).
+- Runtime cache обмежений allowlist (`RUNTIME_CACHE_ALLOWLIST`).
+- `cache.put` обгорнуто в `try/catch`.
+- Bounded cleanup: при перевищенні `MAX_RUNTIME_CACHE_ENTRIES` старі записи видаляються.
+- Release/cache version синхронізується через `scripts/sync-release-version.mjs` і перевіряється `tests/releaseVersion.test.js` та `tests/serviceWorker.test.js`.
 
 ## 7.5. Release version синхронізується скриптом
 
@@ -299,7 +283,7 @@ tests/
 - ✓ `EXECUTION_TIMEOUT_MS = 180s` — time-based fallback.
 - ✓ `MAX_GAME_TICK_OPERATIONS = 500` — передається у `createAstRuntime` через `maxAstSteps`; `astStepCount` рахує кожен AST-крок і кидає `GAME_TICK_OVERFLOW` при перевищенні.
 - ✓ Overflow check на початку кожної RepeatStmt ітерації в `interpreterAstQueueAdapter.js` — nested loops fail fast без побудови мільйонів команд.
-- Залишилось: повна lazy execution (не будувати плоский масив взагалі) — великий рефактор (§7.2).
+- ✓ `maxAstSteps: MAX_COMMAND_QUEUE_LENGTH` передається в `createAstRuntime` для animation path — захист від control-flow-only програм без примітивних команд.
 
 ### Етап 3. Semantic validation ✓ ЗАВЕРШЕНО
 
@@ -311,19 +295,20 @@ tests/
 - ✓ Додано AST node budget.
 - ✓ Додано parse/nesting depth budget.
 
-### Етап 4. Єдиний AST runtime (частково ✓)
+### Етап 4. Єдиний AST runtime ✓ ЗАВЕРШЕНО
 
 - ✓ Створено `interpreterAstRuntime.js` — frame-based runtime зі спільним env.
 - ✓ Ігровий режим (`interpreterGameAstRunner.js`) переписано на `createAstRuntime`.
 - ✓ Виправлено семантичний баг зі змінними в `якщо`-блоках (§7.1).
-- ✓ MOVE/TURN/GOTO обчислюються ліниво під час анімації.
-- Залишилось: прибрати розгортання циклів у `interpreterAstQueueAdapter.js` повністю (§7.2) — зараз захищено overflow check, але масив все одно будується синхронно.
+- ✓ Animation path переведено на lazy execution через `interpreterAstAnimationRuntime.js` (§7.1, §7.2).
+- ✓ `interpreterAstQueueAdapter.js` і `interpreterQueueRuntime.js` позначено `@deprecated LEGACY COMPATIBILITY ONLY`.
+- ✓ Legacy boundary перевіряється в CI: `tests/legacyBoundary.test.js`.
 
-### Етап 5. Компоненти й PWA
+### Етап 5. Компоненти й PWA ✓ ЗАВЕРШЕНО
 
 - ✓ Уніфікована accessibility panel і HTML/navigation partials через `scripts/sync-html-partials.mjs`.
-- Переписати Service Worker на allowlist + bounded runtime cache.
-- Додати окремий режим dev/prod для SW.
+- ✓ Service Worker переписано: production-only registration, allowlist runtime cache, bounded cleanup, `try/catch` для `cache.put` (§7.4).
+- ✓ Release/cache version синхронізується скриптом і перевіряється тестами.
 
 ## 11. Критерії готовності архітектури
 

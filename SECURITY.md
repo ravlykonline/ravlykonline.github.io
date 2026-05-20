@@ -36,7 +36,7 @@ export const MAX_GAME_TICK_OPERATIONS = 500;
 - `MAX_AST_NODES` — semantic validator відхиляє надто великий AST.
 - `MAX_PARSE_DEPTH` — parser зупиняє надто глибоку вкладеність блоків дружньою помилкою.
 - `MAX_REPEATS_IN_LOOP` — один цикл не може мати необмежену кількість повторів.
-- `MAX_COMMAND_QUEUE_LENGTH` — legacy queue path не розгортає вкладені цикли в мільйони команд.
+- `MAX_COMMAND_QUEUE_LENGTH` — animation path передає це значення як `maxAstSteps` у `createAstRuntime`, тому control-flow-only програми зупиняються з `COMMAND_QUEUE_OVERFLOW`.
 - `MAX_GAME_TICK_OPERATIONS` — game tick має бюджет AST-кроків через `createAstRuntime({ maxAstSteps })`; рахуються присвоєння, умови, цикли, виклики функцій і примітивні команди.
 - `EXECUTION_TIMEOUT_MS` — додатковий часовий fallback, але не основний захист від синхронної роботи.
 
@@ -44,30 +44,23 @@ export const MAX_GAME_TICK_OPERATIONS = 500;
 
 Найважливіший ризик для дитячого браузерного середовища — Denial of Service через коротку програму з великою кількістю операцій. Поточний стан:
 
-- звичайний animation path все ще проходить через `interpreterAstQueueAdapter.js` і будує плоску command queue;
-- overflow check зупиняє розгортання до небезпечного розміру;
-- game mode виконує AST напряму через `interpreterAstRuntime.js` і має per-tick budget;
-- довгострокова ціль — прибрати повне розгортання циклів у queue adapter і перейти до lazy AST execution для animation path.
+- animation path виконує AST ліниво через `interpreterAstAnimationRuntime.js` → `createAstRuntime`; плоска command queue більше не будується;
+- `maxAstSteps: MAX_COMMAND_QUEUE_LENGTH` (50000) передається в `createAstRuntime` для animation path — рахуються ВСІ AST-кроки (присвоєння, умови, цикли, виклики), не тільки примітиви;
+- game mode виконує AST напряму через `interpreterAstRuntime.js` і має per-tick budget (`MAX_GAME_TICK_OPERATIONS = 500`);
+- `interpreterAstQueueAdapter.js` залишається тільки для legacy tests і `parseTokens()` shim, позначено `@deprecated`.
 
-Це означає: критичний ризик зависання вкладеними циклами закритий лімітами, але архітектурний борг із legacy queue ще існує.
+Критичний ризик зависання через вкладені цикли повністю закритий.
 
 ## 4. Service Worker
 
-Service Worker — головний відкритий security/PWA борг. Поточний `sw.js`:
+Service Worker переписано:
 
-- реєструється через `/sw.js` зі scope `/`;
-- використовує root paths у precache;
-- кешує runtime responses через `cache.put(request, response.clone())`;
-- має широкий список precache assets.
-
-Що треба зробити наступним окремим етапом:
-
-- реєструвати SW тільки для production host/path;
-- явно визначити production scope;
-- обмежити runtime cache allowlist;
-- обгорнути `cache.put` у `try/catch`;
-- додати bounded cache cleanup;
-- зберігати release/cache version синхронізовано через наявний `release:sync-version` і regression tests.
+- реєструється тільки для production host (`js/registerServiceWorker.js` перевіряє `location.hostname`);
+- scope обмежений і явно визначений;
+- runtime cache обмежений `RUNTIME_CACHE_ALLOWLIST`;
+- `cache.put` обгорнуто в `try/catch`;
+- bounded cleanup при перевищенні `MAX_RUNTIME_CACHE_ENTRIES`;
+- release/cache version синхронізується через `scripts/sync-release-version.mjs` і перевіряється `tests/releaseVersion.test.js` та `tests/serviceWorker.test.js`.
 
 ## 5. XSS і DOM
 
@@ -116,7 +109,6 @@ npm run check
 
 ## 9. Поточні Пріоритети
 
-1. Переписати Service Worker scope/cache policy.
-2. Прибрати повне розгортання циклів у `interpreterAstQueueAdapter.js`.
-3. Продовжити уніфікацію animation path навколо AST runtime.
-4. Тримати `LANGUAGE_SPEC.md`, manual і tests синхронними при кожній зміні мови.
+1. Тримати `LANGUAGE_SPEC.md`, manual і tests синхронними при кожній зміні мови.
+2. Поступово мігрувати тести, що досі використовують `astToLegacyQueue` / flat queue, на `createAstRuntime` / `executeCommands`, а після цього видалити `interpreterAstQueueAdapter.js` і `interpreterQueueRuntime.js`.
+3. Розширювати мову (нові команди, `поки`-цикл) тільки після того, як кожна нова команда покрита тестами та описана в `LANGUAGE_SPEC.md`.

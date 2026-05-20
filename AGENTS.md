@@ -38,13 +38,15 @@
 - Parser/runtime limits реалізовані: `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_REPEATS_IN_LOOP`, `MAX_COMMAND_QUEUE_LENGTH`, `MAX_GAME_TICK_OPERATIONS`.
 - Analytics `page_location` не містить hash, тому `#code=` не потрапляє в Google Analytics.
 - Shared accessibility/footer/navigation HTML синхронізується через `scripts/sync-html-partials.mjs` і перевіряється в CI.
+- ✓ Service Worker переписано: production-only registration, allowlist runtime cache, bounded cleanup, `try/catch`.
+- ✓ Animation path переведено на lazy AST execution через `interpreterAstAnimationRuntime.js`. Legacy queue більше не будується в production path. Legacy boundary перевіряється в CI (`tests/legacyBoundary.test.js`).
+- ✓ Semantic-правило для повторного `створити x = ...` реалізовано в `semanticValidator.js` (перевірка в поточному і батьківських scope, shadowing параметрів).
+- ✓ ESLint (`eslint` v10) доданий: `npm run lint` перевіряє `js/` і `sw.js`; `npm run check` включає lint.
 
 ### Відкрито
 
-- **P1:** Service Worker має root scope і широке кешування. Потрібні production-only registration, обмежений scope, allowlist runtime cache, `try/catch` для `cache.put`, bounded cleanup.
-- **P1:** Animation path ще використовує `interpreterAstQueueAdapter.js` і будує плоску command queue. Критичний DoS-ризик закритий budget-ами, але ціль — lazy AST runtime без розгортання циклів.
-- **P2:** Повторне `створити x = ...` ще не оформлено як окреме semantic-правило.
-- **P2:** Release/cache token синхронізується скриптом і тестами, але не має одного runtime source-of-truth.
+- Поступова міграція legacy tests (що досі використовують `astToLegacyQueue` / flat queue) на `createAstRuntime` / `executeCommands`. Після цього `interpreterAstQueueAdapter.js` і `interpreterQueueRuntime.js` можна видалити.
+- Release/cache token синхронізується скриптом і тестами, але не має одного runtime source-of-truth (прийнятно для поточного масштабу).
 
 ## 4. Правила роботи агента
 
@@ -114,59 +116,30 @@ js/modules/semanticValidator.js
 
 - Повна lazy execution — `interpreterAstQueueAdapter.js` ще будує плоский масив; захищено overflow check, але масив будується синхронно
 
-## Крок 5. Уніфікувати runtime
+## Крок 5. Уніфікувати runtime ✓ ЗАВЕРШЕНО
 
-Це великий етап. Не робити його в одному патчі з усім іншим.
-
-Ціль:
+Animation path і game path тепер обидва використовують `createAstRuntime` (frame-based, спільний env):
 
 ```text
-AST -> semantic validator -> AST runtime -> drawing/animation adapter
+AST -> semantic validator -> createAstRuntime -> rAF loop (animation) / game tick (game)
 ```
 
-Замість:
+`interpreterAstAnimationRuntime.js` реалізує lazy rAF-driven loop: `createAstRuntime.step()` повертає наступний примітив, який анімується за один кадр. Кадри не будуються заздалегідь.
 
-```text
-AST -> legacy queue -> queue runtime
-AST -> game runner
-```
-
-Рекомендована модель runtime:
-
-```js
-class RuntimeFrame {
-  constructor(statements, env) {
-    this.statements = statements;
-    this.index = 0;
-    this.env = env;
-  }
-}
-```
-
-Frame types:
-
-- ProgramFrame;
-- RepeatFrame;
-- FunctionFrame;
-- IfFrame;
-- GameFrame.
-
-Кожен крок runtime виконує малу кількість операцій і повертає управління браузеру.
+Legacy модулі (`interpreterAstQueueAdapter.js`, `interpreterQueueRuntime.js`) позначено `@deprecated`. Cleanup milestone — міграція legacy tests, після чого ці файли видаляються.
 
 ## Крок 6. Analytics privacy ✓
 
 `safePageLocation()` у `js/analytics.js` вже повертає `origin + pathname + search` без hash. `#code=` не потрапляє в `page_location`.
 
-## Крок 7. Виправити Service Worker
+## Крок 7. Виправити Service Worker ✓ ЗАВЕРШЕНО
 
-Завдання:
-
-- не реєструвати SW у dev, якщо немає production host;
-- прибрати root scope, якщо продукт живе в `/go/`;
-- обмежити runtime cache allowlist;
-- додати try/catch навколо `cache.put`;
-- додати cleanup старих cache entries;
-- тримати cache version в одному місці.
+- ✓ production-only registration (`js/registerServiceWorker.js`);
+- ✓ scope обмежений;
+- ✓ runtime cache allowlist (`RUNTIME_CACHE_ALLOWLIST`);
+- ✓ `cache.put` обгорнуто в `try/catch`;
+- ✓ bounded cleanup (`MAX_RUNTIME_CACHE_ENTRIES`);
+- ✓ cache version синхронізується через `scripts/sync-release-version.mjs` і перевіряється тестами.
 
 ## Крок 8. Додати E2E ✓
 
@@ -189,7 +162,9 @@ Frame types:
 
 ## 7. Стиль коду
 
-Поки немає ESLint/Prettier, дотримуватися поточного стилю:
+ESLint (`eslint` v10) доданий. Запуск: `npm run lint`. Конфіг: `eslint.config.js` у корені. `npm run check` включає lint.
+
+Prettier не використовується — дотримуватися поточного стилю:
 
 - ES modules;
 - named exports;
@@ -251,11 +226,9 @@ PR можна вважати готовим, якщо:
 
 ## 11. Пріоритетний backlog для агента
 
-1. Обмежити Service Worker scope/cache.
-2. Прибрати повне розгортання циклів у `interpreterAstQueueAdapter.js`.
-3. Уніфікувати animation path навколо `interpreterAstRuntime.js`.
-4. Визначити semantic-правило для повторного `створити x = ...`.
-5. Розглянути одне runtime source-of-truth для release/cache version.
+1. Мігрувати legacy tests (що досі використовують `astToLegacyQueue`) на `executeCommands` / `createAstRuntime`, після чого видалити `interpreterAstQueueAdapter.js` і `interpreterQueueRuntime.js`.
+2. Реалізувати `поки умова ( ... )` — цикл із умовою виходу (після оновлення `LANGUAGE_SPEC.md`, парсера, runtime, semantic validator, tests, manual).
+3. Розглянути одне runtime source-of-truth для release/cache version (зараз прийнятно, guarded тестами).
 
 ## 12. Головне архітектурне правило
 
