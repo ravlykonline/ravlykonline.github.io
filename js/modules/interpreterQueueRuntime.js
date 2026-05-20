@@ -1,3 +1,4 @@
+// @deprecated — LEGACY COMPATIBILITY ONLY. See interpreterAstQueueAdapter.js.
 export function runCommandQueueRuntime({
     commandQueue,
     config,

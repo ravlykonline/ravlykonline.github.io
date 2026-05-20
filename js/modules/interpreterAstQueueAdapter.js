@@ -1,3 +1,11 @@
+// @deprecated — LEGACY COMPATIBILITY ONLY.
+// This module is NOT part of the production execution path.
+// executeCommands() now uses createAstRuntime + runAstAnimationRuntime (lazy).
+// astProgramToLegacyQueue is kept only for:
+//   - RavlykInterpreter.parseTokens() backward-compat shim
+//   - existing tests that still operate on flat queue arrays
+// Cleanup milestone: migrate those tests to createAstRuntime / executeCommands,
+// then delete this file together with interpreterQueueRuntime.js.
 function cloneAstExpression(expr) {
     if (!expr || !expr.type) return expr;
     if (expr.type === 'NumberLiteral' || expr.type === 'Identifier') {
