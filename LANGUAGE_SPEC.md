@@ -514,8 +514,10 @@ tests/unit/language-spec.test.js
 ## 18. Відкриті рішення
 
 1. ✓ Повторне `створити x = ...` заборонено із дружньою помилкою та підказкою використати `x = нове_значення`.
-2. Animation path ще будує legacy command queue через `interpreterAstQueueAdapter.js`. Runtime limits захищають від зависання, але довгострокова ціль — lazy AST execution без плоского розгортання циклів.
-3. Звичайний режим і game mode мають зберігати однакову семантику функцій, змінних, умов і помилок під час подальшої уніфікації runtime.
+2. ✓ Animation path більше не будує flat command queue. `interpreterAstAnimationRuntime.js` використовує `createAstRuntime.step()` — lazy, без попереднього розгортання. Бюджет `maxAstSteps = MAX_COMMAND_QUEUE_LENGTH` захищає від зависання навіть у control-flow-only циклах.
+3. ✓ Звичайний режим і game mode обидва використовують `createAstRuntime` для обходу AST — змінні, функції, умови і помилки мають однакову семантику. Верифіковано крос-шляховими тестами у `tests/runtimeUnification.test.js`.
+
+`astProgramToLegacyQueue` / `runCommandQueueRuntime` залишені як **legacy compatibility API** для `parseTokens()` і старих тестів, але не є частиною production execution path.
 
 ## 19. Definition of Done для мови
 

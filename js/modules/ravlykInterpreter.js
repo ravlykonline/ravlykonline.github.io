@@ -231,6 +231,10 @@ export class RavlykInterpreter {
         return handlePrimitiveAstStatementRuntime(this, stmt, env, mode, outputQueue);
     }
 
+    // LEGACY COMPATIBILITY API — not used by the normal execution path.
+    // executeCommands() now uses runAstAnimation() which drives createAstRuntime
+    // directly.  astToLegacyQueue / runCommandQueue are kept only for the
+    // parseTokens() shim and legacy test helpers that still operate on flat queues.
     astToLegacyQueue(programAst, options = {}) {
         return astToLegacyQueueRuntime(this, programAst, options);
     }
@@ -259,7 +263,7 @@ export class RavlykInterpreter {
         return evaluateIfConditionRuntime(this, condition);
     }
 
-    async runCommandQueue() {
+    async runCommandQueue() { // LEGACY — see astToLegacyQueue comment above
         return runCommandQueueWithRuntime(this);
     }
 
