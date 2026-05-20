@@ -56,8 +56,8 @@ export const MAX_GAME_TICK_OPERATIONS = 500;
 Service Worker переписано:
 
 - реєструється тільки для production host (`js/registerServiceWorker.js` перевіряє `location.hostname`);
-- scope обмежений і явно визначений;
-- runtime cache обмежений `RUNTIME_CACHE_ALLOWLIST`;
+- scope явно `{ scope: '/' }` — production живе в корені домену;
+- runtime cache фільтрується через `CACHEABLE_EXTENSIONS` allowlist (розширення файлів);
 - `cache.put` обгорнуто в `try/catch`;
 - bounded cleanup при перевищенні `MAX_RUNTIME_CACHE_ENTRIES`;
 - release/cache version синхронізується через `scripts/sync-release-version.mjs` і перевіряється `tests/releaseVersion.test.js` та `tests/serviceWorker.test.js`.

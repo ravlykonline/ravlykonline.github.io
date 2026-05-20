@@ -161,7 +161,7 @@ Validator підключено в `RavlykParser.parseCodeToAst`, тож AST пр
 `sw.js` переписано:
 
 - Реєструється тільки для production host (`js/registerServiceWorker.js` перевіряє `location.hostname`).
-- Runtime cache обмежений allowlist (`RUNTIME_CACHE_ALLOWLIST`).
+- Runtime cache фільтрується через `CACHEABLE_EXTENSIONS` allowlist (розширення файлів).
 - `cache.put` обгорнуто в `try/catch`.
 - Bounded cleanup: при перевищенні `MAX_RUNTIME_CACHE_ENTRIES` старі записи видаляються.
 - Release/cache version синхронізується через `scripts/sync-release-version.mjs` і перевіряється `tests/releaseVersion.test.js` та `tests/serviceWorker.test.js`.

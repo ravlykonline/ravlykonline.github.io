@@ -38,7 +38,7 @@
 - Parser/runtime limits реалізовані: `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_REPEATS_IN_LOOP`, `MAX_COMMAND_QUEUE_LENGTH`, `MAX_GAME_TICK_OPERATIONS`.
 - Analytics `page_location` не містить hash, тому `#code=` не потрапляє в Google Analytics.
 - Shared accessibility/footer/navigation HTML синхронізується через `scripts/sync-html-partials.mjs` і перевіряється в CI.
-- ✓ Service Worker переписано: production-only registration, allowlist runtime cache, bounded cleanup, `try/catch`.
+- ✓ Service Worker переписано: production-only registration, `CACHEABLE_EXTENSIONS` allowlist, bounded cleanup, `try/catch`.
 - ✓ Animation path переведено на lazy AST execution через `interpreterAstAnimationRuntime.js`. Legacy queue більше не будується в production path. Legacy boundary перевіряється в CI (`tests/legacyBoundary.test.js`).
 - ✓ Semantic-правило для повторного `створити x = ...` реалізовано в `semanticValidator.js` (перевірка в поточному і батьківських scope, shadowing параметрів).
 - ✓ ESLint (`eslint` v10) доданий: `npm run lint` перевіряє `js/` і `sw.js`; `npm run check` включає lint.
@@ -112,9 +112,9 @@ js/modules/semanticValidator.js
 - ✓ `MAX_GAME_TICK_OPERATIONS = 500` — `astStepCount` у `interpreterAstRuntime.js` через `maxAstSteps`; рахує ВСІ AST-кроки (присвоєння, цикли, умови, виклики), не тільки примітиви
 - ✓ Overflow check на початку кожної RepeatStmt ітерації в `interpreterAstQueueAdapter.js` — nested loops fail fast
 
-Залишилось:
+Залишилось (legacy test infrastructure only):
 
-- Повна lazy execution — `interpreterAstQueueAdapter.js` ще будує плоский масив; захищено overflow check, але масив будується синхронно
+- `interpreterAstQueueAdapter.js` досі використовується частиною unit-тестів, які перевіряють flat queue напряму. Production execution path (`executeCommands`) більше не проходить через нього — це верифіковано в CI через `tests/legacyBoundary.test.js`.
 
 ## Крок 5. Уніфікувати runtime ✓ ЗАВЕРШЕНО
 
@@ -134,9 +134,9 @@ Legacy модулі (`interpreterAstQueueAdapter.js`, `interpreterQueueRuntime.j
 
 ## Крок 7. Виправити Service Worker ✓ ЗАВЕРШЕНО
 
-- ✓ production-only registration (`js/registerServiceWorker.js`);
-- ✓ scope обмежений;
-- ✓ runtime cache allowlist (`RUNTIME_CACHE_ALLOWLIST`);
+- ✓ production-only registration (`js/registerServiceWorker.js` перевіряє hostname);
+- scope явно `{ scope: '/' }` — прийнятно, бо production живе в корені домену;
+- ✓ runtime cache фільтрується через `CACHEABLE_EXTENSIONS` allowlist (`sw.js`);
 - ✓ `cache.put` обгорнуто в `try/catch`;
 - ✓ bounded cleanup (`MAX_RUNTIME_CACHE_ENTRIES`);
 - ✓ cache version синхронізується через `scripts/sync-release-version.mjs` і перевіряється тестами.
