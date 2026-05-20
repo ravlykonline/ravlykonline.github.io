@@ -300,3 +300,17 @@ runTest('semantic: function body may have its own створити x independent
         validate('створити x = 10\nстворити f() (\n  створити x = 0\n  вперед x\n)\nf()')
     );
 });
+
+// --- Parameter shadowing ---
+runTest('semantic: створити with same name as parameter is rejected', () => {
+    assertValidationError(
+        'створити f(x) (\n  створити x = 0\n  вперед x\n)\nf(10)',
+        'x'
+    );
+});
+
+runTest('semantic: plain reassignment of parameter is allowed', () => {
+    assert.doesNotThrow(() =>
+        validate('створити f(x) (\n  x = x + 1\n  вперед x\n)\nf(10)')
+    );
+});

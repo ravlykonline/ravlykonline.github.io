@@ -81,10 +81,11 @@ function validateDeclarations(stmts, symbolTable) {
             symbolTable.funcs.add(name);
             symbolTable.functionDefs.set(name, node);
 
-            // Function body gets its own scope — a fresh vars Set that can shadow
-            // outer variables, but shares functionDefs so calls resolve correctly.
+            // Function body gets its own scope. Pre-populate vars with the
+            // function's parameters so `створити x` inside the body is rejected
+            // when `x` is already a parameter name.
             const functionScope = {
-                vars: new Set(),
+                vars: new Set(params),
                 funcs: symbolTable.funcs,
                 functionDefs: symbolTable.functionDefs,
             };
