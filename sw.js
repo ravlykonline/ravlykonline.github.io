@@ -1,8 +1,11 @@
 const CACHE_VERSION = '2026-05-18-2';
+// Precache (install-time assets) and runtime cache are kept separate so that
+// trimRuntimeCache() can evict dynamic entries without touching precache URLs.
 const APP_CACHE = `ravlyk-app-${CACHE_VERSION}`;
+const RUNTIME_CACHE = `ravlyk-runtime-${CACHE_VERSION}`;
 const OFFLINE_FALLBACK_URL = '/index.html';
 
-// Maximum number of dynamically cached entries (beyond the precache list).
+// Maximum number of dynamically cached entries in RUNTIME_CACHE.
 // Prevents unbounded cache growth if new URLs are fetched at runtime.
 const MAX_RUNTIME_CACHE_ENTRIES = 250;
 
@@ -167,15 +170,18 @@ self.addEventListener('install', (event) => {
     event.waitUntil((async () => {
         const cache = await caches.open(APP_CACHE);
         // Precache each URL individually so one missing asset does not abort
-        // the entire install. Missing files are logged but do not block offline support.
-        const results = await Promise.allSettled(
-            PRECACHE_URLS.map((url) => cache.add(url).catch((err) => {
-                console.warn(`[SW] precache miss: ${url}`, err);
-            }))
+        // the entire install. Failures are collected and logged, but install proceeds.
+        const failures = [];
+        await Promise.allSettled(
+            PRECACHE_URLS.map((url) =>
+                cache.add(url).catch((err) => {
+                    failures.push(url);
+                    console.warn(`[SW] precache miss: ${url}`, err);
+                })
+            )
         );
-        const failed = results.filter((r) => r.status === 'rejected').length;
-        if (failed > 0) {
-            console.warn(`[SW] ${failed} precache entries failed.`);
+        if (failures.length > 0) {
+            console.warn(`[SW] ${failures.length} precache entries failed:`, failures);
         }
         await self.skipWaiting();
     })());
@@ -184,9 +190,11 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
     event.waitUntil((async () => {
         const cacheNames = await caches.keys();
+        // Delete any cache that is neither the current precache nor the current runtime cache.
+        const keep = new Set([APP_CACHE, RUNTIME_CACHE]);
         await Promise.all(
             cacheNames
-                .filter((cacheName) => cacheName !== APP_CACHE)
+                .filter((cacheName) => !keep.has(cacheName))
                 .map((cacheName) => caches.delete(cacheName))
         );
         await self.clients.claim();
@@ -215,7 +223,8 @@ async function updateRuntimeCache(request, response) {
     }
 
     try {
-        const cache = await caches.open(APP_CACHE);
+        // Use the dedicated RUNTIME_CACHE so trimming never evicts precache entries.
+        const cache = await caches.open(RUNTIME_CACHE);
         await cache.put(request, response.clone());
         await trimRuntimeCache(cache);
     } catch {
@@ -238,6 +247,7 @@ async function handleNavigation(request) {
 }
 
 async function handleStaticRequest(request) {
+    // caches.match searches all caches (APP_CACHE + RUNTIME_CACHE) by default.
     const cachedResponse = await caches.match(request) || await caches.match(new URL(request.url).pathname);
     if (cachedResponse) {
         return cachedResponse;

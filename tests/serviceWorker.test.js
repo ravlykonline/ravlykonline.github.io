@@ -69,7 +69,6 @@ runTest('sw: shouldRuntimeCache blocks cross-origin and extensionless URLs', () 
 });
 
 runTest('sw: cache.put is wrapped in try/catch to survive quota errors', () => {
-    // The try block must wrap cache.put, not just the outer fetch
     const putIndex = swSource.indexOf('cache.put(request,');
     assert.ok(putIndex !== -1, 'sw.js must call cache.put');
 
@@ -81,6 +80,24 @@ runTest('sw: cache.put is wrapped in try/catch to survive quota errors', () => {
     // There must be a catch after cache.put
     const afterPut = swSource.slice(putIndex);
     assert.ok(afterPut.includes('} catch {'), 'cache.put must have a catch block');
+});
+
+runTest('sw: RUNTIME_CACHE is separate from APP_CACHE so trim never evicts precache', () => {
+    assert.ok(
+        swSource.includes("const RUNTIME_CACHE = `ravlyk-runtime-"),
+        'sw.js must define a separate RUNTIME_CACHE'
+    );
+    // updateRuntimeCache must open RUNTIME_CACHE, not APP_CACHE
+    const updateFnStart = swSource.indexOf('async function updateRuntimeCache');
+    const updateFnBody = swSource.slice(updateFnStart, updateFnStart + 500);
+    assert.ok(
+        updateFnBody.includes('RUNTIME_CACHE'),
+        'updateRuntimeCache must write to RUNTIME_CACHE, not APP_CACHE'
+    );
+    assert.ok(
+        !updateFnBody.includes("caches.open(APP_CACHE)"),
+        'updateRuntimeCache must not write to APP_CACHE'
+    );
 });
 
 runTest('sw: MAX_RUNTIME_CACHE_ENTRIES is defined and positive', () => {
@@ -108,6 +125,12 @@ runTest('sw: precache install uses allSettled so one miss does not abort install
     assert.ok(
         !swSource.includes('cache.addAll('),
         'sw.js must not use cache.addAll (fails on first miss)'
+    );
+    // Failures must be tracked in a separate array, not via allSettled result status,
+    // because each cache.add has an inner .catch() that converts rejections to fulfillments.
+    assert.ok(
+        swSource.includes('failures.push(url)'),
+        'precache must track failures in a dedicated array for accurate logging'
     );
 });
 

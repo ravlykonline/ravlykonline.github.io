@@ -6,6 +6,12 @@ async function waitForServiceWorker(page) {
             throw new Error('Service worker is not supported in this browser.');
         }
 
+        // registerServiceWorker.js skips registration on non-production hosts,
+        // so in the E2E test environment (127.0.0.1) we register explicitly.
+        if (!navigator.serviceWorker.controller) {
+            await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        }
+
         await navigator.serviceWorker.ready;
     });
 }
