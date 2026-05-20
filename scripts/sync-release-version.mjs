@@ -63,6 +63,11 @@ for (const relativePath of targetFiles) {
             'CACHE_VERSION',
             relativePath
         );
+        // Also update versioned query strings inside PRECACHE_URLS so they stay
+        // in sync with the assets served by HTML pages (e.g. ?v=2026-05-18-2).
+        updated = updated.replace(/site\.webmanifest\?v=[^']+/g, `site.webmanifest?v=${nextVersion}`);
+        updated = updated.replace(/css\/([a-z0-9-]+\.css)\?v=[^']+/gi, `css/$1?v=${nextVersion}`);
+        updated = updated.replace(/js\/([a-zA-Z0-9/.-]+\.js)\?v=[^']+/g, `js/$1?v=${nextVersion}`);
     }
 
     if (relativePath === 'js/registerServiceWorker.js') {

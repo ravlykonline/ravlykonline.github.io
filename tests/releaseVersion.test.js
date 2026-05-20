@@ -66,4 +66,24 @@ runTest('release version stays synchronized across public HTML entry points', ()
     });
 });
 
+runTest('release version stays synchronized inside sw.js PRECACHE_URLS', () => {
+    const releaseVersion = getReleaseVersionFromServiceWorker();
+    const swSource = fs.readFileSync('sw.js', 'utf8');
+
+    // Extract the PRECACHE_URLS array body
+    const precacheMatch = swSource.match(/const PRECACHE_URLS\s*=\s*\[([\s\S]*?)\];/);
+    assert.ok(precacheMatch, 'sw.js must define PRECACHE_URLS');
+
+    // Find all versioned ?v= URLs inside PRECACHE_URLS
+    const versionedUrls = precacheMatch[1].match(/[^\s'"]+\?v=[^'"\s]+/g) || [];
+    assert.ok(versionedUrls.length > 0, 'PRECACHE_URLS should contain versioned assets');
+
+    versionedUrls.forEach((url) => {
+        assert.ok(
+            url.endsWith(`?v=${releaseVersion}`),
+            `PRECACHE_URLS has stale asset version: ${url} (expected ?v=${releaseVersion})`
+        );
+    });
+});
+
 console.log('Release version tests completed.');
