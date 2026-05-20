@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test:unit": "node tests/parser.basic.test.js && node tests/parser.ast-runtime.test.js && node tests/parser.errors-boundary.test.js && node tests/ui.dom.test.js && node tests/controllers.test.js && node tests/interpreter.helpers.core.test.js && node tests/interpreter.helpers.runtime.test.js && node tests/parser-helpers.test.js && node tests/randomResolver.test.js && node tests/quiz.test.js && node tests/accessibility.test.js && node tests/analytics.test.js && node tests/lessons.test.js && node tests/manual.test.js && node tests/encoding.test.js && node tests/releaseVersion.test.js && node tests/semantic.test.js",
+    "test:unit": "node tests/parser.basic.test.js && node tests/parser.ast-runtime.test.js && node tests/parser.errors-boundary.test.js && node tests/ui.dom.test.js && node tests/controllers.test.js && node tests/interpreter.helpers.core.test.js && node tests/interpreter.helpers.runtime.test.js && node tests/parser-helpers.test.js && node tests/randomResolver.test.js && node tests/quiz.test.js && node tests/accessibility.test.js && node tests/analytics.test.js && node tests/lessons.test.js && node tests/manual.test.js && node tests/encoding.test.js && node tests/releaseVersion.test.js && node tests/semantic.test.js && node tests/serviceWorker.test.js",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",

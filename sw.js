@@ -2,6 +2,29 @@ const CACHE_VERSION = '2026-05-18-2';
 const APP_CACHE = `ravlyk-app-${CACHE_VERSION}`;
 const OFFLINE_FALLBACK_URL = '/index.html';
 
+// Maximum number of dynamically cached entries (beyond the precache list).
+// Prevents unbounded cache growth if new URLs are fetched at runtime.
+const MAX_RUNTIME_CACHE_ENTRIES = 250;
+
+// Only cache same-origin responses for known static asset types.
+// This prevents accidental caching of API responses, analytics pings,
+// or any future dynamic endpoints added to the same origin.
+const CACHEABLE_EXTENSIONS = new Set([
+    '.html', '.css', '.js', '.mjs',
+    '.svg', '.png', '.jpg', '.jpeg', '.webp', '.ico',
+    '.webmanifest', '.woff', '.woff2',
+]);
+
+function shouldRuntimeCache(url) {
+    if (url.origin !== self.location.origin) return false;
+    const { pathname } = url;
+    // Strip query string before checking extension.
+    const base = pathname.split('?')[0];
+    const dot = base.lastIndexOf('.');
+    if (dot === -1) return false;
+    return CACHEABLE_EXTENSIONS.has(base.slice(dot).toLowerCase());
+}
+
 const PRECACHE_URLS = [
     '/',
     '/index.html',
@@ -52,6 +75,7 @@ const PRECACHE_URLS = [
     '/js/modules/interpreterAnimation.js',
     '/js/modules/interpreterAstEval.js',
     '/js/modules/interpreterAstQueueAdapter.js',
+    '/js/modules/interpreterAstRuntime.js',
     '/js/modules/interpreterBoundary.js',
     '/js/modules/interpreterCommandClone.js',
     '/js/modules/interpreterCommandExecutor.js',
@@ -85,6 +109,7 @@ const PRECACHE_URLS = [
     '/js/modules/ravlykInterpreter.js',
     '/js/modules/ravlykInterpreterRuntime.js',
     '/js/modules/ravlykParser.js',
+    '/js/modules/semanticValidator.js',
     '/js/modules/share.js',
     '/js/modules/ui.js',
     '/js/modules/uiMessages.js',
@@ -139,11 +164,21 @@ const PRECACHE_URLS = [
 ];
 
 self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(APP_CACHE)
-            .then((cache) => cache.addAll(PRECACHE_URLS))
-            .then(() => self.skipWaiting())
-    );
+    event.waitUntil((async () => {
+        const cache = await caches.open(APP_CACHE);
+        // Precache each URL individually so one missing asset does not abort
+        // the entire install. Missing files are logged but do not block offline support.
+        const results = await Promise.allSettled(
+            PRECACHE_URLS.map((url) => cache.add(url).catch((err) => {
+                console.warn(`[SW] precache miss: ${url}`, err);
+            }))
+        );
+        const failed = results.filter((r) => r.status === 'rejected').length;
+        if (failed > 0) {
+            console.warn(`[SW] ${failed} precache entries failed.`);
+        }
+        await self.skipWaiting();
+    })());
 });
 
 self.addEventListener('activate', (event) => {
@@ -158,13 +193,36 @@ self.addEventListener('activate', (event) => {
     })());
 });
 
+async function trimRuntimeCache(cache) {
+    try {
+        const keys = await cache.keys();
+        if (keys.length <= MAX_RUNTIME_CACHE_ENTRIES) return;
+        // Remove oldest entries (front of the list) until within the limit.
+        const toDelete = keys.slice(0, keys.length - MAX_RUNTIME_CACHE_ENTRIES);
+        await Promise.all(toDelete.map((req) => cache.delete(req)));
+    } catch {
+        // Cache trimming is best-effort; quota errors should not break the page.
+    }
+}
+
 async function updateRuntimeCache(request, response) {
     if (!response || response.status !== 200 || response.type !== 'basic') {
         return response;
     }
 
-    const cache = await caches.open(APP_CACHE);
-    await cache.put(request, response.clone());
+    if (!shouldRuntimeCache(new URL(request.url))) {
+        return response;
+    }
+
+    try {
+        const cache = await caches.open(APP_CACHE);
+        await cache.put(request, response.clone());
+        await trimRuntimeCache(cache);
+    } catch {
+        // cache.put can throw on quota exceeded or private browsing restrictions.
+        // Failing to cache should never break the page response.
+    }
+
     return response;
 }
 
