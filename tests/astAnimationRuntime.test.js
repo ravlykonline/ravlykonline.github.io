@@ -17,7 +17,7 @@ import { evaluateAstCondition } from '../js/modules/interpreterConditions.js';
 import { evalAstNumberExpression } from '../js/modules/interpreterAstEval.js';
 import { handlePrimitiveAstStatement } from '../js/modules/interpreterPrimitiveStatements.js';
 import { RavlykError } from '../js/modules/ravlykParser.js';
-import { runTest } from './testUtils.js';
+import { runAsyncTest } from './testUtils.js';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -161,14 +161,14 @@ function runSync(programAst) {
 // Tests
 // ---------------------------------------------------------------------------
 
-runTest('astAnimation: empty program resolves without commands', async () => {
+runAsyncTest('astAnimation: empty program resolves without commands', async () => {
     const ast = parseAndValidate('');
     const { promise, log } = runSync(ast);
     await promise;
     assert.equal(log.length, 0);
 });
 
-runTest('astAnimation: single move command is executed', async () => {
+runAsyncTest('astAnimation: single move command is executed', async () => {
     const ast = parseAndValidate('вперед 100');
     const { promise, log } = runSync(ast);
     await promise;
@@ -177,7 +177,7 @@ runTest('astAnimation: single move command is executed', async () => {
     assert.equal(log[0].value, 100);
 });
 
-runTest('astAnimation: move and turn are executed in order', async () => {
+runAsyncTest('astAnimation: move and turn are executed in order', async () => {
     const ast = parseAndValidate('вперед 50\nправоруч 90');
     const { promise, log } = runSync(ast);
     await promise;
@@ -188,7 +188,7 @@ runTest('astAnimation: move and turn are executed in order', async () => {
     assert.equal(log[1].value, 90);
 });
 
-runTest('astAnimation: repeat loop executes correct number of times', async () => {
+runAsyncTest('astAnimation: repeat loop executes correct number of times', async () => {
     const ast = parseAndValidate('повторити 3 ( вперед 10 )');
     const { promise, log } = runSync(ast);
     await promise;
@@ -196,7 +196,7 @@ runTest('astAnimation: repeat loop executes correct number of times', async () =
     assert.ok(log.every((e) => e.type === 'MOVE' && e.value === 10));
 });
 
-runTest('astAnimation: variable is evaluated lazily at execution time', async () => {
+runAsyncTest('astAnimation: variable is evaluated lazily at execution time', async () => {
     // x is created before the move — value should be 77
     const ast = parseAndValidate('створити x = 77\nвперед x');
     const { promise, log } = runSync(ast);
@@ -205,7 +205,7 @@ runTest('astAnimation: variable is evaluated lazily at execution time', async ()
     assert.equal(log[0].value, 77);
 });
 
-runTest('astAnimation: variable reassignment is visible to subsequent move', async () => {
+runAsyncTest('astAnimation: variable reassignment is visible to subsequent move', async () => {
     // Re-assigning x before using it — the move should see the updated value.
     const ast = parseAndValidate('створити x = 10\nx = 42\nвперед x');
     const { promise, log } = runSync(ast);
@@ -214,7 +214,7 @@ runTest('astAnimation: variable reassignment is visible to subsequent move', asy
     assert.equal(log[0].value, 42);
 });
 
-runTest('astAnimation: if-else branch is taken based on condition', async () => {
+runAsyncTest('astAnimation: if-else branch is taken based on condition', async () => {
     // якщо 1 > 0 → take then branch
     const ast = parseAndValidate('якщо 1 > 0 ( вперед 10 ) інакше ( вперед 99 )');
     const { promise, log } = runSync(ast);
@@ -223,7 +223,7 @@ runTest('astAnimation: if-else branch is taken based on condition', async () => 
     assert.equal(log[0].value, 10);
 });
 
-runTest('astAnimation: else branch is taken when condition is false', async () => {
+runAsyncTest('astAnimation: else branch is taken when condition is false', async () => {
     const ast = parseAndValidate('якщо 0 > 1 ( вперед 10 ) інакше ( вперед 99 )');
     const { promise, log } = runSync(ast);
     await promise;
@@ -231,7 +231,7 @@ runTest('astAnimation: else branch is taken when condition is false', async () =
     assert.equal(log[0].value, 99);
 });
 
-runTest('astAnimation: variable mutated inside if propagates outward', async () => {
+runAsyncTest('astAnimation: variable mutated inside if propagates outward', async () => {
     // After якщо branch sets x = 5, the move should use 5.
     const ast = parseAndValidate('створити x = 1\nякщо 1 > 0 ( x = 5 )\nвперед x');
     const { promise, log } = runSync(ast);
@@ -240,7 +240,7 @@ runTest('astAnimation: variable mutated inside if propagates outward', async () 
     assert.equal(log[0].value, 5);
 });
 
-runTest('astAnimation: user-defined function call is executed', async () => {
+runAsyncTest('astAnimation: user-defined function call is executed', async () => {
     const ast = parseAndValidate('створити рух(n) ( вперед n )\nрух(33)');
     const { promise, log } = runSync(ast);
     await promise;
@@ -248,10 +248,24 @@ runTest('astAnimation: user-defined function call is executed', async () => {
     assert.equal(log[0].value, 33);
 });
 
-runTest('astAnimation: color command is collected', async () => {
+runAsyncTest('astAnimation: color command is collected', async () => {
     const ast = parseAndValidate('колір червоний');
     const { promise, log } = runSync(ast);
     await promise;
     assert.equal(log.length, 1);
     assert.equal(log[0].type, 'COLOR');
+});
+
+runAsyncTest('astAnimation: deeply nested control-flow-only loops are rejected by AST budget', async () => {
+    // 500 * 500 = 250 000 assignment iterations — far exceeds MAX_COMMAND_QUEUE_LENGTH (50 000).
+    // Without maxAstSteps this would run entirely inside a single step() call and freeze.
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst(
+        'створити x = 0\nповторити 500 (\n  повторити 500 (\n    x = x + 1\n  )\n)'
+    );
+    const { promise } = runSync(ast);
+    await assert.rejects(
+        () => promise,
+        (err) => err?.name === 'RavlykError' && /надто багато команд/i.test(err.message)
+    );
 });

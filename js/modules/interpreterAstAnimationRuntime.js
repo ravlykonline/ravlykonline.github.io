@@ -48,7 +48,15 @@ export function runAstAnimationRuntime({
         RavlykErrorCtor,
         maxRecursionDepth,
         maxRepeatsInLoop,
+        // maxCommandQueueLength caps the number of primitives returned by step().
         maxCommandQueueLength,
+        // maxAstSteps caps the TOTAL number of AST statements processed (including
+        // assignments, function calls, repeat iterations, and if-branches).
+        // Without this, a program with only control-flow and no drawing commands
+        // (e.g. повторити 500 ( повторити 500 ( x = x + 1 ) )) would do all
+        // 250 000 iterations inside a single step() call, freezing the browser.
+        maxAstSteps: maxCommandQueueLength,
+        maxAstStepsErrorKey: 'COMMAND_QUEUE_OVERFLOW',
         evalAstNumberExpression,
         evaluateCondition,
         attachAstErrorLocation,
