@@ -82,6 +82,9 @@ function validateDeclaration(node, symbolTable) {
         if (symbolTable.funcs.has(name)) {
             throw makeError('VARIABLE_NAME_CONFLICT_FUNCTION', name);
         }
+        if (symbolTable.vars.has(name)) {
+            throw makeError('VARIABLE_ALREADY_DECLARED', name);
+        }
 
         symbolTable.vars.add(name);
     }

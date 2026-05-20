@@ -247,3 +247,28 @@ runTest('semantic: default AST node budget is exported as a positive limit', () 
     assert.equal(Number.isInteger(MAX_AST_NODES), true);
     assert.ok(MAX_AST_NODES > 0);
 });
+
+// --- Duplicate variable declaration ---
+runTest('semantic: duplicate variable declaration with створити is rejected', () => {
+    assertValidationError(
+        'створити x = 10\nстворити x = 20',
+        'x'
+    );
+});
+
+runTest('semantic: duplicate variable declaration gives friendly redeclaration message', () => {
+    try {
+        validate('створити рахунок = 0\nстворити рахунок = 1');
+        assert.fail('Expected validation error');
+    } catch (e) {
+        assert.ok(e.name === 'RavlykError', 'error should be RavlykError');
+        assert.ok(
+            e.message.includes('рахунок') && e.message.includes('вже створена'),
+            `Expected friendly message about redeclaration, got: "${e.message}"`
+        );
+    }
+});
+
+runTest('semantic: re-assigning variable without створити is allowed (not a redeclaration)', () => {
+    assert.doesNotThrow(() => validate('створити x = 10\nx = 20'));
+});

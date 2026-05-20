@@ -161,6 +161,7 @@ export const ERROR_MESSAGES = {
     VARIABLE_NAME_INVALID: (name) => 'Назва змінної "' + name + '" не підходить. Використовуй літери, цифри, _ або -.',
     VARIABLE_NAME_RESERVED: (name) => 'Назва "' + name + '" вже зайнята командою. Обери іншу.',
     VARIABLE_NAME_CONFLICT_FUNCTION: (name) => 'Назва "' + name + '" вже використовується як функція.',
+    VARIABLE_ALREADY_DECLARED: (name) => 'Змінна "' + name + '" вже створена. Щоб змінити значення, використай: ' + name + ' = нове_значення.',
     VARIABLE_VALUE_INVALID: (name, value) => 'Для змінної "' + name + '" потрібне число, а не "' + value + '".',
     UNDEFINED_VARIABLE: (name) => 'Я не знайшов змінну "' + name + '". Спочатку створи її: створити ' + name + ' = число.',
     GAME_NOT_SUPPORTED_HERE: 'Команда "грати" не підтримується в цьому режимі запуску.',
