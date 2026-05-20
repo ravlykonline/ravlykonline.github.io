@@ -33,6 +33,7 @@ import {
 } from './interpreterDrawingOps.js';
 import { applyBackgroundLayer } from './backgroundLayer.js';
 import { cloneInterpreterCommand } from './interpreterCommandClone.js';
+import { runAstAnimationRuntime } from './interpreterAstAnimationRuntime.js';
 
 export function handlePrimitiveAstStatementRuntime(runtime, stmt, env, mode, outputQueue = null) {
     return handlePrimitiveAstStatement({
@@ -163,11 +164,7 @@ export async function executeCommandsRuntime(runtime, commandsString) {
         if (hasGameStatement(programAst)) {
             return await runtime.executeGameProgram(programAst);
         }
-        runtime.commandQueue = runtime.astToLegacyQueue(programAst, {
-            emitAssignments: true,
-        });
-        runtime.executionEnv = new Environment(null);
-        return await runtime.runCommandQueue();
+        return await runtime.runAstAnimation(programAst);
     } catch (error) {
         runtime.isExecuting = false;
         runtime.commandIndicatorUpdater(null, -1);
@@ -247,6 +244,90 @@ export function runCommandQueueWithRuntime(runtime) {
                 },
                 state: runtime.state,
             });
+        },
+        updateRavlykVisualState: () => runtime.updateRavlykVisualState(),
+        onFrameCapture: runtime.gifCapture ? (ms) => runtime.gifCapture.captureFrame(ms) : null,
+    });
+}
+
+export function runAstAnimationWithRuntime(runtime, programAst) {
+    return runAstAnimationRuntime({
+        programAst,
+        EnvironmentCtor: Environment,
+        RavlykErrorCtor: RavlykError,
+        maxRecursionDepth: MAX_RECURSION_DEPTH,
+        maxRepeatsInLoop: MAX_REPEATS_IN_LOOP,
+        maxCommandQueueLength: MAX_COMMAND_QUEUE_LENGTH,
+        evalAstNumberExpression: (expr, envRef) => runtime.evalAstNumberExpression(expr, envRef),
+        evaluateCondition: (condition, envCtx) => evaluateAstCondition(condition, {
+            evalAstNumberExpression: (expr, envRef) => runtime.evalAstNumberExpression(expr, envRef),
+            env: envCtx,
+            isAtCanvasEdge: () => runtime.isAtCanvasEdge(),
+            pressedKeys: runtime.pressedKeys,
+        }),
+        attachAstErrorLocation: (error, stmt) => runtime.attachAstErrorLocation(error, stmt),
+        convertStmtToCommand: (stmt, env) => {
+            const buf = [];
+            runtime.handlePrimitiveAstStatement(stmt, env, 'queue', buf);
+            const cmd = buf[0];
+            if (!cmd) return null;
+            // Attach the live env so executeAnimatedCommand can resolve
+            // expression nodes (distanceExpr, angleExpr, xExpr, yExpr) against
+            // variable values that were set by preceding statements.
+            cmd._capturedEnv = env;
+            return cmd;
+        },
+        executeAnimatedCommand: (cmd, deltaTime) => {
+            return executeInterpreterCommand({
+                currentCommandObject: cmd,
+                currentFrame: { commands: [], index: 0 },
+                executionStack: [],
+                deltaTime,
+                // createAstRuntime handles AssignmentStmt internally; ASSIGN_AST
+                // commands will never reach here.  REPEAT / IF are also handled
+                // internally, so executionEnv is only used for expression resolution.
+                executionEnv: cmd._capturedEnv,
+                evalAstNumberExpression: (expr, envRef) => runtime.evalAstNumberExpression(expr, envRef),
+                createVariableValueInvalidError: (name, value) => new RavlykError('VARIABLE_VALUE_INVALID', name, value),
+                animatePen: (c, targetScale, dt) => runtime.animatePen(c, targetScale, dt),
+                animateMove: (c, distance, dt) => runtime.animateMove(c, distance, dt),
+                animateTurn: (c, angle, dt) => runtime.animateTurn(c, angle, dt),
+                setColor: (color) => runtime.setColor(color),
+                setBackgroundColor: (color) => runtime.setBackgroundColor(color),
+                setThickness: (thickness) => {
+                    runtime.state.penSize = thickness;
+                    runtime.applyContextSettings();
+                },
+                performGoto: (x, y) => runtime.performGoto(x, y),
+                clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
+                cloneCommand: (c) => cloneInterpreterCommand(c),
+                // IfStmt and RepeatStmt are handled by createAstRuntime internally
+                // and will never surface here as primitive commands.
+                evaluateIfCondition: () => false,
+                resetStuckState: () => {
+                    runtime.state.isStuck = false;
+                    runtime.boundaryWarningShown = false;
+                },
+                state: runtime.state,
+            });
+        },
+        config: runtime.config,
+        commandIndicatorUpdater: runtime.commandIndicatorUpdater,
+        createStopError: () => new RavlykError('EXECUTION_STOPPED_BY_USER'),
+        getShouldStop: () => runtime.shouldStop,
+        getIsPaused: () => runtime.isPaused,
+        setAnimationFrameId: (frameId) => { runtime.animationFrameId = frameId; },
+        getAnimationFrameId: () => runtime.animationFrameId,
+        cancelAnimationFrameFn: cancelAnimationFrame,
+        requestAnimationFrameFn: requestAnimationFrame,
+        nowFn: () => performance.now(),
+        onExecutionCompleted: () => {
+            runtime.isExecuting = false;
+            runtime.commandIndicatorUpdater(null, -1);
+        },
+        onExecutionError: () => {
+            runtime.isExecuting = false;
+            runtime.commandIndicatorUpdater(null, -1);
         },
         updateRavlykVisualState: () => runtime.updateRavlykVisualState(),
         onFrameCapture: runtime.gifCapture ? (ms) => runtime.gifCapture.captureFrame(ms) : null,

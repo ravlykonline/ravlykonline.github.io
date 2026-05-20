@@ -38,6 +38,7 @@ import {
     executeCommandsRuntime,
     evaluateIfConditionRuntime,
     runCommandQueueWithRuntime,
+    runAstAnimationWithRuntime,
     animatePenRuntime,
     animateMoveRuntime,
     animateTurnRuntime,
@@ -260,6 +261,10 @@ export class RavlykInterpreter {
 
     async runCommandQueue() {
         return runCommandQueueWithRuntime(this);
+    }
+
+    async runAstAnimation(programAst) {
+        return runAstAnimationWithRuntime(this, programAst);
     }
 
     animatePen(commandObject, targetScale, deltaTime) {
