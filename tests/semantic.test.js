@@ -272,3 +272,31 @@ runTest('semantic: duplicate variable declaration gives friendly redeclaration m
 runTest('semantic: re-assigning variable without створити is allowed (not a redeclaration)', () => {
     assert.doesNotThrow(() => validate('створити x = 10\nx = 20'));
 });
+
+// --- Nested duplicate variable declarations ---
+runTest('semantic: створити x inside повторити duplicates top-level x', () => {
+    assertValidationError(
+        'створити x = 1\nповторити 1 (\n  створити x = 2\n)',
+        'x'
+    );
+});
+
+runTest('semantic: two створити x inside same повторити body are rejected', () => {
+    assertValidationError(
+        'повторити 1 (\n  створити x = 1\n  створити x = 2\n)',
+        'x'
+    );
+});
+
+runTest('semantic: створити x inside якщо duplicates outer x', () => {
+    assertValidationError(
+        'створити x = 0\nякщо 1 > 0 (\n  створити x = 1\n)',
+        'x'
+    );
+});
+
+runTest('semantic: function body may have its own створити x independent of outer x', () => {
+    assert.doesNotThrow(() =>
+        validate('створити x = 10\nстворити f() (\n  створити x = 0\n  вперед x\n)\nf()')
+    );
+});

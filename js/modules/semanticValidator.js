@@ -37,56 +37,83 @@ function makeError(key, ...args) {
     return new SemanticError(message);
 }
 
-function validateDeclaration(node, symbolTable) {
-    if (!node || typeof node !== 'object') return;
+// Validate all declarations (variables and functions) in a list of statements.
+// `symbolTable` tracks the current scope; `parentVars` is the parent scope's
+// variable set (only passed when entering a function body so inner `створити`
+// can shadow outer names without being flagged as duplicates).
+//
+// Scope rules that mirror the runtime:
+//   - повторити / якщо / грати share the parent scope (same env in runtime).
+//   - FunctionDefStmt opens a new child scope (runtime creates new EnvironmentCtor).
+//   - Within the same scope a variable name may only be declared once with `створити`.
+function validateDeclarations(stmts, symbolTable) {
+    for (const node of stmts) {
+        if (!node || typeof node !== 'object') continue;
 
-    if (node.type === 'FunctionDefStmt') {
-        const { name, params, body } = node;
+        if (node.type === 'FunctionDefStmt') {
+            const { name, params, body } = node;
 
-        if (RESERVED_NAMES.has(name)) {
-            throw makeError('FUNCTION_NAME_RESERVED', name);
-        }
-        if (symbolTable.vars.has(name)) {
-            throw makeError('FUNCTION_NAME_CONFLICT_VARIABLE', name);
-        }
-        if (symbolTable.funcs.has(name)) {
-            throw makeError('FUNCTION_ALREADY_EXISTS', name);
-        }
-
-        const seenParams = new Set();
-        for (const param of params) {
-            if (RESERVED_NAMES.has(param)) {
-                throw makeError('FUNCTION_PARAM_RESERVED', param);
+            if (RESERVED_NAMES.has(name)) {
+                throw makeError('FUNCTION_NAME_RESERVED', name);
             }
-            if (seenParams.has(param)) {
-                throw makeError('FUNCTION_PARAM_DUPLICATE', param);
+            if (symbolTable.vars.has(name)) {
+                throw makeError('FUNCTION_NAME_CONFLICT_VARIABLE', name);
             }
-            seenParams.add(param);
+            if (symbolTable.funcs.has(name)) {
+                throw makeError('FUNCTION_ALREADY_EXISTS', name);
+            }
+
+            const seenParams = new Set();
+            for (const param of params) {
+                if (RESERVED_NAMES.has(param)) {
+                    throw makeError('FUNCTION_PARAM_RESERVED', param);
+                }
+                if (seenParams.has(param)) {
+                    throw makeError('FUNCTION_PARAM_DUPLICATE', param);
+                }
+                seenParams.add(param);
+            }
+
+            if (!body || body.length === 0) {
+                throw makeError('FUNCTION_BODY_EMPTY', name);
+            }
+
+            symbolTable.funcs.add(name);
+            symbolTable.functionDefs.set(name, node);
+
+            // Function body gets its own scope — a fresh vars Set that can shadow
+            // outer variables, but shares functionDefs so calls resolve correctly.
+            const functionScope = {
+                vars: new Set(),
+                funcs: symbolTable.funcs,
+                functionDefs: symbolTable.functionDefs,
+            };
+            validateDeclarations(body, functionScope);
+            continue;
         }
 
-        if (!body || body.length === 0) {
-            throw makeError('FUNCTION_BODY_EMPTY', name);
+        if (node.type === 'AssignmentStmt' && node.declaredWithCreate) {
+            const { name } = node;
+
+            if (RESERVED_NAMES.has(name)) {
+                throw makeError('VARIABLE_NAME_RESERVED', name);
+            }
+            if (symbolTable.funcs.has(name)) {
+                throw makeError('VARIABLE_NAME_CONFLICT_FUNCTION', name);
+            }
+            if (symbolTable.vars.has(name)) {
+                throw makeError('VARIABLE_ALREADY_DECLARED', name);
+            }
+
+            symbolTable.vars.add(name);
+            continue;
         }
 
-        symbolTable.funcs.add(name);
-        symbolTable.functionDefs.set(name, node);
-        return;
-    }
-
-    if (node.type === 'AssignmentStmt' && node.declaredWithCreate) {
-        const { name } = node;
-
-        if (RESERVED_NAMES.has(name)) {
-            throw makeError('VARIABLE_NAME_RESERVED', name);
+        // повторити / якщо / грати — recurse into nested bodies using the SAME scope.
+        const nested = getNestedStatements(node);
+        if (nested.length > 0) {
+            validateDeclarations(nested, symbolTable);
         }
-        if (symbolTable.funcs.has(name)) {
-            throw makeError('VARIABLE_NAME_CONFLICT_FUNCTION', name);
-        }
-        if (symbolTable.vars.has(name)) {
-            throw makeError('VARIABLE_ALREADY_DECLARED', name);
-        }
-
-        symbolTable.vars.add(name);
     }
 }
 
@@ -211,9 +238,7 @@ export function validateProgramAst(ast, options = {}) {
         functionDefs: new Map(),
     };
 
-    for (const node of ast.body) {
-        validateDeclaration(node, symbolTable);
-    }
+    validateDeclarations(ast.body, symbolTable);
 
     validateGameContract(ast);
 
