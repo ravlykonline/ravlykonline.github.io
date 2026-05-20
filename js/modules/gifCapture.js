@@ -61,7 +61,6 @@ export function createGifCapture({ canvas, backgroundCanvas, getCanvasBackground
 
         // Prepend freeze frames (copy of first frame)
         const firstPixels = frames[0].pixels;
-        const { w, h } = gifDimensions();
         for (let i = 0; i < FREEZE_START; i++) {
             frames.unshift({ pixels: firstPixels.slice(), delay: FREEZE_DELAY_CS });
         }

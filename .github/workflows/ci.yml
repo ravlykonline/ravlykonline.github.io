@@ -33,5 +33,8 @@ jobs:
       - name: Check HTML partials are in sync
         run: npm run html:check-partials
 
+      - name: Lint — security and bug-catching checks
+        run: npm run lint
+
       - name: Run end-to-end tests
         run: npm run test:e2e -- --reporter=dot

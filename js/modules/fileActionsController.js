@@ -102,7 +102,7 @@ export function createFileActionsController({
         try {
             await copyTextToClipboard(shareLink);
             showSuccessMessage('Посилання з кодом скопійовано!');
-        } catch (error) {
+        } catch {
             showError('Не вдалося скопіювати посилання. Спробуй ще раз.', 0);
         }
     }
@@ -126,7 +126,7 @@ export function createFileActionsController({
             codeEditor.value = decodedCode;
             onCodeLoaded?.();
             showInfoMessage('Код завантажено з посилання. Переглянь його перед запуском.', 0);
-        } catch (error) {
+        } catch {
             showError('Посилання з кодом пошкоджене або неповне.', 0);
         }
     }

@@ -12,9 +12,11 @@
     "release:sync-version": "node scripts/sync-release-version.mjs",
     "html:sync-partials": "node scripts/sync-html-partials.mjs",
     "html:check-partials": "node scripts/sync-html-partials.mjs --check",
-    "check": "npm run test:unit && npm run html:check-partials"
+    "lint": "eslint js/ sw.js",
+    "check": "npm run test:unit && npm run html:check-partials && npm run lint"
   },
   "devDependencies": {
-    "@playwright/test": "^1.53.2"
+    "@playwright/test": "^1.53.2",
+    "eslint": "^10.4.0"
   }
 }

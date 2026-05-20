@@ -439,7 +439,7 @@ export function createManualPageController({ documentRef, windowRef }) {
                         copyButton.classList.remove('is-copied');
                         copyButton.innerHTML = '<span class="ui-icon icon-copy" aria-hidden="true"></span><span class="manual-code-copy-label">Скопіювати</span>';
                     }, 1500);
-                } catch (error) {
+                } catch {
                     status.textContent = 'Не вдалося скопіювати код.';
                 }
             });

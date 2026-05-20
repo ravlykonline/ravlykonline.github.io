@@ -13,7 +13,7 @@ export function createGridOverlayController({
     function loadGridPreference() {
         try {
             return localStorage.getItem(storageKey) === '1';
-        } catch (error) {
+        } catch {
             return false;
         }
     }
@@ -21,7 +21,7 @@ export function createGridOverlayController({
     function saveGridPreference(value) {
         try {
             localStorage.setItem(storageKey, value ? '1' : '0');
-        } catch (error) {
+        } catch {
             // ignore storage errors
         }
     }

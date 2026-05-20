@@ -21,7 +21,6 @@ export function performMove({
     state.y = boundedY;
 
     if (state.isPenDown) {
-        const isVerticalMove = Math.abs(Math.cos(radians)) < 1e-6;
         const verticalCrispOffsetX = 0;
         const drawOldX = oldX + verticalCrispOffsetX;
         const drawNewX = state.x + verticalCrispOffsetX;
