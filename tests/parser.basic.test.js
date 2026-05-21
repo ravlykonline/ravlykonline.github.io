@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { COLOR_MAP, CORE_COLOR_NAMES, MAX_RECURSION_DEPTH, MAX_REPEATS_IN_LOOP, UKRAINIAN_COLOR_NAMES } from '../js/modules/constants.js';
 import { createInterpreter } from './parserTestUtils.js';
+import { RavlykParser } from '../js/modules/ravlykParser.js';
 import { runTest } from './testUtils.js';
 
 runTest('tokenize strips comments and keeps punctuation tokens', () => {
@@ -147,6 +148,44 @@ runTest('goto supports variables', () => {
     assert.equal(queue[0].type, 'GOTO');
     assert.ok(queue[0].xExpr, 'GOTO has xExpr');
     assert.ok(queue[0].yExpr, 'GOTO has yExpr');
+});
+
+runTest('goto parses negative y without comma: перейти в 50 -200', () => {
+    // Regression: раніше `50 -200` парсилось як x=(50-200)=-150, y=опустити → помилка
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('перейти в 50 -200');
+    const stmt = ast.body[0];
+    assert.equal(stmt.type, 'GotoStmt');
+    assert.equal(stmt.x.type, 'NumberLiteral');
+    assert.equal(stmt.x.value, 50);
+    assert.equal(stmt.y.type, 'UnaryExpr');
+    assert.equal(stmt.y.op, '-');
+    assert.equal(stmt.y.expr.value, 200);
+});
+
+runTest('goto parses negative x and negative y without comma: перейти в -50 -200', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('перейти в -50 -200');
+    const stmt = ast.body[0];
+    assert.equal(stmt.type, 'GotoStmt');
+    assert.equal(stmt.x.type, 'UnaryExpr');
+    assert.equal(stmt.x.op, '-');
+    assert.equal(stmt.x.expr.value, 50);
+    assert.equal(stmt.y.type, 'UnaryExpr');
+    assert.equal(stmt.y.op, '-');
+    assert.equal(stmt.y.expr.value, 200);
+});
+
+runTest('goto supports parenthesized expression for x with negative y: перейти в (50+10) -200', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('перейти в (50+10) -200');
+    const stmt = ast.body[0];
+    assert.equal(stmt.type, 'GotoStmt');
+    assert.equal(stmt.x.type, 'BinaryExpr');
+    assert.equal(stmt.x.op, '+');
+    assert.equal(stmt.y.type, 'UnaryExpr');
+    assert.equal(stmt.y.op, '-');
+    assert.equal(stmt.y.expr.value, 200);
 });
 
 runTest('repeat count above MAX_REPEATS_IN_LOOP throws friendly error', () => {

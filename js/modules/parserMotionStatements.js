@@ -63,6 +63,7 @@ export function parseGotoStatementToAst({
     tokenMeta,
     startIndex,
     parseAstExpressionOrThrow,
+    parseAstCoordExpressionOrThrow,
     spanFromMeta,
     gotoPrepositionKeyword,
 }) {
@@ -81,10 +82,19 @@ export function parseGotoStatementToAst({
             nextIndex: xStart + 1,
         };
     }
-    const xExpr = parseAstExpressionOrThrow(tokens, tokenMeta, xStart);
+
+    // Якщо між координатами є кома → повний пріоритет: `перейти в x+5, y-2`.
+    // Якщо коми немає → обмежений пріоритет (minTopLevelPrecedence=2): `перейти в 50 -200`
+    // читається як x=50, y=-200, а не x=(50-200)=-150.
+    // Вирази в дужках і mul/div/mod завжди працюють в обох режимах.
+    const coordFn = parseAstCoordExpressionOrThrow ?? parseAstExpressionOrThrow;
+    const hasComma = tokens.slice(xStart, Math.min(xStart + 20, tokens.length)).includes(',');
+    const parseCoordExpr = hasComma ? parseAstExpressionOrThrow : coordFn;
+
+    const xExpr = parseCoordExpr(tokens, tokenMeta, xStart);
     let yStart = xExpr.nextIndex;
     if (tokens[yStart] === ',') yStart += 1;
-    const yExpr = parseAstExpressionOrThrow(tokens, tokenMeta, yStart);
+    const yExpr = parseCoordExpr(tokens, tokenMeta, yStart);
     return {
         stmt: {
             type: 'GotoStmt',

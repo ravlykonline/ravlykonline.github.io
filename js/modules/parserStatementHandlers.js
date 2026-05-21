@@ -22,6 +22,8 @@ function createParserBindings(parser) {
         spanFromMeta: (meta, from, to) => parser.spanFromMeta(meta, from, to),
         parseAstExpressionOrThrow: (tokens, tokenMeta, startIndex) =>
             parser.parseAstExpressionOrThrow(tokens, tokenMeta, startIndex),
+        parseAstCoordExpressionOrThrow: (tokens, tokenMeta, startIndex) =>
+            parser.parseAstCoordExpressionOrThrow(tokens, tokenMeta, startIndex),
         parseAstBlockOrThrow: (tokens, tokenMeta, openParenIndex) =>
             parser.parseAstBlockOrThrow(tokens, tokenMeta, openParenIndex),
         parseAstConditionOrThrow: (tokens, tokenMeta, startIndex) =>
@@ -127,6 +129,7 @@ export function createParserStatementHandlers({
                 tokenMeta,
                 startIndex,
                 parseAstExpressionOrThrow: bindings.parseAstExpressionOrThrow,
+                parseAstCoordExpressionOrThrow: bindings.parseAstCoordExpressionOrThrow,
                 spanFromMeta: bindings.spanFromMeta,
                 gotoPrepositionKeyword: keywords.gotoPreposition,
             }),

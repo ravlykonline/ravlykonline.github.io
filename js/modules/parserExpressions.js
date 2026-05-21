@@ -6,7 +6,8 @@ export function getOperatorPrecedence(operator) {
     return -1;
 }
 
-export function parseAstExpressionOrThrow(tokens, tokenMeta, startIndex, helpers) {
+export function parseAstExpressionOrThrow(tokens, tokenMeta, startIndex, helpers, options = {}) {
+    const { minTopLevelPrecedence = 0 } = options;
     const {
         isValidIdentifier,
         normalizeIdentifier,
@@ -86,5 +87,5 @@ export function parseAstExpressionOrThrow(tokens, tokenMeta, startIndex, helpers
         return left;
     };
 
-    return parseWithPrecedence(startIndex, 0);
+    return parseWithPrecedence(startIndex, minTopLevelPrecedence);
 }

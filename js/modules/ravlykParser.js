@@ -103,26 +103,33 @@ export class RavlykParser {
         return spanFromTokenMeta(tokenMeta, startIndex, endIndexExclusive);
     }
 
-    parseAstExpressionPrimaryOrThrow(tokens, tokenMeta, startIndex) {
+    parseAstExpressionPrimaryOrThrow(tokens, tokenMeta, startIndex, options = {}) {
         return parseAstExpressionOrThrowHelper(tokens, tokenMeta, startIndex, {
             isValidIdentifier: (identifier) => this.isValidIdentifier(identifier),
             normalizeIdentifier: (identifier) => this.normalizeIdentifier(identifier),
             spanFromMeta: (meta, from, to) => this.spanFromMeta(meta, from, to),
             createUnknownCommandError: (token) => new RavlykError("UNKNOWN_COMMAND", token),
-        });
+        }, options);
     }
 
-    parseAstExpressionUnaryOrThrow(tokens, tokenMeta, startIndex) {
-        return this.parseAstExpressionPrimaryOrThrow(tokens, tokenMeta, startIndex);
+    parseAstExpressionUnaryOrThrow(tokens, tokenMeta, startIndex, options = {}) {
+        return this.parseAstExpressionPrimaryOrThrow(tokens, tokenMeta, startIndex, options);
     }
 
     parseAstExpressionWithPrecedenceOrThrow(tokens, tokenMeta, startIndex, minPrecedence) {
-        void minPrecedence;
-        return this.parseAstExpressionUnaryOrThrow(tokens, tokenMeta, startIndex);
+        return this.parseAstExpressionUnaryOrThrow(tokens, tokenMeta, startIndex, { minTopLevelPrecedence: minPrecedence });
     }
 
     parseAstExpressionOrThrow(tokens, tokenMeta, startIndex) {
         return this.parseAstExpressionWithPrecedenceOrThrow(tokens, tokenMeta, startIndex, 0);
+    }
+
+    // Coord expression: для координат перейти в X Y.
+    // На верхньому рівні не поглинає + і − (пріоритет 1), щоб `50 -200`
+    // читалось як x=50, y=-200, а не як 50-200=-150.
+    // Вирази в дужках (50+10) і множення/ділення 50*2 працюють як завжди.
+    parseAstCoordExpressionOrThrow(tokens, tokenMeta, startIndex) {
+        return this.parseAstExpressionWithPrecedenceOrThrow(tokens, tokenMeta, startIndex, 2);
     }
 
     parseAstBlockOrThrow(tokens, tokenMeta, openParenIndex) {
