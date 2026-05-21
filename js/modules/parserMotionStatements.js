@@ -83,18 +83,32 @@ export function parseGotoStatementToAst({
         };
     }
 
-    // Якщо між координатами є кома → повний пріоритет: `перейти в x+5, y-2`.
-    // Якщо коми немає → обмежений пріоритет (minTopLevelPrecedence=2): `перейти в 50 -200`
-    // читається як x=50, y=-200, а не x=(50-200)=-150.
-    // Вирази в дужках і mul/div/mod завжди працюють в обох режимах.
+    // Визначаємо режим парсингу координат по першому реальному роздільнику.
+    //
+    // 1. Парсимо x з повним пріоритетом.
+    // 2. Дивимось на токен відразу після x:
+    //    - кома → кома-режим: x+5, y-2 (арифметика, без перепарсингу).
+    //    - інше → coord-режим: перепарсуємо x з minTopLevelPrecedence=2,
+    //      щоб `50 -200` давало x=50, y=-200, а не x=50-200=-150.
+    //
+    // Пошук коми лише після x (не 20 токенів наперед!) виключає помилкове
+    // спрацювання від коми у наступному рядку: `goto 50 -200\nbox(1,2)`.
     const coordFn = parseAstCoordExpressionOrThrow ?? parseAstExpressionOrThrow;
-    const hasComma = tokens.slice(xStart, Math.min(xStart + 20, tokens.length)).includes(',');
-    const parseCoordExpr = hasComma ? parseAstExpressionOrThrow : coordFn;
-
-    const xExpr = parseCoordExpr(tokens, tokenMeta, xStart);
-    let yStart = xExpr.nextIndex;
-    if (tokens[yStart] === ',') yStart += 1;
-    const yExpr = parseCoordExpr(tokens, tokenMeta, yStart);
+    const xExprFull = parseAstExpressionOrThrow(tokens, tokenMeta, xStart);
+    let xExpr, yStart, parseY;
+    if (tokens[xExprFull.nextIndex] === ',') {
+        // Кома-режим: повний пріоритет для обох координат, кому пропускаємо.
+        xExpr = xExprFull;
+        yStart = xExprFull.nextIndex + 1;
+        parseY = parseAstExpressionOrThrow;
+    } else {
+        // Coord-режим: перепарсуємо x з обмеженим пріоритетом (minTopLevelPrecedence=2),
+        // щоб `50 -200` давало x=50, y=-200, а не x=50-200=-150.
+        xExpr = coordFn(tokens, tokenMeta, xStart);
+        yStart = xExpr.nextIndex;
+        parseY = coordFn;
+    }
+    const yExpr = parseY(tokens, tokenMeta, yStart);
     return {
         stmt: {
             type: 'GotoStmt',

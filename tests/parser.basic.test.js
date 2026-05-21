@@ -188,6 +188,23 @@ runTest('goto supports parenthesized expression for x with negative y: пере�
     assert.equal(stmt.y.expr.value, 200);
 });
 
+runTest('goto negative y is not confused by comma in next function call: goto 50 -200 then box(1,2)', () => {
+    // Regression: hasComma over 20 tokens picked up the comma from box(1,2) on the
+    // next line and switched to full-precedence mode, parsing x=50-200=-150
+    // and then trying to use `box` as the y coordinate.
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst(
+        'створити box(a, b) ( вперед a )\nперейти в 50 -200\nbox(10, 20)'
+    );
+    const gotoStmt = ast.body[1];
+    assert.equal(gotoStmt.type, 'GotoStmt');
+    assert.equal(gotoStmt.x.type, 'NumberLiteral');
+    assert.equal(gotoStmt.x.value, 50);
+    assert.equal(gotoStmt.y.type, 'UnaryExpr');
+    assert.equal(gotoStmt.y.op, '-');
+    assert.equal(gotoStmt.y.expr.value, 200);
+});
+
 runTest('repeat count above MAX_REPEATS_IN_LOOP throws friendly error', () => {
     const interpreter = createInterpreter();
     assert.throws(
