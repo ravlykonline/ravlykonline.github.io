@@ -185,11 +185,18 @@ clear
 ```ravlyk
 перейти 100 50
 перейти в 100 50
+перейти в 50 -200
 перейти 100, 50
 goto 100 50
 goto to 100 50
 перейти випадково
 ```
+
+**Правила парсингу координат:**
+
+- Без коми → coord-режим: `перейти в 50 -200` читається як x=50, y=−200. Унарний мінус перед числом завжди стартує нову координату.
+- З комою → арифметичний режим: `перейти в x+5, y-2` читається як x=x+5, y=y−2. Обидві координати — повні вирази.
+- Вирази в дужках і mul/div/mod (`*`, `/`, `%`) працюють в обох режимах: `перейти в (50+10) -200` → x=60, y=−200.
 
 ## 7. Вирази
 
@@ -470,7 +477,10 @@ background     = ("фон" | "background") (identifier | random) ;
 thickness      = ("товщина" | "thickness") unsignedInteger ;
 pen            = "підняти" | "penup" | "опустити" | "pendown" ;
 clear          = "очистити" | "clear" ;
-goto           = ("перейти" | "goto") ["в" | "to"] ((expression [","] expression) | random) ;
+goto           = ("перейти" | "goto") ["в" | "to"] (coordPair | random) ;
+coordPair      = coordExpr "," expression   (* кома-режим: арифметика в обох *)
+               | coordExpr coordExpr ;       (* coord-режим: unary − стартує y *)
+coordExpr      = expression (* без top-level + / − якщо немає коми *) ;
 
 createVar      = ("створити" | "create") identifier "=" expression ;
 assignment     = identifier "=" expression ;
