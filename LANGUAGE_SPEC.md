@@ -478,9 +478,9 @@ thickness      = ("товщина" | "thickness") unsignedInteger ;
 pen            = "підняти" | "penup" | "опустити" | "pendown" ;
 clear          = "очистити" | "clear" ;
 goto           = ("перейти" | "goto") ["в" | "to"] (coordPair | random) ;
-coordPair      = coordExpr "," expression   (* кома-режим: арифметика в обох *)
-               | coordExpr coordExpr ;       (* coord-режим: unary − стартує y *)
-coordExpr      = expression (* без top-level + / − якщо немає коми *) ;
+coordPair      = expression "," expression    (* кома-режим: повна арифметика в обох *)
+               | coordModeExpr coordModeExpr ; (* coord-режим: unary − стартує y *)
+coordModeExpr  = expression (* top-level + / − не поглинаються; дужки і * / % дозволені *) ;
 
 createVar      = ("створити" | "create") identifier "=" expression ;
 assignment     = identifier "=" expression ;
