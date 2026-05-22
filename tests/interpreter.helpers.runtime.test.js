@@ -28,6 +28,10 @@ import {
     wasBoundaryWarningShownRuntime,
 } from '../js/modules/interpreterRuntimeState.js';
 import { createRandomResolver } from '../js/modules/randomResolver.js';
+import {
+    drawEmbroideryStroke,
+    drawLinenBackground,
+} from '../js/modules/interpreterEmbroidery.js';
 import { createInterpreter } from './parserTestUtils.js';
 import { runTest } from './testUtils.js';
 
@@ -761,6 +765,54 @@ runTest('handlePrimitiveAstStatement EmbroideryStmt queue mode pushes EMBROIDERY
     assert.equal(queue[0].type, 'EMBROIDERY');
     assert.equal(queue[0].mode, 'on');
     assert.equal(queue[0].original, 'вишиванка');
+});
+
+runTest('embroidery background uses a light linen base', () => {
+    const fills = [];
+    const ctx = {
+        fillStyle: '',
+        strokeStyle: '',
+        lineWidth: 1,
+        globalAlpha: 1,
+        fillRect(x, y, width, height) {
+            fills.push({ color: this.fillStyle, x, y, width, height });
+        },
+        beginPath() {},
+        moveTo() {},
+        lineTo() {},
+        stroke() {},
+    };
+
+    drawLinenBackground(ctx, 20, 20);
+
+    assert.equal(fills[0].color, '#f6edcf');
+    assert.deepEqual(
+        { x: fills[0].x, y: fills[0].y, width: fills[0].width, height: fills[0].height },
+        { x: 0, y: 0, width: 20, height: 20 }
+    );
+    assert.equal(ctx.globalAlpha, 1);
+});
+
+runTest('embroidery diagonal strokes keep crosses farther apart', () => {
+    const countStrokes = (x1, y1, x2, y2) => {
+        let strokes = 0;
+        const ctx = {
+            lineWidth: 1,
+            beginPath() {},
+            moveTo() {},
+            lineTo() {},
+            stroke() { strokes++; },
+        };
+        drawEmbroideryStroke(ctx, x1, y1, x2, y2, 1);
+        return strokes;
+    };
+
+    const horizontalStrokes = countStrokes(0, 0, 100, 0);
+    const diagonalStrokes = countStrokes(0, 0, 100, 100);
+
+    assert.equal(horizontalStrokes % 2, 0);
+    assert.equal(diagonalStrokes % 2, 0);
+    assert.ok(diagonalStrokes <= horizontalStrokes);
 });
 
 console.log('Interpreter runtime helper tests completed.');

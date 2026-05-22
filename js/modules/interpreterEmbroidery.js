@@ -3,9 +3,9 @@
 // drawEmbroideryStroke — малює хрестики вздовж відрізка (x1,y1)→(x2,y2).
 // drawLinenBackground  — малює текстуру льону на backgroundCanvas.
 
-const LINEN_BASE   = '#e8d9b8';
-const LINEN_WARP   = '#cfc19a';   // горизонтальні нитки
-const LINEN_WEFT   = '#d8c9a8';   // вертикальні нитки
+const LINEN_BASE   = '#f6edcf';
+const LINEN_WARP   = '#e8ddbd';   // горизонтальні нитки
+const LINEN_WEFT   = '#efe5c6';   // вертикальні нитки
 const THREAD_STEP  = 5;           // пікселів між нитками
 
 /**
@@ -18,9 +18,11 @@ export function drawEmbroideryStroke(ctx, x1, y1, x2, y2, penSize) {
     const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist < 1) return;
 
-    const spacing = Math.max(8, penSize * 4);
+    const baseSpacing = Math.max(8, penSize * 4);
+    const diagonalRatio = Math.min(Math.abs(dx), Math.abs(dy)) / Math.max(Math.abs(dx), Math.abs(dy));
+    const spacing = baseSpacing * (1 + diagonalRatio * 0.6);
     const half    = Math.max(2.5, penSize * 1.5);
-    const steps   = Math.max(1, Math.round(dist / spacing));
+    const steps   = Math.max(1, Math.floor(dist / spacing));
 
     const savedWidth = ctx.lineWidth;
     ctx.lineWidth = Math.max(1, penSize * 0.6);
@@ -69,7 +71,7 @@ export function drawLinenBackground(backgroundCtx, width, height) {
     }
 
     // Вертикальні нитки (уток) — трохи прозоріші
-    backgroundCtx.globalAlpha = 0.45;
+    backgroundCtx.globalAlpha = 0.32;
     for (let x = 0; x < width; x += THREAD_STEP) {
         backgroundCtx.strokeStyle = (Math.floor(x / THREAD_STEP) % 2 === 0)
             ? LINEN_WEFT
