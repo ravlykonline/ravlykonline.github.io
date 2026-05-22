@@ -18,10 +18,10 @@ export function drawEmbroideryStroke(ctx, x1, y1, x2, y2, penSize) {
     const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist < 1) return;
 
-    const baseSpacing = Math.max(8, penSize * 4);
+    const half    = Math.max(3, penSize * 1.5);
+    const baseSpacing = Math.max(half * 4, penSize * 8);
     const diagonalRatio = Math.min(Math.abs(dx), Math.abs(dy)) / Math.max(Math.abs(dx), Math.abs(dy));
     const spacing = baseSpacing * (1 + diagonalRatio * 0.6);
-    const half    = Math.max(2.5, penSize * 1.5);
     const steps   = Math.max(1, Math.floor(dist / spacing));
 
     const savedWidth = ctx.lineWidth;
