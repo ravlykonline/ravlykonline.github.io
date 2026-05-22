@@ -404,6 +404,14 @@ export function setBackgroundColorRuntime(runtime, colorName) {
         applyContextSettings: () => runtime.applyContextSettings(),
         createUnknownColorError: (rawColorName) => new RavlykError("UNKNOWN_COLOR", rawColorName),
     });
+    if (runtime.state.isEmbroidery && runtime.backgroundCtx && runtime.backgroundCanvas) {
+        drawLinenBackground(
+            runtime.backgroundCtx,
+            runtime.backgroundCanvas.width,
+            runtime.backgroundCanvas.height,
+            runtime.state.backgroundColor
+        );
+    }
 }
 
 export function clearScreenRuntime(runtime) {
@@ -425,7 +433,12 @@ export function setEmbroideryModeRuntime(runtime, on) {
     runtime.state.isEmbroidery = on;
     if (on) {
         if (runtime.backgroundCtx && runtime.backgroundCanvas) {
-            drawLinenBackground(runtime.backgroundCtx, runtime.backgroundCanvas.width, runtime.backgroundCanvas.height);
+            drawLinenBackground(
+                runtime.backgroundCtx,
+                runtime.backgroundCanvas.width,
+                runtime.backgroundCanvas.height,
+                runtime.state.backgroundColor
+            );
         }
     } else {
         applyBackgroundLayer({

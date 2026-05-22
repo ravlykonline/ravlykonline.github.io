@@ -27,6 +27,10 @@ import {
     resumeExecutionRuntime,
     wasBoundaryWarningShownRuntime,
 } from '../js/modules/interpreterRuntimeState.js';
+import {
+    setBackgroundColorRuntime,
+    setEmbroideryModeRuntime,
+} from '../js/modules/ravlykInterpreterRuntime.js';
 import { createRandomResolver } from '../js/modules/randomResolver.js';
 import {
     drawEmbroideryStroke,
@@ -767,7 +771,7 @@ runTest('handlePrimitiveAstStatement EmbroideryStmt queue mode pushes EMBROIDERY
     assert.equal(queue[0].original, 'вишиванка');
 });
 
-runTest('embroidery background uses a light linen base', () => {
+function createEmbroideryBackgroundRuntime() {
     const fills = [];
     const ctx = {
         fillStyle: '',
@@ -783,14 +787,57 @@ runTest('embroidery background uses a light linen base', () => {
         stroke() {},
     };
 
-    drawLinenBackground(ctx, 20, 20);
+    return {
+        runtime: {
+            state: {
+                backgroundColor: DEFAULT_CANVAS_BACKGROUND,
+                isEmbroidery: false,
+            },
+            canvas: { width: 20, height: 20, style: {} },
+            backgroundCanvas: { width: 20, height: 20, style: {} },
+            backgroundCtx: ctx,
+            applyContextSettings() {},
+        },
+        fills,
+        ctx,
+    };
+}
 
-    assert.equal(fills[0].color, '#f6edcf');
+runTest('embroidery background uses the provided fabric base color', () => {
+    const { fills, ctx } = createEmbroideryBackgroundRuntime();
+
+    drawLinenBackground(ctx, 20, 20, '#123456');
+
+    assert.equal(fills[0].color, '#123456');
     assert.deepEqual(
         { x: fills[0].x, y: fills[0].y, width: fills[0].width, height: fills[0].height },
         { x: 0, y: 0, width: 20, height: 20 }
     );
     assert.equal(ctx.globalAlpha, 1);
+});
+
+runTest('embroidery mode keeps the user background color under the weave', () => {
+    const { runtime, fills } = createEmbroideryBackgroundRuntime();
+
+    setBackgroundColorRuntime(runtime, 'синій');
+    setEmbroideryModeRuntime(runtime, true);
+
+    assert.equal(runtime.state.backgroundColor, COLOR_MAP['синій']);
+    assert.equal(runtime.backgroundCanvas.style.backgroundColor, COLOR_MAP['синій']);
+    assert.equal(fills.at(-1).color, COLOR_MAP['синій']);
+});
+
+runTest('background command redraws the weave while embroidery mode is active', () => {
+    const { runtime, fills } = createEmbroideryBackgroundRuntime();
+
+    setEmbroideryModeRuntime(runtime, true);
+    fills.length = 0;
+    setBackgroundColorRuntime(runtime, 'зелений');
+
+    assert.equal(runtime.state.isEmbroidery, true);
+    assert.equal(runtime.state.backgroundColor, COLOR_MAP['зелений']);
+    assert.equal(runtime.backgroundCanvas.style.backgroundColor, COLOR_MAP['зелений']);
+    assert.equal(fills.at(-1).color, COLOR_MAP['зелений']);
 });
 
 runTest('embroidery diagonal strokes have wider cross spacing than horizontal', () => {

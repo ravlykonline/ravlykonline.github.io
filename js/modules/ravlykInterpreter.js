@@ -321,7 +321,12 @@ export class RavlykInterpreter {
             this.state.y += resizeMeta.deltaY;
         }
         if (this.state.isEmbroidery && this.backgroundCtx && this.backgroundCanvas) {
-            drawLinenBackground(this.backgroundCtx, this.backgroundCanvas.width, this.backgroundCanvas.height);
+            drawLinenBackground(
+                this.backgroundCtx,
+                this.backgroundCanvas.width,
+                this.backgroundCanvas.height,
+                this.state.backgroundColor
+            );
         } else {
             applyBackgroundLayer({
                 canvas: this.canvas,

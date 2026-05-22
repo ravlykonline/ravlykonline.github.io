@@ -1,11 +1,11 @@
 // Embroidery (вишиванка) rendering helpers.
 //
 // drawEmbroideryStroke — малює хрестики вздовж відрізка (x1,y1)→(x2,y2).
-// drawLinenBackground  — малює текстуру льону на backgroundCanvas.
+// drawLinenBackground  — малює текстуру тканини на backgroundCanvas.
 
-const LINEN_BASE   = '#f6edcf';
-const LINEN_WARP   = '#e8ddbd';   // горизонтальні нитки
-const LINEN_WEFT   = '#efe5c6';   // вертикальні нитки
+const LINEN_DEFAULT_BASE = '#f6edcf';
+const LINEN_WARP = 'rgba(74, 55, 24, 0.14)';   // горизонтальні нитки
+const LINEN_WEFT = 'rgba(255, 255, 255, 0.22)'; // вертикальні нитки
 const THREAD_STEP  = 5;           // пікселів між нитками
 
 /**
@@ -65,9 +65,9 @@ export function drawEmbroideryStroke(ctx, x1, y1, x2, y2, penSize) {
  * Малює текстуру льону на фоновому canvas.
  * Викликається один раз при вмиканні режиму вишиванки.
  */
-export function drawLinenBackground(backgroundCtx, width, height) {
+export function drawLinenBackground(backgroundCtx, width, height, baseColor = LINEN_DEFAULT_BASE) {
     // Базовий колір полотна
-    backgroundCtx.fillStyle = LINEN_BASE;
+    backgroundCtx.fillStyle = baseColor || LINEN_DEFAULT_BASE;
     backgroundCtx.fillRect(0, 0, width, height);
 
     backgroundCtx.lineWidth = 1;
@@ -76,7 +76,7 @@ export function drawLinenBackground(backgroundCtx, width, height) {
     for (let y = 0; y < height; y += THREAD_STEP) {
         backgroundCtx.strokeStyle = (Math.floor(y / THREAD_STEP) % 2 === 0)
             ? LINEN_WARP
-            : LINEN_BASE;
+            : 'rgba(255, 255, 255, 0.10)';
         backgroundCtx.beginPath();
         backgroundCtx.moveTo(0, y + 0.5);
         backgroundCtx.lineTo(width, y + 0.5);
@@ -88,7 +88,7 @@ export function drawLinenBackground(backgroundCtx, width, height) {
     for (let x = 0; x < width; x += THREAD_STEP) {
         backgroundCtx.strokeStyle = (Math.floor(x / THREAD_STEP) % 2 === 0)
             ? LINEN_WEFT
-            : LINEN_BASE;
+            : 'rgba(74, 55, 24, 0.06)';
         backgroundCtx.beginPath();
         backgroundCtx.moveTo(x + 0.5, 0);
         backgroundCtx.lineTo(x + 0.5, height);

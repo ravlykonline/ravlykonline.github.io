@@ -771,21 +771,23 @@ n = n + 1
                     <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-embroidery-start-title">
                     <div class="manual-start-example" role="region" aria-labelledby="manual-embroidery-start-title">
                         <h3 id="manual-embroidery-start-title">Спробуй секретний режим</h3>
-                        <pre class="example-code-manual">вишиванка
+                        <pre class="example-code-manual">фон кремовий
+вишиванка
 колір темно-червоний
 повторити 4 (
   вперед 100
   праворуч 90
 )
 звичайний</pre>
-                        <p>Команда <code>вишиванка</code> вмикає особливий режим: Равлик малює хрестиками (×), а фон стає схожим на тканину. Команда <code>звичайний</code> повертає звичайне малювання.</p>
+                        <p>Команда <code>вишиванка</code> вмикає особливий режим: Равлик малює хрестиками (×), а поточний колір фону стає схожим на тканину. Команда <code>звичайний</code> повертає звичайне малювання.</p>
                     </div>
                     </section>
                     <section class="manual-subsection" aria-labelledby="manual-embroidery-details-title">
                         <h4 id="manual-embroidery-details-title">Як це працює</h4>
                         <ul>
-                            <li><code>вишиванка</code> — вмикає режим: хрестики замість ліній, фон як льон.</li>
-                            <li><code>звичайний</code> — вимикає режим і повертає попередній фон.</li>
+                            <li><code>вишиванка</code> — вмикає режим: хрестики замість ліній, а поточний колір фону отримує тканинну текстуру.</li>
+                            <li><code>фон</code> — задає колір полотна; у режимі вишиванки цей колір лишається, але перемальовується з текстурою.</li>
+                            <li><code>звичайний</code> — вимикає режим і прибирає текстуру, зберігаючи поточний колір фону.</li>
                             <li>Команда <code>очистити</code> також вимикає режим і повертає чистий аркуш.</li>
                             <li>Товщина олівця (<code>товщина</code>) впливає на розмір хрестиків.</li>
                         </ul>
