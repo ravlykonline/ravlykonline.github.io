@@ -386,3 +386,50 @@ runTest('function nesting deeper than MAX_RECURSION_DEPTH throws friendly error'
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'TOO_MANY_NESTED_REPEATS'
     );
 });
+
+runTest('вишиванка parses to EmbroideryStmt mode=on', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('вишиванка');
+    assert.equal(ast.body.length, 1);
+    assert.equal(ast.body[0].type, 'EmbroideryStmt');
+    assert.equal(ast.body[0].mode, 'on');
+});
+
+runTest('звичайний parses to EmbroideryStmt mode=off', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('звичайний');
+    assert.equal(ast.body.length, 1);
+    assert.equal(ast.body[0].type, 'EmbroideryStmt');
+    assert.equal(ast.body[0].mode, 'off');
+});
+
+runTest('vyshyvanka alias parses to EmbroideryStmt mode=on', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('vyshyvanka');
+    assert.equal(ast.body[0].type, 'EmbroideryStmt');
+    assert.equal(ast.body[0].mode, 'on');
+});
+
+runTest('вишиванка produces EMBROIDERY queue command', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens(['вишиванка']);
+    assert.equal(queue.length, 1);
+    assert.equal(queue[0].type, 'EMBROIDERY');
+    assert.equal(queue[0].mode, 'on');
+});
+
+runTest('звичайний produces EMBROIDERY mode=off queue command', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens(['звичайний']);
+    assert.equal(queue.length, 1);
+    assert.equal(queue[0].type, 'EMBROIDERY');
+    assert.equal(queue[0].mode, 'off');
+});
+
+runTest('вишиванка is reserved and cannot be used as variable name', () => {
+    const parser = new RavlykParser();
+    assert.throws(
+        () => parser.parseCodeToAst('створити вишиванка = 1'),
+        (error) => error && error.name === 'RavlykError'
+    );
+});

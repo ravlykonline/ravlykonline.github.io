@@ -4,6 +4,7 @@ import {
     parseBackgroundStatementToAst as parseBackgroundStatementToAstHelper,
     parseClearStatementToAst as parseClearStatementToAstHelper,
     parseColorStatementToAst as parseColorStatementToAstHelper,
+    parseEmbroideryStatementToAst as parseEmbroideryStatementToAstHelper,
     parseFunctionCallStatementToAst as parseFunctionCallStatementToAstHelper,
     parseGotoStatementToAst as parseGotoStatementToAstHelper,
     parseMoveStatementToAst as parseMoveStatementToAstHelper,
@@ -172,6 +173,13 @@ export function createParserStatementHandlers({
                 normalizeIdentifier: bindings.normalizeIdentifier,
                 spanFromMeta: bindings.spanFromMeta,
                 createError,
+            }),
+        parseEmbroideryStatementToAst: (tokenMeta, startIndex, tokenLower) =>
+            parseEmbroideryStatementToAstHelper({
+                tokenMeta,
+                startIndex,
+                tokenLower,
+                spanFromMeta: bindings.spanFromMeta,
             }),
     };
 }

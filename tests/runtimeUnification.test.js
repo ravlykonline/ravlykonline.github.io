@@ -70,6 +70,9 @@ function collectPrimitives(programAst, extraOptions = {}) {
             }
             if (stmt.direction) entry.direction = stmt.direction;
         }
+        if (stmt.type === 'EmbroideryStmt') {
+            entry.mode = stmt.mode;
+        }
         log.push(entry);
         item = rt.step();
     }
@@ -161,4 +164,15 @@ runTest('unification: FunctionDefStmt is NOT surfaced as a primitive', () => {
     const ast = parseAndValidate('створити f() ( вперед 1 )');
     const log = collectPrimitives(ast);
     assert.equal(log.length, 0);
+});
+
+runTest('unification: EmbroideryStmt is surfaced as a primitive', () => {
+    const ast = parseAndValidate('вишиванка\nвперед 10\nзвичайний');
+    const log = collectPrimitives(ast);
+    assert.equal(log.length, 3);
+    assert.equal(log[0].type, 'EmbroideryStmt');
+    assert.equal(log[0].mode, 'on');
+    assert.equal(log[1].type, 'MoveStmt');
+    assert.equal(log[2].type, 'EmbroideryStmt');
+    assert.equal(log[2].mode, 'off');
 });

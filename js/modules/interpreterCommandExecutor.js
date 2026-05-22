@@ -14,6 +14,7 @@ export function executeInterpreterCommand({
     setThickness,
     performGoto,
     clearToDefaultSheet,
+    setEmbroideryMode = null,
     cloneCommand,
     evaluateIfCondition,
     resetStuckState,
@@ -92,6 +93,11 @@ export function executeInterpreterCommand({
         }
         case 'CLEAR':
             clearToDefaultSheet();
+            break;
+        case 'EMBROIDERY':
+            if (typeof setEmbroideryMode === 'function') {
+                setEmbroideryMode(currentCommandObject.mode === 'on');
+            }
             break;
         case 'REPEAT':
             if (currentCommandObject.count <= 0 || !currentCommandObject.commands?.length) {

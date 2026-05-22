@@ -1,5 +1,6 @@
 import { applyBackgroundLayer } from './backgroundLayer.js';
 import { GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y } from './constants.js';
+import { drawEmbroideryStroke } from './interpreterEmbroidery.js';
 
 export function performMove({
     distance,
@@ -21,18 +22,22 @@ export function performMove({
     state.y = boundedY;
 
     if (state.isPenDown) {
-        const verticalCrispOffsetX = 0;
-        const drawOldX = oldX + verticalCrispOffsetX;
-        const drawNewX = state.x + verticalCrispOffsetX;
-        ctx.beginPath();
-        ctx.moveTo(drawOldX, oldY);
-        if (state.isRainbow) {
-            state.rainbowHue = (state.rainbowHue + Math.abs(distance) * 0.5) % 360;
-            if (state.rainbowHue < 0) state.rainbowHue += 360;
-            applyContextSettings();
+        if (state.isEmbroidery) {
+            drawEmbroideryStroke(ctx, oldX, oldY, state.x, state.y, state.penSize);
+        } else {
+            const verticalCrispOffsetX = 0;
+            const drawOldX = oldX + verticalCrispOffsetX;
+            const drawNewX = state.x + verticalCrispOffsetX;
+            ctx.beginPath();
+            ctx.moveTo(drawOldX, oldY);
+            if (state.isRainbow) {
+                state.rainbowHue = (state.rainbowHue + Math.abs(distance) * 0.5) % 360;
+                if (state.rainbowHue < 0) state.rainbowHue += 360;
+                applyContextSettings();
+            }
+            ctx.lineTo(drawNewX, state.y);
+            ctx.stroke();
         }
-        ctx.lineTo(drawNewX, state.y);
-        ctx.stroke();
     }
 
     return boundaryHit;
@@ -112,10 +117,14 @@ export function performGoto({
     state.y = boundedY;
 
     if (state.isPenDown) {
-        ctx.beginPath();
-        ctx.moveTo(oldX, oldY);
-        ctx.lineTo(state.x, state.y);
-        ctx.stroke();
+        if (state.isEmbroidery) {
+            drawEmbroideryStroke(ctx, oldX, oldY, state.x, state.y, state.penSize);
+        } else {
+            ctx.beginPath();
+            ctx.moveTo(oldX, oldY);
+            ctx.lineTo(state.x, state.y);
+            ctx.stroke();
+        }
     }
 
     if (boundaryHit && infoNotifier && !boundaryWarningShown) {

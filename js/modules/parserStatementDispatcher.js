@@ -19,6 +19,7 @@ export function parseNextStatementToAst({
     parseIfStatementToAst,
     parseAssignmentStatementToAst,
     parseFunctionCallStatementToAst,
+    parseEmbroideryStatementToAst,
     createUnknownCommandError,
     keywordCreate,
     keywordGame,
@@ -57,6 +58,11 @@ export function parseNextStatementToAst({
 
     if (tokenLower === 'очистити' || tokenLower === 'clear') {
         return parseClearStatementToAst(tokenMeta, index);
+    }
+
+    if (tokenLower === 'вишиванка' || tokenLower === 'vyshyvanka' ||
+        tokenLower === 'звичайний' || tokenLower === 'zvychainyi') {
+        return parseEmbroideryStatementToAst(tokenMeta, index, tokenLower);
     }
 
     if (tokenLower === 'товщина' || tokenLower === 'thickness') {

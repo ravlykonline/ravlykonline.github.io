@@ -693,4 +693,74 @@ runTest('gif capture reports visible progress while recording frames', () => {
     global.document = previousDocument;
 });
 
+runTest('handlePrimitiveAstStatement EmbroideryStmt calls setEmbroideryMode in direct mode', () => {
+    const calls = [];
+    const stmt = { type: 'EmbroideryStmt', mode: 'on' };
+    const result = handlePrimitiveAstStatement({
+        stmt,
+        env: {},
+        mode: 'direct',
+        state: {},
+        evalAstNumberExpression: () => 0,
+        createError: (k) => new Error(k),
+        performMove: () => {},
+        performTurn: () => {},
+        setColor: () => {},
+        setBackgroundColor: () => {},
+        setThickness: () => {},
+        performGoto: () => {},
+        clearToDefaultSheet: () => {},
+        setEmbroideryMode: (on) => calls.push(on),
+    });
+    assert.equal(result, true);
+    assert.deepEqual(calls, [true]);
+});
+
+runTest('handlePrimitiveAstStatement EmbroideryStmt mode=off calls setEmbroideryMode(false)', () => {
+    const calls = [];
+    const stmt = { type: 'EmbroideryStmt', mode: 'off' };
+    handlePrimitiveAstStatement({
+        stmt,
+        env: {},
+        mode: 'direct',
+        state: {},
+        evalAstNumberExpression: () => 0,
+        createError: (k) => new Error(k),
+        performMove: () => {},
+        performTurn: () => {},
+        setColor: () => {},
+        setBackgroundColor: () => {},
+        setThickness: () => {},
+        performGoto: () => {},
+        clearToDefaultSheet: () => {},
+        setEmbroideryMode: (on) => calls.push(on),
+    });
+    assert.deepEqual(calls, [false]);
+});
+
+runTest('handlePrimitiveAstStatement EmbroideryStmt queue mode pushes EMBROIDERY command', () => {
+    const stmt = { type: 'EmbroideryStmt', mode: 'on' };
+    const queue = [];
+    handlePrimitiveAstStatement({
+        stmt,
+        env: {},
+        mode: 'queue',
+        outputQueue: queue,
+        state: {},
+        evalAstNumberExpression: () => 0,
+        createError: (k) => new Error(k),
+        performMove: () => {},
+        performTurn: () => {},
+        setColor: () => {},
+        setBackgroundColor: () => {},
+        setThickness: () => {},
+        performGoto: () => {},
+        clearToDefaultSheet: () => {},
+    });
+    assert.equal(queue.length, 1);
+    assert.equal(queue[0].type, 'EMBROIDERY');
+    assert.equal(queue[0].mode, 'on');
+    assert.equal(queue[0].original, 'вишиванка');
+});
+
 console.log('Interpreter runtime helper tests completed.');

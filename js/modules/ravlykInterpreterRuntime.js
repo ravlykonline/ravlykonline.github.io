@@ -31,6 +31,7 @@ import {
     clearScreen as clearScreenHelper,
     performGoto as performGotoHelper,
 } from './interpreterDrawingOps.js';
+import { drawLinenBackground } from './interpreterEmbroidery.js';
 import { applyBackgroundLayer } from './backgroundLayer.js';
 import { cloneInterpreterCommand } from './interpreterCommandClone.js';
 import { runAstAnimationRuntime } from './interpreterAstAnimationRuntime.js';
@@ -80,6 +81,7 @@ export function handlePrimitiveAstStatementRuntime(runtime, stmt, env, mode, out
         },
         performGoto: (x, y) => runtime.performGoto(x, y),
         clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
+        setEmbroideryMode: (on) => setEmbroideryModeRuntime(runtime, on),
     });
 }
 
@@ -236,6 +238,7 @@ export function runCommandQueueWithRuntime(runtime) {
                 },
                 performGoto: (x, y) => runtime.performGoto(x, y),
                 clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
+                setEmbroideryMode: (on) => setEmbroideryModeRuntime(runtime, on),
                 cloneCommand: (cmd) => cloneInterpreterCommand(cmd),
                 evaluateIfCondition: (condition) => runtime.evaluateIfCondition(condition),
                 resetStuckState: () => {
@@ -300,6 +303,7 @@ export function runAstAnimationWithRuntime(runtime, programAst) {
                 },
                 performGoto: (x, y) => runtime.performGoto(x, y),
                 clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
+                setEmbroideryMode: (on) => setEmbroideryModeRuntime(runtime, on),
                 cloneCommand: (c) => cloneInterpreterCommand(c),
                 // IfStmt and RepeatStmt are handled by createAstRuntime internally
                 // and will never surface here as primitive commands.
@@ -417,9 +421,26 @@ export function clearScreenRuntime(runtime) {
     runtime.applyContextSettings();
 }
 
+export function setEmbroideryModeRuntime(runtime, on) {
+    runtime.state.isEmbroidery = on;
+    if (on) {
+        if (runtime.backgroundCtx && runtime.backgroundCanvas) {
+            drawLinenBackground(runtime.backgroundCtx, runtime.backgroundCanvas.width, runtime.backgroundCanvas.height);
+        }
+    } else {
+        applyBackgroundLayer({
+            canvas: runtime.canvas,
+            backgroundCanvas: runtime.backgroundCanvas,
+            backgroundCtx: runtime.backgroundCtx,
+            backgroundColor: runtime.state.backgroundColor,
+        });
+    }
+}
+
 export function clearToDefaultSheetRuntime(runtime) {
     runtime.state.backgroundColor = DEFAULT_CANVAS_BACKGROUND;
     runtime.state.penSize = DEFAULT_PEN_SIZE;
+    runtime.state.isEmbroidery = false;
     applyBackgroundLayer({
         canvas: runtime.canvas,
         backgroundCanvas: runtime.backgroundCanvas,

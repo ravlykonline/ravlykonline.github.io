@@ -84,6 +84,23 @@ export function parseClearStatementToAst({
     };
 }
 
+export function parseEmbroideryStatementToAst({
+    tokenMeta,
+    startIndex,
+    tokenLower,
+    spanFromMeta,
+}) {
+    const mode = (tokenLower === 'вишиванка' || tokenLower === 'vyshyvanka') ? 'on' : 'off';
+    return {
+        stmt: {
+            type: 'EmbroideryStmt',
+            mode,
+            span: spanFromMeta(tokenMeta, startIndex, startIndex + 1),
+        },
+        nextIndex: startIndex + 1,
+    };
+}
+
 function isUnsignedIntegerToken(token) {
     return /^\d+$/.test(String(token || ''));
 }

@@ -82,10 +82,12 @@
 очистити, перейти, повторити, повтори,
 якщо, інакше, створити, грати,
 край, клавіша, випадково, в,
+вишиванка, звичайний,
 forward, backward, right, left,
 color, background, thickness, penup, pendown,
 clear, goto, repeat, if, else, create, game,
-edge, key, random, to
+edge, key, random, to,
+vyshyvanka, zvychainyi
 ```
 
 Поточний стан: semantic validator забороняє ці слова для назв змінних, функцій і параметрів. `в` / `to` — службові прийменники команди `перейти в X Y`.
@@ -180,7 +182,25 @@ pendown
 clear
 ```
 
-### 6.6. Перейти в координату
+### 6.6. Режим вишиванки
+
+```ravlyk
+вишиванка
+vyshyvanka
+
+звичайний
+zvychainyi
+```
+
+`вишиванка` вмикає режим вишивки: рухи олівця малюють хрестики (×) замість суцільної лінії, а фон стає текстурою льону.
+`звичайний` повертає звичайний режим малювання і відновлює попередній колір фону.
+
+- Ці ключові слова є зарезервованими і не можуть використовуватись як імена змінних чи функцій.
+- Стан скидається при `очистити` і при кожному новому запуску програми.
+
+AST-вузол: `EmbroideryStmt { mode: 'on' | 'off' }`.
+
+### 6.7. Перейти в координату
 
 ```ravlyk
 перейти 100 50
@@ -467,6 +487,7 @@ AST -> попередньо розгорнута command queue -> виконан
 ```ebnf
 program        = statement* ;
 statement      = move | turn | color | background | thickness | pen | clear | goto
+               | embroidery
                | assignment | createVar | functionDef | functionCall
                | repeat | ifStmt | gameStmt ;
 
@@ -477,6 +498,7 @@ background     = ("фон" | "background") (identifier | random) ;
 thickness      = ("товщина" | "thickness") unsignedInteger ;
 pen            = "підняти" | "penup" | "опустити" | "pendown" ;
 clear          = "очистити" | "clear" ;
+embroidery     = "вишиванка" | "vyshyvanka" | "звичайний" | "zvychainyi" ;
 goto           = ("перейти" | "goto") ["в" | "to"] (coordPair | random) ;
 coordPair      = expression "," expression    (* кома-режим: повна арифметика в обох *)
                | coordModeExpr coordModeExpr ; (* coord-режим: unary − стартує y *)

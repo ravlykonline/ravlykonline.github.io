@@ -47,9 +47,11 @@ import {
     clearScreenRuntime,
     clearToDefaultSheetRuntime,
     performGotoRuntime,
+    setEmbroideryModeRuntime,
 } from './ravlykInterpreterRuntime.js';
 import { createRandomResolver } from './randomResolver.js';
 import { applyBackgroundLayer } from './backgroundLayer.js';
+import { drawLinenBackground } from './interpreterEmbroidery.js';
 
 // State coordinates track the turtle tip (not sprite center),
 // so a large visual radius causes premature edge triggers.
@@ -76,6 +78,7 @@ export class RavlykInterpreter {
             isRainbow: false,
             rainbowHue: 0,
             isStuck: false,
+            isEmbroidery: false,
             scale: 1.0 // Animation scale factor
         };
 
@@ -137,6 +140,7 @@ export class RavlykInterpreter {
         this.state.isRainbow = false;
         this.state.rainbowHue = 0;
         this.state.isStuck = false;
+        this.state.isEmbroidery = false;
         this.state.scale = 1.0;
         this.boundaryWarningShown = false;
 
@@ -303,6 +307,10 @@ export class RavlykInterpreter {
         return performGotoRuntime(this, logicalX, logicalY);
     }
 
+    setEmbroideryMode(on) {
+        return setEmbroideryModeRuntime(this, on);
+    }
+
     handleCanvasResize(resizeMeta = null) {
         if (
             resizeMeta &&
@@ -312,12 +320,16 @@ export class RavlykInterpreter {
             this.state.x += resizeMeta.deltaX;
             this.state.y += resizeMeta.deltaY;
         }
-        applyBackgroundLayer({
-            canvas: this.canvas,
-            backgroundCanvas: this.backgroundCanvas,
-            backgroundCtx: this.backgroundCtx,
-            backgroundColor: this.state.backgroundColor,
-        });
+        if (this.state.isEmbroidery && this.backgroundCtx && this.backgroundCanvas) {
+            drawLinenBackground(this.backgroundCtx, this.backgroundCanvas.width, this.backgroundCanvas.height);
+        } else {
+            applyBackgroundLayer({
+                canvas: this.canvas,
+                backgroundCanvas: this.backgroundCanvas,
+                backgroundCtx: this.backgroundCtx,
+                backgroundColor: this.state.backgroundColor,
+            });
+        }
         this.applyContextSettings();
         this.updateRavlykVisualState(true);
     }

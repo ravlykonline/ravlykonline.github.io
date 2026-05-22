@@ -9,6 +9,7 @@ export {
     parseBackgroundStatementToAst,
     parseClearStatementToAst,
     parseColorStatementToAst,
+    parseEmbroideryStatementToAst,
     parseFunctionCallStatementToAst,
     parsePenStatementToAst,
     parseThicknessStatementToAst,

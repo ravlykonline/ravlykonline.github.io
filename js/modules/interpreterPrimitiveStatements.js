@@ -17,6 +17,7 @@ export function handlePrimitiveAstStatement({
     pickSafeRandomPoint = null,
     performGoto,
     clearToDefaultSheet,
+    setEmbroideryMode = null,
 }) {
     if (!stmt || !stmt.type) return false;
 
@@ -169,6 +170,15 @@ export function handlePrimitiveAstStatement({
             outputQueue.push({ type: 'CLEAR', original: 'очистити' });
         } else {
             clearToDefaultSheet();
+        }
+        return true;
+    }
+
+    if (stmt.type === 'EmbroideryStmt') {
+        if (mode === 'queue') {
+            outputQueue.push({ type: 'EMBROIDERY', mode: stmt.mode, original: stmt.mode === 'on' ? 'вишиванка' : 'звичайний' });
+        } else if (typeof setEmbroideryMode === 'function') {
+            setEmbroideryMode(stmt.mode === 'on');
         }
         return true;
     }
