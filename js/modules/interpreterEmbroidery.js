@@ -20,10 +20,13 @@ export function drawEmbroideryStroke(ctx, x1, y1, x2, y2, penSize) {
 
     const half = Math.max(3, penSize * 1.5);
     const baseSpacing = Math.max(half * 4, penSize * 8);
+    // При 45° хрестик займає half×√2 уздовж лінії замість half,
+    // тому для однакового проміжку між хрестиками збільшуємо spacing
+    // рівно на той геометричний коефіцієнт: (√2−1)/2 ≈ 0.21.
     const diagonalRatio = (Math.abs(dx) > 0 && Math.abs(dy) > 0)
         ? Math.min(Math.abs(dx), Math.abs(dy)) / Math.max(Math.abs(dx), Math.abs(dy))
         : 0;
-    const spacing = baseSpacing * (1 + diagonalRatio * 0.6);
+    const spacing = baseSpacing * (1 + diagonalRatio * 0.21);
 
     // Одиничний вектор уздовж відрізка.
     const ux = dx / dist;
