@@ -18,19 +18,29 @@ export function drawEmbroideryStroke(ctx, x1, y1, x2, y2, penSize) {
     const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist < 1) return;
 
-    const half    = Math.max(3, penSize * 1.5);
+    const half = Math.max(3, penSize * 1.5);
     const baseSpacing = Math.max(half * 4, penSize * 8);
-    const diagonalRatio = Math.min(Math.abs(dx), Math.abs(dy)) / Math.max(Math.abs(dx), Math.abs(dy));
+    const diagonalRatio = (Math.abs(dx) > 0 && Math.abs(dy) > 0)
+        ? Math.min(Math.abs(dx), Math.abs(dy)) / Math.max(Math.abs(dx), Math.abs(dy))
+        : 0;
     const spacing = baseSpacing * (1 + diagonalRatio * 0.6);
-    const steps   = Math.max(1, Math.floor(dist / spacing));
+
+    // Одиничний вектор уздовж відрізка.
+    const ux = dx / dist;
+    const uy = dy / dist;
+
+    // Проекція точки x1 на напрямок руху (від початку координат).
+    // Хрестики розставляємо де (проекція) кратна spacing —
+    // так позиції не залежать від того, як анімація розбиває рух на шматки.
+    const phase = (x1 * ux + y1 * uy) % spacing;
+    const firstOffset = ((spacing - phase) % spacing + spacing) % spacing;
 
     const savedWidth = ctx.lineWidth;
     ctx.lineWidth = Math.max(1, penSize * 0.6);
 
-    for (let i = 0; i <= steps; i++) {
-        const t  = i / steps;
-        const px = x1 + dx * t;
-        const py = y1 + dy * t;
+    for (let d = firstOffset; d <= dist + 0.5; d += spacing) {
+        const px = x1 + ux * d;
+        const py = y1 + uy * d;
 
         // перша діагональ ╲
         ctx.beginPath();
