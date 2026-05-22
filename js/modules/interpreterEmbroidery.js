@@ -19,7 +19,7 @@ export function drawEmbroideryStroke(ctx, x1, y1, x2, y2, penSize) {
     if (dist < 1) return;
 
     const half = Math.max(3, penSize * 1.5);
-    const baseSpacing = Math.max(half * 4, penSize * 8);
+    const baseSpacing = Math.max(half * 3, penSize * 6);
     // При 45° хрестик займає half×√2 уздовж лінії замість half,
     // тому для однакового проміжку між хрестиками збільшуємо spacing
     // рівно на той геометричний коефіцієнт: (√2−1)/2 ≈ 0.21.
