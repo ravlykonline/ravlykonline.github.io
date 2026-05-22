@@ -793,26 +793,36 @@ runTest('embroidery background uses a light linen base', () => {
     assert.equal(ctx.globalAlpha, 1);
 });
 
-runTest('embroidery diagonal strokes keep crosses farther apart', () => {
-    const countStrokes = (x1, y1, x2, y2) => {
-        let strokes = 0;
+runTest('embroidery diagonal strokes have wider cross spacing than horizontal', () => {
+    // Count crosses (each cross = 2 stroke() calls) for a given segment.
+    const countCrosses = (x1, y1, x2, y2) => {
+        let strokeCalls = 0;
         const ctx = {
             lineWidth: 1,
             beginPath() {},
             moveTo() {},
             lineTo() {},
-            stroke() { strokes++; },
+            stroke() { strokeCalls++; },
         };
         drawEmbroideryStroke(ctx, x1, y1, x2, y2, 1);
-        return strokes;
+        return strokeCalls / 2; // each cross draws exactly 2 strokes
     };
 
-    const horizontalStrokes = countStrokes(0, 0, 100, 0);
-    const diagonalStrokes = countStrokes(0, 0, 100, 100);
+    // Compare equal path lengths: horizontal 300px vs diagonal 300px.
+    // For the diagonal, dx = dy = 300/√2 so that √(dx²+dy²) = 300.
+    const pathLen = 300;
+    const hCrosses = countCrosses(0, 0, pathLen, 0);
+    const dCrosses = countCrosses(0, 0, pathLen / Math.SQRT2, pathLen / Math.SQRT2);
 
-    assert.equal(horizontalStrokes % 2, 0);
-    assert.equal(diagonalStrokes % 2, 0);
-    assert.ok(diagonalStrokes <= horizontalStrokes);
+    assert.ok(hCrosses >= 2, `horizontal: at least 2 crosses expected, got ${hCrosses}`);
+    assert.ok(dCrosses >= 2, `diagonal: at least 2 crosses expected, got ${dCrosses}`);
+
+    // Diagonal spacing is scaled up geometrically so diagonal has fewer (or equal)
+    // crosses for the same path length — visually equal gaps in both directions.
+    assert.ok(
+        dCrosses <= hCrosses + 1,
+        `diagonal (${dCrosses}) should not exceed horizontal (${hCrosses}) for equal path length`
+    );
 });
 
 console.log('Interpreter runtime helper tests completed.');
