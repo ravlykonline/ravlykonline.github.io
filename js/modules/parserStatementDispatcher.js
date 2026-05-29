@@ -20,6 +20,8 @@ export function parseNextStatementToAst({
     parseAssignmentStatementToAst,
     parseFunctionCallStatementToAst,
     parseEmbroideryStatementToAst,
+    parseVisibilityStatementToAst,
+    parseHomeStatementToAst,
     parseWaitStatementToAst,
     createUnknownCommandError,
     keywordCreate,
@@ -59,6 +61,17 @@ export function parseNextStatementToAst({
 
     if (tokenLower === 'очистити' || tokenLower === 'clear') {
         return parseClearStatementToAst(tokenMeta, index);
+    }
+
+    if (
+        tokenLower === 'сховати' || tokenLower === 'hide' ||
+        tokenLower === 'показати' || tokenLower === 'show'
+    ) {
+        return parseVisibilityStatementToAst(tokenMeta, index, tokenLower);
+    }
+
+    if (tokenLower === 'додому' || tokenLower === 'home') {
+        return parseHomeStatementToAst(tokenMeta, index);
     }
 
     if (tokenLower === 'вишиванка' || tokenLower === 'vyshyvanka' ||

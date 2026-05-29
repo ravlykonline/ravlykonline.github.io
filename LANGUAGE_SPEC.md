@@ -86,12 +86,13 @@
 край, клавіша, випадково, в,
 вишиванка, звичайний,
 чекати, пауза,
+сховати, показати, додому,
 forward, backward, right, left,
 color, background, thickness, penup, pendown,
 clear, goto, repeat, if, else, create, game,
 edge, key, random, to,
 vyshyvanka, zvychainyi,
-wait
+wait, hide, show, home
 ```
 
 Поточний стан: semantic validator забороняє ці слова для назв змінних, функцій і параметрів. `в` / `to` — службові прийменники команди `перейти в X Y`.
@@ -186,7 +187,36 @@ pendown
 clear
 ```
 
-### 6.6. Режим вишиванки
+`очистити` стирає малюнок, повертає фон до білого, вимикає режим вишиванки, скидає товщину лінії до стандартної і робить Равлика видимим. Позиція, напрямок, перо і колір олівця не змінюються.
+
+AST-вузол: `ClearStmt`.
+
+### 6.6. Видимість і повернення додому
+
+```ravlyk
+сховати
+показати
+додому
+
+hide
+show
+home
+```
+
+- `сховати` робить зображення Равлика невидимим. Рух і малювання продовжують працювати.
+- `показати` знову показує Равлика в поточній позиції.
+- `додому` повертає Равлика в початкову позицію і початковий напрямок без малювання.
+- `додому` не змінює перо, колір, товщину, фон, режим вишиванки або видимість.
+- `очистити` додатково робить Равлика видимим.
+
+AST-вузли:
+
+```text
+VisibilityStmt { visible: true | false }
+HomeStmt
+```
+
+### 6.7. Режим вишиванки
 
 ```ravlyk
 вишиванка
@@ -205,7 +235,7 @@ zvychainyi
 
 AST-вузол: `EmbroideryStmt { mode: 'on' | 'off' }`.
 
-### 6.7. Пауза
+### 6.8. Пауза
 
 ```ravlyk
 чекати 2
@@ -223,7 +253,7 @@ wait 3
 
 AST-вузол: `WaitStmt { duration: <expr> }`.
 
-### 6.8. Перейти в координату
+### 6.9. Перейти в координату
 
 ```ravlyk
 перейти 100 50
@@ -510,7 +540,7 @@ AST -> попередньо розгорнута command queue -> виконан
 ```ebnf
 program        = statement* ;
 statement      = move | turn | color | background | thickness | pen | clear | goto
-               | embroidery | wait
+               | visibility | home | embroidery | wait
                | assignment | createVar | functionDef | functionCall
                | repeat | ifStmt | gameStmt ;
 
@@ -521,6 +551,8 @@ background     = ("фон" | "background") (identifier | random) ;
 thickness      = ("товщина" | "thickness") unsignedInteger ;
 pen            = "підняти" | "penup" | "опустити" | "pendown" ;
 clear          = "очистити" | "clear" ;
+visibility     = "сховати" | "hide" | "показати" | "show" ;
+home           = "додому" | "home" ;
 embroidery     = "вишиванка" | "vyshyvanka" | "звичайний" | "zvychainyi" ;
 wait           = ("чекати" | "пауза" | "wait") expression ;
 goto           = ("перейти" | "goto") ["в" | "to"] (coordPair | random) ;

@@ -11,7 +11,9 @@ export {
     parseColorStatementToAst,
     parseEmbroideryStatementToAst,
     parseFunctionCallStatementToAst,
+    parseHomeStatementToAst,
     parsePenStatementToAst,
     parseThicknessStatementToAst,
+    parseVisibilityStatementToAst,
     parseWaitStatementToAst,
 } from './parserStateStatements.js';

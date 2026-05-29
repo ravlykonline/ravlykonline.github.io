@@ -15,6 +15,7 @@ export function executeInterpreterCommand({
     setBackgroundColor,
     setThickness,
     performGoto,
+    performHome,
     clearToDefaultSheet,
     setEmbroideryMode = null,
     cloneCommand,
@@ -93,6 +94,15 @@ export function executeInterpreterCommand({
             performGoto(gotoX, gotoY);
             break;
         }
+        case 'HOME':
+            performHome();
+            break;
+        case 'HIDE_RAVLYK':
+            state.isVisible = false;
+            break;
+        case 'SHOW_RAVLYK':
+            state.isVisible = true;
+            break;
         case 'CLEAR':
             clearToDefaultSheet();
             break;

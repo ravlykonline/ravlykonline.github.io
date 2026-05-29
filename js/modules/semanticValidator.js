@@ -25,6 +25,9 @@ const RESERVED_NAMES = new Set([
     'вишиванка', 'vyshyvanka',
     'звичайний', 'zvychainyi',
     'чекати', 'пауза', 'wait',
+    'сховати', 'hide',
+    'показати', 'show',
+    'додому', 'home',
 ]);
 
 class SemanticError extends Error {

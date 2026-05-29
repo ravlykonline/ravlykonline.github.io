@@ -1,5 +1,13 @@
 import assert from 'node:assert/strict';
-import { COLOR_MAP, COLOR_REGISTRY, DEFAULT_CANVAS_BACKGROUND, UKRAINIAN_COLOR_NAMES } from '../js/modules/constants.js';
+import {
+    COLOR_MAP,
+    COLOR_REGISTRY,
+    DEFAULT_CANVAS_BACKGROUND,
+    GRID_ALIGN_OFFSET_X,
+    GRID_ALIGN_OFFSET_Y,
+    RAVLYK_INITIAL_ANGLE,
+    UKRAINIAN_COLOR_NAMES,
+} from '../js/modules/constants.js';
 import { handlePrimitiveAstStatement } from '../js/modules/interpreterPrimitiveStatements.js';
 import {
     animatePen,
@@ -28,6 +36,8 @@ import {
     wasBoundaryWarningShownRuntime,
 } from '../js/modules/interpreterRuntimeState.js';
 import {
+    clearToDefaultSheetRuntime,
+    performHomeRuntime,
     setBackgroundColorRuntime,
     setEmbroideryModeRuntime,
 } from '../js/modules/ravlykInterpreterRuntime.js';
@@ -913,6 +923,127 @@ runTest('handlePrimitiveAstStatement WaitStmt pushes WAIT command with resolved 
     assert.equal(queue[0].type, 'WAIT');
     assert.equal(queue[0].seconds, 2);
     assert.equal(queue[0].original, 'чекати');
+});
+
+runTest('handlePrimitiveAstStatement VisibilityStmt updates direct state', () => {
+    const state = { isVisible: true };
+    const result = handlePrimitiveAstStatement({
+        stmt: { type: 'VisibilityStmt', visible: false },
+        env: {},
+        mode: 'direct',
+        state,
+        evalAstNumberExpression: () => 0,
+        createError: (k) => new Error(k),
+        performMove: () => {},
+        performTurn: () => {},
+        setColor: () => {},
+        setBackgroundColor: () => {},
+        setThickness: () => {},
+        performGoto: () => {},
+        performHome: () => {},
+        clearToDefaultSheet: () => {},
+    });
+    assert.equal(result, true);
+    assert.equal(state.isVisible, false);
+});
+
+runTest('handlePrimitiveAstStatement VisibilityStmt pushes hide/show commands', () => {
+    const queue = [];
+    const baseOptions = {
+        env: {},
+        mode: 'queue',
+        outputQueue: queue,
+        state: {},
+        evalAstNumberExpression: () => 0,
+        createError: (k) => new Error(k),
+        performMove: () => {},
+        performTurn: () => {},
+        setColor: () => {},
+        setBackgroundColor: () => {},
+        setThickness: () => {},
+        performGoto: () => {},
+        performHome: () => {},
+        clearToDefaultSheet: () => {},
+    };
+
+    handlePrimitiveAstStatement({ ...baseOptions, stmt: { type: 'VisibilityStmt', visible: false } });
+    handlePrimitiveAstStatement({ ...baseOptions, stmt: { type: 'VisibilityStmt', visible: true } });
+
+    assert.deepEqual(queue.map((cmd) => cmd.type), ['HIDE_RAVLYK', 'SHOW_RAVLYK']);
+});
+
+runTest('handlePrimitiveAstStatement HomeStmt calls performHome in direct mode', () => {
+    let calls = 0;
+    const result = handlePrimitiveAstStatement({
+        stmt: { type: 'HomeStmt' },
+        env: {},
+        mode: 'direct',
+        state: {},
+        evalAstNumberExpression: () => 0,
+        createError: (k) => new Error(k),
+        performMove: () => {},
+        performTurn: () => {},
+        setColor: () => {},
+        setBackgroundColor: () => {},
+        setThickness: () => {},
+        performGoto: () => {},
+        performHome: () => { calls += 1; },
+        clearToDefaultSheet: () => {},
+    });
+    assert.equal(result, true);
+    assert.equal(calls, 1);
+});
+
+runTest('performHomeRuntime returns to start position and initial heading without changing visibility', () => {
+    const runtime = {
+        canvas: { width: 400, height: 300 },
+        state: {
+            x: 123,
+            y: 45,
+            angle: 37,
+            isPenDown: false,
+            color: '#ff0000',
+            isVisible: false,
+            isStuck: true,
+        },
+        boundaryWarningShown: true,
+    };
+
+    performHomeRuntime(runtime);
+
+    assert.equal(runtime.state.x, 200 + GRID_ALIGN_OFFSET_X);
+    assert.equal(runtime.state.y, 150 + GRID_ALIGN_OFFSET_Y);
+    assert.equal(runtime.state.angle, RAVLYK_INITIAL_ANGLE);
+    assert.equal(runtime.state.isPenDown, false);
+    assert.equal(runtime.state.color, '#ff0000');
+    assert.equal(runtime.state.isVisible, false);
+    assert.equal(runtime.state.isStuck, false);
+    assert.equal(runtime.boundaryWarningShown, false);
+});
+
+runTest('clearToDefaultSheetRuntime makes the ravlyk visible again', () => {
+    const runtime = {
+        state: {
+            backgroundColor: '#123456',
+            penSize: 12,
+            isEmbroidery: true,
+            isVisible: false,
+        },
+        canvas: { width: 20, height: 20, style: {} },
+        backgroundCanvas: { width: 20, height: 20, style: {} },
+        backgroundCtx: {
+            fillStyle: '',
+            globalAlpha: 1,
+            clearRect() {},
+            fillRect() {},
+        },
+        ctx: { clearRect() {} },
+        applyContextSettings() {},
+    };
+
+    clearToDefaultSheetRuntime(runtime);
+
+    assert.equal(runtime.state.isVisible, true);
 });
 
 console.log('Interpreter runtime helper tests completed.');

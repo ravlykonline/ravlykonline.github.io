@@ -84,6 +84,36 @@ export function parseClearStatementToAst({
     };
 }
 
+export function parseVisibilityStatementToAst({
+    tokenMeta,
+    startIndex,
+    tokenLower,
+    spanFromMeta,
+}) {
+    return {
+        stmt: {
+            type: 'VisibilityStmt',
+            visible: tokenLower === 'показати' || tokenLower === 'show',
+            span: spanFromMeta(tokenMeta, startIndex, startIndex + 1),
+        },
+        nextIndex: startIndex + 1,
+    };
+}
+
+export function parseHomeStatementToAst({
+    tokenMeta,
+    startIndex,
+    spanFromMeta,
+}) {
+    return {
+        stmt: {
+            type: 'HomeStmt',
+            span: spanFromMeta(tokenMeta, startIndex, startIndex + 1),
+        },
+        nextIndex: startIndex + 1,
+    };
+}
+
 export function parseEmbroideryStatementToAst({
     tokenMeta,
     startIndex,

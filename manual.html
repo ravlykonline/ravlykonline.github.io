@@ -156,7 +156,7 @@
                     </section>
                 </article>
 
-                <article id="basic-commands" class="guide-section" data-keywords="команди вперед назад праворуч ліворуч рух кроки перейти в очистити підняти опустити" aria-labelledby="manual-section-basic-commands">
+                <article id="basic-commands" class="guide-section" data-keywords="команди вперед назад праворуч ліворуч рух кроки перейти в очистити підняти опустити сховати показати додому" aria-labelledby="manual-section-basic-commands">
                     <h2 id="manual-section-basic-commands">Основні команди</h2>
                     <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-basic-start-title">
                     <div class="manual-start-example" role="region" aria-labelledby="manual-basic-start-title">
@@ -191,6 +191,10 @@
                         <li class="command-item-manual"><span class="cmd-name">очистити</span> <span
                                 class="cmd-desc">Очищає малюнок, повертає білий фон полотна (код у редакторі не
                                 видаляється).</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">сховати / показати</span> <span
+                                class="cmd-desc">Ховає або знову показує Равлика. Рух і малювання продовжують працювати.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">додому</span> <span
+                                class="cmd-desc">Повертає Равлика в початкову точку і початковий напрямок без малювання.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">колір червоний</span> або <span class="cmd-name">колір випадково</span> <span
                                 class="cmd-desc">Змінює колір олівця, яким малює Равлик (наприклад,
                                 <code>колір синій</code>, <code>колір кораловий</code>, <code>колір веселка</code>, <code>колір випадково</code>).</span></li>
@@ -253,7 +257,7 @@
                     <section class="manual-subsection" aria-labelledby="manual-basic-more-title">
                         <details>
                             <summary id="manual-basic-more-title">Дізнатись більше про команди</summary>
-                            <p><strong>вперед</strong> і <strong>назад</strong> рухають Равлика. <strong>праворуч</strong> і <strong>ліворуч</strong> змінюють напрям. Команди <strong>підняти</strong> і <strong>опустити</strong> керують олівцем, а <strong>очистити</strong> стирає малюнок з полотна.</p>
+                            <p><strong>вперед</strong> і <strong>назад</strong> рухають Равлика. <strong>праворуч</strong> і <strong>ліворуч</strong> змінюють напрям. Команди <strong>підняти</strong> і <strong>опустити</strong> керують олівцем, <strong>сховати</strong> і <strong>показати</strong> керують видимістю Равлика, <strong>додому</strong> повертає його на старт, а <strong>очистити</strong> стирає малюнок з полотна.</p>
                             <p>Якщо хочеш спершу просто малювати, тобі достатньо знати ці сім команд: <code>вперед</code>, <code>назад</code>, <code>праворуч</code>, <code>ліворуч</code>, <code>повторити</code>, <code>підняти</code>, <code>опустити</code>.</p>
                         </details>
                     </section>
@@ -749,7 +753,9 @@ n = n + 1
                         <p><code>колір</code> змінює, чим малює Равлик, а <code>фон</code> змінює фон полотна, на якому він малює.</p>
                         <ul>
                             <li>Команда <code>фон</code> не стирає вже намальовані лінії.</li>
-                            <li>Команда <code>очистити</code> повертає чистий білий аркуш: стирає малюнок і скидає фон до білого.</li>
+                            <li>Команда <code>очистити</code> повертає чистий білий аркуш: стирає малюнок, скидає фон до білого і знову показує Равлика.</li>
+                            <li>Команда <code>додому</code> повертає Равлика в початкову точку і початковий напрямок без малювання.</li>
+                            <li>Команди <code>сховати</code> і <code>показати</code> змінюють лише видимість Равлика, не чіпаючи малюнок.</li>
                         </ul>
                         <pre class="example-code-manual">фон блакитний
 колір червоний

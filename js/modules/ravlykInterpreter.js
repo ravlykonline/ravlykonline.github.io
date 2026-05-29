@@ -48,6 +48,7 @@ import {
     clearScreenRuntime,
     clearToDefaultSheetRuntime,
     performGotoRuntime,
+    performHomeRuntime,
     setEmbroideryModeRuntime,
 } from './ravlykInterpreterRuntime.js';
 import { createRandomResolver } from './randomResolver.js';
@@ -80,6 +81,7 @@ export class RavlykInterpreter {
             rainbowHue: 0,
             isStuck: false,
             isEmbroidery: false,
+            isVisible: true,
             scale: 1.0 // Animation scale factor
         };
 
@@ -142,6 +144,7 @@ export class RavlykInterpreter {
         this.state.rainbowHue = 0;
         this.state.isStuck = false;
         this.state.isEmbroidery = false;
+        this.state.isVisible = true;
         this.state.scale = 1.0;
         this.boundaryWarningShown = false;
 
@@ -310,6 +313,10 @@ export class RavlykInterpreter {
 
     performGoto(logicalX, logicalY) {
         return performGotoRuntime(this, logicalX, logicalY);
+    }
+
+    performHome() {
+        return performHomeRuntime(this);
     }
 
     setEmbroideryMode(on) {

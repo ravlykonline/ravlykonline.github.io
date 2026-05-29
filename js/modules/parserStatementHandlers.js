@@ -7,10 +7,12 @@ import {
     parseEmbroideryStatementToAst as parseEmbroideryStatementToAstHelper,
     parseFunctionCallStatementToAst as parseFunctionCallStatementToAstHelper,
     parseGotoStatementToAst as parseGotoStatementToAstHelper,
+    parseHomeStatementToAst as parseHomeStatementToAstHelper,
     parseMoveStatementToAst as parseMoveStatementToAstHelper,
     parsePenStatementToAst as parsePenStatementToAstHelper,
     parseThicknessStatementToAst as parseThicknessStatementToAstHelper,
     parseTurnStatementToAst as parseTurnStatementToAstHelper,
+    parseVisibilityStatementToAst as parseVisibilityStatementToAstHelper,
     parseWaitStatementToAst as parseWaitStatementToAstHelper,
 } from './parserStatements.js';
 import {
@@ -113,6 +115,19 @@ export function createParserStatementHandlers({
             }),
         parseClearStatementToAst: (tokenMeta, startIndex) =>
             parseClearStatementToAstHelper({
+                tokenMeta,
+                startIndex,
+                spanFromMeta: bindings.spanFromMeta,
+            }),
+        parseVisibilityStatementToAst: (tokenMeta, startIndex, tokenLower) =>
+            parseVisibilityStatementToAstHelper({
+                tokenMeta,
+                startIndex,
+                tokenLower,
+                spanFromMeta: bindings.spanFromMeta,
+            }),
+        parseHomeStatementToAst: (tokenMeta, startIndex) =>
+            parseHomeStatementToAstHelper({
                 tokenMeta,
                 startIndex,
                 spanFromMeta: bindings.spanFromMeta,

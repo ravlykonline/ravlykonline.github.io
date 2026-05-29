@@ -131,6 +131,7 @@ function runSync(programAst) {
                 pickSafeRandomDistance: () => 50,
                 pickSafeRandomPoint: () => ({ x: 0, y: 0 }),
                 performGoto: () => {},
+                performHome: () => {},
                 clearToDefaultSheet: () => {},
             });
             if (!handled || buf.length === 0) return null;
@@ -187,6 +188,13 @@ runAsyncTest('astAnimation: move and turn are executed in order', async () => {
     assert.equal(log[0].value, 50);
     assert.equal(log[1].type, 'TURN');
     assert.equal(log[1].value, 90);
+});
+
+runAsyncTest('astAnimation: visibility and home commands are surfaced in order', async () => {
+    const ast = parseAndValidate('\u0441\u0445\u043e\u0432\u0430\u0442\u0438\n\u0434\u043e\u0434\u043e\u043c\u0443\n\u043f\u043e\u043a\u0430\u0437\u0430\u0442\u0438');
+    const { promise, log } = runSync(ast);
+    await promise;
+    assert.deepEqual(log.map((entry) => entry.type), ['HIDE_RAVLYK', 'HOME', 'SHOW_RAVLYK']);
 });
 
 runAsyncTest('astAnimation: repeat loop executes correct number of times', async () => {
@@ -328,7 +336,7 @@ function runWithFakeClock(programAst, { frameMs = 50, animationEnabled = false }
                 setBackgroundColor: () => {}, setThickness: () => {},
                 pickRandomColorName: () => 'red', pickRandomBackgroundColorName: () => 'white',
                 pickSafeRandomDistance: () => 50, pickSafeRandomPoint: () => ({ x: 0, y: 0 }),
-                performGoto: () => {}, clearToDefaultSheet: () => {},
+                performGoto: () => {}, performHome: () => {}, clearToDefaultSheet: () => {},
             });
             if (!handled || buf.length === 0) return null;
             const cmd = buf[0];

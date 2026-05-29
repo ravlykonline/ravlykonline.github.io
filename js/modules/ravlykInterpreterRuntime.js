@@ -3,10 +3,13 @@ import {
     DEFAULT_CANVAS_BACKGROUND,
     DEFAULT_PEN_SIZE,
     ERROR_MESSAGES,
+    GRID_ALIGN_OFFSET_X,
+    GRID_ALIGN_OFFSET_Y,
     MAX_RECURSION_DEPTH,
     MAX_REPEATS_IN_LOOP,
     MAX_COMMAND_QUEUE_LENGTH,
     MAX_GAME_TICK_OPERATIONS,
+    RAVLYK_INITIAL_ANGLE,
 } from './constants.js';
 import { RavlykError } from './ravlykParser.js';
 import { Environment } from './environment.js';
@@ -81,6 +84,7 @@ export function handlePrimitiveAstStatementRuntime(runtime, stmt, env, mode, out
             };
         },
         performGoto: (x, y) => runtime.performGoto(x, y),
+        performHome: () => runtime.performHome(),
         clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
         setEmbroideryMode: (on) => setEmbroideryModeRuntime(runtime, on),
     });
@@ -239,6 +243,7 @@ export function runCommandQueueWithRuntime(runtime) {
                     runtime.applyContextSettings();
                 },
                 performGoto: (x, y) => runtime.performGoto(x, y),
+                performHome: () => performHomeRuntime(runtime),
                 clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
                 setEmbroideryMode: (on) => setEmbroideryModeRuntime(runtime, on),
                 cloneCommand: (cmd) => cloneInterpreterCommand(cmd),
@@ -306,6 +311,7 @@ export function runAstAnimationWithRuntime(runtime, programAst) {
                     runtime.applyContextSettings();
                 },
                 performGoto: (x, y) => runtime.performGoto(x, y),
+                performHome: () => performHomeRuntime(runtime),
                 clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
                 setEmbroideryMode: (on) => setEmbroideryModeRuntime(runtime, on),
                 cloneCommand: (c) => cloneInterpreterCommand(c),
@@ -465,6 +471,7 @@ export function clearToDefaultSheetRuntime(runtime) {
     runtime.state.backgroundColor = DEFAULT_CANVAS_BACKGROUND;
     runtime.state.penSize = DEFAULT_PEN_SIZE;
     runtime.state.isEmbroidery = false;
+    runtime.state.isVisible = true;
     applyBackgroundLayer({
         canvas: runtime.canvas,
         backgroundCanvas: runtime.backgroundCanvas,
@@ -477,6 +484,14 @@ export function clearToDefaultSheetRuntime(runtime) {
         backgroundColor: runtime.state.backgroundColor,
     });
     runtime.applyContextSettings();
+}
+
+export function performHomeRuntime(runtime) {
+    runtime.state.x = (runtime.canvas.width / 2) + GRID_ALIGN_OFFSET_X;
+    runtime.state.y = (runtime.canvas.height / 2) + GRID_ALIGN_OFFSET_Y;
+    runtime.state.angle = RAVLYK_INITIAL_ANGLE;
+    runtime.state.isStuck = false;
+    runtime.boundaryWarningShown = false;
 }
 
 export function performGotoRuntime(runtime, logicalX, logicalY) {

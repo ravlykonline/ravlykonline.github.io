@@ -481,3 +481,41 @@ runTest('чекати is reserved and cannot be used as variable name', () => {
         (e) => e && e.name === 'RavlykError'
     );
 });
+
+runTest('сховати and показати parse to VisibilityStmt', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('\u0441\u0445\u043e\u0432\u0430\u0442\u0438\n\u043f\u043e\u043a\u0430\u0437\u0430\u0442\u0438');
+    assert.deepEqual(ast.body.map((stmt) => stmt.type), ['VisibilityStmt', 'VisibilityStmt']);
+    assert.deepEqual(ast.body.map((stmt) => stmt.visible), [false, true]);
+});
+
+runTest('додому parses to HomeStmt', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('\u0434\u043e\u0434\u043e\u043c\u0443');
+    assert.equal(ast.body[0].type, 'HomeStmt');
+});
+
+runTest('hide, show, home aliases parse', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('hide\nshow\nhome');
+    assert.deepEqual(ast.body.map((stmt) => stmt.type), ['VisibilityStmt', 'VisibilityStmt', 'HomeStmt']);
+    assert.deepEqual(ast.body.slice(0, 2).map((stmt) => stmt.visible), [false, true]);
+});
+
+runTest('сховати, показати, додому produce queue commands', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens([
+        '\u0441\u0445\u043e\u0432\u0430\u0442\u0438',
+        '\u043f\u043e\u043a\u0430\u0437\u0430\u0442\u0438',
+        '\u0434\u043e\u0434\u043e\u043c\u0443',
+    ]);
+    assert.deepEqual(queue.map((cmd) => cmd.type), ['HIDE_RAVLYK', 'SHOW_RAVLYK', 'HOME']);
+});
+
+runTest('сховати is reserved and cannot be used as variable name', () => {
+    const parser = new RavlykParser();
+    assert.throws(
+        () => parser.parseCodeToAst('\u0441\u0442\u0432\u043e\u0440\u0438\u0442\u0438 \u0441\u0445\u043e\u0432\u0430\u0442\u0438 = 1'),
+        (e) => e && e.name === 'RavlykError'
+    );
+});

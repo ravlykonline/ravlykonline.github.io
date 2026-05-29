@@ -18,6 +18,7 @@ export function handlePrimitiveAstStatement({
     pickSafeRandomDistance = null,
     pickSafeRandomPoint = null,
     performGoto,
+    performHome,
     clearToDefaultSheet,
     setEmbroideryMode = null,
 }) {
@@ -163,6 +164,27 @@ export function handlePrimitiveAstStatement({
             });
         } else {
             state.isPenDown = stmt.mode !== 'up';
+        }
+        return true;
+    }
+
+    if (stmt.type === 'VisibilityStmt') {
+        if (mode === 'queue') {
+            outputQueue.push({
+                type: stmt.visible ? 'SHOW_RAVLYK' : 'HIDE_RAVLYK',
+                original: stmt.visible ? 'показати' : 'сховати',
+            });
+        } else {
+            state.isVisible = !!stmt.visible;
+        }
+        return true;
+    }
+
+    if (stmt.type === 'HomeStmt') {
+        if (mode === 'queue') {
+            outputQueue.push({ type: 'HOME', original: 'додому' });
+        } else if (typeof performHome === 'function') {
+            performHome();
         }
         return true;
     }

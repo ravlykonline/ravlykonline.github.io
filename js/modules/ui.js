@@ -72,6 +72,7 @@ export function updateRavlykVisualsOnScreen(ravlykState, canvasElement) {
     ravlykSpriteElement.style.left = `${newLeft}px`;
     ravlykSpriteElement.style.top = `${newTop}px`;
     ravlykSpriteElement.style.transform = `rotate(${ravlykState.angle + 90}deg) scale(${ravlykState.scale})`;
+    ravlykSpriteElement.style.visibility = ravlykState.isVisible === false ? 'hidden' : 'visible';
     ravlykSpriteElement.classList.toggle('lifted', !ravlykState.isPenDown);
 }
 
