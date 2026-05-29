@@ -5,7 +5,7 @@ export function tokenizeWithMetadata(codeStr) {
 
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
         const sourceLine = lines[lineIndex];
-        const commentIndex = sourceLine.indexOf('#');
+        const commentIndex = findCommentStart(sourceLine);
         const lineWithoutComment = commentIndex >= 0 ? sourceLine.slice(0, commentIndex) : sourceLine;
         const tokenRegex = /"[^"\r\n]*"|>=|<=|!=|[(),=<>+\-*/%]|[^\s(),=<>+\-*/%"]+/g;
 
@@ -23,4 +23,24 @@ export function tokenizeWithMetadata(codeStr) {
     }
 
     return { tokens, meta };
+}
+
+function findCommentStart(sourceLine) {
+    let inString = false;
+
+    for (let index = 0; index < sourceLine.length; index++) {
+        const char = sourceLine[index];
+
+        if (char === '"') {
+            inString = !inString;
+            continue;
+        }
+
+        if (inString) continue;
+
+        if (char === '#') return index;
+        if (char === '/' && sourceLine[index + 1] === '/') return index;
+    }
+
+    return -1;
 }

@@ -6,6 +6,12 @@ import { runTest } from './testUtils.js';
 
 runTest('tokenize strips comments and keeps punctuation tokens', () => {
     const interpreter = createInterpreter();
+    const tokens = interpreter.tokenize('forward 10 // comment\nx = 5\nrepeat 2 ( left 90 )');
+    assert.deepEqual(tokens, ['forward', '10', 'x', '=', '5', 'repeat', '2', '(', 'left', '90', ')']);
+});
+
+runTest('tokenize keeps legacy hash comments for existing code', () => {
+    const interpreter = createInterpreter();
     const tokens = interpreter.tokenize('forward 10 # comment\nx = 5\nrepeat 2 ( left 90 )');
     assert.deepEqual(tokens, ['forward', '10', 'x', '=', '5', 'repeat', '2', '(', 'left', '90', ')']);
 });
@@ -16,6 +22,15 @@ runTest('tokenize keeps quoted strings and multi-char comparators', () => {
     assert.deepEqual(tokens, [
         'якщо', 'клавіша', '"вгору"', '(', 'вперед', '10', ')',
         'x', '>=', '2', 'y', '!=', '3', 'z', '<=', '4',
+    ]);
+});
+
+runTest('tokenize does not strip comment markers inside quoted strings', () => {
+    const interpreter = createInterpreter();
+    const tokens = interpreter.tokenize('якщо клавіша "//" ( вперед 10 )\nякщо клавіша "#" ( назад 5 ) // comment');
+    assert.deepEqual(tokens, [
+        'якщо', 'клавіша', '"//"', '(', 'вперед', '10', ')',
+        'якщо', 'клавіша', '"#"', '(', 'назад', '5', ')',
     ]);
 });
 
