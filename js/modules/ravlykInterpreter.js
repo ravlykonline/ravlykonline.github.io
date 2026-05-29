@@ -42,6 +42,7 @@ import {
     animatePenRuntime,
     animateMoveRuntime,
     animateTurnRuntime,
+    animateWaitRuntime,
     setColorRuntime,
     setBackgroundColorRuntime,
     clearScreenRuntime,
@@ -285,6 +286,10 @@ export class RavlykInterpreter {
 
     animateTurn(commandObject, totalAngle, deltaTime) {
         return animateTurnRuntime(this, commandObject, totalAngle, deltaTime);
+    }
+
+    animateWait(commandObject, deltaTime) {
+        return animateWaitRuntime(this, commandObject, deltaTime);
     }
 
     setColor(colorName) {

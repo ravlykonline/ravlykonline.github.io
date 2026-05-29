@@ -88,6 +88,28 @@ export function animateMove({
     return false;
 }
 
+export function animateWait({
+    commandObject,
+    deltaTime,
+}) {
+    // Wait is always respected — it is a semantic pause, not a visual effect.
+    // Exception: deltaTime === Infinity signals "instant/headless" mode (tests).
+    if (deltaTime === Infinity) return true;
+
+    if (typeof commandObject.elapsed === 'undefined') {
+        commandObject.elapsed = 0;
+    }
+
+    commandObject.elapsed += deltaTime;
+
+    if (commandObject.elapsed >= commandObject.seconds) {
+        delete commandObject.elapsed;
+        return true;
+    }
+
+    return false;
+}
+
 export function animateTurn({
     commandObject,
     totalAngle,

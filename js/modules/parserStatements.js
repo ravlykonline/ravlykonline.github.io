@@ -13,4 +13,5 @@ export {
     parseFunctionCallStatementToAst,
     parsePenStatementToAst,
     parseThicknessStatementToAst,
+    parseWaitStatementToAst,
 } from './parserStateStatements.js';

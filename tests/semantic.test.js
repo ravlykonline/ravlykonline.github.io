@@ -314,3 +314,14 @@ runTest('semantic: plain reassignment of parameter is allowed', () => {
         validate('створити f(x) (\n  x = x + 1\n  вперед x\n)\nf(10)')
     );
 });
+
+runTest('semantic: чекати inside грати throws WAIT_IN_GAME_MODE', () => {
+    assert.throws(
+        () => validate('грати ( чекати 1 )'),
+        (e) => e && e.name === 'RavlykError' && e.message.includes('чекати')
+    );
+});
+
+runTest('semantic: чекати outside грати is valid', () => {
+    assert.doesNotThrow(() => validate('чекати 1\nвперед 50'));
+});

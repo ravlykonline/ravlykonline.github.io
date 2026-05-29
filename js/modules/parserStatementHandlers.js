@@ -11,6 +11,7 @@ import {
     parsePenStatementToAst as parsePenStatementToAstHelper,
     parseThicknessStatementToAst as parseThicknessStatementToAstHelper,
     parseTurnStatementToAst as parseTurnStatementToAstHelper,
+    parseWaitStatementToAst as parseWaitStatementToAstHelper,
 } from './parserStatements.js';
 import {
     parseGameStatementToAst as parseGameStatementToAstHelper,
@@ -180,6 +181,15 @@ export function createParserStatementHandlers({
                 startIndex,
                 tokenLower,
                 spanFromMeta: bindings.spanFromMeta,
+            }),
+        parseWaitStatementToAst: (tokens, tokenMeta, startIndex) =>
+            parseWaitStatementToAstHelper({
+                tokens,
+                tokenMeta,
+                startIndex,
+                parseAstExpressionOrThrow: bindings.parseAstExpressionOrThrow,
+                spanFromMeta: bindings.spanFromMeta,
+                createError,
             }),
     };
 }

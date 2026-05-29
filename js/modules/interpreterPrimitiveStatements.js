@@ -1,3 +1,5 @@
+import { MIN_WAIT_SECONDS, MAX_WAIT_SECONDS } from './constants.js';
+
 export function handlePrimitiveAstStatement({
     stmt,
     env,
@@ -171,6 +173,21 @@ export function handlePrimitiveAstStatement({
         } else {
             clearToDefaultSheet();
         }
+        return true;
+    }
+
+    if (stmt.type === 'WaitStmt') {
+        const seconds = evalAstNumberExpression(stmt.duration, env);
+        if (!Number.isFinite(seconds)) {
+            throw createError('INVALID_WAIT_VALUE', String(seconds));
+        }
+        if (seconds < MIN_WAIT_SECONDS || seconds > MAX_WAIT_SECONDS) {
+            throw createError('WAIT_OUT_OF_RANGE');
+        }
+        if (mode === 'queue') {
+            outputQueue.push({ type: 'WAIT', seconds, original: 'чекати' });
+        }
+        // direct mode: handled by caller via animateWait
         return true;
     }
 

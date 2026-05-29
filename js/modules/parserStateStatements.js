@@ -147,6 +147,28 @@ export function parseThicknessStatementToAst({
     };
 }
 
+export function parseWaitStatementToAst({
+    tokens,
+    tokenMeta,
+    startIndex,
+    parseAstExpressionOrThrow,
+    spanFromMeta,
+    createError,
+}) {
+    if (startIndex + 1 >= tokens.length) {
+        throw createError('NO_WAIT_VALUE');
+    }
+    const durationExpr = parseAstExpressionOrThrow(tokens, tokenMeta, startIndex + 1);
+    return {
+        stmt: {
+            type: 'WaitStmt',
+            duration: durationExpr.expr,
+            span: spanFromMeta(tokenMeta, startIndex, durationExpr.nextIndex),
+        },
+        nextIndex: durationExpr.nextIndex,
+    };
+}
+
 export function parseAssignmentStatementToAst({
     tokens,
     tokenMeta,

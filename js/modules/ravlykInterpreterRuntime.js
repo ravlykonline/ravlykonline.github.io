@@ -22,6 +22,7 @@ import {
     animatePen as animatePenHelper,
     animateMove as animateMoveHelper,
     animateTurn as animateTurnHelper,
+    animateWait as animateWaitHelper,
 } from './interpreterAnimation.js';
 import {
     performMove,
@@ -230,6 +231,7 @@ export function runCommandQueueWithRuntime(runtime) {
                 animatePen: (cmd, targetScale, dt) => runtime.animatePen(cmd, targetScale, dt),
                 animateMove: (cmd, distance, dt) => runtime.animateMove(cmd, distance, dt),
                 animateTurn: (cmd, angle, dt) => runtime.animateTurn(cmd, angle, dt),
+                animateWait: (cmd, dt) => runtime.animateWait(cmd, dt),
                 setColor: (color) => runtime.setColor(color),
                 setBackgroundColor: (color) => runtime.setBackgroundColor(color),
                 setThickness: (thickness) => {
@@ -280,7 +282,7 @@ export function runAstAnimationWithRuntime(runtime, programAst) {
             cmd._capturedEnv = env;
             return cmd;
         },
-        executeAnimatedCommand: (cmd, deltaTime) => {
+        executeAnimatedCommand: (cmd, deltaTime, realDeltaTime) => {
             return executeInterpreterCommand({
                 currentCommandObject: cmd,
                 currentFrame: { commands: [], index: 0 },
@@ -292,9 +294,11 @@ export function runAstAnimationWithRuntime(runtime, programAst) {
                 executionEnv: cmd._capturedEnv,
                 evalAstNumberExpression: (expr, envRef) => runtime.evalAstNumberExpression(expr, envRef),
                 createVariableValueInvalidError: (name, value) => new RavlykError('VARIABLE_VALUE_INVALID', name, value),
+                semanticDeltaTime: realDeltaTime,
                 animatePen: (c, targetScale, dt) => runtime.animatePen(c, targetScale, dt),
                 animateMove: (c, distance, dt) => runtime.animateMove(c, distance, dt),
                 animateTurn: (c, angle, dt) => runtime.animateTurn(c, angle, dt),
+                animateWait: (c, dt) => runtime.animateWait(c, dt),
                 setColor: (color) => runtime.setColor(color),
                 setBackgroundColor: (color) => runtime.setBackgroundColor(color),
                 setThickness: (thickness) => {
@@ -380,6 +384,13 @@ export function animateTurnRuntime(runtime, commandObject, totalAngle, deltaTime
         animationEnabled: runtime.config.animationEnabled,
         turnSpeed: runtime.config.turnSpeed,
         performTurn: (angle) => performTurn({ angle, state: runtime.state }),
+    });
+}
+
+export function animateWaitRuntime(runtime, commandObject, deltaTime) {
+    return animateWaitHelper({
+        commandObject,
+        deltaTime,
     });
 }
 

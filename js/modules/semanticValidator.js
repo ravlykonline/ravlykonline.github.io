@@ -24,6 +24,7 @@ const RESERVED_NAMES = new Set([
     'випадково', 'random',
     'вишиванка', 'vyshyvanka',
     'звичайний', 'zvychainyi',
+    'чекати', 'пауза', 'wait',
 ]);
 
 class SemanticError extends Error {
@@ -209,6 +210,12 @@ function validateGameContract(ast) {
 
     if (topLevelGameBlocks.length === 0) return;
 
+    for (const gameStmt of topLevelGameBlocks) {
+        if (hasWaitStatement(gameStmt.body || [])) {
+            throw makeError('WAIT_IN_GAME_MODE');
+        }
+    }
+
     for (const stmt of topLevelStatements) {
         if (!stmt || !stmt.type) continue;
         if (stmt.type === 'GameStmt') continue;
@@ -216,6 +223,15 @@ function validateGameContract(ast) {
         if (stmt.type === 'AssignmentStmt' && stmt.declaredWithCreate) continue;
         throw makeError('GAME_MODE_TOP_LEVEL_ONLY');
     }
+}
+
+function hasWaitStatement(stmts) {
+    for (const node of stmts || []) {
+        if (!node || typeof node !== 'object') continue;
+        if (node.type === 'WaitStmt') return true;
+        if (hasWaitStatement(getNestedStatements(node))) return true;
+    }
+    return false;
 }
 
 function validateStatement(node, symbolTable) {

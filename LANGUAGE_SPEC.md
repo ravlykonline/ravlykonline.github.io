@@ -85,11 +85,13 @@
 якщо, інакше, створити, грати,
 край, клавіша, випадково, в,
 вишиванка, звичайний,
+чекати, пауза,
 forward, backward, right, left,
 color, background, thickness, penup, pendown,
 clear, goto, repeat, if, else, create, game,
 edge, key, random, to,
-vyshyvanka, zvychainyi
+vyshyvanka, zvychainyi,
+wait
 ```
 
 Поточний стан: semantic validator забороняє ці слова для назв змінних, функцій і параметрів. `в` / `to` — службові прийменники команди `перейти в X Y`.
@@ -203,7 +205,25 @@ zvychainyi
 
 AST-вузол: `EmbroideryStmt { mode: 'on' | 'off' }`.
 
-### 6.7. Перейти в координату
+### 6.7. Пауза
+
+```ravlyk
+чекати 2
+чекати 0.5
+чекати 1/2
+пауза 1
+wait 3
+```
+
+Рівлик робить паузу на вказану кількість секунд. Аргумент — числовий вираз; допустимі значення: від `0` до `60` секунд включно. Від'ємні значення та значення понад `60` є помилкою.
+
+- Пауза є семантичною: вона виконується навіть якщо вимкнено анімацію (режим «без анімації» прискорює рух, але не скасовує очікування).
+- Всередині блоку `грати (...)` команда заборонена — семантична помилка.
+- Aliases: `чекати` / `пауза` / `wait`.
+
+AST-вузол: `WaitStmt { duration: <expr> }`.
+
+### 6.8. Перейти в координату
 
 ```ravlyk
 перейти 100 50
@@ -490,7 +510,7 @@ AST -> попередньо розгорнута command queue -> виконан
 ```ebnf
 program        = statement* ;
 statement      = move | turn | color | background | thickness | pen | clear | goto
-               | embroidery
+               | embroidery | wait
                | assignment | createVar | functionDef | functionCall
                | repeat | ifStmt | gameStmt ;
 
@@ -502,6 +522,7 @@ thickness      = ("товщина" | "thickness") unsignedInteger ;
 pen            = "підняти" | "penup" | "опустити" | "pendown" ;
 clear          = "очистити" | "clear" ;
 embroidery     = "вишиванка" | "vyshyvanka" | "звичайний" | "zvychainyi" ;
+wait           = ("чекати" | "пауза" | "wait") expression ;
 goto           = ("перейти" | "goto") ["в" | "to"] (coordPair | random) ;
 coordPair      = expression "," expression    (* кома-режим: повна арифметика в обох *)
                | coordModeExpr coordModeExpr ; (* coord-режим: unary − стартує y *)

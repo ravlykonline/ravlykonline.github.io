@@ -87,6 +87,8 @@ export const DEFAULT_CANVAS_BACKGROUND = "#FFFFFF";
 export const DEFAULT_PEN_SIZE = 1;
 export const MIN_PEN_SIZE = 1;
 export const MAX_PEN_SIZE = 50;
+export const MIN_WAIT_SECONDS = 0;
+export const MAX_WAIT_SECONDS = 60;
 export const RAVLYK_INITIAL_ANGLE = -90; // Upwards
 
 export const MAX_RECURSION_DEPTH = 20;
@@ -164,6 +166,10 @@ export const ERROR_MESSAGES = {
     VARIABLE_ALREADY_DECLARED: (name) => 'Змінна "' + name + '" вже створена. Щоб змінити значення, використай: ' + name + ' = нове_значення.',
     VARIABLE_VALUE_INVALID: (name, value) => 'Для змінної "' + name + '" потрібне число, а не "' + value + '".',
     UNDEFINED_VARIABLE: (name) => 'Я не знайшов змінну "' + name + '". Спочатку створи її: створити ' + name + ' = число.',
+    NO_WAIT_VALUE: 'Після команди "чекати" треба вказати кількість секунд.',
+    INVALID_WAIT_VALUE: (value) => 'Після "чекати" має бути число секунд, а не "' + value + '".',
+    WAIT_OUT_OF_RANGE: () => 'Час очікування має бути від ' + MIN_WAIT_SECONDS + ' до ' + MAX_WAIT_SECONDS + ' секунд.',
+    WAIT_IN_GAME_MODE: 'Команда "чекати" не працює всередині "грати (...)". Паузи в ігровому режимі керуються тіком.',
     GAME_NOT_SUPPORTED_HERE: 'Команда "грати" не підтримується в цьому режимі запуску.',
     GAME_MODE_TOP_LEVEL_ONLY: 'Якщо у програмі є "грати (...)", на верхньому рівні дозволені лише "створити ... = ..." та оголошення функцій. Перемісти інші команди всередину блоку "грати".',
     GAME_MODE_SINGLE_BLOCK: 'У програмі має бути лише один блок "грати (...)".',

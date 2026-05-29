@@ -448,3 +448,36 @@ runTest('вишиванка is reserved and cannot be used as variable name', ()
         (error) => error && error.name === 'RavlykError'
     );
 });
+
+runTest('чекати parses to WaitStmt with duration expression', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('чекати 2');
+    assert.equal(ast.body.length, 1);
+    assert.equal(ast.body[0].type, 'WaitStmt');
+});
+
+runTest('пауза alias parses to WaitStmt', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('пауза 1');
+    assert.equal(ast.body[0].type, 'WaitStmt');
+});
+
+runTest('wait English alias parses to WaitStmt', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('wait 0.5');
+    assert.equal(ast.body[0].type, 'WaitStmt');
+});
+
+runTest('чекати accepts fractional expression', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('чекати 1/2');
+    assert.equal(ast.body[0].type, 'WaitStmt');
+});
+
+runTest('чекати is reserved and cannot be used as variable name', () => {
+    const parser = new RavlykParser();
+    assert.throws(
+        () => parser.parseCodeToAst('створити чекати = 1'),
+        (e) => e && e.name === 'RavlykError'
+    );
+});

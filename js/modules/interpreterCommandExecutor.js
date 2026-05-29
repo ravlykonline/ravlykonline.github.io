@@ -3,12 +3,14 @@ export function executeInterpreterCommand({
     currentFrame,
     executionStack,
     deltaTime,
+    semanticDeltaTime,
     executionEnv,
     evalAstNumberExpression,
     createVariableValueInvalidError,
     animatePen,
     animateMove,
     animateTurn,
+    animateWait,
     setColor,
     setBackgroundColor,
     setThickness,
@@ -98,6 +100,10 @@ export function executeInterpreterCommand({
             if (typeof setEmbroideryMode === 'function') {
                 setEmbroideryMode(currentCommandObject.mode === 'on');
             }
+            break;
+        case 'WAIT':
+            // Use real frame time, not animation deltaTime (which may be Infinity).
+            commandDone = animateWait(currentCommandObject, semanticDeltaTime ?? deltaTime);
             break;
         case 'REPEAT':
             if (currentCommandObject.count <= 0 || !currentCommandObject.commands?.length) {

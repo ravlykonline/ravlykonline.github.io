@@ -16,6 +16,7 @@ import {
 import { evaluateAstCondition } from '../js/modules/interpreterConditions.js';
 import { evalAstNumberExpression } from '../js/modules/interpreterAstEval.js';
 import { handlePrimitiveAstStatement } from '../js/modules/interpreterPrimitiveStatements.js';
+import { animateWait } from '../js/modules/interpreterAnimation.js';
 import { RavlykError } from '../js/modules/ravlykParser.js';
 import { runAsyncTest } from './testUtils.js';
 
@@ -268,4 +269,126 @@ runAsyncTest('astAnimation: deeply nested control-flow-only loops are rejected b
         () => promise,
         (err) => err?.name === 'RavlykError' && /надто багато команд/i.test(err.message)
     );
+});
+
+// ---------------------------------------------------------------------------
+// Wait (чекати) integration — fake clock, animationEnabled=false
+// ---------------------------------------------------------------------------
+
+/**
+ * Like runSync but advances a fake clock by frameMs on each tick,
+ * so realDeltaTime = frameMs/1000 per frame (instead of ≈0 from performance.now).
+ * This lets us verify that WAIT spans the correct number of frames
+ * even when animationEnabled=false.
+ */
+function runWithFakeClock(programAst, { frameMs = 50, animationEnabled = false } = {}) {
+    const log = [];
+    let stopped = false;
+    let rafId = 0;
+    const pendingTicks = [];
+    let fakeTime = 0;
+
+    const fakeCancelAnimationFrame = (id) => {
+        const idx = pendingTicks.findIndex((t) => t.id === id);
+        if (idx !== -1) pendingTicks.splice(idx, 1);
+    };
+    const fakeRequestAnimationFrame = (cb) => {
+        rafId++;
+        pendingTicks.push({ id: rafId, cb });
+        return rafId;
+    };
+
+    const evalExpr = (expr, env) => evalAstNumberExpression(expr, env, { attachAstErrorLocation: () => {} });
+
+    let waitFrameCount = 0;
+
+    const promise = runAstAnimationRuntime({
+        programAst,
+        EnvironmentCtor: Environment,
+        RavlykErrorCtor: RavlykError,
+        maxRecursionDepth: MAX_RECURSION_DEPTH,
+        maxRepeatsInLoop: MAX_REPEATS_IN_LOOP,
+        maxCommandQueueLength: MAX_COMMAND_QUEUE_LENGTH,
+        evalAstNumberExpression: evalExpr,
+        evaluateCondition: (condition, envCtx) => evaluateAstCondition(condition, {
+            evalAstNumberExpression: evalExpr,
+            env: envCtx,
+            isAtCanvasEdge: () => false,
+            pressedKeys: new Set(),
+        }),
+        attachAstErrorLocation: () => {},
+        convertStmtToCommand: (stmt, env) => {
+            const buf = [];
+            const handled = handlePrimitiveAstStatement({
+                stmt, env, mode: 'queue', outputQueue: buf,
+                state: { isPenDown: true },
+                evalAstNumberExpression: evalExpr,
+                createError: (key, ...args) => new RavlykError(key, ...args),
+                performMove: () => {}, performTurn: () => {}, setColor: () => {},
+                setBackgroundColor: () => {}, setThickness: () => {},
+                pickRandomColorName: () => 'red', pickRandomBackgroundColorName: () => 'white',
+                pickSafeRandomDistance: () => 50, pickSafeRandomPoint: () => ({ x: 0, y: 0 }),
+                performGoto: () => {}, clearToDefaultSheet: () => {},
+            });
+            if (!handled || buf.length === 0) return null;
+            const cmd = buf[0];
+            cmd._capturedEnv = env;
+            return cmd;
+        },
+        executeAnimatedCommand: (cmd, _animDt, realDt) => {
+            if (cmd.type === 'WAIT') {
+                waitFrameCount++;
+                return animateWait({ commandObject: cmd, deltaTime: realDt });
+            }
+            log.push({ type: cmd.type });
+            return true;
+        },
+        config: { animationEnabled },
+        commandIndicatorUpdater: () => {},
+        createStopError: () => new RavlykError('EXECUTION_STOPPED_BY_USER'),
+        getShouldStop: () => stopped,
+        getIsPaused: () => false,
+        setAnimationFrameId: () => {},
+        getAnimationFrameId: () => null,
+        cancelAnimationFrameFn: fakeCancelAnimationFrame,
+        requestAnimationFrameFn: fakeRequestAnimationFrame,
+        nowFn: () => fakeTime,
+        onExecutionCompleted: () => {},
+        onExecutionError: () => {},
+        updateRavlykVisualState: () => {},
+    });
+
+    let iterations = 0;
+    const MAX_ITERATIONS = 100_000;
+    while (pendingTicks.length > 0 && iterations++ < MAX_ITERATIONS) {
+        fakeTime += frameMs;
+        const { cb } = pendingTicks.shift();
+        cb(fakeTime);
+    }
+
+    return { promise, log, waitFrameCount: () => waitFrameCount };
+}
+
+runAsyncTest('astAnimation: чекати spans multiple frames (semantic wait, animationEnabled=false)', async () => {
+    // чекати 0.1 = 100ms; each fake frame = 50ms → needs ≥ 2 WAIT frames to complete.
+    const ast = parseAndValidate('чекати 0.1\nвперед 50');
+    const { promise, log, waitFrameCount } = runWithFakeClock(ast, { frameMs: 50, animationEnabled: false });
+
+    await promise;
+
+    // WAIT must have been evaluated across multiple frames, not skipped instantly.
+    assert.ok(waitFrameCount() >= 2, `чекати should take ≥2 frames, got ${waitFrameCount()}`);
+    // Code after чекати must have executed.
+    assert.equal(log.length, 1, 'MOVE after чекати should execute');
+    assert.equal(log[0].type, 'MOVE');
+});
+
+runAsyncTest('astAnimation: чекати 0 completes in one frame and continues', async () => {
+    const ast = parseAndValidate('чекати 0\nвперед 30');
+    const { promise, log } = runWithFakeClock(ast, { frameMs: 16 });
+
+    await promise;
+
+    assert.equal(log.length, 1);
+    assert.equal(log[0].type, 'MOVE');
 });

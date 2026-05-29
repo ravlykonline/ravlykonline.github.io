@@ -795,6 +795,31 @@ n = n + 1
                     </section>
                 </article>
 
+                <article id="wait" class="guide-section" data-keywords="чекати пауза wait секунди затримка час" aria-labelledby="manual-section-wait">
+                    <h2 id="manual-section-wait">Пауза</h2>
+                    <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-wait-start-title">
+                    <div class="manual-start-example" role="region" aria-labelledby="manual-wait-start-title">
+                        <h3 id="manual-wait-start-title">Почни з простого прикладу</h3>
+                        <pre class="example-code-manual">вперед 100
+чекати 1
+праворуч 90
+вперед 100</pre>
+                        <p>Равлик намалює лінію, зупиниться на одну секунду, потім повернеться і намалює ще одну.</p>
+                    </div>
+                    </section>
+                    <section class="manual-subsection" aria-labelledby="manual-wait-details-title">
+                        <h4 id="manual-wait-details-title">Як це працює</h4>
+                        <ul>
+                            <li><code>чекати 2</code> — пауза дві секунди.</li>
+                            <li><code>чекати 0.5</code> або <code>чекати 1/2</code> — пауза пів секунди.</li>
+                            <li>Допустимі значення: від <code>0</code> до <code>60</code> секунд.</li>
+                            <li>Кнопка «Стоп» зупиняє виконання навіть під час очікування.</li>
+                            <li>Всередині <code>грати (...)</code> команда не дозволена.</li>
+                        </ul>
+                        <p>Англійські псевдоніми: <code>wait</code>, <code>пауза</code>.</p>
+                    </section>
+                </article>
+
                 <article id="randomness" class="guide-section advanced-only" data-keywords="випадковість випадково рандом випадкове число випадковий колір" aria-labelledby="manual-section-randomness">
                     <h2 id="manual-section-randomness">Випадковість</h2>
                     <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-randomness-start-title">
@@ -1028,6 +1053,18 @@ n = n + 1
                         <p><code>Y-координата для "КОМАНДА" має бути числом, а не "ЗНАЧЕННЯ".</code><br><strong>Значення:</strong>
                             Y-координата записана неправильно.<br><strong>Як виправити:</strong> Для Y використовуй
                             число, наприклад <code>перейти в -120 40</code>.</p> <!-- INVALID_POSITION_Y -->
+                        <p><code>Після команди "чекати" треба вказати кількість секунд.</code><br><strong>Значення:</strong>
+                            Команда <code>чекати</code> написана без числа.<br><strong>Як виправити:</strong>
+                            Додай число секунд, наприклад <code>чекати 2</code>.</p> <!-- NO_WAIT_VALUE -->
+                        <p><code>Після "чекати" має бути число секунд, а не "ЗНАЧЕННЯ".</code><br><strong>Значення:</strong>
+                            Після <code>чекати</code> стоїть не число.<br><strong>Як виправити:</strong>
+                            Використовуй число, наприклад <code>чекати 1.5</code>.</p> <!-- INVALID_WAIT_VALUE -->
+                        <p><code>Час очікування має бути від 0 до 60 секунд.</code><br><strong>Значення:</strong>
+                            Вказано надто велике або від'ємне значення.<br><strong>Як виправити:</strong>
+                            Вибери значення від <code>0</code> до <code>60</code>, наприклад <code>чекати 5</code>.</p> <!-- WAIT_OUT_OF_RANGE -->
+                        <p><code>Команда "чекати" не працює всередині "грати (...)".</code><br><strong>Значення:</strong>
+                            Паузи в ігровому режимі не підтримуються.<br><strong>Як виправити:</strong>
+                            Використовуй <code>чекати</code> поза блоком <code>грати</code>.</p> <!-- WAIT_IN_GAME_MODE -->
                     </div>
                     </section>
 

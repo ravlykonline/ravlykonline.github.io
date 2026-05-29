@@ -872,4 +872,47 @@ runTest('embroidery diagonal strokes have wider cross spacing than horizontal', 
     );
 });
 
+import { animateWait } from '../js/modules/interpreterAnimation.js';
+
+runTest('animateWait returns false until elapsed >= seconds, then true', () => {
+    const cmd = { seconds: 1 };
+    assert.equal(animateWait({ commandObject: cmd, deltaTime: 0.4 }), false);
+    assert.equal(animateWait({ commandObject: cmd, deltaTime: 0.4 }), false);
+    assert.equal(animateWait({ commandObject: cmd, deltaTime: 0.3 }), true);
+    // elapsed cleaned up after completion
+    assert.equal(cmd.elapsed, undefined);
+});
+
+runTest('animateWait respects wait even when animation disabled (semantic pause)', () => {
+    // animationEnabled=false should NOT skip the wait — it's semantic, not visual
+    const cmd = { seconds: 1 };
+    assert.equal(animateWait({ commandObject: cmd, deltaTime: 0.4 }), false);
+    assert.equal(animateWait({ commandObject: cmd, deltaTime: 0.7 }), true);
+});
+
+runTest('animateWait returns true immediately only in headless mode (deltaTime=Infinity)', () => {
+    const cmd = { seconds: 5 };
+    assert.equal(animateWait({ commandObject: cmd, deltaTime: Infinity }), true);
+});
+
+runTest('handlePrimitiveAstStatement WaitStmt pushes WAIT command with resolved seconds', () => {
+    const queue = [];
+    const result = handlePrimitiveAstStatement({
+        stmt: { type: 'WaitStmt', duration: { type: 'NumberLiteral', value: 2 } },
+        env: {},
+        mode: 'queue',
+        outputQueue: queue,
+        state: {},
+        evalAstNumberExpression: (expr) => Number(expr.value),
+        createError: (k) => new Error(k),
+        performMove: () => {}, performTurn: () => {}, setColor: () => {},
+        setBackgroundColor: () => {}, performGoto: () => {}, clearToDefaultSheet: () => {},
+    });
+    assert.equal(result, true);
+    assert.equal(queue.length, 1);
+    assert.equal(queue[0].type, 'WAIT');
+    assert.equal(queue[0].seconds, 2);
+    assert.equal(queue[0].original, 'чекати');
+});
+
 console.log('Interpreter runtime helper tests completed.');

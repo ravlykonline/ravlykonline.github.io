@@ -82,13 +82,16 @@ export function runAstAnimationRuntime({
             }
 
             const frameMs = Math.max(0, timestamp - lastTimestamp);
-            const deltaTime = config.animationEnabled ? frameMs / 1000 : Infinity;
+            const realDeltaTime = frameMs / 1000;
+            // animDeltaTime: Infinity collapses movement/turn to instant when animation is off.
+            // realDeltaTime: always the true elapsed time — used for semantic waits.
+            const animDeltaTime = config.animationEnabled ? realDeltaTime : Infinity;
             lastTimestamp = timestamp;
 
             try {
                 // Continue multi-frame animation for the current command.
                 if (pendingCmd !== null) {
-                    const done = executeAnimatedCommand(pendingCmd, deltaTime);
+                    const done = executeAnimatedCommand(pendingCmd, animDeltaTime, realDeltaTime);
                     updateRavlykVisualState();
                     if (onFrameCapture) onFrameCapture(frameMs);
                     if (!done) {
@@ -118,7 +121,7 @@ export function runAstAnimationRuntime({
 
                 commandIndicatorUpdater(cmd.original ?? '', 0);
 
-                const done = executeAnimatedCommand(cmd, deltaTime);
+                const done = executeAnimatedCommand(cmd, animDeltaTime, realDeltaTime);
                 updateRavlykVisualState();
                 if (onFrameCapture) onFrameCapture(frameMs);
                 if (!done) {
