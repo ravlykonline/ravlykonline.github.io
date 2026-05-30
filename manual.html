@@ -76,6 +76,7 @@
                     <li><a href="#basic-commands">Основні команди</a></li>
                     <li><a href="#repetition">Повторення</a></li>
                     <li><a href="#variables-functions">Змінні та функції</a></li>
+                    <li><a href="#reserved-words">Зарезервовані слова</a></li>
                     <li><a href="#conditions">Умови</a></li>
                     <li><a href="#game-mode">Режим гри</a></li>
                     <li><a href="#pen-control">Олівець</a></li>
@@ -230,6 +231,8 @@
                                 class="cmd-desc">Виходить із найближчого циклу <code>повторити</code> або <code>поки</code>.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">модуль(...) / корінь(...) / випадково(...)</span> <span
                                 class="cmd-desc">Функції для числових виразів, наприклад <code>вперед корінь(100)</code> або <code>вперед випадково(10, 100)</code>.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">кут</span> <span
+                                class="cmd-desc">Поточний напрямок Равлика від старту: <code>0</code> на початку, <code>90</code> після <code>праворуч 90</code>.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">грати ( ... )</span> <span
                                 class="cmd-desc">Безперервний ігровий режим з перевіркою умов на кожному кроці.</span>
                         </li>
@@ -390,17 +393,17 @@
                                 <h4 id="manual-variables-scope-title">Де "живе" змінна?</h4>
                                 <p>У тебе вдома є кіт на ім'я Рудик. У сусідів теж є кіт — і теж Рудик. Коли ти кажеш "Рудик, йди їсти" — твій кіт іде, а сусідський навіть не обертається. Кожен Рудик існує у своєму домі.</p>
                                 <p>Так само і в РАВЛИКУ: параметр функції — це "домашній Рудик". Він існує лише всередині своєї функції і не плутається із зовнішньою змінною з таким самим іменем.</p>
-                                <pre class="example-code-manual">створити розмір = 100            # зовнішній "Рудик"
+                                <pre class="example-code-manual">створити розмір = 100            // зовнішній "Рудик"
                             
-створити коло(розмір) (          # внутрішній "Рудик"
+створити коло(розмір) (          // внутрішній "Рудик"
     повторити 36 ( 
         вперед розмір 
         праворуч 10 
         )
     )
                          
-коло(5)       # внутрішній розмір = 5
-вперед розмір # зовнішній розмір = 100, не змінився</pre>
+коло(5)       // внутрішній розмір = 5
+вперед розмір // зовнішній розмір = 100, не змінився</pre>
                                 <p><strong>Порада:</strong> щоб уникнути плутанини — давай параметрам інші імена, ніж глобальним змінним. Наприклад: <code>коло(р)</code> або <code>коло(крок)</code>.</p>
                             </div>
                             <div class="interactive-example-manual" role="region" aria-labelledby="manual-variables-patterns-title">
@@ -410,6 +413,23 @@
                                 <p><strong>Оновлення розміру:</strong> <code>сторона = 200</code></p>
                             </div>
                         </details>
+                    </section>
+                </article>
+
+                <article id="reserved-words" class="guide-section advanced-only" data-keywords="зарезервовані слова службові назви змінних функцій параметрів кут випадково команди" aria-labelledby="manual-section-reserved-words">
+                    <h2 id="manual-section-reserved-words">Зарезервовані слова</h2>
+                    <p>Деякі слова вже мають спеціальне значення в мові РАВЛИК. Їх не можна використовувати як назви змінних, функцій або параметрів.</p>
+                    <section class="manual-subsection" aria-labelledby="manual-reserved-ukrainian-title">
+                        <h3 id="manual-reserved-ukrainian-title">Українські службові слова</h3>
+                        <p><code>вперед</code>, <code>назад</code>, <code>праворуч</code>, <code>ліворуч</code>, <code>колір</code>, <code>фон</code>, <code>товщина</code>, <code>підняти</code>, <code>опустити</code>, <code>очистити</code>, <code>перейти</code>, <code>повторити</code>, <code>повтори</code>, <code>поки</code>, <code>стоп</code>, <code>якщо</code>, <code>інакше</code>, <code>створити</code>, <code>грати</code>, <code>край</code>, <code>клавіша</code>, <code>в</code>, <code>випадково</code>, <code>вишиванка</code>, <code>звичайний</code>, <code>чекати</code>, <code>пауза</code>, <code>сховати</code>, <code>показати</code>, <code>додому</code>, <code>модуль</code>, <code>корінь</code>, <code>кут</code>.</p>
+                    </section>
+                    <section class="manual-subsection" aria-labelledby="manual-reserved-alias-title">
+                        <h3 id="manual-reserved-alias-title">Англійські назви й технічні псевдоніми</h3>
+                        <p><code>forward</code>, <code>backward</code>, <code>right</code>, <code>left</code>, <code>color</code>, <code>background</code>, <code>thickness</code>, <code>penup</code>, <code>pendown</code>, <code>clear</code>, <code>goto</code>, <code>repeat</code>, <code>while</code>, <code>break</code>, <code>if</code>, <code>else</code>, <code>create</code>, <code>game</code>, <code>edge</code>, <code>key</code>, <code>to</code>, <code>random</code>, <code>vyshyvanka</code>, <code>zvychainyi</code>, <code>wait</code>, <code>hide</code>, <code>show</code>, <code>home</code>, <code>abs</code>, <code>sqrt</code>, <code>angle</code>.</p>
+                    </section>
+                    <section class="manual-subsection" aria-labelledby="manual-reserved-examples-title">
+                        <h3 id="manual-reserved-examples-title">Як називати без конфліктів</h3>
+                        <p>Не варто писати <code>створити кут = 90</code>, бо <code>кут</code> показує поточний напрямок Равлика. Замість цього обери власну назву: <code>мій_кут</code>, <code>кут_повороту</code>, <code>сторона</code>, <code>колір_лінії</code>.</p>
                     </section>
                 </article>
 
@@ -437,9 +457,9 @@
                     </section>
                 </article>
 
-                <article id="math-functions" class="guide-section advanced-only" data-keywords="математика модуль корінь abs sqrt випадково random вирази" aria-labelledby="manual-section-math-functions">
+                <article id="math-functions" class="guide-section advanced-only" data-keywords="математика модуль корінь abs sqrt випадково random кут angle напрямок вирази" aria-labelledby="manual-section-math-functions">
                     <h2 id="manual-section-math-functions">Математичні функції</h2>
-                    <p>Математичні функції можна використовувати всередині числових виразів: у русі, поворотах, змінних, умовах і паузах.</p>
+                    <p>Математичні функції та вираз <code>кут</code> можна використовувати всередині числових виразів: у русі, поворотах, змінних, умовах і паузах.</p>
                     <section class="manual-subsection" aria-labelledby="manual-math-functions-basic-title">
                         <h3 id="manual-math-functions-basic-title">Модуль і корінь</h3>
                         <pre class="example-code-manual">вперед модуль(-50)
@@ -461,6 +481,20 @@
 створити x = випадково(-50, 50)
 перейти в x випадково(-80, 80)</pre>
                         <p><code>випадково(від, до)</code> вибирає число між двома межами. Це відрізняється від короткого <code>випадково</code> без дужок: тут межі задаєш ти, тому значення не обов'язково буде безпечним для полотна.</p>
+                    </section>
+                    <section class="manual-subsection" aria-labelledby="manual-current-angle-title">
+                        <h3 id="manual-current-angle-title">Поточний напрямок: <code>кут</code></h3>
+                        <p><code>кут</code> показує, куди зараз дивиться Равлик відносно стартового напрямку. На початку це <code>0</code>, після <code>праворуч 90</code> — <code>90</code>, після <code>ліворуч 90</code> — <code>270</code>.</p>
+                        <pre class="example-code-manual">повторити 36 (
+  якщо кут < 180 (
+    колір синій
+  ) інакше (
+    колір червоний
+  )
+  вперед 8
+  праворуч 10
+)</pre>
+                        <p>Так можна пов'язувати малюнок із напрямком: наприклад, змінювати колір, товщину або поведінку Равлика залежно від того, куди він повернувся.</p>
                     </section>
                 </article>
 
@@ -1452,9 +1486,9 @@ n = n + 1
                         </p>
                         <details>
                             <summary>Підказка</summary>
-                            <pre class="example-code-manual">колір коричневий # Стіни
+                            <pre class="example-code-manual">колір коричневий // Стіни
 повторити 4 ( вперед 100 праворуч 90 )
-# Перемістити Равлика на початок даху
+// Перемістити Равлика на початок даху
 вперед 100
 праворуч 30
 колір червоний
@@ -1470,9 +1504,9 @@ n = n + 1
                         <details>
                             <summary>Підказка для квітки з круглими пелюстками</summary>
                             <pre class="example-code-manual">колір рожевий
-повторити 6 ( # 6 пелюсток
-  повторити 36 ( вперед 5 праворуч 10 ) # Одна пелюстка-коло
-  праворуч 60 # Поворот для наступної пелюстки (360/6)
+повторити 6 ( // 6 пелюсток
+  повторити 36 ( вперед 5 праворуч 10 ) // Одна пелюстка-коло
+  праворуч 60 // Поворот для наступної пелюстки (360/6)
 )</pre>
                         </details>
                     </div>
@@ -1506,22 +1540,22 @@ n = n + 1
                         </p>
                         <details>
                             <summary>Підказка</summary>
-                            <pre class="example-code-manual"># Пунктирна дорога
+                            <pre class="example-code-manual">// Пунктирна дорога
 колір чорний
 повторити 5 ( опустити вперед 20 підняти вперед 10 )
 
-# Повернутися і відійти для першого будинку
+// Повернутися і відійти для першого будинку
 праворуч 90 підняти вперед 50 праворуч 90 опустити
-колір червоний # Малюємо будинок
+колір червоний // Малюємо будинок
 повторити 4 ( вперед 30 праворуч 90 )
 
-# Переміститися для другого будинку з іншого боку
+// Переміститися для другого будинку з іншого боку
 праворуч 90
-підняти вперед 100 # або інша відстань
-ліворуч 90 підняти вперед 100 # Перетнути дорогу
+підняти вперед 100 // або інша відстань
+ліворуч 90 підняти вперед 100 // Перетнути дорогу
 ліворуч 90 опустити
 колір синій
-повторити 3 ( вперед 30 праворуч 120 ) # Трикутний будинок</pre>
+повторити 3 ( вперед 30 праворуч 120 ) // Трикутний будинок</pre>
                         </details>
                     </div>
                     </section>

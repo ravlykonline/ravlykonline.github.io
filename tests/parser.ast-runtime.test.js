@@ -162,6 +162,44 @@ await runAsyncTest('executeCommands evaluates випадково range once per 
     }
 });
 
+await runAsyncTest('executeCommands reads кут live after turns', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        const startX = interpreter.state.x;
+        await interpreter.executeCommands('праворуч 90\nвперед кут');
+        assert.equal(Math.round(interpreter.state.x), Math.round(startX + 90));
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+});
+
+await runAsyncTest('executeCommands normalizes кут from the initial upward direction', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        const startX = interpreter.state.x;
+        await interpreter.executeCommands('ліворуч 90\nвперед кут');
+        assert.equal(Math.round(interpreter.state.x), Math.round(startX - 270));
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+});
+
 await runAsyncTest('executeCommands applies random goto target using injected rng', async () => {
     const interpreter = createInterpreter({ rng: () => 0.25 });
     interpreter.setAnimationEnabled(false);

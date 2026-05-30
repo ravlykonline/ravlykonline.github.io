@@ -7,6 +7,10 @@ const NUMERIC_FUNCTIONS = new Map([
     ['випадково', 'randomRange'],
     ['random', 'randomRange'],
 ]);
+const STATE_EXPRESSIONS = new Map([
+    ['кут', 'currentAngle'],
+    ['angle', 'currentAngle'],
+]);
 
 export function getOperatorPrecedence(operator) {
     if (operator === '+' || operator === '-') return 1;
@@ -72,6 +76,18 @@ export function parseAstExpressionOrThrow(tokens, tokenMeta, startIndex, helpers
             };
         }
         if (isValidIdentifier(token)) {
+            const stateExprKind = STATE_EXPRESSIONS.get(token.toLowerCase());
+            if (stateExprKind === 'currentAngle') {
+                return {
+                    expr: {
+                        type: 'CurrentAngleExpr',
+                        name: normalizeIdentifier(token),
+                        span: spanFromMeta(tokenMeta, index, index + 1),
+                    },
+                    nextIndex: index + 1,
+                    startIndex: index,
+                };
+            }
             const functionKind = NUMERIC_FUNCTIONS.get(token.toLowerCase());
             if (functionKind) {
                 if (index + 1 >= tokens.length || tokens[index + 1] !== '(') {

@@ -229,7 +229,14 @@ export class RavlykInterpreter {
         return evalAstNumberExpressionHelper(expr, env, {
             attachAstErrorLocation: (error, node) => this.attachAstErrorLocation(error, node),
             rng: this.config.rng,
+            getCurrentAngle: () => this.getCurrentAngle(),
         });
+    }
+
+    getCurrentAngle() {
+        const angle = Number(this.state?.angle);
+        if (!Number.isFinite(angle)) return NaN;
+        return ((angle - RAVLYK_INITIAL_ANGLE) % 360 + 360) % 360;
     }
 
     attachAstErrorLocation(error, node) {

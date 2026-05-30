@@ -167,10 +167,32 @@ runTest('manual page keeps advanced-only sections for full mode', () => {
     const manualHtml = fs.readFileSync('manual.html', 'utf8');
 
     assert.match(manualHtml, /<article id="variables-functions" class="guide-section advanced-only"/);
+    assert.match(manualHtml, /<article id="reserved-words" class="guide-section advanced-only"/);
     assert.match(manualHtml, /<article id="conditions" class="guide-section advanced-only"/);
     assert.match(manualHtml, /<article id="game-mode" class="guide-section advanced-only"/);
     assert.match(manualHtml, /<article id="challenges" class="guide-section advanced-only"/);
     assert.match(manualHtml, /<article id="projects" class="guide-section advanced-only"/);
+});
+
+runTest('manual documents reserved words and current angle expression', () => {
+    const manualHtml = fs.readFileSync('manual.html', 'utf8');
+
+    assert.match(manualHtml, /id="manual-section-reserved-words">Зарезервовані слова/);
+    assert.match(manualHtml, /<code>кут<\/code>/);
+    assert.match(manualHtml, /<code>angle<\/code>/);
+    assert.match(manualHtml, /не можна використовувати як назви змінних, функцій або параметрів/);
+    assert.match(manualHtml, /id="manual-current-angle-title">Поточний напрямок: <code>кут<\/code>/);
+});
+
+runTest('manual runnable examples prefer // comments', () => {
+    const manualHtml = fs.readFileSync('manual.html', 'utf8');
+    const exampleBlocks = [...manualHtml.matchAll(/<pre class="example-code-manual">([\s\S]*?)<\/pre>/g)]
+        .map((match) => match[1]);
+
+    assert.ok(exampleBlocks.length > 0);
+    for (const block of exampleBlocks) {
+        assert.doesNotMatch(block, /(^|\s)#/);
+    }
 });
 
 runTest('manual page separates basic and advanced commands in the basic-commands section', () => {

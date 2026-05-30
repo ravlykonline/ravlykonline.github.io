@@ -342,6 +342,20 @@ runTest('supports випадково range function in expressions', () => {
     assert.equal(ast.body[1].duration.fn, 'randomRange');
 });
 
+runTest('supports кут as live current angle expression', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('вперед кут\nякщо кут = 90 ( праворуч 10 )');
+
+    assert.equal(ast.body[0].distance.type, 'CurrentAngleExpr');
+    assert.equal(ast.body[1].condition.left.type, 'CurrentAngleExpr');
+});
+
+runTest('supports angle alias as live current angle expression', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('forward angle');
+    assert.equal(ast.body[0].distance.type, 'CurrentAngleExpr');
+});
+
 runTest('supports random range alias in expressions', () => {
     const parser = new RavlykParser();
     const ast = parser.parseCodeToAst('forward random(10, 20)');

@@ -23,6 +23,7 @@ export function attachAstErrorLocation(error, node) {
 export function evalAstNumberExpression(expr, env, options = {}) {
     const attachErrorLocation = options.attachAstErrorLocation || attachAstErrorLocation;
     const rng = typeof options.rng === 'function' ? options.rng : Math.random;
+    const getCurrentAngle = typeof options.getCurrentAngle === 'function' ? options.getCurrentAngle : null;
 
     const evaluate = (node) => {
         if (!node || !node.type) return NaN;
@@ -31,6 +32,9 @@ export function evalAstNumberExpression(expr, env, options = {}) {
         }
         if (node.type === 'Identifier') {
             return env.get(node.name);
+        }
+        if (node.type === 'CurrentAngleExpr') {
+            return getCurrentAngle ? getCurrentAngle() : NaN;
         }
         if (node.type === 'UnaryExpr') {
             const value = evaluate(node.expr);

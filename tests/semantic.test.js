@@ -331,6 +331,11 @@ runTest('semantic: модуль and корінь are reserved names', () => {
     assertValidationError('створити корінь() ( вперед 1 )', 'корінь');
 });
 
+runTest('semantic: кут is reserved because it is a live state expression', () => {
+    assertValidationError('створити кут = 1', 'кут');
+    assertValidationError('створити angle = 1', 'angle');
+});
+
 runTest('semantic: стоп outside a loop is rejected', () => {
     assertValidationError('стоп', 'стоп');
 });

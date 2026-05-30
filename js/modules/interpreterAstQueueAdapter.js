@@ -8,7 +8,7 @@
 // then delete this file together with interpreterQueueRuntime.js.
 function cloneAstExpression(expr) {
     if (!expr || !expr.type) return expr;
-    if (expr.type === 'NumberLiteral' || expr.type === 'Identifier') {
+    if (expr.type === 'NumberLiteral' || expr.type === 'Identifier' || expr.type === 'CurrentAngleExpr') {
         return { ...expr };
     }
     if (expr.type === 'UnaryExpr') {
