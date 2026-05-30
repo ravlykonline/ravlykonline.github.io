@@ -57,6 +57,7 @@ const runtimeOptions = {
  */
 function collectPrimitives(programAst, extraOptions = {}) {
     const rt = createAstRuntime({ programAst, ...runtimeOptions, ...extraOptions });
+    const resolveExpr = extraOptions.evalAstNumberExpression || evalExpr;
     const log = [];
     let item = rt.step();
     while (item !== null) {
@@ -66,7 +67,7 @@ function collectPrimitives(programAst, extraOptions = {}) {
         if (stmt.type === 'MoveStmt' || stmt.type === 'TurnStmt') {
             const argExpr = stmt.type === 'MoveStmt' ? stmt.distance : stmt.angle;
             if (argExpr && argExpr.kind !== 'random') {
-                entry.value = evalExpr(argExpr, env);
+                entry.value = resolveExpr(argExpr, env);
             }
             if (stmt.direction) entry.direction = stmt.direction;
         }
@@ -116,6 +117,28 @@ runTest('unification: модуль and корінь evaluate inside primitive ar
     assert.deepEqual(log, [
         { type: 'MoveStmt', value: 12, direction: 'forward' },
         { type: 'TurnStmt', value: 9, direction: 'right' },
+    ]);
+});
+
+runTest('unification: випадково range evaluates inside primitive arguments', () => {
+    const ast = parseAndValidate('вперед випадково(10, 20)\nправоруч випадково(30, 50)');
+    const evalExprWithRng = (expr, env) => evalAstNumberExpression(expr, env, {
+        attachAstErrorLocation: () => {},
+        rng: () => 0.5,
+    });
+    const log = collectPrimitives(ast, {
+        evalAstNumberExpression: evalExprWithRng,
+        evaluateCondition: (condition, envCtx) => evaluateAstCondition(condition, {
+            evalAstNumberExpression: evalExprWithRng,
+            env: envCtx,
+            isAtCanvasEdge: () => false,
+            pressedKeys: new Set(),
+        }),
+    });
+
+    assert.deepEqual(log, [
+        { type: 'MoveStmt', value: 15, direction: 'forward' },
+        { type: 'TurnStmt', value: 40, direction: 'right' },
     ]);
 });
 

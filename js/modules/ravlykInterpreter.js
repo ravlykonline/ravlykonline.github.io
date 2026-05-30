@@ -228,6 +228,7 @@ export class RavlykInterpreter {
     evalAstNumberExpression(expr, env) {
         return evalAstNumberExpressionHelper(expr, env, {
             attachAstErrorLocation: (error, node) => this.attachAstErrorLocation(error, node),
+            rng: this.config.rng,
         });
     }
 

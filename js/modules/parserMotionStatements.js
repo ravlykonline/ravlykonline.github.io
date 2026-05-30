@@ -13,7 +13,7 @@ export function parseMoveStatementToAst({
     backwardKeyword,
 }) {
     const moveArgToken = tokens[startIndex + 1];
-    if (isRandomToken(moveArgToken)) {
+    if (isRandomToken(moveArgToken) && tokens[startIndex + 2] !== '(') {
         return {
             stmt: {
                 type: 'MoveStmt',
@@ -72,7 +72,7 @@ export function parseGotoStatementToAst({
     if (maybePrep === gotoPrepositionKeyword || maybePrep === 'to') {
         xStart += 1;
     }
-    if (isRandomToken(tokens[xStart])) {
+    if (isRandomToken(tokens[xStart]) && tokens[xStart + 1] !== '(') {
         return {
             stmt: {
                 type: 'GotoStmt',

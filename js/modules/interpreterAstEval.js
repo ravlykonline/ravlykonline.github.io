@@ -22,6 +22,7 @@ export function attachAstErrorLocation(error, node) {
 
 export function evalAstNumberExpression(expr, env, options = {}) {
     const attachErrorLocation = options.attachAstErrorLocation || attachAstErrorLocation;
+    const rng = typeof options.rng === 'function' ? options.rng : Math.random;
 
     const evaluate = (node) => {
         if (!node || !node.type) return NaN;
@@ -55,6 +56,19 @@ export function evalAstNumberExpression(expr, env, options = {}) {
                     throw createEvalError('SQRT_NEGATIVE');
                 }
                 return Math.sqrt(value);
+            }
+            if (node.fn === 'randomRange') {
+                const min = value;
+                const max = evaluate(node.args?.[1]);
+                if (!Number.isFinite(min) || !Number.isFinite(max) || max < min) {
+                    throw createEvalError('RANDOM_RANGE_INVALID');
+                }
+                if (max === min) return min;
+                const unit = rng();
+                if (!Number.isFinite(unit) || unit < 0 || unit > 1) {
+                    throw createEvalError('RANDOM_RANGE_INVALID');
+                }
+                return min + (max - min) * unit;
             }
             return NaN;
         }

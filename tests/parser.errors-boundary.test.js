@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { createInterpreter } from './parserTestUtils.js';
+import { Environment } from '../js/modules/environment.js';
 import { runTest } from './testUtils.js';
 
 runTest('throws on undefined variable', () => {
@@ -66,6 +67,23 @@ runTest('throws friendly error for math function with wrong argument count', () 
     assert.throws(
         () => interpreter.parseTokens(['forward', 'модуль', '(', '1', ',', '2', ')']),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'MATH_FUNCTION_ARGUMENT_COUNT'
+    );
+});
+
+runTest('throws friendly error for випадково range with wrong argument count', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parseTokens(['forward', 'випадково', '(', '1', ')']),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'RANDOM_RANGE_ARGUMENT_COUNT'
+    );
+});
+
+runTest('throws friendly error for випадково range with reversed bounds', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parser.parseCodeToAst('forward випадково(10, 1)');
+    assert.throws(
+        () => interpreter.evalAstNumberExpression(ast.body[0].distance, new Environment(null)),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'RANDOM_RANGE_INVALID'
     );
 });
 

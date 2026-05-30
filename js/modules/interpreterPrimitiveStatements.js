@@ -24,6 +24,16 @@ export function handlePrimitiveAstStatement({
 }) {
     if (!stmt || !stmt.type) return false;
 
+    const containsRandomRangeExpression = (expr) => {
+        if (!expr || typeof expr !== 'object') return false;
+        if (expr.type === 'BuiltinCallExpr' && expr.fn === 'randomRange') return true;
+        if (Array.isArray(expr.args) && expr.args.some(containsRandomRangeExpression)) return true;
+        if (expr.expr && containsRandomRangeExpression(expr.expr)) return true;
+        if (expr.left && containsRandomRangeExpression(expr.left)) return true;
+        if (expr.right && containsRandomRangeExpression(expr.right)) return true;
+        return false;
+    };
+
     const resolveColorArg = (colorArg, randomPicker) => {
         if (!colorArg) {
             throw createError('UNKNOWN_COLOR', '');
@@ -70,8 +80,10 @@ export function handlePrimitiveAstStatement({
             } else {
                 // Validate eagerly to preserve span metadata on error, but store the
                 // expression so runtime sees variable values set by preceding if/else.
-                const earlyCheck = resolveMoveDistance(stmt.distance, stmt.direction);
-                if (!Number.isFinite(earlyCheck)) throw createError('INVALID_DISTANCE', original, String(earlyCheck));
+                if (!containsRandomRangeExpression(stmt.distance)) {
+                    const earlyCheck = resolveMoveDistance(stmt.distance, stmt.direction);
+                    if (!Number.isFinite(earlyCheck)) throw createError('INVALID_DISTANCE', original, String(earlyCheck));
+                }
                 cmd.distanceExpr = stmt.distance;
             }
             outputQueue.push(cmd);
@@ -89,8 +101,10 @@ export function handlePrimitiveAstStatement({
     if (stmt.type === 'TurnStmt') {
         if (mode === 'queue') {
             const original = stmt.direction === 'left' ? 'ліворуч' : 'праворуч';
-            const earlyCheck = evalAstNumberExpression(stmt.angle, env);
-            if (!Number.isFinite(earlyCheck)) throw createError('INVALID_ANGLE', original, String(earlyCheck));
+            if (!containsRandomRangeExpression(stmt.angle)) {
+                const earlyCheck = evalAstNumberExpression(stmt.angle, env);
+                if (!Number.isFinite(earlyCheck)) throw createError('INVALID_ANGLE', original, String(earlyCheck));
+            }
             outputQueue.push({ type: stmt.direction === 'left' ? 'TURN_LEFT' : 'TURN', angleExpr: stmt.angle, original });
         } else {
             const value = evalAstNumberExpression(stmt.angle, env);

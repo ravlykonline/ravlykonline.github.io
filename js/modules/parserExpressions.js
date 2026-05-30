@@ -4,6 +4,8 @@ const NUMERIC_FUNCTIONS = new Map([
     ['abs', 'abs'],
     ['корінь', 'sqrt'],
     ['sqrt', 'sqrt'],
+    ['випадково', 'randomRange'],
+    ['random', 'randomRange'],
 ]);
 
 export function getOperatorPrecedence(operator) {
@@ -76,7 +78,11 @@ export function parseAstExpressionOrThrow(tokens, tokenMeta, startIndex, helpers
                     throw makeError('MATH_FUNCTION_EXPECT_OPEN_PAREN', token);
                 }
                 const parsedArgs = parseFunctionArguments(index + 1);
-                if (parsedArgs.args.length !== 1) {
+                const expectedArgCount = functionKind === 'randomRange' ? 2 : 1;
+                if (parsedArgs.args.length !== expectedArgCount) {
+                    if (functionKind === 'randomRange') {
+                        throw makeError('RANDOM_RANGE_ARGUMENT_COUNT');
+                    }
                     throw makeError('MATH_FUNCTION_ARGUMENT_COUNT', token);
                 }
                 return {

@@ -138,6 +138,8 @@ export const ERROR_MESSAGES = {
     MATH_FUNCTION_EXPECT_OPEN_PAREN: (name) => 'Після "' + name + '" потрібні дужки. Наприклад: ' + name + '(100).',
     MATH_FUNCTION_ARGUMENT_COUNT: (name) => 'Функція "' + name + '" очікує одне число в дужках.',
     SQRT_NEGATIVE: 'Корінь можна брати тільки з числа 0 або більшого.',
+    RANDOM_RANGE_ARGUMENT_COUNT: 'Функція "випадково" очікує два числа в дужках: від і до.',
+    RANDOM_RANGE_INVALID: 'У "випадково(від, до)" межі мають бути числами, і друге число має бути не меншим за перше.',
     TOO_MANY_NESTED_REPEATS: 'Функції викликають одна одну надто глибоко (більше ' + MAX_RECURSION_DEPTH + ' рівнів). Перевір, чи функція не викликає саму себе.',
     NESTING_TOO_DEEP: 'Програма має забагато вкладених дужок. Максимум ' + MAX_PARSE_DEPTH + ' рівнів.',
     TOO_MANY_REPEATS_IN_LOOP: 'У цьому циклі забагато повторень. Максимум ' + MAX_REPEATS_IN_LOOP + '. Спробуй зменшити N або збільшити крок руху.',

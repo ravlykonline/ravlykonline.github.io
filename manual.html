@@ -228,8 +228,8 @@
                                 class="cmd-desc">Повторює блок, доки умова істинна.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">стоп</span> <span
                                 class="cmd-desc">Виходить із найближчого циклу <code>повторити</code> або <code>поки</code>.</span></li>
-                        <li class="command-item-manual"><span class="cmd-name">модуль(...) / корінь(...)</span> <span
-                                class="cmd-desc">Математичні функції для числових виразів, наприклад <code>вперед корінь(100)</code>.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">модуль(...) / корінь(...) / випадково(...)</span> <span
+                                class="cmd-desc">Функції для числових виразів, наприклад <code>вперед корінь(100)</code> або <code>вперед випадково(10, 100)</code>.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">грати ( ... )</span> <span
                                 class="cmd-desc">Безперервний ігровий режим з перевіркою умов на кожному кроці.</span>
                         </li>
@@ -437,7 +437,7 @@
                     </section>
                 </article>
 
-                <article id="math-functions" class="guide-section advanced-only" data-keywords="математика модуль корінь abs sqrt вирази" aria-labelledby="manual-section-math-functions">
+                <article id="math-functions" class="guide-section advanced-only" data-keywords="математика модуль корінь abs sqrt випадково random вирази" aria-labelledby="manual-section-math-functions">
                     <h2 id="manual-section-math-functions">Математичні функції</h2>
                     <p>Математичні функції можна використовувати всередині числових виразів: у русі, поворотах, змінних, умовах і паузах.</p>
                     <section class="manual-subsection" aria-labelledby="manual-math-functions-basic-title">
@@ -451,7 +451,16 @@
                     </section>
                     <section class="manual-subsection" aria-labelledby="manual-math-functions-alias-title">
                         <h3 id="manual-math-functions-alias-title">Англійські назви</h3>
-                        <p>Також працюють <code>abs(x)</code> і <code>sqrt(x)</code>. Це ті самі функції, тільки з назвами, які часто зустрічаються в інших мовах програмування.</p>
+                        <p>Також працюють <code>abs(x)</code>, <code>sqrt(x)</code> і <code>random(a, b)</code>. Це ті самі функції, тільки з назвами, які часто зустрічаються в інших мовах програмування.</p>
+                    </section>
+                    <section class="manual-subsection" aria-labelledby="manual-math-random-range-title">
+                        <h3 id="manual-math-random-range-title">Випадкове число в межах</h3>
+                        <pre class="example-code-manual">вперед випадково(10, 100)
+праворуч випадково(30, 120)
+
+створити x = випадково(-50, 50)
+перейти в x випадково(-80, 80)</pre>
+                        <p><code>випадково(від, до)</code> вибирає число між двома межами. Це відрізняється від короткого <code>випадково</code> без дужок: тут межі задаєш ти, тому значення не обов'язково буде безпечним для полотна.</p>
                     </section>
                 </article>
 
@@ -923,12 +932,21 @@ n = n + 1
 )</pre>
                     <p>Равлик щоразу стрибатиме в інше безпечне місце на полотні. Так зручно малювати конфетті, короткі промінці або розсип зірочок.</p>
                     </section>
+                    <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-randomness-range-title">
+                    <h4 id="manual-randomness-range-title">4. Випадкове число в твоїх межах</h4>
+                    <pre class="example-code-manual">повторити 10 (
+  вперед випадково(10, 80)
+  праворуч випадково(20, 140)
+)</pre>
+                    <p><code>випадково(10, 80)</code> означає: вибери число від 10 до 80. Дужки показують, що це вже не автоматично безпечний вибір Равлика, а межі, які задаєш ти.</p>
+                    </section>
                     <section class="manual-subsection manual-callout-subsection" aria-labelledby="manual-randomness-note-title">
                     <div class="tips-box" role="region" aria-labelledby="manual-randomness-note-title">
                         <h4 id="manual-randomness-note-title">Важливо пам'ятати</h4>
                         <ul>
                             <li>Випадковість не означає безлад. У Равлику вона все одно працює за правилами команди.</li>
                             <li>Команди <code>вперед випадково</code>, <code>назад випадково</code> і <code>перейти в випадково</code> намагаються обирати безпечні значення, щоб Равлик не тікав за край полотна.</li>
+                            <li><code>випадково(від, до)</code> вибирає число в твоїх межах. Якщо межі завеликі, Равлик може дійти до краю полотна.</li>
                             <li>Якщо тобі потрібен точно однаковий малюнок щоразу, краще використовуй звичайні числа та конкретні кольори.</li>
                         </ul>
                     </div>
@@ -1178,6 +1196,14 @@ n = n + 1
                             Всередині <code>корінь(...)</code> вийшло від'ємне число.<br><strong>Як виправити:</strong>
                             Використай число від <code>0</code> або більше, або обгорни вираз у <code>модуль(...)</code>.</p>
                         <!-- SQRT_NEGATIVE -->
+                        <p><code>Функція "випадково" очікує два числа в дужках: від і до.</code><br><strong>Значення:</strong>
+                            У <code>випадково(...)</code> має бути дві межі.<br><strong>Як виправити:</strong>
+                            Напиши, наприклад, <code>випадково(10, 100)</code>.</p>
+                        <!-- RANDOM_RANGE_ARGUMENT_COUNT -->
+                        <p><code>У "випадково(від, до)" межі мають бути числами, і друге число має бути не меншим за перше.</code><br><strong>Значення:</strong>
+                            Межі записані неправильно або переплутані місцями.<br><strong>Як виправити:</strong>
+                            Перевір числа: <code>випадково(1, 10)</code>, а не <code>випадково(10, 1)</code>.</p>
+                        <!-- RANDOM_RANGE_INVALID -->
                         <p><code>Програма генерує надто багато команд.</code><br><strong>Значення:</strong>
                             Сума всіх команд у всіх вкладених циклах перевищила 50 000.<br><strong>Як виправити:</strong>
                             Зменш кількість повторень або спрости вкладені цикли.</p>

@@ -101,6 +101,16 @@ runTest('parse random move command into concrete queue value using injected rng'
     assert.equal(queue[0]._resolvedValue >= 20, true);
 });
 
+runTest('parse random range move as numeric expression, not safe random shorthand', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('вперед випадково(10, 100)');
+
+    assert.equal(ast.body[0].type, 'MoveStmt');
+    assert.equal(ast.body[0].distance.type, 'BuiltinCallExpr');
+    assert.equal(ast.body[0].distance.fn, 'randomRange');
+    assert.equal(ast.body[0].distance.args.length, 2);
+});
+
 runTest('parse random goto command into concrete queue values using injected rng', () => {
     const interpreter = createInterpreter({ rng: () => 0.5 });
     const queue = interpreter.parseTokens(['перейти', 'в', 'випадково']);
@@ -110,6 +120,17 @@ runTest('parse random goto command into concrete queue values using injected rng
     assert.equal(Number.isFinite(queue[0].y), true);
     assert.equal(Math.abs(queue[0].x) <= 300, true);
     assert.equal(Math.abs(queue[0].y) <= 200, true);
+});
+
+runTest('parse goto with random range coordinate expressions', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('перейти в випадково(-10, 10) випадково(-20, 20)');
+
+    assert.equal(ast.body[0].type, 'GotoStmt');
+    assert.equal(ast.body[0].x.type, 'BuiltinCallExpr');
+    assert.equal(ast.body[0].x.fn, 'randomRange');
+    assert.equal(ast.body[0].y.type, 'BuiltinCallExpr');
+    assert.equal(ast.body[0].y.fn, 'randomRange');
 });
 
 runTest('setColor throws on unknown color name', () => {
@@ -309,6 +330,23 @@ runTest('supports abs and sqrt aliases in expressions', () => {
     const ast = parser.parseCodeToAst('forward abs(-10)\nright sqrt(16)');
     assert.equal(ast.body[0].distance.fn, 'abs');
     assert.equal(ast.body[1].angle.fn, 'sqrt');
+});
+
+runTest('supports випадково range function in expressions', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('створити x = випадково(1, 3)\nчекати випадково(0.1, 0.5)');
+
+    assert.equal(ast.body[0].expr.type, 'BuiltinCallExpr');
+    assert.equal(ast.body[0].expr.fn, 'randomRange');
+    assert.equal(ast.body[1].duration.type, 'BuiltinCallExpr');
+    assert.equal(ast.body[1].duration.fn, 'randomRange');
+});
+
+runTest('supports random range alias in expressions', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('forward random(10, 20)');
+    assert.equal(ast.body[0].distance.type, 'BuiltinCallExpr');
+    assert.equal(ast.body[0].distance.fn, 'randomRange');
 });
 
 runTest('parses if/else with compare condition', () => {

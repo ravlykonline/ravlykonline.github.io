@@ -141,6 +141,27 @@ await runAsyncTest('executeCommands applies random move distance using injected 
     }
 });
 
+await runAsyncTest('executeCommands evaluates випадково range once per command', async () => {
+    const rngValues = [0, 1];
+    const interpreter = createInterpreter({ rng: () => rngValues.shift() ?? 1 });
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        const startY = interpreter.state.y;
+        await interpreter.executeCommands('вперед випадково(10, 20)');
+        assert.equal(Math.round(interpreter.state.y), Math.round(startY - 10));
+        assert.equal(rngValues.length, 1, 'one rng value should remain if range is evaluated once');
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+});
+
 await runAsyncTest('executeCommands applies random goto target using injected rng', async () => {
     const interpreter = createInterpreter({ rng: () => 0.25 });
     interpreter.setAnimationEnabled(false);
