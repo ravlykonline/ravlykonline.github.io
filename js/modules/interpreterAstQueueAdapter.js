@@ -79,12 +79,17 @@ export function astProgramToLegacyQueue({
                 if (!Number.isFinite(value)) {
                     throw createError('VARIABLE_VALUE_INVALID', stmt.name, String(value));
                 }
-                env.set(stmt.name, value);
+                if (stmt.declaredWithCreate) {
+                    env.define(stmt.name, value);
+                } else {
+                    env.set(stmt.name, value);
+                }
                 if (emitAssignments) {
                     out.push({
                         type: 'ASSIGN_AST',
                         name: stmt.name,
                         expr: cloneAstExpression(stmt.expr),
+                        declaredWithCreate: !!stmt.declaredWithCreate,
                         original: '=',
                     });
                 }

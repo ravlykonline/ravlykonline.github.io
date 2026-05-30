@@ -37,7 +37,6 @@ import {
     executeGameProgramRuntime,
     executeCommandsRuntime,
     evaluateIfConditionRuntime,
-    runCommandQueueWithRuntime,
     runAstAnimationWithRuntime,
     animatePenRuntime,
     animateMoveRuntime,
@@ -277,10 +276,6 @@ export class RavlykInterpreter {
 
     evaluateIfCondition(condition) {
         return evaluateIfConditionRuntime(this, condition);
-    }
-
-    async runCommandQueue() { // LEGACY — see astToLegacyQueue comment above
-        return runCommandQueueWithRuntime(this);
     }
 
     async runAstAnimation(programAst) {

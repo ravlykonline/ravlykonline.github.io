@@ -18,7 +18,20 @@ export class Environment {
     }
 
     set(name, value) {
+        if (this.vars.has(name)) {
+            this.vars.set(name, value);
+            return;
+        }
+        if (this.parent && this.parent.has(name)) {
+            this.parent.set(name, value);
+            return;
+        }
         this.vars.set(name, value);
+    }
+
+    has(name) {
+        if (this.vars.has(name)) return true;
+        return this.parent ? this.parent.has(name) : false;
     }
 
     clone() {

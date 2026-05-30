@@ -47,7 +47,6 @@ tests/
   semantic.test.js               — semantic validator, reserved names, функції, game contract, AST node budget
   interpreter.helpers.core.test.js   — ядро інтерпретатора
   interpreter.helpers.runtime.test.js — runtime-стани, stop/pause/resume
-  interpreter-helpers.test.js    — малювання, анімація, lifecycle
   controllers.test.js            — execution, file actions, navigation, modal, lifecycle
   ui.dom.test.js                 — UI-компоненти, grid overlay, editor UI
   accessibility.test.js          — налаштування доступності та сповіщення

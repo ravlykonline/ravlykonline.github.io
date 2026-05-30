@@ -203,21 +203,21 @@ runTest('semantic: two game blocks are rejected', () => {
 runTest('semantic: nested game block is rejected', () => {
     assertValidationError(
         'повторити 1 ( грати ( вперед 1 ) )',
-        'не можна вкладати'
+        'має бути окремо'
     );
 });
 
 runTest('semantic: drawing command next to game block is rejected', () => {
     assertValidationError(
         'вперед 10\nграти ( вперед 1 )',
-        'на верхньому рівні дозволені лише'
+        'поза всіма дужками можна писати лише'
     );
 });
 
 runTest('semantic: assignment without create next to game block is rejected', () => {
     assertValidationError(
         'створити x = 1\nx = 2\nграти ( вперед x )',
-        'на верхньому рівні дозволені лише'
+        'поза всіма дужками можна писати лише'
     );
 });
 
@@ -239,7 +239,7 @@ runTest('semantic: AST node budget rejects oversized programs', () => {
 
     assert.throws(
         () => validateProgramAst(ast, { maxAstNodes: 3 }),
-        (error) => error?.name === 'RavlykError' && error.message.includes('забагато частин')
+        (error) => error?.name === 'RavlykError' && error.message.includes('надто велика')
     );
 });
 

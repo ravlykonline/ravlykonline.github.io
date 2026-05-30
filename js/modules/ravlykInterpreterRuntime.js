@@ -16,7 +16,6 @@ import { Environment } from './environment.js';
 import { evaluateAstCondition, evaluateRuntimeIfCondition } from './interpreterConditions.js';
 import { startGameLoopRuntime } from './interpreterGameLoop.js';
 import { createGameAstRunner } from './interpreterGameAstRunner.js';
-import { runCommandQueueRuntime } from './interpreterQueueRuntime.js';
 import { executeInterpreterCommand } from './interpreterCommandExecutor.js';
 import { astProgramToLegacyQueue } from './interpreterAstQueueAdapter.js';
 import { hasGameStatement, validateGameProgramContract } from './interpreterGameContract.js';
@@ -189,74 +188,6 @@ export function evaluateIfConditionRuntime(runtime, condition) {
         executionEnv: evalEnv,
         isAtCanvasEdge: () => runtime.isAtCanvasEdge(),
         pressedKeys: runtime.pressedKeys,
-    });
-}
-
-export function runCommandQueueWithRuntime(runtime) {
-    return runCommandQueueRuntime({
-        commandQueue: runtime.commandQueue,
-        config: runtime.config,
-        commandIndicatorUpdater: runtime.commandIndicatorUpdater,
-        ensureExecutionEnv: () => {
-            if (!runtime.executionEnv) runtime.executionEnv = new Environment(null);
-        },
-        createStopError: () => new RavlykError("EXECUTION_STOPPED_BY_USER"),
-        getShouldStop: () => runtime.shouldStop,
-        getIsPaused: () => runtime.isPaused,
-        setCurrentCommandIndex: (index) => {
-            runtime.currentCommandIndex = index;
-        },
-        setAnimationFrameId: (frameId) => {
-            runtime.animationFrameId = frameId;
-        },
-        getAnimationFrameId: () => runtime.animationFrameId,
-        cancelAnimationFrameFn: cancelAnimationFrame,
-        requestAnimationFrameFn: requestAnimationFrame,
-        nowFn: () => performance.now(),
-        onExecutionCompleted: () => {
-            runtime.isExecuting = false;
-            runtime.commandIndicatorUpdater(null, -1);
-            runtime.executionEnv = null;
-        },
-        onExecutionError: () => {
-            runtime.isExecuting = false;
-            runtime.commandIndicatorUpdater(null, -1);
-            runtime.executionEnv = null;
-        },
-        executeCurrentCommand: ({ currentCommandObject, currentFrame, executionStack, deltaTime }) => {
-            return executeInterpreterCommand({
-                currentCommandObject,
-                currentFrame,
-                executionStack,
-                deltaTime,
-                executionEnv: runtime.executionEnv,
-                evalAstNumberExpression: (expr, envRef) => runtime.evalAstNumberExpression(expr, envRef),
-                createVariableValueInvalidError: (name, value) => new RavlykError("VARIABLE_VALUE_INVALID", name, value),
-                animatePen: (cmd, targetScale, dt) => runtime.animatePen(cmd, targetScale, dt),
-                animateMove: (cmd, distance, dt) => runtime.animateMove(cmd, distance, dt),
-                animateTurn: (cmd, angle, dt) => runtime.animateTurn(cmd, angle, dt),
-                animateWait: (cmd, dt) => runtime.animateWait(cmd, dt),
-                setColor: (color) => runtime.setColor(color),
-                setBackgroundColor: (color) => runtime.setBackgroundColor(color),
-                setThickness: (thickness) => {
-                    runtime.state.penSize = thickness;
-                    runtime.applyContextSettings();
-                },
-                performGoto: (x, y) => runtime.performGoto(x, y),
-                performHome: () => performHomeRuntime(runtime),
-                clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
-                setEmbroideryMode: (on) => setEmbroideryModeRuntime(runtime, on),
-                cloneCommand: (cmd) => cloneInterpreterCommand(cmd),
-                evaluateIfCondition: (condition) => runtime.evaluateIfCondition(condition),
-                resetStuckState: () => {
-                    runtime.state.isStuck = false;
-                    runtime.boundaryWarningShown = false;
-                },
-                state: runtime.state,
-            });
-        },
-        updateRavlykVisualState: () => runtime.updateRavlykVisualState(),
-        onFrameCapture: runtime.gifCapture ? (ms) => runtime.gifCapture.captureFrame(ms) : null,
     });
 }
 

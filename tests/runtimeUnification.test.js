@@ -211,8 +211,38 @@ runTest('unification: variable mutation inside if propagates to code after the b
     assert.equal(log[0].value, 7);
 });
 
+runTest('unification: function assignment updates existing outer variable', () => {
+    const ast = parseAndValidate('створити x = 10\nстворити додати() ( x = x + 1 )\nдодати()\nвперед x');
+    const log = collectPrimitives(ast);
+    assert.equal(log.length, 1);
+    assert.equal(log[0].value, 11);
+});
+
+runTest('unification: function parameter stays local when assigning same name', () => {
+    const ast = parseAndValidate('створити x = 10\nстворити рух(x) ( x = x + 1\nвперед x )\nрух(2)\nвперед x');
+    const log = collectPrimitives(ast);
+    assert.equal(log.length, 2);
+    assert.equal(log[0].value, 3);
+    assert.equal(log[1].value, 10);
+});
+
+runTest('unification: створити inside function creates local shadow', () => {
+    const ast = parseAndValidate('створити x = 1\nстворити функ() ( створити x = 5\nвперед x )\nфунк()\nвперед x');
+    const log = collectPrimitives(ast);
+    assert.equal(log.length, 2);
+    assert.equal(log[0].value, 5);
+    assert.equal(log[1].value, 1);
+});
+
 runTest('unification: user-defined function call surfaces its body as primitives', () => {
     const ast = parseAndValidate('створити крок(n) ( вперед n )\nкрок(25)');
+    const log = collectPrimitives(ast);
+    assert.equal(log.length, 1);
+    assert.equal(log[0].value, 25);
+});
+
+runTest('unification: function call works before declaration', () => {
+    const ast = parseAndValidate('крок(25)\nстворити крок(n) ( вперед n )');
     const log = collectPrimitives(ast);
     assert.equal(log.length, 1);
     assert.equal(log[0].value, 25);

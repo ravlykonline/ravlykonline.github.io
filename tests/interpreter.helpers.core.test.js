@@ -199,6 +199,48 @@ runTest('interpreter command executor assigns numeric value for ASSIGN_AST', () 
     assert.deepEqual(env.assigned, { name: 'x', value: 7 });
 });
 
+runTest('interpreter command executor defines local value for create ASSIGN_AST', () => {
+    const env = {
+        assigned: null,
+        defined: null,
+        set(name, value) {
+            this.assigned = { name, value };
+        },
+        define(name, value) {
+            this.defined = { name, value };
+        },
+    };
+
+    const done = executeInterpreterCommand({
+        currentCommandObject: {
+            type: 'ASSIGN_AST',
+            name: 'x',
+            expr: { type: 'NumberLiteral', value: 7 },
+            declaredWithCreate: true,
+        },
+        currentFrame: { index: 0 },
+        executionStack: [],
+        deltaTime: 0,
+        executionEnv: env,
+        evalAstNumberExpression: () => 7,
+        createVariableValueInvalidError: () => new Error('invalid'),
+        animatePen: () => true,
+        animateMove: () => true,
+        animateTurn: () => true,
+        setColor() {},
+        performGoto() {},
+        clearToDefaultSheet() {},
+        cloneCommand: (cmd) => cmd,
+        evaluateIfCondition: () => false,
+        resetStuckState() {},
+        state: { isPenDown: true },
+    });
+
+    assert.equal(done, true);
+    assert.equal(env.assigned, null);
+    assert.deepEqual(env.defined, { name: 'x', value: 7 });
+});
+
 runTest('interpreter AST queue adapter emits assignment command when enabled', () => {
     class FakeEnv {
         constructor(parent = null) { this.parent = parent; this.map = new Map(); }
@@ -224,6 +266,7 @@ runTest('interpreter AST queue adapter emits assignment command when enabled', (
                     type: 'AssignmentStmt',
                     name: 'score',
                     expr: { type: 'NumberLiteral', value: 12 },
+                    declaredWithCreate: true,
                 },
             ],
         },
@@ -240,6 +283,7 @@ runTest('interpreter AST queue adapter emits assignment command when enabled', (
     assert.equal(queue.length, 1);
     assert.equal(queue[0].type, 'ASSIGN_AST');
     assert.equal(queue[0].name, 'score');
+    assert.equal(queue[0].declaredWithCreate, true);
 });
 
 runTest('interpreter game-contract helper detects nested game and rejects invalid top-level', () => {

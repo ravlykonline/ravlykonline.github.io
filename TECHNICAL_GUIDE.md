@@ -134,7 +134,7 @@ Implemented condition families:
 Semantic notes:
 - `фон` changes the background underlay, not existing drawing
 - `очистити` restores a clean white sheet
-- non-game execution still uses AST-to-queue adaptation for compatibility
+- non-game execution uses lazy AST runtime; the legacy queue adapter remains only for compatibility tests and the disabled `parseTokens()` shim
 - game mode runs on a fixed tick loop and validates its contract before execution
 
 ## 6. Runtime and safety model
@@ -151,7 +151,7 @@ Environment:
 Interpreter:
 - parses code to AST
 - validates `грати` contract
-- runs either game-mode execution or queue-mode execution
+- runs both normal animation and game mode through `createAstRuntime`
 
 Safety and limits from `js/modules/constants.js`:
 - `MAX_RECURSION_DEPTH = 20` — max call stack depth for functions
@@ -279,7 +279,7 @@ Primary remaining debt:
 - CSS is improved but still partly page-local rather than componentized
 - `css/manual.css` remains the largest static styling surface
 - large static content pages still require careful manual maintenance
-- queue adapter (`interpreterAstQueueAdapter.js`) still eagerly unrolls repeat loops into flat command lists; §7.2 of ARCHITECTURE.md tracks this
+- legacy queue modules (`interpreterAstQueueAdapter.js`, `interpreterQueueRuntime.js`) are still present for old tests and compatibility boundaries, but production execution no longer uses them
 - service worker scope is hardcoded to `/`; conflicts with subdirectory deployments (§7.4 of ARCHITECTURE.md)
 - GIF export uses real-time playback (1×) with freeze frames at start/end; flicker on `фон` command may appear in edge cases with rapid background changes
 

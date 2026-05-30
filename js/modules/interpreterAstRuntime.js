@@ -20,6 +20,7 @@ export function createAstRuntime({
 }) {
     const rootEnv = initialEnv || new EnvironmentCtor(null);
     const functionDefs = initialFunctionDefs ? new Map(initialFunctionDefs) : new Map();
+    collectFunctionDefs(programAst?.body || [], functionDefs);
     const frameStack = [{ stmts: programAst.body || [], index: 0, env: rootEnv, type: 'program' }];
     let callDepth = 0;
     let stepCount = 0;
@@ -96,7 +97,11 @@ export function createAstRuntime({
                     if (!Number.isFinite(value)) {
                         throw new RavlykErrorCtor('VARIABLE_VALUE_INVALID', stmt.name, String(value));
                     }
-                    topFrame.env.set(stmt.name, value);
+                    if (stmt.declaredWithCreate) {
+                        topFrame.env.define(stmt.name, value);
+                    } else {
+                        topFrame.env.set(stmt.name, value);
+                    }
                     continue;
                 }
 
@@ -186,4 +191,24 @@ export function createAstRuntime({
     }
 
     return { step, isDone, env: rootEnv, functionDefs };
+}
+
+function collectFunctionDefs(stmts, functionDefs) {
+    for (const stmt of stmts || []) {
+        if (!stmt || typeof stmt !== 'object') continue;
+
+        if (stmt.type === 'FunctionDefStmt') {
+            functionDefs.set(stmt.name, stmt);
+        }
+
+        if (Array.isArray(stmt.body)) {
+            collectFunctionDefs(stmt.body, functionDefs);
+        }
+        if (Array.isArray(stmt.thenBody)) {
+            collectFunctionDefs(stmt.thenBody, functionDefs);
+        }
+        if (Array.isArray(stmt.elseBody)) {
+            collectFunctionDefs(stmt.elseBody, functionDefs);
+        }
+    }
 }

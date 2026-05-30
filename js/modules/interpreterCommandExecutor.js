@@ -31,7 +31,11 @@ export function executeInterpreterCommand({
             if (!Number.isFinite(value)) {
                 throw createVariableValueInvalidError(currentCommandObject.name, String(value));
             }
-            executionEnv.set(currentCommandObject.name, value);
+            if (currentCommandObject.declaredWithCreate && typeof executionEnv.define === 'function') {
+                executionEnv.define(currentCommandObject.name, value);
+            } else {
+                executionEnv.set(currentCommandObject.name, value);
+            }
             break;
         }
         case 'PEN_UP':

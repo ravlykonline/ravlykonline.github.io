@@ -463,6 +463,20 @@ runTest('ast runtime error keeps line and column from span', () => {
     );
 });
 
+runTest('ast runtime undefined variable location points to identifier inside expression', () => {
+    const interpreter = createInterpreter();
+    const ast = interpreter.parser.parseCodeToAst('forward 1 + missing');
+    assert.throws(
+        () => interpreter.astToLegacyQueue(ast),
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.messageKey === 'UNDEFINED_VARIABLE'
+            && error.line === 1
+            && error.column === 13
+            && error.token === 'missing'
+    );
+});
+
 runTest('nested repeats that overflow MAX_COMMAND_QUEUE_LENGTH throw friendly error', () => {
     const interpreter = createInterpreter();
     // Two nested loops: 300 * 300 = 90000 > MAX_COMMAND_QUEUE_LENGTH (50000)
@@ -526,7 +540,7 @@ await runAsyncTest('game contract rejects top-level drawing command when game bl
         interpreter.executeCommands('forward 5 game ( forward 1 )'),
         (error) => error
             && error.name === 'RavlykError'
-            && error.message.includes('на верхньому рівні дозволені лише')
+            && error.message.includes('поза всіма дужками можна писати лише')
     );
 });
 

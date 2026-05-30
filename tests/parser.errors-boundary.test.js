@@ -38,6 +38,19 @@ runTest('parser keeps source line metadata in repeat body', () => {
     );
 });
 
+runTest('tokenizer throws friendly error for unclosed string with location', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.tokenize('forward 10\nkey "ArrowUp'),
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.messageKey === 'UNCLOSED_STRING'
+            && error.line === 2
+            && error.column === 5
+            && error.token === '"'
+    );
+});
+
 runTest('throws on division by zero in expression', () => {
     const interpreter = createInterpreter();
     assert.throws(

@@ -275,7 +275,7 @@ runAsyncTest('astAnimation: deeply nested control-flow-only loops are rejected b
     const { promise } = runSync(ast);
     await assert.rejects(
         () => promise,
-        (err) => err?.name === 'RavlykError' && /надто багато команд/i.test(err.message)
+        (err) => err?.name === 'RavlykError' && /забагато дій/i.test(err.message)
     );
 });
 

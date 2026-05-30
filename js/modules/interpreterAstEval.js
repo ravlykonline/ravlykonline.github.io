@@ -31,7 +31,12 @@ export function evalAstNumberExpression(expr, env, options = {}) {
             return Number(node.value);
         }
         if (node.type === 'Identifier') {
-            return env.get(node.name);
+            try {
+                return env.get(node.name);
+            } catch (error) {
+                attachErrorLocation(error, node);
+                throw error;
+            }
         }
         if (node.type === 'CurrentAngleExpr') {
             return getCurrentAngle ? getCurrentAngle() : NaN;

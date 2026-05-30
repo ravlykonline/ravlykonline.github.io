@@ -66,7 +66,7 @@ export class RavlykParser {
     }
 
     tokenizeWithMetadata(codeStr) {
-        return tokenizeWithMetadata(codeStr);
+        return tokenizeWithMetadata(codeStr, (messageKey, ...params) => new RavlykError(messageKey, ...params));
     }
 
     attachErrorLocation(error, tokenIndex, tokenMeta) {
