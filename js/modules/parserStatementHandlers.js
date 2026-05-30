@@ -17,8 +17,10 @@ import {
 } from './parserStatements.js';
 import {
     parseGameStatementToAst as parseGameStatementToAstHelper,
+    parseBreakStatementToAst as parseBreakStatementToAstHelper,
     parseIfStatementToAst as parseIfStatementToAstHelper,
     parseRepeatStatementToAst as parseRepeatStatementToAstHelper,
+    parseWhileStatementToAst as parseWhileStatementToAstHelper,
 } from './parserControlStatements.js';
 
 function createParserBindings(parser) {
@@ -170,6 +172,22 @@ export function createParserStatementHandlers({
                 spanFromMeta: bindings.spanFromMeta,
                 createError,
                 keywordElse: keywords.elseKeyword,
+            }),
+        parseWhileStatementToAst: (tokens, tokenMeta, startIndex) =>
+            parseWhileStatementToAstHelper({
+                tokens,
+                tokenMeta,
+                startIndex,
+                parseAstConditionOrThrow: bindings.parseAstConditionOrThrow,
+                parseAstBlockOrThrow: bindings.parseAstBlockOrThrow,
+                spanFromMeta: bindings.spanFromMeta,
+                createError,
+            }),
+        parseBreakStatementToAst: (tokenMeta, startIndex) =>
+            parseBreakStatementToAstHelper({
+                tokenMeta,
+                startIndex,
+                spanFromMeta: bindings.spanFromMeta,
             }),
         parseAssignmentStatementToAst: (tokens, tokenMeta, startIndex) =>
             parseAssignmentStatementToAstHelper({

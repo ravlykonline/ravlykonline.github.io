@@ -27,6 +27,8 @@ const COMPARISON_OPERATORS = new Set(["=", "!=", "<", ">", "<=", ">="]);
 const KEYWORD_CREATE = "\u0441\u0442\u0432\u043e\u0440\u0438\u0442\u0438";
 const KEYWORD_IF = "\u044f\u043a\u0449\u043e";
 const KEYWORD_ELSE = "\u0456\u043d\u0430\u043a\u0448\u0435";
+const KEYWORD_WHILE = "\u043f\u043e\u043a\u0438";
+const KEYWORD_BREAK = "\u0441\u0442\u043e\u043f";
 const KEYWORD_KEY = "\u043a\u043b\u0430\u0432\u0456\u0448\u0430";
 const KEYWORD_EDGE = "\u043a\u0440\u0430\u0439";
 const KEYWORD_GAME = "\u0433\u0440\u0430\u0442\u0438";
@@ -178,6 +180,8 @@ export class RavlykParser {
                 create: KEYWORD_CREATE,
                 ifKeyword: KEYWORD_IF,
                 elseKeyword: KEYWORD_ELSE,
+                whileKeyword: KEYWORD_WHILE,
+                breakKeyword: KEYWORD_BREAK,
                 game: KEYWORD_GAME,
                 backward: KEYWORD_BACKWARD,
                 left: KEYWORD_LEFT,

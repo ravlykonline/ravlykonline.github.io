@@ -29,6 +29,29 @@ export function createAstRuntime({
         return frameStack.length === 0;
     }
 
+    function consumeAstBudget() {
+        if (maxAstSteps == null) return;
+
+        astStepCount++;
+        if (astStepCount > maxAstSteps) {
+            throw new RavlykErrorCtor(maxAstStepsErrorKey || 'COMMAND_QUEUE_OVERFLOW');
+        }
+    }
+
+    function breakNearestLoop() {
+        for (let i = frameStack.length - 1; i >= 0; i--) {
+            const frameType = frameStack[i].type;
+            if (frameType === 'repeat' || frameType === 'while') {
+                frameStack.length = i;
+                return;
+            }
+            if (frameType === 'function' || frameType === 'program') {
+                break;
+            }
+        }
+        throw new RavlykErrorCtor('BREAK_OUTSIDE_LOOP');
+    }
+
     // Returns the next primitive statement to execute as { stmt, env },
     // or null when the program is finished.
     // All control-flow statements (assign, funcdef, funccall, repeat, if) are
@@ -38,6 +61,18 @@ export function createAstRuntime({
             const topFrame = frameStack[frameStack.length - 1];
 
             if (topFrame.index >= topFrame.stmts.length) {
+                if (topFrame.type === 'while') {
+                    try {
+                        consumeAstBudget();
+                        if (evaluateCondition(topFrame.condition, topFrame.env)) {
+                            topFrame.index = 0;
+                            continue;
+                        }
+                    } catch (error) {
+                        attachAstErrorLocation(error, topFrame.conditionStmt);
+                        throw error;
+                    }
+                }
                 if (topFrame.type === 'repeat' && topFrame.remaining > 0) {
                     topFrame.remaining--;
                     topFrame.index = 0;
@@ -54,12 +89,7 @@ export function createAstRuntime({
             try {
                 // Count every statement (assignments, control-flow, primitives)
                 // so maxAstSteps covers total AST work, not just primitive output.
-                if (maxAstSteps != null) {
-                    astStepCount++;
-                    if (astStepCount > maxAstSteps) {
-                        throw new RavlykErrorCtor(maxAstStepsErrorKey || 'COMMAND_QUEUE_OVERFLOW');
-                    }
-                }
+                consumeAstBudget();
 
                 if (stmt.type === 'AssignmentStmt') {
                     const value = evalAstNumberExpression(stmt.expr, topFrame.env);
@@ -103,6 +133,25 @@ export function createAstRuntime({
                     if (count > 0 && stmt.body && stmt.body.length > 0) {
                         frameStack.push({ stmts: stmt.body, index: 0, env: topFrame.env, type: 'repeat', remaining: count - 1 });
                     }
+                    continue;
+                }
+
+                if (stmt.type === 'WhileStmt') {
+                    if (evaluateCondition(stmt.condition, topFrame.env)) {
+                        frameStack.push({
+                            stmts: stmt.body || [],
+                            index: 0,
+                            env: topFrame.env,
+                            type: 'while',
+                            condition: stmt.condition,
+                            conditionStmt: stmt,
+                        });
+                    }
+                    continue;
+                }
+
+                if (stmt.type === 'BreakStmt') {
+                    breakNearestLoop();
                     continue;
                 }
 

@@ -17,6 +17,8 @@ export function parseNextStatementToAst({
     parseGotoStatementToAst,
     parseRepeatStatementToAst,
     parseIfStatementToAst,
+    parseWhileStatementToAst,
+    parseBreakStatementToAst,
     parseAssignmentStatementToAst,
     parseFunctionCallStatementToAst,
     parseEmbroideryStatementToAst,
@@ -30,6 +32,8 @@ export function parseNextStatementToAst({
     keywordLeft,
     keywordPenUp,
     keywordIf,
+    keywordWhile,
+    keywordBreak,
 }) {
     if (tokenLower === keywordCreate || tokenLower === 'create') {
         return parseCreateStatementToAst(tokens, tokenMeta, index);
@@ -97,6 +101,14 @@ export function parseNextStatementToAst({
 
     if (tokenLower === keywordIf || tokenLower === 'if') {
         return parseIfStatementToAst(tokens, tokenMeta, index);
+    }
+
+    if (tokenLower === keywordWhile || tokenLower === 'while') {
+        return parseWhileStatementToAst(tokens, tokenMeta, index);
+    }
+
+    if (tokenLower === keywordBreak || tokenLower === 'break') {
+        return parseBreakStatementToAst(tokenMeta, index);
     }
 
     if (isValidIdentifier(token) && index + 1 < tokens.length && tokens[index + 1] === '=') {

@@ -224,6 +224,10 @@
                                 class="cmd-desc">Перевіряє, чи Равлик торкається межі полотна.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">якщо клавіша "вгору" ( ... )</span> <span
                                 class="cmd-desc">Перевіряє, чи натиснута конкретна клавіша.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">поки умова ( ... )</span> <span
+                                class="cmd-desc">Повторює блок, доки умова істинна.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">стоп</span> <span
+                                class="cmd-desc">Виходить із найближчого циклу <code>повторити</code> або <code>поки</code>.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">грати ( ... )</span> <span
                                 class="cmd-desc">Безперервний ігровий режим з перевіркою умов на кожному кроці.</span>
                         </li>
@@ -404,6 +408,30 @@
                                 <p><strong>Оновлення розміру:</strong> <code>сторона = 200</code></p>
                             </div>
                         </details>
+                    </section>
+                </article>
+
+                <article id="while-and-stop" class="guide-section advanced-only" data-keywords="поки стоп цикл умова break while" aria-labelledby="manual-section-while-stop">
+                    <h2 id="manual-section-while-stop">Цикл поки і команда стоп</h2>
+                    <p><code>поки</code> повторює команди, доки умова істинна. Це зручно, коли наперед невідомо, скільки разів треба повторити дію.</p>
+                    <section class="manual-subsection" aria-labelledby="manual-while-basic-title">
+                        <h3 id="manual-while-basic-title">Базовий формат</h3>
+                        <pre class="example-code-manual">створити x = 0
+поки x < 5 (
+  вперед 20
+  x = x + 1
+)</pre>
+                        <p>Умова після <code>поки</code> записується так само, як в команді <code>якщо</code>: можна порівнювати числа й змінні або перевіряти <code>край</code> чи <code>клавіша "..."</code>.</p>
+                    </section>
+                    <section class="manual-subsection" aria-labelledby="manual-stop-basic-title">
+                        <h3 id="manual-stop-basic-title">Вийти з циклу раніше</h3>
+                        <pre class="example-code-manual">повторити 100 (
+  якщо край (
+    стоп
+  )
+  вперед 10
+)</pre>
+                        <p><code>стоп</code> виходить тільки з найближчого циклу <code>повторити</code> або <code>поки</code>. Після циклу програма продовжує виконувати наступні команди.</p>
                     </section>
                 </article>
 
@@ -1110,6 +1138,14 @@ n = n + 1
                             У <code>повторити N</code> вказано значення більше 500.<br><strong>Як виправити:</strong>
                             Зменш N або збільш кроки руху, щоб досягти того ж результату.</p>
                         <!-- TOO_MANY_REPEATS_IN_LOOP -->
+                        <p><code>Після умови в команді "поки" потрібна дужка "(".</code><br><strong>Значення:</strong>
+                            Пропущено відкривну дужку блоку циклу.<br><strong>Як виправити:</strong>
+                            Після умови постав <code>(</code>: <code>поки x &lt; 10 ( ... )</code>.</p>
+                        <!-- WHILE_EXPECT_OPEN_PAREN -->
+                        <p><code>Команда "стоп" працює тільки всередині циклу "повторити" або "поки".</code><br><strong>Значення:</strong>
+                            <code>стоп</code> написано поза циклом.<br><strong>Як виправити:</strong>
+                            Перенеси <code>стоп</code> всередину <code>повторити</code> або <code>поки</code>, або прибери його.</p>
+                        <!-- BREAK_OUTSIDE_LOOP -->
                         <p><code>Програма генерує надто багато команд.</code><br><strong>Значення:</strong>
                             Сума всіх команд у всіх вкладених циклах перевищила 50 000.<br><strong>Як виправити:</strong>
                             Зменш кількість повторень або спрости вкладені цикли.</p>

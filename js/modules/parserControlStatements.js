@@ -82,3 +82,42 @@ export function parseIfStatementToAst({
         nextIndex,
     };
 }
+
+export function parseWhileStatementToAst({
+    tokens,
+    tokenMeta,
+    startIndex,
+    parseAstConditionOrThrow,
+    parseAstBlockOrThrow,
+    spanFromMeta,
+    createError,
+}) {
+    const condition = parseAstConditionOrThrow(tokens, tokenMeta, startIndex + 1);
+    if (condition.nextIndex >= tokens.length || tokens[condition.nextIndex] !== '(') {
+        throw createError('WHILE_EXPECT_OPEN_PAREN');
+    }
+    const parsedBody = parseAstBlockOrThrow(tokens, tokenMeta, condition.nextIndex);
+    return {
+        stmt: {
+            type: 'WhileStmt',
+            condition: condition.condition,
+            body: parsedBody.body,
+            span: spanFromMeta(tokenMeta, startIndex, parsedBody.nextIndex),
+        },
+        nextIndex: parsedBody.nextIndex,
+    };
+}
+
+export function parseBreakStatementToAst({
+    tokenMeta,
+    startIndex,
+    spanFromMeta,
+}) {
+    return {
+        stmt: {
+            type: 'BreakStmt',
+            span: spanFromMeta(tokenMeta, startIndex, startIndex + 1),
+        },
+        nextIndex: startIndex + 1,
+    };
+}

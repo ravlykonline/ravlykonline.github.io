@@ -100,6 +100,54 @@ runTest('unification: repeat loop expands correctly', () => {
     assert.ok(log.every((e) => e.type === 'MoveStmt' && e.value === 10));
 });
 
+runTest('unification: while loop repeats until condition is false', () => {
+    const ast = parseAndValidate('створити x = 0\nпоки x < 3 ( x = x + 1\nвперед x )');
+    const log = collectPrimitives(ast);
+    assert.deepEqual(log, [
+        { type: 'MoveStmt', value: 1, direction: 'forward' },
+        { type: 'MoveStmt', value: 2, direction: 'forward' },
+        { type: 'MoveStmt', value: 3, direction: 'forward' },
+    ]);
+});
+
+runTest('unification: стоп exits while loop and continues after it', () => {
+    const ast = parseAndValidate(
+        'створити x = 0\nпоки x < 5 ( x = x + 1\nякщо x = 3 ( стоп )\nвперед x )\nвперед 99'
+    );
+    const log = collectPrimitives(ast);
+    assert.deepEqual(log, [
+        { type: 'MoveStmt', value: 1, direction: 'forward' },
+        { type: 'MoveStmt', value: 2, direction: 'forward' },
+        { type: 'MoveStmt', value: 99, direction: 'forward' },
+    ]);
+});
+
+runTest('unification: стоп exits only the nearest loop', () => {
+    const ast = parseAndValidate(
+        'повторити 2 ( повторити 5 ( стоп\nвперед 10 )\nвперед 20 )'
+    );
+    const log = collectPrimitives(ast);
+    assert.deepEqual(log, [
+        { type: 'MoveStmt', value: 20, direction: 'forward' },
+        { type: 'MoveStmt', value: 20, direction: 'forward' },
+    ]);
+});
+
+runTest('unification: empty infinite while is stopped by AST budget', () => {
+    const ast = parseAndValidate('поки 1 = 1 ()');
+    const rt = createAstRuntime({
+        programAst: ast,
+        ...runtimeOptions,
+        maxAstSteps: 5,
+        maxAstStepsErrorKey: 'COMMAND_QUEUE_OVERFLOW',
+    });
+
+    assert.throws(
+        () => rt.step(),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'COMMAND_QUEUE_OVERFLOW'
+    );
+});
+
 runTest('unification: variable assignment is NOT surfaced as a primitive', () => {
     // Assignment is handled internally by createAstRuntime; only the move is primitive.
     const ast = parseAndValidate('створити x = 42\nвперед x');

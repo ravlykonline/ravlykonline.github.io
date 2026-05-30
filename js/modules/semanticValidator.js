@@ -14,6 +14,8 @@ const RESERVED_NAMES = new Set([
     'товщина', 'thickness',
     'перейти', 'goto',
     'повторити', 'повтори', 'repeat',
+    'поки', 'while',
+    'стоп', 'break',
     'якщо', 'if',
     'інакше', 'else',
     'створити', 'create',
@@ -237,6 +239,37 @@ function hasWaitStatement(stmts) {
     return false;
 }
 
+function validateBreakUsage(stmts, loopDepth = 0) {
+    for (const node of stmts || []) {
+        if (!node || typeof node !== 'object') continue;
+
+        if (node.type === 'BreakStmt') {
+            if (loopDepth <= 0) {
+                throw makeError('BREAK_OUTSIDE_LOOP');
+            }
+            continue;
+        }
+
+        if (node.type === 'RepeatStmt' || node.type === 'WhileStmt') {
+            validateBreakUsage(node.body || [], loopDepth + 1);
+            continue;
+        }
+
+        if (node.type === 'IfStmt') {
+            validateBreakUsage(node.thenBody || [], loopDepth);
+            validateBreakUsage(node.elseBody || [], loopDepth);
+            continue;
+        }
+
+        if (node.type === 'FunctionDefStmt') {
+            validateBreakUsage(node.body || [], 0);
+            continue;
+        }
+
+        validateBreakUsage(getNestedStatements(node), loopDepth);
+    }
+}
+
 function validateStatement(node, symbolTable) {
     if (!node || typeof node !== 'object') return;
 
@@ -263,6 +296,8 @@ export function validateProgramAst(ast, options = {}) {
     validateDeclarations(ast.body, symbolTable);
 
     validateGameContract(ast);
+
+    validateBreakUsage(ast.body);
 
     for (const node of ast.body) {
         validateStatement(node, symbolTable);

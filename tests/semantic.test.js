@@ -325,3 +325,23 @@ runTest('semantic: чекати inside грати throws WAIT_IN_GAME_MODE', () 
 runTest('semantic: чекати outside грати is valid', () => {
     assert.doesNotThrow(() => validate('чекати 1\nвперед 50'));
 });
+
+runTest('semantic: стоп outside a loop is rejected', () => {
+    assertValidationError('стоп', 'стоп');
+});
+
+runTest('semantic: стоп inside повторити is valid', () => {
+    assert.doesNotThrow(() => validate('повторити 1 ( стоп )'));
+});
+
+runTest('semantic: стоп inside поки is valid', () => {
+    assert.doesNotThrow(() => validate('створити x = 0\nпоки x < 3 ( стоп )'));
+});
+
+runTest('semantic: стоп in function body without an inner loop is rejected', () => {
+    assertValidationError('створити f() ( стоп )', 'стоп');
+});
+
+runTest('semantic: стоп in function body inner loop is valid', () => {
+    assert.doesNotThrow(() => validate('створити f() ( повторити 1 ( стоп ) )\nf()'));
+});

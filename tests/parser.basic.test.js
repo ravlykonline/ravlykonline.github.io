@@ -502,6 +502,31 @@ runTest('hide, show, home aliases parse', () => {
     assert.deepEqual(ast.body.slice(0, 2).map((stmt) => stmt.visible), [false, true]);
 });
 
+runTest('поки parses to WhileStmt', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('створити x = 0\nпоки x < 3 ( x = x + 1 )');
+    assert.equal(ast.body[1].type, 'WhileStmt');
+    assert.equal(ast.body[1].condition.type, 'CompareCondition');
+});
+
+runTest('while alias parses to WhileStmt', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('create x = 0\nwhile x < 3 ( x = x + 1 )');
+    assert.equal(ast.body[1].type, 'WhileStmt');
+});
+
+runTest('стоп parses to BreakStmt inside loop', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('повторити 1 ( стоп )');
+    assert.equal(ast.body[0].body[0].type, 'BreakStmt');
+});
+
+runTest('break alias parses to BreakStmt inside loop', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('repeat 1 ( break )');
+    assert.equal(ast.body[0].body[0].type, 'BreakStmt');
+});
+
 runTest('сховати, показати, додому produce queue commands', () => {
     const interpreter = createInterpreter();
     const queue = interpreter.parseTokens([

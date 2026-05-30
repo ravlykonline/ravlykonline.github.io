@@ -27,6 +27,8 @@ export function createParserStatementContext({
                 keywordLeft: keywords.left,
                 keywordPenUp: keywords.penUp,
                 keywordIf: keywords.ifKeyword,
+                keywordWhile: keywords.whileKeyword,
+                keywordBreak: keywords.breakKeyword,
             });
         },
     };

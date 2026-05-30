@@ -82,14 +82,14 @@
 вперед, назад, праворуч, ліворуч,
 колір, фон, товщина, підняти, опустити,
 очистити, перейти, повторити, повтори,
-якщо, інакше, створити, грати,
+поки, стоп, якщо, інакше, створити, грати,
 край, клавіша, випадково, в,
 вишиванка, звичайний,
 чекати, пауза,
 сховати, показати, додому,
 forward, backward, right, left,
 color, background, thickness, penup, pendown,
-clear, goto, repeat, if, else, create, game,
+clear, goto, repeat, while, break, if, else, create, game,
 edge, key, random, to,
 vyshyvanka, zvychainyi,
 wait, hide, show, home
@@ -343,6 +343,45 @@ MAX_REPEATS_IN_LOOP = 500
 
 Ліміт на один цикл не захищає від вкладених циклів. Потрібен глобальний бюджет операцій.
 
+### 9.1. Умовний цикл `поки`
+
+```ravlyk
+створити x = 0
+поки x < 10 (
+  вперед 10
+  x = x + 1
+)
+```
+
+Alias:
+
+```ravlyk
+while x < 10 (...)
+```
+
+`поки умова ( ... )` перевіряє умову перед кожним повторенням і виконує тіло, доки умова істинна. Умова має той самий формат, що й у `якщо`: порівняння, `край` або `клавіша "..."`.
+
+Команда використовує загальні AST/runtime budgets, тому нескінченний або надто довгий цикл зупиняється дружньою помилкою, а не зависанням браузера.
+
+### 9.2. Вихід із циклу `стоп`
+
+```ravlyk
+повторити 100 (
+  якщо край (
+    стоп
+  )
+  вперед 10
+)
+```
+
+Alias:
+
+```ravlyk
+break
+```
+
+`стоп` виходить лише з найближчого циклу `повторити` або `поки`. Команда не зупиняє всю програму: після циклу виконання продовжується. Якщо `стоп` написати поза циклом, semantic validator показує дружню помилку.
+
 ## 10. Умови
 
 ### 10.1. Порівняння
@@ -542,7 +581,7 @@ program        = statement* ;
 statement      = move | turn | color | background | thickness | pen | clear | goto
                | visibility | home | embroidery | wait
                | assignment | createVar | functionDef | functionCall
-               | repeat | ifStmt | gameStmt ;
+               | repeat | whileStmt | breakStmt | ifStmt | gameStmt ;
 
 move           = ("вперед" | "forward" | "назад" | "backward") (expression | random) ;
 turn           = ("праворуч" | "right" | "ліворуч" | "left") expression ;
@@ -568,6 +607,8 @@ params         = identifier ("," identifier)* ;
 args           = expression ("," expression)* ;
 
 repeat         = ("повторити" | "повтори" | "repeat") expression block ;
+whileStmt      = ("поки" | "while") condition block ;
+breakStmt      = "стоп" | "break" ;
 ifStmt         = ("якщо" | "if") condition block [("інакше" | "else") block] ;
 gameStmt       = ("грати" | "game") block ;
 block          = "(" statement* ")" ;
@@ -611,9 +652,9 @@ tests/unit/language-spec.test.js
 
 Цей план фіксує порядок розвитку мови після стабілізації базового runtime. Нові команди додаються малими кроками: спочатку специфікація й тести, потім parser/runtime/manual.
 
-### 19.1. `поки` + `стоп`
+### 19.1. `поки` + `стоп` ✓
 
-Перший пріоритет — умовний цикл і вихід із циклу:
+Реалізовано: умовний цикл і вихід із циклу.
 
 ```ravlyk
 поки x < 10 (
@@ -638,11 +679,11 @@ tests/unit/language-spec.test.js
 
 Definition of Done:
 
-- оновлено grammar у цьому файлі;
-- додано parser acceptance/rejection tests;
-- додано runtime tests для `поки`, вкладених циклів і `стоп`;
-- додано regression tests на budget/stop responsiveness;
-- оновлено `manual.html` і коротку підказку на `index.html`.
+- ✓ оновлено grammar у цьому файлі;
+- ✓ додано parser acceptance/rejection tests;
+- ✓ додано runtime tests для `поки`, вкладених циклів і `стоп`;
+- ✓ додано regression tests на budget/stop responsiveness;
+- ✓ оновлено `manual.html` і коротку підказку на `index.html`.
 
 ### 19.2. Математичні функції `модуль` / `корінь`
 
