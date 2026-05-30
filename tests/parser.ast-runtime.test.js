@@ -613,6 +613,27 @@ await runAsyncTest('executeCommands evaluates compare-if against runtime assignm
     assert.equal(String(interpreter.state.color).toLowerCase(), String(COLOR_MAP['синій']).toLowerCase());
 });
 
+await runAsyncTest('executeCommands evaluates не condition against live state', async () => {
+    const interpreter = createInterpreter();
+    interpreter.setAnimationEnabled(false);
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        await interpreter.executeCommands(
+            'якщо не кут = 90 ( колір синій )\nправоруч 90\nякщо не кут = 90 ( колір червоний )'
+        );
+    } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+
+    assert.equal(String(interpreter.state.color).toLowerCase(), String(COLOR_MAP['синій']).toLowerCase());
+});
+
 await runAsyncTest('executeCommands restores default white sheet after clear command', async () => {
     const interpreter = createInterpreter();
     interpreter.setAnimationEnabled(false);

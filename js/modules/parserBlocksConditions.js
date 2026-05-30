@@ -44,33 +44,58 @@ export function parseAstConditionOrThrow({
     createUnknownCommandError,
 }) {
     if (startIndex >= tokens.length) throw createUnknownCommandError(keywordIf);
-    const firstLower = tokens[startIndex].toLowerCase();
+
+    let conditionStartIndex = startIndex;
+    let notCount = 0;
+    while (conditionStartIndex < tokens.length && tokens[conditionStartIndex].toLowerCase() === 'не') {
+        notCount++;
+        conditionStartIndex++;
+    }
+
+    if (conditionStartIndex >= tokens.length) throw createUnknownCommandError(keywordIf);
+
+    const firstLower = tokens[conditionStartIndex].toLowerCase();
+    let parsedCondition;
     if (firstLower === keywordEdge || firstLower === 'edge') {
-        return {
-            condition: { type: 'EdgeCondition', span: spanFromMeta(tokenMeta, startIndex, startIndex + 1) },
-            nextIndex: startIndex + 1,
+        parsedCondition = {
+            condition: { type: 'EdgeCondition', span: spanFromMeta(tokenMeta, conditionStartIndex, conditionStartIndex + 1) },
+            nextIndex: conditionStartIndex + 1,
         };
-    }
-    if (firstLower === keywordKey || firstLower === 'key') {
-        const keyToken = tokens[startIndex + 1];
+    } else if (firstLower === keywordKey || firstLower === 'key') {
+        const keyToken = tokens[conditionStartIndex + 1];
         const keyValue = parseQuotedStringOrThrow(keyToken).toLowerCase();
-        return {
-            condition: { type: 'KeyCondition', key: keyValue, span: spanFromMeta(tokenMeta, startIndex, startIndex + 2) },
-            nextIndex: startIndex + 2,
+        parsedCondition = {
+            condition: { type: 'KeyCondition', key: keyValue, span: spanFromMeta(tokenMeta, conditionStartIndex, conditionStartIndex + 2) },
+            nextIndex: conditionStartIndex + 2,
+        };
+    } else {
+        const left = parseAstExpressionOrThrow(tokens, tokenMeta, conditionStartIndex);
+        const operator = tokens[left.nextIndex];
+        if (!comparisonOperators.has(operator)) throw createUnknownCommandError(operator || keywordIf);
+        const right = parseAstExpressionOrThrow(tokens, tokenMeta, left.nextIndex + 1);
+        parsedCondition = {
+            condition: {
+                type: 'CompareCondition',
+                op: operator,
+                left: left.expr,
+                right: right.expr,
+                span: spanFromMeta(tokenMeta, conditionStartIndex, right.nextIndex),
+            },
+            nextIndex: right.nextIndex,
         };
     }
-    const left = parseAstExpressionOrThrow(tokens, tokenMeta, startIndex);
-    const operator = tokens[left.nextIndex];
-    if (!comparisonOperators.has(operator)) throw createUnknownCommandError(operator || keywordIf);
-    const right = parseAstExpressionOrThrow(tokens, tokenMeta, left.nextIndex + 1);
+
+    let condition = parsedCondition.condition;
+    for (let i = 0; i < notCount; i++) {
+        condition = {
+            type: 'NotCondition',
+            condition,
+            span: spanFromMeta(tokenMeta, startIndex + notCount - i - 1, parsedCondition.nextIndex),
+        };
+    }
+
     return {
-        condition: {
-            type: 'CompareCondition',
-            op: operator,
-            left: left.expr,
-            right: right.expr,
-            span: spanFromMeta(tokenMeta, startIndex, right.nextIndex),
-        },
-        nextIndex: right.nextIndex,
+        condition,
+        nextIndex: parsedCondition.nextIndex,
     };
 }

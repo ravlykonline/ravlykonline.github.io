@@ -350,12 +350,6 @@ runTest('supports кут as live current angle expression', () => {
     assert.equal(ast.body[1].condition.left.type, 'CurrentAngleExpr');
 });
 
-runTest('supports angle alias as live current angle expression', () => {
-    const parser = new RavlykParser();
-    const ast = parser.parseCodeToAst('forward angle');
-    assert.equal(ast.body[0].distance.type, 'CurrentAngleExpr');
-});
-
 runTest('supports random range alias in expressions', () => {
     const parser = new RavlykParser();
     const ast = parser.parseCodeToAst('forward random(10, 20)');
@@ -379,6 +373,40 @@ runTest('parses if/else with compare condition', () => {
     assert.equal(queue[0].thenCommands[0].type, 'MOVE');
     assert.equal(queue[0].elseCommands.length, 1);
     assert.equal(queue[0].elseCommands[0].type, 'MOVE_BACK');
+});
+
+runTest('parses не as condition negation', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('якщо не край ( праворуч 90 )\nякщо не кут = 90 ( ліворуч 10 )');
+
+    assert.equal(ast.body[0].condition.type, 'NotCondition');
+    assert.equal(ast.body[0].condition.condition.type, 'EdgeCondition');
+    assert.equal(ast.body[1].condition.type, 'NotCondition');
+    assert.equal(ast.body[1].condition.condition.type, 'CompareCondition');
+    assert.equal(ast.body[1].condition.condition.left.type, 'CurrentAngleExpr');
+});
+
+runTest('parses repeated не without recursive condition parsing', () => {
+    const parser = new RavlykParser();
+    const code = `якщо ${Array(50).fill('не').join(' ')} край ( вперед 1 )`;
+    const ast = parser.parseCodeToAst(code);
+
+    let condition = ast.body[0].condition;
+    for (let i = 0; i < 50; i++) {
+        assert.equal(condition.type, 'NotCondition');
+        condition = condition.condition;
+    }
+    assert.equal(condition.type, 'EdgeCondition');
+});
+
+runTest('legacy queue converts не condition for compatibility path', () => {
+    const interpreter = createInterpreter();
+    const queue = interpreter.parseTokens(['якщо', 'не', 'край', '(', 'вперед', '10', ')']);
+
+    assert.equal(queue.length, 1);
+    assert.equal(queue[0].type, 'IF');
+    assert.equal(queue[0].condition.type, 'NOT');
+    assert.deepEqual(queue[0].condition.condition, { type: 'EDGE' });
 });
 
 runTest('parses edge and key conditions', () => {

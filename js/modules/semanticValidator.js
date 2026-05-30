@@ -18,6 +18,7 @@ export const RESERVED_NAMES = new Set([
     'стоп', 'break',
     'якщо', 'if',
     'інакше', 'else',
+    'не',
     'створити', 'create',
     'грати', 'game',
     'клавіша', 'key',
@@ -32,7 +33,7 @@ export const RESERVED_NAMES = new Set([
     'додому', 'home',
     'модуль', 'abs',
     'корінь', 'sqrt',
-    'кут', 'angle',
+    'кут',
 ]);
 
 class SemanticError extends Error {

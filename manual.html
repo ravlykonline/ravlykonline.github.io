@@ -225,6 +225,8 @@
                                 class="cmd-desc">Перевіряє, чи Равлик торкається межі полотна.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">якщо клавіша "вгору" ( ... )</span> <span
                                 class="cmd-desc">Перевіряє, чи натиснута конкретна клавіша.</span></li>
+                        <li class="command-item-manual"><span class="cmd-name">не умова</span> <span
+                                class="cmd-desc">Заперечує умову, наприклад <code>поки не край ( ... )</code>.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">поки умова ( ... )</span> <span
                                 class="cmd-desc">Повторює блок, доки умова істинна.</span></li>
                         <li class="command-item-manual"><span class="cmd-name">стоп</span> <span
@@ -421,11 +423,11 @@
                     <p>Деякі слова вже мають спеціальне значення в мові РАВЛИК. Їх не можна використовувати як назви змінних, функцій або параметрів.</p>
                     <section class="manual-subsection" aria-labelledby="manual-reserved-ukrainian-title">
                         <h3 id="manual-reserved-ukrainian-title">Українські службові слова</h3>
-                        <p><code>вперед</code>, <code>назад</code>, <code>праворуч</code>, <code>ліворуч</code>, <code>колір</code>, <code>фон</code>, <code>товщина</code>, <code>підняти</code>, <code>опустити</code>, <code>очистити</code>, <code>перейти</code>, <code>повторити</code>, <code>повтори</code>, <code>поки</code>, <code>стоп</code>, <code>якщо</code>, <code>інакше</code>, <code>створити</code>, <code>грати</code>, <code>край</code>, <code>клавіша</code>, <code>в</code>, <code>випадково</code>, <code>вишиванка</code>, <code>звичайний</code>, <code>чекати</code>, <code>пауза</code>, <code>сховати</code>, <code>показати</code>, <code>додому</code>, <code>модуль</code>, <code>корінь</code>, <code>кут</code>.</p>
+                        <p><code>вперед</code>, <code>назад</code>, <code>праворуч</code>, <code>ліворуч</code>, <code>колір</code>, <code>фон</code>, <code>товщина</code>, <code>підняти</code>, <code>опустити</code>, <code>очистити</code>, <code>перейти</code>, <code>повторити</code>, <code>повтори</code>, <code>поки</code>, <code>стоп</code>, <code>якщо</code>, <code>інакше</code>, <code>не</code>, <code>створити</code>, <code>грати</code>, <code>край</code>, <code>клавіша</code>, <code>в</code>, <code>випадково</code>, <code>вишиванка</code>, <code>звичайний</code>, <code>чекати</code>, <code>пауза</code>, <code>сховати</code>, <code>показати</code>, <code>додому</code>, <code>модуль</code>, <code>корінь</code>, <code>кут</code>.</p>
                     </section>
                     <section class="manual-subsection" aria-labelledby="manual-reserved-alias-title">
                         <h3 id="manual-reserved-alias-title">Англійські назви й технічні псевдоніми</h3>
-                        <p><code>forward</code>, <code>backward</code>, <code>right</code>, <code>left</code>, <code>color</code>, <code>background</code>, <code>thickness</code>, <code>penup</code>, <code>pendown</code>, <code>clear</code>, <code>goto</code>, <code>repeat</code>, <code>while</code>, <code>break</code>, <code>if</code>, <code>else</code>, <code>create</code>, <code>game</code>, <code>edge</code>, <code>key</code>, <code>to</code>, <code>random</code>, <code>vyshyvanka</code>, <code>zvychainyi</code>, <code>wait</code>, <code>hide</code>, <code>show</code>, <code>home</code>, <code>abs</code>, <code>sqrt</code>, <code>angle</code>.</p>
+                        <p><code>forward</code>, <code>backward</code>, <code>right</code>, <code>left</code>, <code>color</code>, <code>background</code>, <code>thickness</code>, <code>penup</code>, <code>pendown</code>, <code>clear</code>, <code>goto</code>, <code>repeat</code>, <code>while</code>, <code>break</code>, <code>if</code>, <code>else</code>, <code>create</code>, <code>game</code>, <code>edge</code>, <code>key</code>, <code>to</code>, <code>random</code>, <code>vyshyvanka</code>, <code>zvychainyi</code>, <code>wait</code>, <code>hide</code>, <code>show</code>, <code>home</code>, <code>abs</code>, <code>sqrt</code>.</p>
                     </section>
                     <section class="manual-subsection" aria-labelledby="manual-reserved-examples-title">
                         <h3 id="manual-reserved-examples-title">Як називати без конфліктів</h3>
@@ -457,7 +459,7 @@
                     </section>
                 </article>
 
-                <article id="math-functions" class="guide-section advanced-only" data-keywords="математика модуль корінь abs sqrt випадково random кут angle напрямок вирази" aria-labelledby="manual-section-math-functions">
+                <article id="math-functions" class="guide-section advanced-only" data-keywords="математика модуль корінь abs sqrt випадково random кут напрямок вирази" aria-labelledby="manual-section-math-functions">
                     <h2 id="manual-section-math-functions">Математичні функції</h2>
                     <p>Математичні функції та вираз <code>кут</code> можна використовувати всередині числових виразів: у русі, поворотах, змінних, умовах і паузах.</p>
                     <section class="manual-subsection" aria-labelledby="manual-math-functions-basic-title">
@@ -482,8 +484,8 @@
 перейти в x випадково(-80, 80)</pre>
                         <p><code>випадково(від, до)</code> вибирає число між двома межами. Це відрізняється від короткого <code>випадково</code> без дужок: тут межі задаєш ти, тому значення не обов'язково буде безпечним для полотна.</p>
                     </section>
-                    <section class="manual-subsection" aria-labelledby="manual-current-angle-title">
-                        <h3 id="manual-current-angle-title">Поточний напрямок: <code>кут</code></h3>
+                    <section class="manual-subsection" aria-labelledby="manual-current-direction-title">
+                        <h3 id="manual-current-direction-title">Поточний напрямок: <code>кут</code></h3>
                         <p><code>кут</code> показує, куди зараз дивиться Равлик відносно стартового напрямку. На початку це <code>0</code>, після <code>праворуч 90</code> — <code>90</code>, після <code>ліворуч 90</code> — <code>270</code>.</p>
                         <pre class="example-code-manual">повторити 36 (
   якщо кут < 180 (
@@ -498,7 +500,7 @@
                     </section>
                 </article>
 
-                <article id="conditions" class="guide-section advanced-only" data-keywords="умови якщо інакше край клавіша перевірка логіка" aria-labelledby="manual-section-conditions">
+                <article id="conditions" class="guide-section advanced-only" data-keywords="умови якщо інакше не край клавіша перевірка логіка" aria-labelledby="manual-section-conditions">
                     <h2 id="manual-section-conditions">Умови: якщо / інакше</h2>
                     <p>Умова допомагає Равлику <strong>приймати рішення</strong>: виконувати команду лише тоді, коли
                         щось сталося.</p>
@@ -523,6 +525,19 @@
   якщо край ( праворуч 91 )
 )</pre>
                         <p>Коли Равлик торкається межі полотна, він одразу повертає і рухається далі.</p>
+                    </section>
+
+                    <section class="manual-subsection" aria-labelledby="manual-conditions-subsection-not">
+                        <h3 id="manual-conditions-subsection-not">Заперечення <code>не</code></h3>
+                        <p><code>не</code> перевертає відповідь умови: якщо умова була "так", стане "ні"; якщо була "ні", стане "так".</p>
+                        <pre class="example-code-manual">поки не край (
+  вперед 5
+)
+
+якщо не кут = 90 (
+  колір синій
+)</pre>
+                        <p>Це зручно, коли треба виконувати дію, поки щось ще не сталося: Равлик ще не біля краю, клавішу ще не натиснули, напрямок ще не той.</p>
                     </section>
 
                     <section class="manual-subsection" aria-labelledby="manual-conditions-subsection-comparisons">

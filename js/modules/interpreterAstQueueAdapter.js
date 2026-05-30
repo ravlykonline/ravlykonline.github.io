@@ -35,6 +35,9 @@ function cloneAstExpression(expr) {
 
 function convertConditionToRuntime(condition) {
     if (!condition || !condition.type) return null;
+    if (condition.type === 'NotCondition') {
+        return { type: 'NOT', condition: convertConditionToRuntime(condition.condition) };
+    }
     if (condition.type === 'EdgeCondition') return { type: 'EDGE' };
     if (condition.type === 'KeyCondition') return { type: 'KEY', key: condition.key };
     if (condition.type === 'CompareCondition') {

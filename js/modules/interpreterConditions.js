@@ -28,6 +28,9 @@ function evaluateCompareOp(left, right, op) {
 
 export function evaluateAstCondition(condition, { evalAstNumberExpression, env, isAtCanvasEdge, pressedKeys }) {
     if (!condition || !condition.type) return false;
+    if (condition.type === 'NotCondition') {
+        return !evaluateAstCondition(condition.condition, { evalAstNumberExpression, env, isAtCanvasEdge, pressedKeys });
+    }
     if (condition.type === 'CompareCondition') {
         const left = evalAstNumberExpression(condition.left, env);
         const right = evalAstNumberExpression(condition.right, env);
@@ -45,6 +48,9 @@ export function evaluateAstCondition(condition, { evalAstNumberExpression, env, 
 
 export function evaluateRuntimeIfCondition(condition, { evalAstNumberExpression, executionEnv, isAtCanvasEdge, pressedKeys }) {
     if (!condition || !condition.type) return false;
+    if (condition.type === 'NOT') {
+        return !evaluateRuntimeIfCondition(condition.condition, { evalAstNumberExpression, executionEnv, isAtCanvasEdge, pressedKeys });
+    }
     if (condition.type === 'EDGE') {
         return isAtCanvasEdge();
     }

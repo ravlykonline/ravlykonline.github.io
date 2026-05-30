@@ -9,7 +9,6 @@ const NUMERIC_FUNCTIONS = new Map([
 ]);
 const STATE_EXPRESSIONS = new Map([
     ['кут', 'currentAngle'],
-    ['angle', 'currentAngle'],
 ]);
 
 export function getOperatorPrecedence(operator) {

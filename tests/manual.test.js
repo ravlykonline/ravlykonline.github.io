@@ -180,9 +180,9 @@ runTest('manual documents reserved words and current angle expression', () => {
 
     assert.match(manualHtml, /id="manual-section-reserved-words">Зарезервовані слова/);
     assert.match(manualHtml, /<code>кут<\/code>/);
-    assert.match(manualHtml, /<code>angle<\/code>/);
+    assert.doesNotMatch(manualHtml, /<code>angle<\/code>/);
     assert.match(manualHtml, /не можна використовувати як назви змінних, функцій або параметрів/);
-    assert.match(manualHtml, /id="manual-current-angle-title">Поточний напрямок: <code>кут<\/code>/);
+    assert.match(manualHtml, /id="manual-current-direction-title">Поточний напрямок: <code>кут<\/code>/);
 });
 
 runTest('manual reserved words section documents every semantic reserved name', () => {
