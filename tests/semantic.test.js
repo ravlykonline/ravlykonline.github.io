@@ -326,6 +326,11 @@ runTest('semantic: чекати outside грати is valid', () => {
     assert.doesNotThrow(() => validate('чекати 1\nвперед 50'));
 });
 
+runTest('semantic: модуль and корінь are reserved names', () => {
+    assertValidationError('створити модуль = 1', 'модуль');
+    assertValidationError('створити корінь() ( вперед 1 )', 'корінь');
+});
+
 runTest('semantic: стоп outside a loop is rejected', () => {
     assertValidationError('стоп', 'стоп');
 });

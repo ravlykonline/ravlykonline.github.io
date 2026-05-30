@@ -45,6 +45,30 @@ runTest('throws on division by zero in expression', () => {
     );
 });
 
+runTest('throws friendly error for корінь of negative number', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parseTokens(['forward', 'корінь', '(', '-1', ')']),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'SQRT_NEGATIVE'
+    );
+});
+
+runTest('throws friendly error for math function without parentheses', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parseTokens(['forward', 'корінь', '100']),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'MATH_FUNCTION_EXPECT_OPEN_PAREN'
+    );
+});
+
+runTest('throws friendly error for math function with wrong argument count', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parseTokens(['forward', 'модуль', '(', '1', ',', '2', ')']),
+        (error) => error && error.name === 'RavlykError' && error.messageKey === 'MATH_FUNCTION_ARGUMENT_COUNT'
+    );
+});
+
 runTest('throws on unclosed parentheses in expression', () => {
     const interpreter = createInterpreter();
     assert.throws(

@@ -295,6 +295,22 @@ runTest('supports modulo operator in expressions', () => {
     assert.ok(queue[1].angleExpr, 'TURN stores expression for lazy eval');
 });
 
+runTest('supports модуль and корінь functions in expressions', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('вперед модуль(-50)\nправоруч корінь(81)');
+    assert.equal(ast.body[0].distance.type, 'BuiltinCallExpr');
+    assert.equal(ast.body[0].distance.fn, 'abs');
+    assert.equal(ast.body[1].angle.type, 'BuiltinCallExpr');
+    assert.equal(ast.body[1].angle.fn, 'sqrt');
+});
+
+runTest('supports abs and sqrt aliases in expressions', () => {
+    const parser = new RavlykParser();
+    const ast = parser.parseCodeToAst('forward abs(-10)\nright sqrt(16)');
+    assert.equal(ast.body[0].distance.fn, 'abs');
+    assert.equal(ast.body[1].angle.fn, 'sqrt');
+});
+
 runTest('parses if/else with compare condition', () => {
     const interpreter = createInterpreter();
     const queue = interpreter.parseTokens([

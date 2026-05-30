@@ -111,6 +111,7 @@ export class RavlykParser {
             normalizeIdentifier: (identifier) => this.normalizeIdentifier(identifier),
             spanFromMeta: (meta, from, to) => this.spanFromMeta(meta, from, to),
             createUnknownCommandError: (token) => new RavlykError("UNKNOWN_COMMAND", token),
+            createError: (messageKey, ...params) => new RavlykError(messageKey, ...params),
         }, options);
     }
 

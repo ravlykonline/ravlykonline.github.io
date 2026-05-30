@@ -110,6 +110,15 @@ runTest('unification: while loop repeats until condition is false', () => {
     ]);
 });
 
+runTest('unification: модуль and корінь evaluate inside primitive arguments', () => {
+    const ast = parseAndValidate('вперед модуль(-12)\nправоруч корінь(81)');
+    const log = collectPrimitives(ast);
+    assert.deepEqual(log, [
+        { type: 'MoveStmt', value: 12, direction: 'forward' },
+        { type: 'TurnStmt', value: 9, direction: 'right' },
+    ]);
+});
+
 runTest('unification: стоп exits while loop and continues after it', () => {
     const ast = parseAndValidate(
         'створити x = 0\nпоки x < 5 ( x = x + 1\nякщо x = 3 ( стоп )\nвперед x )\nвперед 99'

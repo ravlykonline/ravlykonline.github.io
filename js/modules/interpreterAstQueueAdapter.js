@@ -24,6 +24,12 @@ function cloneAstExpression(expr) {
             right: cloneAstExpression(expr.right),
         };
     }
+    if (expr.type === 'BuiltinCallExpr') {
+        return {
+            ...expr,
+            args: (expr.args || []).map((arg) => cloneAstExpression(arg)),
+        };
+    }
     return { ...expr };
 }
 
