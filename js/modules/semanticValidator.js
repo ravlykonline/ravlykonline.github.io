@@ -1,7 +1,7 @@
 import { ERROR_MESSAGES, MAX_AST_NODES } from './constants.js';
 
 // All built-in command keywords (Ukrainian + English aliases).
-const RESERVED_NAMES = new Set([
+export const RESERVED_NAMES = new Set([
     'вперед', 'forward',
     'назад', 'backward',
     'праворуч', 'right',

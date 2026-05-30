@@ -13,6 +13,7 @@ import {
     sectionRequiresFullMode,
     updateManualPagingState,
 } from '../js/modules/manualPageController.js';
+import { RESERVED_NAMES } from '../js/modules/semanticValidator.js';
 import { runTest } from './testUtils.js';
 
 runTest('manual controller derives section ids and resolves hash index', () => {
@@ -182,6 +183,18 @@ runTest('manual documents reserved words and current angle expression', () => {
     assert.match(manualHtml, /<code>angle<\/code>/);
     assert.match(manualHtml, /не можна використовувати як назви змінних, функцій або параметрів/);
     assert.match(manualHtml, /id="manual-current-angle-title">Поточний напрямок: <code>кут<\/code>/);
+});
+
+runTest('manual reserved words section documents every semantic reserved name', () => {
+    const manualHtml = fs.readFileSync('manual.html', 'utf8');
+    const reservedSection = manualHtml.match(/<article id="reserved-words"[\s\S]*?<\/article>/)?.[0] || '';
+
+    assert.ok(reservedSection);
+
+    const missingNames = [...RESERVED_NAMES]
+        .filter((name) => !reservedSection.includes(`<code>${name}</code>`));
+
+    assert.deepEqual(missingNames, []);
 });
 
 runTest('manual runnable examples prefer // comments', () => {
