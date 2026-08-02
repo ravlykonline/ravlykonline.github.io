@@ -25,6 +25,7 @@ export default defineConfig({
     },
     {
       name: 'mobile-chrome',
+      grepInvert: /@desktop-chromium-only/,
       use: {
         browserName: 'chromium',
         viewport: { width: 390, height: 844 },
@@ -35,6 +36,7 @@ export default defineConfig({
     },
     {
       name: 'tablet-chrome',
+      grepInvert: /@desktop-chromium-only/,
       use: {
         browserName: 'chromium',
         viewport: { width: 820, height: 1180 },

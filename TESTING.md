@@ -21,9 +21,10 @@
 
 ```bash
 npm run test:unit        # усі unit-тести
+npm run test:projects    # Node-тести опублікованих go/ та artist
 npm run test:e2e         # усі E2E-тести (Playwright)
 npm run test             # unit + E2E разом
-npm run check            # precache + unit-тести + перевірка shared HTML partials + ESLint
+npm run check            # precache + root/go/artist unit-тести + shared HTML partials + ESLint
 npm run lint             # ESLint для js/ та sw.js
 npm run pages:build      # зібрати allowlist-артефакт для GitHub Pages
 npm run precache:sync    # згенерувати SW precache з deployment manifest
@@ -75,6 +76,7 @@ tests/
     accessibility.high-contrast.spec.js — high-contrast на всіх сторінках
     about.project.spec.js            — footer-навігація та вміст about.html
     cross-browser.smoke.spec.js      — smoke для Chromium, Firefox, WebKit
+    published-projects.spec.js       — наявні браузерні unit/encoding/integration тести game у Chromium
     pwa.offline.spec.js              — offline-режим PWA після теплого кешу
     server.js                        — локальний сервер для E2E
 ```
@@ -129,6 +131,7 @@ tests/
 - npm ci
 - npx playwright install --with-deps chromium firefox webkit
 - npm run test:unit
+- npm run test:projects
 - npm run html:check-partials
 - npm run lint
 - npm run test:e2e -- --reporter=dot
