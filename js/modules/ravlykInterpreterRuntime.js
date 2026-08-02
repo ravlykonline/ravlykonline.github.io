@@ -179,10 +179,6 @@ export async function executeProgramRuntime(runtime, programAst) {
             return await runtime.executeGameProgram(programAst);
         }
         return await runtime.runAstAnimation(programAst);
-    } catch (error) {
-        runtime.isExecuting = false;
-        runtime.commandIndicatorUpdater(null, -1);
-        throw error;
     } finally {
         runtime.isExecuting = false;
         runtime.commandIndicatorUpdater(null, -1);

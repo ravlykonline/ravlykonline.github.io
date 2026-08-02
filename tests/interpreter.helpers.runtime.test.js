@@ -37,6 +37,7 @@ import {
 } from '../js/modules/interpreterRuntimeState.js';
 import {
     clearToDefaultSheetRuntime,
+    executeProgramRuntime,
     performHomeRuntime,
     setBackgroundColorRuntime,
     setEmbroideryModeRuntime,
@@ -47,7 +48,7 @@ import {
     drawLinenBackground,
 } from '../js/modules/interpreterEmbroidery.js';
 import { createInterpreter } from './parserTestUtils.js';
-import { runTest } from './testUtils.js';
+import { runAsyncTest, runTest } from './testUtils.js';
 
 runTest('color registry generates stable runtime lookup data', () => {
     assert.equal(Array.isArray(COLOR_REGISTRY), true);
@@ -1044,6 +1045,39 @@ runTest('clearToDefaultSheetRuntime makes the ravlyk visible again', () => {
     clearToDefaultSheetRuntime(runtime);
 
     assert.equal(runtime.state.isVisible, true);
+});
+
+await runAsyncTest('executeProgramRuntime restores execution state once after a runtime error', async () => {
+    const runtimeError = new Error('runtime failure');
+    const indicatorCalls = [];
+    const runtime = {
+        isExecuting: false,
+        shouldStop: true,
+        isPaused: true,
+        currentCommandIndex: 99,
+        boundaryWarningShown: true,
+        async runAstAnimation() {
+            throw runtimeError;
+        },
+        async executeGameProgram() {
+            throw new Error('game path should not run');
+        },
+        commandIndicatorUpdater(...args) {
+            indicatorCalls.push(args);
+        },
+    };
+
+    await assert.rejects(
+        () => executeProgramRuntime(runtime, { type: 'Program', body: [] }),
+        (error) => error === runtimeError
+    );
+
+    assert.equal(runtime.isExecuting, false);
+    assert.equal(runtime.shouldStop, false);
+    assert.equal(runtime.isPaused, false);
+    assert.equal(runtime.currentCommandIndex, 0);
+    assert.equal(runtime.boundaryWarningShown, false);
+    assert.deepEqual(indicatorCalls, [[null, -1]]);
 });
 
 console.log('Interpreter runtime helper tests completed.');
