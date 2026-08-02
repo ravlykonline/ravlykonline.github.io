@@ -38,9 +38,10 @@
 - Parser/runtime limits реалізовані: `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_REPEATS_IN_LOOP`, `MAX_COMMAND_QUEUE_LENGTH`, `MAX_GAME_TICK_OPERATIONS`.
 - Google Analytics прибрано; публічні сторінки використовують Cloudflare Web Analytics beacon.
 - Shared accessibility/footer/navigation HTML синхронізується через `scripts/sync-html-partials.mjs` і перевіряється в CI.
-- ✓ Service Worker переписано: production-only registration, `CACHEABLE_EXTENSIONS` allowlist, bounded cleanup, `try/catch`.
+- ✓ Service Worker переписано: production-only registration, згенеровані з deployment manifest `CACHEABLE_EXTENSIONS` і `PRECACHE_URLS`, bounded cleanup, `try/catch`.
 - ✓ Animation path переведено на lazy AST execution через `interpreterAstAnimationRuntime.js`. Legacy queue більше не будується в production path. Legacy boundary перевіряється в CI (`tests/legacyBoundary.test.js`).
 - ✓ Semantic-правило для повторного `створити x = ...` реалізовано в `semanticValidator.js` (перевірка в поточному і батьківських scope, shadowing параметрів).
+- ✓ `поки умова ( ... )` і `стоп` реалізовано в parser, semantic validator та єдиному AST runtime; синтаксис описано в `LANGUAGE_SPEC.md` і посібнику, поведінку покрито unit-тестами.
 - ✓ ESLint (`eslint` v10) доданий: `npm run lint` перевіряє `js/` і `sw.js`; `npm run check` включає lint.
 
 ### Відкрито
@@ -227,8 +228,7 @@ PR можна вважати готовим, якщо:
 ## 11. Пріоритетний backlog для агента
 
 1. Мігрувати legacy tests (що досі використовують `astToLegacyQueue`) на `executeCommands` / `createAstRuntime`, після чого видалити `interpreterAstQueueAdapter.js` і `interpreterQueueRuntime.js`.
-2. Реалізувати `поки умова ( ... )` — цикл із умовою виходу (після оновлення `LANGUAGE_SPEC.md`, парсера, runtime, semantic validator, tests, manual).
-3. Розглянути одне runtime source-of-truth для release/cache version (зараз прийнятно, guarded тестами).
+2. Розглянути одне runtime source-of-truth для release/cache version (зараз прийнятно, guarded тестами).
 
 ## 12. Головне архітектурне правило
 
