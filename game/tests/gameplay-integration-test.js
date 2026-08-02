@@ -53,7 +53,8 @@ async function run() {
     assert(app.scoreSystem.apples >= 1, 'Після руху до яблука рахунок яблук має зрости.');
     assert(document.getElementById(`apple-${targetApple.id}`) === null, 'Зібране яблуко має зникнути з DOM.');
     assert(
-        document.getElementById('score-display').textContent.includes(`Яблука: ${app.scoreSystem.apples}`),
+        document.getElementById('apples-count').textContent
+            === `${app.scoreSystem.apples}/${app.scoreSystem.totalApples}`,
         'UI має показувати фактичний рахунок яблук.'
     );
     assert(gameScene.state.x > targetApple.x - 120, 'Равлик має реально посунутись вправо.');

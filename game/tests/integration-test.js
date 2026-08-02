@@ -79,7 +79,10 @@ async function run() {
     await wait(80);
 
     assert(SceneManager.active.constructor.name === 'GameScene', 'Після завершення діалогу гра має повернутись назад.');
-    assert(document.getElementById('score-display').textContent.includes('Зірочки: 1'), 'UI має показувати оновлений рахунок зірочок.');
+    assert(
+        document.getElementById('stars-count').textContent === `1/${app.scoreSystem.totalStars}`,
+        'UI має показувати оновлений рахунок зірочок.'
+    );
 
     summary.textContent = 'PASS: onboarding, NPC-взаємодія та зірочка працюють';
     summary.className = 'pass';
