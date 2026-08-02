@@ -4,6 +4,7 @@ import {
     showError, showSuccessMessage, showInfoMessage,
     showHelpModal, hideHelpModal,
     showClearConfirmModal, hideClearConfirmModal,
+    showExampleConfirmModal, hideExampleConfirmModal,
     showStopConfirmModal, hideStopConfirmModal,
     showDownloadModal, hideDownloadModal,
     createRavlykSprite, updateRavlykVisualsOnScreen,
@@ -75,6 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const helpModalToManualBtn = document.getElementById("to-manual-btn-modal");
     const clearConfirmBtn = document.getElementById("confirm-clear-btn");
     const clearCancelBtn = document.getElementById("cancel-clear-btn");
+    const exampleConfirmBtn = document.getElementById("confirm-example-btn");
+    const exampleCancelBtn = document.getElementById("cancel-example-btn");
     const stopConfirmBtn = document.getElementById("confirm-stop-btn");
     const stopCancelBtn = document.getElementById("cancel-stop-btn");
     const downloadImageBtn = document.getElementById("download-image-btn");
@@ -223,6 +226,8 @@ document.addEventListener('DOMContentLoaded', () => {
         hideHelpModal,
         showClearConfirmModal,
         hideClearConfirmModal,
+        showExampleConfirmModal,
+        hideExampleConfirmModal,
         hideDownloadModal,
     });
     const editorInputController = createEditorInputController({
@@ -231,6 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editorUi,
         executionController,
         interpreter,
+        requestExampleConfirmation: modalController.requestExampleConfirmation,
     });
     const lifecycleController = createLifecycleController({
         canvas,
@@ -265,6 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
         helpModalToManualBtn,
         clearConfirmBtn,
         clearCancelBtn,
+        exampleConfirmBtn,
+        exampleCancelBtn,
         stopConfirmBtn,
         stopCancelBtn,
         downloadImageBtn,

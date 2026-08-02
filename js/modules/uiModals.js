@@ -1,6 +1,7 @@
 const MODAL_CONTENT_BY_OVERLAY_ID = {
     'help-modal-overlay': 'help-modal-content',
     'clear-confirm-modal-overlay': 'clear-confirm-modal-content',
+    'example-confirm-modal-overlay': 'example-confirm-modal-content',
     'stop-confirm-modal-overlay': 'stop-confirm-modal-content',
     'download-modal-overlay': 'download-modal-content',
 };
@@ -29,9 +30,12 @@ function toggleModal(modalId, show) {
     modalOverlay.setAttribute('aria-hidden', 'true');
 }
 
-function hideModalAndRestoreFocus(modalId, focusTargetId) {
+function hideModalAndRestoreFocus(modalId, focusTargetRef) {
     toggleModal(modalId, false);
-    document.getElementById(focusTargetId)?.focus();
+    const focusTarget = typeof focusTargetRef === 'string'
+        ? document.getElementById(focusTargetRef)
+        : focusTargetRef;
+    focusTarget?.focus?.();
 }
 
 export function isModalOpen(modalId) {
@@ -62,6 +66,14 @@ export function showClearConfirmModal() {
 
 export function hideClearConfirmModal() {
     hideModalAndRestoreFocus('clear-confirm-modal-overlay', 'clear-btn');
+}
+
+export function showExampleConfirmModal() {
+    toggleModal('example-confirm-modal-overlay', true);
+}
+
+export function hideExampleConfirmModal(focusTarget) {
+    hideModalAndRestoreFocus('example-confirm-modal-overlay', focusTarget);
 }
 
 export function showStopConfirmModal() {

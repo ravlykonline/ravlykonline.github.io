@@ -1,21 +1,43 @@
+export function shouldConfirmExampleReplacement(currentCode, exampleCode) {
+    const current = typeof currentCode === 'string' ? currentCode : '';
+    const example = typeof exampleCode === 'string' ? exampleCode : '';
+    return current.trim().length > 0 && current !== example;
+}
+
 export function createEditorInputController({
     codeEditor,
     exampleBlocks,
     editorUi,
     executionController,
     interpreter,
+    requestExampleConfirmation,
 }) {
+    function loadAndRunExample(code) {
+        codeEditor.value = code;
+        if (editorUi.getEditorErrorLine() !== null) editorUi.setEditorErrorLine(null);
+        editorUi.updateEditorDecorations();
+        executionController.runCode();
+    }
+
+    function activateExample(block) {
+        if (interpreter.isExecuting) return;
+        const code = block.getAttribute('data-code');
+        if (!code) return;
+
+        if (shouldConfirmExampleReplacement(codeEditor.value, code)) {
+            requestExampleConfirmation({
+                triggerElement: block,
+                onConfirm: () => loadAndRunExample(code),
+            });
+            return;
+        }
+
+        loadAndRunExample(code);
+    }
+
     function setupExampleBlocks() {
         exampleBlocks.forEach((block) => {
-            block.addEventListener('click', () => {
-                if (interpreter.isExecuting) return;
-                const code = block.getAttribute('data-code');
-                if (code) {
-                    codeEditor.value = code;
-                    editorUi.updateEditorDecorations();
-                    executionController.runCode();
-                }
-            });
+            block.addEventListener('click', () => activateExample(block));
             block.setAttribute('role', 'button');
             block.setAttribute('tabindex', '0');
             block.addEventListener('keydown', (event) => {

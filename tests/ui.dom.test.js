@@ -5,6 +5,8 @@ import {
     bindModalOverlayClose,
     showHelpModal,
     hideHelpModal,
+    showExampleConfirmModal,
+    hideExampleConfirmModal,
     showDownloadModal,
     hideDownloadModal,
     createRavlykSprite,
@@ -388,6 +390,48 @@ runTest('showDownloadModal and hideDownloadModal use mapped content id and retur
     assert.equal(downloadOverlay.classList.contains('hidden'), true);
     assert.equal(downloadOverlay['aria-hidden'], 'true');
     assert.equal(focusedElementId, 'download-btn');
+
+    global.document = previousDocument;
+});
+
+runTest('example confirmation modal returns focus to its dynamic trigger', () => {
+    const previousDocument = global.document;
+    let focusedElement = null;
+    const hiddenClasses = new Set(['hidden']);
+    const overlay = {
+        classList: {
+            add(className) { hiddenClasses.add(className); },
+            remove(className) { hiddenClasses.delete(className); },
+            contains(className) { return hiddenClasses.has(className); },
+        },
+        setAttribute(name, value) {
+            this[name] = value;
+        },
+    };
+    const firstFocusable = {
+        focus() { focusedElement = 'modal-action'; },
+    };
+    const triggerElement = {
+        focus() { focusedElement = 'example-trigger'; },
+    };
+
+    global.document = {
+        getElementById(id) {
+            if (id === 'example-confirm-modal-overlay') return overlay;
+            if (id === 'example-confirm-modal-content') {
+                return { querySelector() { return firstFocusable; } };
+            }
+            return null;
+        },
+    };
+
+    showExampleConfirmModal();
+    assert.equal(hiddenClasses.has('hidden'), false);
+    assert.equal(focusedElement, 'modal-action');
+
+    hideExampleConfirmModal(triggerElement);
+    assert.equal(hiddenClasses.has('hidden'), true);
+    assert.equal(focusedElement, 'example-trigger');
 
     global.document = previousDocument;
 });

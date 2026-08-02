@@ -3,7 +3,10 @@ import { createExecutionController } from '../js/modules/executionController.js'
 import { createFileActionsController } from '../js/modules/fileActionsController.js';
 import { createNavigationPrefetchController } from '../js/modules/navigationPrefetch.js';
 import { createModalController } from '../js/modules/modalController.js';
-import { createEditorInputController } from '../js/modules/editorInputController.js';
+import {
+    createEditorInputController,
+    shouldConfirmExampleReplacement,
+} from '../js/modules/editorInputController.js';
 import { createLifecycleController } from '../js/modules/lifecycleController.js';
 import { runAsyncTest, runTest } from './testUtils.js';
 
@@ -580,6 +583,163 @@ runTest('modal controller requests clear confirmation only when not executing', 
 
     controller.requestClearConfirmation();
     assert.equal(clearCalls, 1);
+});
+
+runTest('modal controller confirms or cancels one pending example replacement', () => {
+    const previousDocument = global.document;
+    const documentListeners = {};
+    const confirmListeners = {};
+    const cancelListeners = {};
+    let showCalls = 0;
+    let hideCalls = 0;
+    let confirmedCalls = 0;
+    let focusedCalls = 0;
+
+    global.document = {
+        addEventListener(eventName, handler) {
+            documentListeners[eventName] = handler;
+        },
+        getElementById() {
+            return null;
+        },
+    };
+
+    const createButton = (listeners) => ({
+        addEventListener(eventName, handler) {
+            listeners[eventName] = handler;
+        },
+    });
+    const exampleConfirmBtn = createButton(confirmListeners);
+    const exampleCancelBtn = createButton(cancelListeners);
+    const triggerElement = {
+        focus() { focusedCalls += 1; },
+    };
+    const controller = createModalController({
+        interpreter: {
+            isExecuting: false,
+            reset() {},
+            stopExecution() {},
+        },
+        codeEditor: { value: '' },
+        editorUi: { updateEditorDecorations() {} },
+        fileActions: { saveDrawing() {}, saveGif() {}, saveCodeToFile() {} },
+        executionController: {
+            openStopConfirmDialog() {},
+            closeStopConfirmDialog() {},
+        },
+        navigationPrefetch: { openInNewTab() {} },
+        showInfoMessage() {},
+        hideHelpModal() {},
+        showClearConfirmModal() {},
+        hideClearConfirmModal() {},
+        showExampleConfirmModal() { showCalls += 1; },
+        hideExampleConfirmModal(focusTarget) {
+            hideCalls += 1;
+            focusTarget?.focus?.();
+        },
+        hideDownloadModal() {},
+    });
+
+    controller.setupModalInteractions({ exampleConfirmBtn, exampleCancelBtn });
+    assert.equal(typeof documentListeners.keydown, 'function');
+
+    controller.requestExampleConfirmation({
+        triggerElement,
+        onConfirm() { confirmedCalls += 1; },
+    });
+    assert.equal(showCalls, 1);
+    cancelListeners.click();
+    assert.equal(confirmedCalls, 0);
+    assert.equal(hideCalls, 1);
+    assert.equal(focusedCalls, 1);
+
+    controller.requestExampleConfirmation({
+        triggerElement,
+        onConfirm() { confirmedCalls += 1; },
+    });
+    confirmListeners.click();
+    confirmListeners.click();
+    assert.equal(showCalls, 2);
+    assert.equal(confirmedCalls, 1);
+    assert.equal(hideCalls, 2);
+    assert.equal(focusedCalls, 2);
+
+    global.document = previousDocument;
+});
+
+runTest('example replacement confirmation rule protects only different non-empty code', () => {
+    assert.equal(shouldConfirmExampleReplacement('', 'вперед 10'), false);
+    assert.equal(shouldConfirmExampleReplacement('   ', 'вперед 10'), false);
+    assert.equal(shouldConfirmExampleReplacement('вперед 10', 'вперед 10'), false);
+    assert.equal(shouldConfirmExampleReplacement('мій код', 'вперед 10'), true);
+});
+
+runTest('editor input controller waits for confirmation before replacing existing code', () => {
+    const listeners = {};
+    const exampleCode = 'повторити 4 ( вперед 20 праворуч 90 )';
+    const exampleBlock = {
+        addEventListener(eventName, handler) {
+            listeners[eventName] = handler;
+        },
+        getAttribute(name) {
+            return name === 'data-code' ? exampleCode : null;
+        },
+        setAttribute() {},
+        click() {
+            listeners.click();
+        },
+    };
+    const codeEditor = { value: 'мій важливий код' };
+    let pendingConfirmation = null;
+    let confirmationCalls = 0;
+    let runCalls = 0;
+    let decorationCalls = 0;
+    let errorLine = 2;
+    const controller = createEditorInputController({
+        codeEditor,
+        exampleBlocks: [exampleBlock],
+        editorUi: {
+            updateEditorDecorations() { decorationCalls += 1; },
+            getEditorErrorLine() { return errorLine; },
+            setEditorErrorLine(value) { errorLine = value; },
+        },
+        executionController: {
+            runCode() { runCalls += 1; },
+        },
+        interpreter: { isExecuting: false },
+        requestExampleConfirmation(options) {
+            confirmationCalls += 1;
+            pendingConfirmation = options;
+        },
+    });
+
+    controller.setupExampleBlocks();
+    listeners.click();
+    assert.equal(confirmationCalls, 1);
+    assert.equal(codeEditor.value, 'мій важливий код');
+    assert.equal(runCalls, 0);
+
+    pendingConfirmation.onConfirm();
+    assert.equal(codeEditor.value, exampleCode);
+    assert.equal(runCalls, 1);
+    assert.equal(decorationCalls, 1);
+    assert.equal(errorLine, null);
+
+    listeners.click();
+    assert.equal(confirmationCalls, 1);
+    assert.equal(runCalls, 2);
+
+    codeEditor.value = 'ще один мій код';
+    const keyEvent = {
+        key: 'Enter',
+        preventDefaultCalled: false,
+        preventDefault() { this.preventDefaultCalled = true; },
+    };
+    listeners.keydown(keyEvent);
+    assert.equal(keyEvent.preventDefaultCalled, true);
+    assert.equal(confirmationCalls, 2);
+    assert.equal(codeEditor.value, 'ще один мій код');
+    assert.equal(runCalls, 2);
 });
 
 runTest('editor input controller handles Tab indent and run hotkey', () => {

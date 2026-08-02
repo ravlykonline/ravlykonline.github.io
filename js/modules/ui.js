@@ -20,6 +20,8 @@ export {
     hideHelpModal,
     showClearConfirmModal,
     hideClearConfirmModal,
+    showExampleConfirmModal,
+    hideExampleConfirmModal,
     showStopConfirmModal,
     hideStopConfirmModal,
     showDownloadModal,

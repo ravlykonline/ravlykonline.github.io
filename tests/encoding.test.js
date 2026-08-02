@@ -337,6 +337,7 @@ runTest('index modals keep required ARIA dialog contract', () => {
     const overlays = [
         { overlayId: 'help-modal-overlay', contentId: 'help-modal-content', titleId: 'help-modal-title-static' },
         { overlayId: 'clear-confirm-modal-overlay', contentId: 'clear-confirm-modal-content', titleId: 'clear-modal-title-static' },
+        { overlayId: 'example-confirm-modal-overlay', contentId: 'example-confirm-modal-content', titleId: 'example-modal-title-static' },
         { overlayId: 'stop-confirm-modal-overlay', contentId: 'stop-confirm-modal-content', titleId: 'stop-modal-title-static' },
         { overlayId: 'download-modal-overlay', contentId: 'download-modal-content', titleId: 'download-modal-title-static' },
     ];
@@ -548,6 +549,7 @@ runTest('modal controller keeps canonical modal helper usage', () => {
         "createModalController",
         "modalController.setupModalInteractions({",
         "modalController.requestClearConfirmation",
+        "modalController.requestExampleConfirmation",
     ];
 
     mainRequiredSnippets.forEach((snippet) => {
@@ -564,8 +566,10 @@ runTest('modal controller keeps canonical modal helper usage', () => {
         "isModalOpen('stop-confirm-modal-overlay')",
         "closeModalIfOpen('help-modal-overlay', hideHelpModal)",
         "closeModalIfOpen('clear-confirm-modal-overlay', hideClearConfirmModal)",
+        "isModalOpen('example-confirm-modal-overlay')",
         "bindModalOverlayClose('help-modal-overlay', hideHelpModal)",
         "bindModalOverlayClose('clear-confirm-modal-overlay', hideClearConfirmModal)",
+        "bindModalOverlayClose('example-confirm-modal-overlay', closeExampleConfirmation)",
         "bindModalOverlayClose('stop-confirm-modal-overlay', () => executionController.closeStopConfirmDialog(true))",
         "bindModalOverlayClose('download-modal-overlay', hideDownloadModal)",
     ];
@@ -581,10 +585,12 @@ runTest('modal controller keeps canonical modal helper usage', () => {
     const forbiddenSnippets = [
         "document.getElementById('help-modal-overlay')?.addEventListener('click'",
         "document.getElementById('clear-confirm-modal-overlay')?.addEventListener('click'",
+        "document.getElementById('example-confirm-modal-overlay')?.addEventListener('click'",
         "document.getElementById('stop-confirm-modal-overlay')?.addEventListener('click'",
         "document.getElementById('download-modal-overlay')?.addEventListener('click'",
         "document.getElementById('help-modal-overlay').classList.contains('hidden')",
         "document.getElementById('clear-confirm-modal-overlay').classList.contains('hidden')",
+        "document.getElementById('example-confirm-modal-overlay').classList.contains('hidden')",
         "document.getElementById('stop-confirm-modal-overlay').classList.contains('hidden')",
         "document.getElementById('download-modal-overlay').classList.contains('hidden')",
     ];
@@ -686,6 +692,7 @@ runTest('ui modal module keeps canonical modal content mapping', () => {
         "const MODAL_CONTENT_BY_OVERLAY_ID = {",
         "'help-modal-overlay': 'help-modal-content'",
         "'clear-confirm-modal-overlay': 'clear-confirm-modal-content'",
+        "'example-confirm-modal-overlay': 'example-confirm-modal-content'",
         "'stop-confirm-modal-overlay': 'stop-confirm-modal-content'",
         "'download-modal-overlay': 'download-modal-content'",
         'const modalContentId = MODAL_CONTENT_BY_OVERLAY_ID[modalId] || `${modalId}-content`;',
@@ -708,6 +715,7 @@ runTest('ui facade re-exports canonical message and modal helpers', () => {
         "from './uiModals.js'",
         'showError',
         'showHelpModal',
+        'showExampleConfirmModal',
         'hideDownloadModal',
     ];
 

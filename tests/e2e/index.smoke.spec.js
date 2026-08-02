@@ -158,6 +158,32 @@ test.describe('Ravlyk UI smoke', () => {
     await expect(page.locator('#run-btn')).toBeEnabled();
   });
 
+  test('example asks before replacing existing code and returns focus on cancel', async ({ page }) => {
+    const editor = page.locator('#code-editor');
+    const example = page.locator('.example-block').first();
+    const originalCode = 'вперед 17 // моя робота';
+    const exampleCode = await example.getAttribute('data-code');
+
+    await editor.fill(originalCode);
+    await example.focus();
+    await example.press('Enter');
+
+    const modal = page.locator('#example-confirm-modal-overlay');
+    await expect(modal).not.toHaveClass(/hidden/);
+    await expect(editor).toHaveValue(originalCode);
+    await expect(page.locator('#cancel-example-btn')).toBeFocused();
+
+    await page.locator('#cancel-example-btn').click();
+    await expect(modal).toHaveClass(/hidden/);
+    await expect(editor).toHaveValue(originalCode);
+    await expect(example).toBeFocused();
+
+    await example.click();
+    await page.locator('#confirm-example-btn').click();
+    await expect(modal).toHaveClass(/hidden/);
+    await expect(editor).toHaveValue(exampleCode);
+  });
+
   test('download modal opens, closes on Escape, and returns focus to download button', async ({ page }) => {
     const downloadBtn = page.locator('#download-btn');
     await downloadBtn.click();
@@ -215,6 +241,12 @@ test.describe('Ravlyk UI smoke', () => {
     await page.locator('#clear-btn').click();
     await expect(page.locator('#clear-confirm-modal-overlay')).not.toHaveClass(/hidden/);
     await expectButtonsNotToOverflow(page, ['confirm-clear-btn', 'cancel-clear-btn']);
+    await page.keyboard.press('Escape');
+
+    await page.fill('#code-editor', 'мій код');
+    await page.locator('.example-block').first().click();
+    await expect(page.locator('#example-confirm-modal-overlay')).not.toHaveClass(/hidden/);
+    await expectButtonsNotToOverflow(page, ['confirm-example-btn', 'cancel-example-btn']);
     await page.keyboard.press('Escape');
 
     await page.fill('#code-editor', GAME_CODE);

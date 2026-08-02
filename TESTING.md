@@ -48,7 +48,7 @@ tests/
   semantic.test.js               — semantic validator, reserved names, функції, game contract, AST node budget
   interpreter.helpers.core.test.js   — ядро інтерпретатора
   interpreter.helpers.runtime.test.js — runtime-стани, stop/pause/resume
-  controllers.test.js            — execution, file actions, navigation, modal, lifecycle
+  controllers.test.js            — execution, file actions, navigation, modal, захист коду при виборі прикладу, lifecycle
   ui.dom.test.js                 — UI-компоненти, grid overlay, editor UI
   accessibility.test.js          — налаштування доступності та сповіщення
   analytics.test.js              — Cloudflare Web Analytics beacon і відсутність Google Analytics
@@ -108,7 +108,8 @@ tests/
 
 **E2E:**
 - головний smoke: редактор відкривається, код виконується
-- модальні вікна: help, download, stop-confirm — Escape, focus return
+- модальні вікна: help, download, stop-confirm, example-confirm — Escape, focus return
+- вибір прикладу: непорожній відмінний код не замінюється без явного підтвердження
 - accessibility panel: focus trap, high contrast, persistence
 - game mode: блокування scroll, start/stop
 - download: PNG та TXT export

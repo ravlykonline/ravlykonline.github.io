@@ -11,8 +11,12 @@ export function createModalController({
     hideHelpModal,
     showClearConfirmModal,
     hideClearConfirmModal,
+    showExampleConfirmModal,
+    hideExampleConfirmModal,
     hideDownloadModal,
 }) {
+    let pendingExampleConfirmation = null;
+
     function closeModalIfOpen(overlayId, closeFn) {
         if (!isModalOpen(overlayId)) return;
         closeFn();
@@ -20,11 +24,35 @@ export function createModalController({
 
     const isDownloadModalOpen = () => isModalOpen('download-modal-overlay');
 
+    function closeExampleConfirmation() {
+        if (!pendingExampleConfirmation) return;
+        const triggerElement = pendingExampleConfirmation?.triggerElement || null;
+        pendingExampleConfirmation = null;
+        hideExampleConfirmModal(triggerElement);
+    }
+
+    function confirmExampleReplacement() {
+        const onConfirm = pendingExampleConfirmation?.onConfirm;
+        closeExampleConfirmation();
+        if (typeof onConfirm === 'function') onConfirm();
+    }
+
+    function requestExampleConfirmation({ triggerElement, onConfirm }) {
+        if (interpreter.isExecuting || typeof onConfirm !== 'function') return;
+        pendingExampleConfirmation = { triggerElement, onConfirm };
+        showExampleConfirmModal();
+    }
+
     function handleEscapeKey(event) {
         if (event.key !== 'Escape') return;
 
         if (isDownloadModalOpen()) {
             hideDownloadModal();
+            return;
+        }
+
+        if (isModalOpen('example-confirm-modal-overlay')) {
+            closeExampleConfirmation();
             return;
         }
 
@@ -48,6 +76,8 @@ export function createModalController({
         helpModalToManualBtn,
         clearConfirmBtn,
         clearCancelBtn,
+        exampleConfirmBtn,
+        exampleCancelBtn,
         stopConfirmBtn,
         stopCancelBtn,
         downloadImageBtn,
@@ -72,6 +102,8 @@ export function createModalController({
             });
         }
         if (clearCancelBtn) clearCancelBtn.addEventListener('click', hideClearConfirmModal);
+        if (exampleConfirmBtn) exampleConfirmBtn.addEventListener('click', confirmExampleReplacement);
+        if (exampleCancelBtn) exampleCancelBtn.addEventListener('click', closeExampleConfirmation);
         if (stopConfirmBtn) {
             stopConfirmBtn.addEventListener('click', () => {
                 if (interpreter.isExecuting) {
@@ -104,6 +136,7 @@ export function createModalController({
         document.addEventListener('keydown', handleEscapeKey);
         bindModalOverlayClose('help-modal-overlay', hideHelpModal);
         bindModalOverlayClose('clear-confirm-modal-overlay', hideClearConfirmModal);
+        bindModalOverlayClose('example-confirm-modal-overlay', closeExampleConfirmation);
         bindModalOverlayClose('stop-confirm-modal-overlay', () => executionController.closeStopConfirmDialog(true));
         bindModalOverlayClose('download-modal-overlay', hideDownloadModal);
     }
@@ -116,5 +149,6 @@ export function createModalController({
     return {
         setupModalInteractions,
         requestClearConfirmation,
+        requestExampleConfirmation,
     };
 }
