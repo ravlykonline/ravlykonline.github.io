@@ -56,6 +56,27 @@ export function createExecutionController({
         exampleBlocks.forEach((block) => block.classList.toggle('disabled', isExecuting));
     }
 
+    function reportExecutionError(code, error, executionTimedOut = false) {
+        if (error.name === 'RavlykError') {
+            if (executionTimedOut) {
+                showError(ERROR_MESSAGES.EXECUTION_TIMEOUT, 0);
+            } else if (error.message === ERROR_MESSAGES.EXECUTION_STOPPED_BY_USER) {
+                showInfoMessage(INFO_MESSAGES.EXECUTION_STOPPED);
+            } else {
+                const friendlyError = editorUi.getFriendlyExecutionError(code, error);
+                showError(friendlyError.message, 0);
+                if (friendlyError.line) {
+                    editorUi.setEditorErrorLine(friendlyError.line);
+                    editorUi.focusEditorLine(friendlyError.line);
+                }
+            }
+            return;
+        }
+
+        showError(`Неочікувана помилка: ${error.message}`, 0);
+        console.error('Unexpected error during execution:', error);
+    }
+
     async function runCode() {
         const code = codeEditor.value;
         editorUi.setEditorErrorLine(null);
@@ -67,6 +88,14 @@ export function createExecutionController({
         if (interpreter.isExecuting) {
             interpreter.stopExecution();
             await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+
+        let programAst;
+        try {
+            programAst = interpreter.prepareProgram(code);
+        } catch (error) {
+            reportExecutionError(code, error);
+            return;
         }
 
         updateExecutionControls(true);
@@ -83,33 +112,12 @@ export function createExecutionController({
         }, EXECUTION_TIMEOUT_MS);
 
         try {
-            await interpreter.executeCommands(code);
+            await interpreter.executeProgram(programAst);
             if (!executionTimedOut && !interpreter.wasBoundaryWarningShown()) {
                 showSuccessMessage(SUCCESS_MESSAGES.CODE_EXECUTED);
             }
         } catch (error) {
-            let shouldResetInterpreter = true;
-            if (error.name === 'RavlykError') {
-                if (executionTimedOut) {
-                    showError(ERROR_MESSAGES.EXECUTION_TIMEOUT, 0);
-                } else if (error.message === ERROR_MESSAGES.EXECUTION_STOPPED_BY_USER) {
-                    showInfoMessage(INFO_MESSAGES.EXECUTION_STOPPED);
-                    shouldResetInterpreter = false;
-                } else {
-                    const friendlyError = editorUi.getFriendlyExecutionError(code, error);
-                    showError(friendlyError.message, 0);
-                    if (friendlyError.line) {
-                        editorUi.setEditorErrorLine(friendlyError.line);
-                        editorUi.focusEditorLine(friendlyError.line);
-                    }
-                }
-            } else {
-                showError(`Неочікувана помилка: ${error.message}`, 0);
-                console.error('Unexpected error during execution:', error);
-            }
-            if (shouldResetInterpreter) {
-                interpreter.reset();
-            }
+            reportExecutionError(code, error, executionTimedOut);
         } finally {
             clearTimeout(executionTimeoutId);
             updateExecutionControls(false);

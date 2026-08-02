@@ -158,6 +158,8 @@ AST -> interpreterAstAnimationRuntime.js -> createAstRuntime (step-by-step) -> r
 
 Validator підключено в `RavlykParser.parseCodeToAst`, тож AST проходить перевірку до runtime.
 
+UI спочатку викликає `prepareProgram()` і лише після успішного parsing/semantic validation очищує полотно та передає готовий AST у `executeProgram()`. Помилка runtime не скидає інтерпретатор, тому частковий малюнок і позиція Равлика залишаються доступними для налагодження до наступного запуску або явного очищення.
+
 ## 7.4. Service Worker ✓ ЗАВЕРШЕНО
 
 `sw.js` переписано:

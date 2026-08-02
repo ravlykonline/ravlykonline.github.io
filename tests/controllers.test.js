@@ -40,7 +40,8 @@ runTest('execution controller updates toolbar controls for execution state', () 
             setAnimationEnabled() {},
             setSpeed() {},
             wasBoundaryWarningShown() { return false; },
-            async executeCommands() {},
+            prepareProgram() { return { type: 'Program', body: [] }; },
+            async executeProgram() {},
         },
         codeEditor,
         editorUi: {
@@ -119,7 +120,8 @@ runTest('execution controller manages stop-confirm pause/resume flow', () => {
         setAnimationEnabled() {},
         setSpeed() {},
         wasBoundaryWarningShown() { return false; },
-        async executeCommands() {},
+        prepareProgram() { return { type: 'Program', body: [] }; },
+        async executeProgram() {},
     };
 
     const controller = createExecutionController({
@@ -191,7 +193,8 @@ runAsyncTest('execution controller preserves drawing after user stop in game mod
             setAnimationEnabled() {},
             setSpeed() {},
             wasBoundaryWarningShown() { return false; },
-            async executeCommands() {
+            prepareProgram() { return { type: 'Program', body: [] }; },
+            async executeProgram() {
                 const error = new Error('stopped');
                 error.name = 'RavlykError';
                 error.message = 'EXECUTION_STOPPED_BY_USER';
@@ -248,6 +251,140 @@ runAsyncTest('execution controller preserves drawing after user stop in game mod
     assert.equal(errorCalls, 0);
     assert.equal(successCalls, 0);
 
+    global.window = previousWindow;
+});
+
+runAsyncTest('execution controller validates before clearing the existing drawing', async () => {
+    const previousWindow = global.window;
+    global.window = {};
+    let resetCalls = 0;
+    let executeCalls = 0;
+    let shownError = null;
+
+    const controller = createExecutionController({
+        interpreter: {
+            isExecuting: false,
+            stopExecution() {},
+            prepareProgram() {
+                const error = new Error('syntax error');
+                error.name = 'RavlykError';
+                error.line = 2;
+                throw error;
+            },
+            reset() { resetCalls += 1; },
+            setAnimationEnabled() {},
+            setSpeed() {},
+            wasBoundaryWarningShown() { return false; },
+            async executeProgram() { executeCalls += 1; },
+        },
+        codeEditor: { disabled: false, value: 'вперед' },
+        editorUi: {
+            setEditorErrorLine() {},
+            getFriendlyExecutionError() { return { line: 2, message: 'Помилка у рядку 2' }; },
+            focusEditorLine() {},
+        },
+        uiControls: {
+            runBtn: { disabled: false },
+            stopBtn: { disabled: true },
+            clearBtn: { disabled: false },
+            downloadBtn: { disabled: false },
+            shareBtn: { disabled: false },
+            gridBtn: { disabled: false },
+            helpBtn: { disabled: false },
+            exampleBlocks: [],
+        },
+        messages: {
+            ERROR_MESSAGES: { CODE_TOO_LONG: '', EXECUTION_TIMEOUT: '', EXECUTION_STOPPED_BY_USER: '' },
+            SUCCESS_MESSAGES: { CODE_EXECUTED: '' },
+            INFO_MESSAGES: { EXECUTION_STOPPED: '' },
+        },
+        limits: { MAX_CODE_LENGTH_CHARS: 1000, EXECUTION_TIMEOUT_MS: 1000 },
+        animationDefaults: {
+            DEFAULT_MOVE_PIXELS_PER_SECOND: 100,
+            DEFAULT_TURN_DEGREES_PER_SECOND: 90,
+        },
+        uiHandlers: {
+            showError(message) { shownError = message; },
+            showInfoMessage() {},
+            showSuccessMessage() {},
+            showStopConfirmModal() {},
+            hideStopConfirmModal() {},
+            updateCommandIndicator() {},
+        },
+    });
+
+    await controller.runCode();
+
+    assert.equal(resetCalls, 0, 'invalid code must not clear the current canvas');
+    assert.equal(executeCalls, 0);
+    assert.equal(shownError, 'Помилка у рядку 2');
+    global.window = previousWindow;
+});
+
+runAsyncTest('execution controller preserves partial drawing after runtime error', async () => {
+    const previousWindow = global.window;
+    global.window = {};
+    let resetCalls = 0;
+    let shownError = null;
+    const preparedAst = { type: 'Program', body: [{ type: 'MoveStmt' }] };
+
+    const controller = createExecutionController({
+        interpreter: {
+            isExecuting: false,
+            stopExecution() {},
+            prepareProgram() { return preparedAst; },
+            reset() { resetCalls += 1; },
+            setAnimationEnabled() {},
+            setSpeed() {},
+            wasBoundaryWarningShown() { return false; },
+            async executeProgram(programAst) {
+                assert.equal(programAst, preparedAst);
+                const error = new Error('runtime error');
+                error.name = 'RavlykError';
+                error.line = 2;
+                throw error;
+            },
+        },
+        codeEditor: { disabled: false, value: 'вперед 40\nвперед невідоме' },
+        editorUi: {
+            setEditorErrorLine() {},
+            getFriendlyExecutionError() { return { line: 2, message: 'Помилка виконання у рядку 2' }; },
+            focusEditorLine() {},
+        },
+        uiControls: {
+            runBtn: { disabled: false },
+            stopBtn: { disabled: true },
+            clearBtn: { disabled: false },
+            downloadBtn: { disabled: false },
+            shareBtn: { disabled: false },
+            gridBtn: { disabled: false },
+            helpBtn: { disabled: false },
+            exampleBlocks: [],
+        },
+        messages: {
+            ERROR_MESSAGES: { CODE_TOO_LONG: '', EXECUTION_TIMEOUT: '', EXECUTION_STOPPED_BY_USER: '' },
+            SUCCESS_MESSAGES: { CODE_EXECUTED: '' },
+            INFO_MESSAGES: { EXECUTION_STOPPED: '' },
+        },
+        limits: { MAX_CODE_LENGTH_CHARS: 1000, EXECUTION_TIMEOUT_MS: 1000 },
+        animationDefaults: {
+            DEFAULT_MOVE_PIXELS_PER_SECOND: 100,
+            DEFAULT_TURN_DEGREES_PER_SECOND: 90,
+        },
+        uiHandlers: {
+            showError(message) { shownError = message; },
+            showInfoMessage() {},
+            showSuccessMessage() {},
+            showStopConfirmModal() {},
+            hideStopConfirmModal() {},
+            updateCommandIndicator() {},
+        },
+    });
+
+    await controller.runCode();
+
+    assert.equal(resetCalls, 1, 'canvas should clear only once before valid execution starts');
+    assert.equal(shownError, 'Помилка виконання у рядку 2');
     global.window = previousWindow;
 });
 

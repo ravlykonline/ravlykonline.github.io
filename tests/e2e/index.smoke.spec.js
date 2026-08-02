@@ -387,4 +387,33 @@ test.describe('Ravlyk UI smoke', () => {
 
     expect(alphaAfterSwitch).toBeGreaterThan(0);
   });
+
+  test('validation keeps the old drawing and runtime errors keep partial output', async ({ page }) => {
+    const countDrawnPixels = () => page.evaluate(() => {
+      const canvas = document.getElementById('ravlyk-canvas');
+      const ctx = canvas?.getContext?.('2d');
+      if (!canvas || !ctx) return 0;
+      const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let colored = 0;
+      for (let index = 3; index < pixels.length; index += 4) {
+        if (pixels[index] > 0) colored += 1;
+      }
+      return colored;
+    });
+
+    await page.fill('#code-editor', 'вперед 80');
+    await page.locator('#run-btn').click();
+    await expect(page.locator('#run-btn')).toBeEnabled();
+    const pixelsBeforeInvalidCode = await countDrawnPixels();
+    expect(pixelsBeforeInvalidCode).toBeGreaterThan(0);
+
+    await page.fill('#code-editor', 'вперед');
+    await page.locator('#run-btn').click();
+    await expect.poll(countDrawnPixels).toBe(pixelsBeforeInvalidCode);
+
+    await page.fill('#code-editor', 'вперед 80\nвперед 10 / 0');
+    await page.locator('#run-btn').click();
+    await expect(page.locator('#run-btn')).toBeEnabled();
+    await expect.poll(countDrawnPixels).toBeGreaterThan(0);
+  });
 });

@@ -152,7 +152,18 @@ export function executeGameProgramRuntime(runtime, programAst) {
     });
 }
 
-export async function executeCommandsRuntime(runtime, commandsString) {
+export function prepareProgramRuntime(runtime, commandsString) {
+    if (runtime.isExecuting) {
+        throw new RavlykError("EXECUTION_IN_PROGRESS");
+    }
+
+    runtime.parser.resetUserState();
+    const programAst = runtime.parser.parseCodeToAst(commandsString);
+    runtime.validateGameProgramContract(programAst);
+    return programAst;
+}
+
+export async function executeProgramRuntime(runtime, programAst) {
     if (runtime.isExecuting) {
         throw new RavlykError("EXECUTION_IN_PROGRESS");
     }
@@ -162,11 +173,8 @@ export async function executeCommandsRuntime(runtime, commandsString) {
     runtime.isPaused = false;
     runtime.currentCommandIndex = 0;
     runtime.boundaryWarningShown = false;
-    runtime.parser.resetUserState();
 
     try {
-        const programAst = runtime.parser.parseCodeToAst(commandsString);
-        runtime.validateGameProgramContract(programAst);
         if (hasGameStatement(programAst)) {
             return await runtime.executeGameProgram(programAst);
         }
@@ -179,6 +187,11 @@ export async function executeCommandsRuntime(runtime, commandsString) {
         runtime.isExecuting = false;
         runtime.commandIndicatorUpdater(null, -1);
     }
+}
+
+export async function executeCommandsRuntime(runtime, commandsString) {
+    const programAst = prepareProgramRuntime(runtime, commandsString);
+    return executeProgramRuntime(runtime, programAst);
 }
 
 export function evaluateIfConditionRuntime(runtime, condition) {

@@ -35,6 +35,8 @@ import {
     astToLegacyQueueRuntime,
     validateGameProgramContractRuntime,
     executeGameProgramRuntime,
+    prepareProgramRuntime,
+    executeProgramRuntime,
     executeCommandsRuntime,
     evaluateIfConditionRuntime,
     runAstAnimationWithRuntime,
@@ -264,6 +266,14 @@ export class RavlykInterpreter {
 
     executeGameProgram(programAst) {
         return executeGameProgramRuntime(this, programAst);
+    }
+
+    prepareProgram(commandsString) {
+        return prepareProgramRuntime(this, commandsString);
+    }
+
+    async executeProgram(programAst) {
+        return executeProgramRuntime(this, programAst);
     }
 
     async executeCommands(commandsString) {
