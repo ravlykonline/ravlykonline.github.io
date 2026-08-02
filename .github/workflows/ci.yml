@@ -33,6 +33,9 @@ jobs:
       - name: Check HTML partials are in sync
         run: npm run html:check-partials
 
+      - name: Check generated precache manifest
+        run: npm run precache:check
+
       - name: Lint — security and bug-catching checks
         run: npm run lint
 

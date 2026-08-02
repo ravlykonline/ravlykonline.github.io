@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { runTest } from './testUtils.js';
+import { buildPrecacheManifest } from '../scripts/sync-precache-manifest.mjs';
 
 const swSource = fs.readFileSync('sw.js', 'utf8');
 const registerSource = fs.readFileSync('js/registerServiceWorker.js', 'utf8');
@@ -21,6 +22,13 @@ function extractNumberConst(source, varName) {
     const re = new RegExp(`const ${varName}\\s*=\\s*(\\d+)`);
     const match = source.match(re);
     return match ? Number(match[1]) : null;
+}
+
+function extractStringArray(source, varName) {
+    const re = new RegExp(`const ${varName}\\s*=\\s*\\[([\\s\\S]*?)\\];`);
+    const match = source.match(re);
+    if (!match) return null;
+    return match[1].match(/'([^']+)'/g)?.map((value) => value.slice(1, -1)) ?? [];
 }
 
 // ---------------------------------------------------------------------------
@@ -55,7 +63,7 @@ runTest('sw: CACHEABLE_EXTENSIONS allowlist covers required asset types', () => 
 runTest('sw: shouldRuntimeCache blocks cross-origin and extensionless URLs', () => {
     // Verify the guard is present by checking the source pattern
     assert.ok(
-        swSource.includes('shouldRuntimeCache'),
+        swSource.includes('function shouldRuntimeCache(url)'),
         'sw.js must define shouldRuntimeCache'
     );
     assert.ok(
@@ -135,15 +143,29 @@ runTest('sw: precache install uses allSettled so one miss does not abort install
 });
 
 runTest('sw: PRECACHE_URLS has no duplicate entries', () => {
-    const listMatch = swSource.match(/const PRECACHE_URLS\s*=\s*\[([\s\S]*?)\];/);
-    assert.ok(listMatch, 'sw.js must define PRECACHE_URLS array');
-    const urls = listMatch[1].match(/'([^']+)'/g)?.map((s) => s.replace(/'/g, '')) ?? [];
+    const urls = extractStringArray(swSource, 'PRECACHE_URLS');
+    assert.ok(urls, 'sw.js must define PRECACHE_URLS array');
     const unique = new Set(urls);
     assert.equal(
         urls.length,
         unique.size,
         `PRECACHE_URLS has ${urls.length - unique.size} duplicate(s): ` +
         urls.filter((u, i) => urls.indexOf(u) !== i).join(', ')
+    );
+});
+
+runTest('sw: generated cache policy and URLs match the Pages publication manifest', () => {
+    const expected = buildPrecacheManifest();
+    const extensions = extractStringSet(swSource, 'CACHEABLE_EXTENSIONS');
+    const urls = extractStringArray(swSource, 'PRECACHE_URLS');
+
+    assert.deepEqual(extensions, expected.extensions);
+    assert.deepEqual(urls, expected.urls);
+    assert.equal(urls.includes('/sw.js'), false, 'service worker must not precache itself');
+    assert.equal(
+        urls.some((url) => url.endsWith('.pdf')),
+        false,
+        'large downloadable PDFs should remain runtime downloads, not install-time assets'
     );
 });
 

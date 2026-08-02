@@ -23,9 +23,11 @@
 npm run test:unit        # усі unit-тести
 npm run test:e2e         # усі E2E-тести (Playwright)
 npm run test             # unit + E2E разом
-npm run check            # unit-тести + перевірка shared HTML partials + ESLint
+npm run check            # precache + unit-тести + перевірка shared HTML partials + ESLint
 npm run lint             # ESLint для js/ та sw.js
 npm run pages:build      # зібрати allowlist-артефакт для GitHub Pages
+npm run precache:sync    # згенерувати SW precache з deployment manifest
+npm run precache:check   # перевірити, що згенерований SW precache актуальний
 npm run html:sync-partials # синхронізація спільних HTML-блоків
 npm run html:check-partials # перевірка синхронізації shared HTML без запису файлів
 npm run release:sync-version -- YYYY-MM-DD-N  # синхронізація release-версії

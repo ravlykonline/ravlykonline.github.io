@@ -11,10 +11,12 @@
     "test": "npm run test:unit && npm run test:e2e",
     "release:sync-version": "node scripts/sync-release-version.mjs",
     "pages:build": "node scripts/build-pages-artifact.mjs",
+    "precache:sync": "node scripts/sync-precache-manifest.mjs",
+    "precache:check": "node scripts/sync-precache-manifest.mjs --check",
     "html:sync-partials": "node scripts/sync-html-partials.mjs",
     "html:check-partials": "node scripts/sync-html-partials.mjs --check",
     "lint": "eslint js/ sw.js",
-    "check": "npm run test:unit && npm run html:check-partials && npm run lint"
+    "check": "npm run precache:check && npm run test:unit && npm run html:check-partials && npm run lint"
   },
   "devDependencies": {
     "@playwright/test": "^1.53.2",

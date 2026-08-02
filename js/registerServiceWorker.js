@@ -3,7 +3,7 @@
 // so stale caches never interfere with development or review deploys.
 const PRODUCTION_HOSTS = new Set(['ravlyk.org', 'www.ravlyk.org']);
 
-const SERVICE_WORKER_URL = '/sw.js?v=2026-08-02-6';
+const SERVICE_WORKER_URL = '/sw.js?v=2026-08-02-7';
 
 async function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) {

@@ -33,6 +33,15 @@ export const PAGES_PUBLICATION_MANIFEST = {
             'ravlyk.jpg',
         ],
         directories: ['assets', 'css', 'js', 'resources'],
+        precache: {
+            routeAliases: ['/'],
+            extensions: [
+                '.html', '.css', '.js', '.mjs',
+                '.svg', '.png', '.jpg', '.jpeg', '.webp', '.ico',
+                '.webmanifest', '.woff', '.woff2',
+            ],
+            excludes: ['sw.js'],
+        },
     },
     old: {
         files: [

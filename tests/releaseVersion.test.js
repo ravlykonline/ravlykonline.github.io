@@ -21,6 +21,7 @@ const htmlFiles = [
     'advice_for_parents.html',
     'zen.html',
     'about.html',
+    'privacy.html',
 ];
 
 function getReleaseVersionFromServiceWorker() {

@@ -60,6 +60,7 @@ Service Worker переписано:
 - реєструється тільки для production host (`js/registerServiceWorker.js` перевіряє `location.hostname`);
 - scope явно `{ scope: '/' }` — production живе в корені домену;
 - runtime cache фільтрується через `CACHEABLE_EXTENSIONS` allowlist (розширення файлів);
+- install-time precache генерується з allowlist-маніфесту GitHub Pages; `npm run precache:check` не дозволяє йому розійтися з опублікованими файлами;
 - `cache.put` обгорнуто в `try/catch`;
 - bounded cleanup при перевищенні `MAX_RUNTIME_CACHE_ENTRIES`;
 - release/cache version синхронізується через `scripts/sync-release-version.mjs` і перевіряється `tests/releaseVersion.test.js` та `tests/serviceWorker.test.js`.

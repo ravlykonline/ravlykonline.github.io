@@ -168,6 +168,7 @@ UI спочатку викликає `prepareProgram()` і лише після �
 - Runtime cache фільтрується через `CACHEABLE_EXTENSIONS` allowlist (розширення файлів).
 - `cache.put` обгорнуто в `try/catch`.
 - Bounded cleanup: при перевищенні `MAX_RUNTIME_CACHE_ENTRIES` старі записи видаляються.
+- `CACHEABLE_EXTENSIONS` і `PRECACHE_URLS` генеруються з кореневого розділу `PAGES_PUBLICATION_MANIFEST` через `scripts/sync-precache-manifest.mjs`. Версійні URL беруться з опублікованих HTML, а великі завантажувані файли на кшталт PDF не входять до install-time кешу.
 - Release/cache version синхронізується через `scripts/sync-release-version.mjs` і перевіряється `tests/releaseVersion.test.js` та `tests/serviceWorker.test.js`.
 
 ## 7.5. Release version синхронізується скриптом
@@ -178,6 +179,7 @@ Release/cache token присутній у кількох HTML/JS/SW entrypoints,
 
 - зміну release token робити через `npm run release:sync-version`;
 - не редагувати версію вручну в одному файлі;
+- після зміни deployment manifest або публічних статичних файлів запускати `npm run precache:sync` (release-скрипт також викликає його автоматично);
 - перед релізом запускати `npm run check`.
 
 Довгостроково можна перейти до одного runtime source-of-truth або build-time підстановки, але зараз duplication guarded tests-ами.
