@@ -9,21 +9,6 @@
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none';">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="Referrer-Policy" content="no-referrer">
-<script>
-(function ensureDirectoryUrl() {
-  var path = window.location.pathname;
-  var lastSegment = path.split('/').pop();
-
-  if (
-    window.location.protocol !== 'file:' &&
-    lastSegment &&
-    lastSegment.indexOf('.') === -1 &&
-    path.charAt(path.length - 1) !== '/'
-  ) {
-    window.location.replace(path + '/' + window.location.search + window.location.hash);
-  }
-})();
-</script>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="ravlyk.png" sizes="any">
 <link rel="apple-touch-icon" href="assets/icon-192.png">

@@ -8,16 +8,16 @@
     <meta name="keywords" content="Равлик, дзен програмування, програмування для дітей, інформатика, мислення, уроки Равлик" />
     <meta name="robots" content="noindex, nofollow" />
     <title>Дзен Равлика</title>
-    <!-- Release token for GitHub Pages cache busting: 2026-08-02-1 -->
+    <!-- Release token for GitHub Pages cache busting: 2026-08-02-2 -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-    <link rel="manifest" href="site.webmanifest?v=2026-08-02-1" />
+    <link rel="manifest" href="site.webmanifest?v=2026-08-02-2" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="stylesheet" href="css/global.css?v=2026-08-02-1" />
-    <link rel="stylesheet" href="css/accessibility.css?v=2026-08-02-1" />
-    <link rel="stylesheet" href="css/lessons.css?v=2026-08-02-1" />
-    <link rel="stylesheet" href="css/zen.css?v=2026-08-02-1" />
+    <link rel="stylesheet" href="css/global.css?v=2026-08-02-2" />
+    <link rel="stylesheet" href="css/accessibility.css?v=2026-08-02-2" />
+    <link rel="stylesheet" href="css/lessons.css?v=2026-08-02-2" />
+    <link rel="stylesheet" href="css/zen.css?v=2026-08-02-2" />
     <style>
         .zen-page {
             max-width: 980px;
@@ -574,51 +574,9 @@
   </div>
 </div>
 <!-- END shared:accessibility-panel -->
-<script type="module" src="js/accessibility.js?v=2026-08-02-1"></script>
+<script type="module" src="js/accessibility.js?v=2026-08-02-2"></script>
+<script type="module" src="js/zenPage.js?v=2026-08-02-2"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "46477cad50284d57abdf0b005192f4c0"}'></script><!-- End Cloudflare Web Analytics -->
-<script type="module" src="js/registerServiceWorker.js?v=2026-08-02-1"></script>
-    <script>
-        (() => {
-            const copyButtons = document.querySelectorAll(".zen-copy-btn");
-            copyButtons.forEach((button) => {
-                button.addEventListener("click", async () => {
-                    const principle = button.closest(".zen-principle");
-                    if (!principle) {
-                        return;
-                    }
-
-                    const ruleNumber = principle.dataset.ruleNumber;
-                    const title = principle.querySelector(".zen-principle-text")?.innerText.trim() ?? "";
-                    const comment = principle.querySelector(".zen-principle-comment")?.innerText.trim() ?? "";
-                    const payload = `Правило ${ruleNumber}\n${title}\n${comment}\nДзен Равлика 🐌`;
-
-                    try {
-                        await navigator.clipboard.writeText(payload);
-                        const icon = button.querySelector(".ui-icon");
-                        if (icon) {
-                            icon.className = "ui-icon icon-check";
-                        }
-                        button.classList.add("copied");
-                        window.setTimeout(() => {
-                            if (icon) {
-                                icon.className = "ui-icon icon-copy";
-                            }
-                            button.classList.remove("copied");
-                        }, 1400);
-                    } catch {
-                        const icon = button.querySelector(".ui-icon");
-                        if (icon) {
-                            icon.className = "ui-icon icon-times";
-                        }
-                        window.setTimeout(() => {
-                            if (icon) {
-                                icon.className = "ui-icon icon-copy";
-                            }
-                        }, 1400);
-                    }
-                });
-            });
-        })();
-    </script>
+<script type="module" src="js/registerServiceWorker.js?v=2026-08-02-2"></script>
 </body>
 </html>

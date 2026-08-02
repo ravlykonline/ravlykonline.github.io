@@ -455,8 +455,27 @@ runTest('support pages keep shared quick navigation links synchronized with part
 
     const teacherHtml = fs.readFileSync('teacher_guidelines.html', 'utf8');
     const parentHtml = fs.readFileSync('advice_for_parents.html', 'utf8');
-    assert.equal(teacherHtml.includes('onclick="window.print()"'), true, 'teacher_guidelines.html should keep print action outside shared links');
-    assert.equal(parentHtml.includes('onclick="window.print()"'), true, 'advice_for_parents.html should keep print action outside shared links');
+    assert.equal(teacherHtml.includes('data-print-page'), true, 'teacher_guidelines.html should keep its print action outside shared links');
+    assert.equal(parentHtml.includes('data-print-page'), true, 'advice_for_parents.html should keep its print action outside shared links');
+    assert.equal(teacherHtml.includes('js/printPage.js'), true, 'teacher_guidelines.html should load the CSP-compatible print module');
+    assert.equal(parentHtml.includes('js/printPage.js'), true, 'advice_for_parents.html should load the CSP-compatible print module');
+});
+
+runTest('public pages do not contain executable inline scripts or event handlers', () => {
+    [...publicHtmlFiles, 'go/index.html'].forEach((path) => {
+        const html = fs.readFileSync(path, 'utf8');
+        const inlineEventHandler = /\son[a-z]+\s*=/i;
+        const scriptTags = html.match(/<script\b[^>]*>[\s\S]*?<\/script>/gi) || [];
+        const executableInlineScripts = scriptTags.filter((tag) => {
+            if (/\bsrc\s*=/i.test(tag)) {
+                return false;
+            }
+            return !/\btype\s*=\s*["']application\/ld\+json["']/i.test(tag);
+        });
+
+        assert.doesNotMatch(html, inlineEventHandler, `${path} should not use CSP-blocked inline event handlers`);
+        assert.deepEqual(executableInlineScripts, [], `${path} should not use CSP-blocked executable inline scripts`);
+    });
 });
 
 runTest('public pages keep shared footer about navigation synchronized with partial', () => {

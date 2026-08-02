@@ -1,7 +1,7 @@
 // Service worker for offline play.
 // Core app files use network-first so deployed updates can replace older cached
 // copies without relying entirely on manual cache version bumps.
-const STATIC_CACHE = 'ravlyk-static-v39';
+const STATIC_CACHE = 'ravlyk-static-v40';
 const APP_SHELL = [
   './',
   './index.html',

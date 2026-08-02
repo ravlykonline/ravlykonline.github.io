@@ -90,10 +90,10 @@ test('service worker app shell caches real local files', () => {
   }
 });
 
-test('service worker cache version is bumped for added app shell files', () => {
+test('service worker cache version is bumped for changed app shell files', () => {
   const source = readUtf8('sw.js');
 
-  assert.match(source, /const STATIC_CACHE = 'ravlyk-static-v39'/);
+  assert.match(source, /const STATIC_CACHE = 'ravlyk-static-v40'/);
   assert.match(source, /event\.request\.method !== 'GET'/);
 });
 
@@ -112,17 +112,15 @@ test('manifest uses /go-compatible relative paths', () => {
   }
 });
 
-test('index redirects /go to /go/ before loading page assets', () => {
+test('index keeps CSP-compatible external module loading', () => {
   const html = readUtf8('index.html');
-  const redirectScriptIndex = html.indexOf('function ensureDirectoryUrl()');
-  const firstStylesheetIndex = html.indexOf('<link rel="stylesheet"');
-  const moduleScriptIndex = html.indexOf('<script type="module"');
+  const scriptTags = html.match(/<script\b[^>]*>[\s\S]*?<\/script>/gi) || [];
 
-  assert.notEqual(redirectScriptIndex, -1, 'index.html should contain the early directory URL guard');
-  assert.ok(redirectScriptIndex < firstStylesheetIndex, 'directory URL guard should run before CSS loads');
-  assert.ok(redirectScriptIndex < moduleScriptIndex, 'directory URL guard should run before module JS loads');
-  assert.ok(html.includes("window.location.replace(path + '/' + window.location.search + window.location.hash)"));
-  assert.ok(html.includes("window.location.protocol !== 'file:'"));
+  assert.equal(scriptTags.length, 1, 'index.html should load one script entrypoint');
+  assert.match(scriptTags[0], /type="module"/);
+  assert.match(scriptTags[0], /src="\.\/js\/main\.js"/);
+  assert.doesNotMatch(html, /<script\b(?![^>]*\bsrc=)[^>]*>/i, 'CSP forbids executable inline scripts');
+  assert.equal(html.includes('ensureDirectoryUrl'), false, 'hosting redirects handle the directory URL');
 });
 
 test('optional redirects file documents /go to /go/ fallback for supporting hosts', () => {
