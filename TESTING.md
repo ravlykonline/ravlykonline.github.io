@@ -149,5 +149,5 @@ tests/
 ## 8. Відомі обмеження
 
 - Firefox E2E (`firefox-smoke`) може не запускатися в headless-режимі на Windows через системні залежності. На CI (Linux) працює нормально.
-- WebKit smoke покриває лише `cross-browser.smoke.spec.js` (3 тести).
+- Firefox/WebKit smoke покриває `cross-browser.smoke.spec.js` (6 тестів), зокрема вихід із редактора клавіатурою, захист коду під час вибору прикладу та збереження малюнка після помилок.
 - Offline PWA тест (`pwa.offline.spec.js`) вимагає попереднього warm cache і не гарантує першого офлайн-завантаження.

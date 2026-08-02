@@ -1,5 +1,20 @@
 import { test, expect } from '@playwright/test';
 
+function countDrawnPixels(page) {
+  return page.evaluate(() => {
+    const canvas = document.getElementById('ravlyk-canvas');
+    const ctx = canvas?.getContext?.('2d');
+    if (!canvas || !ctx) return 0;
+
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let colored = 0;
+    for (let index = 3; index < pixels.length; index += 4) {
+      if (pixels[index] > 0) colored += 1;
+    }
+    return colored;
+  });
+}
+
 test.describe('Cross-browser smoke', () => {
   test('@cross-browser-smoke index page runs a basic drawing program', async ({ page }) => {
     await page.goto('/index.html');
@@ -21,6 +36,54 @@ test.describe('Cross-browser smoke', () => {
     });
 
     expect(alphaPixels).toBeGreaterThan(0);
+  });
+
+  test('@cross-browser-smoke editor releases keyboard focus after Escape then Tab', async ({ page }) => {
+    await page.goto('/index.html');
+    const editor = page.locator('#code-editor');
+
+    await editor.focus();
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Tab');
+
+    await expect(editor).not.toBeFocused();
+  });
+
+  test('@cross-browser-smoke example selection protects existing code', async ({ page }) => {
+    await page.goto('/index.html');
+    const editor = page.locator('#code-editor');
+    const example = page.locator('.example-block').first();
+    const originalCode = 'вперед 17 // моя робота';
+
+    await editor.fill(originalCode);
+    await example.click();
+
+    const modal = page.locator('#example-confirm-modal-overlay');
+    await expect(modal).not.toHaveClass(/hidden/);
+    await expect(editor).toHaveValue(originalCode);
+
+    await page.locator('#cancel-example-btn').click();
+    await expect(modal).toHaveClass(/hidden/);
+    await expect(editor).toHaveValue(originalCode);
+  });
+
+  test('@cross-browser-smoke validation and runtime errors preserve drawing evidence', async ({ page }) => {
+    await page.goto('/index.html');
+
+    await page.fill('#code-editor', 'вперед 80');
+    await page.locator('#run-btn').click();
+    await expect(page.locator('#run-btn')).toBeEnabled();
+    const pixelsBeforeInvalidCode = await countDrawnPixels(page);
+    expect(pixelsBeforeInvalidCode).toBeGreaterThan(0);
+
+    await page.fill('#code-editor', 'вперед');
+    await page.locator('#run-btn').click();
+    await expect.poll(() => countDrawnPixels(page)).toBe(pixelsBeforeInvalidCode);
+
+    await page.fill('#code-editor', 'вперед 80\nвперед 10 / 0');
+    await page.locator('#run-btn').click();
+    await expect(page.locator('#run-btn')).toBeEnabled();
+    await expect.poll(() => countDrawnPixels(page)).toBeGreaterThan(0);
   });
 
   test('@cross-browser-smoke manual page keeps accessibility settings after reload', async ({ page }) => {

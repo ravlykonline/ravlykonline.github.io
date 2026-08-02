@@ -366,6 +366,26 @@ runTest('index modals keep required ARIA dialog contract', () => {
     });
 });
 
+runTest('editor keyboard help uses a stable DOM description', () => {
+    const indexHtml = fs.readFileSync('index.html', 'utf8');
+    const globalCss = fs.readFileSync('css/global.css', 'utf8');
+    const manualCss = fs.readFileSync('css/manual.css', 'utf8');
+
+    assert.equal(indexHtml.includes('aria-description='), false, 'index.html should not rely on aria-description');
+    assert.equal(
+        indexHtml.includes('aria-describedby="code-editor-keyboard-help"'),
+        true,
+        'the editor should reference its keyboard help via aria-describedby'
+    );
+    assert.match(
+        indexHtml,
+        /<p id="code-editor-keyboard-help" class="visually-hidden">[^<]+<\/p>/,
+        'the referenced keyboard help should exist as visually hidden DOM text'
+    );
+    assert.match(globalCss, /\.visually-hidden\s*\{/);
+    assert.doesNotMatch(manualCss, /\.visually-hidden\s*\{/);
+});
+
 runTest('public pages keep shared accessibility panel synchronized with partial', () => {
     const partial = fs.readFileSync('partials/accessibility-panel.html', 'utf8').trim();
     const begin = '<!-- BEGIN shared:accessibility-panel -->';
