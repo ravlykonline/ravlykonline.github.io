@@ -1,4 +1,4 @@
-const CACHE_VERSION = '2026-08-02-7';
+const CACHE_VERSION = '2026-08-02-8';
 // Precache (install-time assets) and runtime cache are kept separate so that
 // trimRuntimeCache() can evict dynamic entries without touching precache URLs.
 const APP_CACHE = `ravlyk-app-${CACHE_VERSION}`;
@@ -167,26 +167,26 @@ const PRECACHE_URLS = [
     '/site.webmanifest',
     '/teacher_guidelines.html',
     '/zen.html',
-    '/css/about-project.css?v=2026-08-02-7',
-    '/css/accessibility.css?v=2026-08-02-7',
-    '/css/global.css?v=2026-08-02-7',
-    '/css/lessons.css?v=2026-08-02-7',
-    '/css/main-editor.css?v=2026-08-02-7',
-    '/css/manual.css?v=2026-08-02-7',
-    '/css/parents.css?v=2026-08-02-7',
-    '/css/quiz.css?v=2026-08-02-7',
-    '/css/resources.css?v=2026-08-02-7',
-    '/css/teacher-guidelines.css?v=2026-08-02-7',
-    '/css/zen.css?v=2026-08-02-7',
-    '/js/accessibility.js?v=2026-08-02-7',
-    '/js/lessonsPage.js?v=2026-08-02-7',
-    '/js/main.js?v=2026-08-02-7',
-    '/js/manualPage.js?v=2026-08-02-7',
-    '/js/printPage.js?v=2026-08-02-7',
-    '/js/quizPage.js?v=2026-08-02-7',
-    '/js/registerServiceWorker.js?v=2026-08-02-7',
-    '/js/zenPage.js?v=2026-08-02-7',
-    '/site.webmanifest?v=2026-08-02-7',
+    '/css/about-project.css?v=2026-08-02-8',
+    '/css/accessibility.css?v=2026-08-02-8',
+    '/css/global.css?v=2026-08-02-8',
+    '/css/lessons.css?v=2026-08-02-8',
+    '/css/main-editor.css?v=2026-08-02-8',
+    '/css/manual.css?v=2026-08-02-8',
+    '/css/parents.css?v=2026-08-02-8',
+    '/css/quiz.css?v=2026-08-02-8',
+    '/css/resources.css?v=2026-08-02-8',
+    '/css/teacher-guidelines.css?v=2026-08-02-8',
+    '/css/zen.css?v=2026-08-02-8',
+    '/js/accessibility.js?v=2026-08-02-8',
+    '/js/lessonsPage.js?v=2026-08-02-8',
+    '/js/main.js?v=2026-08-02-8',
+    '/js/manualPage.js?v=2026-08-02-8',
+    '/js/printPage.js?v=2026-08-02-8',
+    '/js/quizPage.js?v=2026-08-02-8',
+    '/js/registerServiceWorker.js?v=2026-08-02-8',
+    '/js/zenPage.js?v=2026-08-02-8',
+    '/site.webmanifest?v=2026-08-02-8',
 ];
 // END GENERATED PRECACHE MANIFEST
 
@@ -267,14 +267,22 @@ async function updateRuntimeCache(request, response) {
     return response;
 }
 
+async function matchNavigationFallback(request) {
+    const exactMatch = await caches.match(request);
+    if (exactMatch) return exactMatch;
+
+    const pathnameMatch = await caches.match(new URL(request.url).pathname);
+    if (pathnameMatch) return pathnameMatch;
+
+    return caches.match(OFFLINE_FALLBACK_URL);
+}
+
 async function handleNavigation(request) {
     try {
         const networkResponse = await fetch(request);
         return updateRuntimeCache(request, networkResponse);
     } catch {
-        return caches.match(request)
-            || caches.match(new URL(request.url).pathname)
-            || caches.match(OFFLINE_FALLBACK_URL);
+        return matchNavigationFallback(request);
     }
 }
 

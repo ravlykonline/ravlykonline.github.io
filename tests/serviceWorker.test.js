@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { runTest } from './testUtils.js';
+import vm from 'node:vm';
+import { runAsyncTest, runTest } from './testUtils.js';
 import { buildPrecacheManifest } from '../scripts/sync-precache-manifest.mjs';
 
 const swSource = fs.readFileSync('sw.js', 'utf8');
@@ -29,6 +30,37 @@ function extractStringArray(source, varName) {
     const match = source.match(re);
     if (!match) return null;
     return match[1].match(/'([^']+)'/g)?.map((value) => value.slice(1, -1)) ?? [];
+}
+
+function loadServiceWorkerFunction(functionName, { cacheMatch, fetchImpl }) {
+    const context = vm.createContext({
+        URL,
+        console: {
+            log() {},
+            warn() {},
+            error() {},
+        },
+        caches: {
+            match: cacheMatch,
+            open: async () => ({
+                keys: async () => [],
+                put: async () => {},
+            }),
+            keys: async () => [],
+            delete: async () => true,
+        },
+        fetch: fetchImpl,
+        self: {
+            location: { origin: 'https://ravlyk.org' },
+            addEventListener() {},
+            skipWaiting: async () => {},
+            clients: { claim: async () => {} },
+        },
+        setTimeout,
+        clearTimeout,
+    });
+    vm.runInContext(swSource, context);
+    return vm.runInContext(functionName, context);
 }
 
 // ---------------------------------------------------------------------------
@@ -167,6 +199,62 @@ runTest('sw: generated cache policy and URLs match the Pages publication manifes
         false,
         'large downloadable PDFs should remain runtime downloads, not install-time assets'
     );
+});
+
+await runAsyncTest('sw: navigation fallback returns an exact cached request without extra lookups', async () => {
+    const request = { url: 'https://ravlyk.org/manual.html?lesson=loops' };
+    const exactResponse = { source: 'exact' };
+    const calls = [];
+    const handleNavigation = loadServiceWorkerFunction('handleNavigation', {
+        fetchImpl: async () => {
+            throw new Error('offline');
+        },
+        cacheMatch: async (candidate) => {
+            calls.push(candidate);
+            return candidate === request ? exactResponse : undefined;
+        },
+    });
+
+    assert.equal(await handleNavigation(request), exactResponse);
+    assert.deepEqual(calls, [request]);
+});
+
+await runAsyncTest('sw: navigation fallback awaits exact, pathname, and shell matches in order', async () => {
+    const request = { url: 'https://ravlyk.org/manual.html?lesson=loops' };
+    const pathnameResponse = { source: 'pathname' };
+    const calls = [];
+    const handleNavigation = loadServiceWorkerFunction('handleNavigation', {
+        fetchImpl: async () => {
+            throw new Error('offline');
+        },
+        cacheMatch: async (candidate) => {
+            calls.push(candidate);
+            if (candidate === '/manual.html') return pathnameResponse;
+            return undefined;
+        },
+    });
+
+    assert.equal(await handleNavigation(request), pathnameResponse);
+    assert.deepEqual(calls, [request, '/manual.html']);
+});
+
+await runAsyncTest('sw: navigation fallback returns the offline shell after two cache misses', async () => {
+    const request = { url: 'https://ravlyk.org/missing-page?offline=1' };
+    const shellResponse = { source: 'shell' };
+    const calls = [];
+    const handleNavigation = loadServiceWorkerFunction('handleNavigation', {
+        fetchImpl: async () => {
+            throw new Error('offline');
+        },
+        cacheMatch: async (candidate) => {
+            calls.push(candidate);
+            if (candidate === '/index.html') return shellResponse;
+            return undefined;
+        },
+    });
+
+    assert.equal(await handleNavigation(request), shellResponse);
+    assert.deepEqual(calls, [request, '/missing-page', '/index.html']);
 });
 
 console.log('Service Worker contract tests completed.');
