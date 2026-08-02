@@ -10,6 +10,7 @@ const PAGE_CASES = [
     '/teacher_guidelines.html',
     '/zen.html',
     '/about.html',
+    '/privacy.html',
 ];
 
 async function openAccessibilityPanel(page, toggle, panel) {

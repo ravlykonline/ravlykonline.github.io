@@ -35,6 +35,7 @@ function extractStringArray(source, varName) {
 function loadServiceWorkerFunction(functionName, { cacheMatch, fetchImpl }) {
     const context = vm.createContext({
         URL,
+        Response,
         console: {
             log() {},
             warn() {},
@@ -280,6 +281,61 @@ await runAsyncTest('sw: navigation fallback returns the offline shell after two 
 
     assert.equal(await handleNavigation(request), shellResponse);
     assert.deepEqual(calls, [request, '/missing-page', '/index.html']);
+});
+
+await runAsyncTest('sw: navigation never resolves to undefined when even the shell is missing', async () => {
+    const request = { url: 'https://ravlyk.org/missing-page' };
+    const handleNavigation = loadServiceWorkerFunction('handleNavigation', {
+        fetchImpl: async () => {
+            throw new Error('offline');
+        },
+        cacheMatch: async () => undefined,
+    });
+
+    const response = await handleNavigation(request);
+    assert.notEqual(response, undefined, 'respondWith() must never receive undefined');
+    assert.equal(response.type, 'error');
+});
+
+await runAsyncTest('sw: offline document request never resolves to undefined when the shell is missing', async () => {
+    const request = { url: 'https://ravlyk.org/quiz.html', destination: 'document' };
+    const handleStaticRequest = loadServiceWorkerFunction('handleStaticRequest', {
+        fetchImpl: async () => {
+            throw new Error('offline');
+        },
+        cacheMatch: async () => undefined,
+    });
+
+    const response = await handleStaticRequest(request);
+    assert.notEqual(response, undefined, 'respondWith() must never receive undefined');
+    assert.equal(response.type, 'error');
+});
+
+await runAsyncTest('sw: a newer versioned asset is fetched instead of a stale cached copy', async () => {
+    const request = { url: 'https://ravlyk.org/css/global.css?v=2026-08-02-99', destination: 'style' };
+    const staleResponse = { source: 'stale-cache' };
+    // Opaque responses are skipped by updateRuntimeCache, so the network body
+    // reaches the caller unchanged.
+    const networkResponse = { source: 'network', status: 200, type: 'opaque' };
+    const calls = [];
+    let fetchCalls = 0;
+    const handleStaticRequest = loadServiceWorkerFunction('handleStaticRequest', {
+        fetchImpl: async () => {
+            fetchCalls += 1;
+            return networkResponse;
+        },
+        cacheMatch: async (candidate) => {
+            calls.push(candidate);
+            // The cache only holds an older token; no bare-pathname key exists.
+            return candidate === 'https://ravlyk.org/css/global.css?v=2026-08-02-98'
+                ? staleResponse
+                : undefined;
+        },
+    });
+
+    assert.equal(await handleStaticRequest(request), networkResponse);
+    assert.equal(fetchCalls, 1, 'cache busting requires a network fetch on an exact miss');
+    assert.deepEqual(calls, [request, '/css/global.css']);
 });
 
 console.log('Service Worker contract tests completed.');

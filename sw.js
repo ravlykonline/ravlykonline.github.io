@@ -1,4 +1,4 @@
-const CACHE_VERSION = '2026-08-02-9';
+const CACHE_VERSION = '2026-08-02-10';
 // Precache (install-time assets) and runtime cache are kept separate so that
 // trimRuntimeCache() can evict dynamic entries without touching precache URLs.
 const APP_CACHE = `ravlyk-app-${CACHE_VERSION}`;
@@ -147,26 +147,26 @@ const PRECACHE_URLS = [
     '/resources.html',
     '/teacher_guidelines.html',
     '/zen.html',
-    '/css/about-project.css?v=2026-08-02-9',
-    '/css/accessibility.css?v=2026-08-02-9',
-    '/css/global.css?v=2026-08-02-9',
-    '/css/lessons.css?v=2026-08-02-9',
-    '/css/main-editor.css?v=2026-08-02-9',
-    '/css/manual.css?v=2026-08-02-9',
-    '/css/parents.css?v=2026-08-02-9',
-    '/css/quiz.css?v=2026-08-02-9',
-    '/css/resources.css?v=2026-08-02-9',
-    '/css/teacher-guidelines.css?v=2026-08-02-9',
-    '/css/zen.css?v=2026-08-02-9',
-    '/js/accessibility.js?v=2026-08-02-9',
-    '/js/lessonsPage.js?v=2026-08-02-9',
-    '/js/main.js?v=2026-08-02-9',
-    '/js/manualPage.js?v=2026-08-02-9',
-    '/js/printPage.js?v=2026-08-02-9',
-    '/js/quizPage.js?v=2026-08-02-9',
-    '/js/registerServiceWorker.js?v=2026-08-02-9',
-    '/js/zenPage.js?v=2026-08-02-9',
-    '/site.webmanifest?v=2026-08-02-9',
+    '/css/about-project.css?v=2026-08-02-10',
+    '/css/accessibility.css?v=2026-08-02-10',
+    '/css/global.css?v=2026-08-02-10',
+    '/css/lessons.css?v=2026-08-02-10',
+    '/css/main-editor.css?v=2026-08-02-10',
+    '/css/manual.css?v=2026-08-02-10',
+    '/css/parents.css?v=2026-08-02-10',
+    '/css/quiz.css?v=2026-08-02-10',
+    '/css/resources.css?v=2026-08-02-10',
+    '/css/teacher-guidelines.css?v=2026-08-02-10',
+    '/css/zen.css?v=2026-08-02-10',
+    '/js/accessibility.js?v=2026-08-02-10',
+    '/js/lessonsPage.js?v=2026-08-02-10',
+    '/js/main.js?v=2026-08-02-10',
+    '/js/manualPage.js?v=2026-08-02-10',
+    '/js/printPage.js?v=2026-08-02-10',
+    '/js/quizPage.js?v=2026-08-02-10',
+    '/js/registerServiceWorker.js?v=2026-08-02-10',
+    '/js/zenPage.js?v=2026-08-02-10',
+    '/site.webmanifest?v=2026-08-02-10',
 ];
 // END GENERATED PRECACHE MANIFEST
 
@@ -247,14 +247,30 @@ async function updateRuntimeCache(request, response) {
     return response;
 }
 
-async function matchNavigationFallback(request) {
+// caches.match searches all caches (APP_CACHE + RUNTIME_CACHE) by default.
+// The pathname lookup only rescues navigations that carry a query string
+// (e.g. /manual.html?lesson=loops -> /manual.html). Versioned CSS/JS URLs are
+// deliberately NOT mirrored under their bare pathname in PRECACHE_URLS: a bare
+// key would shadow a newer ?v= token and serve a stale asset, defeating cache
+// busting. On an exact miss those assets must reach the network instead.
+async function matchCachedRequest(request) {
     const exactMatch = await caches.match(request);
     if (exactMatch) return exactMatch;
 
-    const pathnameMatch = await caches.match(new URL(request.url).pathname);
-    if (pathnameMatch) return pathnameMatch;
+    return caches.match(new URL(request.url).pathname);
+}
 
-    return caches.match(OFFLINE_FALLBACK_URL);
+// Response.error() keeps respondWith() from resolving to undefined when even the
+// offline shell is missing from the cache.
+async function matchOfflineShell() {
+    return await caches.match(OFFLINE_FALLBACK_URL) || Response.error();
+}
+
+async function matchNavigationFallback(request) {
+    const cachedResponse = await matchCachedRequest(request);
+    if (cachedResponse) return cachedResponse;
+
+    return matchOfflineShell();
 }
 
 async function handleNavigation(request) {
@@ -267,8 +283,7 @@ async function handleNavigation(request) {
 }
 
 async function handleStaticRequest(request) {
-    // caches.match searches all caches (APP_CACHE + RUNTIME_CACHE) by default.
-    const cachedResponse = await caches.match(request) || await caches.match(new URL(request.url).pathname);
+    const cachedResponse = await matchCachedRequest(request);
     if (cachedResponse) {
         return cachedResponse;
     }
@@ -278,7 +293,7 @@ async function handleStaticRequest(request) {
         return updateRuntimeCache(request, networkResponse);
     } catch {
         if (request.destination === 'document') {
-            return caches.match(OFFLINE_FALLBACK_URL);
+            return matchOfflineShell();
         }
         throw new Error(`Offline cache miss for ${request.url}`);
     }

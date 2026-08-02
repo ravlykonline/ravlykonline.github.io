@@ -16,6 +16,9 @@ Use this checklist after accessibility-related changes and before release.
   - `teacher_guidelines.html`
   - `zen.html`
   - `about.html`
+  - `privacy.html`
+- Verify the accessibility toggle is the top hit target at its own centre point, not covered by a page overlay.
+- Verify the toggle sits bottom-left from `1280px` up and top-left below it: the `1279px` breakpoint is shared with the manual layout, so it also covers small laptops, not only phones and tablets.
 - Verify `skip-link` is the first keyboard stop on page load.
 - Verify `Tab` inserts an editor indent, while `Shift+Tab` or `Escape` followed by `Tab` moves focus out of the editor.
 - Verify `skip-link` moves focus to `#main-content`.
