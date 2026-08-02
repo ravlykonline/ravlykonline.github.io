@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { buildPagesArtifact } from '../scripts/build-pages-artifact.mjs';
 
 function runTest(name, fn) {
     try {
@@ -25,6 +28,14 @@ const publicHtmlFiles = [
 ];
 
 const cloudflareBeaconScript = '<!-- Cloudflare Web Analytics --><script type=\'module\' src=\'https://static.cloudflareinsights.com/beacon.min.js\' data-cf-beacon=\'{"token": "46477cad50284d57abdf0b005192f4c0"}\'></script><!-- End Cloudflare Web Analytics -->';
+
+function listHtmlFiles(directory) {
+    return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+        const entryPath = path.join(directory, entry.name);
+        if (entry.isDirectory()) return listHtmlFiles(entryPath);
+        return entry.isFile() && entry.name.endsWith('.html') ? [entryPath] : [];
+    });
+}
 
 runTest('public pages load Cloudflare Web Analytics directly', () => {
     publicHtmlFiles.forEach((path) => {
@@ -69,14 +80,35 @@ runTest('service worker no longer precaches the removed local analytics bootstra
 });
 
 runTest('every analytics-enabled page links to the privacy notice', () => {
-    publicHtmlFiles.forEach((path) => {
-        const html = fs.readFileSync(path, 'utf8');
-        assert.match(
-            html,
-            /href="privacy\.html"/,
-            `${path} should link to privacy.html`
-        );
-    });
+    const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ravlyk-analytics-'));
+    const artifactRoot = path.join(temporaryRoot, 'site');
+
+    try {
+        buildPagesArtifact({ outputRoot: artifactRoot });
+        const privacyPath = path.join(artifactRoot, 'privacy.html');
+
+        listHtmlFiles(artifactRoot).forEach((htmlPath) => {
+            const html = fs.readFileSync(htmlPath, 'utf8');
+            if (!html.includes('static.cloudflareinsights.com/beacon.min.js')) return;
+
+            const relativePath = path.relative(artifactRoot, htmlPath);
+            const privacyLinks = [
+                ...html.matchAll(/<a\b[^>]*\bhref=(['"])([^'"]*privacy\.html(?:[?#][^'"]*)?)\1/gi),
+            ];
+            assert.ok(privacyLinks.length > 0, `${relativePath} should link to the privacy notice`);
+
+            assert.equal(
+                privacyLinks.some((match) => {
+                    const linkPath = match[2].split(/[?#]/)[0];
+                    return path.resolve(path.dirname(htmlPath), linkPath) === privacyPath;
+                }),
+                true,
+                `${relativePath} should link to the published root privacy.html`
+            );
+        });
+    } finally {
+        fs.rmSync(temporaryRoot, { recursive: true, force: true });
+    }
 });
 
 runTest('privacy page explains the project data flow and analytics provider', () => {
