@@ -30,12 +30,15 @@ test.describe('Public page accessibility shell', () => {
       await expect(accessibilityPanel).toHaveCount(1);
       await expect(accessibilityPanel).toHaveAttribute('role', 'dialog');
       await expect(accessibilityPanel).toHaveAttribute('aria-modal', 'true');
+      await expect(accessibilityPanel).toHaveAttribute('tabindex', '-1');
 
-      await accessibilityToggle.click({ force: true });
+      await accessibilityToggle.click();
       await expect(accessibilityPanel).not.toHaveClass(/hidden/);
+      await expect(accessibilityToggle).toHaveAttribute('aria-expanded', 'true');
 
       await page.keyboard.press('Escape');
       await expect(accessibilityPanel).toHaveClass(/hidden/);
+      await expect(accessibilityToggle).toHaveAttribute('aria-expanded', 'false');
       await expect(accessibilityToggle).toBeFocused();
     });
   }
