@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { QUIZ_BANK, QUIZ_THEME_LABELS } from '../js/quizBank.js';
+import { RavlykParser } from '../js/modules/ravlykParser.js';
 import { runTest } from './testUtils.js';
 
 runTest('quiz bank exposes expected themes and valid question contracts', () => {
@@ -21,6 +22,25 @@ runTest('quiz bank exposes expected themes and valid question contracts', () => 
             assert.ok(question.answer >= 0 && question.answer < question.options.length);
         });
     });
+});
+
+runTest('coordinate syntax question has exactly one parser-valid answer', () => {
+    const question = QUIZ_BANK.basic.find(({ q }) => q === 'Яка команда коректна?');
+    assert.ok(question, 'coordinate syntax question should exist');
+
+    const validOptions = question.options.map((code) => {
+        try {
+            new RavlykParser().parseCodeToAst(code);
+            return true;
+        } catch {
+            return false;
+        }
+    });
+
+    assert.deepEqual(
+        validOptions,
+        question.options.map((_, index) => index === question.answer)
+    );
 });
 
 console.log('Quiz tests completed.');
