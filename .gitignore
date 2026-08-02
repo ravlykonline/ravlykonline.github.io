@@ -4,6 +4,7 @@ node_modules/
 # Playwright output
 test-results/
 playwright-report/
+.pages-artifact/
 
 # OS
 .DS_Store

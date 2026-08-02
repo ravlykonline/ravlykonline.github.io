@@ -4,6 +4,12 @@ Allow: /
 # Service directories and test files
 Disallow: /old/
 Disallow: /v4beta/
+Disallow: /maisternia/
+Disallow: /artist/tests/
+Disallow: /artist/server-err.log
+Disallow: /artist/server-out.log
+Disallow: /game/tests/
+Disallow: /go/tests/
 Disallow: /node_modules/
 Disallow: /tests/
 Disallow: /test-results/

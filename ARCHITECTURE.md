@@ -30,8 +30,10 @@
 - PWA-файли: `sw.js`, `site.webmanifest`, іконки
 - Навчальні зображення та `resources/Pre_CodingActivity_Ravlyk_UA.pdf`
 - Документація: `README.md`, `TECHNICAL_GUIDE.md`, `DESIGN_GUIDE.md`, `ARCHITECTURE.md`, `LANGUAGE_SPEC.md`, `SECURITY.md`, `TESTING.md`, `CONTRIBUTING.md`, `RELEASE_CHECKLIST.md`, `ACCESSIBILITY_CHECKLIST.md`, `BRAND_POLICY.md`, `LICENSE`, `LICENSE-CONTENT.md`
-- Окремі незалежні підпроєкти: `artist/`, `game/`, `go/`, `maisternia/` — мають власну інфраструктуру і не є частиною основного РАВЛИК-сайту
-- `old/` — архів попередніх версій
+- Окремі незалежні публічні підпроєкти: `artist/`, `game/`, `go/` — мають власну інфраструктуру і не є частиною основного редактора РАВЛИКА
+- `maisternia/` — експериментальна гра в розробці, не входить до production-артефакту
+- `old/` — публічний музей попередньої версії; backup-копії з нього не деплояться
+- GitHub Pages отримує тільки allowlist-артефакт зі `scripts/build-pages-artifact.mjs`; tests, logs, документація розробника й експерименти не публікуються
 
 ## 5. Поточна карта модулів
 

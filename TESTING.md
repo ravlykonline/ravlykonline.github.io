@@ -25,6 +25,7 @@ npm run test:e2e         # усі E2E-тести (Playwright)
 npm run test             # unit + E2E разом
 npm run check            # unit-тести + перевірка shared HTML partials + ESLint
 npm run lint             # ESLint для js/ та sw.js
+npm run pages:build      # зібрати allowlist-артефакт для GitHub Pages
 npm run html:sync-partials # синхронізація спільних HTML-блоків
 npm run html:check-partials # перевірка синхронізації shared HTML без запису файлів
 npm run release:sync-version -- YYYY-MM-DD-N  # синхронізація release-версії
@@ -61,6 +62,7 @@ tests/
   astAnimationRuntime.test.js    — lazy animation runtime: порожня програма, move/turn, repeat, змінні, if/else, функції, budget
   runtimeUnification.test.js     — createAstRuntime.step() напряму: sequences, repeat, assign, if/else, функції, ColorStmt/ClearStmt
   legacyBoundary.test.js         — CI-межа: executeCommands не викликає astToLegacyQueue і runCommandQueue
+  pagesArtifact.test.js          — allowlist GitHub Pages: основний сайт, музей та ігри без tests/logs/експериментів
   parserTestUtils.js             — спільні утиліти для тестів парсера
   testUtils.js                   — загальні тестові утиліти
   e2e/
