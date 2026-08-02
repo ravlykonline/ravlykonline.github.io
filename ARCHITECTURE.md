@@ -13,7 +13,7 @@
 - власний lexer/parser/interpreter для мови РАВЛИК;
 - PWA Service Worker;
 - URL hash для поширення коду;
-- Google Analytics через `js/analytics.js`.
+- Cloudflare Web Analytics через beacon-скрипт на публічних HTML-сторінках.
 
 ## 2. Інвентаризація репозиторію
 
@@ -54,7 +54,7 @@
 - `js/lessonsPage.js` — запуск уроків.
 - `js/quizPage.js` — запуск тестів.
 - `js/accessibility.js` — глобальні налаштування доступності.
-- `js/analytics.js` — підключення Google Analytics.
+- Cloudflare Web Analytics — прямий beacon-скрипт у публічних HTML-сторінках; локального analytics bootstrap-модуля більше немає.
 - `js/registerServiceWorker.js` — реєстрація Service Worker.
 
 ### 5.3. Ядро мови

@@ -15,5 +15,5 @@
 
 1. Open `https://ravlyk.org/` in a fresh private window.
 2. Confirm service worker registration succeeds and offline reload works after one warm load.
-3. Confirm Google Analytics initializes only on `ravlyk.org` or `www.ravlyk.org`.
+3. Confirm public pages include the Cloudflare Web Analytics beacon and do not include Google Analytics scripts.
 4. Verify download, share, and accessibility controls still work on desktop and one mobile device.

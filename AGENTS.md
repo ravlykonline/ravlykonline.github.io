@@ -23,7 +23,7 @@
 - JavaScript ES Modules;
 - Canvas 2D;
 - Service Worker;
-- Google Analytics;
+- Cloudflare Web Analytics;
 - без backend.
 
 Не додавайте React/Vue/Svelte/Next/Vite без окремого архітектурного рішення. Поточний пріоритет — стабілізувати ядро, а не змінити стек.
@@ -36,7 +36,7 @@
 - Semantic validator інтегровано в `RavlykParser.parseCodeToAst`.
 - Reserved names, duplicate functions/params, conflicts, unknown function calls і argument count перевіряються validator-ом.
 - Parser/runtime limits реалізовані: `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_REPEATS_IN_LOOP`, `MAX_COMMAND_QUEUE_LENGTH`, `MAX_GAME_TICK_OPERATIONS`.
-- Analytics `page_location` не містить hash, тому `#code=` не потрапляє в Google Analytics.
+- Google Analytics прибрано; публічні сторінки використовують Cloudflare Web Analytics beacon.
 - Shared accessibility/footer/navigation HTML синхронізується через `scripts/sync-html-partials.mjs` і перевіряється в CI.
 - ✓ Service Worker переписано: production-only registration, `CACHEABLE_EXTENSIONS` allowlist, bounded cleanup, `try/catch`.
 - ✓ Animation path переведено на lazy AST execution через `interpreterAstAnimationRuntime.js`. Legacy queue більше не будується в production path. Legacy boundary перевіряється в CI (`tests/legacyBoundary.test.js`).
@@ -130,7 +130,7 @@ Legacy модулі (`interpreterAstQueueAdapter.js`, `interpreterQueueRuntime.j
 
 ## Крок 6. Analytics privacy ✓
 
-`safePageLocation()` у `js/analytics.js` вже повертає `origin + pathname + search` без hash. `#code=` не потрапляє в `page_location`.
+Google Analytics більше не підключається. Публічні HTML-сторінки використовують Cloudflare Web Analytics beacon із CSP-дозволами тільки для Cloudflare analytics endpoints.
 
 ## Крок 7. Виправити Service Worker ✓ ЗАВЕРШЕНО
 

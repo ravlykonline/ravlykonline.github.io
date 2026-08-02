@@ -16,7 +16,7 @@
 
 У коді не використовується `eval()`, `new Function()` або виконання користувацького коду як JavaScript. Share-link завантажує код із `location.hash`, декодує його і записує в `textarea.value`, а не вставляє як HTML.
 
-Google Analytics ініціалізується тільки на production hosts. `safePageLocation()` передає `origin + pathname + search` без hash, тому `#code=` не потрапляє в `page_location`.
+Cloudflare Web Analytics підключається напряму на публічних HTML-сторінках. У CSP дозволено тільки `https://static.cloudflareinsights.com` для beacon-скрипта і `https://cloudflareinsights.com` для відправлення метрик; Google Analytics більше не підключається.
 
 Основні ліміти виконання живуть у `js/modules/constants.js`:
 
@@ -102,7 +102,7 @@ npm run check
 - [ ] Немає `eval()` / `new Function()` / `document.write`.
 - [ ] Користувацькі дані не вставляються через `innerHTML`.
 - [ ] Ліміти `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_COMMAND_QUEUE_LENGTH`, `MAX_GAME_TICK_OPERATIONS` працюють.
-- [ ] `#code=` не потрапляє в analytics `page_location`.
+- [ ] Публічні сторінки не підключають Google Analytics і мають тільки Cloudflare Web Analytics beacon.
 - [ ] Service Worker має очікуваний scope/cache policy для цього релізу.
 - [ ] Після зміни SW/cache version старий кеш коректно прибирається.
 - [ ] Код учня не зберігається автоматично між сесіями без явного рішення.

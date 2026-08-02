@@ -51,8 +51,6 @@ const PRECACHE_URLS = [
     '/css/resources.css?v=2026-05-30-1',
     '/css/teacher-guidelines.css?v=2026-05-30-1',
     '/css/zen.css?v=2026-05-30-1',
-    '/js/analytics.js',
-    '/js/analytics.js?v=2026-05-30-1',
     '/js/accessibility.js',
     '/js/accessibility.js?v=2026-05-30-1',
     '/js/lessonsPage.js',

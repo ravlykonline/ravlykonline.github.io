@@ -19,7 +19,6 @@ const filesToValidate = [
     'js/modules/fileActionsController.js',
     'js/modules/uiMessages.js',
     'js/modules/accessibilityNotifications.js',
-    'js/analytics.js',
     'scripts/sync-html-partials.mjs',
     'css/global.css',
     'css/lessons.css',
@@ -253,7 +252,6 @@ runTest('public pages and client scripts do not hardcode the temporary /v4beta p
         'js/manualPage.js',
         'js/lessonsPage.js',
         'js/quizPage.js',
-        'js/analytics.js',
         'js/modules/manualPageController.js',
         'js/modules/navigationPrefetch.js',
     ];

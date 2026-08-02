@@ -56,7 +56,7 @@ Main entry points:
 - `lessons.html` and `js/lessonsPage.js` for lessons
 - `quiz.html` and `js/quizPage.js` for the quiz
 - `js/accessibility.js` for accessibility controls
-- `js/analytics.js` for network-only analytics bootstrapping
+- Cloudflare Web Analytics beacon embedded in public HTML pages
 - `js/registerServiceWorker.js` for public-page service-worker registration
 - `sw.js` for offline shell caching and runtime fallback
 
@@ -207,7 +207,7 @@ Accessibility subsystem:
 
 PWA/offline subsystem:
 - all public entry pages register the root service worker through `js/registerServiceWorker.js`
-- all public entry pages bootstrap analytics through `js/analytics.js`, which lazy-loads Google Analytics only on production hosts, skips offline startup, and retries when the browser comes back online
+- all public entry pages embed the Cloudflare Web Analytics beacon directly and allow only the Cloudflare script and beacon endpoints in CSP
 - `sw.js` precaches the public shell: HTML entry pages, local CSS, local JS entry files, `js/modules/*`, `js/quizData/*`, local icons, and local instructional images
 - navigation requests use network-first with cache fallback
 - static same-origin assets use cache-first with runtime cache fill
@@ -290,7 +290,7 @@ Accessibility settings follow-up:
 
 Offline/PWA follow-up:
 - the local offline shell is working only after a successful online warm cache
-- third-party runtime dependencies are still external for analytics via Google Analytics / `gtag` from `googletagmanager.com`, but loading is now deferred behind the local `js/analytics.js` gate
+- third-party runtime dependencies are still external for analytics via Cloudflare Web Analytics from `static.cloudflareinsights.com`, with beacon submission allowed to `cloudflareinsights.com`
 - icon assets are now localized into `assets/icons/*` and included in the service-worker precache; analytics is no longer part of the critical shell path, but the remote provider is still external by design
 - core same-origin functionality is expected to keep working offline; analytics is intentionally skipped while offline and retries after the app regains connectivity
 

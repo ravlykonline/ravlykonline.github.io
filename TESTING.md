@@ -50,7 +50,7 @@ tests/
   controllers.test.js            — execution, file actions, navigation, modal, lifecycle
   ui.dom.test.js                 — UI-компоненти, grid overlay, editor UI
   accessibility.test.js          — налаштування доступності та сповіщення
-  analytics.test.js              — ініціалізація Google Analytics
+  analytics.test.js              — Cloudflare Web Analytics beacon і відсутність Google Analytics
   lessons.test.js                — lessons-контролер та структура сторінки
   manual.test.js                 — manual-контролер та структура сторінки
   quiz.test.js                   — quiz bank, теми, контракти питань
