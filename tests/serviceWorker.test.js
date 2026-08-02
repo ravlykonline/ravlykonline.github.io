@@ -186,6 +186,31 @@ runTest('sw: PRECACHE_URLS has no duplicate entries', () => {
     );
 });
 
+runTest('sw: versioned assets do not duplicate their unversioned cache keys', () => {
+    const urls = extractStringArray(swSource, 'PRECACHE_URLS');
+    const urlSet = new Set(urls);
+    const redundantPairs = urls
+        .filter((url) => url.includes('?'))
+        .filter((url) => urlSet.has(url.split('?')[0]));
+
+    assert.deepEqual(
+        redundantPairs,
+        [],
+        `PRECACHE_URLS should not cache versioned and unversioned copies: ${redundantPairs.join(', ')}`
+    );
+    assert.equal(
+        urls.includes('/js/modules/ravlykParser.js'),
+        true,
+        'unversioned ES module imports must remain available offline'
+    );
+    assert.equal(
+        urls.some((url) => url.startsWith('/css/global.css?v=')),
+        true,
+        'the HTML-referenced version of global.css must remain available offline'
+    );
+    assert.equal(urls.includes('/css/global.css'), false);
+});
+
 runTest('sw: generated cache policy and URLs match the Pages publication manifest', () => {
     const expected = buildPrecacheManifest();
     const extensions = extractStringSet(swSource, 'CACHEABLE_EXTENSIONS');

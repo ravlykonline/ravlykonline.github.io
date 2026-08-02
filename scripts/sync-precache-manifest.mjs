@@ -90,12 +90,14 @@ export function buildPrecacheManifest({ projectRoot = defaultProjectRoot } = {})
         publicationFiles,
         precacheExtensions
     );
+    const versionedPaths = new Set(versionedUrls.map((url) => url.split('?')[0]));
+    const unversionedUrls = staticUrls.filter((url) => !versionedPaths.has(url));
 
     return {
         extensions: [...precacheExtensions],
         urls: [...new Set([
             ...(config.routeAliases || []),
-            ...staticUrls,
+            ...unversionedUrls,
             ...versionedUrls,
         ])],
     };

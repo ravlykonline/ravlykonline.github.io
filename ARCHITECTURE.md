@@ -168,7 +168,7 @@ UI спочатку викликає `prepareProgram()` і лише після �
 - Runtime cache фільтрується через `CACHEABLE_EXTENSIONS` allowlist (розширення файлів).
 - `cache.put` обгорнуто в `try/catch`.
 - Bounded cleanup: при перевищенні `MAX_RUNTIME_CACHE_ENTRIES` старі записи видаляються.
-- `CACHEABLE_EXTENSIONS` і `PRECACHE_URLS` генеруються з кореневого розділу `PAGES_PUBLICATION_MANIFEST` через `scripts/sync-precache-manifest.mjs`. Версійні URL беруться з опублікованих HTML, а великі завантажувані файли на кшталт PDF не входять до install-time кешу.
+- `CACHEABLE_EXTENSIONS` і `PRECACHE_URLS` генеруються з кореневого розділу `PAGES_PUBLICATION_MANIFEST` через `scripts/sync-precache-manifest.mjs`. Версійні URL беруться з опублікованих HTML і замінюють відповідну неверсійну cache-копію; неверсійні ES-модулі та інші прямі імпорти залишаються. Великі завантажувані файли на кшталт PDF не входять до install-time кешу.
 - Release/cache version синхронізується через `scripts/sync-release-version.mjs` і перевіряється `tests/releaseVersion.test.js` та `tests/serviceWorker.test.js`.
 
 ## 7.5. Release version синхронізується скриптом
