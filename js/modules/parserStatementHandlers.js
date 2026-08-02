@@ -151,6 +151,7 @@ export function createParserStatementHandlers({
                 parseAstCoordExpressionOrThrow: bindings.parseAstCoordExpressionOrThrow,
                 spanFromMeta: bindings.spanFromMeta,
                 gotoPrepositionKeyword: keywords.gotoPreposition,
+                createError,
             }),
         parseRepeatStatementToAst: (tokens, tokenMeta, startIndex) =>
             parseRepeatStatementToAstHelper({

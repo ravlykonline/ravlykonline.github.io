@@ -128,7 +128,33 @@ runTest('throws on invalid goto syntax', () => {
     const interpreter = createInterpreter();
     assert.throws(
         () => interpreter.parseTokens(['перейти', 'в', '100']),
-        (error) => error && error.name === 'RavlykError'
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.messageKey === 'NO_POSITION_Y'
+            && error.message.includes('Y-координати')
+    );
+});
+
+runTest('incomplete перейти distractor reports the missing coordinate without parser jargon', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parser.parseCodeToAst('перейти -20'),
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.messageKey === 'NO_POSITION_Y'
+            && error.message.includes('Y-координати')
+            && !error.message.includes('expression')
+    );
+});
+
+runTest('перейти without coordinates reports the missing X coordinate', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parser.parseCodeToAst('перейти'),
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.messageKey === 'NO_POSITION_X'
+            && error.message.includes('X-координати')
     );
 });
 

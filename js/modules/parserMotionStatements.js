@@ -66,11 +66,15 @@ export function parseGotoStatementToAst({
     parseAstCoordExpressionOrThrow,
     spanFromMeta,
     gotoPrepositionKeyword,
+    createError,
 }) {
     let xStart = startIndex + 1;
     const maybePrep = tokens[xStart]?.toLowerCase();
     if (maybePrep === gotoPrepositionKeyword || maybePrep === 'to') {
         xStart += 1;
+    }
+    if (xStart >= tokens.length) {
+        throw createError('NO_POSITION_X', tokens[startIndex]);
     }
     if (isRandomToken(tokens[xStart]) && tokens[xStart + 1] !== '(') {
         return {
@@ -107,6 +111,9 @@ export function parseGotoStatementToAst({
         xExpr = coordFn(tokens, tokenMeta, xStart);
         yStart = xExpr.nextIndex;
         parseY = coordFn;
+    }
+    if (yStart >= tokens.length) {
+        throw createError('NO_POSITION_Y', tokens[startIndex]);
     }
     const yExpr = parseY(tokens, tokenMeta, yStart);
     return {
