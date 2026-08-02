@@ -3,11 +3,9 @@
 /* Кнопка доступності */
 .accessibility-floating-layer {
     position: fixed;
-    top: 0;
-    right: 0;
-    width: 0;
-    height: 0;
+    inset: 0;
     z-index: 12000;
+    pointer-events: none;
 }
 
 .accessibility-toggle {
@@ -28,6 +26,7 @@
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    pointer-events: auto;
 }
 
 /* Захист локальної SVG-іконки доступності від зникнення */
@@ -66,6 +65,7 @@ html.a11y-reduce-animations .accessibility-toggle .ui-icon {
     overflow: hidden;
     transition: transform 0.3s, opacity 0.3s;
     transform-origin: bottom left;
+    pointer-events: auto;
 }
 
 .accessibility-panel[hidden] {
