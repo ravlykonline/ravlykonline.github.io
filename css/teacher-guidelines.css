@@ -4,6 +4,7 @@
 }
 
 .teacher-card {
+    min-width: 0;
     background: #ffffff;
     border: 1px solid var(--color-border-soft-blue);
     border-radius: 12px;
@@ -40,6 +41,18 @@
     margin-top: 10px;
     font-size: 0.95rem;
     background: #fff;
+}
+
+.teacher-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-gutter: stable;
+}
+
+.teacher-table-wrap:focus-visible {
+    outline: 3px solid var(--focus-ring-outer);
+    outline-offset: 2px;
 }
 
 .teacher-table th,

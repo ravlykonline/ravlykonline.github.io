@@ -1,13 +1,6 @@
 /* Стилі для функцій доступності */
 
 /* Кнопка доступності */
-.accessibility-floating-layer {
-    position: fixed;
-    inset: 0;
-    z-index: 12000;
-    pointer-events: none;
-}
-
 .accessibility-toggle {
     position: fixed;
     bottom: 20px;
@@ -26,7 +19,6 @@
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
-    pointer-events: auto;
 }
 
 /* Захист локальної SVG-іконки доступності від зникнення */
@@ -65,7 +57,6 @@ html.a11y-reduce-animations .accessibility-toggle .ui-icon {
     overflow: hidden;
     transition: transform 0.3s, opacity 0.3s;
     transform-origin: bottom left;
-    pointer-events: auto;
 }
 
 .accessibility-panel[hidden] {
@@ -651,21 +642,21 @@ html.a11y-reduce-animations body {
     transition: none !important;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1279px) {
     .accessibility-toggle {
         top: calc(16px + env(safe-area-inset-top));
         bottom: auto;
-        left: auto;
-        right: 16px;
+        left: 16px;
+        right: auto;
     }
 
     .accessibility-panel {
         top: calc(74px + env(safe-area-inset-top));
         bottom: auto;
-        left: auto;
-        right: 12px;
+        left: 12px;
+        right: auto;
         width: min(92vw, 320px);
-        transform-origin: bottom right;
+        transform-origin: top left;
     }
 
     .a11y-larger-text .accessibility-panel {

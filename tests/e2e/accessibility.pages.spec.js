@@ -31,6 +31,14 @@ test.describe('Public page accessibility shell', () => {
       await expect(accessibilityPanel).toHaveAttribute('role', 'dialog');
       await expect(accessibilityPanel).toHaveAttribute('aria-modal', 'true');
       await expect(accessibilityPanel).toHaveAttribute('tabindex', '-1');
+      await expect.poll(() => accessibilityToggle.evaluate((toggle) => {
+        const rect = toggle.getBoundingClientRect();
+        const hitTarget = document.elementFromPoint(
+          rect.left + rect.width / 2,
+          rect.top + rect.height / 2
+        );
+        return hitTarget === toggle || toggle.contains(hitTarget);
+      })).toBe(true);
 
       await accessibilityToggle.click();
       await expect(accessibilityPanel).not.toHaveClass(/hidden/);
