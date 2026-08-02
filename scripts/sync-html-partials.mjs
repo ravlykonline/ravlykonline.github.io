@@ -17,6 +17,7 @@ const publicHtmlFiles = [
     'advice_for_parents.html',
     'zen.html',
     'about.html',
+    'privacy.html',
 ];
 
 const siteLinks = {
@@ -88,6 +89,9 @@ const partials = [
             'about.html': {
                 FOOTER_TEXT: '&copy;<span class="current-year">2026</span> РАВЛИК | Про проєкт',
             },
+            'privacy.html': {
+                FOOTER_TEXT: '&copy;<span class="current-year">2026</span> РАВЛИК | Приватність',
+            },
         },
     },
     {
@@ -101,6 +105,7 @@ const partials = [
             'teacher_guidelines.html': {},
             'advice_for_parents.html': {},
             'about.html': {},
+            'privacy.html': {},
         },
     },
     {

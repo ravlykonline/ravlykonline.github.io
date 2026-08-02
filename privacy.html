@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; connect-src 'self' https://cloudflareinsights.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Коротко й зрозуміло про приватність на сайті РАВЛИК, локальну обробку дитячого коду та Cloudflare Web Analytics." />
+    <link rel="canonical" href="https://ravlyk.org/privacy.html" />
+    <meta name="author" content="Артем Кисляков" />
+    <meta name="robots" content="index, follow" />
+    <title>Приватність — РАВЛИК</title>
+    <!-- Release token for GitHub Pages cache busting: 2026-08-02-6 -->
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="manifest" href="site.webmanifest?v=2026-08-02-6" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="stylesheet" href="css/global.css?v=2026-08-02-6" />
+    <link rel="stylesheet" href="css/accessibility.css?v=2026-08-02-6" />
+    <link rel="stylesheet" href="css/about-project.css?v=2026-08-02-6" />
+</head>
+
+<body>
+    <a class="skip-link" href="#main-content">Перейти до основного вмісту</a>
+    <div class="page-wrapper">
+        <header class="main-header">
+            <h1>Приватність у РАВЛИКУ</h1>
+        </header>
+
+        <main id="main-content" class="content-container about-layout">
+            <nav class="about-nav site-links-uniform" aria-label="Швидка навігація">
+                <!-- BEGIN shared:site-nav-links:support -->
+<a href="index.html" class="btn btn-success"><span class="ui-icon icon-paint-brush" aria-hidden="true"></span>До Редактора</a>
+<a href="lessons.html" class="btn btn-primary"><span class="ui-icon icon-graduation-cap" aria-hidden="true"></span>До Уроків</a>
+<a href="manual.html" class="btn btn-primary"><span class="ui-icon icon-book-open" aria-hidden="true"></span>До Посібника</a>
+<a href="resources.html" class="btn btn-primary"><span class="ui-icon icon-puzzle-piece" aria-hidden="true"></span>До Ресурсів</a>
+<!-- END shared:site-nav-links:support -->
+            </nav>
+
+            <section class="about-hero" aria-labelledby="privacy-summary-title">
+                <h2 id="privacy-summary-title">Коротко</h2>
+                <p class="about-lead">РАВЛИК — статичний освітній сайт без облікових записів, реклами, backend і хмарного збереження дитячих програм.</p>
+                <p class="about-lead">Код із редактора виконується локально у браузері та не надсилається автору сайту.</p>
+            </section>
+
+            <div class="about-grid">
+                <section class="about-card" aria-labelledby="privacy-local-title">
+                    <h3 id="privacy-local-title">Що зберігається на пристрої</h3>
+                    <ul class="about-list">
+                        <li>Налаштування доступності та координатної сітки можуть зберігатися у <code>localStorage</code>.</li>
+                        <li>Окремі ігри можуть тимчасово пам’ятати прогрес у <code>sessionStorage</code> до закриття вкладки.</li>
+                        <li>РАВЛИК не використовує cookies для власних функцій.</li>
+                    </ul>
+                </section>
+
+                <section class="about-card" aria-labelledby="privacy-code-title">
+                    <h3 id="privacy-code-title">Код дитини та share-посилання</h3>
+                    <p>Звичайний код у редакторі залишається у поточній вкладці. Якщо користувач сам створює share-посилання, код записується у фрагмент URL після <code>#code=</code>.</p>
+                    <p>Фрагмент URL не входить до звичайного HTTP-запиту, але кожен, кому передано таке посилання, зможе прочитати код. Тому не варто додавати до програми ім’я, адресу чи інші особисті відомості.</p>
+                </section>
+
+                <section class="about-card" aria-labelledby="privacy-analytics-title">
+                    <h3 id="privacy-analytics-title">Аналітика відвідувань</h3>
+                    <p>Сайт використовує Cloudflare Web Analytics, щоб бачити узагальнену кількість відвідувань і технічні показники завантаження сторінок.</p>
+                    <p>За <a href="https://developers.cloudflare.com/web-analytics/about/" target="_blank" rel="noopener noreferrer">офіційним описом Cloudflare</a>, Web Analytics не збирає персональні дані відвідувачів. Сервіс не використовує cookies, <code>localStorage</code> або fingerprinting для аналітики.</p>
+                    <p>РАВЛИК не використовує Google Analytics, рекламні профілі чи персоналізовану рекламу.</p>
+                </section>
+
+                <section class="about-card" aria-labelledby="privacy-providers-title">
+                    <h3 id="privacy-providers-title">Технічні постачальники</h3>
+                    <p>Сайт розміщено на GitHub Pages, а аналітичний beacon надає Cloudflare. Під час мережевих запитів ці постачальники можуть обробляти стандартні технічні дані відповідно до власних політик.</p>
+                    <ul class="about-list">
+                        <li><a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">Заява GitHub про приватність</a>.</li>
+                        <li><a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Політика приватності Cloudflare</a>.</li>
+                    </ul>
+                </section>
+            </div>
+
+            <section class="about-highlight" aria-labelledby="privacy-control-title">
+                <h3 id="privacy-control-title">Що може зробити користувач</h3>
+                <ul class="about-list">
+                    <li>Очистити дані сайту в налаштуваннях браузера, щоб скинути локальні налаштування.</li>
+                    <li>Заблокувати analytics-скрипти засобами браузера або розширенням захисту приватності.</li>
+                    <li>Не створювати й не передавати share-посилання, якщо код не має бути доступним іншим.</li>
+                </ul>
+                <p class="about-footer-text"><strong>Оновлено:</strong> 2 серпня 2026 року. Запитання про проєкт можна передати автору через сторінку <a href="about.html">«Про проєкт»</a>.</p>
+            </section>
+        </main>
+
+        <!-- BEGIN shared:main-footer -->
+<footer class="main-footer">
+  <p>&copy;<span class="current-year">2026</span> РАВЛИК | Приватність</p>
+  <p><a href="privacy.html" class="footer-link">Приватність</a></p>
+</footer>
+<!-- END shared:main-footer -->
+    </div>
+
+    <!-- BEGIN shared:accessibility-panel -->
+<div class="accessibility-floating-layer">
+  <button id="accessibility-toggle" class="accessibility-toggle" aria-expanded="false"
+    aria-controls="accessibility-panel" aria-label="Налаштування доступності"><span class="ui-icon icon-universal-access" aria-hidden="true"></span></button>
+  <div id="accessibility-panel" class="accessibility-panel hidden" role="dialog" aria-modal="true"
+    aria-labelledby="accessibility-title">
+    <div class="accessibility-header">
+      <h3 id="accessibility-title" class="accessibility-panel-title">Налаштування доступності</h3>
+      <button id="close-accessibility-panel-btn" class="close-btn"
+        aria-label="Закрити панель налаштувань доступності">&times;</button>
+    </div>
+    <div class="accessibility-options">
+      <div class="accessibility-option">
+        <label for="high-contrast-input">Високий контраст</label>
+        <div class="toggle-switch">
+          <input type="checkbox" id="high-contrast-input" class="accessibility-setting-input"
+            data-setting="high-contrast">
+          <span class="toggle-slider"></span>
+        </div>
+      </div>
+      <div class="accessibility-option">
+        <label for="larger-text-input">Збільшений текст</label>
+        <div class="toggle-switch">
+          <input type="checkbox" id="larger-text-input" class="accessibility-setting-input" data-setting="larger-text">
+          <span class="toggle-slider"></span>
+        </div>
+      </div>
+      <div class="accessibility-option">
+        <label for="reduce-animations-input">Зменшення анімації</label>
+        <div class="toggle-switch">
+          <input type="checkbox" id="reduce-animations-input" class="accessibility-setting-input"
+            data-setting="reduce-animations">
+          <span class="toggle-slider"></span>
+        </div>
+      </div>
+      <div class="accessibility-option">
+        <label for="sans-serif-font-input">Простий шрифт</label>
+        <div class="toggle-switch">
+          <input type="checkbox" id="sans-serif-font-input" class="accessibility-setting-input"
+            data-setting="sans-serif-font">
+          <span class="toggle-slider"></span>
+        </div>
+      </div>
+      <div class="accessibility-option">
+        <label for="increased-spacing-input">Збільшені інтервали</label>
+        <div class="toggle-switch">
+          <input type="checkbox" id="increased-spacing-input" class="accessibility-setting-input"
+            data-setting="increased-spacing">
+          <span class="toggle-slider"></span>
+        </div>
+      </div>
+    </div>
+    <div class="accessibility-footer">
+      <button id="reset-accessibility-btn" class="btn btn-danger">Скинути налаштування</button>
+    </div>
+  </div>
+</div>
+<!-- END shared:accessibility-panel -->
+    <script type="module" src="js/accessibility.js?v=2026-08-02-6"></script>
+    <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "46477cad50284d57abdf0b005192f4c0"}'></script><!-- End Cloudflare Web Analytics -->
+    <script type="module" src="js/registerServiceWorker.js?v=2026-08-02-6"></script>
+</body>
+
+</html>

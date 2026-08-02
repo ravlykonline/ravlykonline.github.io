@@ -29,6 +29,7 @@ const filesToValidate = [
     'README.md',
     'TECHNICAL_GUIDE.md',
     'about.html',
+    'privacy.html',
 ];
 
 const htmlFilesToValidateTargetRel = [
@@ -51,6 +52,7 @@ const publicHtmlFiles = [
     'advice_for_parents.html',
     'zen.html',
     'about.html',
+    'privacy.html',
 ];
 
 const publicMainFooterFiles = [
@@ -62,6 +64,7 @@ const publicMainFooterFiles = [
     'teacher_guidelines.html',
     'advice_for_parents.html',
     'about.html',
+    'privacy.html',
 ];
 
 const publicSupportQuickLinkFiles = [
@@ -69,6 +72,7 @@ const publicSupportQuickLinkFiles = [
     'teacher_guidelines.html',
     'advice_for_parents.html',
     'about.html',
+    'privacy.html',
 ];
 
 const publicFooterAboutNavFiles = [
@@ -225,6 +229,7 @@ runTest('sitemap includes published public support pages', () => {
     const requiredSnippets = [
         'https://ravlyk.org/resources.html',
         'https://ravlyk.org/about.html',
+        'https://ravlyk.org/privacy.html',
     ];
 
     requiredSnippets.forEach((snippet) => {
@@ -247,6 +252,7 @@ runTest('public pages and client scripts do not hardcode the temporary /v4beta p
         'advice_for_parents.html',
         'zen.html',
         'about.html',
+        'privacy.html',
         'README.md',
         'js/main.js',
         'js/manualPage.js',
@@ -407,6 +413,7 @@ runTest('public pages keep shared main footer synchronized with partial', () => 
         'teacher_guidelines.html': '&copy;<span class="current-year">2026</span> РАВЛИК | Методичні матеріали для вчителя',
         'advice_for_parents.html': '&copy;<span class="current-year">2026</span> РАВЛИК | Поради для батьків',
         'about.html': '&copy;<span class="current-year">2026</span> РАВЛИК | Про проєкт',
+        'privacy.html': '&copy;<span class="current-year">2026</span> РАВЛИК | Приватність',
     };
 
     publicMainFooterFiles.forEach((path) => {
@@ -437,6 +444,7 @@ runTest('support pages keep shared quick navigation links synchronized with part
         'teacher_guidelines.html': '<nav class="teacher-nav site-links-uniform"',
         'advice_for_parents.html': '<nav class="parent-nav site-links-uniform"',
         'about.html': '<nav class="about-nav site-links-uniform"',
+        'privacy.html': '<nav class="about-nav site-links-uniform"',
     };
 
     publicSupportQuickLinkFiles.forEach((path) => {

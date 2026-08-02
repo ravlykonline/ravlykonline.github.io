@@ -18,6 +18,8 @@
 
 Cloudflare Web Analytics підключається напряму на публічних HTML-сторінках. У CSP дозволено тільки `https://static.cloudflareinsights.com` для beacon-скрипта і `https://cloudflareinsights.com` для відправлення метрик; Google Analytics більше не підключається.
 
+Публічна сторінка `privacy.html` пояснює локальну обробку дитячого коду, локальні browser storage, share-посилання, роль GitHub Pages і Cloudflare Web Analytics. Посилання на неї має бути доступним із футера кожної сторінки, де працює analytics beacon.
+
 Основні ліміти виконання живуть у `js/modules/constants.js`:
 
 ```js

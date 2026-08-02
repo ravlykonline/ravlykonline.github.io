@@ -28,6 +28,7 @@ try {
     runTest('pages artifact includes the main site and intended public projects', () => {
         const expectedPaths = [
             'index.html',
+            'privacy.html',
             'CNAME',
             'js/main.js',
             'old/index.html',

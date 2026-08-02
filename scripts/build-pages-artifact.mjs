@@ -18,6 +18,7 @@ export const PAGES_PUBLICATION_MANIFEST = {
             'advice_for_parents.html',
             'zen.html',
             'about.html',
+            'privacy.html',
             'site.webmanifest',
             'sw.js',
             'robots.txt',
