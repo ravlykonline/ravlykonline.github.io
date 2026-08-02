@@ -54,6 +54,20 @@ test.describe('Ravlyk UI smoke', () => {
     await expect(helpBtn).toBeFocused();
   });
 
+  test('editor lets keyboard users move focus out with Escape then Tab', async ({ page }) => {
+    const editor = page.locator('#code-editor');
+    await editor.focus();
+    await expect(editor).toBeFocused();
+
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Tab');
+    await expect(editor).not.toBeFocused();
+
+    await editor.focus();
+    await page.keyboard.press('Shift+Tab');
+    await expect(editor).not.toBeFocused();
+  });
+
   test('accessibility panel traps focus and persists high contrast after reload', async ({ page }) => {
     await page.evaluate(() => localStorage.removeItem('ravlyk_accessibility_settings_v2'));
 

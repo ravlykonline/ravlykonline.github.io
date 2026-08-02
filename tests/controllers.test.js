@@ -799,6 +799,66 @@ runTest('editor input controller handles Tab indent and run hotkey', () => {
     assert.equal(runCalls, 1);
 });
 
+runTest('editor input controller allows keyboard focus to leave the textarea', () => {
+    const listeners = {};
+    const codeEditor = {
+        value: 'вперед 50',
+        selectionStart: 0,
+        selectionEnd: 0,
+        addEventListener(eventName, handler) {
+            listeners[eventName] = handler;
+        },
+    };
+    const controller = createEditorInputController({
+        codeEditor,
+        exampleBlocks: [],
+        editorUi: {
+            updateEditorDecorations() {},
+            getEditorErrorLine() { return null; },
+            setEditorErrorLine() {},
+        },
+        executionController: { runCode() {} },
+        interpreter: { isExecuting: false },
+    });
+    controller.setupEditorInputListeners();
+
+    const escapeEvent = {
+        key: 'Escape',
+        preventDefaultCalled: false,
+        preventDefault() { this.preventDefaultCalled = true; },
+    };
+    listeners.keydown(escapeEvent);
+    assert.equal(escapeEvent.preventDefaultCalled, false);
+
+    const exitForwardEvent = {
+        key: 'Tab',
+        shiftKey: false,
+        preventDefaultCalled: false,
+        preventDefault() { this.preventDefaultCalled = true; },
+    };
+    listeners.keydown(exitForwardEvent);
+    assert.equal(exitForwardEvent.preventDefaultCalled, false);
+    assert.equal(codeEditor.value, 'вперед 50');
+
+    const indentEvent = {
+        key: 'Tab',
+        shiftKey: false,
+        preventDefaultCalled: false,
+        preventDefault() { this.preventDefaultCalled = true; },
+    };
+    listeners.keydown(indentEvent);
+    assert.equal(indentEvent.preventDefaultCalled, true);
+
+    const exitBackwardEvent = {
+        key: 'Tab',
+        shiftKey: true,
+        preventDefaultCalled: false,
+        preventDefault() { this.preventDefaultCalled = true; },
+    };
+    listeners.keydown(exitBackwardEvent);
+    assert.equal(exitBackwardEvent.preventDefaultCalled, false);
+});
+
 runTest('lifecycle controller initializes runtime and registers resize fallback', () => {
     const previousResizeObserver = global.ResizeObserver;
     const previousWindow = global.window;

@@ -12,6 +12,8 @@ export function createEditorInputController({
     interpreter,
     requestExampleConfirmation,
 }) {
+    let allowFocusExitOnNextTab = false;
+
     function loadAndRunExample(code) {
         codeEditor.value = code;
         if (editorUi.getEditorErrorLine() !== null) editorUi.setEditorErrorLine(null);
@@ -51,10 +53,19 @@ export function createEditorInputController({
     }
 
     function handleEditorKeyDown(event) {
+        if (event.key === 'Escape') {
+            if (!interpreter.isExecuting) allowFocusExitOnNextTab = true;
+            return;
+        }
         if (interpreter.isExecuting && event.key !== 'Escape') {
             event.preventDefault();
             return;
         }
+        if (event.key === 'Tab' && (event.shiftKey || allowFocusExitOnNextTab)) {
+            allowFocusExitOnNextTab = false;
+            return;
+        }
+        allowFocusExitOnNextTab = false;
         if (event.key === 'Enter' && (event.ctrlKey || event.metaKey || event.shiftKey)) {
             event.preventDefault();
             executionController.runCode();
@@ -81,6 +92,9 @@ export function createEditorInputController({
         codeEditor.addEventListener('click', editorUi.updateEditorDecorations);
         codeEditor.addEventListener('keyup', editorUi.updateEditorDecorations);
         codeEditor.addEventListener('focus', editorUi.updateEditorDecorations);
+        codeEditor.addEventListener('blur', () => {
+            allowFocusExitOnNextTab = false;
+        });
     }
 
     function setupPlaceholderBehavior() {

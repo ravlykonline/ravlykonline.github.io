@@ -17,6 +17,7 @@ Use this checklist after accessibility-related changes and before release.
   - `zen.html`
   - `about.html`
 - Verify `skip-link` is the first keyboard stop on page load.
+- Verify `Tab` inserts an editor indent, while `Shift+Tab` or `Escape` followed by `Tab` moves focus out of the editor.
 - Verify `skip-link` moves focus to `#main-content`.
 - Verify the accessibility panel opens, traps focus, closes on `Escape`, and returns focus to the toggle.
 - Verify settings persist after reload:
