@@ -16,6 +16,7 @@ function runTest(name, fn) {
 
 const publicHtmlFiles = [
     'index.html',
+    '404.html',
     'manual.html',
     'lessons.html',
     'quiz.html',
@@ -118,7 +119,8 @@ runTest('privacy page explains the project data flow and analytics provider', ()
     assert.match(html, /виконується локально у браузері/);
     assert.match(html, /Cloudflare Web Analytics/);
     assert.match(html, /не використовує cookies/);
-    assert.match(html, /GitHub Pages/);
+    assert.match(html, /Cloudflare Pages/);
+    assert.equal(html.includes('GitHub Pages'), false);
     assert.match(html, /#code=/);
 });
 

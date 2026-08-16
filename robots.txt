@@ -1,4 +1,17 @@
+# РАВЛИК — безкоштовний освітній проєкт: код під AGPL-3.0, навчальні матеріали
+# під CC BY-SA 4.0. Доступ дозволено всім сумлінним ботам без винятків, включно
+# з пошуковими, ШІ-асистентами та навчанням моделей.
+#
+# Content Signals (https://contentsignals.org) декларують це явно:
+#   search   — індексація і показ у пошуку;
+#   ai-input — використання у відповідях ШІ (RAG, grounding);
+#   ai-train — навчання та донавчання моделей.
+#
+# Карта матеріалів для агентів: /llms.txt
+# Довідка з мови для генерації коду: /language-reference.md
+
 User-agent: *
+Content-Signal: search=yes,ai-input=yes,ai-train=yes
 Allow: /
 
 # Service directories and test files

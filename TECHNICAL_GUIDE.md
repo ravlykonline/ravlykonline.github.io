@@ -254,10 +254,10 @@ Accessibility verification note:
 - automated tests cover structure, focus flow, key persistence paths, and the main high-contrast visual contract
 - screen reader output and final visual readability checks remain manual and are tracked in `ACCESSIBILITY_CHECKLIST.md`
 
-GitHub Pages note:
+Static deployment and PWA cache note:
 - the project uses versioned local asset URLs such as `?v=2026-03-11-1` for CSS, JS, and `site.webmanifest`
 - when shipping a public update, bump that shared release token across HTML entry pages so cached school/lab browsers fetch fresh assets
-- this is the repository-level cache-busting strategy because GitHub Pages does not provide custom cache-header control
+- Cloudflare Pages supports `_headers`, but the release token remains coordinated with the Service Worker and prevents old school/lab caches from mixing asset versions
 - `sw.js` uses the same shared release token as its cache version and should be updated when public asset behavior changes
 
 ## 9. Release checklist

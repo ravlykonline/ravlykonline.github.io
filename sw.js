@@ -33,6 +33,7 @@ const CACHEABLE_EXTENSIONS = new Set([
 
 const PRECACHE_URLS = [
     '/',
+    '/404.html',
     '/about.html',
     '/advice_for_parents.html',
     '/android-chrome-192x192.png',

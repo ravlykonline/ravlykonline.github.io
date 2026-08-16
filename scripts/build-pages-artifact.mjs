@@ -10,6 +10,7 @@ export const PAGES_PUBLICATION_MANIFEST = {
     root: {
         files: [
             'index.html',
+            '404.html',
             'manual.html',
             'lessons.html',
             'quiz.html',
@@ -23,6 +24,9 @@ export const PAGES_PUBLICATION_MANIFEST = {
             'sw.js',
             'robots.txt',
             'sitemap.xml',
+            'llms.txt',
+            'language-reference.md',
+            '_headers',
             'CNAME',
             'android-chrome-192x192.png',
             'android-chrome-512x512.png',
@@ -192,5 +196,5 @@ if (isCliRun) {
         ? path.resolve(defaultProjectRoot, outputArgument)
         : path.join(defaultProjectRoot, '.pages-artifact');
     const builtPath = buildPagesArtifact({ outputRoot });
-    console.log(`GitHub Pages artifact built at ${builtPath}`);
+    console.log(`Cloudflare Pages artifact built at ${builtPath}`);
 }

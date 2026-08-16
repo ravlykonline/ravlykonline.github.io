@@ -9,6 +9,7 @@ const projectRoot = path.resolve(__dirname, '..');
 
 const publicHtmlFiles = [
     'index.html',
+    '404.html',
     'manual.html',
     'lessons.html',
     'quiz.html',
@@ -80,8 +81,8 @@ for (const relativePath of targetFiles) {
     if (relativePath.endsWith('.html')) {
         updated = replaceOrThrow(
             updated,
-            /Release token for GitHub Pages cache busting: [^-<]+(?:-[^-<]+){3}/,
-            `Release token for GitHub Pages cache busting: ${nextVersion} `,
+            /Static deployment release token: [^-<]+(?:-[^-<]+){3}/,
+            `Static deployment release token: ${nextVersion} `,
             'release comment',
             relativePath
         );

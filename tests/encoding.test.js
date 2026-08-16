@@ -13,6 +13,7 @@ function runTest(name, fn) {
 
 const filesToValidate = [
     'index.html',
+    '404.html',
     'manual.html',
     'lessons.html',
     'js/main.js',
@@ -30,6 +31,10 @@ const filesToValidate = [
     'TECHNICAL_GUIDE.md',
     'about.html',
     'privacy.html',
+    'llms.txt',
+    'language-reference.md',
+    '_headers',
+    'robots.txt',
 ];
 
 const htmlFilesToValidateTargetRel = [
@@ -206,6 +211,92 @@ runTest('index page keeps key Ukrainian UI strings intact', () => {
     });
 });
 
+runTest('index page publishes honest WebApplication structured data', () => {
+    const indexHtml = fs.readFileSync('index.html', 'utf8');
+    const jsonLdMatch = indexHtml.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+    assert.ok(jsonLdMatch, 'index.html should contain JSON-LD structured data');
+
+    const structuredData = JSON.parse(jsonLdMatch[1]);
+    const graph = structuredData['@graph'];
+    assert.ok(Array.isArray(graph), 'index JSON-LD should expose an @graph array');
+
+    const application = graph.find((item) => item['@type'] === 'WebApplication');
+    assert.ok(application, 'index JSON-LD should describe the editor as a WebApplication');
+    assert.equal(application.url, 'https://ravlyk.org/');
+    assert.equal(application.applicationCategory, 'EducationalApplication');
+    assert.equal(application.isAccessibleForFree, true);
+    assert.equal(application.offers?.price, 0);
+    assert.equal(application.inLanguage, 'uk');
+    assert.equal('aggregateRating' in application, false, 'structured data must not invent ratings');
+    assert.equal('review' in application, false, 'structured data must not invent reviews');
+});
+
+runTest('robots.txt opens the whole site to search and AI crawlers', () => {
+    const robotsTxt = fs.readFileSync('robots.txt', 'utf8');
+
+    assert.match(
+        robotsTxt,
+        /^Content-Signal: search=yes,ai-input=yes,ai-train=yes$/m,
+        'robots.txt should declare permissive content signals'
+    );
+    assert.match(robotsTxt, /^User-agent: \*$/m);
+    assert.match(robotsTxt, /^Allow: \/$/m);
+    assert.match(robotsTxt, /^Sitemap: https:\/\/ravlyk\.org\/sitemap\.xml$/m);
+
+    // A Disallow naming a specific AI or search crawler would silently undo the
+    // policy above, so the file must only restrict paths under User-agent: *.
+    const namedUserAgents = [...robotsTxt.matchAll(/^User-agent: (.+)$/gm)].map((match) => match[1].trim());
+    assert.deepEqual(namedUserAgents, ['*'], 'robots.txt must not carve out per-crawler groups');
+
+    for (const agentDoc of ['/llms.txt', '/language-reference.md']) {
+        assert.equal(
+            robotsTxt.includes(`Disallow: ${agentDoc}`),
+            false,
+            `${agentDoc} must stay crawlable for agents`
+        );
+    }
+});
+
+runTest('every indexable page ships parseable structured data with a breadcrumb', () => {
+    const expectedPrimaryType = {
+        'lessons.html': 'Course',
+        'manual.html': 'TechArticle',
+        'resources.html': 'CollectionPage',
+        'teacher_guidelines.html': 'LearningResource',
+        'advice_for_parents.html': 'Article',
+        'quiz.html': 'LearningResource',
+        'about.html': 'AboutPage',
+    };
+
+    Object.entries(expectedPrimaryType).forEach(([path, primaryType]) => {
+        const html = fs.readFileSync(path, 'utf8');
+        const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+        assert.ok(jsonLdMatch, `${path} should contain JSON-LD structured data`);
+
+        const graph = JSON.parse(jsonLdMatch[1])['@graph'];
+        assert.ok(Array.isArray(graph), `${path} JSON-LD should expose an @graph array`);
+
+        const primary = graph.find((item) => item['@type'] === primaryType);
+        assert.ok(primary, `${path} should describe itself as ${primaryType}`);
+        assert.equal(primary.inLanguage, 'uk', `${path} structured data should declare Ukrainian`);
+
+        const canonicalMatch = html.match(/<link rel="canonical" href="([^"]+)" \/>/);
+        assert.ok(canonicalMatch, `${path} should declare a canonical URL`);
+        assert.equal(
+            primary.url,
+            canonicalMatch[1],
+            `${path} structured data url must match its canonical URL`
+        );
+
+        const breadcrumbs = graph.find((item) => item['@type'] === 'BreadcrumbList');
+        assert.ok(breadcrumbs, `${path} should publish a BreadcrumbList`);
+        assert.equal(breadcrumbs.itemListElement.at(-1).item, canonicalMatch[1]);
+
+        assert.equal('aggregateRating' in primary, false, `${path} must not invent ratings`);
+        assert.equal('review' in primary, false, `${path} must not invent reviews`);
+    });
+});
+
 runTest('all target="_blank" links explicitly declare rel="noopener noreferrer"', () => {
     htmlFilesToValidateTargetRel.forEach((path) => {
         const html = fs.readFileSync(path, 'utf8');
@@ -223,22 +314,40 @@ runTest('all target="_blank" links explicitly declare rel="noopener noreferrer"'
     });
 });
 
-runTest('sitemap includes published public support pages', () => {
+runTest('canonical metadata and sitemap use final extensionless production URLs', () => {
     const sitemapXml = fs.readFileSync('sitemap.xml', 'utf8');
+    const canonicalByFile = {
+        'index.html': 'https://ravlyk.org/',
+        'manual.html': 'https://ravlyk.org/manual',
+        'lessons.html': 'https://ravlyk.org/lessons',
+        'resources.html': 'https://ravlyk.org/resources',
+        'quiz.html': 'https://ravlyk.org/quiz',
+        'advice_for_parents.html': 'https://ravlyk.org/advice_for_parents',
+        'teacher_guidelines.html': 'https://ravlyk.org/teacher_guidelines',
+        'about.html': 'https://ravlyk.org/about',
+        'privacy.html': 'https://ravlyk.org/privacy',
+    };
 
-    const requiredSnippets = [
-        'https://ravlyk.org/resources.html',
-        'https://ravlyk.org/about.html',
-        'https://ravlyk.org/privacy.html',
-    ];
-
-    requiredSnippets.forEach((snippet) => {
+    Object.entries(canonicalByFile).forEach(([path, canonicalUrl]) => {
+        const html = fs.readFileSync(path, 'utf8');
         assert.equal(
-            sitemapXml.includes(snippet),
+            html.includes(`<link rel="canonical" href="${canonicalUrl}" />`),
             true,
-            `sitemap.xml should include published page: ${snippet}`
+            `${path} should use its final production canonical URL`
+        );
+        assert.equal(
+            sitemapXml.includes(`<loc>${canonicalUrl}</loc>`),
+            true,
+            `sitemap.xml should include canonical URL: ${canonicalUrl}`
         );
     });
+
+    assert.doesNotMatch(sitemapXml, /<loc>[^<]+\.html<\/loc>/);
+    assert.doesNotMatch(sitemapXml, /<priority>/);
+    assert.equal(sitemapXml.includes('/zen'), false, 'noindex zen mode must stay out of sitemap.xml');
+    assert.equal(sitemapXml.includes('/game'), false, 'game must stay out until it is index-ready');
+    assert.equal(sitemapXml.includes('/go'), false, 'go must stay out until it is index-ready');
+    assert.equal(sitemapXml.includes('/artist'), false, 'artist must stay out until it is index-ready');
 });
 
 runTest('public pages and client scripts do not hardcode the temporary /v4beta path', () => {

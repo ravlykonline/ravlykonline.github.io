@@ -26,7 +26,7 @@ npm run test:e2e         # усі E2E-тести (Playwright)
 npm run test             # unit + E2E разом
 npm run check            # precache + root/go/artist unit-тести + shared HTML partials + ESLint
 npm run lint             # ESLint для js/ та sw.js
-npm run pages:build      # зібрати allowlist-артефакт для GitHub Pages
+npm run pages:build      # зібрати allowlist-артефакт для Cloudflare Pages
 npm run precache:sync    # згенерувати SW precache з deployment manifest
 npm run precache:check   # перевірити, що згенерований SW precache актуальний
 npm run html:sync-partials # синхронізація спільних HTML-блоків
@@ -65,7 +65,7 @@ tests/
   astAnimationRuntime.test.js    — lazy animation runtime: порожня програма, move/turn, repeat, змінні, if/else, функції, budget
   runtimeUnification.test.js     — createAstRuntime.step() напряму: sequences, repeat, assign, if/else, функції, ColorStmt/ClearStmt
   legacyBoundary.test.js         — CI-межа: executeCommands не викликає astToLegacyQueue і runCommandQueue
-  pagesArtifact.test.js          — allowlist GitHub Pages: основний сайт, музей та ігри без tests/logs/експериментів
+  pagesArtifact.test.js          — allowlist Cloudflare Pages: основний сайт, музей та ігри без tests/logs/експериментів
   parserTestUtils.js             — спільні утиліти для тестів парсера
   testUtils.js                   — загальні тестові утиліти
   e2e/

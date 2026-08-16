@@ -13,6 +13,7 @@ function runTest(name, fn) {
 
 const htmlFiles = [
     'index.html',
+    '404.html',
     'manual.html',
     'lessons.html',
     'quiz.html',
@@ -49,7 +50,7 @@ runTest('release version stays synchronized across public HTML entry points', ()
         const html = fs.readFileSync(path, 'utf8');
 
         assert.equal(
-            html.includes(`Release token for GitHub Pages cache busting: ${releaseVersion}`),
+            html.includes(`Static deployment release token: ${releaseVersion}`),
             true,
             `${path} should expose the current release token comment`
         );

@@ -9,6 +9,7 @@ const checkOnly = process.argv.includes('--check');
 
 const publicHtmlFiles = [
     'index.html',
+    '404.html',
     'manual.html',
     'lessons.html',
     'quiz.html',
@@ -92,6 +93,9 @@ const partials = [
             'privacy.html': {
                 FOOTER_TEXT: '&copy;<span class="current-year">2026</span> РАВЛИК | Приватність',
             },
+            '404.html': {
+                FOOTER_TEXT: '&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК',
+            },
         },
     },
     {
@@ -134,6 +138,18 @@ const partials = [
         tagName: 'nav',
         files: {
             'resources.html': {},
+        },
+    },
+    {
+        name: 'site-nav-links:not-found',
+        render: () => renderSiteNavLinks(['editor', 'manual'], {
+            wrapperClass: 'about-nav site-links-uniform',
+            ariaLabel: 'Куди перейти далі',
+        }),
+        fallbackStart: '<nav class="about-nav site-links-uniform" aria-label="Куди перейти далі">',
+        tagName: 'nav',
+        files: {
+            '404.html': {},
         },
     },
     {

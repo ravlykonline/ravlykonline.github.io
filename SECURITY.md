@@ -18,7 +18,7 @@
 
 Cloudflare Web Analytics підключається напряму на публічних HTML-сторінках. У CSP дозволено тільки `https://static.cloudflareinsights.com` для beacon-скрипта і `https://cloudflareinsights.com` для відправлення метрик; Google Analytics більше не підключається.
 
-Публічна сторінка `privacy.html` пояснює локальну обробку дитячого коду, локальні browser storage, share-посилання, роль GitHub Pages і Cloudflare Web Analytics. Посилання на неї має бути доступним із футера кожної сторінки, де працює analytics beacon.
+Публічна сторінка `privacy.html` пояснює локальну обробку дитячого коду, локальні browser storage, share-посилання, роль Cloudflare Pages і Cloudflare Web Analytics. Посилання на неї має бути доступним із футера кожної сторінки, де працює analytics beacon.
 
 Основні ліміти виконання живуть у `js/modules/constants.js`:
 
@@ -60,7 +60,7 @@ Service Worker переписано:
 - реєструється тільки для production host (`js/registerServiceWorker.js` перевіряє `location.hostname`);
 - scope явно `{ scope: '/' }` — production живе в корені домену;
 - runtime cache фільтрується через `CACHEABLE_EXTENSIONS` allowlist (розширення файлів);
-- install-time precache генерується з allowlist-маніфесту GitHub Pages; `npm run precache:check` не дозволяє йому розійтися з опублікованими файлами;
+- install-time precache генерується з allowlist-маніфесту Cloudflare Pages; `npm run precache:check` не дозволяє йому розійтися з опублікованими файлами;
 - `cache.put` обгорнуто в `try/catch`;
 - bounded cleanup при перевищенні `MAX_RUNTIME_CACHE_ENTRIES`;
 - release/cache version синхронізується через `scripts/sync-release-version.mjs` і перевіряється `tests/releaseVersion.test.js` та `tests/serviceWorker.test.js`.

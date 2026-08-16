@@ -28,7 +28,11 @@ try {
     runTest('pages artifact includes the main site and intended public projects', () => {
         const expectedPaths = [
             'index.html',
+            '404.html',
             'privacy.html',
+            'llms.txt',
+            'language-reference.md',
+            '_headers',
             'CNAME',
             'js/main.js',
             'old/index.html',
@@ -51,6 +55,29 @@ try {
                 `Expected public artifact path: ${relativePath}`
             );
         }
+    });
+
+    runTest('pages artifact includes a crawl-safe custom 404 page', () => {
+        const notFoundHtml = fs.readFileSync(path.join(outputRoot, '404.html'), 'utf8');
+
+        assert.match(notFoundHtml, /<meta name="robots" content="noindex, follow"\s*\/>/);
+        assert.match(notFoundHtml, /Помилка 404/);
+        assert.match(notFoundHtml, /href="index\.html"/);
+        assert.equal(notFoundHtml.includes('rel="canonical"'), false);
+    });
+
+    runTest('pages artifact publishes curated agent documentation with explicit media types', () => {
+        const llmsText = fs.readFileSync(path.join(outputRoot, 'llms.txt'), 'utf8');
+        const languageReference = fs.readFileSync(path.join(outputRoot, 'language-reference.md'), 'utf8');
+        const headers = fs.readFileSync(path.join(outputRoot, '_headers'), 'utf8');
+
+        assert.match(llmsText, /https:\/\/ravlyk\.org\/language-reference\.md/);
+        assert.match(llmsText, /не має backend/);
+        assert.match(languageReference, /# Мова програмування РАВЛИК/);
+        assert.match(languageReference, /повторити 4/);
+        assert.match(languageReference, /GNU AGPL-3\.0/);
+        assert.match(headers, /\/language-reference\.md[\s\S]*Content-Type: text\/markdown/);
+        assert.match(headers, /\/llms\.txt[\s\S]*Content-Type: text\/plain/);
     });
 
     runTest('pages artifact excludes development, tests, logs, and duplicate archives', () => {
@@ -117,6 +144,7 @@ try {
     runTest('about page links to the noindex museum', () => {
         const aboutHtml = fs.readFileSync('about.html', 'utf8');
         assert.match(aboutHtml, /href="old\/"/);
+        assert.match(aboutHtml, /href="https:\/\/github\.com\/ravlykonline\/ravlykonline\.github\.io"/);
 
         for (const relativePath of [
             'old/index.html',
@@ -132,4 +160,4 @@ try {
     fs.rmSync(temporaryRoot, { recursive: true, force: true });
 }
 
-console.log('GitHub Pages artifact tests completed.');
+console.log('Cloudflare Pages artifact tests completed.');
