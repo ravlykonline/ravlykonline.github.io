@@ -17,6 +17,13 @@
     --color-callout-tip-accent: #57c2bd;
     --color-callout-task-bg: #fffbe6;
     --color-callout-task-accent: #ffa500;
+    --color-high-contrast-bg: #000000;
+    --color-high-contrast-text: #ffffff;
+    --color-high-contrast-accent: #ffe082;
+    --color-high-contrast-link: #4dd0e1;
+    --radius-control: 8px;
+    --radius-panel: 10px;
+    --shadow-card-soft: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 html.a11y-high-contrast {
@@ -47,17 +54,17 @@ html.a11y-high-contrast {
 }
 
 .a11y-high-contrast .modal-overlay .help-content {
-    background: #000 !important;
-    color: #fff !important;
-    border: 2px solid #fff !important;
+    background: var(--color-high-contrast-bg) !important;
+    color: var(--color-high-contrast-text) !important;
+    border: 2px solid var(--color-high-contrast-text) !important;
 }
 .a11y-high-contrast .modal-overlay .help-content h2 {
-    color: #ffe082 !important;
+    color: var(--color-high-contrast-accent) !important;
 }
 .a11y-high-contrast .modal-overlay .help-content button {
-    background: #000 !important;
-    color: #fff !important;
-    border: 2px solid #ffe082 !important;
+    background: var(--color-high-contrast-bg) !important;
+    color: var(--color-high-contrast-text) !important;
+    border: 2px solid var(--color-high-contrast-accent) !important;
     box-shadow: none !important;
 }
 
@@ -129,7 +136,7 @@ footer.main-footer {
     justify-content: center;
     padding: 10px 20px;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-control);
     cursor: pointer;
     font-weight: bold;
     font-size: 1rem;

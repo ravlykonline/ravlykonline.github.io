@@ -2,7 +2,7 @@
 
 Primary engineering guide for this repository.
 
-Last updated: 2026-05-19
+Last updated: 2026-08-16
 
 Related:
 - `README.md` for a short project overview
@@ -15,11 +15,16 @@ Related:
 
 ## 1. Documentation policy
 
-Keep only these canonical repo-wide documents:
+Canonical repo-wide documents and their responsibilities:
 - `README.md` for public-facing orientation
-- `TECHNICAL_GUIDE.md` for engineering reality
+- `TECHNICAL_GUIDE.md` for the engineering overview and current cross-cutting debt
+- `ARCHITECTURE.md` for detailed architecture and runtime boundaries
+- `LANGUAGE_SPEC.md` for language semantics
+- `SECURITY.md` for the security model and security release checks
+- `TESTING.md` for test infrastructure and coverage
 - `DESIGN_GUIDE.md` for design-system and CSS rules
 - `ACCESSIBILITY_CHECKLIST.md` for accessibility regression verification
+- `RELEASE_CHECKLIST.md` and `SEO_DEPLOYMENT_CHECKLIST.md` for release operations
 - `LICENSE` for source-code permissions
 - `LICENSE-CONTENT.md` for non-code educational materials
 - `BRAND_POLICY.md` for brand-use restrictions
@@ -74,9 +79,10 @@ Supporting controller/module groups:
 - GIF export: `js/modules/gifCapture.js` (frame capture, 100ms intervals, max 200 frames) + `js/modules/gifEncoder.js` (GIF89a encoder, NeuQuant fallback, no external deps)
 
 Deployment:
-- primary host: DigitalOcean App Platform (static site, `environment_slug: html`, spec in `.do/app.yaml`)
-- output directory set to `.` in DO dashboard (root of repo served as-is)
-- `package.json` is present for test tooling only; DO does not run a build step
+- primary and only production host: Cloudflare Pages
+- `npm run pages:build` creates the allowlisted `.pages-artifact/` directory
+- Cloudflare Pages publishes `.pages-artifact/`, not the repository root
+- the allowlist includes the main site and the intended public `old/`, `artist/`, `game/`, and `go/` projects; tests, logs, backups, developer documentation, and `maisternia/` are excluded
 
 ## 4. Repository map
 
@@ -90,6 +96,8 @@ Primary pages:
 - `advice_for_parents.html`: parent page
 - `zen.html`: alternate/static informational page
 - `about.html`: project background and origin page
+- `privacy.html`: privacy and local-data-processing explanation
+- `404.html`: not-found page used by the static host
 
 Primary CSS:
 - `css/global.css`: shared tokens and common UI
@@ -134,7 +142,7 @@ Implemented condition families:
 Semantic notes:
 - `фон` changes the background underlay, not existing drawing
 - `очистити` restores a clean white sheet
-- non-game execution uses lazy AST runtime; the legacy queue adapter remains only for compatibility tests and the disabled `parseTokens()` shim
+- non-game execution uses the lazy AST runtime; legacy flat-queue compatibility modules and APIs have been removed
 - game mode runs on a fixed tick loop and validates its contract before execution
 
 ## 6. Runtime and safety model
@@ -228,10 +236,10 @@ What the suites cover:
 - page-level contracts for manual, lessons, quiz, and accessibility
 - encoding and mojibake regressions
 - E2E smoke flows for editor and responsive UI
-- keyboard smoke for skip-link, `main`, and accessibility-panel focus flow on all public pages
-- persistence checks for accessibility settings on `index.html`, `manual.html`, and `lessons.html`
+- keyboard smoke for skip-link, `main`, and accessibility-panel focus flow on all ten primary content pages
+- persistence checks for all five accessibility settings on those ten content pages
 - computed-style regression checks for high contrast on quiz, lessons, zen, resources, teacher, and parent pages
-- offline smoke for the warmed PWA shell on `index.html`, `manual.html`, `lessons.html`, and `quiz.html`
+- offline navigation and reload smoke for the warmed PWA shell across every root HTML page, including quiz data
 
 Primary accessibility E2E specs:
 - `tests/e2e/accessibility.pages.spec.js`
@@ -256,7 +264,7 @@ Accessibility verification note:
 
 Static deployment and PWA cache note:
 - the project uses versioned local asset URLs such as `?v=2026-03-11-1` for CSS, JS, and `site.webmanifest`
-- when shipping a public update, bump that shared release token across HTML entry pages so cached school/lab browsers fetch fresh assets
+- when shipping a public update, update the shared release token with `npm run release:sync-version -- YYYY-MM-DD-N`; do not edit individual entry pages manually
 - Cloudflare Pages supports `_headers`, but the release token remains coordinated with the Service Worker and prevents old school/lab caches from mixing asset versions
 - `sw.js` uses the same shared release token as its cache version and should be updated when public asset behavior changes
 
@@ -266,29 +274,29 @@ Before release or public deploy:
 1. run `npm run test:unit`
 2. run `node tests/encoding.test.js`
 3. run `npm run test:e2e`
-4. bump the shared asset version token in HTML entry pages when the release changes public CSS, JS, or manifest behavior
+4. run `npm run release:sync-version -- YYYY-MM-DD-N` when the release changes public CSS, JS, manifest, or Service Worker behavior; `release-version.json` is the canonical value
 5. when public offline behavior changes, keep `sw.js` cache version and the shared HTML asset token aligned
-6. visually verify `index.html`, `manual.html`, `lessons.html`, `resources.html`, `quiz.html`, `teacher_guidelines.html`, `advice_for_parents.html`, `zen.html`, and `about.html`
+6. visually verify `index.html`, `manual.html`, `lessons.html`, `resources.html`, `quiz.html`, `teacher_guidelines.html`, `advice_for_parents.html`, `zen.html`, `about.html`, and `privacy.html`
 7. recheck links, anchors, modals, mobile layout, accessibility settings, download/share flows, and warmed offline startup
 8. run the manual P1 review from `ACCESSIBILITY_CHECKLIST.md` for screen reader and visual accessibility checks
 9. keep `README.md`, this file, `DESIGN_GUIDE.md`, and `ACCESSIBILITY_CHECKLIST.md` aligned with real repo behavior
 
-## 10. Current technical debt
+## 10. Current maintenance boundaries
 
-Primary remaining debt:
-- CSS is improved but still partly page-local rather than componentized
-- `css/manual.css` remains the largest static styling surface
-- large static content pages still require careful manual maintenance
-- legacy queue modules (`interpreterAstQueueAdapter.js`, `interpreterQueueRuntime.js`) are still present for old tests and compatibility boundaries, but production execution no longer uses them
-- service worker scope is hardcoded to `/`; conflicts with subdirectory deployments (§7.4 of ARCHITECTURE.md)
-- GIF export uses real-time playback (1×) with freeze frames at start/end; flicker on `фон` command may appear in edge cases with rapid background changes
+No known high-priority core technical debt remains in the tracked backlog.
+
+Intentional boundaries:
+- shared colors, accessibility colors, common radii, and card shadows live in `css/global.css`; page-specific layout remains in page stylesheets, including the larger `css/manual.css`
+- large static content pages still require editorial review when their structure changes
+- the service worker scope is intentionally `/`, matching the Cloudflare Pages root deployment; a subdirectory deployment would require a separate architecture decision
+- GIF export uses real-time playback (1×) with freeze frames at start/end; short bursts of instantaneous `фон` commands are coalesced for at most one 100ms capture window, while background-only programs continue to record periodic frames
 
 Accessibility settings follow-up:
 - screen reader smoke is still manual and should be rerun on `index.html`, `manual.html`, and `lessons.html` before release
 - final visual review is still needed for larger text, reduced motion, simpler font, and increased spacing across desktop and mobile widths
-- persistence is directly covered for `index.html`, `manual.html`, and `lessons.html`; the remaining public pages rely on the shared `js/accessibility.js` contract and should still be spot-checked manually
+- persistence is directly covered on all ten primary content pages; `404.html` is covered by the offline shell but is not part of the accessibility persistence matrix; final usability and screen-reader output still require manual review
 
-Offline/PWA follow-up:
+Offline/PWA operating constraints:
 - the local offline shell is working only after a successful online warm cache
 - third-party runtime dependencies are still external for analytics via Cloudflare Web Analytics from `static.cloudflareinsights.com`, with beacon submission allowed to `cloudflareinsights.com`
 - icon assets are now localized into `assets/icons/*` and included in the service-worker precache; analytics is no longer part of the critical shell path, but the remote provider is still external by design

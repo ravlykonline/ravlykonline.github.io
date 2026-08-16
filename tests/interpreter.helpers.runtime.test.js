@@ -27,7 +27,6 @@ import {
     composeCanvasLayersForExport,
 } from '../js/modules/backgroundLayer.js';
 import { createGifCapture } from '../js/modules/gifCapture.js';
-import { cloneInterpreterCommand } from '../js/modules/interpreterCommandClone.js';
 import { destroyInterpreterLifecycle } from '../js/modules/interpreterLifecycleCleanup.js';
 import {
     stopExecutionRuntime,
@@ -544,43 +543,6 @@ runTest('background layer helper applies underlay styling and export composition
     ]);
 });
 
-runTest('interpreter command clone helper deep-clones nested commands and strips runtime fields', () => {
-    const source = {
-        type: 'REPEAT',
-        remainingIterations: 2,
-        commands: [
-            {
-                type: 'MOVE',
-                remainingDistance: 10,
-            },
-        ],
-        thenCommands: [
-            {
-                type: 'TURN',
-                remainingAngle: 15,
-            },
-        ],
-        elseCommands: [
-            {
-                type: 'PEN_UP',
-                animationProgress: 0.3,
-                startScale: 1,
-            },
-        ],
-    };
-
-    const cloned = cloneInterpreterCommand(source);
-    assert.equal(cloned === source, false);
-    assert.equal(cloned.commands[0] === source.commands[0], false);
-    assert.equal(cloned.thenCommands[0] === source.thenCommands[0], false);
-    assert.equal(cloned.elseCommands[0] === source.elseCommands[0], false);
-    assert.equal('remainingIterations' in cloned, false);
-    assert.equal('remainingDistance' in cloned.commands[0], false);
-    assert.equal('remainingAngle' in cloned.thenCommands[0], false);
-    assert.equal('animationProgress' in cloned.elseCommands[0], false);
-    assert.equal('startScale' in cloned.elseCommands[0], false);
-});
-
 runTest('interpreter lifecycle cleanup helper is idempotent and clears runtime state', () => {
     const removedEvents = [];
     const cancelledFrames = [];
@@ -595,9 +557,6 @@ runTest('interpreter lifecycle cleanup helper is idempotent and clears runtime s
         shouldStop: false,
         isPaused: true,
         isExecuting: true,
-        executionEnv: { foo: 1 },
-        commandQueue: [{ type: 'MOVE' }],
-        currentCommandIndex: 7,
         pressedKeys: new Set(['arrowup']),
     };
 
@@ -619,9 +578,6 @@ runTest('interpreter lifecycle cleanup helper is idempotent and clears runtime s
     assert.equal(runtime.shouldStop, true);
     assert.equal(runtime.isPaused, false);
     assert.equal(runtime.isExecuting, false);
-    assert.equal(runtime.executionEnv, null);
-    assert.deepEqual(runtime.commandQueue, []);
-    assert.equal(runtime.currentCommandIndex, 0);
     assert.equal(runtime.pressedKeys.size, 0);
 
     const secondRun = destroyInterpreterLifecycle({
@@ -708,6 +664,92 @@ runTest('gif capture reports visible progress while recording frames', () => {
 
     assert.deepEqual(progressValues, [12]);
     assert.equal(capture.hasFrames(), true);
+
+    global.document = previousDocument;
+});
+
+runTest('gif capture defers transient background frames and keeps the settled color', () => {
+    const previousDocument = global.document;
+    let visiblePixel = 10;
+    const context = {
+        fillStyle: '',
+        fillRect() {},
+        drawImage() {},
+        getImageData() {
+            return { data: new Uint8ClampedArray([visiblePixel, 0, 0, 255]) };
+        },
+    };
+
+    global.document = {
+        createElement() {
+            return {
+                width: 0,
+                height: 0,
+                getContext() {
+                    return context;
+                },
+            };
+        },
+    };
+
+    const capture = createGifCapture({
+        canvas: { width: 1, height: 1 },
+        backgroundCanvas: null,
+        getCanvasBackgroundColor: () => '#fff',
+    });
+
+    capture.start();
+    capture.captureFrame(16, { defer: true });
+    visiblePixel = 20;
+    capture.captureFrame(16, { defer: true });
+    capture.stop();
+
+    assert.equal(capture.getFrames().length, 7);
+    capture.getFrames().forEach((frame) => assert.equal(frame.pixels[0], 20));
+
+    global.document = previousDocument;
+});
+
+runTest('gif capture periodically records a background-only animation', () => {
+    const previousDocument = global.document;
+    let visiblePixel = 0;
+    const context = {
+        fillStyle: '',
+        fillRect() {},
+        drawImage() {},
+        getImageData() {
+            return { data: new Uint8ClampedArray([visiblePixel, 0, 0, 255]) };
+        },
+    };
+
+    global.document = {
+        createElement() {
+            return {
+                width: 0,
+                height: 0,
+                getContext() {
+                    return context;
+                },
+            };
+        },
+    };
+
+    const capture = createGifCapture({
+        canvas: { width: 1, height: 1 },
+        backgroundCanvas: null,
+        getCanvasBackgroundColor: () => '#fff',
+    });
+
+    capture.start();
+    for (let tick = 1; tick <= 100; tick++) {
+        visiblePixel = tick;
+        capture.captureFrame(16, { defer: true });
+    }
+    capture.stop();
+
+    const animationFrames = capture.getFrames().slice(2, -4);
+    assert.ok(animationFrames.length >= 10 && animationFrames.length <= 20);
+    assert.ok(new Set(animationFrames.map((frame) => frame.pixels[0])).size >= 10);
 
     global.document = previousDocument;
 });
@@ -1054,7 +1096,6 @@ await runAsyncTest('executeProgramRuntime restores execution state once after a 
         isExecuting: false,
         shouldStop: true,
         isPaused: true,
-        currentCommandIndex: 99,
         boundaryWarningShown: true,
         async runAstAnimation() {
             throw runtimeError;
@@ -1075,7 +1116,6 @@ await runAsyncTest('executeProgramRuntime restores execution state once after a 
     assert.equal(runtime.isExecuting, false);
     assert.equal(runtime.shouldStop, false);
     assert.equal(runtime.isPaused, false);
-    assert.equal(runtime.currentCommandIndex, 0);
     assert.equal(runtime.boundaryWarningShown, false);
     assert.deepEqual(indicatorCalls, [[null, -1]]);
 });

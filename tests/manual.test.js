@@ -117,7 +117,7 @@ runTest('manual code example helpers normalize code and build editor links', () 
     assert.match(rootEditorLink, /^https:\/\/ravlyk\.org\/index\.html#code=/);
 });
 
-runTest('manual documents all public runtime error messages except developer-only legacy path', () => {
+runTest('manual documents all public runtime error messages', () => {
     const constantsSource = fs.readFileSync('js/modules/constants.js', 'utf8');
     const manualHtml = fs.readFileSync('manual.html', 'utf8');
 
@@ -129,7 +129,6 @@ runTest('manual documents all public runtime error messages except developer-onl
     );
 
     const excludedKeys = new Set([
-        'LEGACY_PARSE_PATH_REMOVED',
         'IMAGE_SAVED',
         'CODE_EXECUTED',
         'EXECUTION_STOPPED',

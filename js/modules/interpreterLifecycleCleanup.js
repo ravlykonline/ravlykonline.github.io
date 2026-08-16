@@ -26,9 +26,6 @@ export function destroyInterpreterLifecycle({
     runtime.shouldStop = true;
     runtime.isPaused = false;
     runtime.isExecuting = false;
-    runtime.executionEnv = null;
-    runtime.commandQueue = [];
-    runtime.currentCommandIndex = 0;
     runtime.pressedKeys.clear();
 
     return true;

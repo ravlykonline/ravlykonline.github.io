@@ -49,7 +49,7 @@ export const MAX_GAME_TICK_OPERATIONS = 500;
 - animation path виконує AST ліниво через `interpreterAstAnimationRuntime.js` → `createAstRuntime`; плоска command queue більше не будується;
 - `maxAstSteps: MAX_COMMAND_QUEUE_LENGTH` (50000) передається в `createAstRuntime` для animation path — рахуються ВСІ AST-кроки (присвоєння, умови, цикли, виклики), не тільки примітиви;
 - game mode виконує AST напряму через `interpreterAstRuntime.js` і має per-tick budget (`MAX_GAME_TICK_OPERATIONS = 500`);
-- `interpreterAstQueueAdapter.js` залишається тільки для legacy tests і `parseTokens()` shim, позначено `@deprecated`.
+- legacy flat-queue adapter/runtime і `parseTokens()` compatibility shim видалені; тести виконують програми через AST runtime.
 
 Критичний ризик зависання через вкладені цикли повністю закритий.
 
@@ -63,7 +63,7 @@ Service Worker переписано:
 - install-time precache генерується з allowlist-маніфесту Cloudflare Pages; `npm run precache:check` не дозволяє йому розійтися з опублікованими файлами;
 - `cache.put` обгорнуто в `try/catch`;
 - bounded cleanup при перевищенні `MAX_RUNTIME_CACHE_ENTRIES`;
-- release/cache version синхронізується через `scripts/sync-release-version.mjs` і перевіряється `tests/releaseVersion.test.js` та `tests/serviceWorker.test.js`.
+- release/cache version береться з канонічного `release-version.json`, синхронізується через `scripts/sync-release-version.mjs` і перевіряється `tests/releaseVersion.test.js` та `tests/serviceWorker.test.js`.
 
 ## 5. XSS і DOM
 
@@ -113,5 +113,4 @@ npm run check
 ## 9. Поточні Пріоритети
 
 1. Тримати `LANGUAGE_SPEC.md`, manual і tests синхронними при кожній зміні мови.
-2. Поступово мігрувати тести, що досі використовують `astToLegacyQueue` / flat queue, на `createAstRuntime` / `executeCommands`, а після цього видалити `interpreterAstQueueAdapter.js` і `interpreterQueueRuntime.js`.
-3. Розширювати мову (нові команди, `поки`-цикл) тільки після того, як кожна нова команда покрита тестами та описана в `LANGUAGE_SPEC.md`.
+2. Розширювати мову новими командами тільки після того, як кожна команда покрита тестами та описана в `LANGUAGE_SPEC.md`; `поки` і `стоп` уже реалізовані.

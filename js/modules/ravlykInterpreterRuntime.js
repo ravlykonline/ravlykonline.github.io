@@ -13,11 +13,10 @@ import {
 } from './constants.js';
 import { RavlykError } from './ravlykParser.js';
 import { Environment } from './environment.js';
-import { evaluateAstCondition, evaluateRuntimeIfCondition } from './interpreterConditions.js';
+import { evaluateAstCondition } from './interpreterConditions.js';
 import { startGameLoopRuntime } from './interpreterGameLoop.js';
 import { createGameAstRunner } from './interpreterGameAstRunner.js';
 import { executeInterpreterCommand } from './interpreterCommandExecutor.js';
-import { astProgramToLegacyQueue } from './interpreterAstQueueAdapter.js';
 import { hasGameStatement, validateGameProgramContract } from './interpreterGameContract.js';
 import { handlePrimitiveAstStatement } from './interpreterPrimitiveStatements.js';
 import {
@@ -36,7 +35,6 @@ import {
 } from './interpreterDrawingOps.js';
 import { drawLinenBackground } from './interpreterEmbroidery.js';
 import { applyBackgroundLayer } from './backgroundLayer.js';
-import { cloneInterpreterCommand } from './interpreterCommandClone.js';
 import { runAstAnimationRuntime } from './interpreterAstAnimationRuntime.js';
 
 export function handlePrimitiveAstStatementRuntime(runtime, stmt, env, mode, outputQueue = null) {
@@ -86,21 +84,6 @@ export function handlePrimitiveAstStatementRuntime(runtime, stmt, env, mode, out
         performHome: () => runtime.performHome(),
         clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
         setEmbroideryMode: (on) => setEmbroideryModeRuntime(runtime, on),
-    });
-}
-
-export function astToLegacyQueueRuntime(runtime, programAst, options = {}) {
-    return astProgramToLegacyQueue({
-        programAst,
-        emitAssignments: !!options.emitAssignments,
-        EnvironmentCtor: Environment,
-        maxRecursionDepth: MAX_RECURSION_DEPTH,
-        maxRepeatsInLoop: MAX_REPEATS_IN_LOOP,
-        maxCommandQueueLength: MAX_COMMAND_QUEUE_LENGTH,
-        evalAstNumberExpression: (expr, envRef) => runtime.evalAstNumberExpression(expr, envRef),
-        handlePrimitiveAstStatement: (stmt, envRef, mode, out) => runtime.handlePrimitiveAstStatement(stmt, envRef, mode, out),
-        attachAstErrorLocation: (error, node) => runtime.attachAstErrorLocation(error, node),
-        createError: (messageKey, ...params) => new RavlykError(messageKey, ...params),
     });
 }
 
@@ -171,7 +154,6 @@ export async function executeProgramRuntime(runtime, programAst) {
     runtime.isExecuting = true;
     runtime.shouldStop = false;
     runtime.isPaused = false;
-    runtime.currentCommandIndex = 0;
     runtime.boundaryWarningShown = false;
 
     try {
@@ -188,16 +170,6 @@ export async function executeProgramRuntime(runtime, programAst) {
 export async function executeCommandsRuntime(runtime, commandsString) {
     const programAst = prepareProgramRuntime(runtime, commandsString);
     return executeProgramRuntime(runtime, programAst);
-}
-
-export function evaluateIfConditionRuntime(runtime, condition) {
-    const evalEnv = runtime.executionEnv || new Environment(null);
-    return evaluateRuntimeIfCondition(condition, {
-        evalAstNumberExpression: (expr, envRef) => runtime.evalAstNumberExpression(expr, envRef),
-        executionEnv: evalEnv,
-        isAtCanvasEdge: () => runtime.isAtCanvasEdge(),
-        pressedKeys: runtime.pressedKeys,
-    });
 }
 
 export function runAstAnimationWithRuntime(runtime, programAst) {
@@ -230,15 +202,9 @@ export function runAstAnimationWithRuntime(runtime, programAst) {
         executeAnimatedCommand: (cmd, deltaTime, realDeltaTime) => {
             return executeInterpreterCommand({
                 currentCommandObject: cmd,
-                currentFrame: { commands: [], index: 0 },
-                executionStack: [],
                 deltaTime,
-                // createAstRuntime handles AssignmentStmt internally; ASSIGN_AST
-                // commands will never reach here.  REPEAT / IF are also handled
-                // internally, so executionEnv is only used for expression resolution.
                 executionEnv: cmd._capturedEnv,
                 evalAstNumberExpression: (expr, envRef) => runtime.evalAstNumberExpression(expr, envRef),
-                createVariableValueInvalidError: (name, value) => new RavlykError('VARIABLE_VALUE_INVALID', name, value),
                 semanticDeltaTime: realDeltaTime,
                 animatePen: (c, targetScale, dt) => runtime.animatePen(c, targetScale, dt),
                 animateMove: (c, distance, dt) => runtime.animateMove(c, distance, dt),
@@ -254,10 +220,6 @@ export function runAstAnimationWithRuntime(runtime, programAst) {
                 performHome: () => performHomeRuntime(runtime),
                 clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
                 setEmbroideryMode: (on) => setEmbroideryModeRuntime(runtime, on),
-                cloneCommand: (c) => cloneInterpreterCommand(c),
-                // IfStmt and RepeatStmt are handled by createAstRuntime internally
-                // and will never surface here as primitive commands.
-                evaluateIfCondition: () => false,
                 resetStuckState: () => {
                     runtime.state.isStuck = false;
                     runtime.boundaryWarningShown = false;
@@ -284,7 +246,11 @@ export function runAstAnimationWithRuntime(runtime, programAst) {
             runtime.commandIndicatorUpdater(null, -1);
         },
         updateRavlykVisualState: () => runtime.updateRavlykVisualState(),
-        onFrameCapture: runtime.gifCapture ? (ms) => runtime.gifCapture.captureFrame(ms) : null,
+        onFrameCapture: runtime.gifCapture
+            ? (ms, command) => runtime.gifCapture.captureFrame(ms, {
+                defer: command?.type === 'BACKGROUND',
+            })
+            : null,
     });
 }
 

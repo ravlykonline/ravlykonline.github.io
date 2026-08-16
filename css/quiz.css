@@ -111,7 +111,7 @@
 }
 
 .quiz-option:has(input:checked) {
-    background: #eef4ff;
+    background: var(--color-surface-summary);
     border-color: #9db7ea;
 }
 

@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { createInterpreter } from './parserTestUtils.js';
+import { collectTokenPrimitives } from './astRuntimeTestUtils.js';
 import { Environment } from '../js/modules/environment.js';
 import { runTest } from './testUtils.js';
 
 runTest('throws on undefined variable', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['forward', 'unknown_value']),
+        () => collectTokenPrimitives(interpreter, ['forward', 'unknown_value']),
         (error) => error && error.name === 'RavlykError' && error.message.includes('unknown_value')
     );
 });
@@ -15,7 +16,7 @@ runTest('parser error exposes line and column metadata', () => {
     const interpreter = createInterpreter();
     const tokens = interpreter.tokenize('forward 10\nright bad_angle');
     assert.throws(
-        () => interpreter.parseTokens(tokens),
+        () => collectTokenPrimitives(interpreter, tokens),
         (error) => error
             && error.name === 'RavlykError'
             && error.line === 2
@@ -29,7 +30,7 @@ runTest('parser keeps source line metadata in repeat body', () => {
     const interpreter = createInterpreter();
     const tokens = interpreter.tokenize('repeat 2 (\n  forward 10\n  fly 3\n)');
     assert.throws(
-        () => interpreter.parseTokens(tokens),
+        () => collectTokenPrimitives(interpreter, tokens),
         (error) => error
             && error.name === 'RavlykError'
             && error.line === 3
@@ -54,7 +55,7 @@ runTest('tokenizer throws friendly error for unclosed string with location', () 
 runTest('throws on division by zero in expression', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['forward', '10', '/', '0']),
+        () => collectTokenPrimitives(interpreter, ['forward', '10', '/', '0']),
         (error) => error && error.name === 'RavlykError'
     );
 });
@@ -62,7 +63,7 @@ runTest('throws on division by zero in expression', () => {
 runTest('throws friendly error for корінь of negative number', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['forward', 'корінь', '(', '-1', ')']),
+        () => collectTokenPrimitives(interpreter, ['forward', 'корінь', '(', '-1', ')']),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'SQRT_NEGATIVE'
     );
 });
@@ -70,7 +71,7 @@ runTest('throws friendly error for корінь of negative number', () => {
 runTest('throws friendly error for math function without parentheses', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['forward', 'корінь', '100']),
+        () => collectTokenPrimitives(interpreter, ['forward', 'корінь', '100']),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'MATH_FUNCTION_EXPECT_OPEN_PAREN'
     );
 });
@@ -78,7 +79,7 @@ runTest('throws friendly error for math function without parentheses', () => {
 runTest('throws friendly error for math function with wrong argument count', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['forward', 'модуль', '(', '1', ',', '2', ')']),
+        () => collectTokenPrimitives(interpreter, ['forward', 'модуль', '(', '1', ',', '2', ')']),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'MATH_FUNCTION_ARGUMENT_COUNT'
     );
 });
@@ -86,7 +87,7 @@ runTest('throws friendly error for math function with wrong argument count', () 
 runTest('throws friendly error for випадково range with wrong argument count', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['forward', 'випадково', '(', '1', ')']),
+        () => collectTokenPrimitives(interpreter, ['forward', 'випадково', '(', '1', ')']),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'RANDOM_RANGE_ARGUMENT_COUNT'
     );
 });
@@ -103,7 +104,7 @@ runTest('throws friendly error for випадково range with reversed bounds
 runTest('throws on unclosed parentheses in expression', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['forward', '(', '10', '+', '2']),
+        () => collectTokenPrimitives(interpreter, ['forward', '(', '10', '+', '2']),
         (error) => error && error.name === 'RavlykError'
     );
 });
@@ -111,7 +112,7 @@ runTest('throws on unclosed parentheses in expression', () => {
 runTest('throws on unknown command', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['fly', '10']),
+        () => collectTokenPrimitives(interpreter, ['fly', '10']),
         (error) => error && error.name === 'RavlykError' && error.message.includes('fly')
     );
 });
@@ -119,7 +120,7 @@ runTest('throws on unknown command', () => {
 runTest('throws on invalid repeat syntax', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['repeat', '2', 'forward', '10']),
+        () => collectTokenPrimitives(interpreter, ['repeat', '2', 'forward', '10']),
         (error) => error && error.name === 'RavlykError'
     );
 });
@@ -127,7 +128,7 @@ runTest('throws on invalid repeat syntax', () => {
 runTest('throws on invalid goto syntax', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['перейти', 'в', '100']),
+        () => collectTokenPrimitives(interpreter, ['перейти', 'в', '100']),
         (error) => error
             && error.name === 'RavlykError'
             && error.messageKey === 'NO_POSITION_Y'
@@ -161,7 +162,7 @@ runTest('перейти without coordinates reports the missing X coordinate', (
 runTest('throws on invalid random move syntax with trailing token', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['вперед', 'випадково', '10']),
+        () => collectTokenPrimitives(interpreter, ['вперед', 'випадково', '10']),
         (error) => error && error.name === 'RavlykError'
     );
 });
@@ -169,7 +170,7 @@ runTest('throws on invalid random move syntax with trailing token', () => {
 runTest('throws on invalid random goto syntax with trailing coordinate', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['перейти', 'в', 'випадково', '20']),
+        () => collectTokenPrimitives(interpreter, ['перейти', 'в', 'випадково', '20']),
         (error) => error && error.name === 'RavlykError'
     );
 });
@@ -177,7 +178,7 @@ runTest('throws on invalid random goto syntax with trailing coordinate', () => {
 runTest('throws on duplicated random goto syntax', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['перейти', 'в', 'випадково', 'випадково']),
+        () => collectTokenPrimitives(interpreter, ['перейти', 'в', 'випадково', 'випадково']),
         (error) => error && error.name === 'RavlykError'
     );
 });
@@ -185,7 +186,7 @@ runTest('throws on duplicated random goto syntax', () => {
 runTest('throws on thickness without value', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['товщина']),
+        () => collectTokenPrimitives(interpreter, ['товщина']),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'NO_THICKNESS_VALUE'
     );
 });
@@ -194,23 +195,23 @@ runTest('throws on invalid thickness forms', () => {
     const interpreter = createInterpreter();
 
     assert.throws(
-        () => interpreter.parseTokens(['товщина', '2.5']),
+        () => collectTokenPrimitives(interpreter, ['товщина', '2.5']),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'INVALID_THICKNESS_VALUE'
     );
     assert.throws(
-        () => interpreter.parseTokens(['товщина', 'синя']),
+        () => collectTokenPrimitives(interpreter, ['товщина', 'синя']),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'INVALID_THICKNESS_VALUE'
     );
     assert.throws(
-        () => interpreter.parseTokens(['товщина', '0']),
+        () => collectTokenPrimitives(interpreter, ['товщина', '0']),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'THICKNESS_OUT_OF_RANGE'
     );
     assert.throws(
-        () => interpreter.parseTokens(['товщина', '-', '3']),
+        () => collectTokenPrimitives(interpreter, ['товщина', '-', '3']),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'THICKNESS_OUT_OF_RANGE'
     );
     assert.throws(
-        () => interpreter.parseTokens(['товщина', '100']),
+        () => collectTokenPrimitives(interpreter, ['товщина', '100']),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'THICKNESS_OUT_OF_RANGE'
     );
 });
@@ -319,7 +320,7 @@ runTest('throws NESTING_TOO_DEEP when blocks nested more than MAX_PARSE_DEPTH', 
     // Build 25 levels of nested повторити blocks (limit is 20)
     const deep = 'повторити 1 ( '.repeat(25) + 'вперед 10' + ' )'.repeat(25);
     assert.throws(
-        () => interpreter.parseTokens(interpreter.tokenize(deep)),
+        () => collectTokenPrimitives(interpreter, interpreter.tokenize(deep)),
         (error) => error && error.name === 'RavlykError' && error.message.includes('вкладених дужок')
     );
 });
@@ -328,5 +329,5 @@ runTest('allows blocks nested exactly at MAX_PARSE_DEPTH', () => {
     const interpreter = createInterpreter();
     // 20 levels should be fine
     const ok = 'повторити 1 ( '.repeat(20) + 'вперед 10' + ' )'.repeat(20);
-    assert.doesNotThrow(() => interpreter.parseTokens(interpreter.tokenize(ok)));
+    assert.doesNotThrow(() => collectTokenPrimitives(interpreter, interpreter.tokenize(ok)));
 });

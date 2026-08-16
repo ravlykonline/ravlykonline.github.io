@@ -15,6 +15,8 @@ export function createGifCapture({ canvas, backgroundCanvas, getCanvasBackground
     let elapsed = 0;
     let lastCapture = -Infinity;
     let active = false;
+    let deferredSince = null;
+    let finalFramePending = false;
 
     // Scale dimensions so width ≤ MAX_GIF_WIDTH
     function gifDimensions() {
@@ -43,20 +45,44 @@ export function createGifCapture({ canvas, backgroundCanvas, getCanvasBackground
         return { pixels: ctx.getImageData(0, 0, w, h).data, delay };
     }
 
-    function captureFrame(deltaMs) {
+    function captureFrame(deltaMs, { defer = false } = {}) {
         if (!active || frames.length >= MAX_FRAMES) return;
         elapsed += deltaMs;
+        finalFramePending = true;
+
+        // Coalesce a short burst of instantaneous background commands, but cap
+        // the delay at one capture window so background-only programs continue
+        // to produce animated GIF frames.
+        if (defer) {
+            if (deferredSince === null) deferredSince = elapsed;
+            if (elapsed - deferredSince < CAPTURE_MS) return;
+        } else {
+            deferredSince = null;
+        }
         if (elapsed - lastCapture < CAPTURE_MS) return;
         lastCapture = elapsed;
 
         frames.push(makeCanvasFrame(FRAME_DELAY_CS));
+        deferredSince = null;
+        finalFramePending = false;
         onProgress?.(Math.min(90, 8 + frames.length * 4));
     }
 
-    function start()  { frames.length = 0; elapsed = 0; lastCapture = -Infinity; active = true; }
+    function start() {
+        frames.length = 0;
+        elapsed = 0;
+        lastCapture = -Infinity;
+        deferredSince = null;
+        finalFramePending = false;
+        active = true;
+    }
 
     function stop() {
         active = false;
+        if (finalFramePending && frames.length < MAX_FRAMES) {
+            frames.push(makeCanvasFrame(FRAME_DELAY_CS));
+            finalFramePending = false;
+        }
         if (frames.length === 0) return;
 
         // Prepend freeze frames (copy of first frame)

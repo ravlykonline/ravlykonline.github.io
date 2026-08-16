@@ -93,14 +93,6 @@ export class RavlykParser {
         return findClosingParenIndexHelper(tokens, openParenIndex);
     }
 
-    parseTokens(tokens, depth = 0, substitutions = {}, tokenMeta = null) {
-        void tokens;
-        void depth;
-        void substitutions;
-        void tokenMeta;
-        throw new RavlykError("LEGACY_PARSE_PATH_REMOVED");
-    }
-
     spanFromMeta(tokenMeta, startIndex, endIndexExclusive) {
         return spanFromTokenMeta(tokenMeta, startIndex, endIndexExclusive);
     }

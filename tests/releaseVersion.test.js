@@ -25,6 +25,16 @@ const htmlFiles = [
     'privacy.html',
 ];
 
+function getCanonicalReleaseVersion() {
+    const releaseConfig = JSON.parse(fs.readFileSync('release-version.json', 'utf8'));
+    assert.match(
+        releaseConfig.releaseVersion,
+        /^\d{4}-\d{2}-\d{2}-\d+$/,
+        'release-version.json should define a valid releaseVersion'
+    );
+    return releaseConfig.releaseVersion;
+}
+
 function getReleaseVersionFromServiceWorker() {
     const sw = fs.readFileSync('sw.js', 'utf8');
     const match = sw.match(/const CACHE_VERSION = '([^']+)';/);
@@ -32,8 +42,12 @@ function getReleaseVersionFromServiceWorker() {
     return match[1];
 }
 
+runTest('release-version.json is the canonical release token', () => {
+    assert.equal(getReleaseVersionFromServiceWorker(), getCanonicalReleaseVersion());
+});
+
 runTest('release version stays synchronized across service worker entry points', () => {
-    const releaseVersion = getReleaseVersionFromServiceWorker();
+    const releaseVersion = getCanonicalReleaseVersion();
     const registerServiceWorkerJs = fs.readFileSync('js/registerServiceWorker.js', 'utf8');
 
     assert.equal(
@@ -44,7 +58,7 @@ runTest('release version stays synchronized across service worker entry points',
 });
 
 runTest('release version stays synchronized across public HTML entry points', () => {
-    const releaseVersion = getReleaseVersionFromServiceWorker();
+    const releaseVersion = getCanonicalReleaseVersion();
 
     htmlFiles.forEach((path) => {
         const html = fs.readFileSync(path, 'utf8');
@@ -69,7 +83,7 @@ runTest('release version stays synchronized across public HTML entry points', ()
 });
 
 runTest('release version stays synchronized inside sw.js PRECACHE_URLS', () => {
-    const releaseVersion = getReleaseVersionFromServiceWorker();
+    const releaseVersion = getCanonicalReleaseVersion();
     const swSource = fs.readFileSync('sw.js', 'utf8');
 
     // Extract the PRECACHE_URLS array body

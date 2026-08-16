@@ -6,6 +6,7 @@ import { syncPrecacheManifest } from './sync-precache-manifest.mjs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
+const releaseVersionPath = path.join(projectRoot, 'release-version.json');
 
 const publicHtmlFiles = [
     'index.html',
@@ -32,7 +33,7 @@ function exitWithUsage(message) {
         console.error(message);
         console.error('');
     }
-    console.error('Usage: npm run release:sync-version -- <YYYY-MM-DD-N>');
+    console.error('Usage: npm run release:sync-version [-- <YYYY-MM-DD-N>]');
     process.exit(1);
 }
 
@@ -44,10 +45,9 @@ function replaceOrThrow(source, pattern, replacement, description, relativePath)
     return source.replace(pattern, replacement);
 }
 
-const nextVersion = process.argv[2]?.trim();
-if (!nextVersion) {
-    exitWithUsage('Missing release version.');
-}
+const configuredRelease = JSON.parse(fs.readFileSync(releaseVersionPath, 'utf8'));
+const requestedVersion = process.argv[2]?.trim();
+const nextVersion = requestedVersion || configuredRelease.releaseVersion;
 
 if (!/^\d{4}-\d{2}-\d{2}-\d+$/.test(nextVersion)) {
     exitWithUsage(`Invalid release version: ${nextVersion}`);
@@ -98,6 +98,15 @@ for (const relativePath of targetFiles) {
     } else {
         console.log(`No changes needed in ${relativePath}`);
     }
+}
+
+if (requestedVersion && requestedVersion !== configuredRelease.releaseVersion) {
+    fs.writeFileSync(
+        releaseVersionPath,
+        `${JSON.stringify({ releaseVersion: requestedVersion }, null, 2)}\n`,
+        'utf8'
+    );
+    console.log('Updated release-version.json');
 }
 
 syncPrecacheManifest({ projectRoot });

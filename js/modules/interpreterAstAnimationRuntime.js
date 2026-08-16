@@ -1,6 +1,6 @@
 // Lazy rAF-driven animation loop for the non-game execution path.
 //
-// Instead of pre-building a flat command queue (astProgramToLegacyQueue), this
+// Instead of pre-building a flat command queue, this
 // module pulls one primitive statement at a time from a createAstRuntime instance
 // and animates it across requestAnimationFrame ticks.
 //
@@ -26,7 +26,7 @@ export function runAstAnimationRuntime({
     // Per-primitive-statement callbacks
     convertStmtToCommand,   // (stmt, env) => legacyCmd | null
     executeAnimatedCommand, // (cmd, deltaTime) => boolean (true = done)
-    // Loop-control callbacks (same contract as runCommandQueueRuntime)
+    // Loop-control callbacks
     config,
     commandIndicatorUpdater,
     createStopError,
@@ -65,6 +65,7 @@ export function runAstAnimationRuntime({
     return new Promise((resolve, reject) => {
         let lastTimestamp = nowFn();
         let pendingCmd = null; // command currently being animated (multi-frame)
+        let primitiveIndex = 0;
 
         const tick = (timestamp) => {
             if (getShouldStop()) {
@@ -93,7 +94,7 @@ export function runAstAnimationRuntime({
                 if (pendingCmd !== null) {
                     const done = executeAnimatedCommand(pendingCmd, animDeltaTime, realDeltaTime);
                     updateRavlykVisualState();
-                    if (onFrameCapture) onFrameCapture(frameMs);
+                    if (onFrameCapture) onFrameCapture(frameMs, pendingCmd);
                     if (!done) {
                         setAnimationFrameId(requestAnimationFrameFn(tick));
                         return;
@@ -119,11 +120,12 @@ export function runAstAnimationRuntime({
                     return;
                 }
 
-                commandIndicatorUpdater(cmd.original ?? '', 0);
+                commandIndicatorUpdater(cmd.original ?? '', primitiveIndex);
+                primitiveIndex++;
 
                 const done = executeAnimatedCommand(cmd, animDeltaTime, realDeltaTime);
                 updateRavlykVisualState();
-                if (onFrameCapture) onFrameCapture(frameMs);
+                if (onFrameCapture) onFrameCapture(frameMs, cmd);
                 if (!done) {
                     pendingCmd = cmd; // needs more frames
                 }

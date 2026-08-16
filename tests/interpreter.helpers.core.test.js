@@ -7,13 +7,9 @@ import {
 import {
     normalizeConditionKey,
     evaluateAstCondition,
-    evaluateRuntimeIfCondition,
 } from '../js/modules/interpreterConditions.js';
 import { stopGameLoopRuntime } from '../js/modules/interpreterGameLoop.js';
 import { createGameAstRunner } from '../js/modules/interpreterGameAstRunner.js';
-import { runCommandQueueRuntime } from '../js/modules/interpreterQueueRuntime.js';
-import { executeInterpreterCommand } from '../js/modules/interpreterCommandExecutor.js';
-import { astProgramToLegacyQueue } from '../js/modules/interpreterAstQueueAdapter.js';
 import {
     hasGameStatement,
     validateGameProgramContract,
@@ -58,21 +54,6 @@ runTest('interpreter condition helpers normalize keys and evaluate conditions', 
     );
     assert.equal(astKey, true);
 
-    const runtimeCompare = evaluateRuntimeIfCondition(
-        {
-            type: 'COMPARE_AST',
-            op: '>',
-            left: { type: 'Identifier', name: 'x' },
-            right: { type: 'NumberLiteral', value: 3 },
-        },
-        {
-            evalAstNumberExpression: evalExpr,
-            executionEnv: { x: 5 },
-            isAtCanvasEdge: () => false,
-            pressedKeys: new Set(),
-        }
-    );
-    assert.equal(runtimeCompare, true);
 });
 
 runTest('interpreter game loop helper clears timer and rejects optional error', () => {
@@ -130,160 +111,6 @@ runTest('interpreter game AST runner throws when no game block is present', () =
             attachAstErrorLocation() {},
         });
     }, /GAME_NOT_SUPPORTED_HERE/);
-});
-
-runTest('interpreter queue runtime triggers stop path synchronously', () => {
-    const runtime = { frameId: null, shouldStop: true, isPaused: false, currentIndex: -1 };
-    let completedCalls = 0;
-    let errorCalls = 0;
-    let cancelCalls = 0;
-
-    runCommandQueueRuntime({
-        commandQueue: [],
-        config: { animationEnabled: true },
-        commandIndicatorUpdater() {},
-        ensureExecutionEnv() {},
-        createStopError() { return new Error('stop'); },
-        getShouldStop: () => runtime.shouldStop,
-        getIsPaused: () => runtime.isPaused,
-        setCurrentCommandIndex: (idx) => { runtime.currentIndex = idx; },
-        setAnimationFrameId: (id) => { runtime.frameId = id; },
-        getAnimationFrameId: () => runtime.frameId,
-        cancelAnimationFrameFn() { cancelCalls += 1; },
-        requestAnimationFrameFn: (cb) => { cb(0); return 1; },
-        nowFn: () => 0,
-        onExecutionCompleted: () => { completedCalls += 1; },
-        onExecutionError: () => { errorCalls += 1; },
-        executeCurrentCommand: () => true,
-        updateRavlykVisualState() {},
-    }).catch(() => {});
-
-    assert.equal(completedCalls, 0);
-    assert.equal(errorCalls, 1);
-    assert.equal(cancelCalls, 0);
-});
-
-runTest('interpreter command executor assigns numeric value for ASSIGN_AST', () => {
-    const env = {
-        assigned: null,
-        set(name, value) {
-            this.assigned = { name, value };
-        },
-    };
-
-    const done = executeInterpreterCommand({
-        currentCommandObject: {
-            type: 'ASSIGN_AST',
-            name: 'x',
-            expr: { type: 'NumberLiteral', value: 7 },
-        },
-        currentFrame: { index: 0 },
-        executionStack: [],
-        deltaTime: 0,
-        executionEnv: env,
-        evalAstNumberExpression: () => 7,
-        createVariableValueInvalidError: () => new Error('invalid'),
-        animatePen: () => true,
-        animateMove: () => true,
-        animateTurn: () => true,
-        setColor() {},
-        performGoto() {},
-        clearToDefaultSheet() {},
-        cloneCommand: (cmd) => cmd,
-        evaluateIfCondition: () => false,
-        resetStuckState() {},
-        state: { isPenDown: true },
-    });
-
-    assert.equal(done, true);
-    assert.deepEqual(env.assigned, { name: 'x', value: 7 });
-});
-
-runTest('interpreter command executor defines local value for create ASSIGN_AST', () => {
-    const env = {
-        assigned: null,
-        defined: null,
-        set(name, value) {
-            this.assigned = { name, value };
-        },
-        define(name, value) {
-            this.defined = { name, value };
-        },
-    };
-
-    const done = executeInterpreterCommand({
-        currentCommandObject: {
-            type: 'ASSIGN_AST',
-            name: 'x',
-            expr: { type: 'NumberLiteral', value: 7 },
-            declaredWithCreate: true,
-        },
-        currentFrame: { index: 0 },
-        executionStack: [],
-        deltaTime: 0,
-        executionEnv: env,
-        evalAstNumberExpression: () => 7,
-        createVariableValueInvalidError: () => new Error('invalid'),
-        animatePen: () => true,
-        animateMove: () => true,
-        animateTurn: () => true,
-        setColor() {},
-        performGoto() {},
-        clearToDefaultSheet() {},
-        cloneCommand: (cmd) => cmd,
-        evaluateIfCondition: () => false,
-        resetStuckState() {},
-        state: { isPenDown: true },
-    });
-
-    assert.equal(done, true);
-    assert.equal(env.assigned, null);
-    assert.deepEqual(env.defined, { name: 'x', value: 7 });
-});
-
-runTest('interpreter AST queue adapter emits assignment command when enabled', () => {
-    class FakeEnv {
-        constructor(parent = null) { this.parent = parent; this.map = new Map(); }
-        set(name, value) { this.map.set(name, value); }
-        define(name, value) { this.map.set(name, value); }
-        get(name) {
-            if (this.map.has(name)) return this.map.get(name);
-            if (this.parent) return this.parent.get(name);
-            return undefined;
-        }
-        clone() {
-            const copy = new FakeEnv(this.parent);
-            for (const [key, value] of this.map.entries()) copy.map.set(key, value);
-            return copy;
-        }
-    }
-
-    const queue = astProgramToLegacyQueue({
-        programAst: {
-            type: 'Program',
-            body: [
-                {
-                    type: 'AssignmentStmt',
-                    name: 'score',
-                    expr: { type: 'NumberLiteral', value: 12 },
-                    declaredWithCreate: true,
-                },
-            ],
-        },
-        emitAssignments: true,
-        EnvironmentCtor: FakeEnv,
-        maxRecursionDepth: 2,
-        maxRepeatsInLoop: 10,
-        evalAstNumberExpression: (expr) => Number(expr.value),
-        handlePrimitiveAstStatement: () => false,
-        attachAstErrorLocation() {},
-        createError: (code, ...params) => new Error(`${code}:${params.join(',')}`),
-    });
-
-    assert.equal(queue.length, 1);
-    assert.equal(queue[0].type, 'ASSIGN_AST');
-    assert.equal(queue[0].name, 'score');
-    assert.equal(queue[0].declaredWithCreate, true);
 });
 
 runTest('interpreter game-contract helper detects nested game and rejects invalid top-level', () => {
@@ -378,39 +205,4 @@ runTest('interpreter game AST runner throws GAME_TICK_OVERFLOW when tick exceeds
         () => runner.runGameTick(),
         (err) => err && err.name === 'RavlykError' && err.message === 'GAME_TICK_OVERFLOW'
     );
-});
-
-runTest('interpreter queue adapter throws COMMAND_QUEUE_OVERFLOW on nested loops before exhausting memory', () => {
-    class FakeEnv {
-        constructor() { this._vars = {}; }
-        define(k, v) { this._vars[k] = v; }
-        set(k, v) { this._vars[k] = v; }
-        get(k) { return this._vars[k] ?? 0; }
-        clone() { const e = new FakeEnv(); e._vars = { ...this._vars }; return e; }
-    }
-
-    const fwd = { type: 'MoveStmt', command: 'вперед', distanceExpr: { type: 'NumberLiteral', value: 1 } };
-    const inner = { type: 'RepeatStmt', count: { type: 'NumberLiteral', value: 500 }, body: [fwd] };
-    const outer = { type: 'RepeatStmt', count: { type: 'NumberLiteral', value: 500 }, body: [inner] };
-    const programAst = { type: 'Program', body: [outer] };
-
-    const createError = (key) => { const e = new Error(key); e.name = 'RavlykError'; return e; };
-
-    assert.throws(() => {
-        astProgramToLegacyQueue({
-            programAst,
-            EnvironmentCtor: FakeEnv,
-            maxRecursionDepth: 10,
-            maxRepeatsInLoop: 500,
-            maxCommandQueueLength: 100,
-            evalAstNumberExpression: (expr) => expr.value ?? 0,
-            handlePrimitiveAstStatement: (stmt, env, mode, out) => {
-                if (stmt.type === 'RepeatStmt' || stmt.type === 'IfStmt') return false;
-                if (out) out.push({ type: 'MOVE' });
-                return true;
-            },
-            attachAstErrorLocation: () => {},
-            createError,
-        });
-    }, (err) => err && err.message === 'COMMAND_QUEUE_OVERFLOW');
 });

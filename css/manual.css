@@ -1,21 +1,21 @@
 /* css/manual.css */
 
 :root {
-    --manual-panel-radius: 10px;
+    --manual-panel-radius: var(--radius-panel);
     --manual-panel-padding: 20px;
     --manual-panel-margin-y: 25px;
     --manual-accent-border-width: 5px;
-    --manual-card-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --manual-card-shadow: var(--shadow-card-soft);
     --manual-surface-border: 1px solid #ddd;
-    --manual-high-contrast-bg: #000;
-    --manual-high-contrast-text: #fff;
-    --manual-high-contrast-border: #fff;
+    --manual-high-contrast-bg: var(--color-high-contrast-bg);
+    --manual-high-contrast-text: var(--color-high-contrast-text);
+    --manual-high-contrast-border: var(--color-high-contrast-text);
     --manual-high-contrast-muted-bg: #111;
     --manual-high-contrast-hover-bg: #222;
-    --manual-high-contrast-accent: #ffe082;
-    --manual-high-contrast-link-accent: #4dd0e1;
+    --manual-high-contrast-accent: var(--color-high-contrast-accent);
+    --manual-high-contrast-link-accent: var(--color-high-contrast-link);
     --manual-inline-code-bg: rgba(0, 0, 0, 0.05);
-    --manual-content-block-radius: 8px;
+    --manual-content-block-radius: var(--radius-control);
     --manual-content-block-padding: 15px;
     --manual-content-block-margin-y: 20px;
     --manual-content-block-border: 1px solid #ccc;
@@ -55,7 +55,7 @@
     --manual-example-result-border: #ffa500;
     --manual-example-result-text: #d97706;
     --manual-shell-bg: #f5f2ff;
-    --manual-ui-border-soft: #d5cdef;
+    --manual-ui-border-soft: var(--color-border-soft-purple);
     --manual-ui-border-muted: #cfc8ee;
     --manual-ui-border-emphasis: #d9dfef;
     --manual-ui-surface-soft: #ede9f9;
@@ -63,7 +63,7 @@
     --manual-ui-surface-tinted: rgba(255, 255, 255, 0.55);
     --manual-ui-surface-details: #f8fbff;
     --manual-ui-surface-details-open: #e4ecff;
-    --manual-ui-surface-summary: #eef4ff;
+    --manual-ui-surface-summary: var(--color-surface-summary);
     --manual-ui-focus-ring: rgba(106, 90, 205, 0.2);
     --manual-ui-heading: #30265f;
     --manual-ui-heading-strong: #2f255c;
@@ -79,9 +79,9 @@
     --manual-code-action-text: #352d66;
     --manual-code-action-hover-bg: #ede9f9;
     --manual-code-action-hover-text: #2f255c;
-    --manual-callout-tips-bg: #e6f7ff;
-    --manual-callout-tips-accent: #1890ff;
-    --manual-callout-tips-heading: #0050b3;
+    --manual-callout-tips-bg: var(--color-callout-tips-bg);
+    --manual-callout-tips-accent: var(--color-callout-tips-accent);
+    --manual-callout-tips-heading: var(--color-callout-tips-heading);
     --manual-callout-interactive-bg: #fff3cd;
     --manual-callout-interactive-accent: #ffc107;
     --manual-callout-interactive-heading: #b08c00;
@@ -329,9 +329,9 @@
     --manual-mobile-close-bg: rgba(106, 90, 205, 0.12);
     --manual-mobile-close-font-size: 1.2rem;
     background-color: #eae5f5;
-    border-radius: 10px;
+    border-radius: var(--radius-panel);
     padding: 20px;
-    border: 1px solid #d5cdef;
+    border: 1px solid var(--color-border-soft-purple);
     box-shadow: 0 2px 8px rgba(106, 90, 205, 0.1);
     margin-bottom: 20px; /* Space below TOC on small screens */
     height: fit-content;

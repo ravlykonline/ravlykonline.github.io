@@ -3,11 +3,11 @@
 ## Before Deploy
 
 1. Confirm the working tree is clean with `git status --short`.
-2. If public assets changed, sync the release version with `npm run release:sync-version -- YYYY-MM-DD-N`.
+2. If public assets changed, set and sync the canonical `release-version.json` value with `npm run release:sync-version -- YYYY-MM-DD-N`.
 3. Run `npm run check`. This includes `npm run precache:check`, root unit tests, the `go` and `artist` suites, shared HTML partial checks, and ESLint.
 4. Run `npm run test:e2e -- --reporter=dot`; confirm the four `game` browser harness suites pass in the desktop Chromium project.
 5. If browser/platform-sensitive UI changed, confirm `firefox-smoke` and `webkit-smoke` pass in Playwright output.
-6. Run `npm run pages:build` and confirm the allowlist artifact excludes tests, logs, backups, and unfinished projects.
+6. Run `npm run pages:build` and confirm Cloudflare Pages will publish the generated `.pages-artifact/`; the allowlist artifact must exclude tests, logs, backups, developer documentation, and unfinished projects.
 7. Check that `robots.txt` still points to the production sitemap and that `sitemap.xml` includes all public pages.
 8. Verify `sw.js` and public HTML files share the same release token and versioned asset URLs.
 9. Smoke-check `index.html`, `manual.html`, `lessons.html`, `quiz.html`, `about.html`, and `privacy.html` on the production domain.

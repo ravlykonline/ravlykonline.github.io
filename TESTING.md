@@ -64,8 +64,9 @@ tests/
   serviceWorker.test.js          — Service Worker: production-only registration, allowlist, bounded cache
   astAnimationRuntime.test.js    — lazy animation runtime: порожня програма, move/turn, repeat, змінні, if/else, функції, budget
   runtimeUnification.test.js     — createAstRuntime.step() напряму: sequences, repeat, assign, if/else, функції, ColorStmt/ClearStmt
-  legacyBoundary.test.js         — CI-межа: executeCommands не викликає astToLegacyQueue і runCommandQueue
+  runtimeBoundary.test.js        — CI-межа: legacy flat-queue модулі видалені, executeCommands використовує AST animation
   pagesArtifact.test.js          — allowlist Cloudflare Pages: основний сайт, музей та ігри без tests/logs/експериментів
+  astRuntimeTestUtils.js         — AST runtime helper для parser-тестів; random-аргументи лишаються символічними
   parserTestUtils.js             — спільні утиліти для тестів парсера
   testUtils.js                   — загальні тестові утиліти
   e2e/
@@ -133,6 +134,7 @@ tests/
 - npm run test:unit
 - npm run test:projects
 - npm run html:check-partials
+- npm run precache:check
 - npm run lint
 - npm run test:e2e -- --reporter=dot
 ```
@@ -142,7 +144,7 @@ tests/
 - Screen reader smoke на `index.html`, `manual.html`, `lessons.html`
 - Фінальна візуальна перевірка larger text, reduced motion, simpler font, increased spacing
 - Крос-браузерний manual smoke в Chrome, Edge, Firefox, Safari
-- Offline PWA після hard refresh
+- Production PWA smoke після deploy; локальний E2E уже перевіряє offline reload після warm cache
 
 Детальний чеклист: [`ACCESSIBILITY_CHECKLIST.md`](ACCESSIBILITY_CHECKLIST.md)
 

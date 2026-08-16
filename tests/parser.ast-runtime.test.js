@@ -1,6 +1,7 @@
 ﻿import assert from 'node:assert/strict';
 import { COLOR_MAP, MAX_REPEATS_IN_LOOP, MAX_COMMAND_QUEUE_LENGTH, GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y } from '../js/modules/constants.js';
 import { createInterpreter } from './parserTestUtils.js';
+import { collectAstRuntimePrimitives } from './astRuntimeTestUtils.js';
 import { runTest, runAsyncTest } from './testUtils.js';
 
 runTest('builds Program AST for basic commands', () => {
@@ -114,6 +115,32 @@ await runAsyncTest('executeCommands applies random background color using inject
         assert.equal(String(interpreter.state.backgroundColor).toLowerCase(), String(COLOR_MAP['білий']).toLowerCase());
         assert.equal(String(interpreter.backgroundCanvas.style.backgroundColor).toLowerCase(), String(COLOR_MAP['білий']).toLowerCase());
     } finally {
+        globalThis.requestAnimationFrame = oldRAF;
+        globalThis.cancelAnimationFrame = oldCAF;
+    }
+});
+
+await runAsyncTest('executeCommands defers GIF capture for instantaneous background commands', async () => {
+    const interpreter = createInterpreter();
+    const captureOptions = [];
+    interpreter.setAnimationEnabled(false);
+    interpreter.gifCapture = {
+        captureFrame(_ms, options) {
+            captureOptions.push(options);
+        },
+    };
+
+    const oldRAF = globalThis.requestAnimationFrame;
+    const oldCAF = globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 0);
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    try {
+        await interpreter.executeCommands('фон синій\nвперед 1');
+        assert.equal(captureOptions[0].defer, true);
+        assert.equal(captureOptions.at(-1).defer, false);
+    } finally {
+        interpreter.gifCapture = null;
         globalThis.requestAnimationFrame = oldRAF;
         globalThis.cancelAnimationFrame = oldCAF;
     }
@@ -345,36 +372,26 @@ runTest('builds Program AST for repeat and if', () => {
     assert.equal(ast.body[1].thenBody[0].type, 'TurnStmt');
 });
 
-runTest('astToLegacyQueue keeps compare-if as runtime IF command', () => {
+runTest('AST runtime selects the else branch for a false comparison', () => {
     const interpreter = createInterpreter();
     const ast = interpreter.parseTokensToAst([
         'if', '1', '=', '2',
         '(', 'forward', '10', ')',
         'else', '(', 'backward', '10', ')',
     ]);
-    const queue = interpreter.astToLegacyQueue(ast);
-    assert.equal(queue.length, 1);
-    assert.equal(queue[0].type, 'IF');
-    assert.equal(queue[0].condition.type, 'COMPARE_AST');
-    assert.equal(queue[0].condition.op, '=');
-    assert.equal(queue[0].thenCommands.length, 1);
-    assert.equal(queue[0].elseCommands.length, 1);
+    const primitives = collectAstRuntimePrimitives(interpreter, ast);
+    assert.deepEqual(primitives, [{ type: 'MoveStmt', direction: 'backward', value: 10 }]);
 });
 
-runTest('astToLegacyQueue keeps identifier expressions in IF condition for runtime evaluation', () => {
+runTest('AST runtime evaluates identifier expressions in if conditions', () => {
     const interpreter = createInterpreter();
     const ast = interpreter.parseTokensToAst([
         'create', 'n', '=', '0',
         'if', 'n', '=', '0',
         '(', 'forward', '1', ')',
     ]);
-    const queue = interpreter.astToLegacyQueue(ast, { emitAssignments: true });
-    assert.equal(queue.length, 2);
-    assert.equal(queue[0].type, 'ASSIGN_AST');
-    assert.equal(queue[1].type, 'IF');
-    assert.equal(queue[1].condition.type, 'COMPARE_AST');
-    assert.equal(queue[1].condition.left.type, 'Identifier');
-    assert.equal(queue[1].condition.left.name, 'n');
+    const primitives = collectAstRuntimePrimitives(interpreter, ast);
+    assert.deepEqual(primitives, [{ type: 'MoveStmt', direction: 'forward', value: 1 }]);
 });
 
 runTest('builds AST for assignment and function definition/call', () => {
@@ -393,7 +410,7 @@ runTest('builds AST for assignment and function definition/call', () => {
     assert.equal(ast.body[2].args.length, 1);
 });
 
-runTest('astToLegacyQueue produces MOVE commands with deferred distanceExpr', () => {
+runTest('AST runtime resolves function and later assignment values lazily', () => {
     const interpreter = createInterpreter();
     const ast = interpreter.parseTokensToAst([
         'create', 'step', '=', '5',
@@ -402,12 +419,11 @@ runTest('astToLegacyQueue produces MOVE commands with deferred distanceExpr', ()
         'step', '=', 'step', '+', '3',
         'forward', 'step',
     ]);
-    const queue = interpreter.astToLegacyQueue(ast);
-    assert.equal(queue.length, 2);
-    assert.equal(queue[0].type, 'MOVE');
-    assert.ok(queue[0].distanceExpr, 'MOVE command carries distanceExpr for lazy evaluation');
-    assert.equal(queue[1].type, 'MOVE');
-    assert.ok(queue[1].distanceExpr, 'MOVE command carries distanceExpr for lazy evaluation');
+    const primitives = collectAstRuntimePrimitives(interpreter, ast);
+    assert.deepEqual(primitives, [
+        { type: 'MoveStmt', direction: 'forward', value: 7 },
+        { type: 'MoveStmt', direction: 'forward', value: 8 },
+    ]);
 });
 
 runTest('parseCodeToAst keeps span metadata', () => {
@@ -431,15 +447,6 @@ runTest('parses game statement into AST', () => {
     assert.equal(ast.body[0].body[0].type, 'MoveStmt');
 });
 
-runTest('game statement is rejected at execution adapter stage for now', () => {
-    const interpreter = createInterpreter();
-    const ast = interpreter.parseTokensToAst(['game', '(', 'forward', '1', ')']);
-    assert.throws(
-        () => interpreter.astToLegacyQueue(ast),
-        (error) => error && error.name === 'RavlykError' && error.messageKey === 'GAME_NOT_SUPPORTED_HERE'
-    );
-});
-
 await runAsyncTest('game loop starts and stops via stopExecution', async () => {
     const interpreter = createInterpreter();
     const runPromise = interpreter.executeCommands('game ( forward 1 )');
@@ -454,7 +461,7 @@ runTest('ast runtime error keeps line and column from span', () => {
     const interpreter = createInterpreter();
     const ast = interpreter.parser.parseCodeToAst('create x = 1\nforward missing');
     assert.throws(
-        () => interpreter.astToLegacyQueue(ast),
+        () => collectAstRuntimePrimitives(interpreter, ast),
         (error) => error
             && error.name === 'RavlykError'
             && error.messageKey === 'UNDEFINED_VARIABLE'
@@ -467,7 +474,7 @@ runTest('ast runtime undefined variable location points to identifier inside exp
     const interpreter = createInterpreter();
     const ast = interpreter.parser.parseCodeToAst('forward 1 + missing');
     assert.throws(
-        () => interpreter.astToLegacyQueue(ast),
+        () => collectAstRuntimePrimitives(interpreter, ast),
         (error) => error
             && error.name === 'RavlykError'
             && error.messageKey === 'UNDEFINED_VARIABLE'
@@ -482,7 +489,7 @@ runTest('nested repeats that overflow MAX_COMMAND_QUEUE_LENGTH throw friendly er
     // Two nested loops: 300 * 300 = 90000 > MAX_COMMAND_QUEUE_LENGTH (50000)
     const ast = interpreter.parser.parseCodeToAst('повторити 300 ( повторити 300 ( вперед 1 ) )');
     assert.throws(
-        () => interpreter.astToLegacyQueue(ast),
+        () => collectAstRuntimePrimitives(interpreter, ast),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'COMMAND_QUEUE_OVERFLOW'
     );
 });
@@ -491,7 +498,7 @@ runTest('ast repeat above MAX_REPEATS_IN_LOOP throws friendly error', () => {
     const interpreter = createInterpreter();
     const ast = interpreter.parser.parseCodeToAst(`repeat ${MAX_REPEATS_IN_LOOP + 1} ( forward 1 )`);
     assert.throws(
-        () => interpreter.astToLegacyQueue(ast),
+        () => collectAstRuntimePrimitives(interpreter, ast),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'TOO_MANY_REPEATS_IN_LOOP'
     );
 });
@@ -544,7 +551,7 @@ await runAsyncTest('game contract rejects top-level drawing command when game bl
     );
 });
 
-runTest('lesson baseline snippets still parse and build executable queue', () => {
+runTest('lesson baseline snippets still parse and surface AST primitives', () => {
     const interpreter = createInterpreter();
     const samples = [
         'repeat 4 ( forward 100 right 90 )',
@@ -553,9 +560,8 @@ runTest('lesson baseline snippets still parse and build executable queue', () =>
     ];
     for (const code of samples) {
         const ast = interpreter.parser.parseCodeToAst(code);
-        const queue = interpreter.astToLegacyQueue(ast);
-        assert.ok(Array.isArray(queue));
-        assert.ok(queue.length > 0);
+        const primitives = collectAstRuntimePrimitives(interpreter, ast);
+        assert.ok(primitives.length > 0);
     }
 });
 
@@ -578,7 +584,6 @@ await runAsyncTest('if inside repeat executes sequentially without getting stuck
     }
 
     assert.equal(interpreter.isExecuting, false);
-    assert.equal(interpreter.currentCommandIndex >= 0, true);
     assert.equal(String(interpreter.state.color).toLowerCase(), String(COLOR_MAP['синій']).toLowerCase());
 });
 

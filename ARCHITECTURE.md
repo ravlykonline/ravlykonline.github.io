@@ -1,6 +1,6 @@
 # ARCHITECTURE.md
 
-Документ фіксує поточну архітектуру проєкту РАВЛИК, відкриті технічні борги та напрям подальшого рефакторингу. Він має бути практичним джерелом істини для розробника або агента, який змінює код, а не архівом уже закритих проблем.
+Документ фіксує поточну архітектуру проєкту РАВЛИК, межі підтримки та напрям безпечного розвитку. Він має бути практичним джерелом істини для розробника або агента, який змінює код, а не архівом уже закритих проблем.
 
 ## 1. Поточний стан проєкту
 
@@ -19,7 +19,7 @@
 
 Структура репозиторію:
 
-- 9 HTML-сторінок: `index.html`, `manual.html`, `lessons.html`, `quiz.html`, `resources.html`, `teacher_guidelines.html`, `advice_for_parents.html`, `about.html`, `zen.html`
+- 10 публічних HTML-сторінок: `index.html`, `manual.html`, `lessons.html`, `quiz.html`, `resources.html`, `teacher_guidelines.html`, `advice_for_parents.html`, `about.html`, `zen.html`, `privacy.html`; окремо є `404.html`
 - JavaScript entrypoints у `js/` та core/UI modules у `js/modules/`
 - CSS-файли у `css/`
 - `tests/` — unit і integration тести (Node.js)
@@ -48,6 +48,8 @@
 - `advice_for_parents.html` — поради для батьків.
 - `about.html` — про проєкт.
 - `zen.html` — спрощений/дзен-режим.
+- `privacy.html` — політика приватності й пояснення локальної обробки даних.
+- `404.html` — сторінка для невідомих маршрутів статичного хостингу.
 
 ### 5.2. Основні JS entrypoints
 
@@ -78,13 +80,11 @@
 - `js/modules/interpreterAstRuntime.js` — спільний frame-based AST runtime для обох шляхів виконання. Один env-об'єкт на всі кадри — зміни змінних у `якщо`-блоках видимі наступним командам. Параметри `maxAstSteps` / `maxCommandQueueLength` захищають від зависання.
 - `js/modules/interpreterAstAnimationRuntime.js` — rAF-driven анімаційний цикл для звичайного режиму; тягне примітиви з `createAstRuntime.step()` по одному за кадр; бюджет `maxAstSteps = MAX_COMMAND_QUEUE_LENGTH` обмежує control-flow-only цикли.
 - `js/modules/interpreterGameAstRunner.js` — ігровий режим (`грати`): init-фаза + тік через `createAstRuntime`.
-- `js/modules/interpreterPrimitiveStatements.js` — виконання базових AST-команд у `queue`-режимі (конвертація в legacy cmd) та `immediate`-режимі.
-- `js/modules/interpreterCommandExecutor.js` — виконання однієї legacy runtime-команди; MOVE/TURN/GOTO зберігають вираз і обчислюють ліниво під час анімації.
+- `js/modules/interpreterPrimitiveStatements.js` — виконання базових AST-команд в immediate-режимі та перетворення одного примітива на анімаційну команду.
+- `js/modules/interpreterCommandExecutor.js` — виконання однієї анімаційної команди; MOVE/TURN/GOTO зберігають вираз і обчислюють його ліниво.
 - `js/modules/interpreterConditions.js` — перевірка умов.
 - `js/modules/interpreterAstEval.js` — обчислення числових AST-виразів.
 - `js/modules/environment.js` — середовище змінних.
-- `js/modules/interpreterAstQueueAdapter.js` — **LEGACY COMPATIBILITY ONLY.** Перетворює AST у плоску command queue. Використовується тільки в `RavlykInterpreter.parseTokens()` (backward-compat shim) і старих тестах. Не є частиною production execution path.
-- `js/modules/interpreterQueueRuntime.js` — **LEGACY COMPATIBILITY ONLY.** rAF-цикл для виконання flat command queue. Використовується тільки разом з `interpreterAstQueueAdapter.js`.
 
 ### 5.5. UI / редактор
 
@@ -119,7 +119,7 @@ Animation path повністю переведено на lazy AST execution ч�
 AST -> interpreterAstAnimationRuntime.js -> createAstRuntime (step-by-step) -> rAF loop
 ```
 
-`interpreterAstQueueAdapter.js` і `interpreterQueueRuntime.js` позначено `@deprecated — LEGACY COMPATIBILITY ONLY`. Вони залишаються тільки для зворотної сумісності `parseTokens()` і старих тестів. Cleanup milestone описано в `interpreterAstQueueAdapter.js`.
+Старі `parseTokens()` / `astToLegacyQueue()` compatibility API та модулі `interpreterAstQueueAdapter.js` і `interpreterQueueRuntime.js` видалено після міграції тестів на `createAstRuntime`.
 
 **Виправлений семантичний баг зі змінними:**
 
@@ -136,7 +136,7 @@ AST -> interpreterAstAnimationRuntime.js -> createAstRuntime (step-by-step) -> r
 
 **Budget захист:** `maxAstSteps: MAX_COMMAND_QUEUE_LENGTH` передається в `createAstRuntime` для animation path, тому control-flow-only програми (наприклад, 500×500 вкладених циклів) зупиняються з `COMMAND_QUEUE_OVERFLOW` замість зависання.
 
-**Legacy boundary tests:** `tests/legacyBoundary.test.js` перевіряє в CI, що `executeCommands` ніколи не викликає `astToLegacyQueue` або `runCommandQueue`.
+**Runtime boundary tests:** `tests/runtimeBoundary.test.js` перевіряє в CI, що flat-queue модулі відсутні, а `executeCommands` передає звичайні програми в AST animation path.
 
 ## 7.2. Розгортання циклів у чергу ✓ ЗАВЕРШЕНО
 
@@ -169,20 +169,21 @@ UI спочатку викликає `prepareProgram()` і лише після �
 - `cache.put` обгорнуто в `try/catch`.
 - Bounded cleanup: при перевищенні `MAX_RUNTIME_CACHE_ENTRIES` старі записи видаляються.
 - `CACHEABLE_EXTENSIONS` і `PRECACHE_URLS` генеруються з кореневого розділу `PAGES_PUBLICATION_MANIFEST` через `scripts/sync-precache-manifest.mjs`. Версійні URL беруться з опублікованих HTML і замінюють відповідну неверсійну cache-копію; неверсійні ES-модулі та інші прямі імпорти залишаються. Великі завантажувані файли на кшталт PDF не входять до install-time кешу.
-- Release/cache version синхронізується через `scripts/sync-release-version.mjs` і перевіряється `tests/releaseVersion.test.js` та `tests/serviceWorker.test.js`.
+- Канонічна release/cache version зберігається в `release-version.json`; `scripts/sync-release-version.mjs` генерує її копії в HTML/JS/SW, а `tests/releaseVersion.test.js` і `tests/serviceWorker.test.js` перевіряють синхронність.
 
-## 7.5. Release version синхронізується скриптом
+## 7.5. Release version має одне build-time джерело істини
 
-Release/cache token присутній у кількох HTML/JS/SW entrypoints, але його синхронізація вже контролюється `scripts/sync-release-version.mjs` і `tests/releaseVersion.test.js`.
+`release-version.json` є канонічним build-time джерелом release/cache token. Статичний runtime потребує згенерованих копій у HTML/JS/SW entrypoints; їх створює `scripts/sync-release-version.mjs`, а `tests/releaseVersion.test.js` перевіряє відповідність канонічному значенню.
 
 ### Поточне правило
 
-- зміну release token робити через `npm run release:sync-version`;
+- для поточного значення запускати `npm run release:sync-version`;
+- нове значення задавати через `npm run release:sync-version -- YYYY-MM-DD-N`; скрипт оновить і `release-version.json`, і згенеровані копії;
 - не редагувати версію вручну в одному файлі;
 - після зміни deployment manifest або публічних статичних файлів запускати `npm run precache:sync` (release-скрипт також викликає його автоматично);
 - перед релізом запускати `npm run check`.
 
-Довгостроково можна перейти до одного runtime source-of-truth або build-time підстановки, але зараз duplication guarded tests-ами.
+Це прибирає ручне джерело дублювання без додавання runtime-запиту або build framework до статичного сайту.
 
 ## 7.6. Shared HTML partials
 
@@ -278,17 +279,16 @@ tests/
 - ✓ GitHub Actions (`ci.yml`) налаштовано на корінь, Node.js 24
 - ✓ `tests/` розгорнуто з повним набором unit та E2E тестів
 - ✓ `.editorconfig`, `.gitattributes`, `.gitignore` додано
-- ✓ CSP додано до всіх 9 публічних HTML-сторінок
+- ✓ CSP додано до всіх кореневих HTML-сторінок
 
 ### Етап 2. Обмеження виконання ✓ (основне завершено)
 
 - ✓ Додано `MAX_AST_NODES = 5000` — перевіряється у `semanticValidator.js`.
 - ✓ Додано `MAX_PARSE_DEPTH = 20` — перевіряється в `ravlykParser.js` через `_parseDepth` лічильник.
-- ✓ `MAX_COMMAND_QUEUE_LENGTH = 50000` — захищає legacy queue від надмірного розгортання команд.
+- ✓ `MAX_COMMAND_QUEUE_LENGTH = 50000` — задає загальний budget AST runtime: обмежує кількість виданих примітивів і через `maxAstSteps` зупиняє надмірний control flow.
 - ✓ Лічильник `astStepCount` в `interpreterAstRuntime.js` (параметр `maxAstSteps`) рахує кожен AST-крок включно з присвоєннями та control-flow — використовується для game tick budget.
 - ✓ `EXECUTION_TIMEOUT_MS = 180s` — time-based fallback.
 - ✓ `MAX_GAME_TICK_OPERATIONS = 500` — передається у `createAstRuntime` через `maxAstSteps`; `astStepCount` рахує кожен AST-крок і кидає `GAME_TICK_OVERFLOW` при перевищенні.
-- ✓ Overflow check на початку кожної RepeatStmt ітерації в `interpreterAstQueueAdapter.js` — nested loops fail fast без побудови мільйонів команд.
 - ✓ `maxAstSteps: MAX_COMMAND_QUEUE_LENGTH` передається в `createAstRuntime` для animation path — захист від control-flow-only програм без примітивних команд.
 
 ### Етап 3. Semantic validation ✓ ЗАВЕРШЕНО
@@ -307,14 +307,14 @@ tests/
 - ✓ Ігровий режим (`interpreterGameAstRunner.js`) переписано на `createAstRuntime`.
 - ✓ Виправлено семантичний баг зі змінними в `якщо`-блоках (§7.1).
 - ✓ Animation path переведено на lazy execution через `interpreterAstAnimationRuntime.js` (§7.1, §7.2).
-- ✓ `interpreterAstQueueAdapter.js` і `interpreterQueueRuntime.js` позначено `@deprecated LEGACY COMPATIBILITY ONLY`.
-- ✓ Legacy boundary перевіряється в CI: `tests/legacyBoundary.test.js`.
+- ✓ Legacy flat-queue тести мігровано на `createAstRuntime`; compatibility API та модулі видалено.
+- ✓ Runtime boundary перевіряється в CI: `tests/runtimeBoundary.test.js`.
 
 ### Етап 5. Компоненти й PWA ✓ ЗАВЕРШЕНО
 
 - ✓ Уніфікована accessibility panel і HTML/navigation partials через `scripts/sync-html-partials.mjs`.
 - ✓ Service Worker переписано: production-only registration, allowlist runtime cache, bounded cleanup, `try/catch` для `cache.put` (§7.4).
-- ✓ Release/cache version синхронізується скриптом і перевіряється тестами.
+- ✓ `release-version.json` є канонічним build-time джерелом release/cache version; скрипт генерує статичні копії, тести перевіряють синхронність.
 
 ## 11. Критерії готовності архітектури
 

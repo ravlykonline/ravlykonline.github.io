@@ -351,13 +351,6 @@ If you are an AI agent modifying this repository:
 - If you need a new component, make it look like it belongs next to the current manual/editor UI.
 - If a requested design conflicts with this guide, follow the user request but keep the change localized and explicit.
 
-## 13. Recommended future cleanup
+## 13. Current token ownership
 
-The project would benefit from gradually formalizing these implicit tokens into a shared `:root` design-token layer, for example:
-- shared color tokens
-- shared spacing tokens
-- shared radius tokens
-- shared shadow tokens
-- shared content-block tokens
-
-Until that cleanup happens, this file is the human-readable source of truth.
+Shared colors, high-contrast colors, common radii, and the soft card shadow live in the `:root` token layer in `css/global.css`. Page-specific spacing and content-block geometry intentionally remain with their page components; this file is the human-readable semantic source of truth.

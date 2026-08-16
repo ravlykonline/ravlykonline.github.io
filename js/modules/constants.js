@@ -182,7 +182,6 @@ export const ERROR_MESSAGES = {
     GAME_MODE_TOP_LEVEL_ONLY: 'Якщо у програмі є "грати (...)", поза всіма дужками можна писати лише "створити ... = ..." та оголошення функцій. Перемісти інші команди всередину блоку "грати".',
     GAME_MODE_SINGLE_BLOCK: 'У програмі має бути лише один блок "грати (...)".',
     GAME_MODE_NESTED_BLOCK: 'Блок "грати (...)" має бути окремо, не всередині інших команд або функцій.',
-    LEGACY_PARSE_PATH_REMOVED: 'Старий шлях parseTokens вимкнено. Використовуй AST-шлях: parseTokensToAst / parseCodeToAst.',
 };
 
 export const SUCCESS_MESSAGES = {

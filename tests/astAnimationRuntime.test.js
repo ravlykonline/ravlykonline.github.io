@@ -43,6 +43,7 @@ function makeEnv() {
 function runSync(programAst) {
     const log = [];          // collected { type, value } entries
     const errors = [];
+    const indicatorIndexes = [];
     let stopped = false;
     let rafId = 0;
     const pendingTicks = []; // queue of scheduled tick callbacks
@@ -141,7 +142,7 @@ function runSync(programAst) {
         },
         executeAnimatedCommand,
         config: { animationEnabled: false },
-        commandIndicatorUpdater: () => {},
+        commandIndicatorUpdater: (_command, index) => { indicatorIndexes.push(index); },
         createStopError: () => new RavlykError('EXECUTION_STOPPED_BY_USER'),
         getShouldStop: () => stopped,
         getIsPaused: () => false,
@@ -156,7 +157,7 @@ function runSync(programAst) {
     });
 
     drain(promise);
-    return { promise, log, errors };
+    return { promise, log, errors, indicatorIndexes };
 }
 
 // ---------------------------------------------------------------------------
@@ -181,13 +182,14 @@ runAsyncTest('astAnimation: single move command is executed', async () => {
 
 runAsyncTest('astAnimation: move and turn are executed in order', async () => {
     const ast = parseAndValidate('вперед 50\nправоруч 90');
-    const { promise, log } = runSync(ast);
+    const { promise, log, indicatorIndexes } = runSync(ast);
     await promise;
     assert.equal(log.length, 2);
     assert.equal(log[0].type, 'MOVE');
     assert.equal(log[0].value, 50);
     assert.equal(log[1].type, 'TURN');
     assert.equal(log[1].value, 90);
+    assert.deepEqual(indicatorIndexes, [0, 1]);
 });
 
 runAsyncTest('astAnimation: visibility and home commands are surfaced in order', async () => {

@@ -1,5 +1,17 @@
 import { test, expect } from '@playwright/test';
 
+const SUPPORTING_PAGE_CASES = [
+    '/manual.html',
+    '/lessons.html',
+    '/resources.html',
+    '/teacher_guidelines.html',
+    '/advice_for_parents.html',
+    '/zen.html',
+    '/about.html',
+    '/privacy.html',
+    '/404.html',
+];
+
 async function waitForServiceWorker(page) {
     await page.evaluate(async () => {
         if (!('serviceWorker' in navigator)) {
@@ -34,12 +46,13 @@ test.describe('PWA offline shell', () => {
         await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
         await expect(page.locator('#code-editor')).toBeVisible();
         await expect(page.locator('#run-btn')).toBeVisible();
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await expect(page.locator('#code-editor')).toBeVisible();
 
-        await page.goto('/manual.html', { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('main#main-content')).toBeVisible();
-
-        await page.goto('/lessons.html', { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('main#main-content')).toBeVisible();
+        for (const path of SUPPORTING_PAGE_CASES) {
+            await page.goto(path, { waitUntil: 'domcontentloaded' });
+            await expect(page.locator('main#main-content')).toBeVisible();
+        }
 
         await page.goto('/quiz.html', { waitUntil: 'domcontentloaded' });
         await expect(page.locator('#quiz-new-set-btn')).toBeVisible();

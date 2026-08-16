@@ -39,15 +39,15 @@
 - Google Analytics прибрано; публічні сторінки використовують Cloudflare Web Analytics beacon.
 - Shared accessibility/footer/navigation HTML синхронізується через `scripts/sync-html-partials.mjs` і перевіряється в CI.
 - ✓ Service Worker переписано: production-only registration, згенеровані з deployment manifest `CACHEABLE_EXTENSIONS` і `PRECACHE_URLS`, bounded cleanup, `try/catch`.
-- ✓ Animation path переведено на lazy AST execution через `interpreterAstAnimationRuntime.js`. Legacy queue більше не будується в production path. Legacy boundary перевіряється в CI (`tests/legacyBoundary.test.js`).
+- ✓ Animation path переведено на lazy AST execution через `interpreterAstAnimationRuntime.js`. Flat queue видалено; runtime boundary перевіряється в CI (`tests/runtimeBoundary.test.js`).
 - ✓ Semantic-правило для повторного `створити x = ...` реалізовано в `semanticValidator.js` (перевірка в поточному і батьківських scope, shadowing параметрів).
 - ✓ `поки умова ( ... )` і `стоп` реалізовано в parser, semantic validator та єдиному AST runtime; синтаксис описано в `LANGUAGE_SPEC.md` і посібнику, поведінку покрито unit-тестами.
 - ✓ ESLint (`eslint` v10) доданий: `npm run lint` перевіряє `js/` і `sw.js`; `npm run check` включає lint.
+- ✓ Legacy flat-queue тести мігровано на `createAstRuntime`; `parseTokens()` compatibility shim, `interpreterAstQueueAdapter.js`, `interpreterQueueRuntime.js` та dead command-clone/control-flow код видалено. Межу перевіряє `tests/runtimeBoundary.test.js`.
 
-### Відкрито
+### Стан backlog
 
-- Поступова міграція legacy tests (що досі використовують `astToLegacyQueue` / flat queue) на `createAstRuntime` / `executeCommands`. Після цього `interpreterAstQueueAdapter.js` і `interpreterQueueRuntime.js` можна видалити.
-- Release/cache token синхронізується скриптом і тестами, але не має одного runtime source-of-truth (прийнятно для поточного масштабу).
+- Відомих високопріоритетних боргів ядра немає. Канонічний release/cache token зберігається в `release-version.json` і генерується в статичні entrypoints скриптом.
 
 ## 4. Правила роботи агента
 
@@ -111,11 +111,7 @@ js/modules/semanticValidator.js
 - `MAX_COMMAND_QUEUE_LENGTH = 50000` — `stepCount` у `interpreterAstRuntime.js`
 - `MAX_REPEATS_IN_LOOP = 500` — перевіряється під час парсингу
 - ✓ `MAX_GAME_TICK_OPERATIONS = 500` — `astStepCount` у `interpreterAstRuntime.js` через `maxAstSteps`; рахує ВСІ AST-кроки (присвоєння, цикли, умови, виклики), не тільки примітиви
-- ✓ Overflow check на початку кожної RepeatStmt ітерації в `interpreterAstQueueAdapter.js` — nested loops fail fast
-
-Залишилось (legacy test infrastructure only):
-
-- `interpreterAstQueueAdapter.js` досі використовується частиною unit-тестів, які перевіряють flat queue напряму. Production execution path (`executeCommands`) більше не проходить через нього — це верифіковано в CI через `tests/legacyBoundary.test.js`.
+- ✓ `createAstRuntime` обмежує як кількість AST-кроків, так і кількість примітивів без попереднього розгортання циклів.
 
 ## Крок 5. Уніфікувати runtime ✓ ЗАВЕРШЕНО
 
@@ -127,7 +123,7 @@ AST -> semantic validator -> createAstRuntime -> rAF loop (animation) / game tic
 
 `interpreterAstAnimationRuntime.js` реалізує lazy rAF-driven loop: `createAstRuntime.step()` повертає наступний примітив, який анімується за один кадр. Кадри не будуються заздалегідь.
 
-Legacy модулі (`interpreterAstQueueAdapter.js`, `interpreterQueueRuntime.js`) позначено `@deprecated`. Cleanup milestone — міграція legacy tests, після чого ці файли видаляються.
+Legacy flat-queue модулі й compatibility API видалено після міграції тестів на AST runtime.
 
 ## Крок 6. Analytics privacy ✓
 
@@ -227,8 +223,7 @@ PR можна вважати готовим, якщо:
 
 ## 11. Пріоритетний backlog для агента
 
-1. Мігрувати legacy tests (що досі використовують `astToLegacyQueue`) на `executeCommands` / `createAstRuntime`, після чого видалити `interpreterAstQueueAdapter.js` і `interpreterQueueRuntime.js`.
-2. Розглянути одне runtime source-of-truth для release/cache version (зараз прийнятно, guarded тестами).
+Високопріоритетний backlog закрито. Нові пункти додавати лише разом із відтворенням проблеми, оцінкою ризику й тестом або чітким manual verification plan.
 
 ## 12. Головне архітектурне правило
 

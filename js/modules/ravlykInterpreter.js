@@ -18,7 +18,6 @@ import {
 import {
     stopGameLoopRuntime,
 } from './interpreterGameLoop.js';
-import { hasGameStatement as hasGameStatementHelper } from './interpreterGameContract.js';
 import {
     evalAstNumberExpression as evalAstNumberExpressionHelper,
     attachAstErrorLocation as attachAstErrorLocationHelper,
@@ -32,13 +31,11 @@ import {
 } from './interpreterRuntimeState.js';
 import {
     handlePrimitiveAstStatementRuntime,
-    astToLegacyQueueRuntime,
     validateGameProgramContractRuntime,
     executeGameProgramRuntime,
     prepareProgramRuntime,
     executeProgramRuntime,
     executeCommandsRuntime,
-    evaluateIfConditionRuntime,
     runAstAnimationWithRuntime,
     animatePenRuntime,
     animateMoveRuntime,
@@ -104,11 +101,8 @@ export class RavlykInterpreter {
         this.animationFrameId = null;
         this.gameLoopTimerId = null;
         this.gameLoopReject = null;
-        this.commandQueue = [];
-        this.currentCommandIndex = 0;
         this.boundaryWarningShown = false;
         this.isDestroyed = false;
-        this.executionEnv = null;
         this.parser = new RavlykParser();
         this.pressedKeys = new Set();
         this.scrollControlKeys = new Set(["arrowup", "arrowdown", "arrowleft", "arrowright", " ", "spacebar", "pageup", "pagedown", "home", "end"]);
@@ -157,9 +151,6 @@ export class RavlykInterpreter {
         this.isExecuting = false;
         this.shouldStop = false;
         this.isPaused = false;
-        this.commandQueue = [];
-        this.currentCommandIndex = 0;
-        this.executionEnv = null;
         this.parser.resetUserState();
 
         if (this.backgroundCanvas && this.backgroundCanvas.style) {
@@ -213,16 +204,6 @@ export class RavlykInterpreter {
         return this.parser.tokenize(codeStr);
     }
 
-    parseTokens(tokens, depth = 0, substitutions = {}, tokenMeta = null) {
-        // Compatibility API: parse token list through the AST pipeline,
-        // then adapt to queue format expected by legacy tests/callers.
-        const ast = this.parser.parseTokensToAst(tokens, depth, substitutions, tokenMeta);
-        if (hasGameStatementHelper(ast)) {
-            throw new RavlykError("GAME_NOT_SUPPORTED_HERE");
-        }
-        return this.astToLegacyQueue(ast);
-    }
-
     parseTokensToAst(tokens, depth = 0, substitutions = {}, tokenMeta = null) {
         return this.parser.parseTokensToAst(tokens, depth, substitutions, tokenMeta);
     }
@@ -246,14 +227,6 @@ export class RavlykInterpreter {
 
     handlePrimitiveAstStatement(stmt, env, mode, outputQueue = null) {
         return handlePrimitiveAstStatementRuntime(this, stmt, env, mode, outputQueue);
-    }
-
-    // LEGACY COMPATIBILITY API — not used by the normal execution path.
-    // executeCommands() now uses runAstAnimation() which drives createAstRuntime
-    // directly.  astToLegacyQueue / runCommandQueue are kept only for the
-    // parseTokens() shim and legacy test helpers that still operate on flat queues.
-    astToLegacyQueue(programAst, options = {}) {
-        return astToLegacyQueueRuntime(this, programAst, options);
     }
 
     validateGameProgramContract(programAst) {
@@ -282,10 +255,6 @@ export class RavlykInterpreter {
 
     normalizeConditionKey(rawKey) {
         return normalizeConditionKeyHelper(rawKey);
-    }
-
-    evaluateIfCondition(condition) {
-        return evaluateIfConditionRuntime(this, condition);
     }
 
     async runAstAnimation(programAst) {

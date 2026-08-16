@@ -7,8 +7,8 @@
 ## Спробувати онлайн
 
 - Редактор: [ravlyk.org](https://ravlyk.org/)
-- Посібник: [ravlyk.org/manual.html](https://ravlyk.org/manual.html)
-- Уроки: [ravlyk.org/lessons.html](https://ravlyk.org/lessons.html)
+- Посібник: [ravlyk.org/manual](https://ravlyk.org/manual)
+- Уроки: [ravlyk.org/lessons](https://ravlyk.org/lessons)
 
 ## Що вміє РАВЛИК
 
@@ -57,7 +57,8 @@ Canonical набір документації:
 - Unit-тести: `npm run test:unit`
 - E2E-тести: `npm run test:e2e`
 - Encoding-перевірка: `node tests/encoding.test.js`
-- Синхронізація release version: `npm run release:sync-version -- YYYY-MM-DD-N`
+- Канонічна release version: `release-version.json`; синхронізація з HTML/JS/SW: `npm run release:sync-version` або `npm run release:sync-version -- YYYY-MM-DD-N`
+- Production-артефакт Cloudflare Pages: `npm run pages:build` (`.pages-artifact/`)
 - Перед публікацією: [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md)
 
 ## Автор

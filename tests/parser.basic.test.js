@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import { COLOR_MAP, CORE_COLOR_NAMES, MAX_RECURSION_DEPTH, MAX_REPEATS_IN_LOOP, UKRAINIAN_COLOR_NAMES } from '../js/modules/constants.js';
 import { createInterpreter } from './parserTestUtils.js';
+import {
+    collectAstRuntimePrimitives,
+    collectTokenPrimitives,
+    parseValidatedTokens,
+} from './astRuntimeTestUtils.js';
 import { RavlykParser } from '../js/modules/ravlykParser.js';
 import { runTest } from './testUtils.js';
 
@@ -34,71 +39,57 @@ runTest('tokenize does not strip comment markers inside quoted strings', () => {
     ]);
 });
 
-runTest('legacy parser.parseTokens path is disabled', () => {
+runTest('AST runtime surfaces move and turn commands', () => {
     const interpreter = createInterpreter();
-    assert.throws(
-        () => interpreter.parser.parseTokens(['forward', '10']),
-        (error) => error && error.name === 'RavlykError' && error.messageKey === 'LEGACY_PARSE_PATH_REMOVED'
-    );
+    const primitives = collectTokenPrimitives(interpreter, ['forward', '10', 'right', '90', 'backward', '5', 'left', '45']);
+    assert.deepEqual(primitives, [
+        { type: 'MoveStmt', direction: 'forward', value: 10 },
+        { type: 'TurnStmt', direction: 'right', value: 90 },
+        { type: 'MoveStmt', direction: 'backward', value: 5 },
+        { type: 'TurnStmt', direction: 'left', value: 45 },
+    ]);
 });
 
-runTest('parse move and turn commands', () => {
+runTest('AST runtime surfaces color and pen commands', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens(['forward', '10', 'right', '90', 'backward', '5', 'left', '45']);
-    assert.equal(queue.length, 4);
-    assert.deepEqual(queue.map((cmd) => cmd.type), ['MOVE', 'TURN', 'MOVE_BACK', 'TURN_LEFT']);
-    // MOVE/MOVE_BACK store distanceExpr for lazy eval; TURN/TURN_LEFT store angleExpr
-    assert.ok(queue[0].distanceExpr, 'MOVE has distanceExpr');
-    assert.ok(queue[1].angleExpr, 'TURN has angleExpr');
-    assert.ok(queue[2].distanceExpr, 'MOVE_BACK has distanceExpr');
-    assert.ok(queue[3].angleExpr, 'TURN_LEFT has angleExpr');
+    const primitives = collectTokenPrimitives(interpreter, ['color', 'red', 'penup', 'pendown', 'clear']);
+    assert.deepEqual(primitives, [
+        { type: 'ColorStmt', colorArg: { kind: 'named', value: 'red' } },
+        { type: 'PenStmt', mode: 'up' },
+        { type: 'PenStmt', mode: 'down' },
+        { type: 'ClearStmt' },
+    ]);
 });
 
-runTest('parse color and pen commands', () => {
+runTest('AST runtime surfaces thickness commands', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens(['color', 'red', 'penup', 'pendown', 'clear']);
-    assert.deepEqual(queue.map((cmd) => cmd.type), ['COLOR', 'PEN_UP', 'PEN_DOWN', 'CLEAR']);
-    assert.equal(queue[0].value, 'red');
-});
-
-runTest('parse thickness command', () => {
-    const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens(['товщина', '5', 'thickness', '7']);
-    assert.deepEqual(queue, [
-        { type: 'THICKNESS', value: 5, original: 'товщина' },
-        { type: 'THICKNESS', value: 7, original: 'товщина' },
+    const primitives = collectTokenPrimitives(interpreter, ['товщина', '5', 'thickness', '7']);
+    assert.deepEqual(primitives, [
+        { type: 'ThicknessStmt', value: 5 },
+        { type: 'ThicknessStmt', value: 7 },
     ]);
 });
 
 runTest('parse background command in Ukrainian and English forms', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens(['фон', 'синій', 'background', 'gold']);
-    assert.deepEqual(queue.map((cmd) => cmd.type), ['BACKGROUND', 'BACKGROUND']);
-    assert.deepEqual(queue.map((cmd) => cmd.value), ['синій', 'gold']);
+    const primitives = collectTokenPrimitives(interpreter, ['фон', 'синій', 'background', 'gold']);
+    assert.deepEqual(primitives.map((item) => item.type), ['BackgroundStmt', 'BackgroundStmt']);
+    assert.deepEqual(primitives.map((item) => item.colorArg.value), ['синій', 'gold']);
 });
 
-runTest('parse random color/background commands into concrete queue values using injected rng', () => {
-    const interpreter = createInterpreter({ rng: () => 0 });
-    const queue = interpreter.parseTokens(['колір', 'випадково', 'фон', 'random']);
-    const canonicalNames = new Set(
-        Object.keys(COLOR_MAP).filter((name) => COLOR_MAP[name] !== 'RAINBOW')
-    );
-
-    assert.deepEqual(queue.map((cmd) => cmd.type), ['COLOR', 'BACKGROUND']);
-    assert.equal(canonicalNames.has(queue[0].value), true);
-    assert.equal(canonicalNames.has(queue[1].value), true);
-    assert.notEqual(COLOR_MAP[queue[0].value], 'RAINBOW');
-    assert.notEqual(COLOR_MAP[queue[1].value], 'RAINBOW');
-    assert.equal(queue[0].value, queue[1].value);
+runTest('parse random color/background commands as explicit random AST arguments', () => {
+    const interpreter = createInterpreter();
+    const primitives = collectTokenPrimitives(interpreter, ['колір', 'випадково', 'фон', 'random']);
+    assert.deepEqual(primitives, [
+        { type: 'ColorStmt', colorArg: { kind: 'random' } },
+        { type: 'BackgroundStmt', colorArg: { kind: 'random' } },
+    ]);
 });
 
-runTest('parse random move command into concrete queue value using injected rng', () => {
-    const interpreter = createInterpreter({ rng: () => 0.5 });
-    const queue = interpreter.parseTokens(['вперед', 'випадково']);
-
-    assert.deepEqual(queue.map((cmd) => cmd.type), ['MOVE']);
-    assert.equal(Number.isFinite(queue[0]._resolvedValue), true);
-    assert.equal(queue[0]._resolvedValue >= 20, true);
+runTest('parse safe random move as an explicit random AST argument', () => {
+    const interpreter = createInterpreter();
+    const primitives = collectTokenPrimitives(interpreter, ['вперед', 'випадково']);
+    assert.deepEqual(primitives, [{ type: 'MoveStmt', direction: 'forward', random: true }]);
 });
 
 runTest('parse random range move as numeric expression, not safe random shorthand', () => {
@@ -111,15 +102,10 @@ runTest('parse random range move as numeric expression, not safe random shorthan
     assert.equal(ast.body[0].distance.args.length, 2);
 });
 
-runTest('parse random goto command into concrete queue values using injected rng', () => {
-    const interpreter = createInterpreter({ rng: () => 0.5 });
-    const queue = interpreter.parseTokens(['перейти', 'в', 'випадково']);
-
-    assert.deepEqual(queue.map((cmd) => cmd.type), ['GOTO']);
-    assert.equal(Number.isFinite(queue[0].x), true);
-    assert.equal(Number.isFinite(queue[0].y), true);
-    assert.equal(Math.abs(queue[0].x) <= 300, true);
-    assert.equal(Math.abs(queue[0].y) <= 200, true);
+runTest('parse safe random goto as an explicit random AST target', () => {
+    const interpreter = createInterpreter();
+    const primitives = collectTokenPrimitives(interpreter, ['перейти', 'в', 'випадково']);
+    assert.deepEqual(primitives, [{ type: 'GotoStmt', random: true }]);
 });
 
 runTest('parse goto with random range coordinate expressions', () => {
@@ -169,21 +155,17 @@ runTest('color constants expose canonical names and alias lookups', () => {
 
 runTest('parse goto in Ukrainian and English forms', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens(['перейти', 'в', '120', '-50', 'goto', '10', '20']);
-    assert.equal(queue.length, 2);
-    assert.deepEqual(queue.map((cmd) => cmd.type), ['GOTO', 'GOTO']);
-    // Non-random GOTO stores xExpr/yExpr for lazy eval
-    assert.ok(queue[0].xExpr, 'first GOTO has xExpr');
-    assert.ok(queue[1].xExpr, 'second GOTO has xExpr');
+    const primitives = collectTokenPrimitives(interpreter, ['перейти', 'в', '120', '-50', 'goto', '10', '20']);
+    assert.deepEqual(primitives, [
+        { type: 'GotoStmt', x: 120, y: -50 },
+        { type: 'GotoStmt', x: 10, y: 20 },
+    ]);
 });
 
 runTest('goto supports variables', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens(['create', 'ax', '=', '40', 'create', 'ay', '=', '-30', 'перейти', 'в', 'ax', 'ay']);
-    assert.equal(queue.length, 1);
-    assert.equal(queue[0].type, 'GOTO');
-    assert.ok(queue[0].xExpr, 'GOTO has xExpr');
-    assert.ok(queue[0].yExpr, 'GOTO has yExpr');
+    const primitives = collectTokenPrimitives(interpreter, ['create', 'ax', '=', '40', 'create', 'ay', '=', '-30', 'перейти', 'в', 'ax', 'ay']);
+    assert.deepEqual(primitives, [{ type: 'GotoStmt', x: 40, y: -30 }]);
 });
 
 runTest('goto parses negative y without comma: перейти в 50 -200', () => {
@@ -244,76 +226,71 @@ runTest('goto negative y is not confused by comma in next function call: goto 50
 runTest('repeat count above MAX_REPEATS_IN_LOOP throws friendly error', () => {
     const interpreter = createInterpreter();
     assert.throws(
-        () => interpreter.parseTokens(['repeat', String(MAX_REPEATS_IN_LOOP + 50), '(', 'forward', '1', ')']),
+        () => collectTokenPrimitives(interpreter, ['repeat', String(MAX_REPEATS_IN_LOOP + 50), '(', 'forward', '1', ')']),
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'TOO_MANY_REPEATS_IN_LOOP'
     );
 });
 
 runTest('variables are resolved in command arguments', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens(['create', 'step', '=', '25', 'forward', 'step']);
-    assert.equal(queue.length, 1);
-    assert.equal(queue[0].type, 'MOVE');
-    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
+    const primitives = collectTokenPrimitives(interpreter, ['create', 'step', '=', '25', 'forward', 'step']);
+    assert.deepEqual(primitives, [{ type: 'MoveStmt', direction: 'forward', value: 25 }]);
 });
 
 runTest('supports arithmetic expressions in assignments and command arguments', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens([
+    const primitives = collectTokenPrimitives(interpreter, [
         'create', 'step', '=', '10',
         'step', '=', 'step', '+', '5',
         'forward', 'step', '+', '10',
         'right', '180', '/', '2',
     ]);
-    assert.equal(queue.length, 2);
-    assert.equal(queue[0].type, 'MOVE');
-    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
-    assert.equal(queue[1].type, 'TURN');
-    assert.ok(queue[1].angleExpr, 'TURN stores expression for lazy eval');
+    assert.deepEqual(primitives, [
+        { type: 'MoveStmt', direction: 'forward', value: 25 },
+        { type: 'TurnStmt', direction: 'right', value: 90 },
+    ]);
 });
 
 runTest('supports long expressions with precedence and parentheses', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens([
+    const primitives = collectTokenPrimitives(interpreter, [
         'create', 'step', '=', '(', '2', '+', '3', ')', '*', '4',
         'forward', 'step', '+', '6', '/', '2',
         'left', '(', '10', '+', '5', ')', '*', '2',
     ]);
-    assert.equal(queue.length, 2);
-    assert.equal(queue[0].type, 'MOVE');
-    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
-    assert.equal(queue[1].type, 'TURN_LEFT');
-    assert.ok(queue[1].angleExpr, 'TURN_LEFT stores expression for lazy eval');
+    assert.deepEqual(primitives, [
+        { type: 'MoveStmt', direction: 'forward', value: 23 },
+        { type: 'TurnStmt', direction: 'left', value: 30 },
+    ]);
 });
 
 runTest('supports arithmetic expressions in goto and repeat count', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens([
+    const primitives = collectTokenPrimitives(interpreter, [
         'create', 'x', '=', '10',
         'create', 'y', '=', '20',
         'goto', 'x', '+', '5', ',', 'y', '-', '2',
         'repeat', '2', '+', '1', '(', 'forward', '1', ')',
     ]);
-    assert.equal(queue.length, 4);
-    assert.equal(queue[0].type, 'GOTO');
-    assert.ok(queue[0].xExpr, 'GOTO stores xExpr for lazy eval');
-    assert.ok(queue[0].yExpr, 'GOTO stores yExpr for lazy eval');
-    assert.deepEqual(queue.slice(1).map((cmd) => cmd.type), ['MOVE', 'MOVE', 'MOVE']);
-    assert.ok(queue.slice(1).every((cmd) => cmd.distanceExpr), 'each MOVE has distanceExpr');
+    assert.deepEqual(primitives, [
+        { type: 'GotoStmt', x: 15, y: 18 },
+        { type: 'MoveStmt', direction: 'forward', value: 1 },
+        { type: 'MoveStmt', direction: 'forward', value: 1 },
+        { type: 'MoveStmt', direction: 'forward', value: 1 },
+    ]);
 });
 
 runTest('supports modulo operator in expressions', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens([
+    const primitives = collectTokenPrimitives(interpreter, [
         'create', 'n', '=', '5',
         'forward', 'n', '%', '2',
         'right', '10', '%', '3',
     ]);
-    assert.equal(queue.length, 2);
-    assert.equal(queue[0].type, 'MOVE');
-    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
-    assert.equal(queue[1].type, 'TURN');
-    assert.ok(queue[1].angleExpr, 'TURN stores expression for lazy eval');
+    assert.deepEqual(primitives, [
+        { type: 'MoveStmt', direction: 'forward', value: 1 },
+        { type: 'TurnStmt', direction: 'right', value: 1 },
+    ]);
 });
 
 runTest('supports модуль and корінь functions in expressions', () => {
@@ -359,20 +336,20 @@ runTest('supports random range alias in expressions', () => {
 
 runTest('parses if/else with compare condition', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens([
+    const ast = parseValidatedTokens(interpreter, [
         'if', '2', '+', '2', '=', '4',
         '(', 'forward', '10', ')',
         'else',
         '(', 'backward', '10', ')',
     ]);
-    assert.equal(queue.length, 1);
-    assert.equal(queue[0].type, 'IF');
-    assert.equal(queue[0].condition.type, 'COMPARE_AST');
-    assert.equal(queue[0].condition.op, '=');
-    assert.equal(queue[0].thenCommands.length, 1);
-    assert.equal(queue[0].thenCommands[0].type, 'MOVE');
-    assert.equal(queue[0].elseCommands.length, 1);
-    assert.equal(queue[0].elseCommands[0].type, 'MOVE_BACK');
+    assert.equal(ast.body.length, 1);
+    assert.equal(ast.body[0].type, 'IfStmt');
+    assert.equal(ast.body[0].condition.type, 'CompareCondition');
+    assert.equal(ast.body[0].condition.op, '=');
+    assert.equal(ast.body[0].thenBody[0].type, 'MoveStmt');
+    assert.equal(ast.body[0].thenBody[0].direction, 'forward');
+    assert.equal(ast.body[0].elseBody[0].type, 'MoveStmt');
+    assert.equal(ast.body[0].elseBody[0].direction, 'backward');
 });
 
 runTest('parses не as condition negation', () => {
@@ -399,78 +376,56 @@ runTest('parses repeated не without recursive condition parsing', () => {
     assert.equal(condition.type, 'EdgeCondition');
 });
 
-runTest('legacy queue converts не condition for compatibility path', () => {
-    const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens(['якщо', 'не', 'край', '(', 'вперед', '10', ')']);
-
-    assert.equal(queue.length, 1);
-    assert.equal(queue[0].type, 'IF');
-    assert.equal(queue[0].condition.type, 'NOT');
-    assert.deepEqual(queue[0].condition.condition, { type: 'EDGE' });
-});
-
 runTest('parses edge and key conditions', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens([
+    const ast = parseValidatedTokens(interpreter, [
         'if', 'edge', '(', 'right', '180', ')',
         'if', 'key', '"up"', '(', 'forward', '10', ')',
     ]);
-    assert.equal(queue.length, 2);
-    assert.equal(queue[0].type, 'IF');
-    assert.deepEqual(queue[0].condition, { type: 'EDGE' });
-    assert.equal(queue[1].type, 'IF');
-    assert.equal(queue[1].condition.type, 'KEY');
-    assert.equal(queue[1].condition.key, 'up');
+    assert.equal(ast.body.length, 2);
+    assert.equal(ast.body[0].condition.type, 'EdgeCondition');
+    assert.equal(ast.body[1].condition.type, 'KeyCondition');
+    assert.equal(ast.body[1].condition.key, 'up');
 });
 
 runTest('repeat with assignment expands with updated variable values per iteration', () => {
     const interpreter = createInterpreter();
-    // With lazy eval the queue has ASSIGN_AST + MOVE interleaved for each iteration;
-    // at runtime they produce distances 5, 7, 9. We verify queue structure here.
-    const queue = interpreter.parseTokens([
+    const primitives = collectTokenPrimitives(interpreter, [
         'create', 'step', '=', '5',
         'repeat', '3', '(', 'forward', 'step', 'step', '=', 'step', '+', '2', ')',
     ]);
-    const moveCommands = queue.filter((cmd) => cmd.type === 'MOVE');
-    assert.equal(moveCommands.length, 3);
-    assert.ok(moveCommands.every((cmd) => cmd.distanceExpr), 'each MOVE has distanceExpr');
+    assert.deepEqual(primitives.map((item) => item.value), [5, 7, 9]);
 });
 
 runTest('supports unary minus in expressions', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens([
+    const primitives = collectTokenPrimitives(interpreter, [
         'create', 'x', '=', '-', '10',
         'forward', '-', 'x',
         'goto', 'x', '+', '2', ',', '-', '(', '-', '3', ')',
     ]);
-    assert.equal(queue.length, 2);
-    assert.equal(queue[0].type, 'MOVE');
-    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
-    assert.equal(queue[1].type, 'GOTO');
-    assert.ok(queue[1].xExpr, 'GOTO stores xExpr for lazy eval');
-    assert.ok(queue[1].yExpr, 'GOTO stores yExpr for lazy eval');
+    assert.deepEqual(primitives, [
+        { type: 'MoveStmt', direction: 'forward', value: 10 },
+        { type: 'GotoStmt', x: -8, y: 3 },
+    ]);
 });
 
 runTest('function declaration and call are expanded', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens([
+    const primitives = collectTokenPrimitives(interpreter, [
         'create', 'line', '(', 'n', ')', '(', 'forward', 'n', ')',
         'line', '(', '12', ')',
     ]);
-    assert.equal(queue.length, 1);
-    assert.equal(queue[0].type, 'MOVE');
-    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
+    assert.deepEqual(primitives, [{ type: 'MoveStmt', direction: 'forward', value: 12 }]);
 });
 
 runTest('function call accepts expression argument', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens([
+    const primitives = collectTokenPrimitives(interpreter, [
         'create', 'line', '(', 'n', ')', '(', 'forward', 'n', ')',
         'line', '(', '10', '+', '2', ')',
     ]);
-    assert.equal(queue.length, 1);
-    assert.equal(queue[0].type, 'MOVE');
-    assert.ok(queue[0].distanceExpr, 'MOVE stores expression for lazy eval');
+    assert.deepEqual(primitives, [{ type: 'MoveStmt', direction: 'forward', value: 12 }]);
 });
 
 runTest('function nesting deeper than MAX_RECURSION_DEPTH throws friendly error', () => {
@@ -492,7 +447,7 @@ runTest('function nesting deeper than MAX_RECURSION_DEPTH throws friendly error'
     assert.throws(
         () => {
             const ast = interpreter.parser.parseCodeToAst(parts.join(' '));
-            interpreter.astToLegacyQueue(ast);
+            collectAstRuntimePrimitives(interpreter, ast);
         },
         (error) => error && error.name === 'RavlykError' && error.messageKey === 'TOO_MANY_NESTED_REPEATS'
     );
@@ -521,20 +476,16 @@ runTest('vyshyvanka alias parses to EmbroideryStmt mode=on', () => {
     assert.equal(ast.body[0].mode, 'on');
 });
 
-runTest('вишиванка produces EMBROIDERY queue command', () => {
+runTest('AST runtime surfaces вишиванка mode', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens(['вишиванка']);
-    assert.equal(queue.length, 1);
-    assert.equal(queue[0].type, 'EMBROIDERY');
-    assert.equal(queue[0].mode, 'on');
+    const primitives = collectTokenPrimitives(interpreter, ['вишиванка']);
+    assert.deepEqual(primitives, [{ type: 'EmbroideryStmt', mode: 'on' }]);
 });
 
-runTest('звичайний produces EMBROIDERY mode=off queue command', () => {
+runTest('AST runtime surfaces звичайний mode', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens(['звичайний']);
-    assert.equal(queue.length, 1);
-    assert.equal(queue[0].type, 'EMBROIDERY');
-    assert.equal(queue[0].mode, 'off');
+    const primitives = collectTokenPrimitives(interpreter, ['звичайний']);
+    assert.deepEqual(primitives, [{ type: 'EmbroideryStmt', mode: 'off' }]);
 });
 
 runTest('вишиванка is reserved and cannot be used as variable name', () => {
@@ -623,14 +574,18 @@ runTest('break alias parses to BreakStmt inside loop', () => {
     assert.equal(ast.body[0].body[0].type, 'BreakStmt');
 });
 
-runTest('сховати, показати, додому produce queue commands', () => {
+runTest('AST runtime surfaces сховати, показати and додому', () => {
     const interpreter = createInterpreter();
-    const queue = interpreter.parseTokens([
+    const primitives = collectTokenPrimitives(interpreter, [
         '\u0441\u0445\u043e\u0432\u0430\u0442\u0438',
         '\u043f\u043e\u043a\u0430\u0437\u0430\u0442\u0438',
         '\u0434\u043e\u0434\u043e\u043c\u0443',
     ]);
-    assert.deepEqual(queue.map((cmd) => cmd.type), ['HIDE_RAVLYK', 'SHOW_RAVLYK', 'HOME']);
+    assert.deepEqual(primitives, [
+        { type: 'VisibilityStmt', visible: false },
+        { type: 'VisibilityStmt', visible: true },
+        { type: 'HomeStmt' },
+    ]);
 });
 
 runTest('сховати is reserved and cannot be used as variable name', () => {
