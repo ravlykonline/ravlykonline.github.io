@@ -47,10 +47,17 @@ Canonical body font:
 Canonical monospace font:
 - `'Fira Mono', 'Consolas', 'Courier New', monospace`
 
+Nunito is self-hosted from `assets/fonts/` as two variable `woff2` subsets
+(cyrillic, latin) declared in `css/global.css`. It is not loaded from Google
+Fonts: the page CSP allows styles from `'self'` only, and an external font
+would never render offline from the Service Worker precache. `Fira Mono` is
+not shipped and resolves from the system stack.
+
 Rules:
 - Use the body stack for normal UI text.
 - Use the monospace stack for code, commands, examples, coordinates, and inline code.
 - Do not introduce a new display font unless the project is explicitly being rebranded.
+- Do not reintroduce an external font CDN; add the file to `assets/fonts/` instead.
 
 ### 3.2 Base page shell
 

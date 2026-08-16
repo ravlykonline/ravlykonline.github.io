@@ -75,6 +75,53 @@ runTest('public page CSP allows Cloudflare analytics and no Google analytics hos
     });
 });
 
+runTest('fonts are self-hosted and no stylesheet reaches an external font CDN', () => {
+    // Сторінковий CSP дозволяє стилі лише з 'self', тому зовнішній шрифт
+    // мовчки блокувався б, а офлайн не відрендерився б узагалі.
+    const cssFiles = fs.readdirSync('css')
+        .filter((name) => name.endsWith('.css'))
+        .map((name) => path.join('css', name));
+    const artistCssFiles = fs.readdirSync(path.join('artist', 'css'))
+        .filter((name) => name.endsWith('.css'))
+        .map((name) => path.join('artist', 'css', name));
+
+    [...cssFiles, ...artistCssFiles, ...publicHtmlFiles, path.join('artist', 'index.html')].forEach((filePath) => {
+        const source = fs.readFileSync(filePath, 'utf8');
+        assert.equal(
+            /fonts\.googleapis\.com|fonts\.gstatic\.com/.test(source),
+            false,
+            `${filePath} should not reference an external font CDN`
+        );
+    });
+
+    const globalCss = fs.readFileSync(path.join('css', 'global.css'), 'utf8');
+    assert.match(globalCss, /@font-face/, 'css/global.css should declare the self-hosted font');
+    ['nunito-cyrillic.woff2', 'nunito-latin.woff2'].forEach((file) => {
+        assert.ok(
+            fs.existsSync(path.join('assets', 'fonts', file)),
+            `assets/fonts/${file} should be committed`
+        );
+        assert.ok(globalCss.includes(file), `css/global.css should load ${file}`);
+    });
+
+    assert.ok(
+        fs.existsSync(path.join('assets', 'fonts', 'LICENSE-Nunito.txt')),
+        'SIL OFL requires shipping the license next to the font files'
+    );
+
+    // Кирилична підмножина має покривати українські і, ї, є, ґ.
+    assert.match(globalCss, /U\+0400-045F/, 'cyrillic subset must cover і, ї, є');
+    assert.match(globalCss, /U\+0490-0491/, 'cyrillic subset must cover ґ');
+
+    const sw = fs.readFileSync('sw.js', 'utf8');
+    ['nunito-cyrillic.woff2', 'nunito-latin.woff2'].forEach((file) => {
+        assert.ok(
+            sw.includes(`/assets/fonts/${file}`),
+            `sw.js should precache ${file} so the font survives offline`
+        );
+    });
+});
+
 runTest('service worker no longer precaches the removed local analytics bootstrap', () => {
     const sw = fs.readFileSync('sw.js', 'utf8');
     assert.equal(sw.includes('/js/analytics.js'), false, 'sw.js should not precache js/analytics.js');

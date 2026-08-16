@@ -16,5 +16,13 @@ broader family of Logo-like educational programming languages. This
 repository does not claim ownership over the general idea of a
 turtle-graphics teaching language.
 
+Third-party assets bundled in this repository:
+
+- Nunito (assets/fonts/nunito-*.woff2)
+  Copyright 2014 The Nunito Project Authors
+  https://github.com/googlefonts/nunito
+  Licensed under the SIL Open Font License, Version 1.1.
+  Full license text: assets/fonts/LICENSE-Nunito.txt
+
 Commercial licensing: the author-owned portions of this project may be
 licensed under separate commercial terms. Contact: info@ravlyk.org.
