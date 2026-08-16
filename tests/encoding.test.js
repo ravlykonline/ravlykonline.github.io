@@ -211,6 +211,17 @@ runTest('index page keeps key Ukrainian UI strings intact', () => {
     });
 });
 
+runTest('teacher guidelines keep the declared 3-4 grade scope and valid function syntax', () => {
+    const teacherHtml = fs.readFileSync('teacher_guidelines.html', 'utf8');
+
+    assert.equal(teacherHtml.includes('Початкова школа, 3-4 класи'), true);
+    assert.equal(teacherHtml.includes('Навчальні цілі (3-4 класи)'), true);
+    assert.equal(teacherHtml.includes('<h4>1-2 класи</h4>'), false);
+    assert.equal(teacherHtml.includes('створити квадрат(сторона) ('), true);
+    assert.equal(teacherHtml.includes('функція квадрат ('), false);
+    assert.equal(teacherHtml.includes('деталізовані очікувані результати нового стандарту для 2 циклу початкової освіти ще не опубліковано'), false);
+});
+
 runTest('index page publishes honest WebApplication structured data', () => {
     const indexHtml = fs.readFileSync('index.html', 'utf8');
     const jsonLdMatch = indexHtml.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
