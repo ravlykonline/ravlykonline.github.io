@@ -2,7 +2,7 @@
 
 Primary engineering guide for this repository.
 
-Last updated: 2026-08-16
+Last updated: 2026-08-17
 
 Related:
 - `README.md` for a short project overview
@@ -121,10 +121,11 @@ Tests:
 
 Implemented statement families:
 - movement: forward, backward, left, right, goto
-- drawing state: color, background, thickness, pen up/down, clear
+- drawing state: color, background, thickness, pen up/down, clear, visibility, home, embroidery mode
+- semantic pause: wait
 - variables and assignment
-- repeat loops
-- conditions with optional else
+- repeat and conditional while loops, with break from the nearest loop
+- conditions with optional else and negation
 - function definitions and calls
 - game mode
 
@@ -133,11 +134,14 @@ Implemented expressions:
 - identifiers
 - unary `+` and `-`
 - binary `+ - * / %`
+- builtins `модуль`/`abs`, `корінь`/`sqrt`, and `випадково`/`random` with explicit bounds
+- live current-angle expression `кут`
 
 Implemented condition families:
 - edge checks
 - key checks
 - comparisons `= != < > <= >=`
+- negation with `не`
 
 Semantic notes:
 - `фон` changes the background underlay, not existing drawing
@@ -164,11 +168,13 @@ Interpreter:
 Safety and limits from `js/modules/constants.js`:
 - `MAX_RECURSION_DEPTH = 20` — max call stack depth for functions
 - `MAX_PARSE_DEPTH = 20` — max block nesting depth during parsing (enforced in `ravlykParser.js` via `_parseDepth`)
+- `MAX_EXPRESSION_DEPTH = 100` — max nested parentheses, unary signs, and numeric builtin calls in one expression
 - `MAX_REPEATS_IN_LOOP = 500` — max repeat count per single loop
 - `MAX_AST_NODES = 5000` — max AST nodes per program (enforced in `semanticValidator.js`)
 - `MAX_COMMAND_QUEUE_LENGTH = 50000` — max total steps during AST runtime execution (enforced in `interpreterAstRuntime.js`)
 - `EXECUTION_TIMEOUT_MS = 180000` — time-based execution cap (3 minutes)
 - `MAX_CODE_LENGTH_CHARS = 10000` — max raw code length
+- `MAX_GAME_TICK_OPERATIONS = 500` — max AST steps in one game tick
 
 Current safety posture:
 - shared-code links load code but do not auto-run it
@@ -228,6 +234,8 @@ PWA/offline subsystem:
 Primary commands:
 - `npm run test:unit`
 - `npm run test:e2e`
+- `npm run docs:check`
+- `npm run check`
 - `node tests/encoding.test.js`
 
 What the suites cover:
@@ -263,7 +271,7 @@ Accessibility verification note:
 - screen reader output and final visual readability checks remain manual and are tracked in `ACCESSIBILITY_CHECKLIST.md`
 
 Static deployment and PWA cache note:
-- the project uses versioned local asset URLs such as `?v=2026-03-11-1` for CSS, JS, and `site.webmanifest`
+- the project uses versioned local asset URLs such as `?v=<release-token>` for CSS, JS, and `site.webmanifest`
 - when shipping a public update, update the shared release token with `npm run release:sync-version -- YYYY-MM-DD-N`; do not edit individual entry pages manually
 - Cloudflare Pages supports `_headers`, but the release token remains coordinated with the Service Worker and prevents old school/lab caches from mixing asset versions
 - `sw.js` uses the same shared release token as its cache version and should be updated when public asset behavior changes

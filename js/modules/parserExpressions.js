@@ -1,3 +1,5 @@
+import { MAX_EXPRESSION_DEPTH } from './constants.js';
+
 const STRICT_NUMBER_REGEX = /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?$/;
 const NUMERIC_FUNCTIONS = new Map([
     ['модуль', 'abs'],
@@ -18,7 +20,10 @@ export function getOperatorPrecedence(operator) {
 }
 
 export function parseAstExpressionOrThrow(tokens, tokenMeta, startIndex, helpers, options = {}) {
-    const { minTopLevelPrecedence = 0 } = options;
+    const {
+        minTopLevelPrecedence = 0,
+        maxExpressionDepth = MAX_EXPRESSION_DEPTH,
+    } = options;
     const {
         isValidIdentifier,
         normalizeIdentifier,
@@ -27,6 +32,19 @@ export function parseAstExpressionOrThrow(tokens, tokenMeta, startIndex, helpers
         createError,
     } = helpers;
     const makeError = createError || ((messageKey, ...params) => createUnknownCommandError(params[0] || messageKey));
+    let expressionDepth = 0;
+
+    const withinExpressionDepth = (callback) => {
+        expressionDepth++;
+        try {
+            if (expressionDepth > maxExpressionDepth) {
+                throw makeError('EXPRESSION_NESTING_TOO_DEEP');
+            }
+            return callback();
+        } finally {
+            expressionDepth--;
+        }
+    };
 
     const parseFunctionArguments = (openParenIndex) => {
         const args = [];
@@ -57,15 +75,17 @@ export function parseAstExpressionOrThrow(tokens, tokenMeta, startIndex, helpers
         if (index >= tokens.length) throw createUnknownCommandError('expression');
         const token = tokens[index];
         if (token === '(') {
-            const inner = parseWithPrecedence(index + 1, 0);
-            if (inner.nextIndex >= tokens.length || tokens[inner.nextIndex] !== ')') {
-                throw createUnknownCommandError(token);
-            }
-            return {
-                expr: { ...inner.expr, span: spanFromMeta(tokenMeta, index, inner.nextIndex + 1) || inner.expr.span || null },
-                nextIndex: inner.nextIndex + 1,
-                startIndex: index,
-            };
+            return withinExpressionDepth(() => {
+                const inner = parseWithPrecedence(index + 1, 0);
+                if (inner.nextIndex >= tokens.length || tokens[inner.nextIndex] !== ')') {
+                    throw createUnknownCommandError(token);
+                }
+                return {
+                    expr: { ...inner.expr, span: spanFromMeta(tokenMeta, index, inner.nextIndex + 1) || inner.expr.span || null },
+                    nextIndex: inner.nextIndex + 1,
+                    startIndex: index,
+                };
+            });
         }
         if (STRICT_NUMBER_REGEX.test(token)) {
             return {
@@ -92,7 +112,7 @@ export function parseAstExpressionOrThrow(tokens, tokenMeta, startIndex, helpers
                 if (index + 1 >= tokens.length || tokens[index + 1] !== '(') {
                     throw makeError('MATH_FUNCTION_EXPECT_OPEN_PAREN', token);
                 }
-                const parsedArgs = parseFunctionArguments(index + 1);
+                const parsedArgs = withinExpressionDepth(() => parseFunctionArguments(index + 1));
                 const expectedArgCount = functionKind === 'randomRange' ? 2 : 1;
                 if (parsedArgs.args.length !== expectedArgCount) {
                     if (functionKind === 'randomRange') {
@@ -125,17 +145,19 @@ export function parseAstExpressionOrThrow(tokens, tokenMeta, startIndex, helpers
         if (index >= tokens.length) throw createUnknownCommandError('expression');
         const token = tokens[index];
         if (token === '+' || token === '-') {
-            const operand = parseUnary(index + 1);
-            return {
-                expr: {
-                    type: 'UnaryExpr',
-                    op: token,
-                    expr: operand.expr,
-                    span: spanFromMeta(tokenMeta, index, operand.nextIndex),
-                },
-                nextIndex: operand.nextIndex,
-                startIndex: index,
-            };
+            return withinExpressionDepth(() => {
+                const operand = parseUnary(index + 1);
+                return {
+                    expr: {
+                        type: 'UnaryExpr',
+                        op: token,
+                        expr: operand.expr,
+                        span: spanFromMeta(tokenMeta, index, operand.nextIndex),
+                    },
+                    nextIndex: operand.nextIndex,
+                    startIndex: index,
+                };
+            });
         }
         return parsePrimary(index);
     };

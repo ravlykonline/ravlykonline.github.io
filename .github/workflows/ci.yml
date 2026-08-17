@@ -39,6 +39,9 @@ jobs:
       - name: Check generated precache manifest
         run: npm run precache:check
 
+      - name: Check documentation contracts
+        run: npm run docs:check
+
       - name: Lint — security and bug-catching checks
         run: npm run lint
 

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { createInterpreter } from './parserTestUtils.js';
 import { collectTokenPrimitives } from './astRuntimeTestUtils.js';
 import { Environment } from '../js/modules/environment.js';
+import { MAX_EXPRESSION_DEPTH } from '../js/modules/constants.js';
 import { runTest } from './testUtils.js';
 
 runTest('throws on undefined variable', () => {
@@ -109,6 +110,48 @@ runTest('throws on unclosed parentheses in expression', () => {
     );
 });
 
+runTest('throws friendly error when expression parentheses exceed MAX_EXPRESSION_DEPTH', () => {
+    const interpreter = createInterpreter();
+    const depth = MAX_EXPRESSION_DEPTH + 1;
+    const code = 'вперед ' + '('.repeat(depth) + '1' + ')'.repeat(depth);
+    assert.throws(
+        () => interpreter.parser.parseCodeToAst(code),
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.messageKey === 'EXPRESSION_NESTING_TOO_DEEP'
+            && !error.message.includes('Maximum call stack')
+    );
+});
+
+runTest('throws friendly error when unary chain exceeds MAX_EXPRESSION_DEPTH', () => {
+    const interpreter = createInterpreter();
+    const code = 'вперед ' + '-'.repeat(MAX_EXPRESSION_DEPTH + 1) + '1';
+    assert.throws(
+        () => interpreter.parser.parseCodeToAst(code),
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.messageKey === 'EXPRESSION_NESTING_TOO_DEEP'
+    );
+});
+
+runTest('throws friendly error when builtin calls exceed MAX_EXPRESSION_DEPTH', () => {
+    const interpreter = createInterpreter();
+    const depth = MAX_EXPRESSION_DEPTH + 1;
+    const code = 'вперед ' + 'модуль('.repeat(depth) + '1' + ')'.repeat(depth);
+    assert.throws(
+        () => interpreter.parser.parseCodeToAst(code),
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.messageKey === 'EXPRESSION_NESTING_TOO_DEEP'
+    );
+});
+
+runTest('allows expression nesting exactly at MAX_EXPRESSION_DEPTH', () => {
+    const interpreter = createInterpreter();
+    const code = 'вперед ' + '('.repeat(MAX_EXPRESSION_DEPTH) + '1' + ')'.repeat(MAX_EXPRESSION_DEPTH);
+    assert.doesNotThrow(() => interpreter.parser.parseCodeToAst(code));
+});
+
 runTest('throws on unknown command', () => {
     const interpreter = createInterpreter();
     assert.throws(
@@ -122,6 +165,36 @@ runTest('throws on invalid repeat syntax', () => {
     assert.throws(
         () => collectTokenPrimitives(interpreter, ['repeat', '2', 'forward', '10']),
         (error) => error && error.name === 'RavlykError'
+    );
+});
+
+runTest('hyphenated variable name gets a friendly identifier error', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parser.parseCodeToAst('створити крок-1 = 5'),
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.messageKey === 'VARIABLE_NAME_INVALID'
+            && error.message.includes('крок-1')
+            && !error.message.includes('створити функцію')
+    );
+});
+
+runTest('hyphenated function and parameter names get friendly identifier errors', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.parser.parseCodeToAst('створити мій-квадрат() ( вперед 1 )'),
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.messageKey === 'FUNCTION_NAME_INVALID'
+            && error.message.includes('мій-квадрат')
+    );
+    assert.throws(
+        () => interpreter.parser.parseCodeToAst('створити лінія(довжина-кроку) ( вперед 1 )'),
+        (error) => error
+            && error.name === 'RavlykError'
+            && error.messageKey === 'FUNCTION_PARAM_INVALID'
+            && error.message.includes('довжина-кроку')
     );
 });
 

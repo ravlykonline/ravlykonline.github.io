@@ -16,7 +16,7 @@ export function normalizeParserIdentifier(identifier) {
 }
 
 export function isValidParserIdentifier(identifier) {
-    return /^[\p{L}_][\p{L}\p{N}_-]*$/u.test(identifier);
+    return /^[\p{L}_][\p{L}\p{N}_]*$/u.test(identifier);
 }
 
 export function parseQuotedParserStringOrThrow(rawToken, createUnknownCommandError) {

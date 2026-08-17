@@ -93,6 +93,7 @@ export const RAVLYK_INITIAL_ANGLE = -90; // Upwards
 
 export const MAX_RECURSION_DEPTH = 20;
 export const MAX_PARSE_DEPTH = 20; // max nesting level of blocks during parsing
+export const MAX_EXPRESSION_DEPTH = 100; // max nested parentheses, unary operators, and builtin calls
 export const MAX_REPEATS_IN_LOOP = 500;
 export const MAX_CANVAS_SIZE_PX = 3000; // Не використовується активно в поточній логіці
 export const EXECUTION_TIMEOUT_MS = 180000; // 180 секунд, як зазначено в документації
@@ -143,6 +144,7 @@ export const ERROR_MESSAGES = {
     RANDOM_RANGE_INVALID: 'У "випадково(від, до)" межі мають бути числами, і друге число має бути не меншим за перше.',
     TOO_MANY_NESTED_REPEATS: 'Функції викликають одна одну надто глибоко (більше ' + MAX_RECURSION_DEPTH + ' рівнів). Перевір, чи функція не викликає саму себе.',
     NESTING_TOO_DEEP: 'Програма має забагато вкладених дужок. Максимум ' + MAX_PARSE_DEPTH + ' рівнів.',
+    EXPRESSION_NESTING_TOO_DEEP: 'Числовий вираз має забагато вкладених дужок або знаків. Максимум ' + MAX_EXPRESSION_DEPTH + ' рівнів. Спрости вираз або розбий обчислення на змінні.',
     TOO_MANY_REPEATS_IN_LOOP: 'У цьому циклі забагато повторень. Максимум ' + MAX_REPEATS_IN_LOOP + '. Спробуй зменшити N або збільшити крок руху.',
     COMMAND_QUEUE_OVERFLOW: 'У програмі забагато дій (більше ' + MAX_COMMAND_QUEUE_LENGTH + '). Зменш кількість повторень або спрости цикли.',
     GAME_TICK_OVERFLOW: 'Один крок гри виконує надто багато дій (більше ' + MAX_GAME_TICK_OPERATIONS + '). Спрости тіло блоку "грати".',
@@ -156,9 +158,9 @@ export const ERROR_MESSAGES = {
     CANVAS_NOT_SUPPORTED: 'Твій браузер не підтримує полотно для малювання (Canvas). Спробуй інший браузер.',
     CANVAS_CONTEXT_ERROR: 'Не вдалося підготувати полотно для малювання. Онови сторінку або спробуй інший браузер.',
     FUNCTION_NAME_RESERVED: (name) => 'Назва "' + name + '" вже зайнята командою. Обери іншу.',
-    FUNCTION_NAME_INVALID: (name) => 'Назва функції "' + name + '" не підходить. Використовуй літери, цифри, _ або -.',
+    FUNCTION_NAME_INVALID: (name) => 'Назва функції "' + name + '" не підходить. Використовуй літери, цифри або _.',
     FUNCTION_NAME_CONFLICT_VARIABLE: (name) => 'Назва "' + name + '" вже використовується як змінна. Обери іншу назву для функції.',
-    FUNCTION_PARAM_INVALID: (name) => 'Назва параметра "' + name + '" не підходить. Використовуй літери, цифри, _ або -.',
+    FUNCTION_PARAM_INVALID: (name) => 'Назва параметра "' + name + '" не підходить. Використовуй літери, цифри або _.',
     FUNCTION_PARAM_RESERVED: (name) => 'Параметр "' + name + '" не може мати назву вбудованої команди.',
     FUNCTION_PARAM_DUPLICATE: (name) => 'Параметр "' + name + '" зустрічається двічі. Кожен параметр має мати унікальну назву.',
     FUNCTION_DECLARATION_SYNTAX: 'Я не зрозумів, як створити функцію. Використай формат: створити назва(параметр) ( ... ).',
@@ -168,7 +170,7 @@ export const ERROR_MESSAGES = {
     FUNCTION_ARGUMENT_COUNT: (name, expected, actual) => 'У виклику "' + name + '" неправильна кількість аргументів. Функція очікує ' + expected + ', а отримала ' + actual + '.',
     FUNCTION_ARGUMENT_INVALID: (name, value) => 'У виклику "' + name + '" аргумент "' + value + '" має бути числом.',
     VARIABLE_DECLARATION_SYNTAX: 'Я не зрозумів створення змінної. Використай формат: створити назва = число.',
-    VARIABLE_NAME_INVALID: (name) => 'Назва змінної "' + name + '" не підходить. Використовуй літери, цифри, _ або -.',
+    VARIABLE_NAME_INVALID: (name) => 'Назва змінної "' + name + '" не підходить. Використовуй літери, цифри або _.',
     VARIABLE_NAME_RESERVED: (name) => 'Назва "' + name + '" вже зайнята командою. Обери іншу.',
     VARIABLE_NAME_CONFLICT_FUNCTION: (name) => 'Назва "' + name + '" вже використовується як функція. Обери іншу назву для змінної.',
     VARIABLE_ALREADY_DECLARED: (name) => 'Змінна "' + name + '" вже створена. Щоб змінити значення, використай: ' + name + ' = нове_значення.',

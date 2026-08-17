@@ -115,6 +115,7 @@ runTest('parser motion/state statement helpers keep move and function-call contr
 runTest('parser core utils handle identifiers, quoted strings, spans, and error locations', () => {
     assert.equal(normalizeParserIdentifier('Score'), 'score');
     assert.equal(isValidParserIdentifier('\u0457\u0436\u0430_1'), true);
+    assert.equal(isValidParserIdentifier('крок-1'), false);
     assert.equal(isValidParserIdentifier('1bad'), false);
     assert.equal(
         parseQuotedParserStringOrThrow('"space key"', (token) => new Error(`unknown:${token}`)),

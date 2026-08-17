@@ -1,3 +1,19 @@
+function readHyphenatedIdentifier(tokens, startIndex) {
+    let endIndex = startIndex;
+    while (
+        tokens[endIndex + 1] === '-'
+        && typeof tokens[endIndex + 2] === 'string'
+        && /^[\p{L}\p{N}_]+$/u.test(tokens[endIndex + 2])
+    ) {
+        endIndex += 2;
+    }
+    if (endIndex === startIndex) return null;
+    return {
+        name: tokens.slice(startIndex, endIndex + 1).join(''),
+        nextIndex: endIndex + 1,
+    };
+}
+
 export function parseCreateStatementToAst({
     tokens,
     tokenMeta,
@@ -15,6 +31,14 @@ export function parseCreateStatementToAst({
     const name = tokens[startIndex + 1];
     if (!isValidIdentifier(name)) {
         throw createError('FUNCTION_NAME_INVALID', name);
+    }
+
+    const hyphenatedName = readHyphenatedIdentifier(tokens, startIndex + 1);
+    if (hyphenatedName) {
+        const errorKey = tokens[hyphenatedName.nextIndex] === '='
+            ? 'VARIABLE_NAME_INVALID'
+            : 'FUNCTION_NAME_INVALID';
+        throw createError(errorKey, hyphenatedName.name);
     }
 
     if (tokens[startIndex + 2] === '=') {
@@ -38,6 +62,10 @@ export function parseCreateStatementToAst({
             const param = tokens[i];
             if (!isValidIdentifier(param)) {
                 throw createError('FUNCTION_PARAM_INVALID', param);
+            }
+            const hyphenatedParam = readHyphenatedIdentifier(tokens, i);
+            if (hyphenatedParam) {
+                throw createError('FUNCTION_PARAM_INVALID', hyphenatedParam.name);
             }
             params.push(normalizeIdentifier(param));
             i++;

@@ -32,7 +32,13 @@
 Canonical набір документації:
 - [`README.md`](README.md) — короткий огляд
 - [`TECHNICAL_GUIDE.md`](TECHNICAL_GUIDE.md) — engineering source of truth
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) — детальна архітектура й runtime-межі
+- [`LANGUAGE_SPEC.md`](LANGUAGE_SPEC.md) — нормативна специфікація мови
+- [`SECURITY.md`](SECURITY.md) — модель безпеки
+- [`TESTING.md`](TESTING.md) — тестова інфраструктура й покриття
 - [`DESIGN_GUIDE.md`](DESIGN_GUIDE.md) — UI/design source of truth
+- [`ACCESSIBILITY_CHECKLIST.md`](ACCESSIBILITY_CHECKLIST.md) — ручні й автоматизовані accessibility-перевірки
+- [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) — порядок production-релізу
 - [`LICENSE`](LICENSE) — ліцензія на код
 - [`LICENSE-CONTENT.md`](LICENSE-CONTENT.md) — ліцензія на навчальний контент
 - [`BRAND_POLICY.md`](BRAND_POLICY.md) — правила використання назви, логотипа й айдентики
@@ -56,6 +62,8 @@ Canonical набір документації:
 - Стек: HTML, CSS, JavaScript ES modules, Canvas 2D
 - Unit-тести: `npm run test:unit`
 - E2E-тести: `npm run test:e2e`
+- Повна перевірка перед змінами/релізом: `npm run check`
+- Контракти документації: `npm run docs:check`
 - Encoding-перевірка: `node tests/encoding.test.js`
 - Канонічна release version: `release-version.json`; синхронізація з HTML/JS/SW: `npm run release:sync-version` або `npm run release:sync-version -- YYYY-MM-DD-N`
 - Production-артефакт Cloudflare Pages: `npm run pages:build` (`.pages-artifact/`)

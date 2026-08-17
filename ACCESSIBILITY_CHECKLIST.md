@@ -28,6 +28,7 @@ Use this checklist after accessibility-related changes and before release.
   - larger text
   - reduced motion
   - dyslexia-friendly font
+  - increased spacing
 - Verify high contrast on all public pages keeps:
   - readable foreground/background contrast
   - visible focus rings
@@ -107,6 +108,9 @@ Check each setting on desktop and mobile widths.
 - Dyslexia-friendly font:
   - text remains readable
   - line breaks and button sizing still look correct
+- Increased spacing:
+  - text, controls, cards, and tables do not overlap or become clipped
+  - dialogs remain scrollable at desktop and mobile widths
 
 ## Release Gate
 

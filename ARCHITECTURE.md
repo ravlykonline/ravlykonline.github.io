@@ -25,7 +25,7 @@
 - `tests/` — unit і integration тести (Node.js)
 - `tests/e2e/` — Playwright E2E тести
 - `package.json`, `package-lock.json`, `playwright.config.js` — тестове середовище
-- `scripts/` — допоміжні скрипти (`sync-release-version.mjs`, `sync-html-partials.mjs`)
+- `scripts/` — допоміжні скрипти (`sync-release-version.mjs`, `sync-precache-manifest.mjs`, `sync-html-partials.mjs`, `build-pages-artifact.mjs`, `check-docs.mjs`)
 - `.github/workflows/ci.yml` — CI pipeline (Node.js 24, Chromium/Firefox/WebKit)
 - PWA-файли: `sw.js`, `site.webmanifest`, іконки
 - Навчальні зображення та `resources/Pre_CodingActivity_Ravlyk_UA.pdf`
@@ -34,6 +34,26 @@
 - `maisternia/` — експериментальна гра в розробці, не входить до production-артефакту
 - `old/` — публічний музей попередньої версії; backup-копії з нього не деплояться
 - Cloudflare Pages отримує тільки allowlist-артефакт зі `scripts/build-pages-artifact.mjs`; tests, logs, документація розробника й експерименти не публікуються
+
+## 3. Межі основного редактора й deployment
+
+Кореневі HTML/CSS/JS-файли та кореневий `sw.js` утворюють основний редактор РАВЛИК. Незалежні підпроєкти в `artist/`, `game/` і `go/` мають власні runtime та локальні документи; зміни їхньої логіки не слід змішувати зі змінами parser/runtime основного редактора.
+
+Production публікується лише через allowlist-артефакт `.pages-artifact/`. Кореневий release token і precache manifest є build-time контрактами основного сайту, а не універсальним механізмом версіонування незалежних підпроєктів.
+
+## 4. Основний потік виконання
+
+```text
+source code
+  -> tokenizer з line/column metadata
+  -> parser з limits блоків і виразів
+  -> semantic validator з symbol table та AST budget
+  -> createAstRuntime
+  -> rAF animation path або game tick
+  -> Canvas/UI renderer
+```
+
+UI перевіряє довжину коду до parsing, не очищує попередній малюнок до успішної валідації й показує користувачеві лише дружні `RavlykError`-сумісні повідомлення.
 
 ## 5. Поточна карта модулів
 
@@ -65,11 +85,11 @@
 
 - `js/modules/parserTokenizer.js` — токенізація коду, підтримка коментарів через `//` і legacy-варіант `#`, рядків у лапках, операторів, дужок.
 - `js/modules/ravlykParser.js` — головний клас парсера.
-- `js/modules/parserExpressions.js` — числові вирази, унарні оператори, `+`, `-`, `*`, `/`, `%`.
+- `js/modules/parserExpressions.js` — числові вирази, унарні оператори, `+`, `-`, `*`, `/`, `%`, builtin-функції та ліміт рекурсивної вкладеності виразів.
 - `js/modules/parserBlocksConditions.js` — блоки в дужках, умови, пошук закриваючих дужок.
 - `js/modules/parserMotionStatements.js` — рух, повороти, перехід.
 - `js/modules/parserStateStatements.js` — колір, фон, товщина, олівець, змінні, виклики функцій.
-- `js/modules/parserControlStatements.js` — `повторити`, `якщо`, `інакше`, `грати`.
+- `js/modules/parserControlStatements.js` — `повторити`, `поки`, `стоп`, `якщо`, `інакше`, `грати`.
 - `js/modules/parserCreateStatement.js` — створення змінних і функцій.
 - `js/modules/parserStatementDispatcher.js` — маршрутизація команд.
 
@@ -107,9 +127,11 @@
 6. **Є PWA-режим.** Для школи офлайн-доступ може бути корисним.
 7. **Є accessibility-модулі.** Це сильна сторона проєкту.
 
-## 7. Поточні архітектурні борги
+## 7. Закриті архітектурні рішення та операційні межі
 
-## 7.1. Animation path і lazy execution ✓ ЗАВЕРШЕНО
+Нижче зафіксовано поточні рішення, які вже реалізовані й захищені тестами. Це не список відкритого backlog.
+
+### 7.1. Animation path і lazy execution ✓ ЗАВЕРШЕНО
 
 Animation path повністю переведено на lazy AST execution через `interpreterAstAnimationRuntime.js`. Більше не будується плоска command queue.
 
@@ -138,11 +160,11 @@ AST -> interpreterAstAnimationRuntime.js -> createAstRuntime (step-by-step) -> r
 
 **Runtime boundary tests:** `tests/runtimeBoundary.test.js` перевіряє в CI, що flat-queue модулі відсутні, а `executeCommands` передає звичайні програми в AST animation path.
 
-## 7.2. Розгортання циклів у чергу ✓ ЗАВЕРШЕНО
+### 7.2. Розгортання циклів у чергу ✓ ЗАВЕРШЕНО
 
 Усунено. Animation path більше не розгортає `RepeatStmt` у плоский масив команд. Виконання відбувається ліниво через `createAstRuntime.step()` — один AST-крок за кадр.
 
-## 7.3. Semantic analyzer ✓ ЗАВЕРШЕНО
+### 7.3. Semantic analyzer ✓ ЗАВЕРШЕНО
 
 У `js/modules/semanticValidator.js` є semantic validation після парсингу. Він перевіряє:
 
@@ -160,7 +182,7 @@ Validator підключено в `RavlykParser.parseCodeToAst`, тож AST пр
 
 UI спочатку викликає `prepareProgram()` і лише після успішного parsing/semantic validation очищує полотно та передає готовий AST у `executeProgram()`. Помилка runtime не скидає інтерпретатор, тому частковий малюнок і позиція Равлика залишаються доступними для налагодження до наступного запуску або явного очищення.
 
-## 7.4. Service Worker ✓ ЗАВЕРШЕНО
+### 7.4. Service Worker ✓ ЗАВЕРШЕНО
 
 `sw.js` переписано:
 
@@ -171,11 +193,11 @@ UI спочатку викликає `prepareProgram()` і лише після �
 - `CACHEABLE_EXTENSIONS` і `PRECACHE_URLS` генеруються з кореневого розділу `PAGES_PUBLICATION_MANIFEST` через `scripts/sync-precache-manifest.mjs`. Версійні URL беруться з опублікованих HTML і замінюють відповідну неверсійну cache-копію; неверсійні ES-модулі та інші прямі імпорти залишаються. Великі завантажувані файли на кшталт PDF не входять до install-time кешу.
 - Канонічна release/cache version зберігається в `release-version.json`; `scripts/sync-release-version.mjs` генерує її копії в HTML/JS/SW, а `tests/releaseVersion.test.js` і `tests/serviceWorker.test.js` перевіряють синхронність.
 
-## 7.5. Release version має одне build-time джерело істини
+### 7.5. Release version має одне build-time джерело істини
 
 `release-version.json` є канонічним build-time джерелом release/cache token. Статичний runtime потребує згенерованих копій у HTML/JS/SW entrypoints; їх створює `scripts/sync-release-version.mjs`, а `tests/releaseVersion.test.js` перевіряє відповідність канонічному значенню.
 
-### Поточне правило
+#### Поточне правило
 
 - для поточного значення запускати `npm run release:sync-version`;
 - нове значення задавати через `npm run release:sync-version -- YYYY-MM-DD-N`; скрипт оновить і `release-version.json`, і згенеровані копії;
@@ -185,11 +207,11 @@ UI спочатку викликає `prepareProgram()` і лише після �
 
 Це прибирає ручне джерело дублювання без додавання runtime-запиту або build framework до статичного сайту.
 
-## 7.6. Shared HTML partials
+### 7.6. Shared HTML partials
 
 Панель доступності, footer і повторювані навігаційні блоки синхронізуються через `scripts/sync-html-partials.mjs`.
 
-### Поточне правило
+#### Поточне правило
 
 - `npm run html:sync-partials` оновлює HTML.
 - `npm run html:check-partials` перевіряє синхронність без запису файлів.
@@ -197,9 +219,11 @@ UI спочатку викликає `prepareProgram()` і лише після �
 
 Не додавати нові копії shared HTML вручну без маркерів partial sync.
 
-## 8. Цільова архітектура
+## 8. Необов’язковий напрям структурування
 
-Рекомендована структура після рефакторингу:
+Наведена нижче структура є орієнтиром на випадок, якщо реальні зміни вимагатимуть подальшого поділу модулів. Вона не є активним планом міграції або підставою для масового переміщення файлів. Поточну структуру слід залишати, доки конкретний баг чи вимірюване дублювання не виправдовує локальний рефакторинг.
+
+Можливий довгостроковий варіант:
 
 ```text
 src/
@@ -270,7 +294,9 @@ tests/
 6. **Кожна зміна Service Worker супроводжується зміною версії кешу і тестом оновлення.**
 7. **Кожен баг runtime має отримати regression test.**
 
-## 10. План рефакторингу архітектури
+## 10. Завершені етапи стабілізації
+
+Цей розділ стисло фіксує виконані етапи, щоб не повертати вже видалені runtime-шляхи. Він не є активним backlog або дозволом на новий масовий рефакторинг.
 
 ### Етап 1. Стабілізація репозиторію ✓
 
@@ -285,6 +311,7 @@ tests/
 
 - ✓ Додано `MAX_AST_NODES = 5000` — перевіряється у `semanticValidator.js`.
 - ✓ Додано `MAX_PARSE_DEPTH = 20` — перевіряється в `ravlykParser.js` через `_parseDepth` лічильник.
+- ✓ Додано `MAX_EXPRESSION_DEPTH = 100` — `parserExpressions.js` обмежує вкладені дужки, унарні знаки й числові builtin-виклики дружньою помилкою до переповнення call stack.
 - ✓ `MAX_COMMAND_QUEUE_LENGTH = 50000` — задає загальний budget AST runtime: обмежує кількість виданих примітивів і через `maxAstSteps` зупиняє надмірний control flow.
 - ✓ Лічильник `astStepCount` в `interpreterAstRuntime.js` (параметр `maxAstSteps`) рахує кожен AST-крок включно з присвоєннями та control-flow — використовується для game tick budget.
 - ✓ `EXECUTION_TIMEOUT_MS = 180s` — time-based fallback.

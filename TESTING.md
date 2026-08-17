@@ -24,13 +24,14 @@ npm run test:unit        # усі unit-тести
 npm run test:projects    # Node-тести опублікованих go/ та artist
 npm run test:e2e         # усі E2E-тести (Playwright)
 npm run test             # unit + E2E разом
-npm run check            # precache + root/go/artist unit-тести + shared HTML partials + ESLint
+npm run check            # precache + docs + root/go/artist unit-тести + shared HTML partials + ESLint
 npm run lint             # ESLint для js/ та sw.js
 npm run pages:build      # зібрати allowlist-артефакт для Cloudflare Pages
 npm run precache:sync    # згенерувати SW precache з deployment manifest
 npm run precache:check   # перевірити, що згенерований SW precache актуальний
 npm run html:sync-partials # синхронізація спільних HTML-блоків
 npm run html:check-partials # перевірка синхронізації shared HTML без запису файлів
+npm run docs:check        # локальні Markdown-посилання й синхронність документованих лімітів
 npm run release:sync-version -- YYYY-MM-DD-N  # синхронізація release-версії
 ```
 
@@ -52,6 +53,7 @@ tests/
   interpreter.helpers.core.test.js   — ядро інтерпретатора
   interpreter.helpers.runtime.test.js — runtime-стани, stop/pause/resume
   controllers.test.js            — execution, file actions, navigation, modal, захист коду при виборі прикладу, lifecycle
+  pageActions.test.js            — перевірка page-level action wiring і збереження стану після помилок
   ui.dom.test.js                 — UI-компоненти, grid overlay, editor UI
   accessibility.test.js          — налаштування доступності та сповіщення
   analytics.test.js              — Cloudflare Web Analytics beacon і відсутність Google Analytics
@@ -90,6 +92,7 @@ tests/
 - змінні, вирази, умови, цикли, функції
 - game block та його контракт
 - дружні помилки з рядком і колонкою
+- ліміти вкладеності блоків і числових виразів без витоку системних `RangeError`
 
 **Controllers / UI:**
 - execution controller (запуск, зупинка, stop-confirm flow)
@@ -125,7 +128,7 @@ tests/
 
 Файл: `.github/workflows/ci.yml`
 
-Запускається на кожен push до `main` та на pull request.
+Запускається на кожен push до `main` або `master` та на pull request.
 
 ```yaml
 - Setup Node.js 24
@@ -135,6 +138,7 @@ tests/
 - npm run test:projects
 - npm run html:check-partials
 - npm run precache:check
+- npm run docs:check
 - npm run lint
 - npm run test:e2e -- --reporter=dot
 ```

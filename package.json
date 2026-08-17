@@ -16,8 +16,9 @@
     "precache:check": "node scripts/sync-precache-manifest.mjs --check",
     "html:sync-partials": "node scripts/sync-html-partials.mjs",
     "html:check-partials": "node scripts/sync-html-partials.mjs --check",
+    "docs:check": "node scripts/check-docs.mjs",
     "lint": "eslint js/ sw.js",
-    "check": "npm run precache:check && npm run test:unit && npm run test:projects && npm run html:check-partials && npm run lint"
+    "check": "npm run precache:check && npm run docs:check && npm run test:unit && npm run test:projects && npm run html:check-partials && npm run lint"
   },
   "devDependencies": {
     "@playwright/test": "^1.53.2",

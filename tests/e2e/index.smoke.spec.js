@@ -416,4 +416,16 @@ test.describe('Ravlyk UI smoke', () => {
     await expect(page.locator('#run-btn')).toBeEnabled();
     await expect.poll(countDrawnPixels).toBeGreaterThan(0);
   });
+
+  test('deep numeric expressions show a friendly parser error', async ({ page }) => {
+    const depth = 101;
+    const code = 'вперед ' + '('.repeat(depth) + '1' + ')'.repeat(depth);
+
+    await page.fill('#code-editor', code);
+    await page.locator('#run-btn').click();
+
+    const message = page.locator('#global-message-display');
+    await expect(message).toContainText('Числовий вираз має забагато вкладених дужок або знаків');
+    await expect(message).not.toContainText('Maximum call stack');
+  });
 });

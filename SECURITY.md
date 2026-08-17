@@ -25,6 +25,7 @@ Cloudflare Web Analytics підключається напряму на публ
 ```js
 export const MAX_RECURSION_DEPTH = 20;
 export const MAX_PARSE_DEPTH = 20;
+export const MAX_EXPRESSION_DEPTH = 100;
 export const MAX_REPEATS_IN_LOOP = 500;
 export const EXECUTION_TIMEOUT_MS = 180000;
 export const MAX_CODE_LENGTH_CHARS = 10000;
@@ -37,6 +38,7 @@ export const MAX_GAME_TICK_OPERATIONS = 500;
 
 - `MAX_AST_NODES` — semantic validator відхиляє надто великий AST.
 - `MAX_PARSE_DEPTH` — parser зупиняє надто глибоку вкладеність блоків дружньою помилкою.
+- `MAX_EXPRESSION_DEPTH` — expression parser обмежує вкладені дужки, ланцюжки унарних знаків і вкладені числові функції до побудови AST, не допускаючи переповнення JS call stack.
 - `MAX_REPEATS_IN_LOOP` — один цикл не може мати необмежену кількість повторів.
 - `MAX_COMMAND_QUEUE_LENGTH` — animation path передає це значення як `maxAstSteps` у `createAstRuntime`, тому control-flow-only програми зупиняються з `COMMAND_QUEUE_OVERFLOW`.
 - `MAX_GAME_TICK_OPERATIONS` — game tick має бюджет AST-кроків через `createAstRuntime({ maxAstSteps })`; рахуються присвоєння, умови, цикли, виклики функцій і примітивні команди.
@@ -104,7 +106,7 @@ npm run check
 - [ ] CI проходить на актуальному коді.
 - [ ] Немає `eval()` / `new Function()` / `document.write`.
 - [ ] Користувацькі дані не вставляються через `innerHTML`.
-- [ ] Ліміти `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_COMMAND_QUEUE_LENGTH`, `MAX_GAME_TICK_OPERATIONS` працюють.
+- [ ] Ліміти `MAX_CODE_LENGTH_CHARS`, `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_EXPRESSION_DEPTH`, `MAX_RECURSION_DEPTH`, `MAX_REPEATS_IN_LOOP`, `MAX_COMMAND_QUEUE_LENGTH` і `MAX_GAME_TICK_OPERATIONS` працюють.
 - [ ] Публічні сторінки не підключають Google Analytics і мають тільки Cloudflare Web Analytics beacon.
 - [ ] Service Worker має очікуваний scope/cache policy для цього релізу.
 - [ ] Після зміни SW/cache version старий кеш коректно прибирається.

@@ -35,9 +35,10 @@
 - CI, README, базові npm-команди й тестова інфраструктура стабілізовані.
 - Semantic validator інтегровано в `RavlykParser.parseCodeToAst`.
 - Reserved names, duplicate functions/params, conflicts, unknown function calls і argument count перевіряються validator-ом.
-- Parser/runtime limits реалізовані: `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_REPEATS_IN_LOOP`, `MAX_COMMAND_QUEUE_LENGTH`, `MAX_GAME_TICK_OPERATIONS`.
+- Parser/runtime limits реалізовані: `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_EXPRESSION_DEPTH`, `MAX_REPEATS_IN_LOOP`, `MAX_COMMAND_QUEUE_LENGTH`, `MAX_GAME_TICK_OPERATIONS`.
 - Google Analytics прибрано; публічні сторінки використовують Cloudflare Web Analytics beacon.
 - Shared accessibility/footer/navigation HTML синхронізується через `scripts/sync-html-partials.mjs` і перевіряється в CI.
+- Кореневі Markdown-посилання, документовані limits і release-token placeholders перевіряються через `scripts/check-docs.mjs`.
 - ✓ Service Worker переписано: production-only registration, згенеровані з deployment manifest `CACHEABLE_EXTENSIONS` і `PRECACHE_URLS`, bounded cleanup, `try/catch`.
 - ✓ Animation path переведено на lazy AST execution через `interpreterAstAnimationRuntime.js`. Flat queue видалено; runtime boundary перевіряється в CI (`tests/runtimeBoundary.test.js`).
 - ✓ Semantic-правило для повторного `створити x = ...` реалізовано в `semanticValidator.js` (перевірка в поточному і батьківських scope, shadowing параметрів).
@@ -62,9 +63,11 @@
 9. Service Worker змінюйте обережно: він може залишати старий код у браузері користувача.
 10. Якщо зміна може зламати існуючі уроки/посібник — спочатку додайте regression tests.
 
-## 5. Рекомендований порядок робіт
+## 5. Завершена програма стабілізації
 
-## Крок 1. Стабілізувати репозиторій ✓
+Нижче зафіксовані вже виконані етапи. Не трактувати їх як поточний backlog і не повторювати без відтвореної проблеми.
+
+### Крок 1. Стабілізувати репозиторій ✓
 
 - ✓ `package.json`, `package-lock.json`, `playwright.config.js` додано в корінь
 - ✓ CI виправлено: `ci.yml` працює з кореня, Node.js 24
@@ -72,12 +75,12 @@
 - ✓ `.editorconfig`, `.gitattributes`, `.gitignore` додано
 - ✓ CSP додано до всіх публічних HTML-сторінок
 
-## Крок 2. Додати static security/encoding checks ✓
+### Крок 2. Додати static security/encoding checks ✓
 
 - ✓ `tests/encoding.test.js` — UTF-8, BOM, структурні регресії, відсутність `/v4beta/`-шляхів
 - ✓ Перевірка security-контрактів вбудована в unit-тести
 
-## Крок 3. Semantic validator ✓
+### Крок 3. Semantic validator ✓
 
 Створено:
 
@@ -100,20 +103,21 @@ js/modules/semanticValidator.js
 - empty function body;
 - game mode top-level rules.
 
-Всі перевірки реалізовано, включаючи `MAX_PARSE_DEPTH = 20` (лічильник `_parseDepth` у `ravlykParser.js`).
+Всі перевірки реалізовано, включаючи `MAX_PARSE_DEPTH = 20` для блоків і `MAX_EXPRESSION_DEPTH = 100` для числових виразів.
 
-## Крок 4. Закрити DoS через цикли ✓ ЗАВЕРШЕНО
+### Крок 4. Закрити DoS через цикли й рекурсивні вирази ✓ ЗАВЕРШЕНО
 
 Реалізовано:
 
 - `MAX_AST_NODES = 5000` — перевіряється у `semanticValidator.js`
 - `MAX_PARSE_DEPTH = 20` — перевіряється у `ravlykParser.js`
+- `MAX_EXPRESSION_DEPTH = 100` — перевіряється в `parserExpressions.js` для дужок, унарних операторів і вкладених числових функцій
 - `MAX_COMMAND_QUEUE_LENGTH = 50000` — `stepCount` у `interpreterAstRuntime.js`
 - `MAX_REPEATS_IN_LOOP = 500` — перевіряється під час парсингу
 - ✓ `MAX_GAME_TICK_OPERATIONS = 500` — `astStepCount` у `interpreterAstRuntime.js` через `maxAstSteps`; рахує ВСІ AST-кроки (присвоєння, цикли, умови, виклики), не тільки примітиви
 - ✓ `createAstRuntime` обмежує як кількість AST-кроків, так і кількість примітивів без попереднього розгортання циклів.
 
-## Крок 5. Уніфікувати runtime ✓ ЗАВЕРШЕНО
+### Крок 5. Уніфікувати runtime ✓ ЗАВЕРШЕНО
 
 Animation path і game path тепер обидва використовують `createAstRuntime` (frame-based, спільний env):
 
@@ -125,11 +129,11 @@ AST -> semantic validator -> createAstRuntime -> rAF loop (animation) / game tic
 
 Legacy flat-queue модулі й compatibility API видалено після міграції тестів на AST runtime.
 
-## Крок 6. Analytics privacy ✓
+### Крок 6. Analytics privacy ✓
 
 Google Analytics більше не підключається. Публічні HTML-сторінки використовують Cloudflare Web Analytics beacon із CSP-дозволами тільки для Cloudflare analytics endpoints.
 
-## Крок 7. Виправити Service Worker ✓ ЗАВЕРШЕНО
+### Крок 7. Виправити Service Worker ✓ ЗАВЕРШЕНО
 
 - ✓ production-only registration (`js/registerServiceWorker.js` перевіряє hostname);
 - scope явно `{ scope: '/' }` — прийнятно, бо production живе в корені домену;
@@ -138,7 +142,7 @@ Google Analytics більше не підключається. Публічні 
 - ✓ bounded cleanup (`MAX_RUNTIME_CACHE_ENTRIES`);
 - ✓ cache version синхронізується через `scripts/sync-release-version.mjs` і перевіряється тестами.
 
-## Крок 8. Додати E2E ✓
+### Крок 8. Додати E2E ✓
 
 - ✓ `tests/e2e/` містить повний набір Playwright smoke тестів
 - ✓ Покриті: редактор, модалі, accessibility, PWA offline, cross-browser smoke
