@@ -1,4 +1,4 @@
-const CACHE_VERSION = '2026-08-16-2';
+const CACHE_VERSION = '2026-08-17-1';
 // Precache (install-time assets) and runtime cache are kept separate so that
 // trimRuntimeCache() can evict dynamic entries without touching precache URLs.
 const APP_CACHE = `ravlyk-app-${CACHE_VERSION}`;
@@ -147,26 +147,26 @@ const PRECACHE_URLS = [
     '/resources.html',
     '/teacher_guidelines.html',
     '/zen.html',
-    '/css/about-project.css?v=2026-08-16-2',
-    '/css/accessibility.css?v=2026-08-16-2',
-    '/css/global.css?v=2026-08-16-2',
-    '/css/lessons.css?v=2026-08-16-2',
-    '/css/main-editor.css?v=2026-08-16-2',
-    '/css/manual.css?v=2026-08-16-2',
-    '/css/parents.css?v=2026-08-16-2',
-    '/css/quiz.css?v=2026-08-16-2',
-    '/css/resources.css?v=2026-08-16-2',
-    '/css/teacher-guidelines.css?v=2026-08-16-2',
-    '/css/zen.css?v=2026-08-16-2',
-    '/js/accessibility.js?v=2026-08-16-2',
-    '/js/lessonsPage.js?v=2026-08-16-2',
-    '/js/main.js?v=2026-08-16-2',
-    '/js/manualPage.js?v=2026-08-16-2',
-    '/js/printPage.js?v=2026-08-16-2',
-    '/js/quizPage.js?v=2026-08-16-2',
-    '/js/registerServiceWorker.js?v=2026-08-16-2',
-    '/js/zenPage.js?v=2026-08-16-2',
-    '/site.webmanifest?v=2026-08-16-2',
+    '/css/about-project.css?v=2026-08-17-1',
+    '/css/accessibility.css?v=2026-08-17-1',
+    '/css/global.css?v=2026-08-17-1',
+    '/css/lessons.css?v=2026-08-17-1',
+    '/css/main-editor.css?v=2026-08-17-1',
+    '/css/manual.css?v=2026-08-17-1',
+    '/css/parents.css?v=2026-08-17-1',
+    '/css/quiz.css?v=2026-08-17-1',
+    '/css/resources.css?v=2026-08-17-1',
+    '/css/teacher-guidelines.css?v=2026-08-17-1',
+    '/css/zen.css?v=2026-08-17-1',
+    '/js/accessibility.js?v=2026-08-17-1',
+    '/js/lessonsPage.js?v=2026-08-17-1',
+    '/js/main.js?v=2026-08-17-1',
+    '/js/manualPage.js?v=2026-08-17-1',
+    '/js/printPage.js?v=2026-08-17-1',
+    '/js/quizPage.js?v=2026-08-17-1',
+    '/js/registerServiceWorker.js?v=2026-08-17-1',
+    '/js/zenPage.js?v=2026-08-17-1',
+    '/site.webmanifest?v=2026-08-17-1',
 ];
 // END GENERATED PRECACHE MANIFEST
 
