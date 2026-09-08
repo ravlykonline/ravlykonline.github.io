@@ -33,6 +33,7 @@ npm run html:sync-partials # синхронізація спільних HTML-б
 npm run html:check-partials # перевірка синхронізації shared HTML без запису файлів
 npm run docs:check        # локальні Markdown-посилання й синхронність документованих лімітів
 npm run perf:ast          # browser benchmark parsing та одного синхронного runtime.step
+npm run release:check-token # версійні ассети не змінені без нового release token
 npm run release:sync-version -- YYYY-MM-DD-N  # синхронізація release-версії
 ```
 
@@ -73,6 +74,7 @@ tests/
   quiz.test.js                   — quiz bank, теми, контракти питань
   randomResolver.test.js         — генератор випадкових значень
   encoding.test.js               — UTF-8, BOM, відсутність v4beta-шляхів, структурні регресії, shared HTML partials
+  releaseToken.test.js           — контракт release token: версійні ассети не їдуть без нового токена
   releaseVersion.test.js         — синхронізація release-версії між SW і HTML
   serviceWorker.test.js          — Service Worker: production-only registration, allowlist, bounded cache
   astAnimationRuntime.test.js    — lazy animation runtime: порожня програма, move/turn, repeat, змінні, if/else, функції, budget

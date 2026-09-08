@@ -3,7 +3,7 @@
 ## Before Deploy
 
 1. Confirm the working tree is clean with `git status --short`.
-2. If public assets changed, set and sync the canonical `release-version.json` value with `npm run release:sync-version -- YYYY-MM-DD-N`.
+2. If public assets changed, set and sync the canonical `release-version.json` value with `npm run release:sync-version -- YYYY-MM-DD-N`. CI enforces this via `npm run release:check-token`: skipping it leaves returning visitors on cached JS/CSS while they receive fresh HTML.
 3. Run `npm run check`. This includes precache and documentation contract checks, root unit tests, the `go` and `artist` suites, shared HTML partial checks, and ESLint.
 4. Run `npm run test:e2e -- --reporter=dot`; confirm the four `game` browser harness suites pass in the desktop Chromium project.
 5. If browser/platform-sensitive UI changed, confirm `firefox-smoke` and `webkit-smoke` pass in Playwright output.
