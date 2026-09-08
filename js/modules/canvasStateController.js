@@ -25,15 +25,22 @@ function roundForLearning(value) {
     return Object.is(rounded, -0) ? 0 : rounded;
 }
 
+export function normalizeLearningAngle(rawAngle) {
+    const angle = Number(rawAngle);
+    if (!Number.isFinite(angle)) return 0;
+    const normalized = ((angle - RAVLYK_INITIAL_ANGLE) % 360 + 360) % 360;
+    const rounded = roundForLearning(normalized);
+    // Animation accumulates float error, so a completed turn lands just under a
+    // full circle and rounds up to 360 — the same heading as 0, and confusing
+    // for a child who is learning what the angle means.
+    return rounded >= 360 ? 0 : rounded;
+}
+
 export function getCanvasStateSnapshot(state, canvas) {
-    const rawAngle = Number(state?.angle);
-    const angle = Number.isFinite(rawAngle)
-        ? ((rawAngle - RAVLYK_INITIAL_ANGLE) % 360 + 360) % 360
-        : 0;
     return {
         x: roundForLearning(Number(state?.x) - ((Number(canvas?.width) / 2) + GRID_ALIGN_OFFSET_X)),
         y: roundForLearning(((Number(canvas?.height) / 2) + GRID_ALIGN_OFFSET_Y) - Number(state?.y)),
-        angle: roundForLearning(angle),
+        angle: normalizeLearningAngle(state?.angle),
         pen: state?.isPenDown ? 'опущене' : 'підняте',
         color: describeColor(state?.color),
         width: Number(canvas?.width) || 0,
