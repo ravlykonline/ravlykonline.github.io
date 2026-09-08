@@ -102,7 +102,7 @@ test.describe('Lessons tab keyboard accessibility', () => {
   });
 });
 
-test('canvas exposes readable learning state and a bounded completed-command log', async ({ page }) => {
+test('canvas state dialog exposes readable learning state and a bounded command log', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('ravlyk_accessibility_settings_v2', JSON.stringify({ 'reduce-animations': true }));
   });
@@ -111,21 +111,60 @@ test('canvas exposes readable learning state and a bounded completed-command log
   await page.locator('#run-btn').click();
   await expect(page.locator('#stop-btn')).toBeDisabled();
 
-  // On narrow viewports the canvas lives behind a workspace tab, so the state
-  // panel is present but not visible until that tab is selected.
-  const isTabbedWorkspace = await page.evaluate(() => {
-    const tabList = document.querySelector('.workspace-tabs');
-    return tabList ? getComputedStyle(tabList).display !== 'none' : false;
-  });
-  if (isTabbedWorkspace) {
-    await page.locator('#workspace-canvas-tab').click();
-  }
-
-  await page.locator('.canvas-state-panel > summary').click();
+  // The state lives in a toolbar dialog, so it is reachable without leaving the
+  // editor tab on any viewport.
+  await page.locator('#canvas-state-btn').click();
+  await expect(page.locator('#canvas-state-modal-overlay')).not.toHaveClass(/hidden/);
   await expect(page.locator('#canvas-state-x')).toHaveText('30');
   await expect(page.locator('#canvas-state-y')).toHaveText('20');
+  await expect(page.locator('#canvas-state-color')).toHaveText('чорний');
+
   await page.locator('#read-canvas-state-btn').click();
   await expect(page.locator('#canvas-state-status')).toContainText('X 30, Y 20');
   await expect(page.locator('#ravlyk-canvas')).toHaveAttribute('aria-describedby', 'canvas-state-description');
+
+  await page.locator('.canvas-command-log-panel > summary').click();
   await expect(page.locator('#canvas-state-log > li')).toHaveCount(50);
+
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#canvas-state-modal-overlay')).toHaveClass(/hidden/);
+  await expect(page.locator('#canvas-state-btn')).toBeFocused();
+});
+
+// Found on production: the state used to be a <details> inside the fixed-height
+// canvas column, so opening it shrank the canvas from 472px to 52px, pushed the
+// drawing up and redrew it at a new size. The dialog must leave the canvas and
+// its pixels completely untouched.
+test('opening the canvas state does not disturb the drawing', async ({ page }) => {
+  await page.goto('/index.html');
+  // Draws a real shape and produces more than the 50 logged commands.
+  await page.locator('#code-editor').fill('повторити 30 ( вперед 6 праворуч 12 )');
+  await page.locator('#run-btn').click();
+  await expect(page.locator('#run-btn')).toBeEnabled({ timeout: 20000 });
+
+  const canvasSignature = () => page.evaluate(() => {
+    const canvas = document.getElementById('ravlyk-canvas');
+    const ctx = canvas.getContext('2d');
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let colored = 0;
+    for (let index = 3; index < pixels.length; index += 4) {
+      if (pixels[index] > 0) colored += 1;
+    }
+    return { width: canvas.width, height: canvas.height, colored };
+  });
+
+  const before = await canvasSignature();
+  expect(before.colored).toBeGreaterThan(0);
+
+  await page.locator('#canvas-state-btn').click();
+  await expect(page.locator('#canvas-state-modal-overlay')).not.toHaveClass(/hidden/);
+  await page.locator('.canvas-command-log-panel > summary').click();
+  await expect(page.locator('#canvas-state-log > li')).toHaveCount(50);
+  await page.waitForTimeout(400);
+
+  // Same canvas size and the very same pixels: no reflow, no redraw, no shift.
+  expect(await canvasSignature()).toEqual(before);
+
+  await page.locator('#close-canvas-state-modal-btn').click();
+  expect(await canvasSignature()).toEqual(before);
 });

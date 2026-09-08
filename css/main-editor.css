@@ -417,14 +417,8 @@
     min-height: 0;
 }
 
-.canvas-state-panel {
-    margin: 0.75rem 1rem 1rem;
-    padding: 0.65rem 0.8rem;
-    border: 1px solid var(--border-color, #c7c7c7);
-    border-radius: 0.5rem;
-    background: var(--card-background, #fff);
-}
-
+/* The Ravlyk state lives in its own dialog: it must never take layout space
+   from the drawing area or shift what is already on the canvas. */
 .canvas-state-values {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
@@ -446,6 +440,12 @@
 
 .canvas-command-log-panel {
     margin-top: 0.75rem;
+}
+
+/* Keep a long command journal from pushing the dialog past the viewport. */
+#canvas-state-log {
+    max-height: 40vh;
+    overflow-y: auto;
 }
 
 #ravlyk-background-canvas {

@@ -3,6 +3,7 @@ import { RavlykInterpreter } from './modules/ravlykInterpreter.js';
 import {
     showError, showSuccessMessage, showInfoMessage,
     showHelpModal, hideHelpModal,
+    showCanvasStateModal, hideCanvasStateModal,
     showClearConfirmModal, hideClearConfirmModal,
     showExampleConfirmModal, hideExampleConfirmModal,
     showStopConfirmModal, hideStopConfirmModal,
@@ -89,6 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const gifProgressLabel = document.getElementById("gif-progress-label");
     const gifProgressBar = document.getElementById("gif-progress-bar");
     const cancelGifBtn = document.getElementById("cancel-gif-btn");
+    const canvasStateBtn = document.getElementById("canvas-state-btn");
+    const closeCanvasStateModalBtn = document.getElementById("close-canvas-state-modal-btn");
     const gifProgressTrack = gifProgressOverlay?.querySelector('.gif-progress-bar-track');
 
     function onGifProgress(phase, pct) {
@@ -238,6 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         navigationPrefetch,
         showInfoMessage,
         hideHelpModal,
+        hideCanvasStateModal,
         showClearConfirmModal,
         hideClearConfirmModal,
         showExampleConfirmModal,
@@ -272,6 +276,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (shareBtn) shareBtn.addEventListener('click', fileActions.shareCodeAsLink);
     if (gridBtn) gridBtn.addEventListener('click', () => gridOverlay.toggle());
     if (helpBtn) helpBtn.addEventListener('click', showHelpModal);
+    if (canvasStateBtn) {
+        canvasStateBtn.addEventListener('click', () => {
+            // Render the latest state only while the dialog is actually on screen.
+            canvasStateController.refresh();
+            showCanvasStateModal();
+        });
+    }
 
     if (stopBtn) stopBtn.addEventListener("click", () => {
         executionController.openStopConfirmDialog();
@@ -294,6 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
         downloadCodeBtn,
         closeDownloadModalBtn,
         cancelGifBtn,
+        closeCanvasStateModalBtn,
     });
 
 

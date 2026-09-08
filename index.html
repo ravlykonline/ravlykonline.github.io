@@ -105,6 +105,9 @@
       <button id="grid-btn" class="btn btn-primary" title="Увімкнути або вимкнути координатну сітку"
         aria-label="Перемкнути сітку" aria-pressed="false"><span class="ui-icon icon-th" aria-hidden="true"></span><span
           class="toolbar-label">Сітка</span></button>
+      <button id="canvas-state-btn" class="btn btn-primary" title="Показати стан Равлика: координати, кут, перо й колір"
+        aria-label="Показати стан Равлика"><span class="ui-icon icon-info-circle" aria-hidden="true"></span><span
+          class="toolbar-label">Стан</span></button>
       <button id="help-btn" class="btn btn-primary" title="Пояснення команд" aria-label="Пояснення команд"><span class="ui-icon icon-question-circle" aria-hidden="true"></span><span class="toolbar-label">Довідка</span></button>
       <button id="download-btn" class="btn btn-info" title="Завантажити малюнок або код"
         aria-label="Завантажити малюнок або код"><span class="ui-icon icon-download" aria-hidden="true"></span><span
@@ -141,24 +144,8 @@
           <canvas id="ravlyk-canvas" role="img" aria-label="Полотно для малювання Равлика" aria-describedby="canvas-state-description"></canvas>
           <canvas id="ravlyk-grid-canvas" aria-hidden="true"></canvas>
         </div>
-        <details class="canvas-state-panel">
-          <summary>Стан Равлика</summary>
-          <p id="canvas-state-description">Текстовий стан доповнює малюнок: координати подано від центра полотна, а кут — як у виразі <code>кут</code>.</p>
-          <dl class="canvas-state-values">
-            <div><dt>X</dt><dd id="canvas-state-x">0</dd></div>
-            <div><dt>Y</dt><dd id="canvas-state-y">0</dd></div>
-            <div><dt>Кут</dt><dd id="canvas-state-angle">0°</dd></div>
-            <div><dt>Перо</dt><dd id="canvas-state-pen">опущене</dd></div>
-            <div><dt>Колір</dt><dd id="canvas-state-color">синій</dd></div>
-            <div><dt>Полотно</dt><dd id="canvas-state-size">0 × 0</dd></div>
-          </dl>
-          <button id="read-canvas-state-btn" class="btn btn-secondary" type="button">Прочитати стан</button>
-          <p id="canvas-state-status" class="visually-hidden" role="status" aria-live="polite"></p>
-          <details class="canvas-command-log-panel">
-            <summary>Останні завершені команди</summary>
-            <ol id="canvas-state-log"></ol>
-          </details>
-        </details>
+        <p id="canvas-state-description" class="visually-hidden">Текстовий стан Равлика доступний через кнопку «Стан» на панелі керування: координати подано від центра полотна, а кут — як у виразі кут.</p>
+        <p id="canvas-state-status" class="visually-hidden" role="status" aria-live="polite"></p>
       </section>
     </div>
     <section class="examples" aria-labelledby="examples-title">
@@ -415,6 +402,30 @@
     </div>
 </div>
 <!-- END shared:accessibility-panel -->
+
+  <div id="canvas-state-modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true"
+    aria-labelledby="canvas-state-modal-title">
+    <div id="canvas-state-modal-content" class="modal-content">
+      <h2 id="canvas-state-modal-title" class="modal-title">Стан Равлика</h2>
+      <p>Координати подано від центра полотна, а кут — як у виразі <code>кут</code>.</p>
+      <dl class="canvas-state-values">
+        <div><dt>X</dt><dd id="canvas-state-x">0</dd></div>
+        <div><dt>Y</dt><dd id="canvas-state-y">0</dd></div>
+        <div><dt>Кут</dt><dd id="canvas-state-angle">0°</dd></div>
+        <div><dt>Перо</dt><dd id="canvas-state-pen">опущене</dd></div>
+        <div><dt>Колір</dt><dd id="canvas-state-color">чорний</dd></div>
+        <div><dt>Полотно</dt><dd id="canvas-state-size">0 × 0</dd></div>
+      </dl>
+      <details class="canvas-command-log-panel">
+        <summary>Останні завершені команди</summary>
+        <ol id="canvas-state-log"></ol>
+      </details>
+      <div class="modal-actions">
+        <button id="read-canvas-state-btn" class="btn btn-info" type="button">Прочитати стан</button>
+        <button id="close-canvas-state-modal-btn" class="btn btn-secondary" type="button">Закрити</button>
+      </div>
+    </div>
+  </div>
 
   <div id="help-modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true"
     aria-labelledby="help-modal-title-static">

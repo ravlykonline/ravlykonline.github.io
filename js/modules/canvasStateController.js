@@ -1,4 +1,5 @@
 import {
+    DEFAULT_PEN_COLOR,
     GRID_ALIGN_OFFSET_X,
     GRID_ALIGN_OFFSET_Y,
     RAVLYK_INITIAL_ANGLE,
@@ -6,6 +7,18 @@ import {
 } from './constants.js';
 
 export const MAX_CANVAS_STATE_LOG_ENTRIES = 50;
+
+// DEFAULT_PEN_COLOR is #000000, while the colour registry's «чорний» is #1A1A1A,
+// so the starting pen has no registry name and the panel would show a raw hex
+// code in exactly the state a child sees first.
+const FALLBACK_COLOR_NAMES = {
+    [DEFAULT_PEN_COLOR.toUpperCase()]: 'чорний',
+};
+
+export function describeColor(rawColor) {
+    const key = String(rawColor || '').toUpperCase();
+    return UKRAINIAN_COLOR_NAMES[key] || FALLBACK_COLOR_NAMES[key] || 'власний колір';
+}
 
 function roundForLearning(value) {
     const rounded = Math.round(Number(value) * 100) / 100;
@@ -17,13 +30,12 @@ export function getCanvasStateSnapshot(state, canvas) {
     const angle = Number.isFinite(rawAngle)
         ? ((rawAngle - RAVLYK_INITIAL_ANGLE) % 360 + 360) % 360
         : 0;
-    const colorKey = String(state?.color || '').toUpperCase();
     return {
         x: roundForLearning(Number(state?.x) - ((Number(canvas?.width) / 2) + GRID_ALIGN_OFFSET_X)),
         y: roundForLearning(((Number(canvas?.height) / 2) + GRID_ALIGN_OFFSET_Y) - Number(state?.y)),
         angle: roundForLearning(angle),
         pen: state?.isPenDown ? 'опущене' : 'підняте',
-        color: UKRAINIAN_COLOR_NAMES[colorKey] || String(state?.color || 'невідомий'),
+        color: describeColor(state?.color),
         width: Number(canvas?.width) || 0,
         height: Number(canvas?.height) || 0,
     };
@@ -111,5 +123,10 @@ export function createCanvasStateController({
         if (status) status.textContent = formatCanvasState(snapshot);
     });
 
-    return { update, recordPrimitive, clearLog, getSnapshot: () => lastSnapshot };
+    // Called just before the dialog is shown, so it always opens on current values.
+    function refresh() {
+        return update('refresh');
+    }
+
+    return { update, refresh, recordPrimitive, clearLog, getSnapshot: () => lastSnapshot };
 }

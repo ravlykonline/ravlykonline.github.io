@@ -14,6 +14,7 @@ export function createModalController({
     showExampleConfirmModal,
     hideExampleConfirmModal,
     hideDownloadModal,
+    hideCanvasStateModal,
 }) {
     let pendingExampleConfirmation = null;
 
@@ -48,6 +49,11 @@ export function createModalController({
 
         if (fileActions.isGifActive?.()) {
             fileActions.cancelGif();
+            return;
+        }
+
+        if (isModalOpen('canvas-state-modal-overlay')) {
+            hideCanvasStateModal();
             return;
         }
 
@@ -90,6 +96,7 @@ export function createModalController({
         downloadCodeBtn,
         closeDownloadModalBtn,
         cancelGifBtn,
+        closeCanvasStateModalBtn,
     }) {
         if (helpModalCloseBtn) helpModalCloseBtn.addEventListener('click', hideHelpModal);
         if (helpModalToManualBtn) {
@@ -139,9 +146,11 @@ export function createModalController({
         }
         if (closeDownloadModalBtn) closeDownloadModalBtn.addEventListener('click', hideDownloadModal);
         if (cancelGifBtn) cancelGifBtn.addEventListener('click', () => fileActions.cancelGif());
+        if (closeCanvasStateModalBtn) closeCanvasStateModalBtn.addEventListener('click', hideCanvasStateModal);
 
         document.addEventListener('keydown', handleEscapeKey);
         bindModalOverlayClose('help-modal-overlay', hideHelpModal);
+        bindModalOverlayClose('canvas-state-modal-overlay', hideCanvasStateModal);
         bindModalOverlayClose('clear-confirm-modal-overlay', hideClearConfirmModal);
         bindModalOverlayClose('example-confirm-modal-overlay', closeExampleConfirmation);
         bindModalOverlayClose('stop-confirm-modal-overlay', () => executionController.closeStopConfirmDialog(true));
