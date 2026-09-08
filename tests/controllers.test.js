@@ -1275,4 +1275,74 @@ await runAsyncTest('execution session never exposes an unexpected system error m
     console.error = previousConsoleError;
 });
 
+for (const cancelPhase of ['encode', 'done']) {
+    await runAsyncTest(`GIF cancellation at ${cancelPhase} prevents download and releases session`, async () => {
+        const harness = createExecutionHarness();
+        let files;
+        let encodeCalls = 0;
+        let downloadCalls = 0;
+        let released = false;
+        const previousDocument = global.document;
+        global.document = {
+            body: { appendChild() {}, removeChild() {} },
+            createElement() { return { click() { downloadCalls += 1; } }; },
+        };
+        try {
+            files = createFileActionsController({
+                canvas: {}, codeEditor: { value: 'вперед 1' },
+                interpreter: harness.interpreter, executionController: harness.controller,
+                errorMessages: { GIF_CREATE_ERROR: 'gif failed' },
+                showInfoMessage() {},
+                showError(message) { harness.state.errors.push(message); },
+                showSuccessMessage(message) { harness.state.successes.push(message); },
+                onGifProgress(phase) {
+                    if (phase === cancelPhase) assert.equal(files.cancelGif(), true);
+                },
+                createGifCaptureFn: () => ({
+                    start() {}, stop() {}, hasFrames: () => true,
+                    getFrames: () => [], getDimensions: () => ({ w: 1, h: 1 }),
+                    releaseFrames() { released = true; },
+                }),
+                createGifEncodingControllerFn: () => ({
+                    cancel() {},
+                    async encode() { encodeCalls += 1; return new Uint8Array([71, 73, 70]); },
+                }),
+            });
+            assert.equal(await files.saveGif(), 'cancelled');
+            assert.equal(encodeCalls, cancelPhase === 'encode' ? 0 : 1);
+            assert.equal(downloadCalls, 0);
+            assert.deepEqual(harness.state.errors, []);
+            assert.deepEqual(harness.state.successes, []);
+            assert.equal(released, true);
+            assert.equal(files.isGifActive(), false);
+            assert.equal(harness.controller.isSessionActive(), false);
+            assert.equal(await harness.controller.runCode(), 'completed');
+        } finally {
+            global.document = previousDocument;
+        }
+    });
+}
+
+await runAsyncTest('encoding failure after capture limit reports failure and cleans up', async () => {
+    const harness = createExecutionHarness();
+    harness.interpreter.executeProgram = async () => {
+        harness.controller.cancelActiveSession('capture-limit');
+    };
+    let cleanedResult;
+    let reportedError;
+    const encoderError = new Error('worker failed');
+    const result = await harness.controller.executeSession('вперед 1', {
+        kind: 'gif',
+        afterExecute() { throw encoderError; },
+        onSessionError(error) { reportedError = error; return true; },
+        cleanup(value) { cleanedResult = value; },
+    });
+    assert.equal(result, 'failed');
+    assert.equal(cleanedResult, 'failed');
+    assert.equal(reportedError, encoderError);
+    assert.deepEqual(harness.state.infos, []);
+    assert.deepEqual(harness.state.successes, []);
+    assert.equal(harness.controller.isSessionActive(), false);
+});
+
 console.log('Controller tests completed.');

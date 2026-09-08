@@ -191,7 +191,8 @@ export function createFileActionsController({
                 interpreter.gifCapture = gifCapture;
                 gifCapture.start();
             },
-            async afterExecute() {
+            async afterExecute({ signal }) {
+                signal.throwIfAborted();
                 gifCapture.stop();
                 interpreter.gifCapture = null;
                 if (!gifCapture.hasFrames()) {
@@ -200,12 +201,15 @@ export function createFileActionsController({
 
                 onGifProgress?.('encode', 92);
                 await new Promise((resolve) => setTimeout(resolve, 30));
+                signal.throwIfAborted();
                 const frames = gifCapture.getFrames();
                 const { w, h } = gifCapture.getDimensions();
                 activeGifEncoding = createGifEncodingControllerFn();
                 const gifBytes = await activeGifEncoding.encode({ frames, width: w, height: h });
+                signal.throwIfAborted();
                 activeGifEncoding = null;
                 onGifProgress?.('done', 100);
+                signal.throwIfAborted();
 
                 const blob = new Blob([gifBytes], { type: 'image/gif' });
                 const url = URL.createObjectURL(blob);

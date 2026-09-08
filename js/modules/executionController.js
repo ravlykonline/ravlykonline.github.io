@@ -100,7 +100,11 @@ export function createExecutionController({
             return 'failed';
         }
 
-        const session = { stopReason: null, cancel: options.cancel || null };
+        const session = {
+            stopReason: null,
+            cancel: options.cancel || null,
+            abortController: new globalThis.AbortController(),
+        };
         activeSession = session;
         updateExecutionControls(true);
         interpreter.reset();
@@ -143,21 +147,23 @@ export function createExecutionController({
 
             if (result === 'completed' || result === 'capture-limit') {
                 try {
-                    await options.afterExecute?.({ programAst, result });
+                    await options.afterExecute?.({ programAst, result, signal: session.abortController.signal });
+                    session.abortController.signal.throwIfAborted();
                     if (result === 'capture-limit') {
                         showInfoMessage(ERROR_MESSAGES.GIF_CAPTURE_LIMIT_SAVED, 0);
                     } else if (!options.suppressSuccess && !interpreter.wasBoundaryWarningShown()) {
                         showSuccessMessage(SUCCESS_MESSAGES.CODE_EXECUTED);
                     }
                 } catch (error) {
-                    result = session.stopReason || 'failed';
+                    // A capture limit ends recording, but does not make an encoder failure successful.
+                    result = session.abortController.signal.aborted ? 'cancelled' : 'failed';
                     if (result === 'failed' && !options.onSessionError?.(error)) {
                         reportExecutionError(code, error);
                     }
                 }
             }
         } catch (error) {
-            result = session.stopReason || 'failed';
+            result = session.abortController.signal.aborted ? 'cancelled' : 'failed';
             if (result === 'failed' && !options.onSessionError?.(error)) {
                 reportExecutionError(code, error, executionTimedOut);
             }
@@ -180,6 +186,7 @@ export function createExecutionController({
     function cancelActiveSession(reason = 'cancelled') {
         if (!activeSession) return false;
         activeSession.stopReason = reason;
+        if (reason === 'cancelled') activeSession.abortController.abort();
         activeSession.cancel?.();
         interpreter.stopExecution();
         return true;
