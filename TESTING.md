@@ -108,6 +108,7 @@ tests/
 - ліміти вкладеності блоків і числових виразів без витоку системних `RangeError`
 
 **Controllers / UI:**
+- GIF: скасування між записом і створенням Worker та перед завантаженням не створює файл; помилка кодування після ліміту запису повертає `failed` і повідомляється користувачу.
 - execution controller (запуск, зупинка, stop-confirm flow)
 - file actions (export PNG, save TXT, share link, load from hash)
 - modal controller
