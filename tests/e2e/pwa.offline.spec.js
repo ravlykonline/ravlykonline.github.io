@@ -1,4 +1,8 @@
 import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+
+// The canonical release token drives both versioned asset URLs and cache names.
+const { releaseVersion } = JSON.parse(readFileSync('release-version.json', 'utf8'));
 
 const SUPPORTING_PAGE_CASES = [
     '/manual.html',
@@ -80,14 +84,32 @@ test.describe('PWA offline shell', () => {
     await page.goto('/manual.html?runtime-cache-smoke=1', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('main#main-content')).toBeVisible();
 
-    const versionedMiss = await page.evaluate(async () => {
-      try {
-        await fetch('/js/main.js?v=not-the-active-release');
+    // Playwright's offline emulation does not cover requests the service worker
+    // itself issues, so asserting that a stale ?v= fetch rejects would be
+    // vacuous: the worker still reaches the network and answers 200. Assert the
+    // invariant the worker actually depends on instead — lookups in the current
+    // caches are exact-key, so a stale or bare URL can never resolve to the
+    // cached versioned asset. The worker-side logic is covered in
+    // tests/serviceWorker.test.js.
+    const cacheKeys = await page.evaluate(async (activeVersion) => {
+      const names = (await caches.keys()).filter((name) => (
+        name.startsWith('ravlyk-app-') || name.startsWith('ravlyk-runtime-')
+      ));
+      const isCached = async (url) => {
+        for (const name of names) {
+          if (await (await caches.open(name)).match(url)) return true;
+        }
         return false;
-      } catch {
-        return true;
-      }
-    });
-    expect(versionedMiss).toBe(true);
+      };
+      return {
+        active: await isCached(`/js/main.js?v=${activeVersion}`),
+        stale: await isCached('/js/main.js?v=not-the-active-release'),
+        bare: await isCached('/js/main.js'),
+      };
+    }, releaseVersion);
+
+    expect(cacheKeys.active).toBe(true);
+    expect(cacheKeys.stale).toBe(false);
+    expect(cacheKeys.bare).toBe(false);
   });
 });

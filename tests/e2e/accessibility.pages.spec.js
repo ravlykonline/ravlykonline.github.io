@@ -111,6 +111,16 @@ test('canvas exposes readable learning state and a bounded completed-command log
   await page.locator('#run-btn').click();
   await expect(page.locator('#stop-btn')).toBeDisabled();
 
+  // On narrow viewports the canvas lives behind a workspace tab, so the state
+  // panel is present but not visible until that tab is selected.
+  const isTabbedWorkspace = await page.evaluate(() => {
+    const tabList = document.querySelector('.workspace-tabs');
+    return tabList ? getComputedStyle(tabList).display !== 'none' : false;
+  });
+  if (isTabbedWorkspace) {
+    await page.locator('#workspace-canvas-tab').click();
+  }
+
   await page.locator('.canvas-state-panel > summary').click();
   await expect(page.locator('#canvas-state-x')).toHaveText('30');
   await expect(page.locator('#canvas-state-y')).toHaveText('20');
