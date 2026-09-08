@@ -82,22 +82,22 @@ runTest('release version stays synchronized across public HTML entry points', ()
     });
 });
 
-runTest('release version stays synchronized inside sw.js PRECACHE_URLS', () => {
+runTest('release version stays synchronized inside generated SW precache arrays', () => {
     const releaseVersion = getCanonicalReleaseVersion();
     const swSource = fs.readFileSync('sw.js', 'utf8');
 
-    // Extract the PRECACHE_URLS array body
-    const precacheMatch = swSource.match(/const PRECACHE_URLS\s*=\s*\[([\s\S]*?)\];/);
-    assert.ok(precacheMatch, 'sw.js must define PRECACHE_URLS');
+    const criticalMatch = swSource.match(/const CRITICAL_PRECACHE_URLS\s*=\s*\[([\s\S]*?)\];/);
+    const optionalMatch = swSource.match(/const OPTIONAL_PRECACHE_URLS\s*=\s*\[([\s\S]*?)\];/);
+    assert.ok(criticalMatch, 'sw.js must define CRITICAL_PRECACHE_URLS');
+    assert.ok(optionalMatch, 'sw.js must define OPTIONAL_PRECACHE_URLS');
 
-    // Find all versioned ?v= URLs inside PRECACHE_URLS
-    const versionedUrls = precacheMatch[1].match(/[^\s'"]+\?v=[^'"\s]+/g) || [];
-    assert.ok(versionedUrls.length > 0, 'PRECACHE_URLS should contain versioned assets');
+    const versionedUrls = `${criticalMatch[1]}\n${optionalMatch[1]}`.match(/[^\s'"]+\?v=[^'"\s]+/g) || [];
+    assert.ok(versionedUrls.length > 0, 'generated precache arrays should contain versioned assets');
 
     versionedUrls.forEach((url) => {
         assert.ok(
             url.endsWith(`?v=${releaseVersion}`),
-            `PRECACHE_URLS has stale asset version: ${url} (expected ?v=${releaseVersion})`
+            `generated precache has stale asset version: ${url} (expected ?v=${releaseVersion})`
         );
     });
 });

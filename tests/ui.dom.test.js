@@ -516,6 +516,30 @@ runTest('editor UI controller formats friendly execution errors with line and co
     global.getComputedStyle = previousGetComputedStyle;
 });
 
+runTest('editor UI controller does not guess a line without error metadata', () => {
+    const codeEditor = {
+        value: 'створити x = 1\nстворити x = 2',
+        selectionStart: 0,
+        scrollTop: 0,
+        focus() {},
+        setSelectionRange() {},
+    };
+
+    const editorUi = createEditorUiController({
+        codeEditor,
+        codeLineNumbers: { textContent: '', scrollTop: 0 },
+        codeActiveLine: { style: {} },
+        codeErrorLine: null,
+    });
+
+    const friendly = editorUi.getFriendlyExecutionError(codeEditor.value, {
+        message: 'Змінна "x" вже створена.',
+    });
+
+    assert.equal(friendly.line, null);
+    assert.equal(friendly.message.includes('рядок'), false);
+});
+
 runTest('grid overlay controller initializes from storage and toggles button state', () => {
     const previousLocalStorage = global.localStorage;
     global.localStorage = {

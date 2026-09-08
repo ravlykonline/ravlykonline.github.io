@@ -39,6 +39,7 @@ export const PAGES_PUBLICATION_MANIFEST = {
         directories: ['assets', 'css', 'js', 'resources'],
         precache: {
             routeAliases: ['/'],
+            criticalExtensions: ['.html', '.css', '.js', '.mjs'],
             extensions: [
                 '.html', '.css', '.js', '.mjs',
                 '.svg', '.png', '.jpg', '.jpeg', '.webp', '.ico',

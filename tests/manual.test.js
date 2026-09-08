@@ -174,6 +174,16 @@ runTest('manual page keeps advanced-only sections for full mode', () => {
     assert.match(manualHtml, /<article id="projects" class="guide-section advanced-only"/);
 });
 
+runTest('manual places while-and-stop after conditions without changing deep-link ids', () => {
+    const manualHtml = fs.readFileSync('manual.html', 'utf8');
+    const conditionsIndex = manualHtml.indexOf('<article id="conditions"');
+    const whileIndex = manualHtml.indexOf('<article id="while-and-stop"');
+    const gameIndex = manualHtml.indexOf('<article id="game-mode"');
+    assert.ok(conditionsIndex >= 0 && whileIndex > conditionsIndex && gameIndex > whileIndex);
+    assert.match(manualHtml, /href="#variables-functions"/);
+    assert.match(manualHtml, /href="#while-and-stop"/);
+});
+
 runTest('manual documents reserved words and current angle expression', () => {
     const manualHtml = fs.readFileSync('manual.html', 'utf8');
 

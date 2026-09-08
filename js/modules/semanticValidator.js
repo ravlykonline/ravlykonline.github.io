@@ -37,16 +37,24 @@ export const RESERVED_NAMES = new Set([
 ]);
 
 class SemanticError extends Error {
-    constructor(message) {
+    constructor(message, messageKey, node = null) {
         super(message);
         this.name = 'RavlykError';
+        this.messageKey = messageKey;
+
+        const start = node?.span?.start;
+        if (typeof start?.line === 'number' && start.line > 0) {
+            this.line = start.line;
+            this.column = start.column;
+            this.token = start.token;
+        }
     }
 }
 
-function makeError(key, ...args) {
+function makeErrorAt(node, key, ...args) {
     const template = ERROR_MESSAGES[key];
     const message = typeof template === 'function' ? template(...args) : template;
-    return new SemanticError(message);
+    return new SemanticError(message, key, node);
 }
 
 // Validate all declarations (variables and functions) in a list of statements.
@@ -66,28 +74,28 @@ function validateDeclarations(stmts, symbolTable) {
             const { name, params, body } = node;
 
             if (RESERVED_NAMES.has(name)) {
-                throw makeError('FUNCTION_NAME_RESERVED', name);
+                throw makeErrorAt(node, 'FUNCTION_NAME_RESERVED', name);
             }
             if (symbolTable.vars.has(name)) {
-                throw makeError('FUNCTION_NAME_CONFLICT_VARIABLE', name);
+                throw makeErrorAt(node, 'FUNCTION_NAME_CONFLICT_VARIABLE', name);
             }
             if (symbolTable.funcs.has(name)) {
-                throw makeError('FUNCTION_ALREADY_EXISTS', name);
+                throw makeErrorAt(node, 'FUNCTION_ALREADY_EXISTS', name);
             }
 
             const seenParams = new Set();
             for (const param of params) {
                 if (RESERVED_NAMES.has(param)) {
-                    throw makeError('FUNCTION_PARAM_RESERVED', param);
+                    throw makeErrorAt(node, 'FUNCTION_PARAM_RESERVED', param);
                 }
                 if (seenParams.has(param)) {
-                    throw makeError('FUNCTION_PARAM_DUPLICATE', param);
+                    throw makeErrorAt(node, 'FUNCTION_PARAM_DUPLICATE', param);
                 }
                 seenParams.add(param);
             }
 
             if (!body || body.length === 0) {
-                throw makeError('FUNCTION_BODY_EMPTY', name);
+                throw makeErrorAt(node, 'FUNCTION_BODY_EMPTY', name);
             }
 
             symbolTable.funcs.add(name);
@@ -109,13 +117,13 @@ function validateDeclarations(stmts, symbolTable) {
             const { name } = node;
 
             if (RESERVED_NAMES.has(name)) {
-                throw makeError('VARIABLE_NAME_RESERVED', name);
+                throw makeErrorAt(node, 'VARIABLE_NAME_RESERVED', name);
             }
             if (symbolTable.funcs.has(name)) {
-                throw makeError('VARIABLE_NAME_CONFLICT_FUNCTION', name);
+                throw makeErrorAt(node, 'VARIABLE_NAME_CONFLICT_FUNCTION', name);
             }
             if (symbolTable.vars.has(name)) {
-                throw makeError('VARIABLE_ALREADY_DECLARED', name);
+                throw makeErrorAt(node, 'VARIABLE_ALREADY_DECLARED', name);
             }
 
             symbolTable.vars.add(name);
@@ -133,34 +141,26 @@ function validateDeclarations(stmts, symbolTable) {
 function validateFunctionCall(node, symbolTable) {
     const def = symbolTable.functionDefs.get(node.name);
     if (!def) {
-        throw makeError('UNKNOWN_COMMAND', node.name);
+        throw makeErrorAt(node, 'UNKNOWN_COMMAND', node.name);
     }
 
     const expected = def.params?.length || 0;
     const actual = node.args?.length || 0;
     if (expected !== actual) {
-        throw makeError('FUNCTION_ARGUMENT_COUNT', node.name, expected, actual);
+        throw makeErrorAt(node, 'FUNCTION_ARGUMENT_COUNT', node.name, expected, actual);
     }
 }
 
-function countGameStatementsInBody(body) {
-    let count = 0;
+function findNestedGameStatement(body) {
     for (const node of body || []) {
         if (!node || typeof node !== 'object') continue;
-        if (node.type === 'GameStmt') count++;
-        count += countGameStatementsInBody(getNestedStatements(node));
-    }
-    return count;
-}
-
-function hasNestedGameStatement(body) {
-    for (const node of body || []) {
-        if (!node || typeof node !== 'object') continue;
-        if (countGameStatementsInBody(getNestedStatements(node)) > 0) {
-            return true;
+        for (const nested of getNestedStatements(node)) {
+            if (nested?.type === 'GameStmt') return nested;
+            const found = findNestedGameStatement([nested]);
+            if (found) return found;
         }
     }
-    return false;
+    return null;
 }
 
 function getNestedStatements(node) {
@@ -192,36 +192,38 @@ function countAstNodes(node, limit) {
 
     let count = 1;
     if (count > limit) {
-        throw makeError('AST_TOO_LARGE');
+        throw makeErrorAt(null, 'AST_TOO_LARGE');
     }
 
     for (const child of getChildNodes(node)) {
         count += countAstNodes(child, limit - count);
         if (count > limit) {
-            throw makeError('AST_TOO_LARGE');
+            throw makeErrorAt(null, 'AST_TOO_LARGE');
         }
     }
 
     return count;
 }
 
-function validateGameContract(ast) {
+function validateGameContract(ast, functionDefs) {
     const topLevelStatements = ast.body || [];
     const topLevelGameBlocks = topLevelStatements.filter((stmt) => stmt?.type === 'GameStmt');
 
     if (topLevelGameBlocks.length > 1) {
-        throw makeError('GAME_MODE_SINGLE_BLOCK');
+        throw makeErrorAt(topLevelGameBlocks[1], 'GAME_MODE_SINGLE_BLOCK');
     }
 
-    if (hasNestedGameStatement(topLevelStatements)) {
-        throw makeError('GAME_MODE_NESTED_BLOCK');
+    const nestedGame = findNestedGameStatement(topLevelStatements);
+    if (nestedGame) {
+        throw makeErrorAt(nestedGame, 'GAME_MODE_NESTED_BLOCK');
     }
 
     if (topLevelGameBlocks.length === 0) return;
 
     for (const gameStmt of topLevelGameBlocks) {
-        if (hasWaitStatement(gameStmt.body || [])) {
-            throw makeError('WAIT_IN_GAME_MODE');
+        const waitStmt = findReachableWaitStatement(gameStmt.body || [], functionDefs);
+        if (waitStmt) {
+            throw makeErrorAt(waitStmt, 'WAIT_IN_GAME_MODE');
         }
     }
 
@@ -230,17 +232,32 @@ function validateGameContract(ast) {
         if (stmt.type === 'GameStmt') continue;
         if (stmt.type === 'FunctionDefStmt') continue;
         if (stmt.type === 'AssignmentStmt' && stmt.declaredWithCreate) continue;
-        throw makeError('GAME_MODE_TOP_LEVEL_ONLY');
+        throw makeErrorAt(stmt, 'GAME_MODE_TOP_LEVEL_ONLY');
     }
 }
 
-function hasWaitStatement(stmts) {
+function findReachableWaitStatement(stmts, functionDefs, visitedFunctions = new Set()) {
     for (const node of stmts || []) {
         if (!node || typeof node !== 'object') continue;
-        if (node.type === 'WaitStmt') return true;
-        if (hasWaitStatement(getNestedStatements(node))) return true;
+        if (node.type === 'WaitStmt') return node;
+        if (node.type === 'FunctionCallStmt' && !visitedFunctions.has(node.name)) {
+            visitedFunctions.add(node.name);
+            const functionDef = functionDefs.get(node.name);
+            const functionWait = findReachableWaitStatement(
+                functionDef?.body || [],
+                functionDefs,
+                visitedFunctions
+            );
+            if (functionWait) return functionWait;
+        }
+        const found = findReachableWaitStatement(
+            getNestedStatements(node),
+            functionDefs,
+            visitedFunctions
+        );
+        if (found) return found;
     }
-    return false;
+    return null;
 }
 
 function validateBreakUsage(stmts, loopDepth = 0) {
@@ -249,7 +266,7 @@ function validateBreakUsage(stmts, loopDepth = 0) {
 
         if (node.type === 'BreakStmt') {
             if (loopDepth <= 0) {
-                throw makeError('BREAK_OUTSIDE_LOOP');
+                throw makeErrorAt(node, 'BREAK_OUTSIDE_LOOP');
             }
             continue;
         }
@@ -299,7 +316,7 @@ export function validateProgramAst(ast, options = {}) {
 
     validateDeclarations(ast.body, symbolTable);
 
-    validateGameContract(ast);
+    validateGameContract(ast, symbolTable.functionDefs);
 
     validateBreakUsage(ast.body);
 

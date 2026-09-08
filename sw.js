@@ -1,4 +1,4 @@
-const CACHE_VERSION = '2026-08-17-1';
+const CACHE_VERSION = '2026-09-08-1';
 // Precache (install-time assets) and runtime cache are kept separate so that
 // trimRuntimeCache() can evict dynamic entries without touching precache URLs.
 const APP_CACHE = `ravlyk-app-${CACHE_VERSION}`;
@@ -31,59 +31,16 @@ const CACHEABLE_EXTENSIONS = new Set([
     '.woff2',
 ]);
 
-const PRECACHE_URLS = [
+const CRITICAL_PRECACHE_URLS = [
     '/',
     '/404.html',
     '/about.html',
     '/advice_for_parents.html',
-    '/android-chrome-192x192.png',
-    '/android-chrome-512x512.png',
-    '/apple-touch-icon.png',
-    '/assets/fonts/nunito-cyrillic.woff2',
-    '/assets/fonts/nunito-latin.woff2',
-    '/assets/icons/arrow-left.svg',
-    '/assets/icons/arrow-right.svg',
-    '/assets/icons/book-open.svg',
-    '/assets/icons/check-circle.svg',
-    '/assets/icons/check.svg',
-    '/assets/icons/copy.svg',
-    '/assets/icons/download.svg',
-    '/assets/icons/exclamation-triangle.svg',
-    '/assets/icons/graduation-cap.svg',
-    '/assets/icons/info-circle.svg',
-    '/assets/icons/link.svg',
-    '/assets/icons/paint-brush.svg',
-    '/assets/icons/play.svg',
-    '/assets/icons/puzzle-piece.svg',
-    '/assets/icons/question-circle.svg',
-    '/assets/icons/stop-circle.svg',
-    '/assets/icons/th.svg',
-    '/assets/icons/times.svg',
-    '/assets/icons/trash-alt.svg',
-    '/assets/icons/universal-access.svg',
-    '/assets/images/editor.jpg',
-    '/assets/images/lesson_01_01.jpg',
-    '/assets/images/lesson_02_01.jpg',
-    '/assets/images/lesson_03_01.jpg',
-    '/assets/images/lesson_04_01.jpg',
-    '/assets/images/lesson_05_01.jpg',
-    '/assets/images/lesson_05_02.jpg',
-    '/assets/images/lesson_06_01.jpg',
-    '/assets/images/manual_01.jpg',
-    '/assets/images/manual_02.jpg',
-    '/assets/images/manual_03.jpg',
-    '/assets/images/manual_04.jpg',
-    '/assets/images/manual_05.jpg',
-    '/assets/images/manual_06.jpg',
-    '/assets/images/manual_07.jpg',
-    '/assets/images/ravlyk.png',
-    '/favicon-16x16.png',
-    '/favicon-32x32.png',
-    '/favicon.ico',
     '/index.html',
     '/js/modules/accessibilityNotifications.js',
     '/js/modules/accessibilitySettings.js',
     '/js/modules/backgroundLayer.js',
+    '/js/modules/canvasStateController.js',
     '/js/modules/constants.js',
     '/js/modules/editorInputController.js',
     '/js/modules/editorUi.js',
@@ -92,6 +49,8 @@ const PRECACHE_URLS = [
     '/js/modules/fileActionsController.js',
     '/js/modules/gifCapture.js',
     '/js/modules/gifEncoder.js',
+    '/js/modules/gifEncoderWorker.js',
+    '/js/modules/gifEncodingController.js',
     '/js/modules/gridOverlay.js',
     '/js/modules/interpreterAnimation.js',
     '/js/modules/interpreterAstAnimationRuntime.js',
@@ -143,30 +102,77 @@ const PRECACHE_URLS = [
     '/manual.html',
     '/privacy.html',
     '/quiz.html',
-    '/ravlyk.jpg',
     '/resources.html',
     '/teacher_guidelines.html',
     '/zen.html',
-    '/css/about-project.css?v=2026-08-17-1',
-    '/css/accessibility.css?v=2026-08-17-1',
-    '/css/global.css?v=2026-08-17-1',
-    '/css/lessons.css?v=2026-08-17-1',
-    '/css/main-editor.css?v=2026-08-17-1',
-    '/css/manual.css?v=2026-08-17-1',
-    '/css/parents.css?v=2026-08-17-1',
-    '/css/quiz.css?v=2026-08-17-1',
-    '/css/resources.css?v=2026-08-17-1',
-    '/css/teacher-guidelines.css?v=2026-08-17-1',
-    '/css/zen.css?v=2026-08-17-1',
-    '/js/accessibility.js?v=2026-08-17-1',
-    '/js/lessonsPage.js?v=2026-08-17-1',
-    '/js/main.js?v=2026-08-17-1',
-    '/js/manualPage.js?v=2026-08-17-1',
-    '/js/printPage.js?v=2026-08-17-1',
-    '/js/quizPage.js?v=2026-08-17-1',
-    '/js/registerServiceWorker.js?v=2026-08-17-1',
-    '/js/zenPage.js?v=2026-08-17-1',
-    '/site.webmanifest?v=2026-08-17-1',
+    '/css/about-project.css?v=2026-09-08-1',
+    '/css/accessibility.css?v=2026-09-08-1',
+    '/css/global.css?v=2026-09-08-1',
+    '/css/lessons.css?v=2026-09-08-1',
+    '/css/main-editor.css?v=2026-09-08-1',
+    '/css/manual.css?v=2026-09-08-1',
+    '/css/parents.css?v=2026-09-08-1',
+    '/css/quiz.css?v=2026-09-08-1',
+    '/css/resources.css?v=2026-09-08-1',
+    '/css/teacher-guidelines.css?v=2026-09-08-1',
+    '/css/zen.css?v=2026-09-08-1',
+    '/js/accessibility.js?v=2026-09-08-1',
+    '/js/lessonsPage.js?v=2026-09-08-1',
+    '/js/main.js?v=2026-09-08-1',
+    '/js/manualPage.js?v=2026-09-08-1',
+    '/js/printPage.js?v=2026-09-08-1',
+    '/js/quizPage.js?v=2026-09-08-1',
+    '/js/registerServiceWorker.js?v=2026-09-08-1',
+    '/js/zenPage.js?v=2026-09-08-1',
+];
+
+const OPTIONAL_PRECACHE_URLS = [
+    '/android-chrome-192x192.png',
+    '/android-chrome-512x512.png',
+    '/apple-touch-icon.png',
+    '/assets/fonts/nunito-cyrillic.woff2',
+    '/assets/fonts/nunito-latin.woff2',
+    '/assets/icons/arrow-left.svg',
+    '/assets/icons/arrow-right.svg',
+    '/assets/icons/book-open.svg',
+    '/assets/icons/check-circle.svg',
+    '/assets/icons/check.svg',
+    '/assets/icons/copy.svg',
+    '/assets/icons/download.svg',
+    '/assets/icons/exclamation-triangle.svg',
+    '/assets/icons/graduation-cap.svg',
+    '/assets/icons/info-circle.svg',
+    '/assets/icons/link.svg',
+    '/assets/icons/paint-brush.svg',
+    '/assets/icons/play.svg',
+    '/assets/icons/puzzle-piece.svg',
+    '/assets/icons/question-circle.svg',
+    '/assets/icons/stop-circle.svg',
+    '/assets/icons/th.svg',
+    '/assets/icons/times.svg',
+    '/assets/icons/trash-alt.svg',
+    '/assets/icons/universal-access.svg',
+    '/assets/images/editor.jpg',
+    '/assets/images/lesson_01_01.jpg',
+    '/assets/images/lesson_02_01.jpg',
+    '/assets/images/lesson_03_01.jpg',
+    '/assets/images/lesson_04_01.jpg',
+    '/assets/images/lesson_05_01.jpg',
+    '/assets/images/lesson_05_02.jpg',
+    '/assets/images/lesson_06_01.jpg',
+    '/assets/images/manual_01.jpg',
+    '/assets/images/manual_02.jpg',
+    '/assets/images/manual_03.jpg',
+    '/assets/images/manual_04.jpg',
+    '/assets/images/manual_05.jpg',
+    '/assets/images/manual_06.jpg',
+    '/assets/images/manual_07.jpg',
+    '/assets/images/ravlyk.png',
+    '/favicon-16x16.png',
+    '/favicon-32x32.png',
+    '/favicon.ico',
+    '/ravlyk.jpg',
+    '/site.webmanifest?v=2026-09-08-1',
 ];
 // END GENERATED PRECACHE MANIFEST
 
@@ -181,19 +187,18 @@ function shouldRuntimeCache(url) {
 self.addEventListener('install', (event) => {
     event.waitUntil((async () => {
         const cache = await caches.open(APP_CACHE);
-        // Precache each URL individually so one missing asset does not abort
-        // the entire install. Failures are collected and logged, but install proceeds.
-        const failures = [];
-        await Promise.allSettled(
-            PRECACHE_URLS.map((url) =>
-                cache.add(url).catch((err) => {
-                    failures.push(url);
-                    console.warn(`[SW] precache miss: ${url}`, err);
-                })
-            )
+        // A new worker must not activate with an incomplete application shell.
+        // Rejection leaves the previous active worker and its caches untouched.
+        await Promise.all(CRITICAL_PRECACHE_URLS.map((url) => cache.add(url)));
+
+        const optionalResults = await Promise.allSettled(
+            OPTIONAL_PRECACHE_URLS.map((url) => cache.add(url))
         );
-        if (failures.length > 0) {
-            console.warn(`[SW] ${failures.length} precache entries failed:`, failures);
+        const optionalFailures = OPTIONAL_PRECACHE_URLS.filter(
+            (_url, index) => optionalResults[index].status === 'rejected'
+        );
+        if (optionalFailures.length > 0) {
+            console.warn(`[SW] ${optionalFailures.length} optional precache entries failed:`, optionalFailures);
         }
         await self.skipWaiting();
     })());
@@ -202,11 +207,12 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
     event.waitUntil((async () => {
         const cacheNames = await caches.keys();
-        // Delete any cache that is neither the current precache nor the current runtime cache.
         const keep = new Set([APP_CACHE, RUNTIME_CACHE]);
         await Promise.all(
             cacheNames
-                .filter((cacheName) => !keep.has(cacheName))
+                .filter((cacheName) => (
+                    cacheName.startsWith('ravlyk-app-') || cacheName.startsWith('ravlyk-runtime-')
+                ) && !keep.has(cacheName))
                 .map((cacheName) => caches.delete(cacheName))
         );
         await self.clients.claim();
@@ -247,30 +253,31 @@ async function updateRuntimeCache(request, response) {
     return response;
 }
 
-// caches.match searches all caches (APP_CACHE + RUNTIME_CACHE) by default.
-// The pathname lookup only rescues navigations that carry a query string
-// (e.g. /manual.html?lesson=loops -> /manual.html). Versioned CSS/JS URLs are
-// deliberately NOT mirrored under their bare pathname in PRECACHE_URLS: a bare
-// key would shadow a newer ?v= token and serve a stale asset, defeating cache
-// busting. On an exact miss those assets must reach the network instead.
-async function matchCachedRequest(request) {
-    const exactMatch = await caches.match(request);
-    if (exactMatch) return exactMatch;
-
-    return caches.match(new URL(request.url).pathname);
+async function openCurrentCaches() {
+    const [runtimeCache, appCache] = await Promise.all([
+        caches.open(RUNTIME_CACHE),
+        caches.open(APP_CACHE),
+    ]);
+    return { runtimeCache, appCache };
 }
 
-// Response.error() keeps respondWith() from resolving to undefined when even the
-// offline shell is missing from the cache.
-async function matchOfflineShell() {
-    return await caches.match(OFFLINE_FALLBACK_URL) || Response.error();
+async function matchExactCurrentCache(request, currentCaches = null) {
+    const { runtimeCache, appCache } = currentCaches || await openCurrentCaches();
+    return await runtimeCache.match(request) || appCache.match(request);
 }
 
 async function matchNavigationFallback(request) {
-    const cachedResponse = await matchCachedRequest(request);
-    if (cachedResponse) return cachedResponse;
+    const currentCaches = await openCurrentCaches();
+    const exactResponse = await matchExactCurrentCache(request, currentCaches);
+    if (exactResponse) return exactResponse;
 
-    return matchOfflineShell();
+    // Pathname fallback is navigation-only, so a versioned JS/CSS request can
+    // never be satisfied by an older bare URL.
+    const pathname = new URL(request.url).pathname;
+    const pathnameResponse = await matchExactCurrentCache(pathname, currentCaches);
+    if (pathnameResponse) return pathnameResponse;
+
+    return await matchExactCurrentCache(OFFLINE_FALLBACK_URL, currentCaches) || Response.error();
 }
 
 async function handleNavigation(request) {
@@ -283,7 +290,7 @@ async function handleNavigation(request) {
 }
 
 async function handleStaticRequest(request) {
-    const cachedResponse = await matchCachedRequest(request);
+    const cachedResponse = await matchExactCurrentCache(request);
     if (cachedResponse) {
         return cachedResponse;
     }
@@ -293,7 +300,8 @@ async function handleStaticRequest(request) {
         return updateRuntimeCache(request, networkResponse);
     } catch {
         if (request.destination === 'document') {
-            return matchOfflineShell();
+            const currentCaches = await openCurrentCaches();
+            return await matchExactCurrentCache(OFFLINE_FALLBACK_URL, currentCaches) || Response.error();
         }
         throw new Error(`Offline cache miss for ${request.url}`);
     }

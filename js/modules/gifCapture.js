@@ -1,29 +1,40 @@
-// Frame capture controller for GIF export.
-// Captures composited canvas frames at a fixed interval,
-// independent of the animation's requestAnimationFrame rate.
+// Bounded frame capture for GIF export. The raw-pixel budget covers only the
+// retained RGBA frame buffers, not the encoder/Worker heap.
 
-const MAX_GIF_WIDTH   = 480;
-const CAPTURE_MS      = 100;   // capture one frame every 100 ms of animation time
-const MAX_FRAMES      = 200;   // cap at ~20 seconds
-const FRAME_DELAY_CS  = 10;    // 10 centiseconds = 100 ms → real-time playback speed
-const FREEZE_DELAY_CS = 80;    // 80 centiseconds = 0.8 s per freeze frame
-const FREEZE_START    = 2;     // freeze frames prepended before animation
-const FREEZE_END      = 4;     // freeze frames appended after animation (2× start)
+export const MAX_GIF_SIDE = 320;
+export const MAX_GIF_FRAMES = 120;
+export const MAX_GIF_RAW_BYTES = 24 * 1024 * 1024;
 
-export function createGifCapture({ canvas, backgroundCanvas, getCanvasBackgroundColor, onProgress }) {
+const CAPTURE_MS = 100;
+const FRAME_DELAY_CS = 10;
+const FREEZE_START_TOTAL_CS = 2 * 80;
+const FREEZE_END_TOTAL_CS = 4 * 80;
+
+export function createGifCapture({
+    canvas,
+    backgroundCanvas,
+    getCanvasBackgroundColor,
+    onProgress,
+    onLimit,
+}) {
     const frames = [];
+    let dimensions = { w: 1, h: 1 };
+    let rawBytes = 0;
     let elapsed = 0;
     let lastCapture = -Infinity;
     let active = false;
+    let stopped = true;
     let deferredSince = null;
     let finalFramePending = false;
+    let limitNotified = false;
 
-    // Scale dimensions so width ≤ MAX_GIF_WIDTH
-    function gifDimensions() {
-        const scale = Math.min(1, MAX_GIF_WIDTH / canvas.width);
+    function calculateDimensions() {
+        const sourceWidth = Math.max(1, Number(canvas.width) || 1);
+        const sourceHeight = Math.max(1, Number(canvas.height) || 1);
+        const scale = Math.min(1, MAX_GIF_SIDE / Math.max(sourceWidth, sourceHeight));
         return {
-            w: Math.round(canvas.width  * scale),
-            h: Math.round(canvas.height * scale),
+            w: Math.max(1, Math.round(sourceWidth * scale)),
+            h: Math.max(1, Math.round(sourceHeight * scale)),
         };
     }
 
@@ -35,24 +46,51 @@ export function createGifCapture({ canvas, backgroundCanvas, getCanvasBackground
         ctx.drawImage(canvas, 0, 0, w, h);
     }
 
+    function notifyLimitOnce(reason) {
+        if (limitNotified) return;
+        limitNotified = true;
+        active = false;
+        onLimit?.(reason);
+    }
+
+    function canCaptureFrame() {
+        const frameBytes = dimensions.w * dimensions.h * 4;
+        if (frames.length >= MAX_GIF_FRAMES) {
+            notifyLimitOnce('frames');
+            return false;
+        }
+        if (rawBytes + frameBytes > MAX_GIF_RAW_BYTES) {
+            notifyLimitOnce('pixels');
+            return false;
+        }
+        return true;
+    }
+
     function makeCanvasFrame(delay) {
-        const { w, h } = gifDimensions();
+        const { w, h } = dimensions;
         const tmp = document.createElement('canvas');
         tmp.width = w;
         tmp.height = h;
         const ctx = tmp.getContext('2d');
+        if (!ctx) throw new Error('GIF_CAPTURE_CONTEXT_UNAVAILABLE');
         compositeFrame(ctx, w, h);
         return { pixels: ctx.getImageData(0, 0, w, h).data, delay };
     }
 
+    function appendFrame(delay = FRAME_DELAY_CS) {
+        if (!canCaptureFrame()) return false;
+        const frame = makeCanvasFrame(delay);
+        rawBytes += frame.pixels.byteLength;
+        frames.push(frame);
+        onProgress?.(Math.min(90, 8 + frames.length * 4));
+        return true;
+    }
+
     function captureFrame(deltaMs, { defer = false } = {}) {
-        if (!active || frames.length >= MAX_FRAMES) return;
+        if (!active) return;
         elapsed += deltaMs;
         finalFramePending = true;
 
-        // Coalesce a short burst of instantaneous background commands, but cap
-        // the delay at one capture window so background-only programs continue
-        // to produce animated GIF frames.
         if (defer) {
             if (deferredSince === null) deferredSince = elapsed;
             if (elapsed - deferredSince < CAPTURE_MS) return;
@@ -62,45 +100,50 @@ export function createGifCapture({ canvas, backgroundCanvas, getCanvasBackground
         if (elapsed - lastCapture < CAPTURE_MS) return;
         lastCapture = elapsed;
 
-        frames.push(makeCanvasFrame(FRAME_DELAY_CS));
-        deferredSince = null;
-        finalFramePending = false;
-        onProgress?.(Math.min(90, 8 + frames.length * 4));
+        if (appendFrame()) {
+            deferredSince = null;
+            finalFramePending = false;
+        }
     }
 
     function start() {
         frames.length = 0;
+        dimensions = calculateDimensions();
+        rawBytes = 0;
         elapsed = 0;
         lastCapture = -Infinity;
         deferredSince = null;
         finalFramePending = false;
+        limitNotified = false;
+        stopped = false;
         active = true;
     }
 
     function stop() {
+        if (stopped) return;
+        stopped = true;
         active = false;
-        if (finalFramePending && frames.length < MAX_FRAMES) {
-            frames.push(makeCanvasFrame(FRAME_DELAY_CS));
-            finalFramePending = false;
-        }
+        if (finalFramePending && !limitNotified) appendFrame();
+        finalFramePending = false;
         if (frames.length === 0) return;
 
-        // Prepend freeze frames (copy of first frame)
-        const firstPixels = frames[0].pixels;
-        for (let i = 0; i < FREEZE_START; i++) {
-            frames.unshift({ pixels: firstPixels.slice(), delay: FREEZE_DELAY_CS });
-        }
-
-        // Append freeze frames (copy of last frame)
-        const lastPixels = frames[frames.length - 1].pixels;
-        for (let i = 0; i < FREEZE_END; i++) {
-            frames.push({ pixels: lastPixels.slice(), delay: FREEZE_DELAY_CS });
-        }
+        frames[0].delay += FREEZE_START_TOTAL_CS;
+        frames[frames.length - 1].delay += FREEZE_END_TOTAL_CS;
     }
 
-    function hasFrames() { return frames.length > 0; }
-    function getFrames() { return frames; }
-    function getDimensions() { return gifDimensions(); }
+    function releaseFrames() {
+        frames.length = 0;
+        rawBytes = 0;
+    }
 
-    return { captureFrame, start, stop, hasFrames, getFrames, getDimensions };
+    return {
+        captureFrame,
+        start,
+        stop,
+        releaseFrames,
+        hasFrames: () => frames.length > 0,
+        getFrames: () => frames,
+        getDimensions: () => ({ ...dimensions }),
+        getRawBytes: () => rawBytes,
+    };
 }

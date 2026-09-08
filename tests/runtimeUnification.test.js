@@ -13,6 +13,7 @@ import assert from 'node:assert/strict';
 import { RavlykParser } from '../js/modules/ravlykParser.js';
 import { validateProgramAst } from '../js/modules/semanticValidator.js';
 import { createAstRuntime } from '../js/modules/interpreterAstRuntime.js';
+import { createGameAstRunner } from '../js/modules/interpreterGameAstRunner.js';
 import { Environment } from '../js/modules/environment.js';
 import { RavlykError } from '../js/modules/ravlykParser.js';
 import { evaluateAstCondition } from '../js/modules/interpreterConditions.js';
@@ -201,6 +202,80 @@ runTest('unification: if false-branch emits its primitives, true-branch is skipp
     const log = collectPrimitives(ast);
     assert.equal(log.length, 1);
     assert.equal(log[0].value, 99);
+});
+
+runTest('unification: invalid numeric condition does not select either if branch', () => {
+    const ast = parseAndValidate('якщо 1/0 = 0 ( вперед 10 ) інакше ( вперед 20 )');
+    assert.throws(
+        () => collectPrimitives(ast),
+        (error) => error?.name === 'RavlykError'
+            && error.messageKey === 'CONDITION_VALUE_INVALID'
+            && error.line === 1
+            && error.token === '1'
+    );
+});
+
+runTest('unification: not condition propagates invalid numeric operands', () => {
+    const ast = parseAndValidate('якщо не 1/0 = 0 ( вперед 10 )');
+    assert.throws(
+        () => collectPrimitives(ast),
+        (error) => error?.messageKey === 'CONDITION_VALUE_INVALID'
+    );
+});
+
+runTest('unification: modulo by zero and an invalid right operand are condition errors', () => {
+    for (const code of [
+        'якщо 5%0 = 0 ( вперед 10 )',
+        'якщо 0 = 5/0 ( вперед 10 )',
+    ]) {
+        const ast = parseAndValidate(code);
+        assert.throws(
+            () => collectPrimitives(ast),
+            (error) => error?.messageKey === 'CONDITION_VALUE_INVALID'
+        );
+    }
+});
+
+runTest('unification: while propagates invalid numeric condition operands', () => {
+    const ast = parseAndValidate('поки 1/0 = 0 ( вперед 10 )');
+    assert.throws(
+        () => collectPrimitives(ast),
+        (error) => error?.messageKey === 'CONDITION_VALUE_INVALID'
+    );
+});
+
+runTest('unification: game tick propagates invalid numeric condition operands', () => {
+    const programAst = parseAndValidate('грати ( якщо 1/0 = 0 ( вперед 10 ) )');
+    const runner = createGameAstRunner({
+        programAst,
+        ...runtimeOptions,
+        maxGameTickOperations: 500,
+        handlePrimitiveAstStatement: () => {},
+    });
+
+    assert.throws(
+        () => runner.runGameTick(),
+        (error) => error?.messageKey === 'CONDITION_VALUE_INVALID'
+    );
+});
+
+runTest('unification: valid comparison with zero still executes normally', () => {
+    const ast = parseAndValidate('якщо 0 = 0 ( вперед 10 )');
+    assert.deepEqual(collectPrimitives(ast), [
+        { type: 'MoveStmt', value: 10, direction: 'forward' },
+    ]);
+});
+
+runTest('unification: primitives completed before a condition error stay observable', () => {
+    const ast = parseAndValidate('вперед 5\nякщо 1/0 = 0 ( вперед 10 )');
+    const runtime = createAstRuntime({ programAst: ast, ...runtimeOptions });
+    const first = runtime.step();
+    assert.equal(first.stmt.type, 'MoveStmt');
+    assert.equal(evalExpr(first.stmt.distance, first.env), 5);
+    assert.throws(
+        () => runtime.step(),
+        (error) => error?.messageKey === 'CONDITION_VALUE_INVALID'
+    );
 });
 
 runTest('unification: variable mutation inside if propagates to code after the block', () => {

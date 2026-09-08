@@ -22,6 +22,7 @@ Use this checklist after accessibility-related changes and before release.
 - Verify `skip-link` is the first keyboard stop on page load.
 - Verify `Tab` inserts an editor indent, while `Shift+Tab` or `Escape` followed by `Tab` moves focus out of the editor.
 - Verify `skip-link` moves focus to `#main-content`.
+- Verify lesson tabs wrap with Left/Right arrows, Home/End select the boundary tabs, and focus follows selection.
 - Verify the accessibility panel opens, traps focus, closes on `Escape`, and returns focus to the toggle.
 - Verify settings persist after reload:
   - high contrast
@@ -47,6 +48,8 @@ Use this checklist after accessibility-related changes and before release.
 - Check `target="_blank"` links keep `rel="noopener noreferrer"`.
 - Check larger text mode does not cause clipped buttons, hidden labels, or modal overflow.
 - Check reduced motion mode removes non-essential motion and smooth scrolling where needed.
+- On the editor, expand «Стан Равлика», verify learning X/Y and angle after home/goto, and use «Прочитати стан» with a screen reader.
+- Confirm the optional completed-command journal keeps at most 50 entries and does not announce every game tick.
 
 ## Automated Checks
 
@@ -89,6 +92,7 @@ Check with a screen reader on at least `index.html`, `manual.html`, and `lessons
 - Confirm the accessibility toggle has a clear name and expanded/collapsed state.
 - Confirm each setting label is announced once and matches the visible label.
 - Confirm opening and closing the panel is understandable in context.
+- On `index.html`, confirm the canvas description, state fields and requested status announcement are understandable; this is supplemental text, not a claim of full non-visual equivalence.
 
 ## Visual Settings Review
 

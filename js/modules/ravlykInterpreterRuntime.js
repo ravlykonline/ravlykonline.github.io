@@ -9,6 +9,7 @@ import {
     MAX_REPEATS_IN_LOOP,
     MAX_COMMAND_QUEUE_LENGTH,
     MAX_GAME_TICK_OPERATIONS,
+    MAX_CODE_LENGTH_CHARS,
     RAVLYK_INITIAL_ANGLE,
 } from './constants.js';
 import { RavlykError } from './ravlykParser.js';
@@ -38,7 +39,7 @@ import { applyBackgroundLayer } from './backgroundLayer.js';
 import { runAstAnimationRuntime } from './interpreterAstAnimationRuntime.js';
 
 export function handlePrimitiveAstStatementRuntime(runtime, stmt, env, mode, outputQueue = null) {
-    return handlePrimitiveAstStatement({
+    const result = handlePrimitiveAstStatement({
         stmt,
         env,
         mode,
@@ -85,6 +86,8 @@ export function handlePrimitiveAstStatementRuntime(runtime, stmt, env, mode, out
         clearToDefaultSheet: () => runtime.clearToDefaultSheet(),
         setEmbroideryMode: (on) => setEmbroideryModeRuntime(runtime, on),
     });
+    if (mode === 'immediate') runtime.notifyPrimitiveCompleted?.(stmt);
+    return result;
 }
 
 export function validateGameProgramContractRuntime(programAst) {
@@ -136,6 +139,9 @@ export function executeGameProgramRuntime(runtime, programAst) {
 }
 
 export function prepareProgramRuntime(runtime, commandsString) {
+    if (String(commandsString ?? '').length > MAX_CODE_LENGTH_CHARS) {
+        throw new RavlykError('CODE_TOO_LONG');
+    }
     if (runtime.isExecuting) {
         throw new RavlykError("EXECUTION_IN_PROGRESS");
     }
@@ -234,6 +240,7 @@ export function runAstAnimationWithRuntime(runtime, programAst) {
         getIsPaused: () => runtime.isPaused,
         setAnimationFrameId: (frameId) => { runtime.animationFrameId = frameId; },
         getAnimationFrameId: () => runtime.animationFrameId,
+        setStopHandler: (handler) => { runtime.animationStopHandler = handler; },
         cancelAnimationFrameFn: cancelAnimationFrame,
         requestAnimationFrameFn: requestAnimationFrame,
         nowFn: () => performance.now(),
@@ -246,6 +253,7 @@ export function runAstAnimationWithRuntime(runtime, programAst) {
             runtime.commandIndicatorUpdater(null, -1);
         },
         updateRavlykVisualState: () => runtime.updateRavlykVisualState(),
+        onPrimitiveCompleted: (command) => runtime.notifyPrimitiveCompleted(command),
         onFrameCapture: runtime.gifCapture
             ? (ms, command) => runtime.gifCapture.captureFrame(ms, {
                 defer: command?.type === 'BACKGROUND',

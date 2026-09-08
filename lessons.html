@@ -10,15 +10,15 @@
     <meta name="author" content="Равлик" />
     <meta name="robots" content="index, follow" />
     <title>Уроки з Равликом — Покрокове навчання програмуванню для дітей</title>
-    <!-- Static deployment release token: 2026-08-17-1 -->
+    <!-- Static deployment release token: 2026-09-08-1 -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-    <link rel="manifest" href="site.webmanifest?v=2026-08-17-1" />
+    <link rel="manifest" href="site.webmanifest?v=2026-09-08-1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="stylesheet" href="css/global.css?v=2026-08-17-1" />
-    <link rel="stylesheet" href="css/accessibility.css?v=2026-08-17-1" />
-    <link rel="stylesheet" href="css/lessons.css?v=2026-08-17-1" />
+    <link rel="stylesheet" href="css/global.css?v=2026-09-08-1" />
+    <link rel="stylesheet" href="css/accessibility.css?v=2026-09-08-1" />
+    <link rel="stylesheet" href="css/lessons.css?v=2026-09-08-1" />
     <meta property="og:type" content="article" />
     <meta property="og:locale" content="uk_UA" />
     <meta property="og:site_name" content="Мова програмування РАВЛИК" />
@@ -251,11 +251,11 @@
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson1-command-title">
                     <h3 id="lesson1-command-title">Нова команда: <code>вперед</code></h3>
-                    <pre class="code-example">вперед 100</pre>
+                    <pre class="code-example" data-example-id="lesson1-forward" data-example-kind="runnable">вперед 100</pre>
                     <p>Равлик пройде вперед на 100 кроків і намалює лінію.</p>
                     <div class="tip lesson-support-block lesson-tip-block">
                         <strong>Скільки це — 100 кроків?</strong>
-                        <p>Полотно Равлика приблизно 500 кроків завширшки. Тобто <code>вперед 100</code> — це п'ята частина полотна. Спробуй <code>вперед 500</code> — куди дійде Равлик?</p>
+                        <p>Розмір полотна залежить від екрана. Число після <code>вперед</code> задає довжину руху. На старті Равлик у центрі й дивиться вгору. Спробуй 50, потім 100: яка лінія довша?</p>
                     </div>
                     <img src="assets/images/lesson_01_01.jpg" alt="Результат команди 'вперед 100' — пряма вертикальна лінія вгору на полотні" class="lesson-image lesson-image-wide" loading="lazy">
                     <p><a href="manual.html#movement" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: команди руху</a></p>
@@ -290,14 +290,14 @@
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson1-bug-title">
                     <h3 id="lesson1-bug-title">🐛 Знайди помилку</h3>
                     <p>Ось код, який не працює:</p>
-                    <pre class="code-example">вперед сто</pre>
+                    <pre class="code-example" data-example-id="lesson1-invalid-word-number" data-example-kind="invalid">вперед сто</pre>
                     <details>
                         <summary>Підказка</summary>
                         <p>Равлик розуміє числа, а не слова.</p>
                     </details>
                     <details>
                         <summary>Відповідь</summary>
-                        <pre class="code-example">вперед 100</pre>
+                        <pre class="code-example" data-example-id="lesson1-corrected-number" data-example-kind="runnable">вперед 100</pre>
                     </details>
                 </section>
 
@@ -337,7 +337,7 @@
                     <ul>
                         <li>🟢 Простий: напиши <code>вперед 100</code> і запусти. Змінюй лише одне число.</li>
                         <li>🟡 Середній: намалюй три лінії, де кожна наступна на 50 довша за попередню. Запиши числа до запуску.</li>
-                        <li>🔴 Складний: намалюй лінію, яка займає рівно половину ширини полотна. Як ти дізнаєшся, що вона точно половина?</li>
+                        <li>🔴 Складний: увімкни сітку або відкрий показник розміру полотна, визнач ширину свого полотна й намалюй лінію, яка займає її половину. Не використовуй наперед задане універсальне число.</li>
                     </ul>
                 </div>
                 <div class="tip">
@@ -408,7 +408,7 @@
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson2-left-title">
                     <h3 id="lesson2-left-title">🔄 А що з <code>ліворуч</code>?</h3>
                     <div class="task lesson-support-block lesson-task-block">
-                        <pre class="code-example">вперед 80
+                        <pre class="code-example" data-example-id="lesson2-turn" data-example-kind="runnable">вперед 80
 ліворуч 90
 вперед 80</pre>
                         <p>Спробуй запустити. Що вийшло? Чим цей малюнок відрізняється від <code>праворуч 90</code>? Спробуй замінити <code>ліворуч</code> на <code>праворуч</code> і порівняй обидва результати.</p>
@@ -452,7 +452,7 @@
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson2-bug-title">
                     <h3 id="lesson2-bug-title">🐛 Знайди помилку</h3>
                     <p>Учень хотів квадрат, але отримав дивну фігуру:</p>
-                    <pre class="code-example">вперед 100
+                    <pre class="code-example" data-example-id="lesson2-buggy-square" data-example-kind="runnable">вперед 100
 праворуч 90
 вперед 100
 праворуч 90
@@ -538,7 +538,7 @@
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson3-background-title">
                     <h3 id="lesson3-background-title">Другий стан: <code>фон</code></h3>
                     <p>Команда <code>колір</code> змінює, чим малює Равлик. А <code>фон</code> змінює саме полотно — тло, на якому малюєш.</p>
-                    <pre class="code-example">фон блакитний
+                    <pre class="code-example" data-example-id="lesson3-color" data-example-kind="runnable">фон блакитний
 колір жовтий
 вперед 100</pre>
                     <p>Спочатку передбач, що побачиш. Потім спробуй: що змінюється, якщо написати <code>фон</code> до малювання? А якщо після? Чи можна намалювати жовту лінію на жовтому тлі — і що вийде?</p>
@@ -643,11 +643,11 @@
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson4-command-title">
                     <h3 id="lesson4-command-title">Нова команда: <code>повторити</code></h3>
-                    <pre class="code-example">повторити 4 (
+                    <pre class="code-example" data-example-id="lesson4-square" data-example-kind="runnable">повторити 4 (
   вперед 100
   праворуч 90
 )</pre>
-                    <p>Між числом і <code>(</code> має бути пробіл. Закривна <code>)</code> обов'язкова.</p>
+                    <p>Став пробіл перед <code>(</code>, щоб код було легше читати. Дужки <code>(</code> і <code>)</code> обов'язкові.</p>
                     <img src="assets/images/lesson_04_01.jpg" alt="Равлик малює квадрат за допомогою команди 'повторити'" class="lesson-image lesson-image-wide" loading="lazy">
                     <p><a href="manual.html#repetition" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: повторення</a></p>
                 </section>
@@ -677,9 +677,12 @@
   вперед 100
   праворуч 90
 )</pre>
+                    <p><strong>Перевір результат:</strong> квадрат має чотири однакові сторони й замкнений контур. <strong>Можу скоротити квадрат циклом.</strong></p>
                     <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Намалювати квадрат</a>
                 </div>
 
+                <details>
+                    <summary>Додаткове дослідження: 360/N, інші фігури та вкладені цикли</summary>
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson4-discovery-title">
                     <h3 id="lesson4-discovery-title">🔢 Відкрий правило фігур сам</h3>
                     <p>Не читай відповідь одразу — спочатку спробуй сам. Дій покроково:</p>
@@ -726,17 +729,17 @@
                     </div>
                     <details>
                         <summary>Правило (відкрий після того, як заповниш таблицю)</summary>
-                        <p>Для замкненої правильної фігури з N сторін кут повороту = 360° ÷ N. Равлик завжди разом повертає рівно на одне повне коло.</p>
+                        <p>Для правильного опуклого багатокутника з N сторонами кут повороту дорівнює 360° ÷ N. Це кут, на який повертає Равлик, а не кут усередині фігури. У трикутника Равлик повертає на 120°.</p>
                     </details>
                     <div class="why-important lesson-support-block lesson-why-block">
                         <h3>Зв'язок із годинником</h3>
-                        <p>Пам'ятаєш метафору годинника з Уроку 2? Коло — це 360°. Рівностороння фігура завжди повертає рівно на одне повне коло — незалежно від кількості сторін. Квадрат: 4 × 90° = 360°. Трикутник: 3 × 120° = 360°. П'ятикутник: 5 × 72° = 360°. Завжди — одне повне коло.</p>
+                        <p>Пам'ятаєш метафору годинника з Уроку 2? Коли обходимо контур опуклого багатокутника в одному напрямку, разом повертаємо на 360°. Квадрат: 4 × 90° = 360°. Трикутник: 3 × 120° = 360°. Для зірок із перетинами правило інше.</p>
                     </div>
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson4-bug-title">
                     <h3 id="lesson4-bug-title">🐛 Знайди помилку</h3>
-                    <pre class="code-example">повторити 3 (
+                    <pre class="code-example" data-example-id="lesson4-buggy-triangle" data-example-kind="runnable">повторити 3 (
   вперед 100
   праворуч 90
 )</pre>
@@ -751,7 +754,7 @@
                     <ul>
                         <li>🟢 Простий: намалюй правильний шестикутник. Підрахуй кут за правилом <code>360÷N</code> до запуску.</li>
                         <li>🟡 Середній: намалюй три квадрати різного розміру в різних кольорах. Використовуй один і той самий код <code>повторити</code> — тільки міняй числа.</li>
-                        <li>🔴 Складний: намалюй квітку — квадрат всередині квадрата всередині квадрата (три вкладені квадрати). Підказка: вони мають бути однаково центровані. Як це зробити?</li>
+                        <li>🔴 Складний: після уроку 6 повернися сюди й намалюй три концентричні квадрати, переміщуючись між ними без сліду.</li>
                     </ul>
                     <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-success">Спробувати свою ідею</a>
                 </div>
@@ -779,6 +782,7 @@
 )</pre>
                     <p>Скільки трикутників з'явиться? Чому саме стільки?</p>
                 </div>
+                </details>
 
                 <nav class="navigation-buttons">
                     <button class="btn btn-primary nav-btn-prev" data-target-lesson="lesson3"><span class="ui-icon icon-arrow-left" aria-hidden="true"></span>Попередній урок</button>
@@ -799,7 +803,7 @@
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson5-circle-title">
                     <h3 id="lesson5-circle-title">Малюємо коло</h3>
-                    <pre class="code-example">колір жовтий
+                    <pre class="code-example" data-example-id="lesson5-circle" data-example-kind="runnable">колір жовтий
 повторити 36 (
   вперед 10
   праворуч 10
@@ -807,14 +811,14 @@
                     <p>Равлик робить багато маленьких кроків і багато маленьких поворотів. Разом це дає повне коло: 36 × 10° = 360°.</p>
                     <div class="why-important lesson-support-block lesson-why-block">
                         <h3>Знову годинник</h3>
-                        <p>Пам'ятаєш: для замкненої фігури Равлик завжди повертає рівно на 360°? Коло — не виняток: 36 × 10° = 360°. Різниця лише в тому, що кожен крок дуже маленький — тому кути майже непомітні і фігура виглядає як крива, а не як багатокутник. Більше повторень → менший кут → плавніша крива.</p>
+                        <p>Коли обходимо контур опуклого багатокутника в одному напрямку, разом повертаємо на 360°. Тут 36 × 10° = 360°. Маленькі кроки й повороти роблять кути майже непомітними, тому багатокутник схожий на коло. Для зірок із перетинами правило інше.</p>
                     </div>
                     <img src="assets/images/lesson_05_01.jpg" alt="Равлик малює жовте коло за допомогою команди 'повторити'" class="lesson-image lesson-image-wide" loading="lazy">
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson5-smoothness-title">
                     <h3 id="lesson5-smoothness-title">🔬 Лабораторія плавності</h3>
-                    <p>Усі три коди нижче малюють повне коло (разом 360°). Спробуй кожен і порівняй:</p>
+                    <p>Усі три коди малюють замкнені багатокутники. Порівняй, який найбільше схожий на коло:</p>
                     <pre class="code-example">повторити 6  ( вперед 30 праворуч 60 )
 повторити 12 ( вперед 15 праворуч 30 )
 повторити 36 ( вперед 5  праворуч 10 )</pre>
@@ -860,11 +864,12 @@
                 <div class="task lesson-support-block lesson-task-block">
                     <h3>⭐ Зіркова лабораторія</h3>
                     <p>Кут 144° = 72° × 2: Равлик "перестрибує" через одну вершину і виходить зірка. А що буде з сімкою?</p>
-                    <pre class="code-example">повторити 7 ( вперед 100 праворуч ??? )</pre>
-                    <p>Спробуй кут 154 і кут 205. Який дає зірку, а який — просто многокутник? Чому?</p>
+                    <pre class="code-example" data-example-id="lesson5-heptagon" data-example-kind="runnable">повторити 7 ( вперед 30 праворуч 360/7 )</pre>
+                    <pre class="code-example" data-example-id="lesson5-seven-star" data-example-kind="runnable">повторити 7 ( вперед 60 праворуч 720/7 )</pre>
+                    <p>У якому малюнку лінії перетинаються? Чим семикутник відрізняється від зірки?</p>
                     <details>
                         <summary>Підказка</summary>
-                        <p>Зірка виходить, коли Равлик "перестрибує" через вершини, а не йде до кожної по черзі. Спробуй різні кути і подивись, коли лінії починають перетинатися.</p>
+                        <p>Зірка виходить, коли Равлик "перестрибує" через вершини, а не йде до кожної по черзі. Додатково заміни <code>720/7</code> на <code>1080/7</code> і порівняй шлях.</p>
                     </details>
                 </div>
 
@@ -928,8 +933,8 @@
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson6-command-title">
-                    <h3 id="lesson6-command-title">Нові команди</h3>
-                    <p><strong>Крок 1: Олівець</strong></p>
+                    <h3 id="lesson6-command-title">Етап А — перо і пунктир</h3>
+                    <p><strong>Ціль:</strong> навчитися створювати пропуск без стирання лінії.</p>
                     <pre class="code-example">підняти
 вперед 60
 опустити</pre>
@@ -937,24 +942,32 @@
                     <div class="tip lesson-support-block lesson-tip-block">
                         <h3>✏️ Мінімальний експеримент</h3>
                         <p>Запусти цей код і подивись, де є лінія, а де — пропуск:</p>
-                        <pre class="code-example">вперед 50
+                        <pre class="code-example" data-example-id="lesson6-dashed" data-example-kind="runnable">вперед 50
 підняти
 вперед 30
 опустити
 вперед 50</pre>
-                        <p>Скільки видимих ліній? Де пропуск? Чи збігається з твоїм передбаченням?</p>
+                        <p><strong>Передбач:</strong> скільки видимих ліній і де буде пропуск?</p>
+                        <p><strong>Зміни:</strong> заміни невидимий рух 30 на 15. <strong>Перевір:</strong> мають бути дві лінії й один коротший пропуск.</p>
+                        <details><summary>Підказка й відповідь</summary><p>Перший і останній рух малюють, а середній відбувається з піднятим пером.</p></details>
                     </div>
-                    <p><strong>Крок 2: Координати</strong></p>
+                    <p><strong>Можу пояснити, чому між двома лініями є один пропуск.</strong></p>
+                    <p><strong>На цьому можна завершити заняття. До координат повернися наступного разу.</strong></p>
+                    <h3>Етап Б — координати</h3>
+                    <p><strong>Ціль:</strong> перейти в задану точку без сліду.</p>
                     <pre class="code-example">підняти
 перейти в 150 0
 опустити</pre>
                     <p><code>перейти в X Y</code> переміщує Равлика в точку на полотні. Важливо: перед <code>перейти</code> майже завжди потрібен <code>підняти</code>, інакше лінія залишиться між старою і новою позицією.</p>
+                    <p><strong>Передбач:</strong> куди потрапить Равлик? <strong>Зміни:</strong> заміни 150 на 50. <strong>Перевір:</strong> перехід не має залишити лінії.</p>
+                    <details><summary>Підказка</summary><p>Увімкни сітку: перше число рухає праворуч або ліворуч від центру, друге — вгору або вниз.</p></details>
                     <img src="assets/images/lesson_06_01.jpg" alt="Схема: Равлик малює лінію, потім піднімає олівець, рухається, опускає олівець і малює ще одну лінію" class="lesson-image lesson-image-wide" loading="lazy">
                     <p><a href="manual.html#pen" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: олівець і переміщення</a></p>
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson6-map-title">
                     <h3 id="lesson6-map-title">🗺️ Карта полотна: як працює <code>перейти в X Y</code></h3>
+                    <p>Увімкни сітку в редакторі. Для першої спроби використай <code>перейти в 50 50</code>.</p>
                     <p>Полотно — як карта міста. Центр — точка <code>(0, 0)</code>. Перше число після "в" — це відстань праворуч або ліворуч від центру. Друге число — вгору або вниз.</p>
                     <div class="manual-table-wrap">
                     <table class="manual-table">
@@ -986,7 +999,7 @@
                     </div>
                     <div class="why-important lesson-support-block lesson-why-block">
                         <h3>Як читати координати</h3>
-                        <p>Перше число — це ліво/право (X): позитивне — праворуч, від'ємне — ліворуч. Друге число — це вгору/вниз (Y): позитивне — вгору, від'ємне — вниз. Центр полотна завжди <code>(0, 0)</code>. Спробуй: <code>перейти в 200 200</code> — це правий верхній кут. <code>перейти в -200 -200</code> — лівий нижній.</p>
+                        <p>Перше число — це ліво/право (X): позитивне — праворуч, від'ємне — ліворуч. Друге число — це вгору/вниз (Y): позитивне — вгору, від'ємне — вниз. Центр полотна завжди <code>(0, 0)</code>. <code>перейти в 200 200</code> — це 200 кроків праворуч і 200 вгору від центру; на маленькому полотні ця точка може бути за межами. <code>перейти в -200 -200</code> — це 200 кроків ліворуч і 200 вниз, і ця точка теж може бути за межами.</p>
                     </div>
                     <p>Порада: якщо не знаєш, де знаходиться точка — просто спробуй <code>перейти в X Y</code> і подивись.</p>
                 </section>
@@ -1032,12 +1045,12 @@
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson6-bug-title">
                     <h3 id="lesson6-bug-title">🐛 Знайди помилку</h3>
-                    <pre class="code-example">повторити 4 ( вперед 50 праворуч 90 )
+                    <pre class="code-example" data-example-id="lesson6-buggy-connected-squares" data-example-kind="runnable">повторити 4 ( вперед 50 праворуч 90 )
 перейти в 150 0
 повторити 4 ( вперед 50 праворуч 90 )</pre>
                     <details>
                         <summary>Відповідь</summary>
-                        <pre class="code-example">повторити 4 ( вперед 50 праворуч 90 )
+                        <pre class="code-example" data-example-id="lesson6-corrected-pen-up" data-example-kind="runnable">повторити 4 ( вперед 50 праворуч 90 )
 підняти
 перейти в 150 0
 опустити
@@ -1096,28 +1109,45 @@
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson7-variable-title">
-                    <h3 id="lesson7-variable-title">Змінна — скринька для числа</h3>
-                    <pre class="code-example">створити сторона = 100
-вперед сторона
-
-сторона = 150
+                    <h3 id="lesson7-variable-title">Етап А — змінна зі значенням</h3>
+                    <pre class="code-example" data-example-id="lesson7-variable" data-example-kind="runnable">створити сторона = 100
 вперед сторона</pre>
+                    <p><strong>Передбач:</strong> якої довжини буде лінія? <strong>Зміни:</strong> постав 60 замість 100. <strong>Перевір:</strong> лінія має стати коротшою.</p>
                     <p>Уяви дошку оголошень у класі. На ній написано: "сторона = 100". Коли ти пишеш <code>сторона = 150</code> — ти стираєш старе і пишеш нове. Стара цифра зникає. Дошка завжди показує лише одне поточне значення.</p>
                     <p>Тому <code>сторона = сторона + 20</code> означає: "Прочитай поточне значення з дошки, додай 20, і запиши нове число назад."</p>
+                    <details><summary>Підказка</summary><p>Команда <code>вперед сторона</code> читає число, яке зараз записане на дошці.</p></details>
+                    <p><strong>Можу пояснити, звідки команда руху бере число.</strong></p>
                     <div class="why-important lesson-support-block lesson-why-block">
                         <h3>⚠️ Змінна vs. стан: що спільного?</h3>
                         <p>Пам'ятаєш фломастер у руці з Уроку 3? <code>колір</code> — це і є зміна фломастера. Змінна — те саме, але ти сам вигадуєш їй ім'я і сам вирішуєш, що зберігати: число, рахунок, розмір, швидкість. <code>колір</code> — це вбудований стан Равлика. Змінна — це твій власний стан, який ти придумав.</p>
                     </div>
+                    <h3>Етап Б — оновлення змінної</h3>
+                    <pre class="code-example">створити сторона = 20
+вперед сторона
+сторона = сторона + 20
+вперед сторона</pre>
+                    <p><strong>Передбач:</strong> друга лінія матиме довжину 40. <strong>Зміни:</strong> додавай 10. <strong>Перевір:</strong> уявна дошка спочатку показує 20, потім 40.</p>
+                    <details><summary>Підказка</summary><p>Спочатку прочитай старе значення, додай число, а потім запиши результат на ту саму дошку.</p></details>
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson7-function-title">
-                    <h3 id="lesson7-function-title">Функція — твоя власна команда</h3>
-                    <pre class="code-example">створити квадрат(с) (
+                    <h3 id="lesson7-function-title">Етап В — функція без параметрів</h3>
+                    <pre class="code-example">створити риска() (
+  вперед 40
+)
+риска()
+риска()</pre>
+                    <p><strong>Передбач:</strong> скільки рисок виконає Равлик? <strong>Зміни:</strong> постав 60 замість 40. <strong>Перевір:</strong> одна функція викликана двічі.</p>
+                    <details><summary>Підказка</summary><p>Код усередині функції виконується при кожному виклику <code>риска()</code>.</p></details>
+                    <h3>Етап Г — функція з параметром</h3>
+                    <pre class="code-example" data-example-id="lesson7-parameter-function" data-example-kind="runnable">створити квадрат(с) (
   повторити 4 ( вперед с праворуч 90 )
 )
 
 квадрат(50)
 квадрат(100)</pre>
+                    <div class="manual-table-wrap"><table class="manual-table"><thead><tr><th scope="col">Виклик</th><th scope="col">Значення параметра <code>с</code></th></tr></thead><tbody><tr><td><code>квадрат(50)</code></td><td>50</td></tr><tr><td><code>квадрат(100)</code></td><td>100</td></tr></tbody></table></div>
+                    <p><strong>Передбач:</strong> який квадрат більший? <strong>Зміни:</strong> додай <code>квадрат(70)</code>. <strong>Перевір:</strong> одна функція має намалювати три різні квадрати.</p>
                     <p>Тут ти ніби вчиш Равлика новому слову: коли він чує <code>квадрат(50)</code>, то вже знає, що треба робити.</p>
                     <div class="tip lesson-support-block lesson-tip-block">
                         <h3>Хороше ім'я функції — це вже половина роботи</h3>
@@ -1145,7 +1175,7 @@
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson7-predict-title">
-                    <h3 id="lesson7-predict-title">🔮 Спробуй передбачити</h3>
+                    <h3 id="lesson7-predict-title">Практика етапу Б — таблиця трасування</h3>
                     <pre class="code-example">створити крок = 20
 повторити 5 (
   вперед крок
@@ -1198,6 +1228,9 @@
                     </table>
                     </div>
                     <p>Чи буде фігура однаковою, чи почне "розростатися"? Перевір свій прогноз.</p>
+                    <p><strong>Зміни:</strong> збільшуй <code>крок</code> на 10 замість 20. <strong>Перевір:</strong> у другому рядку таблиці початкове значення 40, рух 40, нове значення 60.</p>
+                    <details><summary>Поетапна відповідь</summary><p>Значення на дошці послідовно стають 20, 40, 60, 80, 100; після кожного руху додається 20.</p></details>
+                    <p><strong>Можу пояснити, чому друге значення стало 40.</strong></p>
                 </section>
 
                 <div class="why-important lesson-support-block lesson-why-block">
@@ -1291,36 +1324,46 @@
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson8-if-title">
-                    <h3 id="lesson8-if-title">Нова команда: <code>якщо</code></h3>
-                    <pre class="code-example">якщо край (
-  праворуч 180
+                    <h3 id="lesson8-if-title">Етап А — <code>якщо число &gt; 5</code></h3>
+                    <pre class="code-example" data-example-id="lesson8-basic-if" data-example-kind="runnable">створити число = 7
+якщо число &gt; 5 (
+  вперед 50
 )</pre>
-                    <p>Команди в дужках виконуються тільки тоді, коли умова правдива.</p>
+                    <p>Команди в дужках виконуються тільки тоді, коли умова правдива. <strong>Передбач:</strong> чи з'явиться лінія? <strong>Зміни:</strong> постав 3 замість 7. <strong>Перевір:</strong> для 7 є лінія, для 3 — немає.</p>
                     <div class="tip lesson-support-block lesson-tip-block">
                         <strong>Важливо</strong>
-                        <p>Ця перевірка виконується лише один раз і одразу зупиняється. Щоб вона перевіряла постійно — треба помістити її всередині циклу або у блок <code>грати</code>. Спробуй:</p>
-                        <pre class="code-example">повторити 200 (
-  вперед 5
-  якщо край ( праворуч 180 )
-)</pre>
+                        <p>Ця перевірка виконується один раз. Постійні перевірки з'являться в етапі В і уроці 9.</p>
                     </div>
                 </section>
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson8-else-title">
-                    <h3 id="lesson8-else-title"><code>інакше</code> — запасний план</h3>
-                    <pre class="code-example">створити n = 2
-якщо n % 2 = 0 (
+                    <h3 id="lesson8-else-title">Етап Б — <code>інакше</code></h3>
+                    <pre class="code-example">створити число = 7
+якщо число &gt; 5 (
   колір синій
 ) інакше (
   колір червоний
-)</pre>
-                    <p>Якщо число парне — буде синій. Якщо непарне — червоний. Спробуй змінити <code>n = 2</code> на <code>n = 3</code> і перевір, чи зміниться колір.</p>
+)
+вперед 50</pre>
+                    <p><strong>Передбач:</strong> лінія буде синя. <strong>Зміни:</strong> постав 3 замість 7. <strong>Перевір:</strong> тепер має бути одна червона лінія.</p>
+                    <details><summary>Підказка</summary><p>Коли питання <code>число &gt; 5</code> має відповідь «ні», виконується гілка <code>інакше</code>.</p></details>
                     <p><a href="manual.html#conditions" class="btn btn-primary lesson-manual-link">Детальніше в Посібнику: умови</a></p>
                 </section>
 
+                <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson8-edge-stage-title">
+                    <h3 id="lesson8-edge-stage-title">Етап В — умова <code>край</code></h3>
+                    <pre class="code-example">повторити 200 (
+  вперед 5
+  якщо край ( праворуч 180 )
+)</pre>
+                    <p><strong>Передбач:</strong> що станеться біля межі? <strong>Зміни:</strong> постав крок 3. <strong>Перевір:</strong> Равлик повертає біля краю, а не виходить за полотно.</p>
+                    <details><summary>Підказка</summary><p>Перевірка стоїть усередині циклу, тому повторюється після кожного руху.</p></details>
+                </section>
+
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson8-predict-title">
-                    <h3 id="lesson8-predict-title">🔮 Спробуй передбачити</h3>
-                    <pre class="code-example">створити n = 0
+                    <h3 id="lesson8-predict-title">Етап Г — остача <code>%</code> і чергування кольорів</h3>
+                    <p>Розклади 7 предметів у пари: утворяться 3 пари й залишиться 1 предмет. Так само <code>7 % 2 = 1</code>, а для парного числа остача дорівнює 0.</p>
+                    <pre class="code-example" data-example-id="lesson8-modulo" data-example-kind="runnable">створити n = 0
 повторити 6 (
   n = n + 1
   якщо n % 2 = 0 (
@@ -1332,6 +1375,7 @@
   праворуч 60
 )</pre>
                     <p>Заповни подумки або на папері, а потім перевір у редакторі:</p>
+                    <p><strong>Передбач:</strong> який колір буде першим? <strong>Зміни:</strong> постав 8 повторень. <strong>Перевір:</strong> кольори чергуються, бо остача змінюється між 1 і 0.</p>
                     <div class="manual-table-wrap">
                     <table class="manual-table">
                         <thead>
@@ -1375,7 +1419,7 @@
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson8-bug-title">
                     <h3 id="lesson8-bug-title">🐛 Знайди помилку</h3>
-                    <pre class="code-example">створити n = 0
+                    <pre class="code-example" data-example-id="lesson8-buggy-duplicate-if" data-example-kind="runnable">створити n = 0
 повторити 8 (
   n = n + 1
   якщо n % 2 = 0 ( колір синій )
@@ -1481,13 +1525,18 @@
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson9-command-title">
                     <h3 id="lesson9-command-title">Нова команда: <code>грати</code></h3>
-                    <pre class="code-example">грати (
+                    <p><strong>Потрібна клавіатура зі стрілками.</strong> На пристрої без клавіатури виконай паперове завдання нижче; touch-керування цей приклад не має.</p>
+                    <pre class="code-example" data-example-id="lesson9-game" data-example-kind="runnable">грати (
   якщо клавіша "вгору" ( вперед 5 )
   якщо клавіша "вниз" ( назад 5 )
   якщо клавіша "ліво" ( ліворуч 10 )
   якщо клавіша "право" ( праворуч 10 )
 )</pre>
                     <p><strong>Правила:</strong> один блок <code>грати</code> у програмі; змінні та функції — поза ним; зупинка через кнопку "Зупинити" або <code>Esc</code>. Усе, що має перевірятися постійно, треба писати всередині <code>грати</code>.</p>
+                    <details>
+                        <summary>Завдання без клавіатури або офлайн</summary>
+                        <p>На папері намалюй таблицю з п'яти кроків гри. Для кожного кроку познач, чи утримується стрілка вгору, яке значення має <code>швидкість</code> до руху і після додавання 1. Перевірюваний результат для початкового значення 2: після п'яти кроків значення дорівнює 7.</p>
+                    </details>
                     <div class="why-important lesson-support-block lesson-why-block">
                         <h3>Як читати блок <code>грати</code></h3>
                         <p>Уяви, що блок <code>грати</code> — це серце, яке б'ється. Кожен "удар" — це один кадр: програма перевіряє всі умови всередині (яка клавіша натиснута, чи торкнувся краю) і виконує відповідні команди. Потім — наступний удар. І так — поки ти не натиснеш "Зупинити". Тому все, що має реагувати на гравця, має бути всередині <code>грати</code>.</p>
@@ -1505,7 +1554,7 @@
   )
   якщо клавіша "вниз" ( назад 4 )
 )</pre>
-                    <p>Що станеться зі змінною <code>швидкість</code> після п'яти натискань "вгору"? Чи буде Равлик рухатись однаково швидко весь час? Як його можна сповільнити?</p>
+                    <p>Уяви п'ять кроків гри поспіль, під час яких клавіша вгору утримується. Яким стане значення <code>швидкість</code>? Відповідь: 7. П'ять фізичних натискань не обов'язково означають п'ять кроків гри.</p>
                 </section>
 
                 <div class="why-important lesson-support-block lesson-why-block">
@@ -1513,7 +1562,7 @@
                     <p>Ігровий режим показує, що програма може жити в часі й реагувати на людину прямо під час роботи.</p>
                     <ul>
                         <li><strong>Ти переходиш від малюнка до взаємодії:</strong> тепер результат залежить від твоїх дій.</li>
-                        <li><strong>Ти вчишся мислити подіями:</strong> натиснув клавішу — програма відповіла.</li>
+                        <li><strong>Ти вчишся мислити подіями:</strong> натиснув клавішу — програма відповіла. Поки тримаєш клавішу, перевірка спрацьовує знову на наступних кроках гри.</li>
                         <li><strong>Ти збираєш усе разом:</strong> команди, умови, змінні й правила починають працювати як одна система.</li>
                     </ul>
                 </div>
@@ -1532,9 +1581,7 @@
 
                 <section class="lesson-subsection lesson-example-subsection" aria-labelledby="lesson9-bug-title">
                     <h3 id="lesson9-bug-title">🐛 Знайди помилку</h3>
-                    <pre class="code-example">створити крок = 5
-повторити 10 ( вперед крок )
-
+                    <pre class="code-example" data-example-id="lesson9-invalid-game-contract" data-example-kind="invalid">створити крок = 5
 грати (
   якщо клавіша "вгору" ( вперед крок )
   якщо клавіша "ліво" ( ліворуч 10 )
@@ -1549,6 +1596,13 @@
                     <details>
                         <summary>Відповідь</summary>
                         <p>Перевірка <code>якщо край</code> має бути всередині <code>грати</code>, інакше вона не буде виконуватися постійно під час гри.</p>
+                        <pre class="code-example" data-example-id="lesson9-corrected-game" data-example-kind="runnable">створити крок = 5
+грати (
+  якщо клавіша "вгору" ( вперед крок )
+  якщо клавіша "ліво" ( ліворуч 10 )
+  якщо клавіша "право" ( праворуч 10 )
+  якщо край ( праворуч 180 )
+)</pre>
                     </details>
                 </section>
 
@@ -1699,9 +1753,9 @@
     </div>
 </div>
 <!-- END shared:accessibility-panel -->
-<script type="module" src="js/accessibility.js?v=2026-08-17-1"></script>
+<script type="module" src="js/accessibility.js?v=2026-09-08-1"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "46477cad50284d57abdf0b005192f4c0"}'></script><!-- End Cloudflare Web Analytics -->
-<script type="module" src="js/registerServiceWorker.js?v=2026-08-17-1"></script>
-    <script type="module" src="js/lessonsPage.js?v=2026-08-17-1"></script>
+<script type="module" src="js/registerServiceWorker.js?v=2026-09-08-1"></script>
+    <script type="module" src="js/lessonsPage.js?v=2026-09-08-1"></script>
 </body>
 </html>

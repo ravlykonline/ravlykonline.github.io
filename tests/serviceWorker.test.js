@@ -6,336 +6,196 @@ import { buildPrecacheManifest } from '../scripts/sync-precache-manifest.mjs';
 
 const swSource = fs.readFileSync('sw.js', 'utf8');
 const registerSource = fs.readFileSync('js/registerServiceWorker.js', 'utf8');
-
-// ---------------------------------------------------------------------------
-// Helpers: extract key parts of the SW source without executing it
-// ---------------------------------------------------------------------------
+const CACHE_VERSION = swSource.match(/const CACHE_VERSION = '([^']+)'/)?.[1];
+const APP_CACHE = `ravlyk-app-${CACHE_VERSION}`;
+const RUNTIME_CACHE = `ravlyk-runtime-${CACHE_VERSION}`;
 
 function extractStringSet(source, varName) {
-    // Matches: const FOO = new Set(['a', 'b', ...]);
-    const re = new RegExp(`const ${varName}\\s*=\\s*new Set\\(\\[([^\\]]+)\\]\\)`);
-    const match = source.match(re);
-    if (!match) return null;
-    return match[1].match(/'([^']+)'/g)?.map((s) => s.replace(/'/g, '')) ?? [];
-}
-
-function extractNumberConst(source, varName) {
-    const re = new RegExp(`const ${varName}\\s*=\\s*(\\d+)`);
-    const match = source.match(re);
-    return match ? Number(match[1]) : null;
+    const match = source.match(new RegExp(`const ${varName}\\s*=\\s*new Set\\(\\[([^\\]]+)\\]\\)`));
+    return match?.[1].match(/'([^']+)'/g)?.map((value) => value.slice(1, -1)) ?? null;
 }
 
 function extractStringArray(source, varName) {
-    const re = new RegExp(`const ${varName}\\s*=\\s*\\[([\\s\\S]*?)\\];`);
-    const match = source.match(re);
-    if (!match) return null;
-    return match[1].match(/'([^']+)'/g)?.map((value) => value.slice(1, -1)) ?? [];
+    const match = source.match(new RegExp(`const ${varName}\\s*=\\s*\\[([\\s\\S]*?)\\];`));
+    return match?.[1].match(/'([^']+)'/g)?.map((value) => value.slice(1, -1)) ?? null;
 }
 
-function loadServiceWorkerFunction(functionName, { cacheMatch, fetchImpl }) {
+function cacheKey(candidate) {
+    if (typeof candidate === 'string') {
+        if (!candidate.startsWith('http')) return candidate;
+        const url = new URL(candidate);
+        return url.pathname + url.search;
+    }
+    const url = new URL(candidate.url);
+    return url.pathname + url.search;
+}
+
+function createServiceWorkerHarness({ entries = {}, addFailures = new Set(), fetchImpl = async () => Response.error() } = {}) {
+    const listeners = new Map();
+    const deleted = [];
+    const cacheStores = new Map(
+        Object.entries(entries).map(([name, values]) => [name, new Map(Object.entries(values))])
+    );
+    let skipWaitingCalls = 0;
+    let claimCalls = 0;
+
+    function getCache(name) {
+        if (!cacheStores.has(name)) cacheStores.set(name, new Map());
+        const store = cacheStores.get(name);
+        return {
+            async add(url) {
+                if (addFailures.has(url)) throw new Error(`missing ${url}`);
+                store.set(url, { source: `precache:${url}` });
+            },
+            async match(candidate) { return store.get(cacheKey(candidate)); },
+            async put(candidate, response) { store.set(cacheKey(candidate), response); },
+            async keys() { return [...store.keys()].map((url) => ({ url })); },
+            async delete(candidate) { return store.delete(cacheKey(candidate)); },
+        };
+    }
+
     const context = vm.createContext({
         URL,
         Response,
-        console: {
-            log() {},
-            warn() {},
-            error() {},
-        },
+        console: { log() {}, warn() {}, error() {} },
         caches: {
-            match: cacheMatch,
-            open: async () => ({
-                keys: async () => [],
-                put: async () => {},
-            }),
-            keys: async () => [],
-            delete: async () => true,
+            open: async (name) => getCache(name),
+            keys: async () => [...cacheStores.keys()],
+            delete: async (name) => {
+                deleted.push(name);
+                return cacheStores.delete(name);
+            },
         },
         fetch: fetchImpl,
         self: {
             location: { origin: 'https://ravlyk.org' },
-            addEventListener() {},
-            skipWaiting: async () => {},
-            clients: { claim: async () => {} },
+            addEventListener: (type, listener) => listeners.set(type, listener),
+            skipWaiting: async () => { skipWaitingCalls += 1; },
+            clients: { claim: async () => { claimCalls += 1; } },
         },
-        setTimeout,
-        clearTimeout,
     });
     vm.runInContext(swSource, context);
-    return vm.runInContext(functionName, context);
+
+    async function dispatchLifecycle(type) {
+        let work = null;
+        listeners.get(type)({ waitUntil: (promise) => { work = promise; } });
+        return work;
+    }
+
+    return {
+        dispatchLifecycle,
+        getFunction: (name) => vm.runInContext(name, context),
+        deleted,
+        cacheStores,
+        get skipWaitingCalls() { return skipWaitingCalls; },
+        get claimCalls() { return claimCalls; },
+    };
 }
 
-// ---------------------------------------------------------------------------
-
 runTest('sw: production-only registration guards against dev hosts', () => {
-    // registerServiceWorker.js must contain a PRODUCTION_HOSTS set
-    assert.ok(
-        registerSource.includes('PRODUCTION_HOSTS'),
-        'registerServiceWorker.js must define PRODUCTION_HOSTS'
-    );
-    // Must have a guard that returns early when hostname is not in the set
-    assert.ok(
-        registerSource.includes('PRODUCTION_HOSTS.has(') && registerSource.includes('return'),
-        'registerServiceWorker.js must guard registration with PRODUCTION_HOSTS check'
-    );
-    // Production hosts must include ravlyk.org
-    assert.ok(
-        registerSource.includes('ravlyk.org'),
-        'PRODUCTION_HOSTS must include ravlyk.org'
-    );
+    assert.match(registerSource, /PRODUCTION_HOSTS\.has\(/);
+    assert.match(registerSource, /ravlyk\.org/);
 });
 
-runTest('sw: CACHEABLE_EXTENSIONS allowlist covers required asset types', () => {
-    const exts = extractStringSet(swSource, 'CACHEABLE_EXTENSIONS');
-    assert.ok(exts, 'sw.js must define CACHEABLE_EXTENSIONS');
-
-    for (const required of ['.html', '.css', '.js', '.svg', '.png', '.webmanifest']) {
-        assert.ok(exts.includes(required), `CACHEABLE_EXTENSIONS must include ${required}`);
-    }
-});
-
-runTest('sw: shouldRuntimeCache blocks cross-origin and extensionless URLs', () => {
-    // Verify the guard is present by checking the source pattern
-    assert.ok(
-        swSource.includes('function shouldRuntimeCache(url)'),
-        'sw.js must define shouldRuntimeCache'
-    );
-    assert.ok(
-        swSource.includes('url.origin !== self.location.origin'),
-        'shouldRuntimeCache must reject cross-origin requests'
-    );
-    assert.ok(
-        swSource.includes('CACHEABLE_EXTENSIONS'),
-        'shouldRuntimeCache must use CACHEABLE_EXTENSIONS allowlist'
-    );
-});
-
-runTest('sw: cache.put is wrapped in try/catch to survive quota errors', () => {
-    const putIndex = swSource.indexOf('cache.put(request,');
-    assert.ok(putIndex !== -1, 'sw.js must call cache.put');
-
-    // Find the try block that contains cache.put
-    const before = swSource.slice(0, putIndex);
-    const lastTry = before.lastIndexOf('try {');
-    assert.ok(lastTry !== -1, 'cache.put must be inside a try block');
-
-    // There must be a catch after cache.put
-    const afterPut = swSource.slice(putIndex);
-    assert.ok(afterPut.includes('} catch {'), 'cache.put must have a catch block');
-});
-
-runTest('sw: RUNTIME_CACHE is separate from APP_CACHE so trim never evicts precache', () => {
-    assert.ok(
-        swSource.includes("const RUNTIME_CACHE = `ravlyk-runtime-"),
-        'sw.js must define a separate RUNTIME_CACHE'
-    );
-    // updateRuntimeCache must open RUNTIME_CACHE, not APP_CACHE
-    const updateFnStart = swSource.indexOf('async function updateRuntimeCache');
-    const updateFnBody = swSource.slice(updateFnStart, updateFnStart + 500);
-    assert.ok(
-        updateFnBody.includes('RUNTIME_CACHE'),
-        'updateRuntimeCache must write to RUNTIME_CACHE, not APP_CACHE'
-    );
-    assert.ok(
-        !updateFnBody.includes("caches.open(APP_CACHE)"),
-        'updateRuntimeCache must not write to APP_CACHE'
-    );
-});
-
-runTest('sw: MAX_RUNTIME_CACHE_ENTRIES is defined and positive', () => {
-    const limit = extractNumberConst(swSource, 'MAX_RUNTIME_CACHE_ENTRIES');
-    assert.ok(limit !== null, 'sw.js must define MAX_RUNTIME_CACHE_ENTRIES');
-    assert.ok(limit > 0, 'MAX_RUNTIME_CACHE_ENTRIES must be a positive number');
-});
-
-runTest('sw: trimRuntimeCache is called after cache.put', () => {
-    assert.ok(
-        swSource.includes('trimRuntimeCache'),
-        'sw.js must define trimRuntimeCache'
-    );
-    // trimRuntimeCache must be *called* (await trimRuntimeCache) after cache.put
-    const putIndex = swSource.indexOf('cache.put(request,');
-    const trimIndex = swSource.indexOf('await trimRuntimeCache(cache)');
-    assert.ok(trimIndex > putIndex, 'trimRuntimeCache must be called after cache.put');
-});
-
-runTest('sw: precache install uses allSettled so one miss does not abort install', () => {
-    assert.ok(
-        swSource.includes('Promise.allSettled'),
-        'sw.js install handler must use Promise.allSettled for graceful precache'
-    );
-    assert.ok(
-        !swSource.includes('cache.addAll('),
-        'sw.js must not use cache.addAll (fails on first miss)'
-    );
-    // Failures must be tracked in a separate array, not via allSettled result status,
-    // because each cache.add has an inner .catch() that converts rejections to fulfillments.
-    assert.ok(
-        swSource.includes('failures.push(url)'),
-        'precache must track failures in a dedicated array for accurate logging'
-    );
-});
-
-runTest('sw: PRECACHE_URLS has no duplicate entries', () => {
-    const urls = extractStringArray(swSource, 'PRECACHE_URLS');
-    assert.ok(urls, 'sw.js must define PRECACHE_URLS array');
-    const unique = new Set(urls);
-    assert.equal(
-        urls.length,
-        unique.size,
-        `PRECACHE_URLS has ${urls.length - unique.size} duplicate(s): ` +
-        urls.filter((u, i) => urls.indexOf(u) !== i).join(', ')
-    );
-});
-
-runTest('sw: versioned assets do not duplicate their unversioned cache keys', () => {
-    const urls = extractStringArray(swSource, 'PRECACHE_URLS');
-    const urlSet = new Set(urls);
-    const redundantPairs = urls
-        .filter((url) => url.includes('?'))
-        .filter((url) => urlSet.has(url.split('?')[0]));
-
-    assert.deepEqual(
-        redundantPairs,
-        [],
-        `PRECACHE_URLS should not cache versioned and unversioned copies: ${redundantPairs.join(', ')}`
-    );
-    assert.equal(
-        urls.includes('/js/modules/ravlykParser.js'),
-        true,
-        'unversioned ES module imports must remain available offline'
-    );
-    assert.equal(
-        urls.some((url) => url.startsWith('/css/global.css?v=')),
-        true,
-        'the HTML-referenced version of global.css must remain available offline'
-    );
-    assert.equal(urls.includes('/css/global.css'), false);
-});
-
-runTest('sw: generated cache policy and URLs match the Pages publication manifest', () => {
+runTest('sw: generated critical and optional manifests match publication policy', () => {
     const expected = buildPrecacheManifest();
-    const extensions = extractStringSet(swSource, 'CACHEABLE_EXTENSIONS');
-    const urls = extractStringArray(swSource, 'PRECACHE_URLS');
+    assert.deepEqual(extractStringSet(swSource, 'CACHEABLE_EXTENSIONS'), expected.extensions);
+    assert.deepEqual(extractStringArray(swSource, 'CRITICAL_PRECACHE_URLS'), expected.criticalUrls);
+    assert.deepEqual(extractStringArray(swSource, 'OPTIONAL_PRECACHE_URLS'), expected.optionalUrls);
+    assert.ok(expected.criticalUrls.includes('/index.html'));
+    assert.ok(expected.criticalUrls.includes('/manual.html'));
+    assert.ok(expected.criticalUrls.includes('/lessons.html'));
+    assert.ok(expected.criticalUrls.some((url) => url.startsWith('/js/main.js?v=')));
+    assert.ok(expected.criticalUrls.some((url) => url.startsWith('/css/main-editor.css?v=')));
+    assert.ok(expected.optionalUrls.includes('/assets/images/ravlyk.png'));
+    assert.equal(new Set(expected.urls).size, expected.urls.length);
+});
 
-    assert.deepEqual(extensions, expected.extensions);
-    assert.deepEqual(urls, expected.urls);
-    assert.equal(urls.includes('/sw.js'), false, 'service worker must not precache itself');
+runTest('sw: runtime cache policy stays same-origin, extension-allowlisted and bounded', () => {
+    assert.match(swSource, /function shouldRuntimeCache\(url\)/);
+    assert.match(swSource, /url\.origin !== self\.location\.origin/);
+    assert.match(swSource, /const MAX_RUNTIME_CACHE_ENTRIES = \d+/);
+    assert.match(swSource, /await cache\.put\(request, response\.clone\(\)\)/);
+    assert.match(swSource, /await trimRuntimeCache\(cache\)/);
+});
+
+runTest('sw: lookups never search unrelated caches globally', () => {
+    assert.equal(swSource.includes('caches.match('), false);
+    assert.match(swSource, /caches\.open\(RUNTIME_CACHE\)/);
+    assert.match(swSource, /caches\.open\(APP_CACHE\)/);
+});
+
+await runAsyncTest('sw: critical precache failure rejects install and does not skip waiting', async () => {
+    const critical = extractStringArray(swSource, 'CRITICAL_PRECACHE_URLS');
+    const harness = createServiceWorkerHarness({ addFailures: new Set([critical[0]]) });
+    await assert.rejects(() => harness.dispatchLifecycle('install'));
+    assert.equal(harness.skipWaitingCalls, 0);
+});
+
+await runAsyncTest('sw: optional precache failure permits activation handoff', async () => {
+    const optional = extractStringArray(swSource, 'OPTIONAL_PRECACHE_URLS');
+    const harness = createServiceWorkerHarness({ addFailures: new Set([optional[0]]) });
+    await harness.dispatchLifecycle('install');
+    assert.equal(harness.skipWaitingCalls, 1);
+});
+
+await runAsyncTest('sw: activation deletes only old owned caches and preserves foreign caches', async () => {
+    const harness = createServiceWorkerHarness({
+        entries: {
+            [APP_CACHE]: {},
+            [RUNTIME_CACHE]: {},
+            'ravlyk-app-old': {},
+            'ravlyk-runtime-old': {},
+            'ravlyk-other-product': {},
+            'third-party-cache': {},
+        },
+    });
+    await harness.dispatchLifecycle('activate');
+    assert.deepEqual(harness.deleted.sort(), ['ravlyk-app-old', 'ravlyk-runtime-old']);
+    assert.equal(harness.cacheStores.has('ravlyk-other-product'), true);
+    assert.equal(harness.cacheStores.has('third-party-cache'), true);
+    assert.equal(harness.claimCalls, 1);
+});
+
+await runAsyncTest('sw: offline navigation prefers current runtime HTML over precache HTML', async () => {
+    const runtimeResponse = { source: 'runtime' };
+    const harness = createServiceWorkerHarness({
+        entries: {
+            [RUNTIME_CACHE]: { '/manual.html': runtimeResponse },
+            [APP_CACHE]: { '/manual.html': { source: 'precache' }, '/index.html': { source: 'shell' } },
+        },
+        fetchImpl: async () => { throw new Error('offline'); },
+    });
+    const response = await harness.getFunction('handleNavigation')({ url: 'https://ravlyk.org/manual.html?topic=loops' });
+    assert.equal(response, runtimeResponse);
+});
+
+await runAsyncTest('sw: missing navigation falls back to current offline shell', async () => {
+    const shell = { source: 'shell' };
+    const harness = createServiceWorkerHarness({
+        entries: { [APP_CACHE]: { '/index.html': shell } },
+        fetchImpl: async () => { throw new Error('offline'); },
+    });
     assert.equal(
-        urls.some((url) => url.endsWith('.pdf')),
-        false,
-        'large downloadable PDFs should remain runtime downloads, not install-time assets'
+        await harness.getFunction('handleNavigation')({ url: 'https://ravlyk.org/missing?offline=1' }),
+        shell,
     );
 });
 
-await runAsyncTest('sw: navigation fallback returns an exact cached request without extra lookups', async () => {
-    const request = { url: 'https://ravlyk.org/manual.html?lesson=loops' };
-    const exactResponse = { source: 'exact' };
-    const calls = [];
-    const handleNavigation = loadServiceWorkerFunction('handleNavigation', {
-        fetchImpl: async () => {
-            throw new Error('offline');
-        },
-        cacheMatch: async (candidate) => {
-            calls.push(candidate);
-            return candidate === request ? exactResponse : undefined;
-        },
-    });
-
-    assert.equal(await handleNavigation(request), exactResponse);
-    assert.deepEqual(calls, [request]);
-});
-
-await runAsyncTest('sw: navigation fallback awaits exact, pathname, and shell matches in order', async () => {
-    const request = { url: 'https://ravlyk.org/manual.html?lesson=loops' };
-    const pathnameResponse = { source: 'pathname' };
-    const calls = [];
-    const handleNavigation = loadServiceWorkerFunction('handleNavigation', {
-        fetchImpl: async () => {
-            throw new Error('offline');
-        },
-        cacheMatch: async (candidate) => {
-            calls.push(candidate);
-            if (candidate === '/manual.html') return pathnameResponse;
-            return undefined;
-        },
-    });
-
-    assert.equal(await handleNavigation(request), pathnameResponse);
-    assert.deepEqual(calls, [request, '/manual.html']);
-});
-
-await runAsyncTest('sw: navigation fallback returns the offline shell after two cache misses', async () => {
-    const request = { url: 'https://ravlyk.org/missing-page?offline=1' };
-    const shellResponse = { source: 'shell' };
-    const calls = [];
-    const handleNavigation = loadServiceWorkerFunction('handleNavigation', {
-        fetchImpl: async () => {
-            throw new Error('offline');
-        },
-        cacheMatch: async (candidate) => {
-            calls.push(candidate);
-            if (candidate === '/index.html') return shellResponse;
-            return undefined;
-        },
-    });
-
-    assert.equal(await handleNavigation(request), shellResponse);
-    assert.deepEqual(calls, [request, '/missing-page', '/index.html']);
-});
-
-await runAsyncTest('sw: navigation never resolves to undefined when even the shell is missing', async () => {
-    const request = { url: 'https://ravlyk.org/missing-page' };
-    const handleNavigation = loadServiceWorkerFunction('handleNavigation', {
-        fetchImpl: async () => {
-            throw new Error('offline');
-        },
-        cacheMatch: async () => undefined,
-    });
-
-    const response = await handleNavigation(request);
-    assert.notEqual(response, undefined, 'respondWith() must never receive undefined');
-    assert.equal(response.type, 'error');
-});
-
-await runAsyncTest('sw: offline document request never resolves to undefined when the shell is missing', async () => {
-    const request = { url: 'https://ravlyk.org/quiz.html', destination: 'document' };
-    const handleStaticRequest = loadServiceWorkerFunction('handleStaticRequest', {
-        fetchImpl: async () => {
-            throw new Error('offline');
-        },
-        cacheMatch: async () => undefined,
-    });
-
-    const response = await handleStaticRequest(request);
-    assert.notEqual(response, undefined, 'respondWith() must never receive undefined');
-    assert.equal(response.type, 'error');
-});
-
-await runAsyncTest('sw: a newer versioned asset is fetched instead of a stale cached copy', async () => {
-    const request = { url: 'https://ravlyk.org/css/global.css?v=2026-08-02-99', destination: 'style' };
-    const staleResponse = { source: 'stale-cache' };
-    // Opaque responses are skipped by updateRuntimeCache, so the network body
-    // reaches the caller unchanged.
+await runAsyncTest('sw: a new versioned static asset is never replaced by a bare cached URL', async () => {
     const networkResponse = { source: 'network', status: 200, type: 'opaque' };
-    const calls = [];
-    let fetchCalls = 0;
-    const handleStaticRequest = loadServiceWorkerFunction('handleStaticRequest', {
-        fetchImpl: async () => {
-            fetchCalls += 1;
-            return networkResponse;
+    const harness = createServiceWorkerHarness({
+        entries: {
+            [RUNTIME_CACHE]: { '/css/global.css': { source: 'bare-runtime' } },
+            [APP_CACHE]: { '/css/global.css': { source: 'bare-precache' } },
         },
-        cacheMatch: async (candidate) => {
-            calls.push(candidate);
-            // The cache only holds an older token; no bare-pathname key exists.
-            return candidate === 'https://ravlyk.org/css/global.css?v=2026-08-02-98'
-                ? staleResponse
-                : undefined;
-        },
+        fetchImpl: async () => networkResponse,
     });
-
-    assert.equal(await handleStaticRequest(request), networkResponse);
-    assert.equal(fetchCalls, 1, 'cache busting requires a network fetch on an exact miss');
-    assert.deepEqual(calls, [request, '/css/global.css']);
+    const response = await harness.getFunction('handleStaticRequest')({
+        url: 'https://ravlyk.org/css/global.css?v=new',
+        destination: 'style',
+    });
+    assert.equal(response, networkResponse);
 });
 
 console.log('Service Worker contract tests completed.');

@@ -53,7 +53,7 @@ source code
   -> Canvas/UI renderer
 ```
 
-UI перевіряє довжину коду до parsing, не очищує попередній малюнок до успішної валідації й показує користувачеві лише дружні `RavlykError`-сумісні повідомлення.
+UI проводить звичайний запуск і GIF-запис через спільний `executionController.executeSession`: перевіряє довжину коду до parsing, не очищує попередній малюнок до успішної валідації, однаково керує timeout/cancel/controls/cleanup і показує користувачеві лише дружні `RavlykError`-сумісні повідомлення.
 
 ## 5. Поточна карта модулів
 
@@ -102,13 +102,14 @@ UI перевіряє довжину коду до parsing, не очищує п
 - `js/modules/interpreterGameAstRunner.js` — ігровий режим (`грати`): init-фаза + тік через `createAstRuntime`.
 - `js/modules/interpreterPrimitiveStatements.js` — виконання базових AST-команд в immediate-режимі та перетворення одного примітива на анімаційну команду.
 - `js/modules/interpreterCommandExecutor.js` — виконання однієї анімаційної команди; MOVE/TURN/GOTO зберігають вираз і обчислюють його ліниво.
+- `js/modules/gifCapture.js` — bounded захоплення RGBA-кадрів; `gifEncodingController.js` передає їх у module Worker `gifEncoderWorker.js`, де працює encoder.
 - `js/modules/interpreterConditions.js` — перевірка умов.
 - `js/modules/interpreterAstEval.js` — обчислення числових AST-виразів.
 - `js/modules/environment.js` — середовище змінних.
 
 ### 5.5. UI / редактор
 
-- `js/modules/executionController.js` — запуск/зупинка виконання.
+- `js/modules/executionController.js` — спільний lifecycle звичайного запуску та GIF-сесії.
 - `js/modules/editorInputController.js` — робота з textarea редактора.
 - `js/modules/editorUi.js` — UI редактора.
 - `js/modules/fileActionsController.js` — збереження зображення, коду, share-link, завантаження коду з URL hash.
@@ -116,6 +117,7 @@ UI перевіряє довжину коду до parsing, не очищує п
 - `js/modules/modalController.js` — модальні вікна.
 - `js/modules/workspaceTabs.js` — вкладки робочої області.
 - `js/modules/gridOverlay.js` — сітка на полотні.
+- `js/modules/canvasStateController.js` — текстовий навчальний стан полотна й журнал максимум 50 завершених примітивів; журнал не зберігається між сесіями.
 
 ## 6. Що в архітектурі зроблено добре
 
@@ -190,7 +192,8 @@ UI спочатку викликає `prepareProgram()` і лише після �
 - Runtime cache фільтрується через `CACHEABLE_EXTENSIONS` allowlist (розширення файлів).
 - `cache.put` обгорнуто в `try/catch`.
 - Bounded cleanup: при перевищенні `MAX_RUNTIME_CACHE_ENTRIES` старі записи видаляються.
-- `CACHEABLE_EXTENSIONS` і `PRECACHE_URLS` генеруються з кореневого розділу `PAGES_PUBLICATION_MANIFEST` через `scripts/sync-precache-manifest.mjs`. Версійні URL беруться з опублікованих HTML і замінюють відповідну неверсійну cache-копію; неверсійні ES-модулі та інші прямі імпорти залишаються. Великі завантажувані файли на кшталт PDF не входять до install-time кешу.
+- `CACHEABLE_EXTENSIONS`, `CRITICAL_PRECACHE_URLS` і `OPTIONAL_PRECACHE_URLS` генеруються з кореневого розділу `PAGES_PUBLICATION_MANIFEST` через `scripts/sync-precache-manifest.mjs`. Critical HTML/JS/CSS мають повністю закешуватися до `skipWaiting`; optional media misses не блокують install. Версійні URL замінюють відповідну неверсійну cache-копію; великі файли на кшталт PDF не входять до install-time кешу.
+- Activation видаляє лише старі власні кеші `ravlyk-app-*`/`ravlyk-runtime-*`. Lookup відкриває тільки поточні кеші; navigation дозволяє runtime-first pathname fallback, а статичні ресурси — лише точний ключ.
 - Канонічна release/cache version зберігається в `release-version.json`; `scripts/sync-release-version.mjs` генерує її копії в HTML/JS/SW, а `tests/releaseVersion.test.js` і `tests/serviceWorker.test.js` перевіряють синхронність.
 
 ### 7.5. Release version має одне build-time джерело істини
@@ -207,7 +210,11 @@ UI спочатку викликає `prepareProgram()` і лише після �
 
 Це прибирає ручне джерело дублювання без додавання runtime-запиту або build framework до статичного сайту.
 
-### 7.6. Shared HTML partials
+### 7.6. Межі GIF export
+
+GIF-запис використовує спільний execution lifecycle, але не підтримує нескінченний game mode. Захоплення фіксує розмір на старті, масштабує найдовшу сторону до максимум 320 px і обмежене 120 кадрами та 24 MiB сирих RGBA-буферів. Для кадру 320×320 потрібно 409600 bytes, тому byte budget дозволяє максимум 61 такий кадр. Це бюджет retained frame buffers, а не гарантія повного heap процесу. Кодування відбувається лише у Worker; cancel/error/timeout завершують сесію й звільняють буфери.
+
+### 7.7. Shared HTML partials
 
 Панель доступності, footer і повторювані навігаційні блоки синхронізуються через `scripts/sync-html-partials.mjs`.
 

@@ -34,12 +34,14 @@ export function runAstAnimationRuntime({
     getIsPaused,
     setAnimationFrameId,
     getAnimationFrameId,
+    setStopHandler = () => {},
     cancelAnimationFrameFn,
     requestAnimationFrameFn,
     nowFn,
     onExecutionCompleted,
     onExecutionError,
     updateRavlykVisualState,
+    onPrimitiveCompleted = () => {},
     onFrameCapture = null,
 }) {
     const astRuntime = createAstRuntime({
@@ -66,13 +68,33 @@ export function runAstAnimationRuntime({
         let lastTimestamp = nowFn();
         let pendingCmd = null; // command currently being animated (multi-frame)
         let primitiveIndex = 0;
+        let settled = false;
+
+        const cancelPendingFrame = () => {
+            const id = getAnimationFrameId();
+            if (id) cancelAnimationFrameFn(id);
+        };
+        const finish = () => {
+            if (settled) return;
+            settled = true;
+            setStopHandler(null);
+            onExecutionCompleted();
+            resolve();
+        };
+        const fail = (error) => {
+            if (settled) return;
+            settled = true;
+            cancelPendingFrame();
+            setStopHandler(null);
+            onExecutionError();
+            reject(error);
+        };
+
+        setStopHandler(() => fail(createStopError()));
 
         const tick = (timestamp) => {
             if (getShouldStop()) {
-                const id = getAnimationFrameId();
-                if (id) cancelAnimationFrameFn(id);
-                onExecutionError();
-                reject(createStopError());
+                fail(createStopError());
                 return;
             }
 
@@ -99,6 +121,7 @@ export function runAstAnimationRuntime({
                         setAnimationFrameId(requestAnimationFrameFn(tick));
                         return;
                     }
+                    onPrimitiveCompleted(pendingCmd);
                     pendingCmd = null;
                 }
 
@@ -108,8 +131,7 @@ export function runAstAnimationRuntime({
                 // primitive drawing / game statements to the caller.
                 const next = astRuntime.step();
                 if (next === null) {
-                    onExecutionCompleted();
-                    resolve();
+                    finish();
                     return;
                 }
 
@@ -128,14 +150,13 @@ export function runAstAnimationRuntime({
                 if (onFrameCapture) onFrameCapture(frameMs, cmd);
                 if (!done) {
                     pendingCmd = cmd; // needs more frames
+                } else {
+                    onPrimitiveCompleted(cmd);
                 }
                 setAnimationFrameId(requestAnimationFrameFn(tick));
 
             } catch (error) {
-                const id = getAnimationFrameId();
-                if (id) cancelAnimationFrameFn(id);
-                onExecutionError();
-                reject(error);
+                fail(error);
             }
         };
 

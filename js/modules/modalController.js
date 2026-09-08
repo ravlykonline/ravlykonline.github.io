@@ -46,6 +46,11 @@ export function createModalController({
     function handleEscapeKey(event) {
         if (event.key !== 'Escape') return;
 
+        if (fileActions.isGifActive?.()) {
+            fileActions.cancelGif();
+            return;
+        }
+
         if (isDownloadModalOpen()) {
             hideDownloadModal();
             return;
@@ -84,6 +89,7 @@ export function createModalController({
         downloadGifBtn,
         downloadCodeBtn,
         closeDownloadModalBtn,
+        cancelGifBtn,
     }) {
         if (helpModalCloseBtn) helpModalCloseBtn.addEventListener('click', hideHelpModal);
         if (helpModalToManualBtn) {
@@ -132,6 +138,7 @@ export function createModalController({
             });
         }
         if (closeDownloadModalBtn) closeDownloadModalBtn.addEventListener('click', hideDownloadModal);
+        if (cancelGifBtn) cancelGifBtn.addEventListener('click', () => fileActions.cancelGif());
 
         document.addEventListener('keydown', handleEscapeKey);
         bindModalOverlayClose('help-modal-overlay', hideHelpModal);

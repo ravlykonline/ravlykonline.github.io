@@ -1,33 +1,4 @@
-function detectErrorLine(code, message) {
-    if (!code || !message) return null;
-    const lines = code.split(/\r?\n/);
-    if (!lines.length) return null;
-
-    const candidates = [];
-    const quotedMatches = [...message.matchAll(/"([^"]+)"/g)];
-    quotedMatches.forEach((match) => {
-        if (match[1] && match[1].trim()) candidates.push(match[1].trim());
-    });
-
-    const colonMatch = message.match(/:\s*([^\s"].+)$/);
-    if (colonMatch && colonMatch[1]) candidates.push(colonMatch[1].trim());
-
-    if (message.toLowerCase().includes('повторити')) candidates.push('повторити');
-    if (message.toLowerCase().includes('створити')) candidates.push('створити');
-    if (message.toLowerCase().includes('колір')) candidates.push('колір');
-    if (message.toLowerCase().includes('перейти')) candidates.push('перейти');
-
-    const uniqueCandidates = [...new Set(candidates.map((candidate) => candidate.toLowerCase()))];
-
-    for (const candidate of uniqueCandidates) {
-        const lineIndex = lines.findIndex((line) => line.toLowerCase().includes(candidate));
-        if (lineIndex >= 0) return lineIndex + 1;
-    }
-
-    return null;
-}
-
-function getErrorLocation(code, error) {
+function getErrorLocation(error) {
     if (!error) return { line: null, column: null };
     if (typeof error.line === 'number' && error.line > 0) {
         return {
@@ -35,7 +6,7 @@ function getErrorLocation(code, error) {
             column: (typeof error.column === 'number' && error.column > 0) ? error.column : null,
         };
     }
-    return { line: detectErrorLine(code, error.message), column: null };
+    return { line: null, column: null };
 }
 
 function formatErrorWithLine(message, line, column) {
@@ -127,7 +98,7 @@ export function createEditorUiController({
     }
 
     function getFriendlyExecutionError(code, error) {
-        const { line, column } = getErrorLocation(code, error);
+        const { line, column } = getErrorLocation(error);
         const lineAwareMessage = formatErrorWithLine(error?.message, line, column);
         return {
             line,

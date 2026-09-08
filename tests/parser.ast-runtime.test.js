@@ -1,5 +1,5 @@
 ﻿import assert from 'node:assert/strict';
-import { COLOR_MAP, MAX_REPEATS_IN_LOOP, MAX_COMMAND_QUEUE_LENGTH, GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y } from '../js/modules/constants.js';
+import { COLOR_MAP, MAX_REPEATS_IN_LOOP, MAX_COMMAND_QUEUE_LENGTH, MAX_CODE_LENGTH_CHARS, GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y } from '../js/modules/constants.js';
 import { createInterpreter } from './parserTestUtils.js';
 import { collectAstRuntimePrimitives } from './astRuntimeTestUtils.js';
 import { runTest, runAsyncTest } from './testUtils.js';
@@ -16,6 +16,14 @@ runTest('builds Program AST for basic commands', () => {
     assert.equal(ast.body[1].type, 'TurnStmt');
     assert.equal(ast.body[1].direction, 'right');
     assert.equal(ast.body[1].angle.value, 90);
+});
+
+runTest('prepareProgram enforces the public code-length boundary', () => {
+    const interpreter = createInterpreter();
+    assert.throws(
+        () => interpreter.prepareProgram('x'.repeat(MAX_CODE_LENGTH_CHARS + 1)),
+        (error) => error?.name === 'RavlykError' && error.messageKey === 'CODE_TOO_LONG'
+    );
 });
 
 runTest('builds explicit color/background argument objects in AST', () => {

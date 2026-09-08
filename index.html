@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; connect-src 'self' https://cloudflareinsights.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; form-action 'self';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; worker-src 'self'; connect-src 'self' https://cloudflareinsights.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; form-action 'self';" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
     content="Равлик — перша українська текстова мова програмування для дітей. Навчайтеся програмувати через малювання геометричних фігур та створення ігор онлайн." />
@@ -13,14 +13,14 @@
   <meta name="author" content="Равлик" />
   <meta name="robots" content="index, follow" />
   <title>Равлик — Онлайн програмування для дітей українською мовою</title>
-  <!-- Static deployment release token: 2026-08-17-1 -->
-  <link rel="stylesheet" type="text/css" href="css/global.css?v=2026-08-17-1" />
-  <link rel="stylesheet" type="text/css" href="css/accessibility.css?v=2026-08-17-1" />
-  <link rel="stylesheet" type="text/css" href="css/main-editor.css?v=2026-08-17-1" />
+  <!-- Static deployment release token: 2026-09-08-1 -->
+  <link rel="stylesheet" type="text/css" href="css/global.css?v=2026-09-08-1" />
+  <link rel="stylesheet" type="text/css" href="css/accessibility.css?v=2026-09-08-1" />
+  <link rel="stylesheet" type="text/css" href="css/main-editor.css?v=2026-09-08-1" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-  <link rel="manifest" href="site.webmanifest?v=2026-08-17-1" />
+  <link rel="manifest" href="site.webmanifest?v=2026-09-08-1" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="uk_UA" />
@@ -138,9 +138,27 @@
         <h2 id="canvas-header" class="area-header canvas-header">Малюнок равлика</h2>
         <div class="canvas-stage">
           <canvas id="ravlyk-background-canvas" aria-hidden="true"></canvas>
-          <canvas id="ravlyk-canvas" role="img" aria-label="Полотно для малювання Равлика"></canvas>
+          <canvas id="ravlyk-canvas" role="img" aria-label="Полотно для малювання Равлика" aria-describedby="canvas-state-description"></canvas>
           <canvas id="ravlyk-grid-canvas" aria-hidden="true"></canvas>
         </div>
+        <details class="canvas-state-panel">
+          <summary>Стан Равлика</summary>
+          <p id="canvas-state-description">Текстовий стан доповнює малюнок: координати подано від центра полотна, а кут — як у виразі <code>кут</code>.</p>
+          <dl class="canvas-state-values">
+            <div><dt>X</dt><dd id="canvas-state-x">0</dd></div>
+            <div><dt>Y</dt><dd id="canvas-state-y">0</dd></div>
+            <div><dt>Кут</dt><dd id="canvas-state-angle">0°</dd></div>
+            <div><dt>Перо</dt><dd id="canvas-state-pen">опущене</dd></div>
+            <div><dt>Колір</dt><dd id="canvas-state-color">синій</dd></div>
+            <div><dt>Полотно</dt><dd id="canvas-state-size">0 × 0</dd></div>
+          </dl>
+          <button id="read-canvas-state-btn" class="btn btn-secondary" type="button">Прочитати стан</button>
+          <p id="canvas-state-status" class="visually-hidden" role="status" aria-live="polite"></p>
+          <details class="canvas-command-log-panel">
+            <summary>Останні завершені команди</summary>
+            <ol id="canvas-state-log"></ol>
+          </details>
+        </details>
       </section>
     </div>
     <section class="examples" aria-labelledby="examples-title">
@@ -500,13 +518,14 @@
       <div class="gif-progress-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
         <div id="gif-progress-bar" class="gif-progress-bar"></div>
       </div>
+      <button id="cancel-gif-btn" class="btn btn-secondary" type="button">Скасувати</button>
     </div>
   </div>
 
-  <script type="module" src="js/accessibility.js?v=2026-08-17-1"></script>
+  <script type="module" src="js/accessibility.js?v=2026-09-08-1"></script>
   <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "46477cad50284d57abdf0b005192f4c0"}'></script><!-- End Cloudflare Web Analytics -->
-  <script type="module" src="js/registerServiceWorker.js?v=2026-08-17-1"></script>
-  <script type="module" src="js/main.js?v=2026-08-17-1"></script>
+  <script type="module" src="js/registerServiceWorker.js?v=2026-09-08-1"></script>
+  <script type="module" src="js/main.js?v=2026-09-08-1"></script>
 </body>
 
 </html>

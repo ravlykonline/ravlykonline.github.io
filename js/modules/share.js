@@ -11,7 +11,11 @@ export function encodeCodeForUrlHash(code) {
 }
 
 export function decodeCodeFromUrlHash(encodedValue) {
-    const normalized = String(encodedValue || '')
+    const source = String(encodedValue || '');
+    if (!/^[A-Za-z0-9_-]*$/.test(source) || source.length % 4 === 1) {
+        throw new Error('Invalid Base64URL payload');
+    }
+    const normalized = source
         .replace(/-/g, '+')
         .replace(/_/g, '/');
     const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
@@ -20,7 +24,7 @@ export function decodeCodeFromUrlHash(encodedValue) {
     for (let i = 0; i < binary.length; i++) {
         bytes[i] = binary.charCodeAt(i);
     }
-    return new TextDecoder().decode(bytes);
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
 }
 
 export function buildShareLink(code, baseUrl = window.location.href) {

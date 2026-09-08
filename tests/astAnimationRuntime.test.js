@@ -44,6 +44,7 @@ function runSync(programAst) {
     const log = [];          // collected { type, value } entries
     const errors = [];
     const indicatorIndexes = [];
+    const completed = [];
     let stopped = false;
     let rafId = 0;
     const pendingTicks = []; // queue of scheduled tick callbacks
@@ -154,10 +155,11 @@ function runSync(programAst) {
         onExecutionCompleted: () => {},
         onExecutionError: () => {},
         updateRavlykVisualState: () => {},
+        onPrimitiveCompleted: (command) => { completed.push(command.type); },
     });
 
     drain(promise);
-    return { promise, log, errors, indicatorIndexes };
+    return { promise, log, errors, indicatorIndexes, completed };
 }
 
 // ---------------------------------------------------------------------------
@@ -190,6 +192,14 @@ runAsyncTest('astAnimation: move and turn are executed in order', async () => {
     assert.equal(log[1].type, 'TURN');
     assert.equal(log[1].value, 90);
     assert.deepEqual(indicatorIndexes, [0, 1]);
+});
+
+runAsyncTest('astAnimation: reports primitives only after command completion', async () => {
+    const ast = parseAndValidate('вперед 50\nправоруч 90');
+    const { promise, log, completed } = runSync(ast);
+    await promise;
+    assert.deepEqual(completed, ['MOVE', 'TURN']);
+    assert.equal(completed.length, log.length);
 });
 
 runAsyncTest('astAnimation: visibility and home commands are surfaced in order', async () => {
