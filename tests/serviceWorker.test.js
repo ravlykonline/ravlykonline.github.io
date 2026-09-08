@@ -21,13 +21,19 @@ function extractStringArray(source, varName) {
 }
 
 function cacheKey(candidate) {
-    if (typeof candidate === 'string') {
-        if (!candidate.startsWith('http')) return candidate;
-        const url = new URL(candidate);
-        return url.pathname + url.search;
-    }
-    const url = new URL(candidate.url);
+    const raw = typeof candidate === 'string' ? candidate : candidate.url;
+    if (!raw.startsWith('http')) return raw;
+    const url = new URL(raw);
     return url.pathname + url.search;
+}
+
+// The worker precaches through `new Request(url, { cache: 'reload' })`, so the
+// harness needs a Request that tolerates the relative URLs used in the manifest.
+class HarnessRequest {
+    constructor(url, options = {}) {
+        this.url = url;
+        this.cache = options.cache;
+    }
 }
 
 function createServiceWorkerHarness({ entries = {}, addFailures = new Set(), fetchImpl = async () => Response.error() } = {}) {
@@ -36,6 +42,7 @@ function createServiceWorkerHarness({ entries = {}, addFailures = new Set(), fet
     const cacheStores = new Map(
         Object.entries(entries).map(([name, values]) => [name, new Map(Object.entries(values))])
     );
+    const precacheRequests = [];
     let skipWaitingCalls = 0;
     let claimCalls = 0;
 
@@ -43,9 +50,11 @@ function createServiceWorkerHarness({ entries = {}, addFailures = new Set(), fet
         if (!cacheStores.has(name)) cacheStores.set(name, new Map());
         const store = cacheStores.get(name);
         return {
-            async add(url) {
-                if (addFailures.has(url)) throw new Error(`missing ${url}`);
-                store.set(url, { source: `precache:${url}` });
+            async add(candidate) {
+                const key = cacheKey(candidate);
+                precacheRequests.push(candidate);
+                if (addFailures.has(key)) throw new Error(`missing ${key}`);
+                store.set(key, { source: `precache:${key}` });
             },
             async match(candidate) { return store.get(cacheKey(candidate)); },
             async put(candidate, response) { store.set(cacheKey(candidate), response); },
@@ -57,6 +66,7 @@ function createServiceWorkerHarness({ entries = {}, addFailures = new Set(), fet
     const context = vm.createContext({
         URL,
         Response,
+        Request: HarnessRequest,
         console: { log() {}, warn() {}, error() {} },
         caches: {
             open: async (name) => getCache(name),
@@ -87,6 +97,7 @@ function createServiceWorkerHarness({ entries = {}, addFailures = new Set(), fet
         getFunction: (name) => vm.runInContext(name, context),
         deleted,
         cacheStores,
+        precacheRequests,
         get skipWaitingCalls() { return skipWaitingCalls; },
         get claimCalls() { return claimCalls; },
     };
@@ -196,6 +207,32 @@ await runAsyncTest('sw: a new versioned static asset is never replaced by a bare
         destination: 'style',
     });
     assert.equal(response, networkResponse);
+});
+
+// Regression: a fresh entry point (main.js?v=NEW) imports unversioned modules
+// (js/modules/*.js) whose URL never changes. A stale module made the whole graph
+// fail with "does not provide an export named ...", which killed every button on
+// the page for returning visitors.
+await runAsyncTest('sw: precache fetches bypass the browser HTTP cache', async () => {
+    const harness = createServiceWorkerHarness();
+    await harness.dispatchLifecycle('install');
+
+    assert.ok(harness.precacheRequests.length > 0, 'install must precache something');
+    const notReloaded = harness.precacheRequests.filter((request) => request?.cache !== 'reload');
+    assert.deepEqual(
+        notReloaded.map((request) => request?.url ?? request),
+        [],
+        'every precached URL must be requested with cache: reload',
+    );
+});
+
+runTest('headers keep unversioned ES modules revalidated', () => {
+    const headers = fs.readFileSync('_headers', 'utf8');
+    const block = headers.split(/\r?\n\r?\n/).find((entry) => entry.startsWith('/js/modules/*'));
+    assert.ok(block, '_headers must scope a rule to /js/modules/*');
+    assert.match(block, /Cache-Control:\s*no-cache/);
+    // Narrow scope: published subprojects must keep their own caching.
+    assert.equal(headers.includes('/go/'), false);
 });
 
 console.log('Service Worker contract tests completed.');
