@@ -9,32 +9,14 @@ export function createExecutionController({
     uiHandlers,
 }) {
     const {
-        runBtn,
-        stopBtn,
-        clearBtn,
-        downloadBtn,
-        shareBtn,
-        gridBtn,
-        helpBtn,
-        exampleBlocks,
+        runBtn, stopBtn, clearBtn, downloadBtn, shareBtn, gridBtn, helpBtn, exampleBlocks,
     } = uiControls;
-
-    const {
-        ERROR_MESSAGES,
-        SUCCESS_MESSAGES,
-        INFO_MESSAGES,
-    } = messages;
-
-    const {
-        MAX_CODE_LENGTH_CHARS,
-        EXECUTION_TIMEOUT_MS,
-    } = limits;
-
+    const { ERROR_MESSAGES, SUCCESS_MESSAGES, INFO_MESSAGES } = messages;
+    const { MAX_CODE_LENGTH_CHARS, EXECUTION_TIMEOUT_MS } = limits;
     const {
         DEFAULT_MOVE_PIXELS_PER_SECOND,
         DEFAULT_TURN_DEGREES_PER_SECOND,
     } = animationDefaults;
-
     const {
         showError,
         showInfoMessage,
@@ -43,6 +25,8 @@ export function createExecutionController({
         hideStopConfirmModal,
         updateCommandIndicator,
     } = uiHandlers;
+
+    let activeSession = null;
 
     function updateExecutionControls(isExecuting) {
         runBtn.disabled = isExecuting;
@@ -57,7 +41,7 @@ export function createExecutionController({
     }
 
     function reportExecutionError(code, error, executionTimedOut = false) {
-        if (error.name === 'RavlykError') {
+        if (error?.name === 'RavlykError') {
             if (executionTimedOut) {
                 showError(ERROR_MESSAGES.EXECUTION_TIMEOUT, 0);
             } else if (error.message === ERROR_MESSAGES.EXECUTION_STOPPED_BY_USER) {
@@ -73,16 +57,29 @@ export function createExecutionController({
             return;
         }
 
-        showError(`Неочікувана помилка: ${error.message}`, 0);
+        showError(
+            ERROR_MESSAGES.UNEXPECTED_EXECUTION_ERROR
+                || 'Не вдалося виконати програму. Спробуй запустити її ще раз.',
+            0
+        );
         console.error('Unexpected error during execution:', error);
     }
 
-    async function runCode() {
-        const code = codeEditor.value;
+    function hasGameBlock(programAst) {
+        return (programAst?.body || []).some((stmt) => stmt?.type === 'GameStmt');
+    }
+
+    async function executeSession(codeInput, options = {}) {
+        const code = String(codeInput ?? '');
         editorUi.setEditorErrorLine(null);
+
+        if (activeSession) {
+            showInfoMessage(ERROR_MESSAGES.EXECUTION_IN_PROGRESS);
+            return 'failed';
+        }
         if (code.length > MAX_CODE_LENGTH_CHARS) {
             showError(ERROR_MESSAGES.CODE_TOO_LONG);
-            return;
+            return 'failed';
         }
 
         if (interpreter.isExecuting) {
@@ -93,36 +90,103 @@ export function createExecutionController({
         let programAst;
         try {
             programAst = interpreter.prepareProgram(code);
+            if (options.kind === 'gif' && hasGameBlock(programAst)) {
+                showError(ERROR_MESSAGES.GIF_GAME_UNSUPPORTED, 0);
+                return 'failed';
+            }
+            options.validatePreparedProgram?.(programAst);
         } catch (error) {
             reportExecutionError(code, error);
-            return;
+            return 'failed';
         }
 
+        const session = { stopReason: null, cancel: options.cancel || null };
+        activeSession = session;
         updateExecutionControls(true);
         interpreter.reset();
 
-        const accessibilitySettings = window.ravlykAccessibility ? window.ravlykAccessibility.load() : {};
+        const accessibilitySettings = globalThis.window?.ravlykAccessibility
+            ? globalThis.window.ravlykAccessibility.load()
+            : {};
         interpreter.setAnimationEnabled(!accessibilitySettings['reduce-animations']);
         interpreter.setSpeed(DEFAULT_MOVE_PIXELS_PER_SECOND, DEFAULT_TURN_DEGREES_PER_SECOND);
 
         let executionTimedOut = false;
-        const executionTimeoutId = setTimeout(() => {
-            executionTimedOut = true;
-            interpreter.stopExecution();
-        }, EXECUTION_TIMEOUT_MS);
+        let executionTimeoutId = null;
+        let captureTimeoutId = null;
+        let result = 'failed';
 
         try {
-            await interpreter.executeProgram(programAst);
-            if (!executionTimedOut && !interpreter.wasBoundaryWarningShown()) {
-                showSuccessMessage(SUCCESS_MESSAGES.CODE_EXECUTED);
+            await options.beforeExecute?.(programAst);
+            executionTimeoutId = setTimeout(() => {
+                executionTimedOut = true;
+                session.stopReason = 'failed';
+                interpreter.stopExecution();
+            }, EXECUTION_TIMEOUT_MS);
+            if (Number.isFinite(options.captureTimeoutMs) && options.captureTimeoutMs > 0) {
+                captureTimeoutId = setTimeout(() => {
+                    session.stopReason = 'capture-limit';
+                    interpreter.stopExecution();
+                }, options.captureTimeoutMs);
+            }
+
+            try {
+                await interpreter.executeProgram(programAst);
+                result = session.stopReason || 'completed';
+            } catch (error) {
+                result = session.stopReason || 'failed';
+                if (result === 'failed') reportExecutionError(code, error, executionTimedOut);
+            } finally {
+                if (executionTimeoutId !== null) clearTimeout(executionTimeoutId);
+                if (captureTimeoutId !== null) clearTimeout(captureTimeoutId);
+            }
+
+            if (result === 'completed' || result === 'capture-limit') {
+                try {
+                    await options.afterExecute?.({ programAst, result });
+                    if (result === 'capture-limit') {
+                        showInfoMessage(ERROR_MESSAGES.GIF_CAPTURE_LIMIT_SAVED, 0);
+                    } else if (!options.suppressSuccess && !interpreter.wasBoundaryWarningShown()) {
+                        showSuccessMessage(SUCCESS_MESSAGES.CODE_EXECUTED);
+                    }
+                } catch (error) {
+                    result = session.stopReason || 'failed';
+                    if (result === 'failed' && !options.onSessionError?.(error)) {
+                        reportExecutionError(code, error);
+                    }
+                }
             }
         } catch (error) {
-            reportExecutionError(code, error, executionTimedOut);
+            result = session.stopReason || 'failed';
+            if (result === 'failed' && !options.onSessionError?.(error)) {
+                reportExecutionError(code, error, executionTimedOut);
+            }
         } finally {
-            clearTimeout(executionTimeoutId);
+            if (executionTimeoutId !== null) clearTimeout(executionTimeoutId);
+            if (captureTimeoutId !== null) clearTimeout(captureTimeoutId);
+            try {
+                await options.cleanup?.(result);
+            } catch (error) {
+                console.error('Unexpected execution-session cleanup error:', error);
+            }
+            activeSession = null;
             updateExecutionControls(false);
             updateCommandIndicator(null, -1);
         }
+
+        return result;
+    }
+
+    function cancelActiveSession(reason = 'cancelled') {
+        if (!activeSession) return false;
+        activeSession.stopReason = reason;
+        activeSession.cancel?.();
+        interpreter.stopExecution();
+        return true;
+    }
+
+    function runCode() {
+        return executeSession(codeEditor.value);
     }
 
     function openStopConfirmDialog() {
@@ -140,6 +204,9 @@ export function createExecutionController({
 
     return {
         runCode,
+        executeSession,
+        cancelActiveSession,
+        isSessionActive: () => activeSession !== null,
         updateExecutionControls,
         openStopConfirmDialog,
         closeStopConfirmDialog,

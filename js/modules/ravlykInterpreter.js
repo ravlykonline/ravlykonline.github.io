@@ -66,6 +66,8 @@ export class RavlykInterpreter {
         this.ravlykVisualUpdater = ravlykVisualUpdater;
         this.commandIndicatorUpdater = commandIndicatorUpdater;
         this.infoNotifier = infoNotifier;
+        this.onStateChanged = typeof options.onStateChanged === 'function' ? options.onStateChanged : null;
+        this.onPrimitiveCompleted = typeof options.onPrimitiveCompleted === 'function' ? options.onPrimitiveCompleted : null;
 
         this.state = {
             x: 0,
@@ -162,6 +164,21 @@ export class RavlykInterpreter {
         this.applyContextSettings();
         this.updateRavlykVisualState(true);
         this.commandIndicatorUpdater(null, -1);
+        this.notifyStateChanged('reset');
+    }
+
+    setStateObservers({ onStateChanged = null, onPrimitiveCompleted = null } = {}) {
+        this.onStateChanged = onStateChanged;
+        this.onPrimitiveCompleted = onPrimitiveCompleted;
+    }
+
+    notifyStateChanged(reason = 'state') {
+        if (typeof this.onStateChanged === 'function') this.onStateChanged(this.state, this.canvas, reason);
+    }
+
+    notifyPrimitiveCompleted(primitive) {
+        this.notifyStateChanged('primitive');
+        if (typeof this.onPrimitiveCompleted === 'function') this.onPrimitiveCompleted(primitive, this.state, this.canvas);
     }
 
     applyContextSettings() {
@@ -290,7 +307,9 @@ export class RavlykInterpreter {
     }
 
     clearToDefaultSheet() {
-        return clearToDefaultSheetRuntime(this);
+        const result = clearToDefaultSheetRuntime(this);
+        this.notifyStateChanged('clear');
+        return result;
     }
 
     performGoto(logicalX, logicalY) {
@@ -298,7 +317,9 @@ export class RavlykInterpreter {
     }
 
     performHome() {
-        return performHomeRuntime(this);
+        const result = performHomeRuntime(this);
+        this.notifyStateChanged('home');
+        return result;
     }
 
     setEmbroideryMode(on) {
@@ -331,6 +352,7 @@ export class RavlykInterpreter {
         }
         this.applyContextSettings();
         this.updateRavlykVisualState(true);
+        this.notifyStateChanged('resize');
     }
 
     stopExecution() {

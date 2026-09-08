@@ -80,6 +80,23 @@ try {
         assert.match(headers, /\/llms\.txt[\s\S]*Content-Type: text\/plain/);
     });
 
+    runTest('pages artifact does not force a site-wide CSP onto published subprojects', () => {
+        const headers = fs.readFileSync(path.join(outputRoot, '_headers'), 'utf8');
+
+        // Root HTML pages carry their own meta CSP. A `/*` policy would also cover
+        // `old`, `artist`, `game` and `go`, which load assets those pages never
+        // declared (for example the Font Awesome CDN stylesheet in `old`).
+        const wildcardRule = headers.split(/\r?\n\r?\n/).find((block) => block.startsWith('/*'));
+        assert.equal(
+            /content-security-policy/i.test(wildcardRule || ''),
+            false,
+            '_headers must not apply a Content-Security-Policy to every published path',
+        );
+
+        const oldIndex = fs.readFileSync(path.join(outputRoot, 'old', 'index.html'), 'utf8');
+        assert.match(oldIndex, /cdnjs\.cloudflare\.com/);
+    });
+
     runTest('pages artifact excludes development, tests, logs, and duplicate archives', () => {
         const excludedPaths = [
             'maisternia',

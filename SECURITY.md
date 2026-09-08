@@ -53,7 +53,7 @@ export const MAX_GAME_TICK_OPERATIONS = 500;
 - game mode виконує AST напряму через `interpreterAstRuntime.js` і має per-tick budget (`MAX_GAME_TICK_OPERATIONS = 500`);
 - legacy flat-queue adapter/runtime і `parseTokens()` compatibility shim видалені; тести виконують програми через AST runtime.
 
-Критичний ризик зависання через вкладені цикли повністю закритий.
+Ці бюджети суттєво обмежують відомі короткі DoS-сценарії, але не є абсолютною гарантією від усіх довгих задач на кожному пристрої. Синхронний `runtime.step()` контролюється AST budget; часовий timeout не може перервати вже розпочату синхронну ділянку. Відтворюваний browser benchmark описаний у `TESTING.md`; cooperative yield додається лише після виміряної задачі понад 50 ms зі збереженням спільного AST budget.
 
 ## 4. Service Worker
 
@@ -62,9 +62,11 @@ Service Worker переписано:
 - реєструється тільки для production host (`js/registerServiceWorker.js` перевіряє `location.hostname`);
 - scope явно `{ scope: '/' }` — production живе в корені домену;
 - runtime cache фільтрується через `CACHEABLE_EXTENSIONS` allowlist (розширення файлів);
-- install-time precache генерується з allowlist-маніфесту Cloudflare Pages; `npm run precache:check` не дозволяє йому розійтися з опублікованими файлами;
+- install-time precache генерується з allowlist-маніфесту Cloudflare Pages і ділиться на critical HTML/JS/CSS та optional медіа; збій будь-якого critical ресурсу відхиляє install до `skipWaiting`, а optional miss не блокує оновлення;
 - `cache.put` обгорнуто в `try/catch`;
 - bounded cleanup при перевищенні `MAX_RUNTIME_CACHE_ENTRIES`;
+- activation видаляє лише старі власні кеші з точними префіксами `ravlyk-app-` і `ravlyk-runtime-`; чужі кеші не читаються й не видаляються;
+- offline navigation спочатку читає свіжіший поточний runtime cache, потім поточний precache; pathname fallback не застосовується до JS/CSS та інших статичних ресурсів із release query;
 - release/cache version береться з канонічного `release-version.json`, синхронізується через `scripts/sync-release-version.mjs` і перевіряється `tests/releaseVersion.test.js` та `tests/serviceWorker.test.js`.
 
 ## 5. XSS і DOM
@@ -109,7 +111,8 @@ npm run check
 - [ ] Ліміти `MAX_CODE_LENGTH_CHARS`, `MAX_AST_NODES`, `MAX_PARSE_DEPTH`, `MAX_EXPRESSION_DEPTH`, `MAX_RECURSION_DEPTH`, `MAX_REPEATS_IN_LOOP`, `MAX_COMMAND_QUEUE_LENGTH` і `MAX_GAME_TICK_OPERATIONS` працюють.
 - [ ] Публічні сторінки не підключають Google Analytics і мають тільки Cloudflare Web Analytics beacon.
 - [ ] Service Worker має очікуваний scope/cache policy для цього релізу.
-- [ ] Після зміни SW/cache version старий кеш коректно прибирається.
+- [ ] Після зміни SW/cache version старі кеші `ravlyk-app-*`/`ravlyk-runtime-*` коректно прибираються, а сторонній тестовий кеш зберігається.
+- [ ] Імітація critical precache failure не активує новий worker; optional image failure не блокує активацію.
 - [ ] Код учня не зберігається автоматично між сесіями без явного рішення.
 
 ## 9. Поточні Пріоритети

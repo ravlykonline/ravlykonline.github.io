@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
     getLessonsOrder,
+    getLessonTabTargetIndex,
+    prefersReducedLessonMotion,
     resolveInitialLessonId,
+    updateLessonView,
     updateLessonNavigationButtons,
 } from '../js/modules/lessonsPageController.js';
 import { runTest } from './testUtils.js';
@@ -35,6 +38,40 @@ runTest('lessons controller resolves initial lesson from URL only when lesson ex
         }),
         'lesson1'
     );
+});
+
+runTest('lesson tabs wrap with arrows and support Home and End', () => {
+    assert.equal(getLessonTabTargetIndex(2, 'ArrowRight', 3), 0);
+    assert.equal(getLessonTabTargetIndex(0, 'ArrowLeft', 3), 2);
+    assert.equal(getLessonTabTargetIndex(1, 'Home', 3), 0);
+    assert.equal(getLessonTabTargetIndex(1, 'End', 3), 2);
+    assert.equal(getLessonTabTargetIndex(4, 'ArrowRight', 3), -1);
+    assert.equal(getLessonTabTargetIndex(0, 'Enter', 3), -1);
+});
+
+runTest('lesson view rejects invalid ids before hiding the current lesson', () => {
+    const content = {
+        id: 'lesson1',
+        style: { display: 'block' },
+        classList: { remove() {}, add() {} },
+        setAttribute() { this.hidden = true; },
+        removeAttribute() { this.hidden = false; },
+    };
+    const button = { getAttribute: () => 'lesson1' };
+    assert.equal(updateLessonView({ lessonId: 'missing', lessonContents: [content], tabButtons: [button] }), false);
+    assert.equal(content.style.display, 'block');
+    assert.equal(content.hidden, undefined);
+});
+
+runTest('lesson scrolling honors saved and system reduced-motion state', () => {
+    assert.equal(prefersReducedLessonMotion({
+        documentRef: { documentElement: { classList: { contains: (name) => name === 'a11y-reduce-animations' } } },
+        windowRef: { matchMedia: () => ({ matches: false }) },
+    }), true);
+    assert.equal(prefersReducedLessonMotion({
+        documentRef: { documentElement: { classList: { contains: () => false } } },
+        windowRef: { matchMedia: () => ({ matches: true }) },
+    }), true);
 });
 
 runTest('lessons controller updates prev/next button state by current lesson', () => {
@@ -103,6 +140,23 @@ runTest('production lessons page keeps new structure hooks for lesson0 and lesso
     assert.equal(html.includes('id="lesson7-function-title"'), true, 'lessons.html must keep the lesson7 functions subsection');
     assert.equal(html.includes('manual.html#variables'), true, 'lessons.html must keep the variables deep link');
     assert.equal(html.includes('manual.html#functions'), true, 'lessons.html must keep the functions deep link');
+});
+
+runTest('lessons 4, 6, 7, 8 and 9 keep staged learning routes without changing ids', () => {
+    const html = fs.readFileSync('lessons.html', 'utf8');
+    for (let lesson = 0; lesson <= 9; lesson++) {
+        assert.equal((html.match(new RegExp(`<article id="lesson${lesson}"`, 'g')) || []).length, 1);
+        assert.equal((html.match(new RegExp(`id="lesson${lesson}-tab"`, 'g')) || []).length, 1);
+    }
+    assert.match(html, /Додаткове дослідження: 360\/N/);
+    assert.match(html, /На цьому можна завершити заняття\. До координат повернися наступного разу\./);
+    assert.match(html, /Етап А — змінна зі значенням/);
+    assert.match(html, /Етап Б — оновлення змінної/);
+    assert.match(html, /Етап В — функція без параметрів/);
+    assert.match(html, /Етап Г — функція з параметром/);
+    assert.match(html, /Етап А — <code>якщо число &gt; 5<\/code>/);
+    assert.match(html, /Етап Г — остача <code>%<\/code>/);
+    assert.match(html, /Завдання без клавіатури або офлайн/);
 });
 
 runTest('production lessons page does not depend on archive-only hooks', () => {

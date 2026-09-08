@@ -602,6 +602,8 @@ runTest('interpreter runtime-state helper handles stop/pause/resume/status contr
         boundaryWarningShown: true,
     };
     let stoppedWith = null;
+    let animationStopCalls = 0;
+    runtime.animationStopHandler = () => { animationStopCalls += 1; };
 
     stopExecutionRuntime({
         runtime,
@@ -611,6 +613,7 @@ runTest('interpreter runtime-state helper handles stop/pause/resume/status contr
     assert.equal(runtime.shouldStop, true);
     assert.equal(runtime.isPaused, false);
     assert.equal(stoppedWith && stoppedWith.message, 'stop');
+    assert.equal(animationStopCalls, 1, 'stop must settle an active animation promise immediately');
 
     runtime.isPaused = false;
     runtime.isExecuting = false;
@@ -704,8 +707,9 @@ runTest('gif capture defers transient background frames and keeps the settled co
     capture.captureFrame(16, { defer: true });
     capture.stop();
 
-    assert.equal(capture.getFrames().length, 7);
+    assert.equal(capture.getFrames().length, 1);
     capture.getFrames().forEach((frame) => assert.equal(frame.pixels[0], 20));
+    assert.equal(capture.getFrames()[0].delay, 490);
 
     global.document = previousDocument;
 });
@@ -747,7 +751,7 @@ runTest('gif capture periodically records a background-only animation', () => {
     }
     capture.stop();
 
-    const animationFrames = capture.getFrames().slice(2, -4);
+    const animationFrames = capture.getFrames();
     assert.ok(animationFrames.length >= 10 && animationFrames.length <= 20);
     assert.ok(new Set(animationFrames.map((frame) => frame.pixels[0])).size >= 10);
 

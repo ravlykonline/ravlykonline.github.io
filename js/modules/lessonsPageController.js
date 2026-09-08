@@ -7,7 +7,12 @@ export function updateLessonView({
     lessonContents,
     tabButtons,
     tabsContainer = null,
+    scrollBehavior = 'smooth',
 }) {
+    const targetLesson = Array.from(lessonContents).find((content) => content.id === lessonId);
+    const targetButton = Array.from(tabButtons).find((button) => button.getAttribute('data-lesson') === lessonId);
+    if (!targetLesson || !targetButton) return false;
+
     lessonContents.forEach((content) => {
         content.classList.remove('active');
         content.style.display = 'none';
@@ -18,21 +23,35 @@ export function updateLessonView({
         const isActive = button.getAttribute('data-lesson') === lessonId;
         button.classList.toggle('active', isActive);
         button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        button.setAttribute('tabindex', isActive ? '0' : '-1');
         if (isActive) {
-            button.removeAttribute('tabindex');
             if (tabsContainer && tabsContainer.scrollWidth > tabsContainer.clientWidth) {
-                button.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                button.scrollIntoView({ behavior: scrollBehavior, inline: 'center', block: 'nearest' });
             }
-        } else {
-            button.setAttribute('tabindex', '-1');
         }
     });
 
-    const targetLesson = Array.from(lessonContents).find((content) => content.id === lessonId);
-    if (targetLesson) {
-        targetLesson.style.display = 'block';
-        targetLesson.removeAttribute('hidden');
-        targetLesson.classList.add('active');
+    targetLesson.style.display = 'block';
+    targetLesson.removeAttribute('hidden');
+    targetLesson.classList.add('active');
+    return true;
+}
+
+export function getLessonTabTargetIndex(currentIndex, key, length) {
+    if (!Number.isInteger(currentIndex) || currentIndex < 0 || currentIndex >= length || length <= 0) return -1;
+    if (key === 'ArrowRight') return (currentIndex + 1) % length;
+    if (key === 'ArrowLeft') return (currentIndex - 1 + length) % length;
+    if (key === 'Home') return 0;
+    if (key === 'End') return length - 1;
+    return -1;
+}
+
+export function prefersReducedLessonMotion({ documentRef, windowRef }) {
+    if (documentRef?.documentElement?.classList?.contains('a11y-reduce-animations')) return true;
+    try {
+        return !!windowRef?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+    } catch {
+        return false;
     }
 }
 
@@ -88,25 +107,30 @@ export function createLessonsPageController(options) {
     let currentLessonId = lessonsOrder[0] || 'lesson1';
 
     function openLesson(lessonId, pushState = true) {
-        currentLessonId = lessonId;
-        updateLessonView({
+        if (!lessonsOrder.includes(lessonId)) return false;
+        const scrollBehavior = prefersReducedLessonMotion({ documentRef, windowRef }) ? 'auto' : 'smooth';
+        const didUpdate = updateLessonView({
             lessonId,
             lessonContents,
             tabButtons,
             tabsContainer,
+            scrollBehavior,
         });
+        if (!didUpdate) return false;
+        currentLessonId = lessonId;
         updateLessonNavigationButtons({
             lessonContents,
             lessonsOrder,
             currentLessonId,
         });
-        windowRef.scrollTo({ top: 0, behavior: 'smooth' });
+        windowRef.scrollTo({ top: 0, behavior: scrollBehavior });
 
         if (pushState && windowRef.history?.pushState) {
             const url = new URL(windowRef.location.href);
             url.searchParams.set('lesson', lessonId);
             windowRef.history.pushState({ lesson: lessonId }, '', url);
         }
+        return true;
     }
 
     function init() {
@@ -114,6 +138,16 @@ export function createLessonsPageController(options) {
             button.addEventListener('click', () => {
                 openLesson(button.getAttribute('data-lesson'));
             });
+        });
+
+        tabsContainer?.addEventListener('keydown', (event) => {
+            const currentIndex = tabButtons.indexOf(event.target);
+            const targetIndex = getLessonTabTargetIndex(currentIndex, event.key, tabButtons.length);
+            if (targetIndex < 0) return;
+            event.preventDefault();
+            const targetButton = tabButtons[targetIndex];
+            const lessonId = targetButton.getAttribute('data-lesson');
+            if (openLesson(lessonId)) targetButton.focus();
         });
 
         lessonContents.forEach((content) => {

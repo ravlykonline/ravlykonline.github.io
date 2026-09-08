@@ -14,8 +14,22 @@ export function normalizeConditionKey(rawKey) {
     };
     return aliases[value] || value;
 }
-function evaluateCompareOp(left, right, op) {
-    if (!Number.isFinite(left) || !Number.isFinite(right)) return false;
+function createConditionValueError(node, fallbackNode) {
+    const error = new Error(ERROR_MESSAGES.CONDITION_VALUE_INVALID);
+    error.name = 'RavlykError';
+    error.messageKey = 'CONDITION_VALUE_INVALID';
+    attachAstErrorLocation(error, node);
+    attachAstErrorLocation(error, fallbackNode);
+    return error;
+}
+
+function evaluateCompareOp(left, right, op, condition) {
+    if (!Number.isFinite(left)) {
+        throw createConditionValueError(condition.left, condition);
+    }
+    if (!Number.isFinite(right)) {
+        throw createConditionValueError(condition.right, condition);
+    }
     if (op === '=') return left === right;
     if (op === '!=') return left !== right;
     if (op === '<') return left < right;
@@ -33,7 +47,7 @@ export function evaluateAstCondition(condition, { evalAstNumberExpression, env, 
     if (condition.type === 'CompareCondition') {
         const left = evalAstNumberExpression(condition.left, env);
         const right = evalAstNumberExpression(condition.right, env);
-        return evaluateCompareOp(left, right, condition.op);
+        return evaluateCompareOp(left, right, condition.op, condition);
     }
     if (condition.type === 'EdgeCondition') {
         return isAtCanvasEdge();
@@ -44,3 +58,5 @@ export function evaluateAstCondition(condition, { evalAstNumberExpression, env, 
     }
     return false;
 }
+import { ERROR_MESSAGES } from './constants.js';
+import { attachAstErrorLocation } from './interpreterAstEval.js';

@@ -11,11 +11,13 @@
 7. Check that `robots.txt` still points to the production sitemap and that `sitemap.xml` includes all public pages.
 8. Verify `sw.js` and public HTML files share the same release token and versioned asset URLs.
 9. Smoke-check `index.html`, `manual.html`, `lessons.html`, `quiz.html`, `about.html`, and `privacy.html` on the production domain.
+10. Verify the generated critical precache contains the editor, manual, lessons and their JS/CSS dependencies; simulate one critical failure and one optional-media failure.
 
 ## After Deploy
 
 1. Open `https://ravlyk.org/` in a fresh private window.
 2. Confirm service worker registration succeeds and offline reload works after one warm load.
-3. Confirm public pages include the Cloudflare Web Analytics beacon and do not include Google Analytics scripts.
-4. Verify download, share, and accessibility controls still work on desktop and one mobile device.
-5. Confirm intended public projects (`old`, `artist`, `game`, `go`) return `200`, while tests, logs, backups, and `maisternia` remain unavailable.
+3. In an already-open tab, perform an upgrade smoke: reload after the new worker activates, verify current HTML/JS/CSS are used, then verify the warm-cache pages offline. `skipWaiting`/`clients.claim` do not by themselves guarantee that every already-open tab avoids mixed versions.
+4. Confirm public pages include the Cloudflare Web Analytics beacon and do not include Google Analytics scripts.
+5. Verify download, share and accessibility controls, including PNG/TXT/GIF smoke, still work on desktop and one mobile device.
+6. Confirm intended public projects (`old`, `artist`, `game`, `go`) return `200`, while tests, logs, backups, and `maisternia` remain unavailable.

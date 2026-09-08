@@ -1,4 +1,5 @@
 ﻿import { test, expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 
 const GAME_CODE = [
   '\u0433\u0440\u0430\u0442\u0438 (',
@@ -334,6 +335,76 @@ test.describe('Ravlyk UI smoke', () => {
 
     const suggestedName = download.suggestedFilename();
     expect(suggestedName).toMatch(/^ravlyk-code-\d+\.txt$/);
+  });
+
+  test('download modal can export a short animation as GIF', async ({ page }) => {
+    await page.fill('#code-editor', 'повторити 4 ( вперед 20 праворуч 90 )');
+    await page.locator('#download-btn').click();
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.locator('#download-gif-btn').click(),
+    ]);
+
+    expect(download.suggestedFilename()).toMatch(/^ravlyk-анімація-\d+\.gif$/);
+
+    // Read the bytes the Worker actually produced, not just the download event.
+    const savedPath = await download.path();
+    const header = (await readFile(savedPath)).subarray(0, 6).toString('latin1');
+    expect(header).toBe('GIF89a');
+
+    await expect(page.locator('#gif-progress-overlay')).toHaveClass(/hidden/);
+    await expect(page.locator('#run-btn')).toBeEnabled();
+  });
+
+  test('cancelling a GIF recording downloads nothing and frees the editor', async ({ page }) => {
+    const downloads = [];
+    page.on('download', (download) => downloads.push(download));
+
+    await page.fill('#code-editor', 'повторити 80 ( вперед 5 праворуч 4.5 )');
+    await page.locator('#download-btn').click();
+    await page.locator('#download-gif-btn').click();
+
+    const overlay = page.locator('#gif-progress-overlay');
+    await expect(overlay).not.toHaveClass(/hidden/);
+    await page.locator('#cancel-gif-btn').click();
+
+    await expect(overlay).toHaveClass(/hidden/);
+    await expect(page.locator('#run-btn')).toBeEnabled();
+    expect(downloads).toHaveLength(0);
+
+    // A cancelled export must leave the editor usable for an ordinary run.
+    await page.fill('#code-editor', 'вперед 30');
+    await page.locator('#run-btn').click();
+    await expect(page.locator('#run-btn')).toBeEnabled();
+  });
+
+  test('GIF export refuses a game program without clearing the drawing', async ({ page }) => {
+    const countDrawnPixels = () => page.evaluate(() => {
+      const canvas = document.getElementById('ravlyk-canvas');
+      const ctx = canvas?.getContext?.('2d');
+      if (!canvas || !ctx) return 0;
+      const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let colored = 0;
+      for (let index = 3; index < pixels.length; index += 4) {
+        if (pixels[index] > 0) colored += 1;
+      }
+      return colored;
+    });
+
+    await page.fill('#code-editor', 'повторити 4 ( вперед 40 праворуч 90 )');
+    await page.locator('#run-btn').click();
+    await expect(page.locator('#run-btn')).toBeEnabled();
+    const pixelsBeforeGifAttempt = await countDrawnPixels();
+    expect(pixelsBeforeGifAttempt).toBeGreaterThan(0);
+
+    await page.fill('#code-editor', GAME_CODE);
+    await page.locator('#download-btn').click();
+    await page.locator('#download-gif-btn').click();
+
+    await expect(page.locator('#global-message-display'))
+      .toContainText('Запис GIF поки доступний для малювання');
+    await expect.poll(countDrawnPixels).toBe(pixelsBeforeGifAttempt);
   });
 
   test('switching mobile workspace tabs keeps drawn canvas content', async ({ page }, testInfo) => {

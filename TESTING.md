@@ -32,6 +32,7 @@ npm run precache:check   # перевірити, що згенерований S
 npm run html:sync-partials # синхронізація спільних HTML-блоків
 npm run html:check-partials # перевірка синхронізації shared HTML без запису файлів
 npm run docs:check        # локальні Markdown-посилання й синхронність документованих лімітів
+npm run perf:ast          # browser benchmark parsing та одного синхронного runtime.step
 npm run release:sync-version -- YYYY-MM-DD-N  # синхронізація release-версії
 ```
 
@@ -40,6 +41,14 @@ npm run release:sync-version -- YYYY-MM-DD-N  # синхронізація relea
 ```bash
 npx playwright install chromium firefox webkit
 ```
+
+CI використовує саме ці pinned-браузери. Якщо локально встановлено інший build і Playwright повідомляє `Executable doesn't exist`, для запуску chromium-проєктів можна тимчасово вказати системний Chrome:
+
+```bash
+RAVLYK_BROWSER_PATH="C:/Program Files/Google/Chrome/Application/chrome.exe" npm run test:e2e -- --project=chromium
+```
+
+Змінна діє лише на `chromium`, `mobile-chrome` і `tablet-chrome`. Результат такого прогону не еквівалентний CI: він отриманий на неpinned-браузері, і це треба зазначати у звіті про перевірки. Правильне рішення — переустановити браузери командою вище.
 
 ## 4. Структура тестів
 
@@ -59,6 +68,8 @@ tests/
   analytics.test.js              — Cloudflare Web Analytics beacon і відсутність Google Analytics
   lessons.test.js                — lessons-контролер та структура сторінки
   manual.test.js                 — manual-контролер та структура сторінки
+  learningExamples.test.js       — виконувані контракти прикладів безпосередньо з lessons.html і manual.html
+  canvasState.test.js            — навчальні координати, читання стану та bounded-журнал завершених примітивів
   quiz.test.js                   — quiz bank, теми, контракти питань
   randomResolver.test.js         — генератор випадкових значень
   encoding.test.js               — UTF-8, BOM, відсутність v4beta-шляхів, структурні регресії, shared HTML partials
@@ -106,10 +117,12 @@ tests/
 - defaults з урахуванням `prefers-reduced-motion`
 - toggle класів і збереження налаштувань
 - іконки сповіщень
+- keyboard tabs уроків, навчальні X/Y/кут полотна, читання стану на запит і bounded-журнал
 
 **Page-level contracts:**
 - lessons: порядок уроків, URL-резолвер, prev/next стан
 - manual: секції, deep-link aliases, пагінація, фільтри
+- навчальні приклади: унікальні `data-example-id`, очікувані помилки, примітиви, змінні, траєкторії та обмежені game ticks через production parser/runtime. Покриті також навмисно помилкові приклади вправ «Знайди помилку» (уроки 1, 2, 4, 6, 8, 9): для них зафіксовано саме хибну поведінку — незамкнений контур, зайва сполучна лінія чи подвійна зміна кольору — щоб виправлення не втратило навчальний сенс
 - quiz: теми, контракти питань
 - encoding: UTF-8, відсутність BOM, відсутність `/v4beta/`-шляхів
 - release version: синхронізація SW та HTML
@@ -120,11 +133,23 @@ tests/
 - вибір прикладу: непорожній відмінний код не замінюється без явного підтвердження
 - accessibility panel: focus trap, high contrast, persistence
 - game mode: блокування scroll, start/stop
-- download: PNG та TXT export
+- download: PNG, TXT і GIF export; GIF-тест читає збережений файл і перевіряє сигнатуру `GIF89a`, а окремі тести покривають скасування без завантаження файлу та відмову для ігрової програми без очищення малюнка
 - mobile tabs: збереження canvas при перемиканні
-- offline PWA: сторінки доступні після warm cache
+- offline PWA: сторінки доступні після warm cache, runtime HTML має пріоритет, versioned static miss не підміняється bare URL
 
-## 6. CI
+## 6. Browser performance boundary
+
+Команда `npm run perf:ast` запускає production parser/runtime у headless Chrome, відкидає 3 warmup runs і окремо міряє 10 запусків parsing та одного `runtime.step()`. Вона використовує Playwright Chromium або шлях із `RAVLYK_BROWSER_PATH` і не змінює runtime budgets.
+
+Вимірювання 2026-09-08: Windows 10 x64, Google Chrome 152 headless, 20 logical processors (`navigator.hardwareConcurrency`), 16 GiB browser-reported device memory, viewport 1280×720. Локальний Node для orchestration — v22.23.0; CI-контракт залишається Node 24.
+
+- вираз із 200 доданків усередині 500 повторів: parse min/median/max 0.3/0.5/1.3 ms; один `runtime.step()` 2.9/3.1/3.4 ms;
+- вкладені порожні цикли 500×500: parse 0/0/0.1 ms; один `runtime.step()` 0/0.1/0.4 ms;
+- задач понад 50 ms: 0 з 10 у кожному вимірі.
+
+На цьому пристрої підстав для cooperative yield не відтворено, тому runtime не ускладнювався. Це локальна межа перевірки, а не універсальна гарантія для слабших шкільних пристроїв.
+
+## 7. CI
 
 Файл: `.github/workflows/ci.yml`
 
@@ -143,17 +168,19 @@ tests/
 - npm run test:e2e -- --reporter=dot
 ```
 
-## 7. Що залишається ручною перевіркою
+## 8. Що залишається ручною перевіркою
 
 - Screen reader smoke на `index.html`, `manual.html`, `lessons.html`
 - Фінальна візуальна перевірка larger text, reduced motion, simpler font, increased spacing
 - Крос-браузерний manual smoke в Chrome, Edge, Firefox, Safari
 - Production PWA smoke після deploy; локальний E2E уже перевіряє offline reload після warm cache
+- Service Worker upgrade smoke між двома справжніми release tokens у вже відкритій вкладці
+- Відкриття збереженого GIF у переглядачі зображень і перевірка, що анімація виглядає правильно. Успішне кодування, cancel і frame/byte limit уже покриті автоматично (`index.smoke.spec.js`, `gifExport.test.js`); ручною лишається саме візуальна оцінка результату
 
 Детальний чеклист: [`ACCESSIBILITY_CHECKLIST.md`](ACCESSIBILITY_CHECKLIST.md)
 
-## 8. Відомі обмеження
+## 9. Відомі обмеження
 
 - Firefox E2E (`firefox-smoke`) може не запускатися в headless-режимі на Windows через системні залежності. На CI (Linux) працює нормально.
 - Firefox/WebKit smoke покриває `cross-browser.smoke.spec.js` (6 тестів), зокрема вихід із редактора клавіатурою, захист коду під час вибору прикладу та збереження малюнка після помилок.
-- Offline PWA тест (`pwa.offline.spec.js`) вимагає попереднього warm cache і не гарантує першого офлайн-завантаження.
+- Offline PWA тест (`pwa.offline.spec.js`) вимагає попереднього warm cache і не гарантує першого офлайн-завантаження або upgrade між двома production-релізами.

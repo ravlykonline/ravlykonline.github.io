@@ -113,6 +113,49 @@ runTest('interpreter game AST runner throws when no game block is present', () =
     }, /GAME_NOT_SUPPORTED_HERE/);
 });
 
+runTest('interpreter game AST runner rejects WaitStmt in a manually supplied AST', () => {
+    class FakeEnv {
+        define() {}
+        set() {}
+        get() { return 0; }
+    }
+    class FakeRavlykError extends Error {
+        constructor(code) {
+            super(code);
+            this.name = 'RavlykError';
+            this.messageKey = code;
+        }
+    }
+    const waitStmt = {
+        type: 'WaitStmt',
+        duration: { type: 'NumberLiteral', value: 1 },
+        span: { start: { line: 4, column: 3, token: 'чекати' } },
+    };
+    const runner = createGameAstRunner({
+        programAst: { type: 'Program', body: [{ type: 'GameStmt', body: [waitStmt] }] },
+        EnvironmentCtor: FakeEnv,
+        RavlykErrorCtor: FakeRavlykError,
+        maxRecursionDepth: 2,
+        maxRepeatsInLoop: 10,
+        maxGameTickOperations: 20,
+        evalAstNumberExpression(expr) { return expr.value; },
+        handlePrimitiveAstStatement() { assert.fail('WaitStmt must not reach immediate execution'); },
+        evaluateCondition() { return false; },
+        attachAstErrorLocation(error, node) {
+            error.line = node.span.start.line;
+            error.column = node.span.start.column;
+            error.token = node.span.start.token;
+        },
+    });
+
+    assert.throws(
+        () => runner.runGameTick(),
+        (error) => error?.messageKey === 'WAIT_IN_GAME_MODE'
+            && error.line === 4
+            && error.token === 'чекати'
+    );
+});
+
 runTest('interpreter game-contract helper detects nested game and rejects invalid top-level', () => {
     assert.equal(
         hasGameStatement({

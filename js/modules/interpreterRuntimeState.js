@@ -1,6 +1,7 @@
 export function stopExecutionRuntime({ runtime, createStopError, stopGameLoop }) {
     runtime.shouldStop = true;
     runtime.isPaused = false;
+    runtime.animationStopHandler?.();
     stopGameLoop(createStopError());
 }
 

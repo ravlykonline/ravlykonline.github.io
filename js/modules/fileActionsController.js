@@ -5,7 +5,7 @@ import {
 } from './share.js';
 import { composeCanvasLayersForExport } from './backgroundLayer.js';
 import { createGifCapture } from './gifCapture.js';
-import { encodeGif } from './gifEncoder.js';
+import { createGifEncodingController } from './gifEncodingController.js';
 
 export function createFileActionsController({
     canvas,
@@ -21,8 +21,14 @@ export function createFileActionsController({
     onCodeLoaded,
     getCanvasBackgroundColor,
     interpreter,
+    executionController,
     onGifProgress,
+    createGifCaptureFn = createGifCapture,
+    createGifEncodingControllerFn = createGifEncodingController,
 }) {
+    let gifExportActive = false;
+    let activeGifCapture = null;
+    let activeGifEncoding = null;
     function saveDrawing() {
         try {
             const tempCanvas = document.createElement('canvas');
@@ -60,7 +66,8 @@ export function createFileActionsController({
             if (error.name === 'SecurityError' && error.message.includes('tainted')) {
                 showError(errorMessages.SAVE_IMAGE_SECURITY_ERROR, 0);
             } else {
-                showError(errorMessages.SAVE_IMAGE_ERROR(error.message), 0);
+                showError(errorMessages.SAVE_IMAGE_ERROR, 0);
+                console.error('Unexpected image export error:', error);
             }
         }
     }
@@ -78,7 +85,8 @@ export function createFileActionsController({
             URL.revokeObjectURL(link.href);
             showSuccessMessage('Код збережено!');
         } catch (error) {
-            showError(`Не вдалося зберегти код: ${error.message}`, 0);
+            showError(errorMessages.SAVE_CODE_ERROR, 0);
+            console.error('Unexpected code export error:', error);
         }
     }
 
@@ -110,12 +118,20 @@ export function createFileActionsController({
     function loadCodeFromUrlHash() {
         const hashRaw = String(window.location.hash || '');
         if (!hashRaw.startsWith('#')) return;
+        if (hashRaw.length > maxShareUrlLengthChars) {
+            showError(errorMessages.SHARE_LINK_TOO_LONG, 0);
+            return;
+        }
         const hashValue = hashRaw.slice(1);
         if (!hashValue) return;
 
         const hashParams = new URLSearchParams(hashValue);
         const encodedCode = hashParams.get('code');
         if (!encodedCode) return;
+        if (encodedCode.length > maxShareUrlLengthChars) {
+            showError(errorMessages.SHARE_LINK_TOO_LONG, 0);
+            return;
+        }
 
         try {
             const decodedCode = decodeCodeFromUrlHash(encodedCode);
@@ -127,85 +143,109 @@ export function createFileActionsController({
             onCodeLoaded?.();
             showInfoMessage('Код завантажено з посилання. Переглянь його перед запуском.', 0);
         } catch {
-            showError('Посилання з кодом пошкоджене або неповне.', 0);
+            showError(errorMessages.SHARE_LINK_INVALID, 0);
         }
     }
 
     async function saveGif() {
-        if (!interpreter) return;
+        if (!interpreter || !executionController || gifExportActive) return;
         const code = codeEditor.value?.trim();
         if (!code) {
             showInfoMessage('Поле коду порожнє. Додай команди перед записом GIF.');
             return;
         }
-        if (interpreter.isExecuting) {
+        if (interpreter.isExecuting || executionController.isSessionActive()) {
             showInfoMessage('Зачекай, поки завершиться поточне виконання.');
             return;
         }
 
-        const gifCapture = createGifCapture({
+        const gifCapture = createGifCaptureFn({
             canvas,
             backgroundCanvas,
             getCanvasBackgroundColor,
             onProgress: (pct) => onGifProgress?.('record', pct),
+            onLimit: () => executionController.cancelActiveSession('capture-limit'),
         });
+        gifExportActive = true;
+        activeGifCapture = gifCapture;
+        onGifProgress?.('record', 0);
 
-        try {
-            onGifProgress?.('record', 0);
-
-            // Reset canvas and re-run with capture active
-            interpreter.reset();
-            interpreter.gifCapture = gifCapture;
-            gifCapture.start();
-
-            await interpreter.executeCommands(code);
-
+        const cleanupGif = () => {
+            if (!gifExportActive) return;
             gifCapture.stop();
-            interpreter.gifCapture = null;
-
-            if (!gifCapture.hasFrames()) {
-                showError('Не вдалося записати кадри. Перевір, чи є анімація у програмі.', 0);
-                onGifProgress?.(null, 0);
-                return;
-            }
-
-            onGifProgress?.('encode', 92);
-
-            // Yield to browser before encoding
-            await new Promise(r => setTimeout(r, 30));
-
-            const frames = gifCapture.getFrames();
-            const { w, h } = gifCapture.getDimensions();
-            const gifBytes = encodeGif(frames, w, h);
-
-            onGifProgress?.('done', 100);
-
-            const blob = new Blob([gifBytes], { type: 'image/gif' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.download = `ravlyk-анімація-${Date.now()}.gif`;
-            link.href = url;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-
-            showSuccessMessage('GIF збережено!');
+            if (interpreter.gifCapture === gifCapture) interpreter.gifCapture = null;
+            activeGifCapture = null;
+            activeGifEncoding?.cancel();
+            activeGifEncoding = null;
+            gifExportActive = false;
+            gifCapture.releaseFrames();
             onGifProgress?.(null, 0);
-        } catch (error) {
-            gifCapture.stop();
-            if (interpreter.gifCapture) interpreter.gifCapture = null;
-            onGifProgress?.(null, 0);
-            if (error?.messageKey !== 'EXECUTION_STOPPED_BY_USER') {
-                showError(`Не вдалося створити GIF: ${error.message ?? error}`, 0);
-            }
-        }
+        };
+
+        const result = await executionController.executeSession(code, {
+            kind: 'gif',
+            suppressSuccess: true,
+            captureTimeoutMs: 20_000,
+            cancel: () => activeGifEncoding?.cancel(),
+            beforeExecute() {
+                interpreter.gifCapture = gifCapture;
+                gifCapture.start();
+            },
+            async afterExecute() {
+                gifCapture.stop();
+                interpreter.gifCapture = null;
+                if (!gifCapture.hasFrames()) {
+                    throw new Error('GIF_CAPTURE_EMPTY');
+                }
+
+                onGifProgress?.('encode', 92);
+                await new Promise((resolve) => setTimeout(resolve, 30));
+                const frames = gifCapture.getFrames();
+                const { w, h } = gifCapture.getDimensions();
+                activeGifEncoding = createGifEncodingControllerFn();
+                const gifBytes = await activeGifEncoding.encode({ frames, width: w, height: h });
+                activeGifEncoding = null;
+                onGifProgress?.('done', 100);
+
+                const blob = new Blob([gifBytes], { type: 'image/gif' });
+                const url = URL.createObjectURL(blob);
+                try {
+                    const link = document.createElement('a');
+                    link.download = `ravlyk-анімація-${Date.now()}.gif`;
+                    link.href = url;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } finally {
+                    URL.revokeObjectURL(url);
+                }
+                showSuccessMessage('GIF збережено!');
+            },
+            onSessionError() {
+                showError(errorMessages.GIF_CREATE_ERROR, 0);
+                return true;
+            },
+            cleanup() {
+                cleanupGif();
+            },
+        });
+        cleanupGif();
+        return result;
+    }
+
+    function cancelGif() {
+        if (!gifExportActive) return false;
+        activeGifEncoding?.cancel();
+        executionController.cancelActiveSession('cancelled');
+        return true;
     }
 
     return {
         saveDrawing,
         saveCodeToFile,
         saveGif,
+        cancelGif,
+        isGifActive: () => gifExportActive && activeGifCapture !== null,
         shareCodeAsLink,
         loadCodeFromUrlHash,
     };

@@ -44,6 +44,7 @@ import {
 import {
     createLifecycleController
 } from './modules/lifecycleController.js';
+import { createCanvasStateController } from './modules/canvasStateController.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const codeEditor = document.getElementById("code-editor");
@@ -87,12 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const gifProgressOverlay = document.getElementById("gif-progress-overlay");
     const gifProgressLabel = document.getElementById("gif-progress-label");
     const gifProgressBar = document.getElementById("gif-progress-bar");
+    const cancelGifBtn = document.getElementById("cancel-gif-btn");
     const gifProgressTrack = gifProgressOverlay?.querySelector('.gif-progress-bar-track');
 
     function onGifProgress(phase, pct) {
         if (!gifProgressOverlay) return;
         if (phase === null) {
             gifProgressOverlay.classList.add('hidden');
+            downloadBtn?.focus();
             return;
         }
         gifProgressOverlay.classList.remove('hidden');
@@ -138,6 +141,16 @@ document.addEventListener('DOMContentLoaded', () => {
             backgroundCtx,
         }
     );
+    const canvasStateController = createCanvasStateController({
+        documentRef: document,
+        canvas,
+        getState: () => interpreter.state,
+    });
+    interpreter.setStateObservers({
+        onStateChanged: (_state, _canvas, reason) => canvasStateController.update(reason),
+        onPrimitiveCompleted: (primitive) => canvasStateController.recordPrimitive(primitive),
+    });
+    canvasStateController.update('reset');
     const gridOverlay = createGridOverlayController({
         canvas,
         canvasContainer,
@@ -209,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showInfoMessage,
         getCanvasBackgroundColor: () => interpreter.getCanvasBackgroundColor(),
         interpreter,
+        executionController,
         onGifProgress,
         onCodeLoaded: () => {
             editorUi.setEditorErrorLine(null);
@@ -279,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
         downloadGifBtn,
         downloadCodeBtn,
         closeDownloadModalBtn,
+        cancelGifBtn,
     });
 
 

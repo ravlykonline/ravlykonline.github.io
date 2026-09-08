@@ -60,5 +60,34 @@ test.describe('PWA offline shell', () => {
         await expect(page.locator('.quiz-question')).toHaveCount(10);
 
         expect(pageErrors, `Offline shell should not throw runtime errors: ${pageErrors.join(' | ')}`).toEqual([]);
+  });
+
+  test('runtime navigation cache is current and versioned assets require an exact key', async ({ page, context }) => {
+    await page.goto('/index.html');
+    await waitForServiceWorker(page);
+    await page.reload({ waitUntil: 'networkidle' });
+
+    await page.goto('/manual.html?runtime-cache-smoke=1', { waitUntil: 'domcontentloaded' });
+    const runtimeKeys = await page.evaluate(async () => {
+      const names = await caches.keys();
+      const runtimeName = names.find((name) => name.startsWith('ravlyk-runtime-'));
+      if (!runtimeName) return [];
+      return (await (await caches.open(runtimeName)).keys()).map((request) => request.url);
     });
+    expect(runtimeKeys.some((url) => url.endsWith('/manual.html?runtime-cache-smoke=1'))).toBe(true);
+
+    await context.setOffline(true);
+    await page.goto('/manual.html?runtime-cache-smoke=1', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('main#main-content')).toBeVisible();
+
+    const versionedMiss = await page.evaluate(async () => {
+      try {
+        await fetch('/js/main.js?v=not-the-active-release');
+        return false;
+      } catch {
+        return true;
+      }
+    });
+    expect(versionedMiss).toBe(true);
+  });
 });

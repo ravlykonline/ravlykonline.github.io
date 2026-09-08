@@ -93,19 +93,31 @@ export function buildPrecacheManifest({ projectRoot = defaultProjectRoot } = {})
     const versionedPaths = new Set(versionedUrls.map((url) => url.split('?')[0]));
     const unversionedUrls = staticUrls.filter((url) => !versionedPaths.has(url));
 
+    const urls = [...new Set([
+        ...(config.routeAliases || []),
+        ...unversionedUrls,
+        ...versionedUrls,
+    ])];
+    const routeAliases = new Set(config.routeAliases || []);
+    const criticalExtensions = new Set(config.criticalExtensions || []);
+    const criticalUrls = urls.filter((url) => {
+        if (routeAliases.has(url)) return true;
+        return criticalExtensions.has(path.posix.extname(url.split('?')[0]).toLowerCase());
+    });
+    const criticalUrlSet = new Set(criticalUrls);
+
     return {
         extensions: [...precacheExtensions],
-        urls: [...new Set([
-            ...(config.routeAliases || []),
-            ...unversionedUrls,
-            ...versionedUrls,
-        ])],
+        urls,
+        criticalUrls,
+        optionalUrls: urls.filter((url) => !criticalUrlSet.has(url)),
     };
 }
 
 function renderGeneratedBlock(manifest) {
     const extensions = manifest.extensions.map((extension) => `    '${extension}',`).join('\n');
-    const urls = manifest.urls.map((url) => `    '${url}',`).join('\n');
+    const criticalUrls = manifest.criticalUrls.map((url) => `    '${url}',`).join('\n');
+    const optionalUrls = manifest.optionalUrls.map((url) => `    '${url}',`).join('\n');
 
     return [
         START_MARKER,
@@ -115,8 +127,12 @@ function renderGeneratedBlock(manifest) {
         extensions,
         ']);',
         '',
-        'const PRECACHE_URLS = [',
-        urls,
+        'const CRITICAL_PRECACHE_URLS = [',
+        criticalUrls,
+        '];',
+        '',
+        'const OPTIONAL_PRECACHE_URLS = [',
+        optionalUrls,
         '];',
         END_MARKER,
     ].join('\n');

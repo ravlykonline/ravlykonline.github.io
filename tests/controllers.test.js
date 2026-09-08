@@ -8,7 +8,62 @@ import {
     shouldConfirmExampleReplacement,
 } from '../js/modules/editorInputController.js';
 import { createLifecycleController } from '../js/modules/lifecycleController.js';
+import { encodeCodeForUrlHash } from '../js/modules/share.js';
 import { runAsyncTest, runTest } from './testUtils.js';
+
+function createExecutionHarness({
+    code = 'вперед 10',
+    maxCodeLength = 1000,
+    prepareProgram = () => ({ type: 'Program', body: [] }),
+    executeProgram = async () => {},
+} = {}) {
+    const state = { resetCalls: 0, errors: [], infos: [], successes: [], stopCalls: 0 };
+    const interpreter = {
+        isExecuting: false,
+        shouldStop: false,
+        pauseExecution() {},
+        resumeExecution() {},
+        stopExecution() { state.stopCalls += 1; },
+        reset() { state.resetCalls += 1; },
+        setAnimationEnabled() {},
+        setSpeed() {},
+        wasBoundaryWarningShown() { return false; },
+        prepareProgram,
+        executeProgram,
+    };
+    const controller = createExecutionController({
+        interpreter,
+        codeEditor: { disabled: false, value: code },
+        editorUi: {
+            setEditorErrorLine() {},
+            getFriendlyExecutionError(_source, error) { return { line: error.line || null, message: error.message }; },
+            focusEditorLine() {},
+        },
+        uiControls: {
+            runBtn: { disabled: false }, stopBtn: { disabled: true }, clearBtn: { disabled: false },
+            downloadBtn: { disabled: false }, shareBtn: { disabled: false }, gridBtn: { disabled: false },
+            helpBtn: { disabled: false }, exampleBlocks: [],
+        },
+        messages: {
+            ERROR_MESSAGES: {
+                EXECUTION_IN_PROGRESS: 'busy', CODE_TOO_LONG: 'too long', EXECUTION_TIMEOUT: 'timeout',
+                EXECUTION_STOPPED_BY_USER: 'stopped', GIF_GAME_UNSUPPORTED: 'game gif blocked',
+                GIF_CAPTURE_LIMIT_SAVED: 'capture saved', UNEXPECTED_EXECUTION_ERROR: 'unexpected',
+            },
+            SUCCESS_MESSAGES: { CODE_EXECUTED: 'done' },
+            INFO_MESSAGES: { EXECUTION_STOPPED: 'stopped' },
+        },
+        limits: { MAX_CODE_LENGTH_CHARS: maxCodeLength, EXECUTION_TIMEOUT_MS: 180000 },
+        animationDefaults: { DEFAULT_MOVE_PIXELS_PER_SECOND: 100, DEFAULT_TURN_DEGREES_PER_SECOND: 90 },
+        uiHandlers: {
+            showError(message) { state.errors.push(message); },
+            showInfoMessage(message) { state.infos.push(message); },
+            showSuccessMessage(message) { state.successes.push(message); },
+            showStopConfirmModal() {}, hideStopConfirmModal() {}, updateCommandIndicator() {},
+        },
+    });
+    return { controller, interpreter, state };
+}
 
 runTest('execution controller updates toolbar controls for execution state', () => {
     const runBtn = { disabled: false };
@@ -636,6 +691,62 @@ runTest('file actions controller loads code from hash and invokes callback', () 
     global.window = previousWindow;
 });
 
+runTest('file actions controller rejects malformed and oversized share payloads without changing code', () => {
+    const previousWindow = global.window;
+    const codeEditor = { value: 'залишити цей код' };
+    const errors = [];
+    const makeController = () => createFileActionsController({
+        canvas: { width: 1, height: 1, parentElement: {} },
+        codeEditor,
+        maxCodeLengthChars: 12,
+        maxShareUrlLengthChars: 30,
+        errorMessages: {
+            CODE_TOO_LONG: 'code too long', SHARE_LINK_INVALID: 'invalid',
+            SHARE_LINK_TOO_LONG: 'share too long',
+        },
+        successMessages: {},
+        showError(message) { errors.push(message); },
+        showSuccessMessage() {}, showInfoMessage() {}, onCodeLoaded() {},
+    });
+
+    global.window = { location: { hash: '#code=%%%invalid%%%' } };
+    makeController().loadCodeFromUrlHash();
+    assert.equal(codeEditor.value, 'залишити цей код');
+
+    global.window.location.hash = `#code=${'a'.repeat(40)}`;
+    makeController().loadCodeFromUrlHash();
+    assert.equal(codeEditor.value, 'залишити цей код');
+
+    const decodedTooLong = encodeCodeForUrlHash('1234567890123');
+    global.window.location.hash = `#code=${decodedTooLong}`;
+    makeController().loadCodeFromUrlHash();
+    assert.equal(codeEditor.value, 'залишити цей код');
+    assert.deepEqual(errors, ['invalid', 'share too long', 'code too long']);
+    global.window = previousWindow;
+});
+
+runTest('file actions controller preserves Unicode share code and never auto-runs it', () => {
+    const previousWindow = global.window;
+    const source = 'вперед 10\n// 🐌';
+    global.window = { location: { hash: `#code=${encodeCodeForUrlHash(source)}` } };
+    const codeEditor = { value: '' };
+    let loaded = 0;
+    let executed = 0;
+    const controller = createFileActionsController({
+        canvas: { width: 1, height: 1, parentElement: {} }, codeEditor,
+        maxCodeLengthChars: 100, maxShareUrlLengthChars: 7000,
+        errorMessages: { CODE_TOO_LONG: '', SHARE_LINK_INVALID: '', SHARE_LINK_TOO_LONG: '' },
+        successMessages: {}, showError() {}, showSuccessMessage() {}, showInfoMessage() {},
+        onCodeLoaded() { loaded += 1; },
+        interpreter: { executeProgram() { executed += 1; } },
+    });
+    controller.loadCodeFromUrlHash();
+    assert.equal(codeEditor.value, source);
+    assert.equal(loaded, 1);
+    assert.equal(executed, 0);
+    global.window = previousWindow;
+});
+
 runTest('navigation prefetch controller opens new tab with noopener,noreferrer', () => {
     const previousWindow = global.window;
     let openArgs = null;
@@ -1064,6 +1175,104 @@ runTest('lifecycle controller initializes runtime and registers resize fallback'
 
     global.ResizeObserver = previousResizeObserver;
     global.window = previousWindow;
+});
+
+await runAsyncTest('execution session rejects invalid and oversized GIF code before reset', async () => {
+    const invalid = createExecutionHarness({
+        prepareProgram() {
+            const error = new Error('bad code');
+            error.name = 'RavlykError';
+            throw error;
+        },
+    });
+    assert.equal(await invalid.controller.executeSession('bad', { kind: 'gif' }), 'failed');
+    assert.equal(invalid.state.resetCalls, 0);
+
+    const oversized = createExecutionHarness({ maxCodeLength: 3 });
+    assert.equal(await oversized.controller.executeSession('1234', { kind: 'gif' }), 'failed');
+    assert.equal(oversized.state.resetCalls, 0);
+});
+
+await runAsyncTest('execution session rejects game GIF before reset', async () => {
+    const harness = createExecutionHarness({
+        prepareProgram: () => ({ type: 'Program', body: [{ type: 'GameStmt', body: [] }] }),
+    });
+    const result = await harness.controller.executeSession('грати ()', { kind: 'gif' });
+    assert.equal(result, 'failed');
+    assert.equal(harness.state.resetCalls, 0);
+    assert.deepEqual(harness.state.errors, ['game gif blocked']);
+});
+
+await runAsyncTest('execution session cancellation settles and releases the session', async () => {
+    let rejectExecution;
+    const harness = createExecutionHarness({
+        executeProgram: () => new Promise((_resolve, reject) => { rejectExecution = reject; }),
+    });
+    harness.interpreter.stopExecution = () => {
+        harness.state.stopCalls += 1;
+        const error = new Error('stopped');
+        error.name = 'RavlykError';
+        rejectExecution(error);
+    };
+    let cleanupCalls = 0;
+    const running = harness.controller.executeSession('вперед 10', {
+        kind: 'gif', cleanup() { cleanupCalls += 1; },
+    });
+    await Promise.resolve();
+    assert.equal(harness.controller.cancelActiveSession('cancelled'), true);
+    assert.equal(await running, 'cancelled');
+    assert.equal(cleanupCalls, 1);
+    assert.equal(harness.controller.isSessionActive(), false);
+
+    harness.interpreter.executeProgram = async () => {};
+    assert.equal(await harness.controller.executeSession('вперед 1'), 'completed');
+});
+
+await runAsyncTest('execution session capture timer returns capture-limit without real waiting', async () => {
+    const previousSetTimeout = global.setTimeout;
+    const previousClearTimeout = global.clearTimeout;
+    const timers = new Map();
+    global.setTimeout = (callback, delay) => {
+        timers.set(delay, callback);
+        return delay;
+    };
+    global.clearTimeout = () => {};
+
+    let rejectExecution;
+    const harness = createExecutionHarness({
+        executeProgram: () => new Promise((_resolve, reject) => { rejectExecution = reject; }),
+    });
+    harness.interpreter.stopExecution = () => {
+        const error = new Error('stopped');
+        error.name = 'RavlykError';
+        rejectExecution(error);
+    };
+    let encoded = false;
+    const running = harness.controller.executeSession('вперед 10', {
+        kind: 'gif',
+        captureTimeoutMs: 20000,
+        afterExecute() { encoded = true; },
+    });
+    await Promise.resolve();
+    timers.get(20000)();
+    assert.equal(await running, 'capture-limit');
+    assert.equal(encoded, true);
+    assert.deepEqual(harness.state.infos, ['capture saved']);
+
+    global.setTimeout = previousSetTimeout;
+    global.clearTimeout = previousClearTimeout;
+});
+
+await runAsyncTest('execution session never exposes an unexpected system error message', async () => {
+    const previousConsoleError = console.error;
+    console.error = () => {};
+    const harness = createExecutionHarness({
+        executeProgram: async () => { throw new Error('TypeError: internal detail'); },
+    });
+    assert.equal(await harness.controller.executeSession('вперед 1'), 'failed');
+    assert.deepEqual(harness.state.errors, ['unexpected']);
+    assert.equal(harness.state.errors.join(' ').includes('internal detail'), false);
+    console.error = previousConsoleError;
 });
 
 console.log('Controller tests completed.');

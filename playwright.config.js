@@ -1,5 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const localChromiumLaunch = process.env.RAVLYK_BROWSER_PATH
+  ? { launchOptions: { executablePath: process.env.RAVLYK_BROWSER_PATH } }
+  : {};
+
 export default defineConfig({
   testDir: './tests/e2e',
   timeout: 30_000,
@@ -21,7 +25,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], ...localChromiumLaunch },
     },
     {
       name: 'mobile-chrome',
@@ -32,6 +36,7 @@ export default defineConfig({
         deviceScaleFactor: 3,
         isMobile: true,
         hasTouch: true,
+        ...localChromiumLaunch,
       },
     },
     {
@@ -43,6 +48,7 @@ export default defineConfig({
         deviceScaleFactor: 2,
         isMobile: true,
         hasTouch: true,
+        ...localChromiumLaunch,
       },
     },
     {

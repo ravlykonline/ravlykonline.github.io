@@ -178,6 +178,19 @@ runTest('semantic: function call with extra argument is rejected', () => {
     );
 });
 
+runTest('semantic: wrong argument count points to the call site', () => {
+    try {
+        validate('створити f(x) ( вперед x )\nf()');
+        assert.fail('Expected validation error');
+    } catch (error) {
+        assert.equal(error.name, 'RavlykError');
+        assert.equal(error.messageKey, 'FUNCTION_ARGUMENT_COUNT');
+        assert.equal(error.line, 2);
+        assert.equal(error.column, 1);
+        assert.equal(error.token, 'f');
+    }
+});
+
 runTest('semantic: function call inside function body checks argument count', () => {
     assertValidationError(
         'створити лінія(x) ( вперед x )\nстворити f() ( лінія() )',
@@ -269,6 +282,19 @@ runTest('semantic: duplicate variable declaration gives friendly redeclaration m
     }
 });
 
+runTest('semantic: duplicate variable declaration points to the second declaration', () => {
+    try {
+        validate('створити x = 1\nстворити x = 2');
+        assert.fail('Expected validation error');
+    } catch (error) {
+        assert.equal(error.name, 'RavlykError');
+        assert.equal(error.messageKey, 'VARIABLE_ALREADY_DECLARED');
+        assert.equal(error.line, 2);
+        assert.equal(error.column, 1);
+        assert.equal(error.token, 'створити');
+    }
+});
+
 runTest('semantic: re-assigning variable without створити is allowed (not a redeclaration)', () => {
     assert.doesNotThrow(() => validate('створити x = 10\nx = 20'));
 });
@@ -320,6 +346,40 @@ runTest('semantic: чекати inside грати throws WAIT_IN_GAME_MODE', () 
         () => validate('грати ( чекати 1 )'),
         (e) => e && e.name === 'RavlykError' && e.message.includes('чекати')
     );
+});
+
+runTest('semantic: чекати in a function called by грати is rejected at the wait statement', () => {
+    assert.throws(
+        () => validate('створити затримка() (\n  чекати 1\n)\nграти ( затримка() )'),
+        (error) => error?.messageKey === 'WAIT_IN_GAME_MODE'
+            && error.line === 2
+            && error.token === 'чекати'
+    );
+});
+
+runTest('semantic: транзитивний виклик з грати до чекати is rejected', () => {
+    assert.throws(
+        () => validate('створити b() ( чекати 1 )\nстворити a() ( b() )\nграти ( a() )'),
+        (error) => error?.messageKey === 'WAIT_IN_GAME_MODE'
+    );
+});
+
+runTest('semantic: recursive game function graph without чекати is valid', () => {
+    assert.doesNotThrow(() => validate(
+        'створити a() ( b() )\nстворити b() ( a() )\nграти ( a() )'
+    ));
+});
+
+runTest('semantic: uncalled function with чекати remains valid beside грати', () => {
+    assert.doesNotThrow(() => validate(
+        'створити затримка() ( чекати 1 )\nграти ( вперед 1 )'
+    ));
+});
+
+runTest('semantic: regular animation may call a function with чекати', () => {
+    assert.doesNotThrow(() => validate(
+        'створити затримка() ( чекати 1 )\nзатримка()'
+    ));
 });
 
 runTest('semantic: чекати outside грати is valid', () => {

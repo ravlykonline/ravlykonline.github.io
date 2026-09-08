@@ -13,15 +13,15 @@
     <meta name="author" content="Равлик" />
     <meta name="robots" content="index, follow" />
     <title>Посібник з мови програмування РАВЛИК 🐌 — Як програмувати та малювати кодом</title>
-    <!-- Static deployment release token: 2026-08-17-1 -->
+    <!-- Static deployment release token: 2026-09-08-1 -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-    <link rel="manifest" href="site.webmanifest?v=2026-08-17-1" />
+    <link rel="manifest" href="site.webmanifest?v=2026-09-08-1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="stylesheet" href="css/global.css?v=2026-08-17-1" />
-    <link rel="stylesheet" href="css/manual.css?v=2026-08-17-1" />
-    <link rel="stylesheet" type="text/css" href="css/accessibility.css?v=2026-08-17-1" />
+    <link rel="stylesheet" href="css/global.css?v=2026-09-08-1" />
+    <link rel="stylesheet" href="css/manual.css?v=2026-09-08-1" />
+    <link rel="stylesheet" type="text/css" href="css/accessibility.css?v=2026-09-08-1" />
     <meta property="og:type" content="article" />
     <meta property="og:locale" content="uk_UA" />
     <meta property="og:site_name" content="Мова програмування РАВЛИК" />
@@ -121,6 +121,7 @@
                     <li><a href="#variables-functions">Змінні та функції</a></li>
                     <li><a href="#reserved-words">Зарезервовані слова</a></li>
                     <li><a href="#conditions">Умови</a></li>
+                    <li><a href="#while-and-stop">Цикл поки і стоп</a></li>
                     <li><a href="#game-mode">Режим гри</a></li>
                     <li><a href="#pen-control">Олівець</a></li>
                     <li><a href="#colors">Кольори</a></li>
@@ -165,7 +166,7 @@
                         </div>
                         <div class="concept-text">
                             <p>РАВЛИК — це спеціальна мова програмування для дітей, у якій всі команди пишуться українською.</p>
-                            <p>За допомогою команд, ти керуєш маленьким Равликом 🐌 на екрані. Равлик може рухаться, повертати, змінювати колір свого сліду. Твій код одразу перетворюється на малюнок або просту гру.</p>
+                            <p>За допомогою команд ти керуєш маленьким Равликом 🐌 на екрані. Равлик може рухатися, повертати, змінювати колір свого сліду. Твій код одразу перетворюється на малюнок або просту гру.</p>
                             <p>До речі, РАВЛИК — це абревіатура від слів <b>Р</b>озвиток <b>А</b>лгоритмічних <b>В</b>мінь та <b>Л</b>огічного м<b>И</b>слення через <b>К</b>одування.</p>
 
                         </div>
@@ -195,7 +196,8 @@
                     <section class="manual-subsection" aria-labelledby="manual-intro-next-title">
                         <details>
                             <summary id="manual-intro-next-title">Що читати далі</summary>
-                            <p>Якщо ти тільки починаєш, переходь до розділів <strong>Основні команди</strong>, <strong>Повторення команд</strong> і <strong>Помилки</strong>. У них є найпотрібніші речі для перших експериментів.</p>
+                            <p>Рекомендований маршрут: <a href="#basic-commands">базові команди</a> → <a href="#colors">колір</a> → <a href="#repetition">повторення</a> → <a href="#pen-control">перо</a> → <a href="#errors">помилки</a>.</p>
+                            <p><strong>Далі, коли готовий:</strong> змінні й функції, умови, <code>поки</code>, <code>стоп</code> та ігровий режим.</p>
                         </details>
                     </section>
                 </article>
@@ -256,6 +258,19 @@
                         <li class="command-item-manual"><span class="cmd-name">// коментар</span> <span
                                 class="cmd-desc">пояснення в коді, яке Равлик не виконує.</span></li>
                     </ul>
+                    <details>
+                        <summary>Що саме змінюють очищення й повернення додому</summary>
+                        <div class="manual-table-wrap">
+                            <table class="manual-table">
+                                <thead><tr><th scope="col">Дія</th><th scope="col">Що змінюється</th><th scope="col">Що зберігається</th></tr></thead>
+                                <tbody>
+                                    <tr><td><code>очистити</code></td><td>Малюнок стерто, фон білий, товщина стандартна, вишиванка вимкнена, Равлик видимий.</td><td>Позиція, напрямок, перо й колір.</td></tr>
+                                    <tr><td><code>додому</code></td><td>Лише позиція та напрямок повертаються до початкових; рух не малює.</td><td>Малюнок, перо, колір, товщина, фон, вишиванка й видимість.</td></tr>
+                                    <tr><td>Кнопка «Очистити»</td><td>Після підтвердження очищуються код і полотно.</td><td>Налаштування доступності.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </details>
                     <section class="manual-subsection advanced-only" aria-labelledby="manual-basic-advanced-title">
                     <h3 id="manual-basic-advanced-title">Просунуті команди</h3>
                     <p>Ці команди потрібні не для першого запуску, а коли ти вже впевнено працюєш з рухом і повторенням.</p>
@@ -322,7 +337,7 @@
                     <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-repeat-start-title">
                     <div class="manual-start-example" role="region" aria-labelledby="manual-repeat-start-title">
                         <h3 id="manual-repeat-start-title">Один приклад, який економить багато рядків</h3>
-                        <pre class="example-code-manual">повторити 4 (
+                        <pre class="example-code-manual" data-example-id="manual-repeat-square" data-example-kind="runnable">повторити 4 (
   вперед 100
   праворуч 90
 )</pre>
@@ -344,9 +359,8 @@
                     <p>Команда <code>повторити</code> має таку структуру: <code>повторити N ( команди )</code>, де N -
                         кількість повторень.</p>
                     <p>Зверни увагу на дужки <code>(</code> та <code>)</code>! Важливо ставити їх правильно —
-                        відкривну дужку після числа і закривну в кінці команд, які треба повторити. Між числом та
-                        відкриваючою дужкою має бути пробіл. Команди всередині дужок пишуться з нового рядка або через
-                        пробіл.</p>
+                        відкривну дужку після числа і закривну в кінці команд, які треба повторити. Став пробіл перед
+                        <code>(</code>, щоб код було легше читати; сам пробіл не є обов'язковим. Команди всередині дужок пишуться з нового рядка або через пробіл.</p>
                     <section class="manual-subsection manual-callout-subsection" aria-labelledby="manual-repetition-examples-title">
                     <div class="interactive-example-manual" role="region" aria-labelledby="manual-repetition-examples-title">
                         <h4 id="manual-repetition-examples-title">Спробуй різні повторення:</h4>
@@ -358,7 +372,7 @@
                     <section class="manual-subsection" aria-labelledby="manual-repeat-more-title">
                         <details>
                             <summary id="manual-repeat-more-title">Що важливо не забути</summary>
-                            <p>Після числа має бути пробіл і дужка: <code>повторити 4 ( ... )</code>. Якщо загубити дужку або число, команда не спрацює.</p>
+                            <p>Після числа потрібна дужка: <code>повторити 4 ( ... )</code>. Пробіл перед нею покращує читабельність, але не є вимогою синтаксису. Якщо загубити дужку або число, команда не спрацює.</p>
                             <p>Найкраще вчитися на простих фігурах: квадрат, трикутник, зірочка, візерунок.</p>
                         </details>
                     </section>
@@ -368,16 +382,10 @@
                     <h2 id="manual-section-variables-functions">Змінні та функції</h2>
                     <section class="manual-subsection manual-example-subsection" aria-labelledby="manual-variables-start-title">
                     <div class="manual-start-example" role="region" aria-labelledby="manual-variables-start-title">
-                        <h3 id="manual-variables-start-title">Почни з одного прикладу, де видно обидві ідеї</h3>
+                        <h3 id="manual-variables-start-title">Почни зі змінної</h3>
                         <pre class="example-code-manual">створити сторона = 60
-створити квадрат(розмір) (
-  повторити 4 (
-    вперед розмір
-    праворуч 90
-  )
-)
-квадрат(сторона)</pre>
-                        <p><strong>сторона</strong> тут зберігає число, а <strong>квадрат(...)</strong> — це власна команда, яку можна викликати з різними значеннями.</p>
+вперед сторона</pre>
+                        <p><strong>сторона</strong> зберігає поточне число. Нижче окремо додамо функцію, а в підсумку поєднаємо обидві ідеї.</p>
                     </div>
                     </section>
                     <p>У РАВЛИКу ти можеш <strong>зберігати числа у змінних</strong> та <strong>створювати власні
@@ -388,6 +396,7 @@
                         <p><strong>Змінна</strong> — це ім'я, під яким зберігається число.</p>
                         <p><strong>Створення:</strong> <code>створити назва = число</code></p>
                         <p><strong>Оновлення:</strong> <code>назва = число</code></p>
+                        <p>Поза умовою знак <code>=</code> записує нове значення змінної. Усередині <a href="#conditions"><code>якщо</code></a> той самий знак перевіряє, чи два значення рівні.</p>
                         <pre class="example-code-manual">створити сторона = 100
 вперед сторона
 сторона = 150
@@ -487,41 +496,17 @@
                     </section>
                 </article>
 
-                <article id="while-and-stop" class="guide-section advanced-only" data-keywords="поки стоп цикл умова break while" aria-labelledby="manual-section-while-stop">
-                    <h2 id="manual-section-while-stop">Цикл поки і команда стоп</h2>
-                    <p><code>поки</code> повторює команди, доки умова істинна. Це зручно, коли наперед невідомо, скільки разів треба повторити дію.</p>
-                    <section class="manual-subsection" aria-labelledby="manual-while-basic-title">
-                        <h3 id="manual-while-basic-title">Базовий формат</h3>
-                        <pre class="example-code-manual">створити x = 0
-поки x < 5 (
-  вперед 20
-  x = x + 1
-)</pre>
-                        <p>Умова після <code>поки</code> записується так само, як в команді <code>якщо</code>: можна порівнювати числа й змінні або перевіряти <code>край</code> чи <code>клавіша "..."</code>.</p>
-                    </section>
-                    <section class="manual-subsection" aria-labelledby="manual-stop-basic-title">
-                        <h3 id="manual-stop-basic-title">Вийти з циклу раніше</h3>
-                        <pre class="example-code-manual">повторити 100 (
-  якщо край (
-    стоп
-  )
-  вперед 10
-)</pre>
-                        <p><code>стоп</code> виходить тільки з найближчого циклу <code>повторити</code> або <code>поки</code>. Після циклу програма продовжує виконувати наступні команди.</p>
-                    </section>
-                </article>
-
                 <article id="math-functions" class="guide-section advanced-only" data-keywords="математика модуль корінь abs sqrt випадково random кут напрямок вирази" aria-labelledby="manual-section-math-functions">
                     <h2 id="manual-section-math-functions">Математичні функції</h2>
                     <p>Математичні функції та вираз <code>кут</code> можна використовувати всередині числових виразів: у русі, поворотах, змінних, умовах і паузах.</p>
                     <section class="manual-subsection" aria-labelledby="manual-math-functions-basic-title">
                         <h3 id="manual-math-functions-basic-title">Модуль і корінь</h3>
-                        <pre class="example-code-manual">вперед модуль(-50)
+                        <pre class="example-code-manual" data-example-id="manual-math-functions" data-example-kind="runnable">вперед модуль(-50)
 праворуч корінь(100)
 
 створити крок = корінь(400)
 вперед крок</pre>
-                        <p><code>модуль(x)</code> прибирає мінус і повертає додатне значення. <code>корінь(x)</code> рахує квадратний корінь; число всередині має бути не менше нуля.</p>
+                        <p><code>модуль(x)</code> показує відстань числа від нуля: <code>модуль(-5) = 5</code>, <code>модуль(5) = 5</code>, <code>модуль(0) = 0</code>. <code>корінь(x)</code> рахує квадратний корінь; число всередині має бути не менше нуля.</p>
                     </section>
                     <section class="manual-subsection" aria-labelledby="manual-math-functions-alias-title">
                         <h3 id="manual-math-functions-alias-title">Англійські назви</h3>
@@ -726,8 +711,8 @@ n = n + 1
 праворуч 18
 )</pre>
                     
-                            <p><strong>Зупинитись на певному значенні (лічильник у циклі <code>грати</code>):</strong></p>
-                            <pre class="example-code-manual">створити кроки = 0
+                            <p><strong>Змінити колір після 20 кроків руху:</strong></p>
+                            <pre class="example-code-manual" data-example-id="manual-game-color-after20" data-example-kind="runnable">створити кроки = 0
 грати (
 якщо клавіша "вгору" (
     вперед 5
@@ -737,16 +722,41 @@ n = n + 1
     колір червоний 
     )
 )</pre>
+                            <p>Ця програма не зупиняє гру. Коли кроки досягнуть 20, наступні лінії стануть червоними.</p>
                         </section>
                     
                         <div class="tips-box" role="region" aria-labelledby="manual-conditions-tip-title">
                             <h4 id="manual-conditions-tip-title">Часті помилки</h4>
                             <ul>
-                                <li><strong><code>=</code> — це порівняння, а не присвоєння</strong> всередині <code>якщо</code>. <code>якщо n = 5</code> означає "перевір, чи n дорівнює 5" — Равлик нічого не змінює.</li>
+                                <li><strong><code>=</code> перевіряє рівність</strong> всередині <code>якщо</code>. <code>якщо n = 5</code> означає "перевір, чи n дорівнює 5" — Равлик нічого не змінює. Про запис нового значення дивись у розділі <a href="#variables-functions">«Змінні»</a>.</li>
                                 <li><strong><code>&lt;=</code> і <code>&gt;=</code> — два символи без пробілу між ними.</strong> <code>&lt; =</code> з пробілом не спрацює.</li>
                                 <li><strong>Перевірка виконується один раз</strong> у момент, коли РАВЛИК доходить до цього рядка. Якщо хочеш перевіряти постійно — помісти умову в <code>повторити</code> або <code>грати</code>.</li>
                             </ul>
                         </div>
+                    </section>
+                </article>
+
+                <article id="while-and-stop" class="guide-section advanced-only" data-keywords="поки стоп цикл умова break while" aria-labelledby="manual-section-while-stop">
+                    <h2 id="manual-section-while-stop">Цикл поки і команда стоп</h2>
+                    <p><code>поки</code> повторює команди, доки умова істинна. Це зручно, коли наперед невідомо, скільки разів треба повторити дію.</p>
+                    <section class="manual-subsection" aria-labelledby="manual-while-basic-title">
+                        <h3 id="manual-while-basic-title">Базовий формат</h3>
+                        <pre class="example-code-manual" data-example-id="manual-while" data-example-kind="runnable">створити x = 0
+поки x &lt; 5 (
+  вперед 20
+  x = x + 1
+)</pre>
+                        <p>Умова після <code>поки</code> записується так само, як в команді <code>якщо</code>: можна порівнювати числа й змінні або перевіряти <code>край</code> чи <code>клавіша "..."</code>.</p>
+                    </section>
+                    <section class="manual-subsection" aria-labelledby="manual-stop-basic-title">
+                        <h3 id="manual-stop-basic-title">Вийти з циклу раніше</h3>
+                        <pre class="example-code-manual">повторити 100 (
+  якщо край (
+    стоп
+  )
+  вперед 10
+)</pre>
+                        <p><code>стоп</code> виходить тільки з найближчого циклу <code>повторити</code> або <code>поки</code>. Після циклу програма продовжує виконувати наступні команди.</p>
                     </section>
                 </article>
 
@@ -1311,6 +1321,10 @@ n = n + 1
                             Межі записані неправильно або переплутані місцями.<br><strong>Як виправити:</strong>
                             Перевір числа: <code>випадково(1, 10)</code>, а не <code>випадково(10, 1)</code>.</p>
                         <!-- RANDOM_RANGE_INVALID -->
+                        <p><code>В умові не вдалося отримати число.</code><br><strong>Значення:</strong>
+                            Один із виразів у порівнянні дав нечисловий результат, наприклад через ділення на нуль.<br><strong>Як виправити:</strong>
+                            Перевір обчислення зліва і справа від знака порівняння.</p>
+                        <!-- CONDITION_VALUE_INVALID -->
                         <p><code>У програмі забагато дій.</code><br><strong>Значення:</strong>
                             Сума всіх команд у всіх вкладених циклах перевищила 50 000.<br><strong>Як виправити:</strong>
                             Зменш кількість повторень або спрости вкладені цикли.</p>
@@ -1331,6 +1345,15 @@ n = n + 1
                         <p><code>Виконання зупинено.</code><br><strong>Значення:</strong> Виконання було зупинене
                             вручну.<br><strong>Як виправити:</strong> Це не помилка. За потреби запусти програму ще раз.
                         </p> <!-- EXECUTION_STOPPED_BY_USER -->
+                        <p><code>Не вдалося виконати програму. Спробуй запустити її ще раз.</code><br><strong>Значення:</strong>
+                            Сталася неочікувана технічна помилка.<br><strong>Як виправити:</strong> Повтори запуск або онови сторінку.</p>
+                        <!-- UNEXPECTED_EXECUTION_ERROR -->
+                        <p><code>Запис GIF поки доступний для малювання.</code><br><strong>Значення:</strong>
+                            Ігровий режим не записується як GIF.<br><strong>Як виправити:</strong> Збережи код чи малюнок або запиши звичайну анімацію.</p>
+                        <!-- GIF_GAME_UNSUPPORTED -->
+                        <p><code>Збережено початок анімації: досягнуто ліміту запису.</code><br><strong>Значення:</strong>
+                            Запис зупинився на безпечній часовій або кадровій межі.</p>
+                        <!-- GIF_CAPTURE_LIMIT_SAVED -->
                         <p><code>Код завеликий. Максимальна довжина — 10000 символів.</code><br><strong>Значення:</strong>
                             Розмір програми перевищив дозволений ліміт.<br><strong>Як виправити:</strong> Скороти код
                             або винеси повторювані частини у функції.</p> <!-- CODE_TOO_LONG -->
@@ -1365,13 +1388,21 @@ n = n + 1
                         <p><code>Равлик дійшов до краю полотна. Зменш відстань або поверни його.</code><br><strong>Значення:</strong> Команди
                             ведуть Равлика за межі області малювання.<br><strong>Як виправити:</strong> Зміни
                             траєкторію: крок, кут або умови повороту біля краю.</p> <!-- CANVAS_OUT_OF_BOUNDS -->
-                        <p><code>Не вдалося зберегти малюнок: ТЕКСТ_ПОМИЛКИ</code><br><strong>Значення:</strong> Під час
+                        <p><code>Не вдалося зберегти малюнок. Спробуй ще раз.</code><br><strong>Значення:</strong> Під час
                             збереження виникла технічна помилка.<br><strong>Як виправити:</strong> Спробуй ще раз; якщо
                             не вдається, зроби скріншот.</p> <!-- SAVE_IMAGE_ERROR -->
                         <p><code>Браузер не дозволив зберегти малюнок (обмеження безпеки). Спробуй зробити скріншот.</code><br><strong>Значення:</strong>
                             Браузер заблокував збереження через політику безпеки.<br><strong>Як виправити:</strong>
                             Відкрий сайт через веб-сервер або скористайся скріншотом.</p>
                         <!-- SAVE_IMAGE_SECURITY_ERROR -->
+                        <p><code>Не вдалося зберегти код. Спробуй ще раз.</code><br><strong>Значення:</strong>
+                            Браузер не завершив створення TXT-файлу.</p> <!-- SAVE_CODE_ERROR -->
+                        <p><code>Не вдалося створити GIF. Спробуй ще раз.</code><br><strong>Значення:</strong>
+                            Запис або кодування анімації не завершилося.</p> <!-- GIF_CREATE_ERROR -->
+                        <p><code>Посилання з кодом пошкоджене або неповне.</code><br><strong>Значення:</strong>
+                            Fragment посилання не вдалося безпечно декодувати.</p> <!-- SHARE_LINK_INVALID -->
+                        <p><code>Посилання з кодом завелике.</code><br><strong>Значення:</strong>
+                            Дані посилання перевищують дозволену межу. Збережи код як файл.</p> <!-- SHARE_LINK_TOO_LONG -->
                         <p><code>Твій браузер не підтримує полотно для малювання (Canvas). Спробуй інший браузер.</code><br><strong>Значення:</strong>
                             Поточний браузер не підтримує потрібну технологію малювання.<br><strong>Як
                                 виправити:</strong> Онови браузер або використовуй інший сучасний браузер.</p>
@@ -1639,7 +1670,7 @@ n = n + 1
                     <h2 id="manual-section-projects">Твої проєкти</h2>
                     <section class="manual-subsection manual-callout-subsection" aria-labelledby="manual-projects-note-title">
                     <div class="tips-box" role="region" aria-labelledby="manual-projects-note-title">
-                        <h3 id="manual-projects-note-title">Цей розділ для вільної практики після вивчення Посідника</h3>
+                        <h3 id="manual-projects-note-title">Цей розділ для вільної практики після вивчення Посібника</h3>
                         <p>Тут немає нових правил синтаксису. Це місце, де ти комбінуєш уже відомі команди у власні ідеї.</p>
                     </div>
                     </section>
@@ -1820,10 +1851,10 @@ n = n + 1
 </div>
 <!-- END shared:accessibility-panel -->
 
-    <script type="module" src="js/accessibility.js?v=2026-08-17-1"></script>
+    <script type="module" src="js/accessibility.js?v=2026-09-08-1"></script>
     <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "46477cad50284d57abdf0b005192f4c0"}'></script><!-- End Cloudflare Web Analytics -->
-    <script type="module" src="js/registerServiceWorker.js?v=2026-08-17-1"></script>
-    <script type="module" src="js/manualPage.js?v=2026-08-17-1"></script>
+    <script type="module" src="js/registerServiceWorker.js?v=2026-09-08-1"></script>
+    <script type="module" src="js/manualPage.js?v=2026-09-08-1"></script>
 </body>
 
 </html>

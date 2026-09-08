@@ -22,6 +22,15 @@ export function createGameAstRunner({
         attachAstErrorLocation,
     };
 
+    const runImmediatePrimitive = (primitive) => {
+        if (primitive.stmt.type === 'WaitStmt') {
+            const error = new RavlykErrorCtor('WAIT_IN_GAME_MODE');
+            attachAstErrorLocation(error, primitive.stmt);
+            throw error;
+        }
+        handlePrimitiveAstStatement(primitive.stmt, primitive.env, 'immediate');
+    };
+
     // Init phase: run top-level statements, collect function defs and game body.
     const initRuntime = createAstRuntime({ programAst, ...runtimeOptions });
     const gameBodies = [];
@@ -32,7 +41,7 @@ export function createGameAstRunner({
             gameBodies.push(primitive.stmt.body || []);
         } else {
             // Non-game primitives at top level are allowed (e.g. drawing before грати)
-            handlePrimitiveAstStatement(primitive.stmt, primitive.env, 'immediate');
+            runImmediatePrimitive(primitive);
         }
         primitive = initRuntime.step();
     }
@@ -57,7 +66,7 @@ export function createGameAstRunner({
 
             let step = tickRuntime.step();
             while (step !== null) {
-                handlePrimitiveAstStatement(step.stmt, step.env, 'immediate');
+                runImmediatePrimitive(step);
                 step = tickRuntime.step();
             }
         }

@@ -52,3 +52,70 @@ test.describe('Public page accessibility shell', () => {
     });
   }
 });
+
+test.describe('Lessons tab keyboard accessibility', () => {
+  test('arrows wrap, Home and End select and focus the intended tab', async ({ page }) => {
+    await page.goto('/lessons.html?lesson=lesson0');
+    const first = page.locator('#lesson0-tab');
+    const last = page.locator('#lesson9-tab');
+
+    await first.focus();
+    await page.keyboard.press('ArrowLeft');
+    await expect(last).toBeFocused();
+    await expect(last).toHaveAttribute('aria-selected', 'true');
+
+    await page.keyboard.press('ArrowRight');
+    await expect(first).toBeFocused();
+    await expect(first).toHaveAttribute('aria-selected', 'true');
+
+    await page.keyboard.press('End');
+    await expect(last).toBeFocused();
+    await page.keyboard.press('Home');
+    await expect(first).toBeFocused();
+    await expect(page.locator('.tab-button[tabindex="0"]')).toHaveCount(1);
+  });
+
+  test('valid deep links open and invalid ids keep a valid lesson visible', async ({ page }) => {
+    await page.goto('/lessons.html?lesson=lesson6');
+    await expect(page.locator('#lesson6')).toBeVisible();
+    await expect(page.locator('#lesson6-tab')).toHaveAttribute('aria-selected', 'true');
+
+    await page.goto('/lessons.html?lesson=not-a-lesson');
+    await expect(page.locator('#lesson0')).toBeVisible();
+    await expect(page.locator('.lesson-content:visible')).toHaveCount(1);
+  });
+
+  test('saved reduced-motion setting changes lesson scrolling to auto', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('ravlyk_accessibility_settings_v2', JSON.stringify({ 'reduce-animations': true }));
+      window.__lessonScrollBehaviors = [];
+      const originalScrollTo = window.scrollTo.bind(window);
+      window.scrollTo = (options) => {
+        window.__lessonScrollBehaviors.push(options?.behavior);
+        return originalScrollTo(options);
+      };
+    });
+    await page.goto('/lessons.html?lesson=lesson0');
+    await expect(page.locator('html')).toHaveClass(/a11y-reduce-animations/);
+    await page.locator('#lesson1-tab').click();
+    await expect.poll(() => page.evaluate(() => window.__lessonScrollBehaviors.at(-1))).toBe('auto');
+  });
+});
+
+test('canvas exposes readable learning state and a bounded completed-command log', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('ravlyk_accessibility_settings_v2', JSON.stringify({ 'reduce-animations': true }));
+  });
+  await page.goto('/index.html');
+  await page.locator('#code-editor').fill('перейти в 30 20\nповторити 55 ( праворуч 1 )');
+  await page.locator('#run-btn').click();
+  await expect(page.locator('#stop-btn')).toBeDisabled();
+
+  await page.locator('.canvas-state-panel > summary').click();
+  await expect(page.locator('#canvas-state-x')).toHaveText('30');
+  await expect(page.locator('#canvas-state-y')).toHaveText('20');
+  await page.locator('#read-canvas-state-btn').click();
+  await expect(page.locator('#canvas-state-status')).toContainText('X 30, Y 20');
+  await expect(page.locator('#ravlyk-canvas')).toHaveAttribute('aria-describedby', 'canvas-state-description');
+  await expect(page.locator('#canvas-state-log > li')).toHaveCount(50);
+});
