@@ -18,6 +18,8 @@ export {
     bindModalOverlayClose,
     showHelpModal,
     hideHelpModal,
+    showCanvasStateModal,
+    hideCanvasStateModal,
     showClearConfirmModal,
     hideClearConfirmModal,
     showExampleConfirmModal,

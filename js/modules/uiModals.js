@@ -4,6 +4,7 @@ const MODAL_CONTENT_BY_OVERLAY_ID = {
     'example-confirm-modal-overlay': 'example-confirm-modal-content',
     'stop-confirm-modal-overlay': 'stop-confirm-modal-content',
     'download-modal-overlay': 'download-modal-content',
+    'canvas-state-modal-overlay': 'canvas-state-modal-content',
 };
 
 function toggleModal(modalId, show) {
@@ -50,6 +51,14 @@ export function bindModalOverlayClose(modalId, onClose) {
     modalOverlay.addEventListener('click', (event) => {
         if (event.target === event.currentTarget) onClose();
     });
+}
+
+export function showCanvasStateModal() {
+    toggleModal('canvas-state-modal-overlay', true);
+}
+
+export function hideCanvasStateModal() {
+    hideModalAndRestoreFocus('canvas-state-modal-overlay', 'canvas-state-btn');
 }
 
 export function showHelpModal() {

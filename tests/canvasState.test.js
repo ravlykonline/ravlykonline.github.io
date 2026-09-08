@@ -4,8 +4,9 @@ import {
     formatCanvasState,
     getCanvasStateSnapshot,
     MAX_CANVAS_STATE_LOG_ENTRIES,
+    describeColor,
 } from '../js/modules/canvasStateController.js';
-import { GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y, RAVLYK_INITIAL_ANGLE } from '../js/modules/constants.js';
+import { DEFAULT_PEN_COLOR, GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y, RAVLYK_INITIAL_ANGLE, UKRAINIAN_COLOR_NAMES } from '../js/modules/constants.js';
 import { runTest } from './testUtils.js';
 
 function createElement() {
@@ -92,4 +93,25 @@ runTest('canvas state log is bounded and reset clears the current session', () =
     assert.match(elements['canvas-state-log'].children[0].textContent, /^Завершено рух\./);
     controller.update('reset');
     assert.equal(elements['canvas-state-log'].children.length, 0);
+});
+
+// Found on production: the starting pen colour rendered as a raw "#000000",
+// because DEFAULT_PEN_COLOR is not the registry's «чорний» (#1A1A1A). The
+// initial state is the first thing a child sees, so it must be a real name.
+runTest('canvas state names the default pen colour instead of showing a hex code', () => {
+    assert.equal(describeColor(DEFAULT_PEN_COLOR), 'чорний');
+    assert.equal(describeColor('#1A1A1A'), 'чорний');
+    assert.equal(describeColor('#8A8F9E'), UKRAINIAN_COLOR_NAMES['#8A8F9E']);
+
+    const snapshot = getCanvasStateSnapshot(
+        { x: 0, y: 0, angle: RAVLYK_INITIAL_ANGLE, isPenDown: true, color: DEFAULT_PEN_COLOR },
+        { width: 600, height: 400 },
+    );
+    assert.equal(snapshot.color, 'чорний');
+    assert.doesNotMatch(formatCanvasState(snapshot), /#[0-9a-f]{3,6}/i);
+});
+
+runTest('canvas state never surfaces a raw hex for an unregistered colour', () => {
+    assert.equal(describeColor('#123456'), 'власний колір');
+    assert.equal(describeColor(''), 'власний колір');
 });
