@@ -1,4 +1,4 @@
-const CACHE_VERSION = '2026-09-08-2';
+const CACHE_VERSION = '2026-09-08-3';
 // Precache (install-time assets) and runtime cache are kept separate so that
 // trimRuntimeCache() can evict dynamic entries without touching precache URLs.
 const APP_CACHE = `ravlyk-app-${CACHE_VERSION}`;
@@ -105,25 +105,25 @@ const CRITICAL_PRECACHE_URLS = [
     '/resources.html',
     '/teacher_guidelines.html',
     '/zen.html',
-    '/css/about-project.css?v=2026-09-08-2',
-    '/css/accessibility.css?v=2026-09-08-2',
-    '/css/global.css?v=2026-09-08-2',
-    '/css/lessons.css?v=2026-09-08-2',
-    '/css/main-editor.css?v=2026-09-08-2',
-    '/css/manual.css?v=2026-09-08-2',
-    '/css/parents.css?v=2026-09-08-2',
-    '/css/quiz.css?v=2026-09-08-2',
-    '/css/resources.css?v=2026-09-08-2',
-    '/css/teacher-guidelines.css?v=2026-09-08-2',
-    '/css/zen.css?v=2026-09-08-2',
-    '/js/accessibility.js?v=2026-09-08-2',
-    '/js/lessonsPage.js?v=2026-09-08-2',
-    '/js/main.js?v=2026-09-08-2',
-    '/js/manualPage.js?v=2026-09-08-2',
-    '/js/printPage.js?v=2026-09-08-2',
-    '/js/quizPage.js?v=2026-09-08-2',
-    '/js/registerServiceWorker.js?v=2026-09-08-2',
-    '/js/zenPage.js?v=2026-09-08-2',
+    '/css/about-project.css?v=2026-09-08-3',
+    '/css/accessibility.css?v=2026-09-08-3',
+    '/css/global.css?v=2026-09-08-3',
+    '/css/lessons.css?v=2026-09-08-3',
+    '/css/main-editor.css?v=2026-09-08-3',
+    '/css/manual.css?v=2026-09-08-3',
+    '/css/parents.css?v=2026-09-08-3',
+    '/css/quiz.css?v=2026-09-08-3',
+    '/css/resources.css?v=2026-09-08-3',
+    '/css/teacher-guidelines.css?v=2026-09-08-3',
+    '/css/zen.css?v=2026-09-08-3',
+    '/js/accessibility.js?v=2026-09-08-3',
+    '/js/lessonsPage.js?v=2026-09-08-3',
+    '/js/main.js?v=2026-09-08-3',
+    '/js/manualPage.js?v=2026-09-08-3',
+    '/js/printPage.js?v=2026-09-08-3',
+    '/js/quizPage.js?v=2026-09-08-3',
+    '/js/registerServiceWorker.js?v=2026-09-08-3',
+    '/js/zenPage.js?v=2026-09-08-3',
 ];
 
 const OPTIONAL_PRECACHE_URLS = [
@@ -172,7 +172,7 @@ const OPTIONAL_PRECACHE_URLS = [
     '/favicon-32x32.png',
     '/favicon.ico',
     '/ravlyk.jpg',
-    '/site.webmanifest?v=2026-09-08-2',
+    '/site.webmanifest?v=2026-09-08-3',
 ];
 // END GENERATED PRECACHE MANIFEST
 
@@ -184,15 +184,23 @@ function shouldRuntimeCache(url) {
     return CACHEABLE_EXTENSIONS.has(pathname.slice(dot).toLowerCase());
 }
 
+function freshRequest(url) {
+    return new Request(url, { cache: 'reload' });
+}
+
 self.addEventListener('install', (event) => {
     event.waitUntil((async () => {
         const cache = await caches.open(APP_CACHE);
         // A new worker must not activate with an incomplete application shell.
         // Rejection leaves the previous active worker and its caches untouched.
-        await Promise.all(CRITICAL_PRECACHE_URLS.map((url) => cache.add(url)));
+        // 'reload' bypasses the browser HTTP cache. Unversioned ES modules
+        // (js/modules/*.js) keep the same URL forever, so without this the
+        // install can re-cache a stale copy and a fresh entry point then fails
+        // to import a symbol the stale module does not export yet.
+        await Promise.all(CRITICAL_PRECACHE_URLS.map((url) => cache.add(freshRequest(url))));
 
         const optionalResults = await Promise.allSettled(
-            OPTIONAL_PRECACHE_URLS.map((url) => cache.add(url))
+            OPTIONAL_PRECACHE_URLS.map((url) => cache.add(freshRequest(url)))
         );
         const optionalFailures = OPTIONAL_PRECACHE_URLS.filter(
             (_url, index) => optionalResults[index].status === 'rejected'

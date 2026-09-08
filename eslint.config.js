@@ -15,6 +15,7 @@ export default [
                 caches: 'readonly',
                 fetch: 'readonly',
                 Response: 'readonly',
+                Request: 'readonly',
                 navigator: 'readonly',
                 window: 'readonly',
                 document: 'readonly',
