@@ -638,7 +638,7 @@
     border: 3px dashed var(--editor-accent-help-border); /* Teal dashed border */
 }
 
-.help-box-main h3 {
+.help-box-main h2 {
     color: var(--editor-accent-help-title); /* Darker teal for heading */
     margin-bottom: 15px;
     text-align: center;
@@ -821,7 +821,7 @@
 }
 
 .a11y-high-contrast .examples h2,
-.a11y-high-contrast .help-box-main h3,
+.a11y-high-contrast .help-box-main h2,
 .a11y-high-contrast .command-name,
 .a11y-high-contrast .command-desc {
     color: var(--editor-hc-text) !important;

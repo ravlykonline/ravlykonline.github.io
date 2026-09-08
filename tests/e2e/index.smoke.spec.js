@@ -407,6 +407,23 @@ test.describe('Ravlyk UI smoke', () => {
     await expect.poll(countDrawnPixels).toBe(pixelsBeforeGifAttempt);
   });
 
+  // The stylesheet targeted `.help-box-main h3` while the markup has always used
+  // <h2>, so the heading silently lost its centring and accent colour.
+  test('help box heading keeps its centred accent styling', async ({ page }) => {
+    const heading = page.locator('#helpbox-title');
+    await expect(heading).toBeVisible();
+
+    const style = await heading.evaluate((element) => {
+      const computed = getComputedStyle(element);
+      return { tag: element.tagName, textAlign: computed.textAlign, color: computed.color };
+    });
+
+    expect(style.tag).toBe('H2');
+    expect(style.textAlign).toBe('center');
+    // Must be the teal accent from .help-box-main, not the inherited heading colour.
+    expect(style.color).not.toBe('rgb(75, 0, 130)');
+  });
+
   test('switching mobile workspace tabs keeps drawn canvas content', async ({ page }, testInfo) => {
     const code = 'повторити 4 ( вперед 80 праворуч 90 )';
     await page.fill('#code-editor', code);
