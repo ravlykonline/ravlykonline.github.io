@@ -226,13 +226,19 @@ await runAsyncTest('sw: precache fetches bypass the browser HTTP cache', async (
     );
 });
 
-runTest('headers keep unversioned ES modules revalidated', () => {
+// Measured on production 2026-09-08: Cloudflare Pages does not honour a
+// `Cache-Control: no-cache` rule from _headers for these assets — it replaced it
+// with its own `max-age=14400`, which is weaker than the platform default. So
+// freshness of unversioned modules is guaranteed by the precache reload above,
+// not by _headers. This test stops anyone re-adding a rule that looks like
+// protection but is not.
+runTest('headers do not claim a cache policy Cloudflare Pages overrides', () => {
     const headers = fs.readFileSync('_headers', 'utf8');
-    const block = headers.split(/\r?\n\r?\n/).find((entry) => entry.startsWith('/js/modules/*'));
-    assert.ok(block, '_headers must scope a rule to /js/modules/*');
-    assert.match(block, /Cache-Control:\s*no-cache/);
-    // Narrow scope: published subprojects must keep their own caching.
-    assert.equal(headers.includes('/go/'), false);
+    assert.equal(
+        /Cache-Control/i.test(headers),
+        false,
+        '_headers must not set Cache-Control: Pages overrides it, so the rule would mislead',
+    );
 });
 
 console.log('Service Worker contract tests completed.');

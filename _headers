@@ -1,6 +1,3 @@
-/js/modules/*
-  Cache-Control: no-cache
-
 /language-reference.md
   Content-Type: text/markdown; charset=utf-8
 
