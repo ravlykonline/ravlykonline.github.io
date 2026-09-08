@@ -5,6 +5,7 @@ import {
     getCanvasStateSnapshot,
     MAX_CANVAS_STATE_LOG_ENTRIES,
     describeColor,
+    normalizeLearningAngle,
 } from '../js/modules/canvasStateController.js';
 import { DEFAULT_PEN_COLOR, GRID_ALIGN_OFFSET_X, GRID_ALIGN_OFFSET_Y, RAVLYK_INITIAL_ANGLE, UKRAINIAN_COLOR_NAMES } from '../js/modules/constants.js';
 import { runTest } from './testUtils.js';
@@ -114,4 +115,20 @@ runTest('canvas state names the default pen colour instead of showing a hex code
 runTest('canvas state never surfaces a raw hex for an unregistered colour', () => {
     assert.equal(describeColor('#123456'), 'власний колір');
     assert.equal(describeColor(''), 'власний колір');
+});
+
+// Found on production: after a closed shape the angle read «360°» instead of
+// «0°». Animation accumulates float error, so the heading lands just under a
+// full turn and rounding pushed it past the normalized range.
+runTest('canvas state reports a completed turn as 0 degrees, never 360', () => {
+    assert.equal(normalizeLearningAngle(RAVLYK_INITIAL_ANGLE), 0);
+    assert.equal(normalizeLearningAngle(270), 0);
+    assert.equal(normalizeLearningAngle(269.9999999), 0);
+    assert.equal(normalizeLearningAngle(-90.0000001), 0);
+    assert.equal(normalizeLearningAngle(270.0000001), 0);
+
+    // Genuine intermediate angles keep their two-decimal precision.
+    assert.equal(normalizeLearningAngle(269.99), 359.99);
+    assert.equal(normalizeLearningAngle(0), 90);
+    assert.equal(normalizeLearningAngle(Number.NaN), 0);
 });
