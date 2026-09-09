@@ -3,9 +3,9 @@ import { positionNpcs } from './npc-spawner.js';
 import { createDistributionCells, positionRectInCell } from './distribution-rules.js';
 
 const OBSTACLE_TYPES = ['rock', 'bush', 'twig'];
-const APPLE_SIZE = 32;
+const COLLECTIBLE_SIZE = 32;
 const WORLD_PADDING = 100;
-const APPLE_PADDING = 120;
+const COLLECTIBLE_PADDING = 120;
 const START_CLEAR_RADIUS = 220;
 const OBSTACLE_GAP = 56;
 const MAX_PLACEMENT_ATTEMPTS = 90;
@@ -64,33 +64,54 @@ export function generateObstacles({ config, player, random = Math.random }) {
     return obstacles;
 }
 
-export function generateApples({ config, blockers, random = Math.random }) {
-    const apples = [];
+/**
+ * Розкидати збірні предмети одного виду по світу.
+ * Кожен вид розподіляється власною сіткою комірок, тому яблука й груші
+ * рівномірно вкривають карту й не збиваються в одну купу.
+ *
+ * @param {{
+ *   config: object,
+ *   blockers: Array<object>,
+ *   kind: 'apple'|'pear',
+ *   count: number,
+ *   idOffset?: number,
+ *   random?: Function
+ * }} params
+ * @returns {Array<{id:number, kind:string, x:number, y:number, w:number, h:number}>}
+ */
+export function generateCollectibles({ config, blockers, kind, count, idOffset = 0, random = Math.random }) {
+    const items = [];
+
+    if (count <= 0) {
+        return items;
+    }
+
     const cells = createDistributionCells({
-        count: config.appleCount,
+        count,
         width: config.worldWidth,
         height: config.worldHeight,
-        padding: APPLE_PADDING,
+        padding: COLLECTIBLE_PADDING,
         random
     });
 
-    for (let index = 0; index < config.appleCount; index += 1) {
+    for (let index = 0; index < count; index += 1) {
         let placed = false;
         let attempts = 0;
 
         while (!placed && attempts < MAX_PLACEMENT_ATTEMPTS) {
             const cell = cells[(index + attempts) % cells.length];
-            const position = positionRectInCell({ w: APPLE_SIZE, h: APPLE_SIZE }, cell, random);
-            const apple = {
-                id: index,
+            const position = positionRectInCell({ w: COLLECTIBLE_SIZE, h: COLLECTIBLE_SIZE }, cell, random);
+            const item = {
+                id: idOffset + index,
+                kind,
                 x: position.x,
                 y: position.y,
-                w: APPLE_SIZE,
-                h: APPLE_SIZE
+                w: COLLECTIBLE_SIZE,
+                h: COLLECTIBLE_SIZE
             };
 
-            if (canPlaceRect(apple, { blockers: [...blockers, ...apples] })) {
-                apples.push(apple);
+            if (canPlaceRect(item, { blockers: [...blockers, ...items] })) {
+                items.push(item);
                 placed = true;
             }
 
@@ -98,7 +119,7 @@ export function generateApples({ config, blockers, random = Math.random }) {
         }
     }
 
-    return apples;
+    return items;
 }
 
 export function generateWorld({ config, player, npcs = [], random = Math.random }) {
@@ -110,11 +131,23 @@ export function generateWorld({ config, player, npcs = [], random = Math.random 
         blockers: obstacles,
         random
     });
-    const apples = generateApples({
+
+    const staticBlockers = [...obstacles, ...positionedNpcs];
+    const apples = generateCollectibles({
         config,
-        blockers: [...obstacles, ...positionedNpcs],
+        blockers: staticBlockers,
+        kind: 'apple',
+        count: config.appleCount,
+        random
+    });
+    const pears = generateCollectibles({
+        config,
+        blockers: [...staticBlockers, ...apples],
+        kind: 'pear',
+        count: config.pearCount ?? 0,
+        idOffset: config.appleCount,
         random
     });
 
-    return { obstacles, apples, npcs: positionedNpcs };
+    return { obstacles, collectibles: [...apples, ...pears], npcs: positionedNpcs };
 }

@@ -1,0 +1,115 @@
+{
+  "id": "patterns.intermediate",
+  "unlockAtStars": 4,
+  "title": "Візерунки — середній рівень",
+  "tasks": [
+    {
+      "id": "shape-pattern-abb",
+      "type": "shape-pattern",
+      "variant": {
+        "series": ["●", "▲", "▲", "●", "▲", "▲", "●"],
+        "choices": ["●", "▲", "■"],
+        "correctChoiceId": "▲"
+      }
+    },
+    {
+      "id": "shape-pattern-abc",
+      "type": "shape-pattern",
+      "variant": {
+        "series": ["●", "▲", "■", "●", "▲", "■", "●"],
+        "choices": ["●", "▲", "■"],
+        "correctChoiceId": "▲"
+      }
+    },
+    {
+      "id": "shape-pattern-aabb",
+      "type": "shape-pattern",
+      "variant": {
+        "series": ["◆", "◆", "★", "★", "◆", "◆", "★"],
+        "choices": ["◆", "★", "●"],
+        "correctChoiceId": "★"
+      }
+    },
+    {
+      "id": "shape-pattern-abcc",
+      "type": "shape-pattern",
+      "variant": {
+        "series": ["🌼", "🍄", "🍁", "🍁", "🌼", "🍄", "🍁"],
+        "choices": ["🌼", "🍄", "🍁"],
+        "correctChoiceId": "🍁"
+      }
+    },
+    {
+      "id": "sequence-next-plus-two",
+      "type": "sequence-next",
+      "variant": {
+        "series": ["2", "4", "6", "8"],
+        "choices": ["9", "10", "12"],
+        "correctChoiceId": "10"
+      }
+    },
+    {
+      "id": "sequence-next-plus-two-odd",
+      "type": "sequence-next",
+      "variant": {
+        "series": ["1", "3", "5", "7"],
+        "choices": ["8", "9", "11"],
+        "correctChoiceId": "9"
+      }
+    },
+    {
+      "id": "sequence-next-minus-one",
+      "type": "sequence-next",
+      "variant": {
+        "series": ["10", "9", "8", "7"],
+        "choices": ["5", "6", "8"],
+        "correctChoiceId": "6"
+      }
+    },
+    {
+      "id": "sequence-next-minus-two",
+      "type": "sequence-next",
+      "variant": {
+        "series": ["12", "10", "8", "6"],
+        "choices": ["3", "4", "5"],
+        "correctChoiceId": "4"
+      }
+    },
+    {
+      "id": "sequence-next-plus-five",
+      "type": "sequence-next",
+      "variant": {
+        "series": ["5", "10", "15"],
+        "choices": ["16", "20", "25"],
+        "correctChoiceId": "20"
+      }
+    },
+    {
+      "id": "sequence-next-plus-three",
+      "type": "sequence-next",
+      "variant": {
+        "series": ["3", "6", "9"],
+        "choices": ["10", "11", "12"],
+        "correctChoiceId": "12"
+      }
+    },
+    {
+      "id": "shape-pattern-size-alternate",
+      "type": "shape-pattern",
+      "variant": {
+        "series": ["🌑", "🌕", "🌑", "🌕", "🌑", "🌕", "🌑"],
+        "choices": ["🌑", "🌕", "⭐"],
+        "correctChoiceId": "🌕"
+      }
+    },
+    {
+      "id": "shape-pattern-three-cycle-animals",
+      "type": "shape-pattern",
+      "variant": {
+        "series": ["🐝", "🐞", "🦋", "🐝", "🐞", "🦋", "🐝"],
+        "choices": ["🐝", "🐞", "🦋"],
+        "correctChoiceId": "🐞"
+      }
+    }
+  ]
+}

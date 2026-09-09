@@ -1,4 +1,4 @@
-import { CONFIG } from '../core/config.js';
+import { createLevelConfig } from '../core/config.js';
 import { approach, normalizeAngleDifference, updateAngle } from '../core/motion.js';
 import { hasWorldCollision } from '../game/collision-system.js';
 import { LevelData } from '../game/level-data.js';
@@ -6,7 +6,12 @@ import { createInitialSessionState } from '../game/session-state.js';
 import { generateWorld } from '../game/world-generator.js';
 import { isNpcWithinRange, pickNearestByDistance } from '../game/rules.js';
 import { getViewportSize, getViewportRect, getWorldPointFromClient, syncCameraToPlayer, updateCamera } from '../game/camera-system.js';
-import { renderApples, collectNearbyApples, findNearestApple } from '../game/apple-system.js';
+import {
+    renderCollectibles,
+    collectNearbyCollectibles,
+    findNearestCollectible,
+    countByKind
+} from '../game/collectible-system.js';
 import { t } from '../i18n/index.js';
 import { HUDController } from '../ui/hud-controller.js';
 import { DialogScene } from './dialog-scene.js';
@@ -28,18 +33,26 @@ export class GameScene {
         this.eventBus = deps.eventBus;
         this.sceneManager = deps.sceneManager;
 
-        this.session = createInitialSessionState(LevelData.level1);
+        this.level = deps.level ?? LevelData.level1;
+        this.config = createLevelConfig(this.level);
+
+        this.session = createInitialSessionState(this.level);
         this.state = this.session.player;
         this.obstacles = this.session.obstacles;
-        this.apples = this.session.apples;
+        this.collectibles = this.session.collectibles;
         this.npcs = this.session.npcs;
         this.nearbyNpcId = this.session.nearbyNpcId;
         this.handleWorldClickBind = this.handleWorldClick.bind(this);
         this.handleKeydownBind = this.handleKeydown.bind(this);
         this._npcElements = new Map(); // npc.id → DOM element cache
         this._earnedStars = 0;        // tracks stars for adaptive difficulty
+        this._collisionRects = [];    // obstacles + NPCs, rebuilt only when the world changes
 
         this.generateWorld();
+    }
+
+    get levelName() {
+        return t(this.level.nameKey);
     }
 
     clearSceneDOM() {
@@ -51,35 +64,56 @@ export class GameScene {
 
     generateWorld() {
         const world = generateWorld({
-            config: CONFIG,
+            config: this.config,
             player: this.state,
             npcs: this.npcs
         });
 
         this.obstacles.push(...world.obstacles);
-        this.apples.push(...world.apples);
+        this.collectibles.push(...world.collectibles);
         this.npcs.splice(0, this.npcs.length, ...world.npcs);
+
+        // Перешкоди й NPC нерухомі, тож список прямокутників для колізій
+        // будується один раз, а не на кожну перевірку в кадрі.
+        this._collisionRects = [...this.obstacles, ...this.npcs];
     }
 
     init() {
+        this.applyWorldSize();
         this.clearSceneDOM();
         this.renderObstacles();
-        this.renderApples();
+        this.renderCollectibles();
         this.renderNpcs();
         this.mountMoveTarget();
         this.dom.gameArea.addEventListener('click', this.handleWorldClickBind);
         document.addEventListener('keydown', this.handleKeydownBind);
         this.syncCameraToPlayer();
-        HUDController.setObjective(t('hud.objectiveText'));
+        HUDController.setLevel({ index: this.level.index, total: LevelData.count, name: this.levelName });
+        HUDController.setObjective(this.describeObjective());
         HUDController.setContext(t('hud.contextIntro'));
         HUDController.setNearbyNpc(null);
         this.updateAccessibilityDescription();
-        this.announcer.announce(t('announcer.newGameStarted'), 'assertive');
+        this.announcer.announce(
+            t('announcer.levelStarted', { index: this.level.index, name: this.levelName }),
+            'assertive'
+        );
 
         // Track stars earned this session for adaptive difficulty
         this._earnedStarsUnsub = this.eventBus.on('puzzle:completed', (data) => {
             this._earnedStars += data.stars ?? 1;
         });
+    }
+
+    /** Кожен рівень має власний розмір світу — переносимо його в CSS. */
+    applyWorldSize() {
+        this.dom.gameArea.style.width = `${this.config.worldWidth}px`;
+        this.dom.gameArea.style.height = `${this.config.worldHeight}px`;
+    }
+
+    /** Текст цілі залежить від того, чи є на рівні груші. */
+    describeObjective() {
+        const counts = countByKind(this.collectibles);
+        return counts.pear > 0 ? t('hud.objectiveTextPears') : t('hud.objectiveText');
     }
 
     mountMoveTarget() {
@@ -142,8 +176,8 @@ export class GameScene {
         });
     }
 
-    renderApples() {
-        renderApples(this.apples, this.dom.itemsContainer);
+    renderCollectibles() {
+        renderCollectibles(this.collectibles, this.dom.itemsContainer);
     }
 
     renderNpcs() {
@@ -256,7 +290,7 @@ export class GameScene {
     }
 
     syncCameraToPlayer() {
-        syncCameraToPlayer(this.state, CONFIG, getViewportSize(this.dom));
+        syncCameraToPlayer(this.state, this.config, getViewportSize(this.dom));
     }
 
     update(deltaMs = 16.667) {
@@ -264,7 +298,7 @@ export class GameScene {
 
         this.input.updateCameraOffset(this.state.camera.x, this.state.camera.y);
 
-        this.collectNearbyApples();
+        this.collectNearbyCollectibles();
         this.updateNearbyNpcState();
 
         if (!this.input.keyboard.active && this.nearbyNpcId && this.input.consumeKey('Enter')) {
@@ -310,7 +344,7 @@ export class GameScene {
             const dy = this.input.mouse.intentTarget.y - this.state.y;
             const distance = Math.hypot(dx, dy);
 
-            if (distance > CONFIG.pointerArrivalRadius) {
+            if (distance > this.config.pointerArrivalRadius) {
                 intentX = dx / distance;
                 intentY = dy / distance;
             } else {
@@ -327,10 +361,10 @@ export class GameScene {
     }
 
     updateVelocity(intentX, intentY, scale = 1) {
-        const targetVelocityX = intentX * CONFIG.maxSpeed;
-        const targetVelocityY = intentY * CONFIG.maxSpeed;
+        const targetVelocityX = intentX * this.config.maxSpeed;
+        const targetVelocityY = intentY * this.config.maxSpeed;
         const hasIntent = intentX !== 0 || intentY !== 0;
-        const delta = hasIntent ? CONFIG.acceleration : CONFIG.deceleration;
+        const delta = hasIntent ? this.config.acceleration : this.config.deceleration;
 
         this.state.velocityX = approach(this.state.velocityX, targetVelocityX, delta, scale);
         this.state.velocityY = approach(this.state.velocityY, targetVelocityY, delta, scale);
@@ -373,32 +407,32 @@ export class GameScene {
     }
 
     isCollision(px, py) {
-        if (py < CONFIG.playerRadius + CONFIG.topHudSafeArea) {
+        if (py < this.config.playerRadius + this.config.topHudSafeArea) {
             return true;
         }
 
         return hasWorldCollision({
             x: px,
             y: py,
-            radius: CONFIG.playerRadius,
-            worldWidth: CONFIG.worldWidth,
-            worldHeight: CONFIG.worldHeight,
-            rects: [...this.obstacles, ...this.npcs]
+            radius: this.config.playerRadius,
+            worldWidth: this.config.worldWidth,
+            worldHeight: this.config.worldHeight,
+            rects: this._collisionRects
         });
     }
 
     updateRotation(scale = 1) {
         const speed = Math.hypot(this.state.velocityX, this.state.velocityY);
 
-        if (speed > CONFIG.rotationMinSpeed) {
+        if (speed > this.config.rotationMinSpeed) {
             this.state.targetAngle = Math.atan2(this.state.velocityY, this.state.velocityX) * (180 / Math.PI);
         }
 
         this.state.angle = updateAngle(
             this.state.angle,
             this.state.targetAngle,
-            CONFIG.rotationLerp,
-            CONFIG.rotationSnapThreshold,
+            this.config.rotationLerp,
+            this.config.rotationSnapThreshold,
             scale
         );
     }
@@ -413,7 +447,7 @@ export class GameScene {
                 this.state.x - (npc.x + npc.w / 2),
                 this.state.y - (npc.y + npc.h / 2)
             );
-            const isNearby = !npc.completed && isNpcWithinRange(distance, CONFIG.interactionRadius);
+            const isNearby = !npc.completed && isNpcWithinRange(distance, this.config.interactionRadius);
 
             npc.isNearby = isNearby;
 
@@ -441,7 +475,7 @@ export class GameScene {
             HUDController.setNearbyNpc(nearestNpc.name);
             this.announcer.announce(t('announcer.npcNearby', { name: nearestNpc.name }));
         } else if (!nearestNpc) {
-            HUDController.setObjective(t('hud.objectiveText'));
+            HUDController.setObjective(this.describeObjective());
             HUDController.setContext(t('hud.contextExplore'));
             HUDController.setNearbyNpc(null);
         }
@@ -461,7 +495,7 @@ export class GameScene {
             this.state.y - (npc.y + npc.h / 2)
         );
 
-        if (!isNpcWithinRange(distance, CONFIG.interactionRadius)) {
+        if (!isNpcWithinRange(distance, this.config.interactionRadius)) {
             HUDController.setContext(t('announcer.moveCloser'));
             this.announcer.announce(t('announcer.moveCloser'));
             return;
@@ -485,37 +519,38 @@ export class GameScene {
         }));
     }
 
-    collectNearbyApples() {
-        collectNearbyApples({
-            apples: this.apples,
+    collectNearbyCollectibles() {
+        collectNearbyCollectibles({
+            items: this.collectibles,
             playerX: this.state.x,
             playerY: this.state.y,
-            playerRadius: CONFIG.playerRadius,
+            playerRadius: this.config.playerRadius,
             eventBus: this.eventBus,
             announcer: this.announcer
         });
     }
 
     updateCamera(scale = 1) {
-        updateCamera(this.state, CONFIG, getViewportSize(this.dom), scale);
+        updateCamera(this.state, this.config, getViewportSize(this.dom), scale);
     }
 
     updateAccessibilityDescription() {
-        const nearestApple = this.findNearestApple();
+        const nearestItem = this.findNearestCollectible();
         const nearestNpc = this.findNearestNpc();
         let description = t('gameState.position', { x: Math.round(this.state.x), y: Math.round(this.state.y) });
 
-        if (nearestApple) {
-            const distance = Math.hypot(this.state.x - nearestApple.x, this.state.y - nearestApple.y);
-            description += t('gameState.nearestApple', {
-                direction: this.getDirection(nearestApple.x, nearestApple.y),
+        if (nearestItem) {
+            const distance = Math.hypot(this.state.x - nearestItem.x, this.state.y - nearestItem.y);
+            description += t('gameState.nearestItem', {
+                item: t(`entities.${nearestItem.kind ?? 'apple'}`),
+                direction: this.getDirection(nearestItem.x, nearestItem.y),
                 distance: Math.round(distance)
             });
         }
 
         if (nearestNpc && !nearestNpc.completed) {
             const distance = Math.hypot(this.state.x - (nearestNpc.x + 24), this.state.y - (nearestNpc.y + 24));
-            if (isNpcWithinRange(distance, CONFIG.interactionRadius)) {
+            if (isNpcWithinRange(distance, this.config.interactionRadius)) {
                 description += t('gameState.nearbyNpc', { name: nearestNpc.name });
             }
         }
@@ -523,8 +558,8 @@ export class GameScene {
         this.announcer.updateGameState(description);
     }
 
-    findNearestApple() {
-        return findNearestApple(this.apples, this.state.x, this.state.y);
+    findNearestCollectible() {
+        return findNearestCollectible(this.collectibles, this.state.x, this.state.y);
     }
 
     findNearestNpc() {

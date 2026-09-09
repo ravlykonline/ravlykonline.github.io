@@ -13,6 +13,11 @@
     -webkit-user-select: none;
 }
 
+/* Рівні з грушами мають три лічильники — панелі потрібно більше місця */
+#ui-layer.ui-layer--wide {
+    width: min(26rem, calc(100vw - 1rem));
+}
+
 .hud-panel {
     position: relative;
     overflow: hidden;
@@ -99,6 +104,47 @@
     min-width: 0;
 }
 
+.hud-stat.hidden {
+    display: none;
+}
+
+/* Рівні з грушами показують три лічильники замість двох.
+   Іконки й відступи стискаються, щоб рядок вліз у вузьку панель. */
+.hud-stats--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-1);
+}
+
+.hud-stats--three .hud-stat {
+    gap: var(--space-1);
+    padding: var(--space-1);
+}
+
+.hud-stats--three .hud-stat__icon {
+    width: 1.4rem;
+    height: 1.4rem;
+    font-size: var(--font-size-base);
+}
+
+.hud-stats--three .hud-stat__value {
+    font-size: var(--font-size-sm);
+}
+
+/* Номер рівня — тонкий рядок над лічильниками */
+.hud-level-badge {
+    margin: 0 0 var(--space-1);
+    padding: 0 var(--space-1);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: bold;
+    letter-spacing: 0.02em;
+    text-align: center;
+}
+
+.hud-level-badge:empty {
+    display: none;
+}
+
 .hud-stat {
     display: grid;
     grid-template-columns: auto auto;
@@ -125,6 +171,11 @@
 .hud-stat--apples .hud-stat__icon {
     background: color-mix(in srgb, var(--color-apple) 18%, var(--color-surface));
     color: var(--color-apple-border);
+}
+
+.hud-stat--pears .hud-stat__icon {
+    background: color-mix(in srgb, var(--color-pear) 18%, var(--color-surface));
+    color: var(--color-pear-border);
 }
 
 .hud-stat--stars .hud-stat__icon {
@@ -289,6 +340,11 @@
         right: auto;
         width: min(20rem, calc(100vw - 1rem));
         transform: translateX(-50%);
+    }
+
+    /* На вузьких екранах панель із трьома лічильниками бере всю доступну ширину */
+    #ui-layer.ui-layer--wide {
+        width: calc(100vw - 0.5rem);
     }
 
     .hud-panel {

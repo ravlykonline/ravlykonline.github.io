@@ -30,7 +30,7 @@ async function run() {
     const gameScene = SceneManager.active;
     assert(gameScene.constructor.name === 'GameScene', 'Після onboarding має бути ігрова сцена.');
 
-    const targetApple = gameScene.apples[0];
+    const targetApple = gameScene.collectibles.find((item) => item.kind === 'apple');
     assert(Boolean(targetApple), 'У сцені має бути хоча б одне яблуко.');
 
     gameScene.obstacles = [];
@@ -51,7 +51,7 @@ async function run() {
     await runFrames(10);
 
     assert(app.scoreSystem.apples >= 1, 'Після руху до яблука рахунок яблук має зрости.');
-    assert(document.getElementById(`apple-${targetApple.id}`) === null, 'Зібране яблуко має зникнути з DOM.');
+    assert(document.getElementById(`collectible-${targetApple.id}`) === null, 'Зібране яблуко має зникнути з DOM.');
     assert(
         document.getElementById('apples-count').textContent
             === `${app.scoreSystem.apples}/${app.scoreSystem.totalApples}`,

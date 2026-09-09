@@ -45,6 +45,11 @@
     --color-apple: #e74c3c;
     --color-apple-border: #c0392b;
     --color-apple-leaf: #4caf50;
+    /* Груша — золотиста, щоб відрізнялась від червоного яблука й зеленої трави
+       не лише кольором, а й світлістю (важливо для дальтонізму). */
+    --color-pear: #e3c93f;
+    --color-pear-border: #a8890f;
+    --color-pear-leaf: #4caf50;
     --color-snail-body: #f9a825;
     --color-snail-body-border: #8d5a00;
     --color-snail-shell-light: #8d6e63;
@@ -59,6 +64,7 @@
     --color-contrast-rock: #757575;
     --color-contrast-bush: #1b5e20;
     --color-contrast-apple: #c62828;
+    --color-contrast-pear: #8f6f00;
 
     --space-1: 4px;
     --space-2: 8px;
@@ -130,6 +136,9 @@ body[data-theme="dark"] {
     --color-apple: #ff6b57;
     --color-apple-border: #ffd0c9;
     --color-apple-leaf: #72d68c;
+    --color-pear: #f2dc6d;
+    --color-pear-border: #fff4bf;
+    --color-pear-leaf: #72d68c;
     --color-mouse-surface: #94a3b8;
     --color-mouse-border: #e2e8f0;
     --color-beetle-surface: #0f172a;
@@ -165,6 +174,9 @@ body[data-theme="dark"] {
         --color-apple: #ff6b57;
         --color-apple-border: #ffd0c9;
         --color-apple-leaf: #72d68c;
+        --color-pear: #f2dc6d;
+        --color-pear-border: #fff4bf;
+        --color-pear-leaf: #72d68c;
         --color-mouse-surface: #94a3b8;
         --color-mouse-border: #e2e8f0;
         --color-beetle-surface: #0f172a;

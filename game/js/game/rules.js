@@ -2,7 +2,8 @@ export function isNpcWithinRange(distance, interactionRadius) {
     return distance <= interactionRadius;
 }
 
-export function shouldCollectApple(distance, playerRadius) {
+/** Радіус збору однаковий для всіх видів предметів (яблука, груші). */
+export function shouldCollectItem(distance, playerRadius) {
     return distance < playerRadius + 14;
 }
 

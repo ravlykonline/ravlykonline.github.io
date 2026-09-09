@@ -87,6 +87,12 @@
     gap: var(--space-2);
 }
 
+/* 4×4 — складніший варіант на пізніх рівнях; клітинки трохи менші, щоб
+   квадрат лишався в межах діалогу без горизонтальної прокрутки. */
+.task-magic-square[data-size="4"] {
+    grid-template-columns: repeat(4, minmax(0, 60px));
+}
+
 .task-magic-cell {
     display: inline-flex;
     align-items: center;
@@ -361,6 +367,10 @@
 
     .task-magic-square {
         grid-template-columns: repeat(3, minmax(0, 64px));
+    }
+
+    .task-magic-square[data-size="4"] {
+        grid-template-columns: repeat(4, minmax(0, 50px));
     }
 
     .task-options-grid {

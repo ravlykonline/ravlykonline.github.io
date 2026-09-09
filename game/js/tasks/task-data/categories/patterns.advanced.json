@@ -1,0 +1,106 @@
+{
+  "id": "patterns.advanced",
+  "unlockAtStars": 0,
+  "title": "Візерунки — складний рівень",
+  "tasks": [
+    {
+      "id": "sequence-adv-plus-three",
+      "type": "sequence-next",
+      "variant": {
+        "series": ["3", "6", "9", "12"],
+        "choices": ["13", "14", "15"],
+        "correctChoiceId": "15"
+      }
+    },
+    {
+      "id": "sequence-adv-plus-four",
+      "type": "sequence-next",
+      "variant": {
+        "series": ["4", "8", "12", "16"],
+        "choices": ["18", "20", "24"],
+        "correctChoiceId": "20"
+      }
+    },
+    {
+      "id": "sequence-adv-minus-three",
+      "type": "sequence-next",
+      "variant": {
+        "series": ["20", "17", "14", "11"],
+        "choices": ["7", "8", "9"],
+        "correctChoiceId": "8"
+      }
+    },
+    {
+      "id": "sequence-adv-plus-ten",
+      "type": "sequence-next",
+      "variant": {
+        "series": ["5", "15", "25"],
+        "choices": ["30", "35", "40"],
+        "correctChoiceId": "35"
+      }
+    },
+    {
+      "id": "sequence-adv-doubling",
+      "type": "sequence-next",
+      "variant": {
+        "series": ["1", "2", "4", "8"],
+        "choices": ["10", "12", "16"],
+        "correctChoiceId": "16"
+      }
+    },
+    {
+      "id": "sequence-adv-alternating-step",
+      "type": "sequence-next",
+      "variant": {
+        "series": ["2", "4", "3", "5", "4"],
+        "choices": ["5", "6", "7"],
+        "correctChoiceId": "6"
+      }
+    },
+    {
+      "id": "shape-pattern-adv-aabbb",
+      "type": "shape-pattern",
+      "variant": {
+        "series": ["●", "●", "▲", "▲", "▲", "●", "●", "▲", "▲"],
+        "choices": ["●", "▲", "■"],
+        "correctChoiceId": "▲"
+      }
+    },
+    {
+      "id": "shape-pattern-adv-four-cycle",
+      "type": "shape-pattern",
+      "variant": {
+        "series": ["★", "●", "▲", "■", "★", "●", "▲", "■", "★"],
+        "choices": ["★", "●", "▲", "■"],
+        "correctChoiceId": "●"
+      }
+    },
+    {
+      "id": "shape-pattern-adv-abba",
+      "type": "shape-pattern",
+      "variant": {
+        "series": ["🌲", "🍄", "🍄", "🌲", "🌲", "🍄", "🍄", "🌲"],
+        "choices": ["🌲", "🍄", "🍁"],
+        "correctChoiceId": "🌲"
+      }
+    },
+    {
+      "id": "shape-pattern-adv-abb-long",
+      "type": "shape-pattern",
+      "variant": {
+        "series": ["🐝", "🦋", "🦋", "🐝", "🦋", "🦋", "🐝", "🦋"],
+        "choices": ["🐝", "🦋", "🐞"],
+        "correctChoiceId": "🦋"
+      }
+    },
+    {
+      "id": "shape-pattern-adv-fruit-three-cycle",
+      "type": "shape-pattern",
+      "variant": {
+        "series": ["🍎", "🍐", "🍒", "🍎", "🍐", "🍒", "🍎", "🍐"],
+        "choices": ["🍎", "🍐", "🍒"],
+        "correctChoiceId": "🍒"
+      }
+    }
+  ]
+}

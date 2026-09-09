@@ -59,7 +59,7 @@ if (npc.type === 'mouse') {
 }
 ```
 
-Кількість і розміщення звірів ідуть через дані рівня та генерацію світу. Поточна ціль після тестування з дітьми — приблизно 26–30 звірів; у `level1` зараз 28 звірів, 42 яблука й 88 перешкод, рівномірно розкиданих по полю, без накладання на перешкоди й без недоступних позицій. Для розподілу NPC по карті використовується `distributionGroup`, а не лише перший `taskPoolId`, бо кілька різних педагогічних груп можуть починатися з одного й того самого банку завдань.
+Кількість і розміщення звірів ідуть через дані рівня та генерацію світу. Гра має три рівні (`LevelData.sequence`); кожен рівень описує власний світ у полі `world` (`worldWidth`, `worldHeight`, `obstacleCount`, `appleCount`, `pearCount`), власний набір NPC і власні банки завдань. Поточна ціль після тестування з дітьми — приблизно 26–30 звірів на рівень: `level1` — 28 звірів, 42 яблука, 88 перешкод; `level2` — 26 звірів, 34 яблука, 16 груш, 104 перешкоди; `level3` — 26 звірів, 30 яблук, 24 груші, 118 перешкод. Усе рівномірно розкидане по полю, без накладання на перешкоди й без недоступних позицій. Для розподілу NPC по карті використовується `distributionGroup`, а не лише перший `taskPoolId`, бо кілька різних педагогічних груп можуть починатися з одного й того самого банку завдань.
 
 ### 2.2 `GameScene` не має бути всесвітом
 
@@ -70,7 +70,7 @@ if (npc.type === 'mouse') {
 - генерація світу;
 - колізії;
 - spawn rules;
-- apple system;
+- collectible system;
 - NPC system;
 - camera controller;
 - session state;
@@ -88,7 +88,7 @@ if (npc.type === 'mouse') {
 
 ```txt
 GameScene
-  використовує AppleSystem
+  використовує CollectibleSystem
   використовує NpcSystem
   використовує CameraController
   використовує CollisionSystem
@@ -97,7 +97,7 @@ GameScene
 А не:
 
 ```txt
-GameScene містить усю логіку яблук, NPC, камери, колізій, завдань і UI.
+GameScene містить усю логіку предметів, NPC, камери, колізій, завдань і UI.
 ```
 
 ### 2.4 DOM-first, не canvas-first
@@ -142,6 +142,8 @@ index.html
       -> ScoreSystem.init()
       -> MusicController.init({dom})
       -> Joystick.init()
+      -> підписка на level:completed → LevelCompleteScene (є наступний рівень)
+                                       → emit game:won (рівнів більше немає)
       -> підписка на game:won → SceneManager.push(WinScene)
       -> SceneManager.push(IntroScene)
     -> requestAnimationFrame(gameLoop)
@@ -220,6 +222,7 @@ js/scenes/game-scene.js
 js/scenes/modal-scene.js
 js/scenes/dialog-scene.js
 js/scenes/pause-scene.js
+js/scenes/level-complete-scene.js
 js/scenes/win-scene.js
 ```
 
@@ -245,7 +248,7 @@ js/game/world-generator.js
 js/game/spawn-rules.js
 js/game/distribution-rules.js
 js/game/collision-system.js
-js/game/apple-system.js
+js/game/collectible-system.js
 js/game/camera-system.js
 js/game/npc-spawner.js
 ```
@@ -256,9 +259,9 @@ js/game/npc-spawner.js
 - чисті правила гри;
 - вибір задач для NPC;
 - генерація й розміщення об'єктів у світі;
-- чисті функції яблук, камери, колізій.
+- чисті функції предметів, камери, колізій.
 
-`apple-system.js`, `camera-system.js` і `collision-system.js` є набором чистих іменованих функцій (без класів, без `this`) і повністю покриті unit-тестами.
+`collectible-system.js`, `camera-system.js` і `collision-system.js` є набором чистих іменованих функцій (без класів, без `this`) і повністю покриті unit-тестами.
 
 `collision-system.js` надає параметр `margin` (за замовчуванням `BORDER_RADIUS_MARGIN = 6px`), який розширює rect перешкоди при перевірці колізії, запобігаючи зоровому ефекту заїзду на заокруглені CSS-кути.
 
@@ -437,10 +440,11 @@ ui -> GameScene
 Поточний runtime state частково живе в:
 
 - `GameScene.state`;
-- `GameScene.apples`;
+- `GameScene.collectibles`;
 - `GameScene.obstacles`;
 - `GameScene.npcs`;
 - `ScoreSystem.apples`;
+- `ScoreSystem.pears`;
 - `ScoreSystem.stars`;
 - `Input.keys`;
 - `Input.mouse`;
@@ -453,13 +457,15 @@ ui -> GameScene
 ```js
 export function createInitialSessionState(levelData) {
     return {
+        level: { id, index, nameKey },
         player: {...},
         camera: {...},
-        apples: [],
+        collectibles: [],
         obstacles: [],
         npcs: [],
         score: {
             apples: 0,
+            pears: 0,
             stars: 0
         },
         flags: {
@@ -532,16 +538,33 @@ destroy()
 }
 ```
 
-### `game:won`
+### `level:completed`
 
-Коли зібрано всі яблука та виконано всі завдання. Емітується `ScoreSystem` один раз на сесію після 1400ms затримки.
+Коли на поточному рівні зібрано всі яблука, всі груші та виконано всі завдання. Емітується `ScoreSystem` один раз на рівень після 1400ms затримки.
 
 ```js
 {
     apples: N,
+    pears: N,
     stars: N,
     totalApples: N,
-    totalStars: N
+    totalPears: N,
+    totalStars: N,
+    level: { id, index, nameKey, world, npcs }
+}
+```
+
+Обробляє `bootstrap.js`: якщо наступний рівень існує — показує `LevelCompleteScene`, інакше емітує `game:won`.
+
+### `game:won`
+
+Коли пройдено останній рівень. Емітується `bootstrap.js` один раз на сесію. Payload — сумарний результат за всі рівні.
+
+```js
+{
+    apples: N,
+    pears: N,
+    stars: N
 }
 ```
 
@@ -588,14 +611,14 @@ destroy()
 - адаптивний вибір завдань через `TaskPicker.pickAdaptiveTask(..., this._earnedStars)`;
 - оновлення HUD;
 - accessibility announcements;
-- координація `camera-system` і `apple-system`.
+- координація `camera-system` і `collectible-system`.
 
 Делеговано у зовнішні модулі:
 
 ```txt
 js/game/world-generator.js    — генерація світу
 js/game/collision-system.js   — колізії
-js/game/apple-system.js       — рендер, збір і пошук яблук
+js/game/collectible-system.js — рендер, збір і пошук предметів (яблука, груші)
 js/game/camera-system.js      — viewport, snap, scroll-follow
 js/game/session-state.js      — початковий стан сесії
 ```
@@ -611,20 +634,20 @@ js/game/player-controller.js
 
 ## 12. Напрям подальшого рефакторингу `GameScene`
 
-Поточна `GameScene` вже делегує camera і apple логіку. Наступний бажаний крок — винести player movement і NPC interaction:
+Поточна `GameScene` вже делегує camera і collectible логіку. Наступний бажаний крок — винести player movement і NPC interaction:
 
 ```js
 // Бажана майбутня структура
 update() {
     PlayerController.update(this.session, this.deps.input);
     CollisionSystem.resolve(this.session);
-    collectNearbyApples({ apples, playerX, playerY, ... }); // вже є
+    collectNearbyCollectibles({ items, playerX, playerY, ... }); // вже є
     NpcSystem.update(this.session, this.deps);
-    updateCamera(this.state, CONFIG, getViewportSize(this.dom)); // вже є
+    updateCamera(this.state, this.config, getViewportSize(this.dom)); // вже є
 }
 ```
 
-Поточна реальність вже близька до цього патерну для camera та apple.
+Поточна реальність вже близька до цього патерну для camera та collectibles.
 
 ---
 
@@ -733,13 +756,45 @@ task-registry
 Глобальні числа мають бути в `js/core/config.js`, якщо вони впливають на поведінку гри:
 
 - швидкість;
-- розмір світу;
-- кількість яблук;
-- кількість перешкод;
 - радіус взаємодії;
-- параметри камери.
+- параметри камери;
+- базові (fallback) розмір світу й кількості обʼєктів.
+
+Що саме є на конкретному рівні — розмір світу, кількість перешкод, яблук і груш — задає сам рівень у полі `world`. `createLevelConfig(level)` зливає `CONFIG` з `level.world`, і `GameScene` працює лише з цим результатом (`this.config`), а не з глобальним `CONFIG`.
+
+```js
+const level = {
+    id: 'level2',
+    index: 2,
+    nameKey: 'levels.level2Name',
+    world: { worldWidth: 4600, worldHeight: 4600, obstacleCount: 104, appleCount: 34, pearCount: 16 },
+    playerStart: { x: 2300, y: 2300 },
+    npcs: [ /* ... */ ]
+};
+```
 
 Не можна розкидати magic numbers по різних файлах без потреби.
+
+### 18.1 Як додати рівень
+
+1. Описати рівень у `js/game/level-data.js` і додати його в `LEVEL_SEQUENCE`.
+2. Створити (або перевикористати) JSON-категорії завдань потрібної складності.
+3. Додати назву рівня в `js/i18n/uk.js` (`levels.*`), а нові типи NPC — у `npc.*` і `entities.*Icon`.
+4. Додати нові файли в `sw.js` і підняти версію кеша.
+
+Коду сцен чіпати не треба: `bootstrap.js` сам веде дитину по `LEVEL_SEQUENCE`.
+
+### 18.2 Як керувати складністю
+
+Поріг доступності банку задається полем `unlockAtStars` у самій JSON-категорії — не в коді:
+
+```json
+{ "id": "arithmetic.intermediate", "unlockAtStars": 8, "tasks": [] }
+```
+
+`TaskPicker` віддає NPC лише ті банки, що вже відкрились за кількістю зірочок цього рівня. Якщо відкритих банків немає, спрацьовує запобіжник і видається завдання з будь-якого банку NPC — дитина ніколи не лишається без завдання.
+
+Правило: у кожного NPC має бути щонайменше один банк з `unlockAtStars: 0` (перевіряється тестом).
 
 ---
 
@@ -811,7 +866,7 @@ css/tasks.css
 1. ✅ Додати `EventBus.reset()` та idempotent subscriptions.
 2. ✅ Зробити `Input.init()` ідемпотентним.
 3. ✅ Синхронізувати `sw.js` з поточними CSS/JS/JSON файлами (v27).
-4. ✅ Винести apple logic з `GameScene` → `apple-system.js`.
+4. ✅ Винести логіку предметів з `GameScene` → `collectible-system.js`.
 5. ✅ Винести camera logic з `GameScene` → `camera-system.js`.
 6. ✅ Delta-time game loop: `update(deltaMs)`, `scale` у `motion.js` і `camera-system.js`.
 7. ✅ WinScene, PauseScene, MusicController, Joystick реалізовані.

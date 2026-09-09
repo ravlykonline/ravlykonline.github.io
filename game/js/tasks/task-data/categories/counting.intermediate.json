@@ -1,0 +1,136 @@
+{
+  "id": "counting.intermediate",
+  "unlockAtStars": 0,
+  "title": "Лічба до 12",
+  "tasks": [
+    {
+      "id": "count-match-six",
+      "type": "count-and-match",
+      "variant": {
+        "count": 6,
+        "choices": ["5", "6", "7"],
+        "correctChoiceId": "6"
+      }
+    },
+    {
+      "id": "count-match-seven",
+      "type": "count-and-match",
+      "variant": {
+        "count": 7,
+        "choices": ["6", "7", "8"],
+        "correctChoiceId": "7"
+      }
+    },
+    {
+      "id": "count-match-eight",
+      "type": "count-and-match",
+      "variant": {
+        "count": 8,
+        "choices": ["7", "8", "9"],
+        "correctChoiceId": "8"
+      }
+    },
+    {
+      "id": "count-match-nine",
+      "type": "count-and-match",
+      "variant": {
+        "count": 9,
+        "choices": ["8", "9", "10"],
+        "correctChoiceId": "9"
+      }
+    },
+    {
+      "id": "count-match-ten",
+      "type": "count-and-match",
+      "variant": {
+        "count": 10,
+        "choices": ["9", "10", "11"],
+        "correctChoiceId": "10"
+      }
+    },
+    {
+      "id": "count-match-eleven",
+      "type": "count-and-match",
+      "variant": {
+        "count": 11,
+        "choices": ["10", "11", "12"],
+        "correctChoiceId": "11"
+      }
+    },
+    {
+      "id": "count-match-twelve",
+      "type": "count-and-match",
+      "variant": {
+        "count": 12,
+        "choices": ["11", "12", "13"],
+        "correctChoiceId": "12"
+      }
+    },
+    {
+      "id": "order-asc-2-7-4-9",
+      "type": "order-numbers",
+      "options": { "direction": "asc" },
+      "variant": { "numbers": [2, 7, 4, 9] }
+    },
+    {
+      "id": "order-asc-6-3-10-8",
+      "type": "order-numbers",
+      "options": { "direction": "asc" },
+      "variant": { "numbers": [6, 3, 10, 8] }
+    },
+    {
+      "id": "order-asc-11-5-9-7",
+      "type": "order-numbers",
+      "options": { "direction": "asc" },
+      "variant": { "numbers": [11, 5, 9, 7] }
+    },
+    {
+      "id": "order-desc-4-9-6-2",
+      "type": "order-numbers",
+      "options": { "direction": "desc" },
+      "variant": { "numbers": [4, 9, 6, 2] }
+    },
+    {
+      "id": "order-desc-12-8-10-5",
+      "type": "order-numbers",
+      "options": { "direction": "desc" },
+      "variant": { "numbers": [12, 8, 10, 5] }
+    },
+    {
+      "id": "order-desc-7-3-11-9",
+      "type": "order-numbers",
+      "options": { "direction": "desc" },
+      "variant": { "numbers": [7, 3, 11, 9] }
+    },
+    {
+      "id": "compare-sets-nine-seven-more",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "more",
+        "leftCount": 9,
+        "rightCount": 7,
+        "correctChoiceId": "left"
+      }
+    },
+    {
+      "id": "compare-sets-eight-ten-less",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "less",
+        "leftCount": 8,
+        "rightCount": 10,
+        "correctChoiceId": "left"
+      }
+    },
+    {
+      "id": "compare-sets-eleven-twelve-more",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "more",
+        "leftCount": 11,
+        "rightCount": 12,
+        "correctChoiceId": "right"
+      }
+    }
+  ]
+}

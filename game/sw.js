@@ -1,4 +1,4 @@
-const STATIC_CACHE = 'ravlyk-static-v27';
+const STATIC_CACHE = 'ravlyk-static-v28';
 const STATIC_ASSETS = [
     './',
     './index.html',
@@ -20,7 +20,7 @@ const STATIC_ASSETS = [
     './js/core/event-bus.js',
     './js/core/input.js',
     './js/core/motion.js',
-    './js/game/apple-system.js',
+    './js/game/collectible-system.js',
     './js/game/camera-system.js',
     './js/game/collision-system.js',
     './js/game/distribution-rules.js',
@@ -40,6 +40,7 @@ const STATIC_ASSETS = [
     './js/scenes/modal-scene.js',
     './js/scenes/pause-scene.js',
     './js/scenes/scene-manager.js',
+    './js/scenes/level-complete-scene.js',
     './js/scenes/win-scene.js',
     './js/systems/score-system.js',
     './js/tasks/task-catalog.js',
@@ -52,6 +53,16 @@ const STATIC_ASSETS = [
     './js/tasks/task-data/categories/observation.beginner.json',
     './js/tasks/task-data/categories/patterns.beginner.json',
     './js/tasks/task-data/categories/visual-logic.beginner.json',
+    './js/tasks/task-data/categories/counting.intermediate.json',
+    './js/tasks/task-data/categories/visual-logic.intermediate.json',
+    './js/tasks/task-data/categories/patterns.intermediate.json',
+    './js/tasks/task-data/categories/logic.intermediate.json',
+    './js/tasks/task-data/categories/arithmetic.intermediate.json',
+    './js/tasks/task-data/categories/counting.advanced.json',
+    './js/tasks/task-data/categories/visual-logic.advanced.json',
+    './js/tasks/task-data/categories/patterns.advanced.json',
+    './js/tasks/task-data/categories/logic.advanced.json',
+    './js/tasks/task-data/categories/arithmetic.advanced.json',
     './js/tasks/task-data/compare-sets-variants.js',
     './js/tasks/task-data/count-and-match-variants.js',
     './js/tasks/task-data/logic-pairs-variants.js',
@@ -79,6 +90,7 @@ const STATIC_ASSETS = [
     './js/ui/joystick.js',
     './js/ui/music-controller.js',
     './js/ui/reward-effects.js',
+    './js/ui/stats-grid.js',
     './js/ui/theme-mode.js',
     './js/frame-guard.js',
     './css/offline.css'

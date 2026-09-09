@@ -1,0 +1,176 @@
+{
+  "id": "visual-logic.intermediate",
+  "unlockAtStars": 0,
+  "title": "Візуальна логіка — середній рівень",
+  "tasks": [
+    {
+      "id": "magic-square-forest-four-symbols",
+      "type": "magic-square",
+      "variant": {
+        "grid": ["🌲", "🍄", "🌼", "🍄", "🌼", "🌲", "🌼", "🌲", null],
+        "choices": [
+          { "id": "tree", "label": "🌲" },
+          { "id": "mushroom", "label": "🍄" },
+          { "id": "flower", "label": "🌼" }
+        ],
+        "correctChoiceId": "mushroom"
+      }
+    },
+    {
+      "id": "magic-square-middle-cell",
+      "type": "magic-square",
+      "variant": {
+        "grid": ["🌰", "🍁", "🌿", "🍁", null, "🌰", "🌿", "🌰", "🍁"],
+        "choices": [
+          { "id": "acorn", "label": "🌰" },
+          { "id": "maple", "label": "🍁" },
+          { "id": "herb", "label": "🌿" }
+        ],
+        "correctChoiceId": "herb"
+      }
+    },
+    {
+      "id": "magic-square-first-cell",
+      "type": "magic-square",
+      "variant": {
+        "grid": [null, "🦋", "🐝", "🦋", "🐝", "🐞", "🐝", "🐞", "🦋"],
+        "choices": [
+          { "id": "ladybug", "label": "🐞" },
+          { "id": "butterfly", "label": "🦋" },
+          { "id": "bee", "label": "🐝" }
+        ],
+        "correctChoiceId": "ladybug"
+      }
+    },
+    {
+      "id": "odd-one-out-wild-vs-farm",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "wolf", "label": "🐺" },
+          { "id": "fox", "label": "🦊" },
+          { "id": "bear", "label": "🐻" },
+          { "id": "cow", "label": "🐮" }
+        ],
+        "correctChoiceId": "cow"
+      }
+    },
+    {
+      "id": "odd-one-out-swim-vs-fly",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "bee", "label": "🐝" },
+          { "id": "bird", "label": "🐦" },
+          { "id": "bat", "label": "🦇" },
+          { "id": "fish", "label": "🐟" }
+        ],
+        "correctChoiceId": "fish"
+      }
+    },
+    {
+      "id": "odd-one-out-tools-vs-toy",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "hammer", "label": "🔨" },
+          { "id": "wrench", "label": "🔧" },
+          { "id": "scissors", "label": "✂️" },
+          { "id": "ball", "label": "⚽" }
+        ],
+        "correctChoiceId": "ball"
+      }
+    },
+    {
+      "id": "odd-one-out-vegetables-vs-fruit",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "carrot", "label": "🥕" },
+          { "id": "corn", "label": "🌽" },
+          { "id": "cucumber", "label": "🥒" },
+          { "id": "pear", "label": "🍐" }
+        ],
+        "correctChoiceId": "pear"
+      }
+    },
+    {
+      "id": "odd-one-out-many-vs-one-side",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "triangle", "label": "▲" },
+          { "id": "square", "label": "■" },
+          { "id": "diamond", "label": "◆" },
+          { "id": "circle", "label": "●" }
+        ],
+        "correctChoiceId": "circle"
+      }
+    },
+    {
+      "id": "logic-pairs-sheep-wool",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🐑",
+        "choices": [
+          { "id": "wool", "label": "🧶" },
+          { "id": "honey", "label": "🍯" },
+          { "id": "egg", "label": "🥚" }
+        ],
+        "correctChoiceId": "wool"
+      }
+    },
+    {
+      "id": "logic-pairs-cow-milk",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🐮",
+        "choices": [
+          { "id": "milk", "label": "🥛" },
+          { "id": "honey", "label": "🍯" },
+          { "id": "egg", "label": "🥚" }
+        ],
+        "correctChoiceId": "milk"
+      }
+    },
+    {
+      "id": "logic-pairs-chicken-egg",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🐔",
+        "choices": [
+          { "id": "egg", "label": "🥚" },
+          { "id": "cheese", "label": "🧀" },
+          { "id": "apple", "label": "🍎" }
+        ],
+        "correctChoiceId": "egg"
+      }
+    },
+    {
+      "id": "logic-pairs-seed-tree",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🌰",
+        "choices": [
+          { "id": "tree", "label": "🌳" },
+          { "id": "milk", "label": "🥛" },
+          { "id": "cloud", "label": "☁️" }
+        ],
+        "correctChoiceId": "tree"
+      }
+    },
+    {
+      "id": "logic-pairs-caterpillar-butterfly",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🐛",
+        "choices": [
+          { "id": "butterfly", "label": "🦋" },
+          { "id": "snail", "label": "🐌" },
+          { "id": "spider", "label": "🕷️" }
+        ],
+        "correctChoiceId": "butterfly"
+      }
+    }
+  ]
+}

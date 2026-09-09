@@ -27,6 +27,8 @@ export const MagicSquareTask = {
             prompt: t('taskUi.magicSquarePrompt'),
             instructions: t('taskUi.magicSquareInstructions'),
             reward: { stars: 1 },
+            // Сторона квадрата: 3 за замовчуванням, 4 — для складніших рівнів.
+            size: variant.size ?? Math.round(Math.sqrt(variant.grid.length)),
             grid: variant.grid,
             choices: variant.choices.map(normalizeChoice),
             correctChoiceId: variant.correctChoiceId
@@ -39,6 +41,8 @@ export const MagicSquareTask = {
 
         const square = document.createElement('div');
         square.className = 'task-magic-square';
+        // Кількість колонок задається даними; CSS читає її через [data-size].
+        square.dataset.size = `${task.size ?? 3}`;
         square.setAttribute('aria-label', task.prompt);
 
         let missingCell = null;

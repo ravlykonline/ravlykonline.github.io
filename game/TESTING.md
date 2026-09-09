@@ -135,7 +135,7 @@ js/tasks/task-registry.js
 Приклади:
 
 - `isNpcWithinRange()` повертає true/false правильно;
-- `shouldCollectApple()` спрацьовує на правильній відстані;
+- `shouldCollectItem()` спрацьовує на правильній відстані для яблук і груш;
 - `pickNearestByDistance()` знаходить найближчий об'єкт;
 - `TaskRegistry.createTask()` створює задачу з JSON-категорії;
 - невідома категорія задач кидає помилку в dev-тесті.

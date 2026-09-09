@@ -150,7 +150,7 @@ pwa/        Service Worker реєстрація
 js/game/world-generator.js    ✅
 js/game/spawn-rules.js        ✅
 js/game/collision-system.js   ✅
-js/game/apple-system.js       ✅
+js/game/collectible-system.js ✅
 js/game/camera-system.js      ✅
 js/game/session-state.js      ✅
 ```
@@ -430,7 +430,7 @@ js/i18n/uk.js
 
 1. ✅ Захистити session policy.
 2. ✅ Зробити `Input`/`EventBus` безпечними від повторної ініціалізації.
-3. ✅ Винести `apple-system` і `camera-system` з `GameScene`.
+3. ✅ Винести `collectible-system` і `camera-system` з `GameScene`.
 4. ✅ Додати task validation.
 5. ✅ Додати task evaluators.
 6. ✅ Додати тести для task-data (50 тестів, всі проходять).

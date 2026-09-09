@@ -1,5 +1,6 @@
 {
   "id": "logic.beginner",
+  "unlockAtStars": 5,
   "title": "Логіка",
   "tasks": [
     {

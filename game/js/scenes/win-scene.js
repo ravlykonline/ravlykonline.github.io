@@ -1,7 +1,12 @@
 import { ModalScene } from './modal-scene.js';
 import { t } from '../i18n/index.js';
 import { RewardEffects } from '../ui/reward-effects.js';
+import { createStatsGrid } from '../ui/stats-grid.js';
 
+/**
+ * Фінальний екран: показується після останнього рівня.
+ * `stats` — сумарний результат за всі рівні сесії.
+ */
 export class WinScene extends ModalScene {
     constructor(deps) {
         super({
@@ -19,42 +24,8 @@ export class WinScene extends ModalScene {
 
     init() {
         super.init();
-        this._renderStats();
+        this.dom.dialogContent.appendChild(createStatsGrid(this.stats));
         this._startCelebration();
-    }
-
-    _renderStats() {
-        const container = this.dom.dialogContent;
-
-        const grid = document.createElement('div');
-        grid.className = 'win-stats-grid';
-
-        const appleCard = this._makeStatCard('🍎', this.stats.apples, t('win.applesLabel'));
-        const starCard  = this._makeStatCard('⭐', this.stats.stars,  t('win.starsLabel'));
-
-        grid.append(appleCard, starCard);
-        container.appendChild(grid);
-    }
-
-    _makeStatCard(icon, value, label) {
-        const card = document.createElement('div');
-        card.className = 'win-stat-card';
-
-        const iconEl = document.createElement('span');
-        iconEl.className = 'win-stat-card__icon';
-        iconEl.setAttribute('aria-hidden', 'true');
-        iconEl.textContent = icon;
-
-        const valueEl = document.createElement('strong');
-        valueEl.className = 'win-stat-card__value';
-        valueEl.textContent = value ?? 0;
-
-        const labelEl = document.createElement('span');
-        labelEl.className = 'win-stat-card__label';
-        labelEl.textContent = label;
-
-        card.append(iconEl, valueEl, labelEl);
-        return card;
     }
 
     _startCelebration() {

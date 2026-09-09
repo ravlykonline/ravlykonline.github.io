@@ -1,0 +1,165 @@
+{
+  "id": "visual-logic.advanced",
+  "unlockAtStars": 0,
+  "title": "Візуальна логіка — складний рівень",
+  "tasks": [
+    {
+      "id": "magic-square-4x4-shapes-a",
+      "type": "magic-square",
+      "variant": {
+        "size": 4,
+        "grid": [
+          "●", "▲", "■", "◆",
+          "▲", "■", "◆", "●",
+          "■", "◆", "●", "▲",
+          "◆", "●", "▲", null
+        ],
+        "choices": [
+          { "id": "circle", "label": "●" },
+          { "id": "triangle", "label": "▲" },
+          { "id": "square", "label": "■" },
+          { "id": "diamond", "label": "◆" }
+        ],
+        "correctChoiceId": "square"
+      }
+    },
+    {
+      "id": "magic-square-4x4-shapes-middle",
+      "type": "magic-square",
+      "variant": {
+        "size": 4,
+        "grid": [
+          "★", "●", "▲", "■",
+          "●", null, "■", "★",
+          "▲", "■", "★", "●",
+          "■", "★", "●", "▲"
+        ],
+        "choices": [
+          { "id": "star", "label": "★" },
+          { "id": "circle", "label": "●" },
+          { "id": "triangle", "label": "▲" },
+          { "id": "square", "label": "■" }
+        ],
+        "correctChoiceId": "triangle"
+      }
+    },
+    {
+      "id": "magic-square-4x4-nature",
+      "type": "magic-square",
+      "variant": {
+        "size": 4,
+        "grid": [
+          "🌲", "🌼", "🍄", "🍁",
+          "🌼", "🍄", "🍁", "🌲",
+          "🍄", null, "🌲", "🌼",
+          "🍁", "🌲", "🌼", "🍄"
+        ],
+        "choices": [
+          { "id": "tree", "label": "🌲" },
+          { "id": "flower", "label": "🌼" },
+          { "id": "mushroom", "label": "🍄" },
+          { "id": "maple", "label": "🍁" }
+        ],
+        "correctChoiceId": "maple"
+      }
+    },
+    {
+      "id": "magic-square-4x4-water",
+      "type": "magic-square",
+      "variant": {
+        "size": 4,
+        "grid": [
+          "🐟", "🦆", "🐸", "🐌",
+          "🦆", "🐸", "🐌", "🐟",
+          "🐸", "🐌", "🐟", "🦆",
+          null, "🐟", "🦆", "🐸"
+        ],
+        "choices": [
+          { "id": "fish", "label": "🐟" },
+          { "id": "duck", "label": "🦆" },
+          { "id": "frog", "label": "🐸" },
+          { "id": "snail", "label": "🐌" }
+        ],
+        "correctChoiceId": "snail"
+      }
+    },
+    {
+      "id": "odd-one-out-lays-eggs",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "chicken", "label": "🐔" },
+          { "id": "duck", "label": "🦆" },
+          { "id": "turtle", "label": "🐢" },
+          { "id": "cow", "label": "🐮" }
+        ],
+        "correctChoiceId": "cow"
+      }
+    },
+    {
+      "id": "odd-one-out-lives-in-water",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "fish", "label": "🐟" },
+          { "id": "crab", "label": "🦀" },
+          { "id": "octopus", "label": "🐙" },
+          { "id": "bee", "label": "🐝" }
+        ],
+        "correctChoiceId": "bee"
+      }
+    },
+    {
+      "id": "odd-one-out-grows-on-tree",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "apple", "label": "🍎" },
+          { "id": "pear", "label": "🍐" },
+          { "id": "cherry", "label": "🍒" },
+          { "id": "carrot", "label": "🥕" }
+        ],
+        "correctChoiceId": "carrot"
+      }
+    },
+    {
+      "id": "odd-one-out-has-shell",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "snail", "label": "🐌" },
+          { "id": "turtle", "label": "🐢" },
+          { "id": "crab", "label": "🦀" },
+          { "id": "fox", "label": "🦊" }
+        ],
+        "correctChoiceId": "fox"
+      }
+    },
+    {
+      "id": "odd-one-out-makes-light",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "sun", "label": "☀️" },
+          { "id": "candle", "label": "🕯️" },
+          { "id": "bulb", "label": "💡" },
+          { "id": "book", "label": "📕" }
+        ],
+        "correctChoiceId": "book"
+      }
+    },
+    {
+      "id": "odd-one-out-tools-for-writing",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "pencil", "label": "✏️" },
+          { "id": "pen", "label": "🖊️" },
+          { "id": "crayon", "label": "🖍️" },
+          { "id": "spoon", "label": "🥄" }
+        ],
+        "correctChoiceId": "spoon"
+      }
+    }
+  ]
+}

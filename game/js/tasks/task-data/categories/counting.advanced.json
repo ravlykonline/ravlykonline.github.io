@@ -1,0 +1,118 @@
+{
+  "id": "counting.advanced",
+  "unlockAtStars": 0,
+  "title": "Лічба до 20",
+  "tasks": [
+    {
+      "id": "count-match-thirteen",
+      "type": "count-and-match",
+      "variant": {
+        "count": 13,
+        "choices": ["12", "13", "14"],
+        "correctChoiceId": "13"
+      }
+    },
+    {
+      "id": "count-match-fourteen",
+      "type": "count-and-match",
+      "variant": {
+        "count": 14,
+        "choices": ["13", "14", "15"],
+        "correctChoiceId": "14"
+      }
+    },
+    {
+      "id": "count-match-fifteen",
+      "type": "count-and-match",
+      "variant": {
+        "count": 15,
+        "choices": ["14", "15", "16"],
+        "correctChoiceId": "15"
+      }
+    },
+    {
+      "id": "count-match-sixteen",
+      "type": "count-and-match",
+      "variant": {
+        "count": 16,
+        "choices": ["15", "16", "17"],
+        "correctChoiceId": "16"
+      }
+    },
+    {
+      "id": "count-match-eighteen",
+      "type": "count-and-match",
+      "variant": {
+        "count": 18,
+        "choices": ["17", "18", "19"],
+        "correctChoiceId": "18"
+      }
+    },
+    {
+      "id": "order-asc-five-numbers-a",
+      "type": "order-numbers",
+      "options": { "direction": "asc" },
+      "variant": { "numbers": [8, 3, 12, 6, 15] }
+    },
+    {
+      "id": "order-asc-five-numbers-b",
+      "type": "order-numbers",
+      "options": { "direction": "asc" },
+      "variant": { "numbers": [14, 9, 20, 11, 17] }
+    },
+    {
+      "id": "order-asc-five-numbers-c",
+      "type": "order-numbers",
+      "options": { "direction": "asc" },
+      "variant": { "numbers": [7, 13, 4, 19, 10] }
+    },
+    {
+      "id": "order-desc-five-numbers-a",
+      "type": "order-numbers",
+      "options": { "direction": "desc" },
+      "variant": { "numbers": [5, 16, 9, 13, 2] }
+    },
+    {
+      "id": "order-desc-five-numbers-b",
+      "type": "order-numbers",
+      "options": { "direction": "desc" },
+      "variant": { "numbers": [18, 6, 11, 20, 14] }
+    },
+    {
+      "id": "order-desc-five-numbers-c",
+      "type": "order-numbers",
+      "options": { "direction": "desc" },
+      "variant": { "numbers": [12, 17, 3, 8, 15] }
+    },
+    {
+      "id": "compare-sets-fourteen-fifteen-more",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "more",
+        "leftCount": 14,
+        "rightCount": 15,
+        "correctChoiceId": "right"
+      }
+    },
+    {
+      "id": "compare-sets-sixteen-thirteen-less",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "less",
+        "leftCount": 16,
+        "rightCount": 13,
+        "correctChoiceId": "right"
+      }
+    },
+    {
+      "id": "compare-sets-eleven-eleven-plus-one",
+      "type": "compare-sets",
+      "variant": {
+        "mode": "more",
+        "leftCount": 12,
+        "rightCount": 11,
+        "correctChoiceId": "left"
+      }
+    }
+  ]
+}
