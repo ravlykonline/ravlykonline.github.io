@@ -85,7 +85,9 @@ body[data-font-mode="readable"] {
 
 #game-area {
     position: absolute;
-    /* ВАЖЛИВО: розміри мають відповідати CONFIG.worldWidth × CONFIG.worldHeight у js/core/config.js */
+    /* Розміри — це запасне значення для першого кадру та для тестів без сцени.
+       Фактичний розмір світу задає рівень: GameScene.applyWorldSize() виставляє
+       width/height з level.world (див. js/game/level-data.js). */
     width: 4200px;
     height: 4200px;
     background-color: var(--color-grass-dark);
@@ -554,6 +556,11 @@ body[data-font-mode="readable"] {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--space-3);
+}
+
+/* Рівні з грушами показують три картки підсумків */
+.win-stats-grid--three {
+    grid-template-columns: repeat(3, 1fr);
 }
 
 .win-stat-card {

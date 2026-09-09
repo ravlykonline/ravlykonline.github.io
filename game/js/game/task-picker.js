@@ -1,18 +1,23 @@
 import { t } from '../i18n/index.js';
 import { TaskRegistry } from '../tasks/task-registry.js';
+import { TaskCatalog } from '../tasks/task-catalog.js';
 
-// Pool IDs classified by difficulty tier
-// Easy: always available; Medium: unlocked at 5 stars; Hard: unlocked at 10 stars
-const MEDIUM_POOLS = new Set(['patterns.beginner', 'logic.beginner']);
-const HARD_POOLS   = new Set(['arithmetic.beginner']);
-
+/**
+ * Відсіяти банки, які ще не відкрились за кількістю зірочок.
+ * Поріг задається полем `unlockAtStars` у самій JSON-категорії,
+ * тому нові банки додаються без правок цього файлу.
+ *
+ * @param {string[]} taskPoolIds
+ * @param {number} earnedStars
+ * @returns {string[]}
+ */
 function filterPoolsByDifficulty(taskPoolIds, earnedStars) {
-    const filtered = taskPoolIds.filter((poolId) => {
-        if (HARD_POOLS.has(poolId))   return earnedStars >= 10;
-        if (MEDIUM_POOLS.has(poolId)) return earnedStars >= 5;
-        return true; // easy pools always available
-    });
-    // Fallback: if all pools were filtered out (shouldn't happen), use all pools
+    const filtered = taskPoolIds.filter(
+        (poolId) => earnedStars >= TaskCatalog.getUnlockAtStars(poolId)
+    );
+
+    // Запобіжник: якщо відсіялось усе (наприклад, у NPC лише «важкі» банки),
+    // краще дати складніше завдання, ніж не дати жодного.
     return filtered.length > 0 ? filtered : taskPoolIds;
 }
 
@@ -30,7 +35,7 @@ export const TaskPicker = {
     /**
      * Pick a task appropriate for the player's current skill level.
      * @param {string[]} taskPoolIds - pools this NPC can draw from
-     * @param {number} earnedStars   - stars collected so far this session
+     * @param {number} earnedStars   - stars collected so far this level
      * @param {Function} random
      * @param {object|null} session
      */
@@ -46,7 +51,7 @@ export const TaskPicker = {
             ...npc,
             taskPoolIds,
             name: t(npc.nameKey),
-            // Initial task uses only easy pools (earnedStars = 0 at session start)
+            // Initial task uses only easy pools (earnedStars = 0 at level start)
             activeTask: this.pickAdaptiveTask(taskPoolIds, 0, random, session),
             hasPrompted: false,
             isNearby: false

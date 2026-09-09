@@ -20,7 +20,8 @@ export const HUDController = {
             onPause?.();
         });
         this.setExpanded(false);
-        this.setSessionSummary({ apples: 0, stars: 0 });
+        this.setPearsVisible(false);
+        this.setSessionSummary({ apples: 0, pears: 0, stars: 0 });
         this.setObjective(t('hud.objectiveText'));
         this.setContext(t('hud.contextIdle'));
         this.setNearbyNpc(null);
@@ -45,8 +46,37 @@ export const HUDController = {
         }, ms);
     },
 
-    setSessionSummary({ apples, stars }) {
-        setTextContent(this.dom.hudSession, t('hud.sessionStatus', { apples, stars }));
+    /**
+     * Лічильник груш ховається на рівнях, де груш немає (рівень 1),
+     * щоб дитина не шукала предмет, якого на карті не існує.
+     * @param {boolean} isVisible
+     */
+    setPearsVisible(isVisible) {
+        this._hasPears = isVisible;
+        this.dom?.hudPearsStat?.classList.toggle('hidden', !isVisible);
+        this.dom?.hudStats?.classList.toggle('hud-stats--three', isVisible);
+        // Три лічильники не влазять у стандартну ширину панелі — розширюємо її.
+        this.dom?.uiLayer?.classList.toggle('ui-layer--wide', isVisible);
+    },
+
+    /**
+     * Показати, на якому рівні дитина зараз.
+     * @param {{index: number, total: number, name: string}} level
+     */
+    setLevel({ index, total, name }) {
+        if (!this.dom?.hudLevel) {
+            return;
+        }
+
+        this.dom.hudLevel.textContent = t('hud.levelBadge', { index, total });
+        this.dom.hudLevel.setAttribute('aria-label', t('hud.levelBadgeLabel', { index, total, name }));
+    },
+
+    setSessionSummary({ apples, pears = 0, stars }) {
+        const message = this._hasPears
+            ? t('hud.sessionStatusPears', { apples, pears, stars })
+            : t('hud.sessionStatus', { apples, stars });
+        setTextContent(this.dom.hudSession, message);
     },
 
     setObjective(message) {

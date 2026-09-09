@@ -1,5 +1,6 @@
 {
   "id": "arithmetic.beginner",
+  "unlockAtStars": 10,
   "title": "Додавання і віднімання",
   "tasks": [
     {

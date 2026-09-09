@@ -1,0 +1,163 @@
+{
+  "id": "logic.advanced",
+  "unlockAtStars": 4,
+  "title": "Логіка — складний рівень",
+  "tasks": [
+    {
+      "id": "logic-adv-pairs-egg-chick",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🥚",
+        "choices": [
+          { "id": "chick", "label": "🐣" },
+          { "id": "flower", "label": "🌼" },
+          { "id": "mountain", "label": "⛰️" }
+        ],
+        "correctChoiceId": "chick"
+      }
+    },
+    {
+      "id": "logic-adv-pairs-sprout-tree",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🌱",
+        "choices": [
+          { "id": "tree", "label": "🌳" },
+          { "id": "fish", "label": "🐟" },
+          { "id": "cloud", "label": "☁️" }
+        ],
+        "correctChoiceId": "tree"
+      }
+    },
+    {
+      "id": "logic-adv-pairs-wheat-bread",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🌾",
+        "choices": [
+          { "id": "bread", "label": "🍞" },
+          { "id": "cheese", "label": "🧀" },
+          { "id": "fish", "label": "🐟" }
+        ],
+        "correctChoiceId": "bread"
+      }
+    },
+    {
+      "id": "logic-adv-pairs-milk-cheese",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🥛",
+        "choices": [
+          { "id": "cheese", "label": "🧀" },
+          { "id": "honey", "label": "🍯" },
+          { "id": "apple", "label": "🍎" }
+        ],
+        "correctChoiceId": "cheese"
+      }
+    },
+    {
+      "id": "logic-adv-pairs-grape-juice",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🍇",
+        "choices": [
+          { "id": "juice", "label": "🧃" },
+          { "id": "bread", "label": "🍞" },
+          { "id": "egg", "label": "🥚" }
+        ],
+        "correctChoiceId": "juice"
+      }
+    },
+    {
+      "id": "logic-adv-pairs-boat-water",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "⛵",
+        "choices": [
+          { "id": "water", "label": "🌊" },
+          { "id": "road", "label": "🛣️" },
+          { "id": "sky", "label": "☁️" }
+        ],
+        "correctChoiceId": "water"
+      }
+    },
+    {
+      "id": "logic-adv-odd-swims-not-flies",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "eagle", "label": "🦅" },
+          { "id": "swan", "label": "🦢" },
+          { "id": "bat", "label": "🦇" },
+          { "id": "crab", "label": "🦀" }
+        ],
+        "correctChoiceId": "crab"
+      }
+    },
+    {
+      "id": "logic-adv-odd-animals-vs-machine",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "chick", "label": "🐣" },
+          { "id": "lamb", "label": "🐑" },
+          { "id": "piglet", "label": "🐷" },
+          { "id": "tractor", "label": "🚜" }
+        ],
+        "correctChoiceId": "tractor"
+      }
+    },
+    {
+      "id": "logic-adv-odd-natural-vs-made",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "tree", "label": "🌳" },
+          { "id": "river", "label": "🌊" },
+          { "id": "mountain", "label": "⛰️" },
+          { "id": "bridge", "label": "🌉" }
+        ],
+        "correctChoiceId": "bridge"
+      }
+    },
+    {
+      "id": "logic-adv-odd-winter-vs-summer",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "snowman", "label": "⛄" },
+          { "id": "mittens", "label": "🧤" },
+          { "id": "snowflake", "label": "❄️" },
+          { "id": "watermelon", "label": "🍉" }
+        ],
+        "correctChoiceId": "watermelon"
+      }
+    },
+    {
+      "id": "logic-adv-odd-more-than-four-legs",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "ant", "label": "🐜" },
+          { "id": "bee", "label": "🐝" },
+          { "id": "spider", "label": "🕷️" },
+          { "id": "duck", "label": "🦆" }
+        ],
+        "correctChoiceId": "duck"
+      }
+    },
+    {
+      "id": "logic-adv-odd-gives-light-vs-sound",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "bell", "label": "🔔" },
+          { "id": "drum", "label": "🥁" },
+          { "id": "guitar", "label": "🎸" },
+          { "id": "bulb", "label": "💡" }
+        ],
+        "correctChoiceId": "bulb"
+      }
+    }
+  ]
+}

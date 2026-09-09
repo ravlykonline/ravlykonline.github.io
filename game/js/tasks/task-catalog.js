@@ -4,6 +4,16 @@ import patternsBeginner from './task-data/categories/patterns.beginner.json' wit
 import countingBeginner from './task-data/categories/counting.beginner.json' with { type: 'json' };
 import arithmeticBeginner from './task-data/categories/arithmetic.beginner.json' with { type: 'json' };
 import visualLogicBeginner from './task-data/categories/visual-logic.beginner.json' with { type: 'json' };
+import countingIntermediate from './task-data/categories/counting.intermediate.json' with { type: 'json' };
+import visualLogicIntermediate from './task-data/categories/visual-logic.intermediate.json' with { type: 'json' };
+import patternsIntermediate from './task-data/categories/patterns.intermediate.json' with { type: 'json' };
+import logicIntermediate from './task-data/categories/logic.intermediate.json' with { type: 'json' };
+import arithmeticIntermediate from './task-data/categories/arithmetic.intermediate.json' with { type: 'json' };
+import countingAdvanced from './task-data/categories/counting.advanced.json' with { type: 'json' };
+import visualLogicAdvanced from './task-data/categories/visual-logic.advanced.json' with { type: 'json' };
+import patternsAdvanced from './task-data/categories/patterns.advanced.json' with { type: 'json' };
+import logicAdvanced from './task-data/categories/logic.advanced.json' with { type: 'json' };
+import arithmeticAdvanced from './task-data/categories/arithmetic.advanced.json' with { type: 'json' };
 
 const CATEGORIES = [
     observationBeginner,
@@ -11,7 +21,17 @@ const CATEGORIES = [
     patternsBeginner,
     countingBeginner,
     arithmeticBeginner,
-    visualLogicBeginner
+    visualLogicBeginner,
+    countingIntermediate,
+    visualLogicIntermediate,
+    patternsIntermediate,
+    logicIntermediate,
+    arithmeticIntermediate,
+    countingAdvanced,
+    visualLogicAdvanced,
+    patternsAdvanced,
+    logicAdvanced,
+    arithmeticAdvanced
 ];
 
 function normalizePoolIds(poolIds) {
@@ -37,6 +57,11 @@ function validateCategory(category) {
 
     if (!Array.isArray(category.tasks) || category.tasks.length === 0) {
         throw new Error(`Task category "${category.id}" must contain tasks.`);
+    }
+
+    if (category.unlockAtStars !== undefined
+        && (!Number.isInteger(category.unlockAtStars) || category.unlockAtStars < 0)) {
+        throw new Error(`Task category "${category.id}" has invalid unlockAtStars.`);
     }
 
     const ids = new Set();
@@ -93,5 +118,15 @@ export const TaskCatalog = {
 
     getTaskIds(poolIds) {
         return this.getTasks(poolIds).map((task) => task.id);
+    },
+
+    /**
+     * Скільки зірочок треба зібрати, щоб цей банк завдань став доступним.
+     * Категорії без явного `unlockAtStars` доступні одразу.
+     * @param {string} poolId
+     * @returns {number}
+     */
+    getUnlockAtStars(poolId) {
+        return this.getCategory(poolId)?.unlockAtStars ?? 0;
     }
 };

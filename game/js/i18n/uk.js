@@ -18,14 +18,24 @@ export const uk = {
         dialogTextFallback: 'Текст діалогу...',
         dialogButtonFallback: 'Далі'
     },
+    levels: {
+        level1Name: 'Сонячна галявина',
+        level2Name: 'Густий ліс',
+        level3Name: 'Біля ставка'
+    },
     hud: {
         kicker: 'Лісова прогулянка',
         applesLabel: 'Яблука',
+        pearsLabel: 'Груші',
         starsLabel: 'Зірочки',
+        levelBadge: 'Рівень {index}/{total}',
+        levelBadgeLabel: 'Рівень {index} з {total}: {name}',
         objectiveLabel: 'Ціль',
         objectiveText: 'Збирай яблука. Підходь до друзів.',
+        objectiveTextPears: 'Збирай яблука і груші. Підходь до друзів.',
         objectiveMeetNpc: 'Підійди до {name}.',
         objectiveApplesRemaining: 'Залишилось яблук: {count}.',
+        objectiveItemsRemaining: 'Залишилось яблук: {apples}, груш: {pears}.',
         fontToggle: 'Aa',
         fontToggleLabel: 'Перемкнути шрифт для читання',
         themeToggleDark: '🌙',
@@ -41,6 +51,7 @@ export const uk = {
         sessionLabel: 'Сесія',
         sessionStatusDefault: 'Нова прогулянка почалася: 0 яблук і 0 зірочок.',
         sessionStatus: 'У цій грі вже зібрано {apples} яблук і {stars} зірочок.',
+        sessionStatusPears: 'На цьому рівні вже зібрано {apples} яблук, {pears} груш і {stars} зірочок.',
         contextLabel: 'Поруч зараз',
         contextIdle: 'Шукай яблука й друзів.',
         contextIntro: 'Збирай яблука й шукай друзів.',
@@ -49,7 +60,7 @@ export const uk = {
     },
     intro: {
         title: '🐌 Равлик-мандрівник',
-        text: '🍎 Збирай яблука по галявині\n🐾 Підходь до лісових друзів\n⭐ Розв\'язуй завдання і збирай зірочки!',
+        text: '🍎 Збирай яблука по галявині\n🐾 Підходь до лісових друзів\n⭐ Розв\'язуй завдання і збирай зірочки!\n🗺️ Пройди всі три рівні — далі буде ще й груші!',
         button: '🌿 Вирушити в подорож!'
     },
     dialog: {
@@ -59,22 +70,26 @@ export const uk = {
     },
     score: {
         display: '🍎 {apples}/{totalApples} | ⭐ {stars}/{totalStars}',
-        aria: 'Зібрано яблук: {apples} з {totalApples}. Отримано зірочок: {stars} з {totalStars}.'
+        displayPears: '🍎 {apples}/{totalApples} | 🍐 {pears}/{totalPears} | ⭐ {stars}/{totalStars}',
+        aria: 'Зібрано яблук: {apples} з {totalApples}. Отримано зірочок: {stars} з {totalStars}.',
+        ariaPears: 'Зібрано яблук: {apples} з {totalApples}. Зібрано груш: {pears} з {totalPears}. Отримано зірочок: {stars} з {totalStars}.'
     },
     announcer: {
         keyboardModeOn: 'Режим вибору цілі активовано. Використовуйте стрілки, Enter для підтвердження, T або Escape для виходу.',
         keyboardModeOff: 'Режим вибору цілі вимкнено',
         targetSet: 'Ціль встановлено',
         newGameStarted: 'Нова гра почалась. Збирай яблука й шукай друзів.',
+        levelStarted: 'Рівень {index}: {name}. Збирай предмети й шукай друзів.',
         gameResumed: 'Гра продовжується',
         npcNearby: 'Поруч {name}. Enter або клік відкриє завдання.',
         moveCloser: 'Підійдіть ближче, щоб поговорити.',
         puzzleCompleted: 'Завдання від {name} виконано. Ви отримали зірочку!',
-        applesRemaining: 'Яблуко зібрано. Залишилось {count} яблук.'
+        applesRemaining: 'Яблуко зібрано. Залишилось {count} яблук.',
+        itemsRemaining: 'Предмет зібрано. Залишилось {apples} яблук і {pears} груш.'
     },
     gameState: {
         position: 'Позиція: {x}, {y}. ',
-        nearestApple: 'Найближче яблуко {direction} на відстані {distance} пікселів. ',
+        nearestItem: 'Найближче: {item} {direction} на відстані {distance} пікселів. ',
         nearbyNpc: 'Поруч {name}. Можна відкрити завдання.'
     },
     entities: {
@@ -82,6 +97,7 @@ export const uk = {
         bush: 'Кущ',
         twig: 'Гілка',
         apple: 'Яблуко',
+        pear: 'Груша',
         npcPrompt: '{name}. Підійдіть ближче і натисніть Enter або клікніть.',
         npcCompleted: '{name}. Завдання виконано, отримано зірочку.',
         mouseIcon: '🐭',
@@ -111,7 +127,20 @@ export const uk = {
         otterIcon: '🦦',
         chickenIcon: '🐔',
         lambIcon: '🐑',
-        antIcon: '🐜'
+        antIcon: '🐜',
+        wolfIcon: '🐺',
+        boarIcon: '🐗',
+        batIcon: '🦇',
+        cricketIcon: '🦗',
+        lizardIcon: '🦎',
+        eagleIcon: '🦅',
+        snakeIcon: '🐍',
+        fishIcon: '🐟',
+        swanIcon: '🦢',
+        crabIcon: '🦀',
+        horseIcon: '🐴',
+        cowIcon: '🐮',
+        pigIcon: '🐷'
     },
     directions: {
         right: 'праворуч',
@@ -151,20 +180,40 @@ export const uk = {
         otterName: 'Видра',
         chickenName: 'Курочка',
         lambName: 'Ягнятко',
-        antName: 'Мурашка'
+        antName: 'Мурашка',
+        wolfName: 'Вовчик',
+        boarName: 'Кабанчик',
+        batName: 'Кажанчик',
+        cricketName: 'Цвіркунчик',
+        lizardName: 'Ящірка',
+        eagleName: 'Орлик',
+        snakeName: 'Вужик',
+        fishName: 'Рибка',
+        swanName: 'Лебедик',
+        crabName: 'Крабик',
+        horseName: 'Конячка',
+        cowName: 'Корівка',
+        pigName: 'Поросятко'
     },
     pause: {
         title: '⏸ Пауза',
         text: 'Гра на паузі. Натисни кнопку щоб продовжити.',
         button: '▶ Продовжити'
     },
+    levelComplete: {
+        title: '🎊 Рівень пройдено: {name}!',
+        summary: 'Тут усе зібрано. Далі на тебе чекає {next}.',
+        button: '➡️ Вперед у {next}!',
+        announce: 'Рівень {name} пройдено. Зібрано {apples} яблук, {pears} груш і {stars} зірочок. Далі рівень {next}. Натисни кнопку щоб продовжити.'
+    },
     win: {
         title: '🎉 Ти справжній мандрівник!',
-        summary: 'Ти зібрав усі яблука й познайомився з усіма лісовими друзями!',
+        summary: 'Ти пройшов усі три рівні, зібрав усі яблука й груші та познайомився з усіма друзями!',
         applesLabel: 'яблук зібрано',
+        pearsLabel: 'груш зібрано',
         starsLabel: 'зірочок отримано',
         button: '🌿 Грати ще раз!',
-        announce: 'Вітаємо! Гру завершено. Зібрано {apples} яблук і {stars} зірочок. Натисни кнопку щоб грати знову.'
+        announce: 'Вітаємо! Гру завершено. Разом зібрано {apples} яблук, {pears} груш і {stars} зірочок. Натисни кнопку щоб грати знову.'
     },
     tasks: {
         m1_p1: 'Привіт! Я Мишка. Завдання: знайди, де більше кружечків — ліворуч чи праворуч?',

@@ -48,13 +48,22 @@
     <div id="ui-layer" role="status" aria-live="polite" aria-atomic="true" data-game-interactive>
         <section id="hud-panel" class="hud-panel" data-i18n-aria-label="app.heading">
 
+            <!-- ⓪ Номер рівня — окремий вузький рядок, щоб не тіснити лічильники -->
+            <p id="hud-level" class="hud-level-badge"></p>
+
             <!-- ① Always-visible row: counters + setting buttons -->
             <div class="hud-topbar">
-                <div class="hud-stats" data-i18n-aria-label="hud.statsLabel">
+                <div id="hud-stats" class="hud-stats" data-i18n-aria-label="hud.statsLabel">
                     <article class="hud-stat hud-stat--apples">
                         <span class="hud-stat__icon" aria-hidden="true">🍎</span>
                         <span class="hud-stat__label" data-i18n="hud.applesLabel"></span>
                         <strong id="apples-count" class="hud-stat__value">0</strong>
+                    </article>
+                    <!-- Груші є не на кожному рівні — блок ховається через .hidden -->
+                    <article id="hud-stat-pears" class="hud-stat hud-stat--pears hidden">
+                        <span class="hud-stat__icon" aria-hidden="true">🍐</span>
+                        <span class="hud-stat__label" data-i18n="hud.pearsLabel"></span>
+                        <strong id="pears-count" class="hud-stat__value">0</strong>
                     </article>
                     <article class="hud-stat hud-stat--stars">
                         <span class="hud-stat__icon" aria-hidden="true">★</span>

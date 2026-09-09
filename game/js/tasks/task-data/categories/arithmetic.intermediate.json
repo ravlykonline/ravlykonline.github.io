@@ -1,0 +1,127 @@
+{
+  "id": "arithmetic.intermediate",
+  "unlockAtStars": 8,
+  "title": "Додавання і віднімання до 12",
+  "tasks": [
+    {
+      "id": "add-6-3",
+      "type": "simple-addition",
+      "variant": {
+        "left": 6,
+        "right": 3,
+        "choices": ["8", "9", "10"],
+        "correctChoiceId": "9"
+      }
+    },
+    {
+      "id": "add-5-5",
+      "type": "simple-addition",
+      "variant": {
+        "left": 5,
+        "right": 5,
+        "choices": ["9", "10", "11"],
+        "correctChoiceId": "10"
+      }
+    },
+    {
+      "id": "add-7-4",
+      "type": "simple-addition",
+      "variant": {
+        "left": 7,
+        "right": 4,
+        "choices": ["10", "11", "12"],
+        "correctChoiceId": "11"
+      }
+    },
+    {
+      "id": "add-8-4",
+      "type": "simple-addition",
+      "variant": {
+        "left": 8,
+        "right": 4,
+        "choices": ["11", "12", "13"],
+        "correctChoiceId": "12"
+      }
+    },
+    {
+      "id": "add-6-6",
+      "type": "simple-addition",
+      "variant": {
+        "left": 6,
+        "right": 6,
+        "choices": ["10", "12", "14"],
+        "correctChoiceId": "12"
+      }
+    },
+    {
+      "id": "add-9-2",
+      "type": "simple-addition",
+      "variant": {
+        "left": 9,
+        "right": 2,
+        "choices": ["10", "11", "12"],
+        "correctChoiceId": "11"
+      }
+    },
+    {
+      "id": "sub-10-4",
+      "type": "simple-subtraction",
+      "variant": {
+        "left": 10,
+        "right": 4,
+        "choices": ["5", "6", "7"],
+        "correctChoiceId": "6"
+      }
+    },
+    {
+      "id": "sub-11-5",
+      "type": "simple-subtraction",
+      "variant": {
+        "left": 11,
+        "right": 5,
+        "choices": ["5", "6", "7"],
+        "correctChoiceId": "6"
+      }
+    },
+    {
+      "id": "sub-12-7",
+      "type": "simple-subtraction",
+      "variant": {
+        "left": 12,
+        "right": 7,
+        "choices": ["4", "5", "6"],
+        "correctChoiceId": "5"
+      }
+    },
+    {
+      "id": "sub-9-6",
+      "type": "simple-subtraction",
+      "variant": {
+        "left": 9,
+        "right": 6,
+        "choices": ["2", "3", "4"],
+        "correctChoiceId": "3"
+      }
+    },
+    {
+      "id": "sub-12-3",
+      "type": "simple-subtraction",
+      "variant": {
+        "left": 12,
+        "right": 3,
+        "choices": ["8", "9", "10"],
+        "correctChoiceId": "9"
+      }
+    },
+    {
+      "id": "sub-10-10",
+      "type": "simple-subtraction",
+      "variant": {
+        "left": 10,
+        "right": 10,
+        "choices": ["0", "1", "10"],
+        "correctChoiceId": "0"
+      }
+    }
+  ]
+}

@@ -38,6 +38,23 @@ export const RewardEffects = {
         playTone(880, 0.07, 0.06);
     },
 
+    playPear() {
+        // Груша звучить нижче за яблуко — на слух видно, що зібрано інший предмет.
+        playTone(523, 0.06);
+        playTone(698, 0.07, 0.06);
+    },
+
+    /**
+     * @param {'apple'|'pear'} kind
+     */
+    playCollect(kind) {
+        if (kind === 'pear') {
+            this.playPear();
+            return;
+        }
+        this.playApple();
+    },
+
     playTryAgain() {
         playTone(220, 0.08);
         playTone(180, 0.1, 0.08);

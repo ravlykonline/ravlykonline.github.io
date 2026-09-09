@@ -16,9 +16,14 @@ export function createInitialPlayerState({ x = 2000, y = 2000 } = {}) {
 
 export function createInitialSessionState(levelData, { random = Math.random } = {}) {
     const session = {
+        level: {
+            id: levelData?.id ?? 'level1',
+            index: levelData?.index ?? 1,
+            nameKey: levelData?.nameKey ?? 'levels.level1Name'
+        },
         player: createInitialPlayerState(levelData?.playerStart),
         obstacles: [],
-        apples: [],
+        collectibles: [],
         npcs: [],
         nearbyNpcId: null,
         usedTaskIds: new Set(),

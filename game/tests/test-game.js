@@ -7,7 +7,7 @@ import { getDistanceFromRectCenter, rectsOverlap, canPlaceRect } from '../js/gam
 import { positionNpcs } from '../js/game/npc-spawner.js';
 import { generateWorld } from '../js/game/world-generator.js';
 import { approach, normalizeAngleDifference, updateAngle } from '../js/core/motion.js';
-import { isNpcWithinRange, shouldCollectApple, pickNearestByDistance } from '../js/game/rules.js';
+import { isNpcWithinRange, shouldCollectItem, pickNearestByDistance } from '../js/game/rules.js';
 import { TaskRegistry } from '../js/tasks/task-registry.js';
 import { TaskCatalog } from '../js/tasks/task-catalog.js';
 import { evaluateSingleChoice } from '../js/tasks/task-evaluators/single-choice.js';
@@ -17,7 +17,7 @@ import { HUDController } from '../js/ui/hud-controller.js';
 import { ThemeModeController } from '../js/ui/theme-mode.js';
 import { t } from '../js/i18n/index.js';
 import { Input } from '../js/core/input.js';
-import { CONFIG } from '../js/core/config.js';
+import { CONFIG, createLevelConfig } from '../js/core/config.js';
 
 const results = document.getElementById('results');
 const summary = document.getElementById('summary');
@@ -50,7 +50,8 @@ const TEST_WORLD_CONFIG = {
     worldWidth: 1000,
     worldHeight: 1000,
     obstacleCount: 2,
-    appleCount: 2
+    appleCount: 2,
+    pearCount: 2
 };
 
 const TEST_NPCS = [
@@ -122,7 +123,7 @@ test('SessionState створює чисту сесію без збережен�
     }, { random: () => 0 });
 
     assert(session.player.x === 100 && session.player.y === 120, 'SessionState має брати стартову позицію гравця.');
-    assert(session.apples.length === 0, 'Нова сесія стартує без згенерованих яблук до world generation.');
+    assert(session.collectibles.length === 0, 'Нова сесія стартує без згенерованих предметів до world generation.');
     assert(session.obstacles.length === 0, 'Нова сесія стартує без згенерованих перешкод до world generation.');
     assert(session.npcs.length === 1, 'SessionState має створювати NPC сесії.');
     assert(session.npcs[0].completed === false, 'NPC у новій сесії не має бути виконаним.');
@@ -151,14 +152,25 @@ test('WorldGenerator створює перешкоди й яблука без н
     });
 
     assert(world.obstacles.length === TEST_WORLD_CONFIG.obstacleCount, 'Має створювати потрібну кількість перешкод.');
-    assert(world.apples.length === TEST_WORLD_CONFIG.appleCount, 'Має створювати потрібну кількість яблук.');
+    assert(
+        world.collectibles.filter((item) => item.kind === 'apple').length === TEST_WORLD_CONFIG.appleCount,
+        'Має створювати потрібну кількість яблук.'
+    );
+    assert(
+        world.collectibles.filter((item) => item.kind === 'pear').length === TEST_WORLD_CONFIG.pearCount,
+        'Має створювати потрібну кількість груш.'
+    );
+    assert(
+        new Set(world.collectibles.map((item) => item.id)).size === world.collectibles.length,
+        'Кожен предмет має унікальний id — інакше DOM-елементи конфліктують.'
+    );
     assert(
         world.obstacles.every((obstacle) => getDistanceFromRectCenter(obstacle, player) >= 220),
         'Перешкоди не мають з’являтися біля старту Равлика.'
     );
     assert(
-        world.apples.every((apple) => !world.obstacles.some((obstacle) => rectsOverlap(apple, obstacle))),
-        'Яблука не мають з’являтися всередині перешкод.'
+        world.collectibles.every((item) => !world.obstacles.some((obstacle) => rectsOverlap(item, obstacle))),
+        'Предмети не мають з’являтися всередині перешкод.'
     );
 });
 
@@ -211,7 +223,7 @@ test('WorldGenerator не ставить яблука поверх NPC', () => {
 
     assert(world.npcs.length === 1, 'WorldGenerator має повернути позиціонованих NPC.');
     assert(
-        world.apples.every((apple) => !world.npcs.some((npc) => rectsOverlap(apple, npc))),
+        world.collectibles.every((item) => !world.npcs.some((npc) => rectsOverlap(item, npc))),
         'Яблука не мають з’являтися поверх NPC.'
     );
 });
@@ -267,9 +279,9 @@ test('isNpcWithinRange повертає true тільки в межах раді
     assert(isNpcWithinRange(121, 120) === false, 'NPC поза радіусом не має бути доступний.');
 });
 
-test('shouldCollectApple враховує радіус гравця', () => {
-    assert(shouldCollectApple(20, 20) === true, 'Близьке яблуко має збиратись.');
-    assert(shouldCollectApple(40, 20) === false, 'Далеке яблуко не має збиратись.');
+test('shouldCollectItem враховує радіус гравця', () => {
+    assert(shouldCollectItem(20, 20) === true, 'Близький предмет має збиратись.');
+    assert(shouldCollectItem(40, 20) === false, 'Далекий предмет не має збиратись.');
 });
 
 test('pickNearestByDistance повертає найближчий елемент', () => {
@@ -590,7 +602,7 @@ test('WorldGenerator spreads obstacles, apples and NPCs across the meadow', () =
     });
 
     assert(countOccupiedQuadrants(world.obstacles, config) >= 3, 'Obstacles should not cluster in one small area.');
-    assert(countOccupiedQuadrants(world.apples, config) >= 3, 'Apples should be spread across the meadow.');
+    assert(countOccupiedQuadrants(world.collectibles, config) >= 3, 'Collectibles should be spread across the meadow.');
     assert(countOccupiedQuadrants(world.npcs, config) >= 3, 'NPCs should be spread across the meadow.');
 });
 
@@ -781,20 +793,20 @@ test('CameraSystem: updateCamera зміщує targetCamera коли гравец
         'updateCamera має скоригувати позицію камери коли гравець біля лівого краю.');
 });
 
-test('AppleSystem: findNearestApple повертає найближче яблуко', async () => {
-    const { findNearestApple } = await import('../js/game/apple-system.js');
+test('CollectibleSystem: findNearestCollectible повертає найближче яблуко', async () => {
+    const { findNearestCollectible } = await import('../js/game/collectible-system.js');
     const apples = [
         { id: 1, x: 500, y: 500, w: 28 },
         { id: 2, x: 100, y: 100, w: 28 },
         { id: 3, x: 200, y: 200, w: 28 }
     ];
-    const nearest = findNearestApple(apples, 110, 110);
+    const nearest = findNearestCollectible(apples, 110, 110);
     assert(nearest && nearest.id === 2, `Має повернутись яблуко id=2, отримано id=${nearest?.id}`);
 });
 
-test('AppleSystem: findNearestApple повертає null для порожнього масиву', async () => {
-    const { findNearestApple } = await import('../js/game/apple-system.js');
-    const result = findNearestApple([], 100, 100);
+test('CollectibleSystem: findNearestCollectible повертає null для порожнього масиву', async () => {
+    const { findNearestCollectible } = await import('../js/game/collectible-system.js');
+    const result = findNearestCollectible([], 100, 100);
     assert(result === null, 'Для порожнього масиву має повертатись null.');
 });
 
@@ -813,20 +825,27 @@ test('playerRadius достатній щоб не виходити за межі
         `playerRadius=${CONFIG.playerRadius} — тіло равлика виступає на ~4px за межу колізії, потрібно мінімум 24.`);
 });
 
-test('CONFIG.worldWidth і worldHeight відповідають розміру #game-area у CSS (4200px)', () => {
-    // CSS #game-area має width/height = 4200px — якщо CONFIG змінять, CSS треба оновити теж
-    assert(CONFIG.worldWidth === 4200,
-        `CONFIG.worldWidth=${CONFIG.worldWidth}, але #game-area у CSS має бути 4200px. Синхронізуй style.css.`);
-    assert(CONFIG.worldHeight === 4200,
-        `CONFIG.worldHeight=${CONFIG.worldHeight}, але #game-area у CSS має бути 4200px. Синхронізуй style.css.`);
+test('Розмір світу кожного рівня задається даними рівня, а не лише CSS', () => {
+    // #game-area у CSS має fallback 4200px; фактичний розмір виставляє GameScene.applyWorldSize()
+    assert(CONFIG.worldWidth === 4200 && CONFIG.worldHeight === 4200,
+        'Базовий CONFIG має збігатися з fallback-розміром #game-area у style.css (4200px).');
+
+    LevelData.sequence.forEach((level) => {
+        const config = createLevelConfig(level);
+        assert(config.worldWidth >= 4200 && config.worldHeight >= 4200,
+            `${level.id}: світ не має бути меншим за перший рівень.`);
+        assert(config.worldWidth === level.world.worldWidth,
+            `${level.id}: createLevelConfig має брати розмір саме з даних рівня.`);
+    });
 });
 
-test('WorldGenerator: яблука не накладаються одне на одне', () => {
+test('WorldGenerator: предмети не накладаються одне на одне', () => {
     const config = {
         worldWidth: 1600,
         worldHeight: 1600,
         obstacleCount: 8,
-        appleCount: 20
+        appleCount: 20,
+        pearCount: 10
     };
     const world = generateWorld({
         config,
@@ -835,7 +854,7 @@ test('WorldGenerator: яблука не накладаються одне на �
         random: createSeededRandom(99)
     });
 
-    const apples = world.apples;
+    const apples = world.collectibles;
     for (let i = 0; i < apples.length; i += 1) {
         for (let j = i + 1; j < apples.length; j += 1) {
             const a = apples[i];
@@ -853,6 +872,301 @@ test('order-numbers instructions не містять "по черзі"', () => {
     assert(!desc.includes('по черзі'), `orderDescInstructions не повинна містити "по черзі": "${desc}"`);
     assert(asc.includes('меншого'), `orderAscInstructions має вказувати напрямок (меншого→більшого): "${asc}"`);
     assert(desc.includes('більшого'), `orderDescInstructions має вказувати напрямок (більшого→меншого): "${desc}"`);
+});
+
+// ── Тести: три рівні, груші, дані складності ─────────────────────
+
+test('LevelData має рівно три рівні з унікальними id та зростаючою складністю', () => {
+    const levels = LevelData.sequence;
+
+    assert(levels.length === 3, `Очікується 3 рівні, знайдено ${levels.length}.`);
+    assert(new Set(levels.map((level) => level.id)).size === 3, 'id рівнів мають бути унікальними.');
+
+    levels.forEach((level, position) => {
+        assert(level.index === position + 1, `${level.id}: index має відповідати позиції в послідовності.`);
+        assert(t(level.nameKey) !== level.nameKey, `${level.id}: назва "${level.nameKey}" має бути перекладена.`);
+        assert(level.npcs.length >= 24, `${level.id}: рівень має містити щонайменше 24 звірів.`);
+        assert(
+            new Set(level.npcs.map((npc) => npc.id)).size === level.npcs.length,
+            `${level.id}: id звірів мають бути унікальними в межах рівня.`
+        );
+    });
+
+    assert(LevelData.getByIndex(1) === levels[0], 'getByIndex(1) має повертати перший рівень.');
+    assert(LevelData.getByIndex(4) === null, 'getByIndex за межами послідовності має повертати null.');
+    assert(LevelData.hasNext(1) === true && LevelData.hasNext(3) === false, 'hasNext має бачити кінець послідовності.');
+});
+
+test('Кожен рівень посилається лише на банки завдань, що існують', () => {
+    LevelData.sequence.forEach((level) => {
+        level.npcs.forEach((npc) => {
+            const poolIds = npc.taskPoolIds ?? [npc.taskPoolId];
+            assert(poolIds.length >= 1, `${npc.id}: має бути щонайменше один банк завдань.`);
+            assert(Boolean(npc.distributionGroup), `${npc.id}: має бути distributionGroup.`);
+            poolIds.forEach((poolId) => {
+                assert(TaskCatalog.getCategory(poolId), `${npc.id}: банк "${poolId}" не існує.`);
+            });
+            assert(t(npc.nameKey) !== npc.nameKey, `${npc.id}: імʼя "${npc.nameKey}" має бути перекладене.`);
+            const iconKey = `entities.${npc.type}Icon`;
+            assert(t(iconKey) !== iconKey, `${npc.id}: тип "${npc.type}" має мати іконку.`);
+        });
+    });
+});
+
+test('Кожен NPC має щонайменше один банк, доступний з нуля зірочок', () => {
+    // Інакше на старті рівня спрацює fallback і дитина одразу отримає складне завдання.
+    LevelData.sequence.forEach((level) => {
+        level.npcs.forEach((npc) => {
+            const poolIds = npc.taskPoolIds ?? [npc.taskPoolId];
+            const openAtStart = poolIds.filter((poolId) => TaskCatalog.getUnlockAtStars(poolId) === 0);
+            assert(
+                openAtStart.length >= 1,
+                `${level.id}/${npc.id}: усі банки закриті на старті — потрібен хоча б один з unlockAtStars = 0.`
+            );
+        });
+    });
+});
+
+test('Кожному NPC рівня вистачає завдань, щоб вони не повторювались', () => {
+    LevelData.sequence.forEach((level) => {
+        const poolIds = new Set(level.npcs.flatMap((npc) => npc.taskPoolIds ?? [npc.taskPoolId]));
+        const available = TaskCatalog.getTaskIds([...poolIds]).length;
+        assert(
+            available >= level.npcs.length,
+            `${level.id}: ${available} завдань на ${level.npcs.length} звірів — завдання повторюватимуться.`
+        );
+    });
+});
+
+test('Рівні 2 і 3 використовують складніші банки, ніж рівень 1', () => {
+    const poolsOf = (level) => new Set(level.npcs.flatMap((npc) => npc.taskPoolIds ?? [npc.taskPoolId]));
+    const level1Pools = poolsOf(LevelData.level1);
+    const level2Pools = poolsOf(LevelData.level2);
+    const level3Pools = poolsOf(LevelData.level3);
+
+    assert(
+        [...level1Pools].every((poolId) => poolId.endsWith('.beginner')),
+        'Рівень 1 має лишатись на beginner-банках.'
+    );
+    assert(
+        [...level2Pools].every((poolId) => poolId.endsWith('.intermediate')),
+        'Рівень 2 має використовувати intermediate-банки.'
+    );
+    assert(
+        [...level3Pools].every((poolId) => poolId.endsWith('.advanced')),
+        'Рівень 3 має використовувати advanced-банки.'
+    );
+    assert(
+        [...level2Pools].every((poolId) => !level1Pools.has(poolId)),
+        'Банки рівня 2 не мають дублювати банки рівня 1.'
+    );
+});
+
+test('Груші є на рівнях 2 і 3, але не на рівні 1', () => {
+    const level1 = createLevelConfig(LevelData.level1);
+    const level2 = createLevelConfig(LevelData.level2);
+    const level3 = createLevelConfig(LevelData.level3);
+
+    assert(level1.pearCount === 0, 'На першому рівні груш бути не має — правила лишаються знайомими.');
+    assert(level2.pearCount > 0, 'На другому рівні мають зʼявитися груші.');
+    assert(level3.pearCount > level2.pearCount, 'На третьому рівні груш має бути більше, ніж на другому.');
+    assert(t('entities.pear') !== 'entities.pear', 'Груша має мати переклад для aria-label.');
+});
+
+test('WorldGenerator розрізняє яблука і груші та не накладає їх одне на одне', () => {
+    const config = {
+        worldWidth: 2000,
+        worldHeight: 2000,
+        obstacleCount: 6,
+        appleCount: 12,
+        pearCount: 8
+    };
+    const world = generateWorld({
+        config,
+        player: { x: 1000, y: 1000 },
+        npcs: [],
+        random: createSeededRandom(2024)
+    });
+
+    const apples = world.collectibles.filter((item) => item.kind === 'apple');
+    const pears = world.collectibles.filter((item) => item.kind === 'pear');
+
+    assert(apples.length === 12, `Очікується 12 яблук, отримано ${apples.length}.`);
+    assert(pears.length === 8, `Очікується 8 груш, отримано ${pears.length}.`);
+    assert(
+        new Set(world.collectibles.map((item) => item.id)).size === world.collectibles.length,
+        'id предметів мають бути унікальними для всіх видів разом.'
+    );
+
+    for (let i = 0; i < world.collectibles.length; i += 1) {
+        for (let j = i + 1; j < world.collectibles.length; j += 1) {
+            const a = world.collectibles[i];
+            const b = world.collectibles[j];
+            const overlap = a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+            assert(!overlap, `Предмети ${a.id} і ${b.id} перетинаються.`);
+        }
+    }
+});
+
+test('CollectibleSystem рахує предмети за видом і збирає обидва види', async () => {
+    const { countByKind, collectNearbyCollectibles, collectibleElementId } =
+        await import('../js/game/collectible-system.js');
+
+    assert(
+        countByKind([{ kind: 'apple' }, { kind: 'pear' }, { kind: 'pear' }]).pear === 2,
+        'countByKind має рахувати груші окремо.'
+    );
+    assert(countByKind([]).apple === 0, 'Порожній масив має давати нулі, а не undefined.');
+
+    const items = [
+        { id: 0, kind: 'apple', x: 100, y: 100, w: 32, h: 32 },
+        { id: 1, kind: 'pear', x: 100, y: 100, w: 32, h: 32 },
+        { id: 2, kind: 'pear', x: 900, y: 900, w: 32, h: 32 }
+    ];
+    const collected = [];
+    const bus = { emit: (name, data) => collected.push(data.type) };
+
+    collectNearbyCollectibles({
+        items,
+        playerX: 116,
+        playerY: 116,
+        playerRadius: 26,
+        eventBus: bus,
+        announcer: { announce: () => {} }
+    });
+
+    assert(collected.includes('apple') && collected.includes('pear'),
+        'Обидва види мають збиратись однаково.');
+    assert(items.length === 1 && items[0].id === 2, 'Далекий предмет має лишитись у світі.');
+    assert(collectibleElementId({ id: 7 }) === 'collectible-7', 'DOM-id має бути стабільним.');
+});
+
+test('ScoreSystem рахує груші окремо і завершує рівень лише коли зібрано все', () => {
+    EventBus.reset();
+    const dom = {
+        scoreDisplay: document.createElement('div'),
+        applesCount: document.createElement('span'),
+        pearsCount: document.createElement('span'),
+        starsCount: document.createElement('span'),
+        hudSession: document.createElement('p'),
+        hudObjective: document.createElement('p'),
+        hudContext: document.createElement('p'),
+        hudNpcBadge: document.createElement('span')
+    };
+
+    HUDController.init({ dom });
+    let completedEvents = 0;
+    EventBus.on('level:completed', () => { completedEvents += 1; });
+    ScoreSystem.init({ eventBus: EventBus, dom, totalApples: 1, totalPears: 2, totalStars: 1 });
+
+    EventBus.emit('item:collected', { type: 'apple', value: 1 });
+    EventBus.emit('puzzle:completed', { stars: 1 });
+    EventBus.emit('item:collected', { type: 'pear', value: 1 });
+
+    assert(ScoreSystem.apples === 1, 'Яблука мають рахуватись.');
+    assert(ScoreSystem.pears === 1, 'Груші мають рахуватись окремо від яблук.');
+    assert(completedEvents === 0, 'Рівень не можна завершити, поки не зібрано всі груші.');
+    assert(dom.pearsCount.textContent === '1/2', 'Лічильник груш у HUD має оновлюватись.');
+
+    EventBus.emit('item:collected', { type: 'pear', value: 1 });
+    assert(ScoreSystem.pears === 2, 'Другу грушу теж має бути зараховано.');
+
+    EventBus.reset();
+    ScoreSystem.resetSubscriptions();
+});
+
+test('TaskPicker відкриває банки за unlockAtStars із самих даних', () => {
+    const pools = ['counting.intermediate', 'arithmetic.intermediate'];
+    const session = { usedTaskIds: new Set() };
+
+    assert(TaskCatalog.getUnlockAtStars('counting.intermediate') === 0,
+        'counting.intermediate має бути доступний одразу.');
+    assert(TaskCatalog.getUnlockAtStars('arithmetic.intermediate') > 0,
+        'arithmetic.intermediate має відкриватись не з нуля зірочок.');
+    assert(TaskCatalog.getUnlockAtStars('невідомий.банк') === 0,
+        'Невідомий банк не має ламати вибір завдання.');
+
+    const easyIds = new Set(TaskCatalog.getTaskIds('counting.intermediate'));
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+        const task = TaskPicker.pickAdaptiveTask(pools, 0, createSeededRandom(attempt + 1), session);
+        assert(easyIds.has(task.id),
+            `З 0 зірочок має видаватись лише counting.intermediate, отримано "${task.id}".`);
+    }
+});
+
+test('TaskPicker не зависає, якщо всі банки NPC ще закриті', () => {
+    // Запобіжник: замість «жодного завдання» дитина має отримати хоч якесь.
+    const task = TaskPicker.pickAdaptiveTask(['arithmetic.advanced'], 0, createSeededRandom(5), null);
+    assert(Boolean(task) && task.type.startsWith('simple-'), 'Fallback має повернути валідне завдання.');
+});
+
+test('Складніші банки справді складніші за beginner', () => {
+    const maxSum = (poolId) => Math.max(...TaskCatalog.getTasks(poolId)
+        .filter((entry) => entry.type === 'simple-addition')
+        .map((entry) => entry.variant.left + entry.variant.right));
+    const maxCount = (poolId) => Math.max(...TaskCatalog.getTasks(poolId)
+        .filter((entry) => entry.type === 'count-and-match')
+        .map((entry) => entry.variant.count));
+
+    assert(maxSum('arithmetic.intermediate') > maxSum('arithmetic.beginner'),
+        'Додавання на рівні 2 має виходити за межі beginner.');
+    assert(maxSum('arithmetic.advanced') > maxSum('arithmetic.intermediate'),
+        'Додавання на рівні 3 має бути складнішим за рівень 2.');
+    assert(maxCount('counting.intermediate') > maxCount('counting.beginner'),
+        'Лічба на рівні 2 має йти далі, ніж на рівні 1.');
+    assert(maxCount('counting.advanced') > maxCount('counting.intermediate'),
+        'Лічба на рівні 3 має йти далі, ніж на рівні 2.');
+});
+
+test('MagicSquare 4×4 будується з даних і лишається латинським квадратом', () => {
+    TaskCatalog.getTasks('visual-logic.advanced')
+        .filter((entry) => entry.type === 'magic-square')
+        .forEach((entry) => {
+            const task = TaskRegistry.createTaskFromEntry(entry, createSeededRandom(3));
+            const size = task.size;
+
+            assert(size === 4, `${entry.id}: на третьому рівні квадрат має бути 4×4.`);
+            assert(task.grid.length === size * size, `${entry.id}: сітка має містити size² клітинок.`);
+            assert(task.grid.filter((cell) => cell === null).length === 1,
+                `${entry.id}: має бути рівно одна порожня клітинка.`);
+
+            const filled = task.grid.slice();
+            const answer = task.choices.find((choice) => choice.id === task.correctChoiceId);
+            assert(Boolean(answer), `${entry.id}: правильна відповідь має бути серед варіантів.`);
+            filled[filled.indexOf(null)] = answer.label;
+
+            for (let line = 0; line < size; line += 1) {
+                const row = filled.slice(line * size, line * size + size);
+                const column = filled.filter((_, index) => index % size === line);
+                assert(new Set(row).size === size, `${entry.id}: рядок ${line} повторює символ.`);
+                assert(new Set(column).size === size, `${entry.id}: стовпець ${line} повторює символ.`);
+            }
+        });
+});
+
+test('Усі id завдань унікальні в межах усього каталогу', () => {
+    // usedTaskIds дедуплікує за id, тож збіг у різних банках ховав би завдання.
+    const seen = new Map();
+    TaskCatalog.categories.forEach((category) => {
+        category.tasks.forEach((entry) => {
+            assert(!seen.has(entry.id),
+                `Завдання "${entry.id}" є і в "${seen.get(entry.id)}", і в "${category.id}".`);
+            seen.set(entry.id, category.id);
+        });
+    });
+});
+
+test('Іконки звірів не використовують емодзі, новіші за Unicode 12', () => {
+    // Шкільні Windows часто не мають гліфів з Unicode 13+ — буде порожній квадрат.
+    const tooNew = [0x1F9AB, 0x1FAA8, 0x1FAD1, 0x1FAB0, 0x1FAB1, 0x1FABA, 0x1FAB9];
+    const types = new Set(LevelData.sequence.flatMap((level) => level.npcs.map((npc) => npc.type)));
+
+    types.forEach((type) => {
+        const icon = t(`entities.${type}Icon`);
+        assert(icon.length > 0, `${type}: іконка не має бути порожньою.`);
+        assert(!tooNew.includes(icon.codePointAt(0)),
+            `${type}: емодзі "${icon}" занадто нове для старих ОС.`);
+    });
 });
 
 renderResults();

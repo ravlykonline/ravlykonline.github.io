@@ -1,0 +1,163 @@
+{
+  "id": "logic.intermediate",
+  "unlockAtStars": 4,
+  "title": "Логіка — середній рівень",
+  "tasks": [
+    {
+      "id": "logic-pairs-foot-shoe",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🦶",
+        "choices": [
+          { "id": "shoe", "label": "👟" },
+          { "id": "cap", "label": "🧢" },
+          { "id": "glove", "label": "🧤" }
+        ],
+        "correctChoiceId": "shoe"
+      }
+    },
+    {
+      "id": "logic-pairs-snow-mittens",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "❄️",
+        "choices": [
+          { "id": "mittens", "label": "🧤" },
+          { "id": "icecream", "label": "🍦" },
+          { "id": "sun", "label": "☀️" }
+        ],
+        "correctChoiceId": "mittens"
+      }
+    },
+    {
+      "id": "logic-pairs-fish-water",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🐟",
+        "choices": [
+          { "id": "water", "label": "🌊" },
+          { "id": "tree", "label": "🌳" },
+          { "id": "sand", "label": "🏜️" }
+        ],
+        "correctChoiceId": "water"
+      }
+    },
+    {
+      "id": "logic-pairs-squirrel-acorn",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🐿️",
+        "choices": [
+          { "id": "acorn", "label": "🌰" },
+          { "id": "shell", "label": "🐚" },
+          { "id": "mountain", "label": "⛰️" }
+        ],
+        "correctChoiceId": "acorn"
+      }
+    },
+    {
+      "id": "logic-pairs-key-lock",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "🔑",
+        "choices": [
+          { "id": "lock", "label": "🔒" },
+          { "id": "book", "label": "📕" },
+          { "id": "cup", "label": "🍵" }
+        ],
+        "correctChoiceId": "lock"
+      }
+    },
+    {
+      "id": "logic-pairs-hand-glove",
+      "type": "logic-pairs",
+      "variant": {
+        "promptItem": "✋",
+        "choices": [
+          { "id": "glove", "label": "🧤" },
+          { "id": "sock", "label": "🧦" },
+          { "id": "cap", "label": "🧢" }
+        ],
+        "correctChoiceId": "glove"
+      }
+    },
+    {
+      "id": "odd-one-out-round-vs-square",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "ball", "label": "⚽" },
+          { "id": "orange", "label": "🍊" },
+          { "id": "clock", "label": "🕐" },
+          { "id": "book", "label": "📕" }
+        ],
+        "correctChoiceId": "book"
+      }
+    },
+    {
+      "id": "odd-one-out-wheels-vs-wings",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "car", "label": "🚗" },
+          { "id": "bus", "label": "🚌" },
+          { "id": "bike", "label": "🚲" },
+          { "id": "plane", "label": "✈️" }
+        ],
+        "correctChoiceId": "plane"
+      }
+    },
+    {
+      "id": "odd-one-out-hot-vs-cold",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "fire", "label": "🔥" },
+          { "id": "sun", "label": "☀️" },
+          { "id": "tea", "label": "🍵" },
+          { "id": "snowflake", "label": "❄️" }
+        ],
+        "correctChoiceId": "snowflake"
+      }
+    },
+    {
+      "id": "odd-one-out-day-vs-night",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "moon", "label": "🌙" },
+          { "id": "star", "label": "⭐" },
+          { "id": "owl", "label": "🦉" },
+          { "id": "sun", "label": "☀️" }
+        ],
+        "correctChoiceId": "sun"
+      }
+    },
+    {
+      "id": "odd-one-out-grow-vs-build",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "tree", "label": "🌳" },
+          { "id": "flower", "label": "🌼" },
+          { "id": "mushroom", "label": "🍄" },
+          { "id": "house", "label": "🏠" }
+        ],
+        "correctChoiceId": "house"
+      }
+    },
+    {
+      "id": "odd-one-out-legs-count",
+      "type": "odd-one-out",
+      "variant": {
+        "items": [
+          { "id": "dog", "label": "🐶" },
+          { "id": "cat", "label": "🐱" },
+          { "id": "horse", "label": "🐴" },
+          { "id": "bird", "label": "🐦" }
+        ],
+        "correctChoiceId": "bird"
+      }
+    }
+  ]
+}
