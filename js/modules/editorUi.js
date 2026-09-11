@@ -46,6 +46,7 @@ export function createEditorUiController({
     codeErrorLine,
 }) {
     let editorErrorLine = null;
+    let executionLine = null;
 
     function updateEditorDecorations() {
         if (!codeEditor || !codeLineNumbers || !codeActiveLine) return;
@@ -58,7 +59,7 @@ export function createEditorUiController({
         const styles = getComputedStyle(codeEditor);
         const lineHeight = parseFloat(styles.lineHeight) || 24;
         const paddingTop = parseFloat(styles.paddingTop) || 0;
-        const currentLine = Math.max(1, getCurrentEditorLine(codeEditor));
+        const currentLine = executionLine || Math.max(1, getCurrentEditorLine(codeEditor));
         const top = paddingTop + (currentLine - 1) * lineHeight - codeEditor.scrollTop;
 
         codeActiveLine.style.height = `${lineHeight}px`;
@@ -85,6 +86,20 @@ export function createEditorUiController({
         return editorErrorLine;
     }
 
+    function setExecutionLine(line) {
+        executionLine = Number.isInteger(line) && line > 0 ? line : null;
+        codeActiveLine?.classList.toggle('is-executing', executionLine !== null);
+        if (codeActiveLine) codeActiveLine.dataset.executionLine = executionLine || '';
+        if (executionLine && codeEditor) {
+            const height = parseFloat(getComputedStyle(codeEditor).lineHeight) || 24;
+            const top = (executionLine - 1) * height;
+            if (top < codeEditor.scrollTop || top + height > codeEditor.scrollTop + codeEditor.clientHeight) {
+                codeEditor.scrollTop = Math.max(0, top - height);
+            }
+        }
+        updateEditorDecorations();
+    }
+
     function focusEditorLine(line) {
         if (!Number.isInteger(line) || line < 1) return;
         const lines = (codeEditor.value || '').split(/\n/);
@@ -107,6 +122,7 @@ export function createEditorUiController({
     }
 
     return {
+        setExecutionLine,
         updateEditorDecorations,
         setEditorErrorLine,
         getEditorErrorLine,

@@ -10,6 +10,7 @@ test('TXT export/import round trip and replacement protection', async ({ page })
   await page.locator('#download-code-btn').click();
   const download = await downloadEvent;
   await page.reload();
+  await page.locator('#download-btn').click();
   const chooserEvent = page.waitForEvent('filechooser');
   await page.locator('#open-code-btn').click();
   const chooser = await chooserEvent;

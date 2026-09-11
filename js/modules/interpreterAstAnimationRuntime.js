@@ -43,6 +43,7 @@ export function runAstAnimationRuntime({
     updateRavlykVisualState,
     onPrimitiveCompleted = () => {},
     onFrameCapture = null,
+    stepControl = null,
 }) {
     const astRuntime = createAstRuntime({
         programAst,
@@ -93,12 +94,13 @@ export function runAstAnimationRuntime({
         setStopHandler(() => fail(createStopError()));
 
         const tick = (timestamp) => {
+            if (settled) return;
             if (getShouldStop()) {
                 fail(createStopError());
                 return;
             }
 
-            if (getIsPaused()) {
+            if (getIsPaused() || (pendingCmd === null && stepControl?.enabled && !stepControl.requested)) {
                 lastTimestamp = timestamp;
                 setAnimationFrameId(requestAnimationFrameFn(tick));
                 return;
@@ -123,6 +125,13 @@ export function runAstAnimationRuntime({
                     }
                     onPrimitiveCompleted(pendingCmd);
                     pendingCmd = null;
+                    if (stepControl?.enabled) {
+                        if (astRuntime.isDone()) { finish(); return; }
+                        stepControl.waiting = true;
+                        stepControl.onWaiting?.();
+                        setAnimationFrameId(requestAnimationFrameFn(tick));
+                        return;
+                    }
                 }
 
                 // Pull the next primitive from the AST runtime.
@@ -142,6 +151,12 @@ export function runAstAnimationRuntime({
                     return;
                 }
 
+                if (stepControl) {
+                    stepControl.requested = false;
+                    stepControl.waiting = false;
+                    stepControl.onCommand?.(next.stmt);
+                }
+
                 commandIndicatorUpdater(cmd.original ?? '', primitiveIndex);
                 primitiveIndex++;
 
@@ -152,6 +167,11 @@ export function runAstAnimationRuntime({
                     pendingCmd = cmd; // needs more frames
                 } else {
                     onPrimitiveCompleted(cmd);
+                    if (stepControl?.enabled) {
+                        if (astRuntime.isDone()) { finish(); return; }
+                        stepControl.waiting = true;
+                        stepControl.onWaiting?.();
+                    }
                 }
                 setAnimationFrameId(requestAnimationFrameFn(tick));
 

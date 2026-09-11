@@ -206,9 +206,9 @@ test.describe('Ravlyk UI smoke', () => {
     const downloadModal = page.locator('#download-modal-overlay');
     await expect(downloadModal).not.toHaveClass(/hidden/);
     await expect(page.locator('#download-image-btn')).toBeVisible();
-    await expect(page.locator('#download-image-btn')).toHaveText('Зберегти як малюнок');
-    await expect(page.locator('#download-gif-btn')).toHaveText('Зберегти як анімацію');
-    await expect(page.locator('#download-code-btn')).toHaveText('Зберегти як код');
+    await expect(page.locator('#download-image-btn')).toHaveText('Зберегти малюнок');
+    await expect(page.locator('#download-gif-btn')).toHaveText('Зберегти анімацію');
+    await expect(page.locator('#download-code-btn')).toHaveText('Зберегти код');
     await expect(page.locator('#download-code-btn')).toBeVisible();
 
     await page.keyboard.press('Escape');

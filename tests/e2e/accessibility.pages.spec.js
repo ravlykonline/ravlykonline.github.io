@@ -113,13 +113,13 @@ test('canvas state dialog exposes readable learning state and a bounded command 
 
   // The state lives in a toolbar dialog, so it is reachable without leaving the
   // editor tab on any viewport.
+  if (!(await page.locator('#canvas-state-btn').isVisible())) await page.locator('#workspace-canvas-tab').click();
   await page.locator('#canvas-state-btn').click();
   await expect(page.locator('#canvas-state-modal-overlay')).not.toHaveClass(/hidden/);
   await expect(page.locator('#canvas-state-x')).toHaveText('30');
   await expect(page.locator('#canvas-state-y')).toHaveText('20');
   await expect(page.locator('#canvas-state-color')).toHaveText('чорний');
 
-  await page.locator('#read-canvas-state-btn').click();
   await expect(page.locator('#canvas-state-status')).toContainText('X 30, Y 20');
   await expect(page.locator('#ravlyk-canvas')).toHaveAttribute('aria-describedby', 'canvas-state-description');
 
@@ -153,6 +153,12 @@ test('opening the canvas state does not disturb the drawing', async ({ page }) =
     return { width: canvas.width, height: canvas.height, colored };
   });
 
+  if (!(await page.locator('#canvas-state-btn').isVisible())) await page.locator('#workspace-canvas-tab').click();
+  await expect(page.locator('#ravlyk-canvas')).toBeVisible();
+  // Switching workspace tabs schedules a canvas resize before the dialog opens.
+  await expect.poll(() => page.locator('#ravlyk-canvas').evaluate(canvas =>
+    canvas.width === canvas.closest('.canvas-box').clientWidth
+  )).toBe(true);
   const before = await canvasSignature();
   expect(before.colored).toBeGreaterThan(0);
 

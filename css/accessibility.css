@@ -644,22 +644,25 @@ html.a11y-reduce-animations body {
 
 @media (max-width: 1279px) {
     .accessibility-toggle {
-        top: calc(16px + env(safe-area-inset-top));
+        top: calc(100dvh - 66px - env(safe-area-inset-bottom));
         bottom: auto;
         left: 16px;
         right: auto;
     }
 
     .accessibility-panel {
-        top: calc(74px + env(safe-area-inset-top));
-        bottom: auto;
+        top: auto;
+        bottom: calc(100% - 100dvh + 74px + env(safe-area-inset-bottom));
         left: 12px;
         right: auto;
         width: min(92vw, 320px);
-        transform-origin: top left;
+        transform-origin: bottom left;
     }
 
     .a11y-larger-text .accessibility-panel {
         width: min(94vw, 360px);
     }
 }
+
+.accessibility-panel { max-height: calc(100dvh - 100px); overflow-y: auto; }
+body:has(.modal-overlay:not(.hidden)) .accessibility-toggle { visibility: hidden; }

@@ -1,4 +1,32 @@
 /* css/main-editor.css */
+.file-open-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.step-status {
+    position: absolute;
+    bottom: 8px;
+    left: 48px;
+    right: 8px;
+    z-index: 4;
+    margin: 0;
+    padding: 8px 12px;
+    border-left: 4px solid #6a5acd;
+    background: #f1effb;
+    color: #302558;
+    pointer-events: none;
+}
+.code-active-line.is-executing {
+    background: rgba(255, 191, 0, 0.22);
+    border-left: 4px solid #946000;
+}
+.a11y-high-contrast .code-active-line.is-executing {
+    background: rgba(255, 224, 130, 0.2);
+    border-left-color: #ffe082;
+}
 :root {
     --editor-surface-base: #fff;
     --editor-surface-muted: #f0f0f0;
@@ -751,18 +779,55 @@
     border-color: var(--editor-border-muted); /* Залишити стандартний бордер */
 }
 
-/* Make only Help modal wider and reduce vertical overflow. */
+/* Category content scrolls; the heading and closing control stay visible. */
 #help-modal-content {
-    width: min(1120px, 96vw);
-    max-width: 1120px;
-    max-height: 90vh;
-    overflow: auto;
+    width: min(760px, 96vw);
+    max-width: 760px;
+    max-height: calc(100dvh - 32px);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 #help-modal-content ul {
-    column-count: 2;
+    list-style: disc;
+    column-count: 1;
     column-gap: 34px;
     padding-left: 22px;
+}
+
+.help-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: 0 0 auto; }
+.help-heading .modal-title { margin: 0; }
+.help-categories { overflow-y: auto; min-height: 0; margin-top: 16px; overscroll-behavior: contain; }
+.help-categories details { border-top: 1px solid #ddd; padding: 12px 0; }
+.help-categories summary { cursor: pointer; font-weight: bold; padding: 6px 0; }
+#help-modal-content .help-categories li::before { content: none; }
+#help-modal-content .help-categories li { padding-left: 0; }
+
+.btn[hidden], .step-status[hidden] { display: none !important; }
+.execution-toggle { display: flex; }
+.execution-toggle .btn { width: 100%; }
+.area-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.area-heading h2 { color: inherit; font-size: 1.1rem; margin: 0; text-align: left; min-width: 0; }
+.area-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.area-actions .btn { min-height: 40px; padding: 7px 10px; font-size: 0.9rem; background: #fff; color: #38266d; }
+.editor-actions { min-width: 215px; justify-content: flex-end; }
+#code-editor { padding-bottom: 68px; }
+.a11y-high-contrast .step-status { background: #000; color: #fff; border-color: #ffe082; }
+.canvas-state-values div { flex-wrap: wrap; }
+.canvas-state-values dt { white-space: nowrap; }
+@media (max-width: 1279px) {
+    .area-actions { justify-content: flex-end; min-height: 40px; }
+    .editor-actions { min-width: 0; }
+}
+@media (max-width: 767px) {
+    header.main-header h1 { font-size: clamp(1.1rem, 5.6vw, 1.8rem); white-space: normal; }
+    .toolbar .btn .toolbar-label { display: inline; }
+    .toolbar .btn .ui-icon { display: none; }
+    .toolbar .btn { font-size: 0.82rem; }
+    .toolbar #help-btn { margin-right: 0; }
+    #help-modal-content { padding: 16px; min-width: 0; }
 }
 
 #help-modal-content li {

@@ -305,7 +305,8 @@ runTest('showHelpModal and hideHelpModal update visibility and return focus', ()
     };
 
     const helpContent = {
-        querySelector() {
+        querySelector(selector) {
+            if (selector === '.help-categories') return null;
             return focusTarget;
         },
     };

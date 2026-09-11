@@ -9,7 +9,7 @@ export function createExecutionController({
     uiHandlers,
 }) {
     const {
-        runBtn, stopBtn, clearBtn, downloadBtn, shareBtn, gridBtn, helpBtn, exampleBlocks,
+        runBtn, stopBtn, clearBtn, downloadBtn, shareBtn, gridBtn, helpBtn, exampleBlocks, stepBtn, stepStatus, continueBtn,
     } = uiControls;
     const { ERROR_MESSAGES, SUCCESS_MESSAGES, INFO_MESSAGES } = messages;
     const { MAX_CODE_LENGTH_CHARS, EXECUTION_TIMEOUT_MS } = limits;
@@ -28,6 +28,24 @@ export function createExecutionController({
 
     let activeSession = null;
 
+    function restoreStepFocus(session) {
+        const doc = globalThis.document;
+        if (doc && doc.activeElement === doc.body) session?.focusTarget?.focus?.({ preventScroll: true });
+    }
+
+    function updateStepControls(isExecuting = !!activeSession) {
+        const control = activeSession?.stepControl;
+        const waiting = !!control?.enabled && control.waiting && !interpreter.isPaused;
+        if (stepBtn) stepBtn.disabled = isExecuting && !waiting;
+        runBtn.disabled = isExecuting;
+        runBtn.hidden = isExecuting;
+        stopBtn.hidden = !isExecuting;
+        if (continueBtn) {
+            continueBtn.hidden = !control?.enabled;
+            continueBtn.disabled = !waiting;
+        }
+    }
+
     function updateExecutionControls(isExecuting) {
         runBtn.disabled = isExecuting;
         stopBtn.disabled = !isExecuting;
@@ -38,6 +56,7 @@ export function createExecutionController({
         helpBtn.disabled = isExecuting;
         codeEditor.disabled = isExecuting;
         exampleBlocks.forEach((block) => block.classList.toggle('disabled', isExecuting));
+        updateStepControls(isExecuting);
     }
 
     function reportExecutionError(code, error, executionTimedOut = false) {
@@ -94,6 +113,10 @@ export function createExecutionController({
                 showError(ERROR_MESSAGES.GIF_GAME_UNSUPPORTED, 0);
                 return 'failed';
             }
+            if (options.kind === 'step' && hasGameBlock(programAst)) {
+                showInfoMessage('Для програми з «грати» скористайся кнопкою «Запустити». Режим «Крок» працює зі звичайними програмами.', 0);
+                return 'failed';
+            }
             options.validatePreparedProgram?.(programAst);
         } catch (error) {
             reportExecutionError(code, error);
@@ -101,13 +124,36 @@ export function createExecutionController({
         }
 
         const session = {
+            focusTarget: options.kind === 'step' && stepBtn?.matches?.(':focus') ? stepBtn : null,
             stopReason: null,
             cancel: options.cancel || null,
             abortController: new globalThis.AbortController(),
         };
         activeSession = session;
         updateExecutionControls(true);
+        if (globalThis.document?.activeElement === globalThis.document?.body && options.kind !== 'step') stopBtn.focus?.({ preventScroll: true });
         interpreter.reset();
+        if (options.kind === 'step') {
+            session.stepControl = {
+                enabled: true, requested: true, waiting: false,
+                onCommand(stmt) {
+                    const line = stmt.span?.start?.line;
+                    session.stepLine = line;
+                    editorUi.setExecutionLine?.(line);
+                    if (stepStatus) {
+                        stepStatus.hidden = false;
+                        stepStatus.textContent = `${line ? `Рядок ${line} · ` : ''}Виконується`;
+                    }
+                    updateStepControls();
+                },
+                onWaiting() {
+                    if (stepStatus) stepStatus.textContent = `${session.stepLine ? `Рядок ${session.stepLine} · ` : ''}Команду виконано`;
+                    updateStepControls();
+                    restoreStepFocus(session);
+                },
+            };
+            interpreter.stepControl = session.stepControl;
+        }
 
         const accessibilitySettings = globalThis.window?.ravlykAccessibility
             ? globalThis.window.ravlykAccessibility.load()
@@ -118,15 +164,28 @@ export function createExecutionController({
         let executionTimedOut = false;
         let executionTimeoutId = null;
         let captureTimeoutId = null;
+        let stepTimeoutId = null;
         let result = 'failed';
 
         try {
             await options.beforeExecute?.(programAst);
-            executionTimeoutId = setTimeout(() => {
+            const timeoutExecution = () => {
                 executionTimedOut = true;
                 session.stopReason = 'failed';
                 interpreter.stopExecution();
-            }, EXECUTION_TIMEOUT_MS);
+            };
+            if (session.stepControl) {
+                let elapsed = 0;
+                let previous = Date.now();
+                stepTimeoutId = setInterval(() => {
+                    const current = Date.now();
+                    if (!interpreter.isPaused && !session.stepControl.waiting) elapsed += current - previous;
+                    previous = current;
+                    if (elapsed >= EXECUTION_TIMEOUT_MS) timeoutExecution();
+                }, 100);
+            } else {
+                executionTimeoutId = setTimeout(timeoutExecution, EXECUTION_TIMEOUT_MS);
+            }
             if (Number.isFinite(options.captureTimeoutMs) && options.captureTimeoutMs > 0) {
                 captureTimeoutId = setTimeout(() => {
                     session.stopReason = 'capture-limit';
@@ -141,6 +200,7 @@ export function createExecutionController({
                 result = session.stopReason || 'failed';
                 if (result === 'failed') reportExecutionError(code, error, executionTimedOut);
             } finally {
+                if (stepTimeoutId !== null) clearInterval(stepTimeoutId);
                 if (executionTimeoutId !== null) clearTimeout(executionTimeoutId);
                 if (captureTimeoutId !== null) clearTimeout(captureTimeoutId);
             }
@@ -168,6 +228,7 @@ export function createExecutionController({
                 reportExecutionError(code, error, executionTimedOut);
             }
         } finally {
+            if (stepTimeoutId !== null) clearInterval(stepTimeoutId);
             if (executionTimeoutId !== null) clearTimeout(executionTimeoutId);
             if (captureTimeoutId !== null) clearTimeout(captureTimeoutId);
             try {
@@ -176,7 +237,12 @@ export function createExecutionController({
                 console.error('Unexpected execution-session cleanup error:', error);
             }
             activeSession = null;
+            interpreter.stepControl = null;
+            editorUi.setExecutionLine?.(null);
+            if (stepStatus) stepStatus.hidden = true;
             updateExecutionControls(false);
+            if (globalThis.document?.activeElement === globalThis.document?.body && !session.focusTarget) runBtn.focus?.({ preventScroll: true });
+            restoreStepFocus(session);
             updateCommandIndicator(null, -1);
         }
 
@@ -193,12 +259,31 @@ export function createExecutionController({
     }
 
     function runCode() {
+        const control = activeSession?.stepControl;
+        if (control?.enabled && control.waiting && !interpreter.isPaused) {
+            activeSession.focusTarget = continueBtn?.matches?.(':focus') ? runBtn : null;
+            control.enabled = false;
+            control.waiting = false;
+            updateStepControls();
+            return;
+        }
         return executeSession(codeEditor.value);
+    }
+
+    function stepCode() {
+        if (!activeSession) return executeSession(codeEditor.value, { kind: 'step' });
+        const control = activeSession.stepControl;
+        if (!control?.enabled || !control.waiting || interpreter.isPaused) return;
+        activeSession.focusTarget = stepBtn?.matches?.(':focus') ? stepBtn : null;
+        control.waiting = false;
+        control.requested = true;
+        updateStepControls();
     }
 
     function openStopConfirmDialog() {
         if (!interpreter.isExecuting) return;
         interpreter.pauseExecution();
+        updateStepControls();
         showStopConfirmModal();
     }
 
@@ -207,9 +292,11 @@ export function createExecutionController({
         if (shouldResumeExecution && interpreter.isExecuting && !interpreter.shouldStop) {
             interpreter.resumeExecution();
         }
+        updateStepControls();
     }
 
     return {
+        stepCode,
         runCode,
         executeSession,
         cancelActiveSession,

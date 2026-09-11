@@ -70,14 +70,14 @@ runTest('canvas state uses learning coordinates and normalized angle', () => {
     assert.equal(afterGoto.pen, 'підняте');
 });
 
-runTest('canvas state read button announces only on request', () => {
+runTest('canvas state refresh prepares a concise announcement for the dialog', () => {
     const { documentRef, elements } = createDocumentFixture();
     const state = { x: 100, y: 100, angle: RAVLYK_INITIAL_ANGLE, isPenDown: true, color: '#1A56DB' };
     const controller = createCanvasStateController({ documentRef, canvas: { width: 200, height: 200 }, getState: () => state });
     controller.update();
     assert.equal(elements['canvas-state-status'].textContent, '');
-    elements['read-canvas-state-btn'].listeners.click();
-    assert.equal(elements['canvas-state-status'].textContent, formatCanvasState(controller.getSnapshot()));
+    controller.refresh();
+    assert.match(elements['canvas-state-status'].textContent, /X .*Y .*напрямок .*перо .*колір/);
 });
 
 runTest('canvas state log is bounded and reset clears the current session', () => {

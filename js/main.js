@@ -181,6 +181,9 @@ document.addEventListener('DOMContentLoaded', () => {
         editorUi,
         uiControls: {
             runBtn,
+            stepBtn: document.getElementById('step-btn'),
+            stepStatus: document.getElementById('step-status'),
+            continueBtn: document.getElementById('continue-btn'),
             stopBtn,
             clearBtn,
             downloadBtn,
@@ -272,9 +275,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
     if (runBtn) runBtn.addEventListener("click", executionController.runCode);
+    document.getElementById('step-btn')?.addEventListener('click', executionController.stepCode);
+    document.getElementById('continue-btn')?.addEventListener('click', executionController.runCode);
     if (clearBtn) clearBtn.addEventListener("click", modalController.requestClearConfirmation);
     if (downloadBtn) downloadBtn.addEventListener('click', showDownloadModal);
-    if (shareBtn) shareBtn.addEventListener('click', fileActions.shareCodeAsLink);
+    if (shareBtn) shareBtn.addEventListener('click', () => {
+        hideDownloadModal();
+        void fileActions.shareCodeAsLink();
+    });
     const openCodeBtn = document.getElementById('open-code-btn');
     const openCodeInput = document.getElementById('open-code-input');
     openCodeBtn?.addEventListener('click', () => {
@@ -282,6 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showInfoMessage('Зачекай, поки завершиться поточне виконання.');
             return;
         }
+        hideDownloadModal();
         openCodeInput?.click();
     });
     openCodeInput?.addEventListener('change', () => {
