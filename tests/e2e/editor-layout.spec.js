@@ -2,17 +2,25 @@ import { test, expect } from '@playwright/test';
 
 test('step status does not move panels and run/stop occupies one toolbar slot', async ({ page }) => {
   await page.goto('/index.html');
-  await expect(page.locator('.toolbar button:visible')).toHaveCount(4);
-  await page.locator('#code-editor').fill('вперед 10\nправоруч 90');
+  await expect(page.locator('.toolbar button:visible')).toHaveCount(5);
+  await page.locator('#code-editor').fill('вперед 10\nправоруч 90\nвперед 10');
   // Document coordinates distinguish layout shifts from browser click scrolling.
-  const panelBounds = () => page.locator('.main-area').evaluate(element => {
+  const documentBounds = (selector) => page.locator(selector).evaluate(element => {
     const rect = element.getBoundingClientRect();
     return { x: rect.x + scrollX, y: rect.y + scrollY, width: rect.width, height: rect.height };
   });
+  const panelBounds = () => documentBounds('.main-area');
   const before = await panelBounds();
+  const stepBefore = await documentBounds('#step-btn');
   await page.locator('#step-btn').click();
   await expect(page.locator('#step-btn')).toBeEnabled();
+  await expect(page.locator('#continue-btn')).toBeVisible();
   expect(await panelBounds()).toEqual(before);
+  // A repeated click at the same spot must hit «Крок» again, not the run-all button.
+  // Only the horizontal box matters: hover lifts the button by a couple of pixels.
+  const stepAfter = await documentBounds('#step-btn');
+  expect(stepAfter.x).toBeCloseTo(stepBefore.x, 1);
+  expect(stepAfter.width).toBeCloseTo(stepBefore.width, 1);
   await expect(page.locator('#run-btn')).toBeHidden();
   await expect(page.locator('#stop-btn')).toBeVisible();
   await expect(page.locator('#step-status')).toContainText('Рядок 1');

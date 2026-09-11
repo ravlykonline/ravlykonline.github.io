@@ -153,7 +153,7 @@
 @media (max-width: 1024px) {
     .toolbar {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 8px;
         margin-bottom: 0;
     }
@@ -268,6 +268,22 @@
 
     .main-area {
         gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Five labelled buttons do not fit one phone row: actions on top, work output below. */
+    .toolbar {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .toolbar > * {
+        grid-column: span 2;
+    }
+
+    .toolbar > #download-btn,
+    .toolbar > #share-btn {
+        grid-column: span 3;
     }
 }
 

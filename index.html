@@ -13,14 +13,14 @@
   <meta name="author" content="Равлик" />
   <meta name="robots" content="index, follow" />
   <title>Равлик — Онлайн програмування для дітей українською мовою</title>
-  <!-- Static deployment release token: 2026-09-11-4 -->
-  <link rel="stylesheet" type="text/css" href="css/global.css?v=2026-09-11-4" />
-  <link rel="stylesheet" type="text/css" href="css/accessibility.css?v=2026-09-11-4" />
-  <link rel="stylesheet" type="text/css" href="css/main-editor.css?v=2026-09-11-4" />
+  <!-- Static deployment release token: 2026-09-11-5 -->
+  <link rel="stylesheet" type="text/css" href="css/global.css?v=2026-09-11-5" />
+  <link rel="stylesheet" type="text/css" href="css/accessibility.css?v=2026-09-11-5" />
+  <link rel="stylesheet" type="text/css" href="css/main-editor.css?v=2026-09-11-5" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-  <link rel="manifest" href="site.webmanifest?v=2026-09-11-4" />
+  <link rel="manifest" href="site.webmanifest?v=2026-09-11-5" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="uk_UA" />
@@ -102,9 +102,12 @@
           class="toolbar-label">Запустити</span></button><button id="stop-btn" hidden class="btn btn-warning" title="Зупинити програму (Esc)" aria-label="Зупинити програму"><span class="ui-icon icon-stop-circle" aria-hidden="true"></span><span class="toolbar-label">Стоп</span></button></div>
       <button id="clear-btn" class="btn btn-danger" title="Скинути полотно і код" aria-label="Скинути полотно і код"><span class="ui-icon icon-trash-alt" aria-hidden="true"></span><span class="toolbar-label">Очистити</span></button>
       <button id="help-btn" class="btn btn-primary" title="Пояснення команд" aria-label="Пояснення команд"><span class="ui-icon icon-question-circle" aria-hidden="true"></span><span class="toolbar-label">Довідка</span></button>
-      <button id="download-btn" class="btn btn-info" title="Відкрити, зберегти або поширити роботу"
-        aria-label="Файли: відкрити, зберегти або поширити роботу"><span class="ui-icon icon-download" aria-hidden="true"></span><span
+      <button id="download-btn" class="btn btn-info" title="Відкрити або зберегти роботу"
+        aria-label="Файли: відкрити або зберегти роботу"><span class="ui-icon icon-download" aria-hidden="true"></span><span
           class="toolbar-label">Файли</span></button>
+      <button id="share-btn" class="btn btn-info" title="Скопіювати посилання з кодом"
+        aria-label="Поділитися: скопіювати посилання з кодом"><span class="ui-icon icon-link" aria-hidden="true"></span><span
+          class="toolbar-label">Поділитися</span></button>
     </div>
     <input id="open-code-input" type="file" accept=".txt,text/plain" hidden>
     <div class="workspace-tabs" role="tablist" aria-label="Робоча область редактора">
@@ -116,7 +119,7 @@
     <div class="main-area">
       <section class="code-box active-panel" id="workspace-editor-panel" role="tabpanel"
         aria-labelledby="workspace-editor-tab" data-workspace-panel="editor">
-        <div class="area-header code-header area-heading"><h2 id="code-header">Команди для равлика</h2><div class="area-actions editor-actions"><button id="step-btn" class="btn btn-primary" title="Виконати одну команду й зачекати" aria-label="Крок: виконати одну команду"><span aria-hidden="true">▸│</span> Крок</button><button id="continue-btn" class="btn btn-success" hidden>Продовжити</button></div></div>
+        <div class="area-header code-header area-heading"><h2 id="code-header">Команди для равлика</h2><div class="area-actions editor-actions"><button id="continue-btn" class="btn btn-success" title="Виконати решту програми без зупинок" hidden><span class="ui-icon icon-play" aria-hidden="true"></span>Виконати все</button><button id="step-btn" class="btn btn-primary" title="Виконати одну команду й зачекати" aria-label="Крок: виконати одну команду"><span aria-hidden="true">▸│</span> Крок</button></div></div>
         <div class="editor-shell">
           <div id="code-active-line" class="code-active-line" aria-hidden="true"></div>
           <div id="code-error-line" class="code-error-line hidden" aria-hidden="true"></div>
@@ -501,11 +504,10 @@
   <div id="download-modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true"
     aria-labelledby="download-modal-title-static">
     <div id="download-modal-content" class="modal-content">
-      <h2 id="download-modal-title-static" class="modal-title">Файли та поширення</h2>
+      <h2 id="download-modal-title-static" class="modal-title">Файли</h2>
       <p>Відкрийте збережений код або збережіть свою роботу:</p>
       <div class="file-open-actions">
         <button id="open-code-btn" class="btn btn-primary">Відкрити код із TXT</button>
-        <button id="share-btn" class="btn btn-info">Поділитися посиланням</button>
       </div>
       <div class="modal-actions download-actions">
         <div class="download-row">
@@ -528,10 +530,10 @@
     </div>
   </div>
 
-  <script type="module" src="js/accessibility.js?v=2026-09-11-4"></script>
+  <script type="module" src="js/accessibility.js?v=2026-09-11-5"></script>
   <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "46477cad50284d57abdf0b005192f4c0"}'></script><!-- End Cloudflare Web Analytics -->
-  <script type="module" src="js/registerServiceWorker.js?v=2026-09-11-4"></script>
-  <script type="module" src="js/main.js?v=2026-09-11-4"></script>
+  <script type="module" src="js/registerServiceWorker.js?v=2026-09-11-5"></script>
+  <script type="module" src="js/main.js?v=2026-09-11-5"></script>
 </body>
 
 </html>

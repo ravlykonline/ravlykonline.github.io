@@ -280,7 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (clearBtn) clearBtn.addEventListener("click", modalController.requestClearConfirmation);
     if (downloadBtn) downloadBtn.addEventListener('click', showDownloadModal);
     if (shareBtn) shareBtn.addEventListener('click', () => {
-        hideDownloadModal();
         void fileActions.shareCodeAsLink();
     });
     const openCodeBtn = document.getElementById('open-code-btn');

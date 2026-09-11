@@ -24,7 +24,7 @@ test('step completes one command, highlights its source, and continues the same 
   await page.locator('#step-btn').click();
   await expect(page.locator('#step-btn')).toBeEnabled();
   await expect(page.locator('#code-active-line')).toHaveAttribute('data-execution-line', '2');
-  await expect(page.locator('#continue-btn')).toContainText('Продовжити');
+  await expect(page.locator('#continue-btn')).toContainText('Виконати все');
   await expect(page.locator('#code-editor')).toBeDisabled();
   const afterFirst = await state(page);
   await page.waitForTimeout(300);
@@ -67,12 +67,17 @@ test('step ends on last primitive, refuses games, and retains safety errors', as
   await expect(page.locator('#global-message-display')).toBeVisible();
 });
 
-test('files groups import and sharing without overflowing at larger text', async ({ page }) => {
+test('share sits in the toolbar and files keeps import without overflowing at larger text', async ({ page }) => {
   await page.goto('/index.html');
-  await expect(page.locator('.toolbar button:visible')).toHaveCount(4);
+  await expect(page.locator('.toolbar button:visible')).toHaveCount(5);
+  await expect(page.locator('.toolbar #share-btn')).toContainText('Поділитися');
+  const clippedLabels = await page.locator('.toolbar button:visible').evaluateAll((buttons) => buttons
+    .filter((button) => (button.querySelector('.toolbar-label')?.scrollWidth ?? 0) > button.clientWidth)
+    .map((button) => button.id));
+  expect(clippedLabels).toEqual([]);
   await page.locator('#download-btn').click();
   await expect(page.locator('#open-code-btn')).toBeVisible();
-  await expect(page.locator('#share-btn')).toBeVisible();
+  await expect(page.locator('#download-modal-content #share-btn')).toHaveCount(0);
   await page.keyboard.press('Escape');
   await expect(page.locator('#download-btn')).toBeFocused();
   await page.locator('#accessibility-toggle').click();
