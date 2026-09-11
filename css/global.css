@@ -326,13 +326,13 @@ a.btn:active {
 }
 
 .btn-success {
-    background-color: #32cd32; /* Зелений */
+    background-color: #237a23; /* Зелений із контрастним білим текстом */
     color: white;
 }
 .btn-success:hover,
 .btn-success:focus-visible,
 .btn-success:active {
-    background-color: #28a428;
+    background-color: #1b601b;
     color: white;
 }
 

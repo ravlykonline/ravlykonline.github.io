@@ -112,7 +112,7 @@ UI проводить звичайний запуск і GIF-запис чере
 - `js/modules/executionController.js` — спільний lifecycle звичайного запуску та GIF-сесії.
 - `js/modules/editorInputController.js` — робота з textarea редактора.
 - `js/modules/editorUi.js` — UI редактора.
-- `js/modules/fileActionsController.js` — збереження зображення, коду, share-link, завантаження коду з URL hash.
+- `js/modules/fileActionsController.js` — збереження зображення, коду, share-link, завантаження коду з URL hash та локальне відкриття TXT з перевіркою розміру/UTF-8 і підтвердженням заміни.
 - `js/modules/ui.js`, `uiMessages.js`, `uiModals.js` — повідомлення та модальні елементи.
 - `js/modules/modalController.js` — модальні вікна.
 - `js/modules/workspaceTabs.js` — вкладки робочої області.

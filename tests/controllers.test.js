@@ -11,6 +11,55 @@ import { createLifecycleController } from '../js/modules/lifecycleController.js'
 import { encodeCodeForUrlHash } from '../js/modules/share.js';
 import { runAsyncTest, runTest } from './testUtils.js';
 
+await runAsyncTest('TXT import validates bytes and preserves drafts without executing content', async () => {
+    const codeEditor = { value: 'вперед 5' };
+    const errors = [];
+    let confirmed = false;
+    let loaded = 0;
+    const interpreter = { isExecuting: false };
+    const controller = createFileActionsController({
+        codeEditor, maxCodeLengthChars: 100,
+        errorMessages: { CODE_TOO_LONG: 'too long' },
+        showError: (message) => errors.push(message), showInfoMessage() {},
+        onCodeLoaded: () => loaded++, interpreter,
+        confirmCodeReplacement: () => confirmed,
+    });
+    const file = (text, name = 'code.txt') => {
+        const bytes = new TextEncoder().encode(text);
+        return { name, size: bytes.length, arrayBuffer: async () => bytes.buffer };
+    };
+    await controller.openCodeFromFile(file('вперед 10'));
+    assert.equal(codeEditor.value, 'вперед 5');
+    confirmed = true;
+    await controller.openCodeFromFile(file('\uFEFFвперед 10\r\n// 🐌', 'CODE.TXT'));
+    assert.equal(codeEditor.value, 'вперед 10\r\n// 🐌');
+    const original = codeEditor.value;
+    for (const invalid of [file('x', 'code.html'), file('x'.repeat(101)), file('a\0b'), file('  \n'),
+        { name: 'x.txt', size: 404, arrayBuffer() { throw new Error('must not read oversized file'); } },
+        { name: 'x.txt', size: 1, arrayBuffer: async () => new Uint8Array([255]).buffer },
+        { name: 'x.txt', size: 1, arrayBuffer: async () => { throw new Error('read failed'); } },
+    ]) {
+        await controller.openCodeFromFile(invalid);
+        assert.equal(codeEditor.value, original);
+    }
+    assert.equal(errors.length, 7);
+    interpreter.isExecuting = true;
+    await controller.openCodeFromFile(file('вперед 20'));
+    assert.equal(codeEditor.value, original);
+    interpreter.isExecuting = false;
+    let finishRead;
+    const pending = controller.openCodeFromFile({ name: 'x.txt', size: 1, arrayBuffer: () => new Promise((resolve) => { finishRead = resolve; }) });
+    codeEditor.value = 'нова чернетка';
+    finishRead(new TextEncoder().encode('x').buffer);
+    await pending;
+    assert.equal(codeEditor.value, 'нова чернетка');
+    const source = '<script>globalThis.importExecuted = true</script>';
+    await controller.openCodeFromFile(file(source));
+    assert.equal(codeEditor.value, source);
+    assert.equal(globalThis.importExecuted, undefined);
+    assert.equal(loaded, 2);
+});
+
 function createExecutionHarness({
     code = 'вперед 10',
     maxCodeLength = 1000,

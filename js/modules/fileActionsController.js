@@ -19,6 +19,7 @@ export function createFileActionsController({
     showSuccessMessage,
     showInfoMessage,
     onCodeLoaded,
+    confirmCodeReplacement = () => false,
     getCanvasBackgroundColor,
     interpreter,
     executionController,
@@ -29,6 +30,56 @@ export function createFileActionsController({
     let gifExportActive = false;
     let activeGifCapture = null;
     let activeGifEncoding = null;
+    let importRequest = 0;
+
+    async function openCodeFromFile(file) {
+        const request = ++importRequest;
+        const isBusy = () => interpreter?.isExecuting || executionController?.isSessionActive?.();
+        if (!file || isBusy()) return;
+        const originalCode = codeEditor.value;
+        if (!/\.txt$/i.test(file.name)) {
+            showError('Обери текстовий файл із розширенням .txt.', 0);
+            return;
+        }
+        // Bound bytes before reading, then enforce the existing source length limit.
+        if (file.size > maxCodeLengthChars * 4 + 3) {
+            showError(errorMessages.CODE_TOO_LONG, 0);
+            return;
+        }
+        let code;
+        try {
+            const bytes = await file.arrayBuffer();
+            code = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+        } catch {
+            if (request === importRequest) showError('Не вдалося прочитати файл. Збережи його як текст UTF-8 і спробуй ще раз.', 0);
+            return;
+        }
+        if (request !== importRequest) return;
+        if (code.length > maxCodeLengthChars) {
+            showError(errorMessages.CODE_TOO_LONG, 0);
+            return;
+        }
+        if (Array.from(code).some((char) => {
+            const point = char.codePointAt(0);
+            return (point < 32 && ![9, 10, 13].includes(point)) || (point >= 127 && point <= 159);
+        })) {
+            showError('Файл містить нетекстові символи. Обери звичайний текстовий файл із кодом Равлика.', 0);
+            return;
+        }
+        if (!code.trim()) {
+            showError('Файл порожній. Обери файл із кодом Равлика.', 0);
+            return;
+        }
+        if (isBusy() || codeEditor.value !== originalCode) {
+            showInfoMessage('Редактор змінився під час читання файлу. Відкрий файл ще раз після завершення роботи.');
+            return;
+        }
+        if (originalCode.trim() && originalCode !== code && !confirmCodeReplacement()) return;
+        // Treat even HTML/JavaScript-looking text only as editable source, never as DOM or JS.
+        codeEditor.value = code;
+        onCodeLoaded?.();
+        showInfoMessage('Код відкрито з файлу. Переглянь його перед запуском.', 0);
+    }
     function saveDrawing() {
         try {
             const tempCanvas = document.createElement('canvas');
@@ -245,6 +296,7 @@ export function createFileActionsController({
     }
 
     return {
+        openCodeFromFile,
         saveDrawing,
         saveCodeToFile,
         saveGif,
