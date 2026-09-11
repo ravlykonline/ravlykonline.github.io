@@ -111,6 +111,7 @@ tests/
 - GIF: скасування між записом і створенням Worker та перед завантаженням не створює файл; помилка кодування після ліміту запису повертає `failed` і повідомляється користувачу.
 - execution controller (запуск, зупинка, stop-confirm flow)
 - file actions (export PNG, save TXT, share link, load from hash)
+- TXT import: ліміти до/після читання, UTF-8/BOM, керувальні символи, підтвердження заміни, зміна редактора під час читання, відсутність автоматичного виконання.
 - modal controller
 - lifecycle controller
 - grid overlay
@@ -131,6 +132,7 @@ tests/
 - release version: синхронізація SW та HTML
 
 **E2E:**
+- `code-import.spec.js`: повернення фактично експортованого TXT, скасування/підтвердження заміни, відхилення нетекстового вмісту та інертність HTML у редакторі.
 - головний smoke: редактор відкривається, код виконується
 - модальні вікна: help, download, stop-confirm, example-confirm — Escape, focus return
 - вибір прикладу: непорожній відмінний код не замінюється без явного підтвердження

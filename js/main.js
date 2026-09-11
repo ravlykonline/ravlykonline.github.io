@@ -227,6 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         interpreter,
         executionController,
         onGifProgress,
+        confirmCodeReplacement: () => window.confirm('Замінити поточний код кодом із файлу? Незбережені зміни буде втрачено.'),
         onCodeLoaded: () => {
             editorUi.setEditorErrorLine(null);
             editorUi.updateEditorDecorations();
@@ -274,6 +275,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (clearBtn) clearBtn.addEventListener("click", modalController.requestClearConfirmation);
     if (downloadBtn) downloadBtn.addEventListener('click', showDownloadModal);
     if (shareBtn) shareBtn.addEventListener('click', fileActions.shareCodeAsLink);
+    const openCodeBtn = document.getElementById('open-code-btn');
+    const openCodeInput = document.getElementById('open-code-input');
+    openCodeBtn?.addEventListener('click', () => {
+        if (executionController.isSessionActive()) {
+            showInfoMessage('Зачекай, поки завершиться поточне виконання.');
+            return;
+        }
+        openCodeInput?.click();
+    });
+    openCodeInput?.addEventListener('change', () => {
+        const file = openCodeInput.files?.[0];
+        openCodeInput.value = '';
+        void fileActions.openCodeFromFile(file);
+    });
     if (gridBtn) gridBtn.addEventListener('click', () => gridOverlay.toggle());
     if (helpBtn) helpBtn.addEventListener('click', showHelpModal);
     if (canvasStateBtn) {
