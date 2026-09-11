@@ -27,7 +27,10 @@ export function createAstRuntime({
     let astStepCount = 0;
 
     function isDone() {
-        return frameStack.length === 0;
+        // Inspect exhausted frames without evaluating conditions or advancing the program.
+        return frameStack.every((frame) => frame.index >= frame.stmts.length
+            && frame.type !== 'while'
+            && !(frame.type === 'repeat' && frame.remaining > 0));
     }
 
     function consumeAstBudget() {

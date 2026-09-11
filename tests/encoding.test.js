@@ -202,7 +202,8 @@ runTest('index page keeps key Ukrainian UI strings intact', () => {
     const requiredSnippets = [
         '<meta charset="UTF-8" />',
         '🐌 Малюй з Равликом! 🐌',
-        'Завантажити',
+        'Файли',
+        'Крок',
         'Поділитися',
         'Свайпни вліво або вправо, щоб побачити більше прикладів →',
     ];

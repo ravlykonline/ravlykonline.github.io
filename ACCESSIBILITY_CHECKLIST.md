@@ -48,7 +48,7 @@ Use this checklist after accessibility-related changes and before release.
 - Check `target="_blank"` links keep `rel="noopener noreferrer"`.
 - Check larger text mode does not cause clipped buttons, hidden labels, or modal overflow.
 - Check reduced motion mode removes non-essential motion and smooth scrolling where needed.
-- On the editor, open «Стан» from the toolbar, verify learning X/Y and angle after home/goto, and use «Прочитати стан» with a screen reader. Confirm the dialog closes on Escape and returns focus to the «Стан» button.
+- On the editor, open «Стан» from the canvas heading (switch to «Полотно» on narrow screens), verify learning X/Y and direction after home/goto, and check that a screen reader announces the current state on opening. Confirm the dialog closes on Escape and returns focus to «Стан».
 - Confirm opening the state dialog does not resize the canvas or change what is already drawn.
 - Confirm the optional completed-command journal keeps at most 50 entries and does not announce every game tick.
 

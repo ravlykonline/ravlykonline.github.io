@@ -21,8 +21,15 @@ function toggleModal(modalId, show) {
         modalOverlay.classList.remove('hidden');
         modalOverlay.setAttribute('aria-hidden', 'false');
         if (modalContent) {
-            const focusable = modalContent.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-            if (focusable) focusable.focus();
+            const focusable = modalContent.querySelector('[data-modal-initial-focus]')
+                || modalContent.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (focusable) focusable.focus({ preventScroll: true });
+            modalContent.scrollTop = 0;
+            const categories = modalId === 'help-modal-overlay' ? modalContent.querySelector('.help-categories') : null;
+            if (categories) {
+                categories.scrollTop = 0;
+                categories.querySelectorAll('details').forEach((item, index) => { item.open = index === 0; });
+            }
         }
         return;
     }

@@ -93,7 +93,6 @@ export function createCanvasStateController({
         color: documentRef.getElementById('canvas-state-color'),
         size: documentRef.getElementById('canvas-state-size'),
     };
-    const readButton = documentRef.getElementById('read-canvas-state-btn');
     const status = documentRef.getElementById('canvas-state-status');
     const log = documentRef.getElementById('canvas-state-log');
     let lastSnapshot = getCanvasStateSnapshot(getState(), canvas);
@@ -125,14 +124,11 @@ export function createCanvasStateController({
         while (log.children.length > maxLogEntries) log.removeChild(log.firstElementChild);
     }
 
-    readButton?.addEventListener('click', () => {
-        const snapshot = update('read');
-        if (status) status.textContent = formatCanvasState(snapshot);
-    });
-
     // Called just before the dialog is shown, so it always opens on current values.
     function refresh() {
-        return update('refresh');
+        const snapshot = update('refresh');
+        if (status) status.textContent = `X ${snapshot.x}, Y ${snapshot.y}, напрямок ${snapshot.angle}°, перо ${snapshot.pen}, колір ${snapshot.color}.`;
+        return snapshot;
     }
 
     return { update, refresh, recordPrimitive, clearLog, getSnapshot: () => lastSnapshot };

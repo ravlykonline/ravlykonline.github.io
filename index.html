@@ -13,14 +13,14 @@
   <meta name="author" content="Равлик" />
   <meta name="robots" content="index, follow" />
   <title>Равлик — Онлайн програмування для дітей українською мовою</title>
-  <!-- Static deployment release token: 2026-09-11-1 -->
-  <link rel="stylesheet" type="text/css" href="css/global.css?v=2026-09-11-1" />
-  <link rel="stylesheet" type="text/css" href="css/accessibility.css?v=2026-09-11-1" />
-  <link rel="stylesheet" type="text/css" href="css/main-editor.css?v=2026-09-11-1" />
+  <!-- Static deployment release token: 2026-09-11-3 -->
+  <link rel="stylesheet" type="text/css" href="css/global.css?v=2026-09-11-3" />
+  <link rel="stylesheet" type="text/css" href="css/accessibility.css?v=2026-09-11-3" />
+  <link rel="stylesheet" type="text/css" href="css/main-editor.css?v=2026-09-11-3" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-  <link rel="manifest" href="site.webmanifest?v=2026-09-11-1" />
+  <link rel="manifest" href="site.webmanifest?v=2026-09-11-3" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="uk_UA" />
@@ -97,27 +97,16 @@
   </header>
   <main id="main-content" class="content-container">
     <div class="toolbar">
-      <button id="run-btn" class="btn btn-success" title="Запусти програму (Ctrl/Cmd/Shift + Enter)"
+      <div class="execution-toggle"><button id="run-btn" class="btn btn-success" title="Запусти програму (Ctrl/Cmd/Shift + Enter)"
         aria-label="Запусти програму"><span class="ui-icon icon-play" aria-hidden="true"></span><span
-          class="toolbar-label">Запустити</span></button>
-      <button id="stop-btn" class="btn btn-warning" title="Зупинити програму (Esc)" aria-label="Зупинити програму"><span class="ui-icon icon-stop-circle" aria-hidden="true"></span><span class="toolbar-label">Стоп</span></button>
+          class="toolbar-label">Запустити</span></button><button id="stop-btn" hidden class="btn btn-warning" title="Зупинити програму (Esc)" aria-label="Зупинити програму"><span class="ui-icon icon-stop-circle" aria-hidden="true"></span><span class="toolbar-label">Стоп</span></button></div>
       <button id="clear-btn" class="btn btn-danger" title="Скинути полотно і код" aria-label="Скинути полотно і код"><span class="ui-icon icon-trash-alt" aria-hidden="true"></span><span class="toolbar-label">Очистити</span></button>
-      <button id="grid-btn" class="btn btn-primary" title="Увімкнути або вимкнути координатну сітку"
-        aria-label="Перемкнути сітку" aria-pressed="false"><span class="ui-icon icon-th" aria-hidden="true"></span><span
-          class="toolbar-label">Сітка</span></button>
-      <button id="canvas-state-btn" class="btn btn-primary" title="Показати стан Равлика: координати, кут, перо й колір"
-        aria-label="Показати стан Равлика"><span class="ui-icon icon-info-circle" aria-hidden="true"></span><span
-          class="toolbar-label">Стан</span></button>
       <button id="help-btn" class="btn btn-primary" title="Пояснення команд" aria-label="Пояснення команд"><span class="ui-icon icon-question-circle" aria-hidden="true"></span><span class="toolbar-label">Довідка</span></button>
-      <button id="download-btn" class="btn btn-info" title="Завантажити малюнок або код"
-        aria-label="Завантажити малюнок або код"><span class="ui-icon icon-download" aria-hidden="true"></span><span
-          class="toolbar-label">Завантажити</span></button>
-      <button id="open-code-btn" class="btn btn-info" title="Відкрити код із текстового файлу" aria-label="Відкрити код із текстового файлу"><span class="ui-icon icon-book-open" aria-hidden="true"></span><span class="toolbar-label">Відкрити код</span></button>
-      <input id="open-code-input" type="file" accept=".txt,text/plain" hidden>
-      <button id="share-btn" class="btn btn-info" title="Скопіювати посилання з кодом"
-        aria-label="Скопіювати посилання з кодом"><span class="ui-icon icon-link" aria-hidden="true"></span><span
-          class="toolbar-label">Поділитися</span></button>
+      <button id="download-btn" class="btn btn-info" title="Відкрити, зберегти або поширити роботу"
+        aria-label="Файли: відкрити, зберегти або поширити роботу"><span class="ui-icon icon-download" aria-hidden="true"></span><span
+          class="toolbar-label">Файли</span></button>
     </div>
+    <input id="open-code-input" type="file" accept=".txt,text/plain" hidden>
     <div class="workspace-tabs" role="tablist" aria-label="Робоча область редактора">
       <button class="workspace-tab active" id="workspace-editor-tab" role="tab" aria-selected="true"
         aria-controls="workspace-editor-panel" data-workspace-target="editor">Редактор</button>
@@ -127,7 +116,7 @@
     <div class="main-area">
       <section class="code-box active-panel" id="workspace-editor-panel" role="tabpanel"
         aria-labelledby="workspace-editor-tab" data-workspace-panel="editor">
-        <h2 id="code-header" class="area-header code-header">Команди для равлика</h2>
+        <div class="area-header code-header area-heading"><h2 id="code-header">Команди для равлика</h2><div class="area-actions editor-actions"><button id="step-btn" class="btn btn-primary" title="Виконати одну команду й зачекати" aria-label="Крок: виконати одну команду"><span aria-hidden="true">▸│</span> Крок</button><button id="continue-btn" class="btn btn-success" hidden>Продовжити</button></div></div>
         <div class="editor-shell">
           <div id="code-active-line" class="code-active-line" aria-hidden="true"></div>
           <div id="code-error-line" class="code-error-line hidden" aria-hidden="true"></div>
@@ -136,18 +125,22 @@
           <textarea id="code-editor" spellcheck="false" aria-label="Поле для команд"
             aria-describedby="code-editor-keyboard-help"
             placeholder="Наприклад:&#10;колір синій&#10;вперед 100&#10;праворуч 90&#10;вперед 50"></textarea>
+          <p id="step-status" class="step-status" role="status" hidden></p>
         </div>
       </section>
       <section class="canvas-box" id="workspace-canvas-panel" role="tabpanel" aria-labelledby="workspace-canvas-tab"
         data-workspace-panel="canvas">
-        <h2 id="canvas-header" class="area-header canvas-header">Малюнок равлика</h2>
+        <div class="area-header canvas-header area-heading"><h2 id="canvas-header">Малюнок равлика</h2><div class="area-actions"><button id="grid-btn" class="btn btn-primary" title="Увімкнути або вимкнути координатну сітку"
+        aria-label="Перемкнути сітку" aria-pressed="false"><span class="ui-icon icon-th" aria-hidden="true"></span><span
+          class="toolbar-label">Сітка</span></button><button id="canvas-state-btn" class="btn btn-primary" title="Показати стан Равлика: координати, кут, перо й колір"
+        aria-label="Показати стан Равлика"><span class="ui-icon icon-info-circle" aria-hidden="true"></span><span
+          class="toolbar-label">Стан</span></button></div></div>
         <div class="canvas-stage">
           <canvas id="ravlyk-background-canvas" aria-hidden="true"></canvas>
           <canvas id="ravlyk-canvas" role="img" aria-label="Полотно для малювання Равлика" aria-describedby="canvas-state-description"></canvas>
           <canvas id="ravlyk-grid-canvas" aria-hidden="true"></canvas>
         </div>
-        <p id="canvas-state-description" class="visually-hidden">Текстовий стан Равлика доступний через кнопку «Стан» на панелі керування: координати подано від центра полотна, а кут — як у виразі кут.</p>
-        <p id="canvas-state-status" class="visually-hidden" role="status" aria-live="polite"></p>
+        <p id="canvas-state-description" class="visually-hidden">Положення, напрямок, перо й колір доступні через кнопку «Стан» у заголовку полотна.</p>
       </section>
     </div>
     <section class="examples" aria-labelledby="examples-title">
@@ -408,22 +401,21 @@
   <div id="canvas-state-modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true"
     aria-labelledby="canvas-state-modal-title">
     <div id="canvas-state-modal-content" class="modal-content">
-      <h2 id="canvas-state-modal-title" class="modal-title">Стан Равлика</h2>
-      <p>Координати подано від центра полотна, а кут — як у виразі <code>кут</code>.</p>
+      <h2 id="canvas-state-modal-title" class="modal-title" tabindex="-1" data-modal-initial-focus aria-describedby="canvas-state-status">Стан Равлика</h2>
+      <p id="canvas-state-status" class="visually-hidden" role="status" aria-live="polite"></p>
+      <p>Центр полотна — X 0, Y 0. Праворуч і вгору значення додатні. Напрямок: 0° — вгору, 90° — праворуч, 180° — вниз, 270° — ліворуч.</p>
       <dl class="canvas-state-values">
         <div><dt>X</dt><dd id="canvas-state-x">0</dd></div>
         <div><dt>Y</dt><dd id="canvas-state-y">0</dd></div>
-        <div><dt>Кут</dt><dd id="canvas-state-angle">0°</dd></div>
+        <div><dt>Напрямок</dt><dd id="canvas-state-angle">0°</dd></div>
         <div><dt>Перо</dt><dd id="canvas-state-pen">опущене</dd></div>
         <div><dt>Колір</dt><dd id="canvas-state-color">чорний</dd></div>
-        <div><dt>Полотно</dt><dd id="canvas-state-size">0 × 0</dd></div>
       </dl>
       <details class="canvas-command-log-panel">
-        <summary>Останні завершені команди</summary>
+        <summary>Історія руху</summary>
         <ol id="canvas-state-log"></ol>
       </details>
       <div class="modal-actions">
-        <button id="read-canvas-state-btn" class="btn btn-info" type="button">Прочитати стан</button>
         <button id="close-canvas-state-modal-btn" class="btn btn-secondary" type="button">Закрити</button>
       </div>
     </div>
@@ -432,43 +424,40 @@
   <div id="help-modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true"
     aria-labelledby="help-modal-title-static">
     <div id="help-modal-content" class="modal-content help-content">
-      <h2 id="help-modal-title-static" class="modal-title">Довідка: Команди для Равлика</h2>
-      <ul>
-        <li><b>вперед N</b> / <b>вперед випадково</b> — рух вперед на N кроків або на випадкову відстань</li>
-        <li><b>назад N</b> / <b>назад випадково</b> — рух назад на N кроків або на випадкову відстань</li>
-        <li><b>ліворуч N</b> — повернути ліворуч на N градусів</li>
-        <li><b>праворуч N</b> — повернути праворуч на N градусів</li>
-        <li><b>колір червоний</b> або <b>колір випадково</b> — змінити колір лінії</li>
-        <li><b>фон бежевий</b> або <b>фон випадково</b> — змінити фон полотна без стирання ліній</li>
-        <li><b>товщина N</b> — змінити товщину лінії. Працюють цілі значення від 1 до 50</li>
-        <li><b>перейти в X Y</b> / <b>перейти в випадково</b> — перейти у точку (X, Y) від центру полотна або в випадкову точку</li>
-        <li><b>підняти</b> — підняти олівець (не малювати при русі)</li>
-        <li><b>опустити</b> — опустити олівець (малювати при русі)</li>
-        <li><b>очистити</b> — очистити малюнок і повернути білий фон</li>
-        <li><b>сховати</b> / <b>показати</b> — сховати або знову показати Равлика</li>
-        <li><b>додому</b> — повернути Равлика в початкову точку і напрямок без малювання</li>
-        <li><b>чекати N</b> — зупинити виконання на N секунд (від 0 до 60, можна дробово: <b>чекати 0.5</b>)</li>
-        <li><b>// текст</b> — коментар: Равлик цей рядок не виконує</li>
-        <li><b>повторити N ( ... )</b> — повторити команди в дужках N разів</li>
-        <li><b>якщо умова ( ... )</b> — виконати блок за умовою</li>
-        <li><b>якщо умова ( ... ) інакше ( ... )</b> — виконати один із двох блоків залежно від умови</li>
-        <li><b>поки умова ( ... )</b> — повторювати блок, доки умова істинна</li>
-        <li><b>стоп</b> — вийти з найближчого циклу <b>повторити</b> або <b>поки</b></li>
-        <li><b>не умова</b> — заперечити умову, наприклад <b>поки не край ( ... )</b></li>
-        <li><b>модуль(...)</b> / <b>корінь(...)</b> — математичні функції у виразах</li>
-        <li><b>випадково(від, до)</b> — випадкове число в твоїх межах, наприклад <b>випадково(10, 100)</b></li>
-        <li><b>кут</b> — поточний напрямок Равлика: старт <b>0</b>, <b>праворуч 90</b> дає <b>90</b></li>
-        <li><b>якщо край ( ... )</b> — перевірка межі полотна</li>
-        <li><b>якщо клавіша "вгору" ( ... )</b> — перевірка натиснутої клавіші</li>
-        <li><b>грати ( ... )</b> — інтерактивний ігровий режим</li>
-        <li><b>створити назва(параметр) ( ... )</b> — створити власну команду</li>
-        <li><b>назва(число)</b> — викликати власну команду з числом</li>
-        <li><b>створити змінна = число</b> — створити змінну</li>
-        <li><b>змінна = число</b> — змінити значення змінної</li>
-      </ul>
+      <div class="help-heading"><h2 id="help-modal-title-static" class="modal-title" tabindex="-1" data-modal-initial-focus>Команди</h2><button id="close-help-modal-btn" class="btn btn-secondary">Закрити</button></div>
+      <div class="help-categories"><details open><summary>Рух</summary><ul><li><b>вперед N</b> / <b>вперед випадково</b> — рух вперед на N кроків або на випадкову відстань</li>
+<li><b>назад N</b> / <b>назад випадково</b> — рух назад на N кроків або на випадкову відстань</li>
+<li><b>ліворуч N</b> — повернути ліворуч на N градусів</li>
+<li><b>праворуч N</b> — повернути праворуч на N градусів</li>
+<li><b>перейти в X Y</b> / <b>перейти в випадково</b> — перейти у точку (X, Y) від центру полотна або в випадкову точку</li>
+<li><b>додому</b> — повернути Равлика в початкову точку і напрямок без малювання</li>
+<li><b>чекати N</b> — зупинити виконання на N секунд (від 0 до 60, можна дробово: <b>чекати 0.5</b>)</li></ul></details>
+<details><summary>Малювання</summary><ul><li><b>колір червоний</b> або <b>колір випадково</b> — змінити колір лінії</li>
+<li><b>фон бежевий</b> або <b>фон випадково</b> — змінити фон полотна без стирання ліній</li>
+<li><b>товщина N</b> — змінити товщину лінії. Працюють цілі значення від 1 до 50</li>
+<li><b>підняти</b> — підняти олівець (не малювати при русі)</li>
+<li><b>опустити</b> — опустити олівець (малювати при русі)</li>
+<li><b>очистити</b> — очистити малюнок і повернути білий фон</li>
+<li><b>сховати</b> / <b>показати</b> — сховати або знову показати Равлика</li></ul></details>
+<details><summary>Повторення й умови</summary><ul><li><b>повторити N ( ... )</b> — повторити команди в дужках N разів</li>
+<li><b>якщо умова ( ... )</b> — виконати блок за умовою</li>
+<li><b>якщо умова ( ... ) інакше ( ... )</b> — виконати один із двох блоків залежно від умови</li>
+<li><b>поки умова ( ... )</b> — повторювати блок, доки умова істинна</li>
+<li><b>стоп</b> — вийти з найближчого циклу <b>повторити</b> або <b>поки</b></li>
+<li><b>не умова</b> — заперечити умову, наприклад <b>поки не край ( ... )</b></li>
+<li><b>якщо край ( ... )</b> — перевірка межі полотна</li></ul></details>
+<details><summary>Змінні та обчислення</summary><ul><li><b>// текст</b> — коментар: Равлик цей рядок не виконує</li>
+<li><b>модуль(...)</b> / <b>корінь(...)</b> — математичні функції у виразах</li>
+<li><b>випадково(від, до)</b> — випадкове число в твоїх межах, наприклад <b>випадково(10, 100)</b></li>
+<li><b>кут</b> — поточний напрямок Равлика: старт <b>0</b>, <b>праворуч 90</b> дає <b>90</b></li>
+<li><b>створити змінна = число</b> — створити змінну</li>
+<li><b>змінна = число</b> — змінити значення змінної</li></ul></details>
+<details><summary>Власні команди й ігри</summary><ul><li><b>якщо клавіша "вгору" ( ... )</b> — перевірка натиснутої клавіші</li>
+<li><b>грати ( ... )</b> — інтерактивний ігровий режим</li>
+<li><b>створити назва(параметр) ( ... )</b> — створити власну команду</li>
+<li><b>назва(число)</b> — викликати власну команду з числом</li></ul></details></div>
       <div class="modal-actions">
         <button id="to-manual-btn-modal" class="btn btn-info">Повний посібник</button>
-        <button id="close-help-modal-btn" class="btn btn-secondary">Закрити</button>
       </div>
     </div>
   </div>
@@ -512,13 +501,17 @@
   <div id="download-modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true"
     aria-labelledby="download-modal-title-static">
     <div id="download-modal-content" class="modal-content">
-      <h2 id="download-modal-title-static" class="modal-title">Завантажити результат</h2>
-      <p>Оберіть, що саме хочете завантажити:</p>
+      <h2 id="download-modal-title-static" class="modal-title">Файли та поширення</h2>
+      <p>Відкрийте збережений код або збережіть свою роботу:</p>
+      <div class="file-open-actions">
+        <button id="open-code-btn" class="btn btn-primary">Відкрити код із TXT</button>
+        <button id="share-btn" class="btn btn-info">Поділитися посиланням</button>
+      </div>
       <div class="modal-actions download-actions">
         <div class="download-row">
-          <button id="download-image-btn" class="btn btn-info">Зберегти як малюнок</button>
-          <button id="download-gif-btn" class="btn btn-info">Зберегти як анімацію</button>
-          <button id="download-code-btn" class="btn btn-primary">Зберегти як код</button>
+          <button id="download-image-btn" class="btn btn-info">Зберегти малюнок</button>
+          <button id="download-gif-btn" class="btn btn-info">Зберегти анімацію</button>
+          <button id="download-code-btn" class="btn btn-primary">Зберегти код</button>
         </div>
         <button id="close-download-modal-btn" class="btn btn-secondary download-cancel">Скасувати</button>
       </div>
@@ -535,10 +528,10 @@
     </div>
   </div>
 
-  <script type="module" src="js/accessibility.js?v=2026-09-11-1"></script>
+  <script type="module" src="js/accessibility.js?v=2026-09-11-3"></script>
   <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "46477cad50284d57abdf0b005192f4c0"}'></script><!-- End Cloudflare Web Analytics -->
-  <script type="module" src="js/registerServiceWorker.js?v=2026-09-11-1"></script>
-  <script type="module" src="js/main.js?v=2026-09-11-1"></script>
+  <script type="module" src="js/registerServiceWorker.js?v=2026-09-11-3"></script>
+  <script type="module" src="js/main.js?v=2026-09-11-3"></script>
 </body>
 
 </html>

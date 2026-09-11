@@ -168,6 +168,8 @@ AST -> interpreterAstAnimationRuntime.js -> createAstRuntime (step-by-step) -> r
 
 ### 7.3. Semantic analyzer ✓ ЗАВЕРШЕНО
 
+Редактор підтримує «Крок» через необов'язковий `stepControl` у спільному анімаційному циклі. Дозвіл на одну команду витрачається до її виконання; наступний примітив не отримується, доки користувач не натисне «Крок» або «Продовжити». `isDone()` перевіряє вичерпані frames без обчислення умов. Цикли та функції не розгортаються повторно. Step-сесія використовує той самий execution controller; GIF і game paths не отримують `stepControl`. Підсвічування бере рядок зі span AST, а не з індексу виконаної команди.
+
 У `js/modules/semanticValidator.js` є semantic validation після парсингу. Він перевіряє:
 
 - reserved names для функцій, змінних і параметрів;

@@ -180,6 +180,7 @@ export async function executeCommandsRuntime(runtime, commandsString) {
 
 export function runAstAnimationWithRuntime(runtime, programAst) {
     return runAstAnimationRuntime({
+        stepControl: runtime.stepControl || null,
         programAst,
         EnvironmentCtor: Environment,
         RavlykErrorCtor: RavlykError,
