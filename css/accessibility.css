@@ -664,5 +664,11 @@ html.a11y-reduce-animations body {
     }
 }
 
-.accessibility-panel { max-height: calc(100dvh - 100px); overflow-y: auto; }
-body:has(.modal-overlay:not(.hidden)) .accessibility-toggle { visibility: hidden; }
+.accessibility-panel {
+    max-height: calc(100dvh - 100px);
+    overflow-y: auto;
+}
+
+body:has(.modal-overlay:not(.hidden)) .accessibility-toggle {
+    visibility: hidden;
+}
