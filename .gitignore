@@ -11,6 +11,7 @@ playwright-report/
 Thumbs.db
 
 # Editor
+.claude/settings.local.json
 .idea/
 *.suo
 *.user

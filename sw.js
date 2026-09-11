@@ -1,4 +1,4 @@
-const CACHE_VERSION = '2026-09-11-3';
+const CACHE_VERSION = '2026-09-11-4';
 // Precache (install-time assets) and runtime cache are kept separate so that
 // trimRuntimeCache() can evict dynamic entries without touching precache URLs.
 const APP_CACHE = `ravlyk-app-${CACHE_VERSION}`;
@@ -105,25 +105,25 @@ const CRITICAL_PRECACHE_URLS = [
     '/resources.html',
     '/teacher_guidelines.html',
     '/zen.html',
-    '/css/about-project.css?v=2026-09-11-3',
-    '/css/accessibility.css?v=2026-09-11-3',
-    '/css/global.css?v=2026-09-11-3',
-    '/css/lessons.css?v=2026-09-11-3',
-    '/css/main-editor.css?v=2026-09-11-3',
-    '/css/manual.css?v=2026-09-11-3',
-    '/css/parents.css?v=2026-09-11-3',
-    '/css/quiz.css?v=2026-09-11-3',
-    '/css/resources.css?v=2026-09-11-3',
-    '/css/teacher-guidelines.css?v=2026-09-11-3',
-    '/css/zen.css?v=2026-09-11-3',
-    '/js/accessibility.js?v=2026-09-11-3',
-    '/js/lessonsPage.js?v=2026-09-11-3',
-    '/js/main.js?v=2026-09-11-3',
-    '/js/manualPage.js?v=2026-09-11-3',
-    '/js/printPage.js?v=2026-09-11-3',
-    '/js/quizPage.js?v=2026-09-11-3',
-    '/js/registerServiceWorker.js?v=2026-09-11-3',
-    '/js/zenPage.js?v=2026-09-11-3',
+    '/css/about-project.css?v=2026-09-11-4',
+    '/css/accessibility.css?v=2026-09-11-4',
+    '/css/global.css?v=2026-09-11-4',
+    '/css/lessons.css?v=2026-09-11-4',
+    '/css/main-editor.css?v=2026-09-11-4',
+    '/css/manual.css?v=2026-09-11-4',
+    '/css/parents.css?v=2026-09-11-4',
+    '/css/quiz.css?v=2026-09-11-4',
+    '/css/resources.css?v=2026-09-11-4',
+    '/css/teacher-guidelines.css?v=2026-09-11-4',
+    '/css/zen.css?v=2026-09-11-4',
+    '/js/accessibility.js?v=2026-09-11-4',
+    '/js/lessonsPage.js?v=2026-09-11-4',
+    '/js/main.js?v=2026-09-11-4',
+    '/js/manualPage.js?v=2026-09-11-4',
+    '/js/printPage.js?v=2026-09-11-4',
+    '/js/quizPage.js?v=2026-09-11-4',
+    '/js/registerServiceWorker.js?v=2026-09-11-4',
+    '/js/zenPage.js?v=2026-09-11-4',
 ];
 
 const OPTIONAL_PRECACHE_URLS = [
@@ -172,7 +172,7 @@ const OPTIONAL_PRECACHE_URLS = [
     '/favicon-32x32.png',
     '/favicon.ico',
     '/ravlyk.jpg',
-    '/site.webmanifest?v=2026-09-11-3',
+    '/site.webmanifest?v=2026-09-11-4',
 ];
 // END GENERATED PRECACHE MANIFEST
 

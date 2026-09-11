@@ -25,8 +25,7 @@ function createElement() {
 function createDocumentFixture() {
     const ids = [
         'canvas-state-x', 'canvas-state-y', 'canvas-state-angle', 'canvas-state-pen',
-        'canvas-state-color', 'canvas-state-size', 'read-canvas-state-btn',
-        'canvas-state-status', 'canvas-state-log',
+        'canvas-state-color', 'canvas-state-status', 'canvas-state-log',
     ];
     const elements = Object.fromEntries(ids.map((id) => [id, createElement()]));
     return {
@@ -53,8 +52,6 @@ runTest('canvas state uses learning coordinates and normalized angle', () => {
         angle: 0,
         pen: 'опущене',
         color: 'синій',
-        width: 400,
-        height: 300,
     });
 
     const afterGoto = getCanvasStateSnapshot({
@@ -77,6 +74,7 @@ runTest('canvas state refresh prepares a concise announcement for the dialog', (
     controller.update();
     assert.equal(elements['canvas-state-status'].textContent, '');
     controller.refresh();
+    assert.equal(elements['canvas-state-status'].textContent, formatCanvasState(controller.getSnapshot()));
     assert.match(elements['canvas-state-status'].textContent, /X .*Y .*напрямок .*перо .*колір/);
 });
 
@@ -91,7 +89,8 @@ runTest('canvas state log is bounded and reset clears the current session', () =
         controller.recordPrimitive({ type: 'MoveStmt' });
     }
     assert.equal(elements['canvas-state-log'].children.length, MAX_CANVAS_STATE_LOG_ENTRIES);
-    assert.match(elements['canvas-state-log'].children[0].textContent, /^Завершено рух\./);
+    assert.match(elements['canvas-state-log'].children[0].textContent, /^Завершено рух\. X .*Y .*напрямок /);
+    assert.doesNotMatch(elements['canvas-state-log'].children[0].textContent, /кут/);
     controller.update('reset');
     assert.equal(elements['canvas-state-log'].children.length, 0);
 });

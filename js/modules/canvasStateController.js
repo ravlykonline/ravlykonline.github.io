@@ -43,13 +43,11 @@ export function getCanvasStateSnapshot(state, canvas) {
         angle: normalizeLearningAngle(state?.angle),
         pen: state?.isPenDown ? 'опущене' : 'підняте',
         color: describeColor(state?.color),
-        width: Number(canvas?.width) || 0,
-        height: Number(canvas?.height) || 0,
     };
 }
 
 export function formatCanvasState(snapshot) {
-    return `X ${snapshot.x}, Y ${snapshot.y}, кут ${snapshot.angle}°, перо ${snapshot.pen}, колір ${snapshot.color}, полотно ${snapshot.width} на ${snapshot.height}.`;
+    return `X ${snapshot.x}, Y ${snapshot.y}, напрямок ${snapshot.angle}°, перо ${snapshot.pen}, колір ${snapshot.color}.`;
 }
 
 function primitiveLabel(primitive) {
@@ -91,7 +89,6 @@ export function createCanvasStateController({
         angle: documentRef.getElementById('canvas-state-angle'),
         pen: documentRef.getElementById('canvas-state-pen'),
         color: documentRef.getElementById('canvas-state-color'),
-        size: documentRef.getElementById('canvas-state-size'),
     };
     const status = documentRef.getElementById('canvas-state-status');
     const log = documentRef.getElementById('canvas-state-log');
@@ -110,7 +107,6 @@ export function createCanvasStateController({
         if (fields.angle) fields.angle.textContent = `${lastSnapshot.angle}°`;
         if (fields.pen) fields.pen.textContent = lastSnapshot.pen;
         if (fields.color) fields.color.textContent = lastSnapshot.color;
-        if (fields.size) fields.size.textContent = `${lastSnapshot.width} × ${lastSnapshot.height}`;
         if (reason === 'reset') clearLog();
         return lastSnapshot;
     }
@@ -119,7 +115,7 @@ export function createCanvasStateController({
         const snapshot = update('primitive');
         if (!log) return;
         const item = documentRef.createElement('li');
-        item.textContent = `${primitiveLabel(primitive)}. X ${snapshot.x}, Y ${snapshot.y}, кут ${snapshot.angle}°.`;
+        item.textContent = `${primitiveLabel(primitive)}. X ${snapshot.x}, Y ${snapshot.y}, напрямок ${snapshot.angle}°.`;
         log.appendChild(item);
         while (log.children.length > maxLogEntries) log.removeChild(log.firstElementChild);
     }
@@ -127,7 +123,7 @@ export function createCanvasStateController({
     // Called just before the dialog is shown, so it always opens on current values.
     function refresh() {
         const snapshot = update('refresh');
-        if (status) status.textContent = `X ${snapshot.x}, Y ${snapshot.y}, напрямок ${snapshot.angle}°, перо ${snapshot.pen}, колір ${snapshot.color}.`;
+        if (status) status.textContent = formatCanvasState(snapshot);
         return snapshot;
     }
 
