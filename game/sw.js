@@ -1,4 +1,6 @@
-const STATIC_CACHE = 'ravlyk-static-v28';
+const CACHE_PREFIX = 'ravlyk-game-static-v';
+const LEGACY_CACHE = 'ravlyk-static-v28';
+const STATIC_CACHE = 'ravlyk-game-static-v29';
 const STATIC_ASSETS = [
     './',
     './index.html',
@@ -112,7 +114,7 @@ self.addEventListener('activate', (event) => {
         caches.keys().then((keys) =>
             Promise.all(
                 keys
-                    .filter((key) => key !== STATIC_CACHE)
+                    .filter((key) => key !== STATIC_CACHE && (key.startsWith(CACHE_PREFIX) || key === LEGACY_CACHE))
                     .map((key) => caches.delete(key))
             )
         )
