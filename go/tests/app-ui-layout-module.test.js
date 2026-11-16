@@ -138,46 +138,22 @@ function createHarness(width = 1024) {
     actions,
     palette,
     text,
-    windowRef: { innerWidth: width }
   };
 }
 
-test('appUiLayout applies static labels and compact map text', async () => {
+test('appUiLayout applies accessible labels without changing the DOM order', async () => {
   const { createAppUiLayout } = await importModule('js/ui/appUiLayout.js');
-  const harness = createHarness(620);
+  const harness = createHarness();
   const layout = createAppUiLayout(harness);
 
   layout.applyStaticText();
 
   assert.equal(harness.documentRef.title, 'Пригоди Равлика');
-  assert.equal(harness.refs.btnMap.textContent, 'Рівні');
+  assert.equal(harness.refs.btnMap.attributes['aria-label'], 'Усі рівні');
   assert.equal(harness.refs.btnRun.attributes['aria-label'], 'Запустити');
   assert.equal(harness.refs.gridEl.attributes['aria-label'], '6 на 8');
   assert.equal(harness.refs.paletteEl.attributes['aria-label'], 'Палітра команд');
 
-  harness.windowRef.innerWidth = 800;
-  layout.updateResponsiveLabels();
-
-  assert.equal(harness.refs.btnMap.textContent, 'Усі рівні');
-});
-
-test('appUiLayout moves command controls between sidebar and mobile dock', async () => {
-  const { createAppUiLayout } = await importModule('js/ui/appUiLayout.js');
-  const harness = createHarness(880);
-  const layout = createAppUiLayout(harness);
-
-  layout.syncCommandLayout();
-
-  const mobileDock = harness.documentRef.created.find((element) => element.className === 'mobile-command-dock');
-  assert.ok(mobileDock);
-  assert.equal(harness.palette.parentNode, mobileDock);
-  assert.equal(harness.actions.parentNode, mobileDock);
-
-  harness.windowRef.innerWidth = 1200;
-  layout.syncCommandLayout();
-
-  assert.equal(harness.palette.parentNode, harness.sidebar);
-  assert.equal(harness.actions.parentNode, harness.sidebar);
 });
 
 test('appUiLayout remains a focused UI helper without storage or global app contracts', () => {

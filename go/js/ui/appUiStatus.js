@@ -37,6 +37,18 @@ export function createAppUiStatus({
 
   function onRouteChanged() {
     scheduleRunHint();
+    updateEditHint();
+  }
+
+  function updateEditHint() {
+    if (app.state.running) {
+      return;
+    }
+    const { selDir, arrows } = app.state;
+    const message = selDir
+      ? text.ui.placeSelected
+      : Object.keys(arrows).length > 0 ? text.ui.editRoute : text.ui.defaultStatus;
+    setStatus('💡', routeIsReadyForRunHint() ? text.ui.routeReady : message, '');
   }
 
   function setStatus(icon, message, type) {
@@ -54,7 +66,7 @@ export function createAppUiStatus({
       setStatus('\u{1F50D}', text.ui.debugStatus, 'warn');
       return;
     }
-    clearStatus();
+    updateEditHint();
   }
 
   return {
@@ -63,6 +75,7 @@ export function createAppUiStatus({
     onRouteChanged,
     scheduleRunHint,
     setLevelIntroStatus,
-    setStatus
+    setStatus,
+    updateEditHint
   };
 }

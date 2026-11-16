@@ -89,16 +89,13 @@ function createHarness({ width = 1000 } = {}) {
   return { app, calls, cell, confEl, documentRef, styleValues, timers, windowRef };
 }
 
-test('appUiEffects syncs board CSS variables and snail position', async () => {
+test('appUiEffects positions the snail after layout', async () => {
   const { createAppUiEffects } = await importModule('js/ui/appUiEffects.js');
   const harness = createHarness({ width: 1000 });
   const effects = createAppUiEffects(harness);
 
   effects.syncSizes();
 
-  assert.equal(harness.styleValues['--gs-w'], '1000px');
-  assert.equal(harness.styleValues['--gs-h'], '300px');
-  assert.equal(harness.styleValues['--tile-sz'], '64px');
   assert.deepEqual(harness.calls, ['raf', ['pos-snail', 1, 2, false, 'right']]);
 });
 

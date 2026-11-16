@@ -8,6 +8,7 @@ export function getDomRefs(documentRef = document) {
     stxtEl: documentRef.getElementById('stxt'),
     btnRun: documentRef.getElementById('btn-run'),
     btnClr: documentRef.getElementById('btn-clr'),
+    btnUndo: documentRef.getElementById('btn-undo'),
     btnPrev: documentRef.getElementById('btn-prev'),
     btnNext: documentRef.getElementById('btn-next'),
     btnLevelInfo: documentRef.getElementById('btn-level-info'),

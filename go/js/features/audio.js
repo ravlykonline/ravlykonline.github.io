@@ -1,4 +1,4 @@
-import { chooseVoice, getSpeechEngine, speakText, stopSpeech } from './speech.js';
+import { createTaskSpeech } from './speech.js';
 
 export function createAudioFeedback({ performanceRef = globalThis.performance, windowRef = globalThis.window } = {}) {
   let audioCtx = null;
@@ -185,49 +185,41 @@ export function createAudioFeedback({ performanceRef = globalThis.performance, w
 }
 
 export function createUiAudio({
-  getCurrentTaskText,
+  getCurrentLevelId,
   setLevelIntroStatus,
   setStatus,
   text,
   windowRef = globalThis.window
 }) {
-  let speechVoice = null;
   const feedback = createAudioFeedback({
     performanceRef: windowRef?.performance,
     windowRef
   });
 
-  function initTaskSpeech() {
-    const synth = getSpeechEngine(windowRef);
-    if (synth && typeof synth.addEventListener === 'function') {
-      synth.addEventListener('voiceschanged', () => {
-        speechVoice = chooseVoice(windowRef);
-      });
-    }
-    speechVoice = chooseVoice(windowRef);
-  }
+  const speech = createTaskSpeech({
+    onEnd: setLevelIntroStatus,
+    onError: () => setStatus('🔊', text.ui.speechError, 'warn'),
+    onStart: () => setStatus('🔊', text.ui.speechStart, 'run'),
+    windowRef
+  });
 
   function speakCurrentTask() {
-    const spoken = speakText(getCurrentTaskText(), {
-      onEnd: () => setLevelIntroStatus(),
-      onError: () => setStatus('\u{1F50A}', text.ui.speechError, 'warn'),
-      onStart: () => setStatus('\u{1F50A}', text.ui.speechStart, 'run'),
-      windowRef
-    });
-
-    if (!spoken) {
+    if (!speech.play(getCurrentLevelId())) {
       setStatus('\u{1F50A}', text.ui.speechUnsupported, 'warn');
     }
   }
 
   return {
-    initTaskSpeech,
     playErrorSound: feedback.playErrorSound,
     playStepSound: feedback.playStepSound,
     playSuccessSound: feedback.playSuccessSound,
     primeAudio: feedback.primeAudio,
     resumeAudio: feedback.resumeAudio,
     speakCurrentTask,
-    stopTaskSpeech: () => stopSpeech(windowRef)
+    stopTaskSpeech() {
+      if (speech.stop()) {
+        setLevelIntroStatus();
+      }
+    }
   };
 }

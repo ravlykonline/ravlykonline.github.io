@@ -4,11 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Пригоди Равлика</title>
-<meta name="theme-color" content="#e8f2dc">
+<meta name="theme-color" content="#f6e7c6">
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none';">
-<meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta http-equiv="Referrer-Policy" content="no-referrer">
+<meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="ravlyk.png" sizes="any">
 <link rel="apple-touch-icon" href="assets/icon-192.png">
@@ -18,71 +17,74 @@
 </head>
 <body>
 <a class="skip-link" href="#main-content">Перейти до поля гри</a>
-<aside class="sidebar" aria-label="Панель інструментів">
-  <div class="logo" aria-label="Пригоди Равлика - гра з алгоритмами.">
-    <img class="logo-ico-img" src="ravlyk.png" alt="" aria-hidden="true">
-    <div>
-      <div class="logo-name">Пригоди</div>
-      <div class="logo-sub">Равлика</div>
-    </div>
-  </div>
-
-  <span class="sect-lbl" aria-hidden="true">Команди</span>
-
-  <div class="palette" id="palette" role="group" aria-label="Команди для равлика"></div>
-
-  <div class="div-line" aria-hidden="true"></div>
-
-  <div class="actions">
-    <button class="icon-btn btn-run" id="btn-run" aria-label="Запустити алгоритм" title="Запустити" type="button">
-      <img class="icon-btn-img" src="assets/run_button.svg" alt="" aria-hidden="true">
-    </button>
-    <button class="icon-btn btn-clr" id="btn-clr" aria-label="Очистити поле" title="Очистити" type="button">
-      <img class="icon-btn-img icon-btn-trash" src="assets/trash_icon.svg" alt="" aria-hidden="true">
-    </button>
-  </div>
-</aside>
-
 <main class="grid-area" id="main-content" tabindex="-1" aria-label="Ігрове поле 8 на 6">
-  <div class="level-bar" aria-label="Поточний рівень">
+  <header class="level-bar" aria-label="Поточний рівень">
     <div class="level-meta">
-      <span class="level-chip" id="level-chip">Рівень 1 з 20</span>
+      <span class="game-name">Пригоди Равлика</span>
       <h1 class="level-title" id="level-title">Пряма доріжка</h1>
     </div>
-    <div class="level-nav" aria-label="Навігація рівнями">
-      <button class="level-nav-btn" id="btn-prev" type="button" aria-label="Попередній рівень" title="Попередній рівень">
-        <img class="level-nav-icon" src="assets/prev_level.svg" alt="" aria-hidden="true">
+    <div class="level-controls">
+      <button class="theme-btn" id="btn-theme" type="button" aria-label="Увімкнути темну тему" title="Увімкнути темну тему">
+        <span class="theme-icon" aria-hidden="true">☾</span>
+        <span class="theme-label">Темна</span>
       </button>
-      <button class="level-nav-btn" id="btn-next" type="button" aria-label="Наступний рівень" title="Наступний рівень">
-        <img class="level-nav-icon" src="assets/next_level.svg" alt="" aria-hidden="true">
+      <button class="map-btn" id="btn-map" type="button" aria-label="Карта рівнів">
+        <span aria-hidden="true">🗺️</span> Рівні
       </button>
     </div>
-  </div>
-
-  <section class="level-toolbar" aria-label="Прогрес гри">
-    <div class="progress-box" aria-live="polite">
-      <div class="progress-copy">
-        <span class="progress-label">Прогрес</span>
-        <strong class="progress-text" id="progress-text">Пройдено 0 з 20 рівнів</strong>
-      </div>
+    <div class="progress-box">
+      <span class="level-chip" id="level-chip" aria-label="Рівень 1 з 20">1 / 20</span>
+      <span class="progress-text" id="progress-text">Пройдено 0 з 20 рівнів</span>
       <div class="progress-track" id="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Прогрес проходження">
         <div class="progress-fill" id="progress-fill"></div>
       </div>
     </div>
-    <div class="toolbar-actions">
-      <button class="info-btn" id="btn-level-info" type="button">Завдання</button>
-      <button class="speak-btn" id="btn-speak-task" type="button" aria-label="Озвучити завдання" title="Озвучити завдання">&#128266; Слухати</button>
-      <button class="map-btn" id="btn-map" type="button">Карта рівнів</button>
-    </div>
-  </section>
+  </header>
 
   <div class="gwrap" id="gwrap">
     <div id="grid" role="grid" aria-label="Поле 8 на 6. Тут можна ставити команди для маршруту."></div>
     <div id="snail" aria-hidden="true"></div>
   </div>
-  <div id="status" role="status" aria-live="polite" aria-atomic="true">
-    <span id="sico" aria-hidden="true">&#128161;</span>
-    <span id="stxt">Тягни команди на поле - равлик піде по них!</span>
+  <div class="side-panel">
+    <div class="route-tools">
+      <div id="status" role="status" aria-live="polite" aria-atomic="true">
+        <span id="sico" aria-hidden="true">&#128161;</span>
+        <span id="stxt">Вибери картку зі стрілкою.</span>
+      </div>
+      <div class="command-tray">
+        <div class="palette" id="palette" role="group" aria-label="Стрілки"></div>
+        <button class="tool-btn" id="btn-undo" aria-label="Скасувати останню дію" title="Скасувати останню дію" type="button" disabled>
+          <span aria-hidden="true">↶</span>
+        </button>
+        <button class="tool-btn" id="btn-clr" aria-label="Очистити поле" title="Очистити поле" type="button">
+          <img class="icon-btn-img" src="assets/trash_icon.svg" alt="">
+        </button>
+      </div>
+    </div>
+
+    <div class="command-panel">
+      <button class="icon-btn btn-run" id="btn-run" aria-label="Запустити алгоритм" type="button">
+        <img class="icon-btn-img" src="assets/run_button.svg" alt="">
+        Запустити
+      </button>
+
+      <section class="level-toolbar" aria-label="Допомога й навігація">
+        <div class="toolbar-actions">
+          <button class="info-btn" id="btn-level-info" type="button">Завдання</button>
+          <button class="speak-btn" id="btn-speak-task" type="button" aria-label="Озвучити завдання" title="Озвучити завдання">&#128266; Слухати</button>
+        </div>
+        <div class="level-nav" aria-label="Навігація рівнями">
+          <button class="level-nav-btn" id="btn-prev" type="button" aria-label="Попередній рівень" title="Попередній рівень">
+            <img class="level-nav-icon" src="assets/prev_level.svg" alt="" aria-hidden="true">
+            Назад
+          </button>
+          <button class="level-nav-btn" id="btn-next" type="button" aria-label="Наступний рівень" title="Наступний рівень">
+            Далі
+            <img class="level-nav-icon" src="assets/next_level.svg" alt="" aria-hidden="true">
+          </button>
+        </div>
+      </section>
+    </div>
   </div>
 </main>
 

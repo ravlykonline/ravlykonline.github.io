@@ -1,44 +1,42 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
 
-const { bootstrapEngineHarness, root } = require('./testHelpers.cjs');
+const { bootstrapEngineHarness } = require('./testHelpers.cjs');
 
-test('invalid-turn helper modal opens after broken routes on straight and turn levels', async () => {
-  const withoutTurns = await bootstrapEngineHarness();
-  await withoutTurns.app.engine.run();
-  assert.equal(withoutTurns.modalCalls.turnHint, 1);
-
-  const withTurns = await bootstrapEngineHarness({
-    id: 1000,
-    allowedTiles: ['up', 'right', 'down', 'left', 'left-up']
-  });
-  await withTurns.app.engine.run();
-  assert.equal(withTurns.modalCalls.turnHint, 1);
-});
-
-test('helper modal also opens when the start command is not next to the snail', async () => {
-  const harness = await bootstrapEngineHarness({
+const failures = [
+  {
+    name: 'a missing arrow',
+    presetArrows: { '1,2': 'right' },
+    stop: [1, 3],
+    message: 'noCommand'
+  },
+  {
+    name: 'an incompatible turn',
+    presetArrows: { '1,2': 'right', '1,3': 'left' },
+    stop: [1, 3],
+    message: 'invalidTurn'
+  },
+  {
+    name: 'a missing starting arrow',
     presetArrows: { '0,3': 'right' },
-    allowedTiles: ['up', 'right', 'down', 'left']
+    stop: [1, 1],
+    message: 'placeNearby'
+  }
+];
+
+for (const { name, presetArrows, stop, message } of failures) {
+  test(`the engine highlights ${name} and allows editing without a dialog`, async () => {
+    const { app, modalCalls } = await bootstrapEngineHarness({ presetArrows });
+    const markers = [];
+    const statuses = [];
+    app.ui.setStopMark = (r, c) => markers.push([r, c]);
+    app.ui.setStatus = (_icon, text) => statuses.push(text);
+
+    await app.engine.run();
+
+    assert.deepEqual(markers, [stop]);
+    assert.equal(statuses.at(-1), app.text.engine[message]);
+    assert.equal(app.state.running, false);
+    assert.equal(modalCalls.turnHint, 0);
   });
-
-  await harness.app.engine.run();
-  assert.equal(harness.modalCalls.turnHint, 1);
-});
-
-test('turn hint modal keeps turn-specific copy guarded behind turn-tile levels', () => {
-  const engine = fs.readFileSync(path.join(root, 'js/engine/runtime.js'), 'utf8');
-  const modalRenderers = fs.readFileSync(path.join(root, 'js/ui/modals.js'), 'utf8');
-  const engineRoute = fs.readFileSync(path.join(root, 'js/engine/runtime.js'), 'utf8');
-
-  assert.ok(engine.includes('includeTurnHint: app.levelUsesTurnTiles()'));
-  assert.ok(modalRenderers.includes('function showTurnHintModal(options = {})'));
-  assert.ok(modalRenderers.includes('if (includeTurnHint)'));
-  assert.ok(engineRoute.includes('function findNeighborStartMove('));
-  assert.ok(engineRoute.includes('function analyzeCurrentRoute('));
-  assert.ok(engineRoute.includes('function resolveRouteStep('));
-  assert.ok(engineRoute.includes('function inspectForwardMove('));
-  assert.ok(engine.includes('showTurnModal: true'));
-});
+}

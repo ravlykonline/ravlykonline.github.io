@@ -205,14 +205,13 @@ img.alt = 'Равлик';
 ```html
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none';">
-<meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta http-equiv="Referrer-Policy" content="no-referrer">
+<meta name="referrer" content="no-referrer">
 ```
 
 Що вони забезпечують:
 
 - **CSP** — браузер дозволяє завантажувати скрипти, стилі та зображення тільки з того ж origin (`'self'`). Жодних зовнішніх ресурсів, жодних inline-скриптів. `connect-src 'none'` блокує будь-які мережеві запити з JS.
-- **X-Content-Type-Options: nosniff** — браузер не «вгадує» тип файлу, виконує тільки те, що задекларовано сервером.
+- **X-Content-Type-Options: nosniff** налаштовується в HTTP-відповіді хостингу. Перевіряйте заголовок на публічній адресі.
 - **Referrer-Policy: no-referrer** — жоден запит не передає `Referer`-заголовок.
 
 Захист також забезпечується архітектурою:
@@ -286,7 +285,7 @@ Service worker не має:
 - [ ] У коді немає `eval` і `new Function`.
 - [ ] У коді немає сторонніх URL.
 - [ ] У `index.html` немає CDN.
-- [ ] У `index.html` присутні мета-теги CSP, `X-Content-Type-Options`, `Referrer-Policy`.
+- [ ] У `index.html` присутні мета-теги CSP та `name="referrer"` з політикою `no-referrer`.
 - [ ] CSP не містить `unsafe-inline` або `unsafe-eval`.
 - [ ] У `manifest.json` немає зовнішніх іконок.
 - [ ] У `sw.js` кешуються тільки локальні файли.

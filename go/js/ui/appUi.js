@@ -9,6 +9,7 @@ import { createAppUiStatus } from './appUiStatus.js';
 export function createAppUi({
   app,
   documentRef = document,
+  storage = null,
   windowRef = window
 } = {}) {
   const document = documentRef;
@@ -21,6 +22,7 @@ export function createAppUi({
     app,
     documentRef: document,
     refs: app.refs,
+    storage,
     text,
     windowRef: window
   });
@@ -38,32 +40,23 @@ export function createAppUi({
   const stateApi = createAppUiState({
     app,
     documentRef: document,
-    layoutApi,
     statusApi,
     text
   });
   const flowApi = createAppUiLevelFlow({
     app,
     effectsApi,
-    modalApiProvider: () => modalApi,
     refreshLevelUi: stateApi.refreshLevelUi,
-    statusApi,
-    windowRef: window
+    statusApi
   });
   const startupApi = createAppUiStartup({
     app,
     effectsApi,
-    modalApiProvider: () => modalApi,
-    statusApi,
-    windowRef: window
+    statusApi
   });
 
-  function getCurrentTaskText() {
-    return text.taskSpeech(app.state.currentLevel);
-  }
-
   audioApi = app.createUiAudio({
-    getCurrentTaskText,
+    getCurrentLevelId: () => app.state.currentLevel.id,
     setLevelIntroStatus: statusApi.setLevelIntroStatus,
     setStatus: statusApi.setStatus,
     text
@@ -82,7 +75,7 @@ export function createAppUi({
 
   function init() {
     layoutApi.applyStaticText();
-    layoutApi.syncCommandLayout();
+    layoutApi.bindThemeControl();
     app.render.buildPalette();
     app.render.buildGrid();
     app.render.clearPendingDelete();
@@ -93,7 +86,6 @@ export function createAppUi({
       documentRef: document,
       goToNextLevel: flowApi.goToNextLevel,
       goToPrevLevel: flowApi.goToPrevLevel,
-      layoutApi,
       modalApi,
       statusApi,
       syncSizes: effectsApi.syncSizes,
@@ -101,9 +93,7 @@ export function createAppUi({
     });
     stateApi.refreshLevelUi();
 
-    startupApi.start({
-      shouldAutoOpenIntro: flowApi.shouldAutoOpenIntroOnSessionStart
-    });
+    startupApi.start();
   }
 
   const ui = {
@@ -117,7 +107,11 @@ export function createAppUi({
     init,
     launchConfetti: effectsApi.launchConfetti,
     loadCurrentLevel: flowApi.loadCurrentLevel,
-    onRouteChanged: statusApi.onRouteChanged,
+    onRouteChanged() {
+      effectsApi.clearStopMark();
+      statusApi.onRouteChanged();
+    },
+    updateEditHint: statusApi.updateEditHint,
     openLevelIntro: modalApi.openLevelIntro,
     openLevelMap: modalApi.openLevelMap,
     refreshLevelUi: stateApi.refreshLevelUi,
@@ -130,7 +124,6 @@ export function createAppUi({
     playSuccessSound: audioApi.playSuccessSound,
     resumeAudio: audioApi.resumeAudio,
     openClearConfirmModal: modalApi.openClearConfirmModal,
-    showTurnHintModal: modalApi.showTurnHintModal,
     showAlreadySolvedModal: modalApi.showAlreadySolvedModal,
     showWin: modalApi.showWin,
     speakCurrentTask,

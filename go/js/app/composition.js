@@ -10,7 +10,7 @@ import { createUiAudio } from '../features/audio.js';
 import { registerPwa } from '../features/pwaRegister.js';
 import { installAppStateFacade } from '../state/appStateFacade.js';
 import { createInitialState } from '../state/gameState.js';
-import { loadSession, saveSession } from '../state/sessionStore.js';
+import { getSessionStorage, loadSession, saveSession } from '../state/sessionStore.js';
 import { createAssetIcon, createTileIconByDir } from '../ui/assets.js';
 import { createAppUi } from '../ui/appUi.js';
 import { getDomRefs } from '../ui/dom.js';
@@ -28,7 +28,7 @@ export function createAppComposition({
   navigatorRef = navigator,
   windowRef = window
 } = {}) {
-  const storage = windowRef?.sessionStorage || null;
+  const storage = getSessionStorage(windowRef);
   const savedSession = loadSession(storage);
   const state = createInitialState(levels, savedSession);
   const refs = getDomRefs(documentRef);
@@ -79,6 +79,7 @@ export function createAppComposition({
     installUi: () => createAppUi({
       app,
       documentRef,
+      storage,
       windowRef
     }),
     installUiAudio: () => {

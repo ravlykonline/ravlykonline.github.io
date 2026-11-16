@@ -28,6 +28,10 @@ export const textsUk = {
     earlyLevelSpeakAria: "Озвучити пояснення до рівня",
     earlyLevelSpeakTitle: "Пояснити завдання",
     mapButton: "Карта рівнів",
+    useLightTheme: "Увімкнути світлу тему",
+    useDarkTheme: "Увімкнути темну тему",
+    lightTheme: "Світла",
+    darkTheme: "Темна",
     introSourceAria: "Опис рівня",
     mainAria(rows, cols) {
       return 'Ігрове поле: ' + cols + ' на ' + rows + '.';
@@ -37,12 +41,15 @@ export const textsUk = {
     }
   },
   ui: {
-    defaultStatus: "Постав стрілки — і натисни «Запустити».",
+    defaultStatus: "Вибери картку зі стрілкою.",
+    placeSelected: "Тепер натисни клітинку на полі.",
+    editRoute: "Вибери стрілку або запусти Равлика.",
+    routeReady: "Шлях готовий! Натисни «Запустити».",
     debugStatus: "Маршрут уже є. Знайди помилку.",
     debugTaskSuffix: "Знайди й виправ.",
-    speechUnsupported: "Озвучення не підтримується у цьому браузері.",
+    speechUnsupported: "Завдання можна прочитати, натиснувши «Завдання».",
     speechStart: "Слухаємо завдання.",
-    speechError: "Не вдалося озвучити завдання.",
+    speechError: "Звук не відтворився. Спробуй ще раз або прочитай завдання.",
     debugNote: "Стрілки вже стоять. У них сховалась помилка.",
     modeDebug: "🔍 Виправ помилку!",
     modePlay: "Склади шлях",
@@ -51,7 +58,7 @@ export const textsUk = {
     progressPrefix: "Пройдено",
     taskLabel: "ЗАВДАННЯ",
     listenTask: "🔊 Слухати завдання",
-    startAction: "Почати",
+    startAction: "До гри",
     mapTitle: "Карта рівнів",
     mapBody: "Обирай будь-який відкритий рівень або просто подивись свій прогрес.",
     mapClose: "Закрити",
@@ -61,17 +68,16 @@ export const textsUk = {
     winTitle: "Рівень пройдено!",
     winTitleFinal: "Усі 20 рівнів пройдено!",
     winBody: "Равлик дістався яблука!",
-    winBodyFinal: "Равлик пройшов усю подорож!<br>Можна зіграти ще раз.",
+    winBodyFinal: "Равлик завершив подорож! Можна зіграти ще раз.",
     winNextAction: "До наступного рівня",
     winRestartAction: "Почати спочатку",
-    tryAgainTitle: "Равлик зупинився",
-    tryAgainBody: "Подивись на підсвічену клітинку й спробуй ще.",
-    tryAgainTurns: "Тут потрібні повороти.",
-    tryAgainAction: "Зрозуміло",
     clearConfirmTitle: "Очистити поле?",
-    clearConfirmBody: "Усі стрілки зникнуть. Очистити?",
+    clearConfirmBody: "Твої зміни зникнуть, а початкові стрілки повернуться.",
     clearConfirmAction: "Очистити",
     clearCancelAction: "Скасувати",
+    restartGame: "Почати гру спочатку",
+    restartConfirmTitle: "Почати гру спочатку?",
+    restartConfirmBody: "Стрілки й пройдені рівні буде скинуто.",
     alreadySolvedTitle: "Рівень уже пройдено",
     alreadySolvedBody: "Можеш іти далі або змінити шлях.",
   },
@@ -96,9 +102,9 @@ export const textsUk = {
     placeCommandsFirst: "Спочатку постав стрілки!",
     moving: "Равлик іде...",
     placeNearby: "Постав першу стрілку біля равлика!",
-    noCommand: "Тут немає стрілки.",
+    noCommand: "Тут бракує стрілки. Додай її в підсвічену клітинку.",
     loop: "Равлик ходить по колу.",
-    invalidTurn: "Цей поворот не підходить.",
+    invalidTurn: "Ця стрілка не підходить. Заміни її в підсвіченій клітинці.",
     outOfBounds: "Равлик виходить за поле.",
     obstacle: "Попереду перешкода.",
     success: "Равлик знайшов яблуко!",
@@ -113,15 +119,12 @@ export const textsUk = {
     obstacleSuffix(label) {
       return label + ' — перешкода';
     },
-    presetDebug: "Це готова команда для дебагу",
-    pendingDelete: "Натисни хрестик, щоб видалити, або клікни ще раз, щоб скасувати.",
-    clickToDelete: "Клік — підготувати до видалення.",
+    presetDebug: "Ця картка вже стояла на полі",
+    pendingDelete: "Натисни хрестик, щоб прибрати картку, або торкнися клітинки ще раз, щоб скасувати.",
+    clickToDelete: "Натисни клітинку для видалення або скористайся клавішею Delete.",
     appleGoal: "Яблуко — ціль.",
     snailStart: "Равлик стартує тут.",
     startPicked: "Стартуємо звідси.",
-    dragToBoard(label) {
-      return label + ' — перетягни на поле';
-    }
   },
   progress(completed, total) {
     return this.ui.progressPrefix + ' ' + completed + ' з ' + total + ' рівнів';
@@ -131,13 +134,6 @@ export const textsUk = {
   },
   mode(isDebug) {
     return isDebug ? this.ui.modeDebug : this.ui.modePlay;
-  },
-  taskSpeech(level) {
-    const baseText = level.hint || level.goal || level.name;
-    const debugTaskSuffix = this.debugLevel?.taskTextSuffix || this.ui.debugTaskSuffix;
-    return level.type === "debug"
-      ? level.name + ". " + baseText + ". " + debugTaskSuffix
-      : level.name + ". " + baseText;
   },
   mapState(isCurrent, isDone) {
     return isCurrent ? this.ui.mapStateCurrent : (isDone ? this.ui.mapStateDone : this.ui.mapStateTodo);

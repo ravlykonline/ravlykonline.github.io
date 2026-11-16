@@ -4,7 +4,6 @@ import { renderProgress } from './renderProgress.js';
 export function createAppUiState({
   app,
   documentRef = document,
-  layoutApi,
   statusApi,
   text
 }) {
@@ -30,7 +29,6 @@ export function createAppUiState({
       text,
       totalLevels: app.getTotalLevels()
     });
-    layoutApi.updateResponsiveLabels();
     refreshProgressUi();
   }
 
@@ -43,6 +41,7 @@ export function createAppUiState({
     });
     app.refs.btnRun.disabled = disabled;
     app.refs.btnClr.disabled = disabled;
+    app.render.refreshUndoButton?.(disabled);
     app.refs.btnPrev.disabled = disabled || !app.hasPrevLevel();
     app.refs.btnNext.disabled = disabled || !app.hasNextLevel();
     app.refs.btnLevelInfo.disabled = disabled;

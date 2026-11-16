@@ -128,49 +128,56 @@ test('audio module resumes context and plays feedback sounds', async () => {
   assert.ok(events.includes('noise-start'));
 });
 
-test('speech module chooses Ukrainian voices and speaks with safe defaults', async () => {
-  const { chooseVoice, speakText, stopSpeech } = await importModule('js/features/speech.js');
-  let spoken = null;
-  let cancelled = false;
-  const voices = [
-    { lang: 'en-US', name: 'English' },
-    { lang: 'uk-UA', name: 'Українська' }
-  ];
-  function SpeechSynthesisUtterance(text) {
-    this.text = text;
-  }
-  const windowRef = {
-    SpeechSynthesisUtterance,
-    speechSynthesis: {
-      cancel() {
-        cancelled = true;
-      },
-      getVoices() {
-        return voices;
-      },
-      speak(utterance) {
-        spoken = utterance;
-      }
+test('speech plays the matching local recording and stops previous playback', async () => {
+  const { createTaskSpeech } = await importModule('js/features/speech.js');
+  const players = [];
+  const events = [];
+  class Audio {
+    constructor(src) {
+      this.src = src;
+      this.handlers = {};
+      players.push(this);
     }
-  };
+    addEventListener(name, handler) {
+      this.handlers[name] = handler;
+    }
+    play() {
+      return Promise.resolve();
+    }
+    pause() {
+      this.paused = true;
+    }
+  }
+  const speech = createTaskSpeech({
+    windowRef: { Audio },
+    onStart() { events.push('start'); },
+    onEnd() { events.push('end'); },
+    onError() { events.push('error'); }
+  });
 
-  assert.equal(chooseVoice(windowRef), voices[1]);
-  assert.equal(speakText('Привіт', { windowRef }), true);
-  assert.equal(cancelled, true);
-  assert.equal(spoken.text, 'Привіт');
-  assert.equal(spoken.voice, voices[1]);
-  assert.equal(spoken.lang, 'uk-UA');
-  stopSpeech(windowRef);
-  assert.equal(cancelled, true);
+  assert.equal(speech.play(1), true);
+  assert.equal(players[0].src, './assets/voice/1.mp3');
+  players[0].handlers.playing();
+  assert.equal(speech.play(12), true);
+  assert.equal(players[0].paused, true);
+  assert.equal(players[1].src, './assets/voice/12.mp3');
+  players[0].handlers.error();
+  players[1].handlers.ended();
+  assert.deepEqual(events, ['start', 'end']);
+  assert.equal(speech.play(-1), false);
+  assert.equal(createTaskSpeech({ windowRef: {} }).play(1), false);
 });
 
-test('speech module degrades gracefully when speech API is unavailable', async () => {
-  const { chooseVoice, speakText, stopSpeech } = await importModule('js/features/speech.js');
-  const windowRef = {};
-
-  assert.equal(chooseVoice(windowRef), null);
-  assert.equal(speakText('Текст', { windowRef }), false);
-  assert.doesNotThrow(() => stopSpeech(windowRef));
+test('all recorded tasks match the visible Ukrainian hints', async () => {
+  const { levels } = await importModule('js/core/levels.js');
+  const fs = require('node:fs');
+  const folder = path.join(root, 'assets/voice');
+  const transcripts = JSON.parse(fs.readFileSync(path.join(folder, 'transcripts.json'), 'utf8'));
+  assert.equal(Object.keys(transcripts).length, levels.length);
+  for (const { id, hint } of levels) {
+    assert.equal(transcripts[id], hint);
+    assert.ok(fs.statSync(path.join(folder, id + '.mp3')).size > 5000);
+  }
 });
 
 test('confetti module creates pieces and clears them later', async () => {

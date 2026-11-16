@@ -70,7 +70,10 @@ export function createEngineRoute(app) {
 
     const isAppleAhead = nr === apple.r && nc === apple.c;
     const nextTileDir = app.state.arrows[`${nr},${nc}`];
-    if (!isAppleAhead && (!nextTileDir || !resolveTileExit(nextTileDir, dir))) {
+    if (!isAppleAhead && !nextTileDir) {
+      return { ok: false, reason: 'missing-tile', dir, nr, nc };
+    }
+    if (!isAppleAhead && !resolveTileExit(nextTileDir, dir)) {
       return { ok: false, reason: 'invalid-next-step', dir, nr, nc };
     }
 
@@ -105,24 +108,12 @@ export function createEngineRoute(app) {
 export function createGameEngine({ app }) {
   const { engine: engineText } = app.text;
 
-  async function showTurnTryAgain() {
-    app.ui.showTurnHintModal({
-      includeTurnHint: app.levelUsesTurnTiles()
-    });
-  }
-
-  async function returnSnailToStart() {
+  function returnSnailToStart() {
     const start = app.getStart();
     const startFacing = app.getStartFacing();
-    const alreadyAtStart = app.state.snailPos.r === start.r && app.state.snailPos.c === start.c;
-
     app.state.snailPos = { ...start };
     app.state.snailFacing = startFacing;
-    app.render.posSnail(start.r, start.c, true, startFacing);
-
-    if (!alreadyAtStart) {
-      await delay(app.config.stepMs + 180);
-    }
+    app.render.posSnail(start.r, start.c, false, startFacing);
   }
 
   async function handleFailure(options) {
@@ -131,8 +122,7 @@ export function createGameEngine({ app }) {
       text,
       statusType = 'err',
       flash = null,
-      bumpDir = null,
-      showTurnModal = false
+      bumpDir = null
     } = options || {};
 
     app.ui.playErrorSound();
@@ -148,12 +138,8 @@ export function createGameEngine({ app }) {
     }
 
     await delay(900);
-    await returnSnailToStart();
+    returnSnailToStart();
 
-    if (showTurnModal) {
-      await delay(1100);
-      await showTurnTryAgain();
-    }
   }
 
   const routeApi = createEngineRoute(app);
@@ -217,9 +203,8 @@ export function createGameEngine({ app }) {
 
         if (step.reason === 'missing-tile') {
           await handleFailure({
-            text: engineText.invalidTurn,
-            flash: { r, c, color: '#d94d1a' },
-            showTurnModal: true
+            text: engineText.noCommand,
+            flash: { r, c, color: '#d94d1a' }
           });
           break;
         }
@@ -229,8 +214,7 @@ export function createGameEngine({ app }) {
           icon: '\u{1F914}',
           text: engineText.placeNearby,
           statusType: 'warn',
-          flash: { r, c, color: '#ff9800' },
-          showTurnModal: true
+          flash: { r, c, color: '#ff9800' }
         });
         break;
       }
@@ -260,10 +244,9 @@ export function createGameEngine({ app }) {
         }
 
         await handleFailure({
-          text: engineText.invalidTurn,
+          text: move.reason === 'missing-tile' ? engineText.noCommand : engineText.invalidTurn,
           flash: { r: move.nr, c: move.nc, color: '#d94d1a' },
-          bumpDir: step.dir,
-          showTurnModal: true
+          bumpDir: step.dir
         });
         break;
       }
@@ -278,18 +261,15 @@ export function createGameEngine({ app }) {
         await delay(app.config.stepMs * 0.8);
         app.markLevelComplete(app.state.currentLevel.id);
         app.state.appleEaten = true;
-        const finishFacing = step.dir === 'left' ? 'left' : 'right';
-        app.state.snailFacing = finishFacing;
         app.render.renderAll();
-        app.render.posSnail(move.nr, move.nc, true, finishFacing);
         app.ui.playSuccessSound();
         app.ui.setStatus('\u{1F3C6}', engineText.success, 'ok');
         app.ui.refreshLevelUi();
         app.ui.launchConfetti();
-        setTimeout(app.ui.showWin, 500);
         app.render.clearStartHighlight();
         app.state.running = false;
         app.ui.setDisabled(false);
+        app.ui.showWin();
         return;
       }
 
@@ -319,6 +299,7 @@ export function createGameEngine({ app }) {
 
     app.resetLevelState();
     app.ui.clearStopMark?.();
+    app.render.resetUndoHistory?.();
     app.persistCurrentArrows?.();
     app.render.clearTrail();
     app.render.clearStartHighlight();

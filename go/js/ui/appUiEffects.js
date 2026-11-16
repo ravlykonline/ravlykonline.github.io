@@ -54,22 +54,6 @@ export function createAppUiEffects({
   }
 
   function syncSizes() {
-    const root = documentRef.documentElement;
-    const wrapRect = app.refs.gwrap.getBoundingClientRect();
-
-    if (!wrapRect.width || !wrapRect.height) {
-      return;
-    }
-
-    root.style.setProperty('--gs-w', `${Math.round(wrapRect.width)}px`);
-    root.style.setProperty('--gs-h', `${Math.round(wrapRect.height)}px`);
-
-    const compact = windowRef.innerWidth <= 900;
-    const tileSize = compact
-      ? Math.max(48, Math.min(64, wrapRect.width / 6.8))
-      : Math.max(52, Math.min(64, wrapRect.width / 10));
-    root.style.setProperty('--tile-sz', `${Math.round(tileSize)}px`);
-
     windowRef.requestAnimationFrame(() => {
       app.render.posSnail(app.state.snailPos.r, app.state.snailPos.c, false, app.state.snailFacing || 'right');
     });

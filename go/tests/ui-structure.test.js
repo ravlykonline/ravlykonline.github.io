@@ -24,9 +24,8 @@ test('ui rebuilds palette, updates level meta and progress widgets', () => {
   assert.match(uiEvents, /btnMap\.addEventListener\('click', modalApi\.openLevelMap\)/);
   assert.match(uiState, /renderProgress\(/);
   assert.match(ui, /setLevelIntroStatus/);
-  assert.match(uiLevelFlow, /function shouldAutoOpenIntroOnSessionStart\(\)/);
-  assert.match(uiStartup, /shouldAutoOpenIntro\(\)[\s\S]*modalApiProvider\(\)\.openLevelIntro\(\)/);
-  assert.match(uiLevelFlow, /loadCurrentLevel\(\{ showIntro: false \}\)/);
+  assert.doesNotMatch(uiStartup, /openLevelIntro/);
+  assert.match(uiLevelFlow, /loadCurrentLevel\(\)/);
 });
 
 test('win and already-solved modals support next level and full restart after final win', () => {
@@ -36,31 +35,28 @@ test('win and already-solved modals support next level and full restart after fi
   assert.match(modalRenderers, /const hasNext = app\.hasNextLevel\(\)/);
   assert.match(modalRenderers, /const isFinalWin = !hasNext/);
   assert.match(modalRenderers, /app\.restartProgress\(\)/);
-  assert.match(modalRenderers, /loadCurrentLevel\(\{ showIntro: true \}\)/);
+  assert.match(modalRenderers, /loadCurrentLevel\(\)/);
   assert.match(modalRenderers, /renderResultModal\(/);
   assert.match(modalRenderers, /closeId: 'win-close'/);
   assert.match(modalRenderers, /actionId: 'mok'/);
   assert.match(modalRenderers, /actionId: 'already-solved-action'/);
 });
 
-test('secondary modals use close icons instead of duplicate close buttons', () => {
+test('secondary modals preserve help, map and explicit cancel for destructive actions', () => {
   const modalRenderers = fs.readFileSync(path.join(root, 'js/ui/modals.js'), 'utf8');
 
   assert.match(modalRenderers, /renderLevelIntroModal\(/);
   assert.match(modalRenderers, /levelChipText: levelChipEl\.textContent/);
   assert.match(modalRenderers, /createModalCloseButton\(\{ documentRef, id: 'level-intro-close', text \}\)/);
-  assert.match(modalRenderers, /badges\.appendChild\(createTextElement\(\{ documentRef, tagName: 'span', className: 'goal-chip', text: introGoal \}\)\)/);
   assert.match(modalRenderers, /renderMessageModal\(/);
   assert.match(modalRenderers, /closeId: 'clear-close'/);
   assert.match(modalRenderers, /const taskCard = documentRef\.createElement\('div'\);/);
-  assert.match(modalRenderers, /taskCard\.append\(taskLabel, taskText, speakButton\)/);
+  assert.match(modalRenderers, /taskCard\.append\(taskText, speakButton\)/);
   assert.match(modalRenderers, /renderLevelMapModal\(/);
   assert.match(modalRenderers, /currentLevelId: app\.state\.currentLevel\.id/);
-  assert.match(modalRenderers, /loadCurrentLevel\(\{ showIntro: false \}\)/);
-  assert.match(modalRenderers, /renderTurnHintModal\(/);
-  assert.match(modalRenderers, /includeTurnHint/);
+  assert.match(modalRenderers, /loadCurrentLevel\(\)/);
   assert.match(modalRenderers, /closeId: 'already-solved-close'/);
-  assert.doesNotMatch(modalRenderers, /id="clear-cancel"/);
+  assert.match(modalRenderers, /cancelText: text.ui.clearCancelAction/);
 });
 
 test('index.html includes level card, progress UI and map button', () => {
@@ -94,7 +90,7 @@ test('game CSS contains responsive layout, debug styling and level map styles', 
   assert.match(gameCss, /\.level-map-grid/);
   assert.match(gameCss, /\.map-level\.current/);
   assert.match(tokensCss, /--tile-sz/);
-  assert.match(gameCss, /@media \(max-width: 900px\)/);
+  assert.match(gameCss, /@media \(min-width: 760px\) and \(min-aspect-ratio: 1 \/ 1\)/);
   assert.match(gameCss, /body\.dragging-active/);
 });
 
@@ -119,7 +115,7 @@ test('safe delete flow keeps pending-delete and preset arrow markers', () => {
   assert.match(render, /className = 'cell-delete-btn'/);
   assert.match(renderBoard, /isPresetArrow/);
   assert.match(renderBoard, /preset-arrow/);
-  assert.match(render, /clearPendingDelete\(\);[\s\S]*app\.state\.arrows\[/);
+  assert.match(render, /function applyArrowEdit\(/);
   assert.match(ui, /app\.render\.clearPendingDelete\(\)/);
   assert.match(gameCss, /\.cell-delete-btn/);
   assert.match(gameCss, /pending-delete-wiggle/);

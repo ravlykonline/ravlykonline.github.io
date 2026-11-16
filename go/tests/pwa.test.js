@@ -15,6 +15,9 @@ function readAppShell() {
 
 test('service worker app shell caches real local files', () => {
   const appShell = readAppShell();
+  assert.ok(appShell.includes('./assets/garden-paper.jpg'));
+  assert.ok(appShell.includes('./assets/nunito-cyrillic.woff2'));
+  assert.ok(appShell.includes('./assets/nunito-latin.woff2'));
 
   assert.ok(appShell.includes('./js/core/config.js'));
   assert.ok(appShell.includes('./js/core/constants.js'));
@@ -93,8 +96,33 @@ test('service worker app shell caches real local files', () => {
 test('service worker cache version is bumped for changed app shell files', () => {
   const source = readUtf8('sw.js');
 
-  assert.match(source, /const STATIC_CACHE = 'ravlyk-static-v40'/);
+  assert.match(source, /const STATIC_CACHE = 'ravlyk-go-static-v46'/);
   assert.match(source, /event\.request\.method !== 'GET'/);
+});
+
+test('activation removes only outdated game caches', async () => {
+  const handlers = new Map();
+  const deleted = [];
+  vm.runInNewContext(readUtf8('sw.js'), {
+    URL,
+    self: {
+      registration: { scope: 'https://example.test/go/' },
+      addEventListener: (name, handler) => handlers.set(name, handler),
+      clients: { claim() {} }
+    },
+    caches: {
+      keys: async () => [
+        'ravlyk-go-static-v42', 'ravlyk-go-static-v45', 'ravlyk-go-static-v46', 'ravlyk-static-v40',
+        'ravlyk-static-v28', 'ravlyk-runtime'
+      ],
+      delete: async (key) => deleted.push(key)
+    }
+  });
+
+  let activation;
+  handlers.get('activate')({ waitUntil: (promise) => { activation = promise; } });
+  await activation;
+  assert.deepEqual(deleted, ['ravlyk-go-static-v42', 'ravlyk-go-static-v45']);
 });
 
 test('manifest uses /go-compatible relative paths', () => {
@@ -110,6 +138,43 @@ test('manifest uses /go-compatible relative paths', () => {
     assert.doesNotMatch(icon.src, /^https?:\/\//i);
     assert.doesNotMatch(icon.src, /^\//);
   }
+});
+
+test('service worker serves audio byte ranges and tolerates cache write failure', async () => {
+  const handlers = new Map();
+  const scope = 'https://example.test/go/';
+  const audio = Uint8Array.of(1, 2, 3, 4);
+  vm.runInNewContext(readUtf8('sw.js'), {
+    URL,
+    Response,
+    self: {
+      location: { origin: 'https://example.test' },
+      registration: { scope },
+      addEventListener: (name, handler) => handlers.set(name, handler)
+    },
+    fetch: async () => new Response('network stylesheet'),
+    caches: {
+      match: async () => new Response(audio, { headers: { 'Content-Type': 'audio/mpeg' } }),
+      open: async () => ({
+        put: async () => { throw new Error('Cache quota'); }
+      })
+    }
+  });
+
+  function respond(pathname, headers = {}) {
+    let response;
+    handlers.get('fetch')({
+      request: new Request(new URL(pathname, scope), { headers }),
+      respondWith: (promise) => { response = promise; }
+    });
+    return response;
+  }
+  const clip = await respond('assets/voice/1.mp3', { Range: 'bytes=0-1' });
+  assert.equal(clip.status, 206);
+  assert.equal(clip.headers.get('Content-Range'), 'bytes 0-1/4');
+  assert.deepEqual(new Uint8Array(await clip.arrayBuffer()), audio.slice(0, 2));
+  assert.equal(await (await respond('css/game.css?version=1')).text(), 'network stylesheet');
+  assert.equal(respond('uncached.js'), undefined);
 });
 
 test('index keeps CSP-compatible external module loading', () => {

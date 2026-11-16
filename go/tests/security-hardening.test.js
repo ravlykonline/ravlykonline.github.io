@@ -67,13 +67,8 @@ test('index.html contains required security meta tags', () => {
   );
   assert.match(
     html,
-    /http-equiv=["']X-Content-Type-Options["']/i,
-    'index.html must have X-Content-Type-Options meta tag'
-  );
-  assert.match(
-    html,
-    /http-equiv=["']Referrer-Policy["']/i,
-    'index.html must have Referrer-Policy meta tag'
+    /<meta name="referrer" content="no-referrer">/i,
+    'index.html must set the referrer policy using the supported meta name'
   );
 });
 

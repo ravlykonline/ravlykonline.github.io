@@ -44,6 +44,7 @@ function createHarness({
       }
     },
     state: {
+      arrows: {},
       currentLevel: { id: levelId, type },
       running
     }
@@ -51,7 +52,9 @@ function createHarness({
   const text = {
     ui: {
       debugStatus: 'Режим перевірки',
-      defaultStatus: 'Готово'
+      defaultStatus: 'Вибери стрілку',
+      placeSelected: 'Обери клітинку',
+      routeReady: 'Готово'
     }
   };
   const windowRef = {
@@ -73,14 +76,18 @@ function createHarness({
 
 test('appUiStatus sets default and debug status copy', async () => {
   const { createAppUiStatus } = await importModule('js/ui/appUiStatus.js');
-  const harness = createHarness();
+  const harness = createHarness({ canReachApple: false });
   const status = createAppUiStatus(harness);
 
   status.setLevelIntroStatus();
 
   assert.equal(harness.refs.sicoEl.textContent, '💡');
-  assert.equal(harness.refs.stxtEl.textContent, 'Готово');
+  assert.equal(harness.refs.stxtEl.textContent, 'Вибери стрілку');
   assert.equal(harness.refs.statusEl.className, '');
+
+  harness.app.state.selDir = 'right';
+  status.updateEditHint();
+  assert.equal(harness.refs.stxtEl.textContent, 'Обери клітинку');
 
   harness.app.state.currentLevel.type = 'debug';
   status.setLevelIntroStatus();

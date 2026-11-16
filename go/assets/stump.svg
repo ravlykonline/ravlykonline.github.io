@@ -1,1 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" id="svg-stump"><path d="M25 32 L 12 85 L 88 85 L 75 32 Z" fill="#78350f" stroke="#231f20" stroke-width="3.5" stroke-linejoin="round"/><path d="M12 85 L 5 92 M 88 85 L 95 92 M 50 85 L 50 95" stroke="#231f20" stroke-width="3.5" stroke-linecap="round"/><line x1="35" y1="45" x2="30" y2="75" stroke="#451a03" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="12 8"/><line x1="50" y1="40" x2="50" y2="80" stroke="#451a03" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="15 10"/><line x1="65" y1="45" x2="70" y2="75" stroke="#451a03" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="12 8"/><ellipse cx="50" cy="32" rx="25" ry="12" fill="#d97706" stroke="#231f20" stroke-width="3.5"/><ellipse cx="50" cy="32" rx="15" ry="7" fill="none" stroke="#451a03" stroke-width="1.5" stroke-opacity="0.5"/><ellipse cx="50" cy="32" rx="7" ry="3.5" fill="none" stroke="#451a03" stroke-width="1.5" stroke-opacity="0.5"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bark" x2="0.8" y2="1">
+      <stop stop-color="#c79464"/>
+      <stop offset="1" stop-color="#98613e"/>
+    </linearGradient>
+  </defs>
+  <path d="M24 35Q50 25 76 35L80 65Q81 71 87 76Q90 81 83 84L72 80Q68 86 60 86L38 85Q32 85 27 80L17 84Q11 82 15 77Q20 72 20 66Z" fill="url(#bark)" stroke="#75492f" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M31 54Q34 62 30 73M47 56V77M62 55Q60 65 65 74M72 55L75 68" fill="none" stroke="#865435" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="50" cy="35" rx="26" ry="14" fill="#eebb7f" stroke="#75492f" stroke-width="3.5"/>
+  <ellipse cx="50" cy="35" rx="18" ry="8.5" fill="none" stroke="#b97849" stroke-width="2.3"/>
+  <ellipse cx="50" cy="35" rx="9" ry="4.4" fill="none" stroke="#b97849" stroke-width="2.2"/>
+</svg>

@@ -5,8 +5,10 @@ export function createRender({
   app,
   documentRef = document
 }) {
-  const { paletteEl, ghostEl, gridEl } = app.refs;
+  const { btnUndo, paletteEl, ghostEl, gridEl } = app.refs;
   const { render: renderText } = app.text;
+  const arrowHistory = [];
+  const maxUndoSteps = 80;
 
   function findTileDef(dir) {
     return app.tileDefs.find((item) => item.dir === dir);
@@ -17,8 +19,15 @@ export function createRender({
   }
 
   function deselect() {
+    const wasSelected = app.state.selDir !== null;
     app.state.selDir = null;
-    documentRef.querySelectorAll('.atile').forEach((tile) => tile.classList.remove('sel'));
+    for (const tile of documentRef.querySelectorAll('.atile.sel')) {
+      tile.classList.remove('sel');
+      tile.setAttribute('aria-pressed', 'false');
+    }
+    if (wasSelected) {
+      app.ui?.updateEditHint?.();
+    }
   }
 
   function clearPendingDelete() {
@@ -70,11 +79,7 @@ export function createRender({
       return;
     }
 
-    clearPendingDelete();
-    app.state.arrows[`${r},${c}`] = dir;
-    app.persistCurrentArrows?.();
-    renderCell(r, c);
-    app.ui?.onRouteChanged?.();
+    applyArrowEdit(r, c, dir);
   }
 
   const dragApi = app.createRenderDrag({
@@ -117,6 +122,7 @@ export function createRender({
       deleteButton.addEventListener('click', (event) => {
         event.stopPropagation();
         removeArrow(r, c);
+        setActiveGridCell(r, c);
       });
       el.appendChild(deleteButton);
     }
@@ -133,10 +139,48 @@ export function createRender({
   }
 
   function removeArrow(r, c) {
-    if (app.state.running) {
+    if (app.state.running || !app.state.arrows[`${r},${c}`]) {
       return;
     }
+    applyArrowEdit(r, c, undefined);
+  }
+
+  function refreshUndoButton(disabled = app.state.running) {
+    if (btnUndo) {
+      btnUndo.disabled = disabled || arrowHistory.length === 0;
+    }
+  }
+
+  function resetUndoHistory() {
+    arrowHistory.length = 0;
+    refreshUndoButton();
+  }
+
+  function undoArrowEdit() {
+    if (app.state.running || arrowHistory.length === 0) {
+      return;
+    }
+    const { r, c, dir } = arrowHistory.pop();
+    const undoHadFocus = documentRef.activeElement === btnUndo;
+    applyArrowEdit(r, c, dir, false);
+    if (btnUndo?.disabled && undoHadFocus) {
+      setActiveGridCell(r, c);
+    }
+  }
+
+  function applyArrowEdit(r, c, dir, record = true) {
     const key = `${r},${c}`;
+    const previous = app.state.arrows[key];
+    if (previous === dir) {
+      return;
+    }
+    if (record) {
+      arrowHistory.push({ r, c, dir: previous });
+      if (arrowHistory.length > maxUndoSteps) {
+        arrowHistory.shift();
+      }
+    }
+    clearPendingDelete();
     if (app.state.appleEaten) {
       const start = app.getStart();
       const startFacing = app.getStartFacing();
@@ -148,12 +192,14 @@ export function createRender({
       renderAll();
       snailApi.posSnail(start.r, start.c, false, startFacing);
     }
-    delete app.state.arrows[key];
-    if (app.state.pendingDeleteKey === key) {
-      app.state.pendingDeleteKey = null;
+    if (dir) {
+      app.state.arrows[key] = dir;
+    } else {
+      delete app.state.arrows[key];
     }
     app.persistCurrentArrows?.();
     renderCell(r, c);
+    refreshUndoButton();
     app.ui?.onRouteChanged?.();
   }
 
@@ -211,7 +257,7 @@ export function createRender({
         }
         dragApi.beginPointerDrag(event, button, tile.dir, tile.group, tile.icon);
       },
-      onSelect(dir, button) {
+      onSelect(dir, button, event) {
         if (app.state.suppressTileClick) {
           app.state.suppressTileClick = false;
           return;
@@ -225,13 +271,18 @@ export function createRender({
         if (app.state.selDir === dir) {
           deselect();
         } else {
+          deselect();
           app.state.selDir = dir;
-          documentRef.querySelectorAll('.atile').forEach((tile) => tile.classList.remove('sel'));
           button.classList.add('sel');
+          button.setAttribute('aria-pressed', 'true');
+          app.ui?.updateEditHint?.();
+          if (event?.detail === 0 && activeCellKey) {
+            const [r, c] = activeCellKey.split(',').map(Number);
+            setActiveGridCell(r, c);
+          }
         }
       },
       selectedDir: app.state.selDir,
-      text: app.text,
       tileDefs: app.tileDefs
     });
 
@@ -249,6 +300,7 @@ export function createRender({
     };
 
     activeCellKey = null;
+    resetUndoHistory();
     const grid = createBoardGrid({
       cols,
       documentRef,
@@ -260,6 +312,9 @@ export function createRender({
         setActiveGridCell(r, c, { focus: false });
       },
       onCellKeyDown(event, r, c) {
+        if (event.target.classList.contains('cell-delete-btn')) {
+          return;
+        }
         if (moves[event.key]) {
           event.preventDefault();
           const [dr, dc] = moves[event.key];
@@ -282,6 +337,10 @@ export function createRender({
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           cellClick(r, c);
+        }
+        if (event.key === 'Delete') {
+          event.preventDefault();
+          removeArrow(r, c);
         }
       },
       rows
@@ -349,11 +408,14 @@ export function createRender({
     placeArrow,
     posSnail: snailApi.posSnail,
     removeArrow,
+    refreshUndoButton,
+    resetUndoHistory,
     renderAll,
     renderCell,
     setPendingDelete,
     setStartHighlight,
     setTrail,
+    undoArrowEdit,
     updateDropTarget: dragApi.updateDropTarget
   };
 }

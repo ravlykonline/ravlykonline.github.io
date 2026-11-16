@@ -14,7 +14,6 @@ export function renderPalette({
   onPointerDown,
   onSelect,
   selectedDir,
-  text,
   tileDefs
 }) {
   const palette = documentRef.createElement('div');
@@ -26,12 +25,13 @@ export function renderPalette({
     button.className = ['atile', tile.group, selectedDir === tile.dir ? 'sel' : ''].filter(Boolean).join(' ');
     button.dataset.dir = tile.dir;
     button.dataset.group = tile.group;
-    button.setAttribute('aria-label', text.render.dragToBoard(tile.label));
+    button.setAttribute('aria-label', tile.label);
+    button.setAttribute('aria-pressed', String(selectedDir === tile.dir));
     button.appendChild(createTileIcon(tile));
     if (onPointerDown) {
       button.addEventListener('pointerdown', (event) => onPointerDown(event, button, tile));
     }
-    button.addEventListener('click', () => onSelect(tile.dir, button, tile));
+    button.addEventListener('click', (event) => onSelect(tile.dir, button, event));
     palette.appendChild(button);
   }
 

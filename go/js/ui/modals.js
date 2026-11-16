@@ -28,6 +28,7 @@ export function renderMessageModal({
   actionId,
   actionText,
   bodyText,
+  cancelText,
   closeExistingModal,
   closeId,
   documentRef = document,
@@ -57,20 +58,33 @@ export function renderMessageModal({
   actionButton.type = 'button';
 
   actions.appendChild(actionButton);
+  const cancelButton = cancelText ? createTextElement({
+    documentRef,
+    tagName: 'button',
+    className: 'mok mok-secondary',
+    text: cancelText,
+    id: `${actionId}-cancel`
+  }) : null;
+  if (cancelButton) {
+    cancelButton.type = 'button';
+    actions.appendChild(cancelButton);
+  }
   box.append(closeButton, title, body, actions);
   backdrop.appendChild(box);
 
+  const initialFocusSelector = `#${cancelButton ? cancelButton.id : actionId}`;
   const modal = openModal
-    ? openModal(backdrop, { initialFocusSelector: `#${actionId}` })
+    ? openModal(backdrop, { initialFocusSelector })
     : createManagedModal({
       backdrop,
       documentRef,
-      initialFocusSelector: `#${actionId}`
+      initialFocusSelector
     });
 
   closeButton.addEventListener('click', () => modal.close());
+  cancelButton?.addEventListener('click', () => modal.close());
   actionButton.addEventListener('click', () => {
-    modal.close({ restoreFocus: false });
+    modal.close();
     onAction?.();
   });
 
@@ -83,6 +97,7 @@ export function renderLevelMapModal({
   currentLevelId,
   documentRef = document,
   levels,
+  onRestart,
   onSelect,
   openModal,
   text
@@ -105,13 +120,24 @@ export function renderLevelMapModal({
     documentRef,
     levels,
     onSelect(levelId) {
-      modal.close({ restoreFocus: false });
+      modal.close();
       onSelect?.(levelId);
     },
     text
   });
 
   box.append(closeButton, title, body, grid);
+  if (onRestart) {
+    const restart = createTextElement({
+      documentRef, tagName: 'button', className: 'mok mok-secondary', text: text.ui.restartGame
+    });
+    restart.type = 'button';
+    restart.addEventListener('click', () => {
+      modal.close();
+      onRestart();
+    });
+    box.appendChild(restart);
+  }
   backdrop.appendChild(box);
 
   const modal = openModal
@@ -123,49 +149,6 @@ export function renderLevelMapModal({
     });
 
   closeButton.addEventListener('click', () => modal.close());
-  return modal;
-}
-
-export function renderTurnHintModal({
-  documentRef = document,
-  includeTurnHint = false,
-  openModal,
-  text
-}) {
-  const backdrop = documentRef.createElement('div');
-  backdrop.className = 'mbd turn-hint-modal';
-  backdrop.setAttribute('role', 'dialog');
-  backdrop.setAttribute('aria-modal', 'true');
-  backdrop.setAttribute('aria-labelledby', 'turn-hint-title');
-
-  const box = documentRef.createElement('div');
-  box.className = 'mbox modal-box-with-close';
-  const closeButton = createModalCloseButton({ documentRef, id: 'turn-hint-close', text });
-  const title = createTextElement({ documentRef, tagName: 'h2', className: 'mttl', text: text.ui.tryAgainTitle, id: 'turn-hint-title' });
-  const body = createTextElement({ documentRef, tagName: 'p', className: 'mbdy', text: text.ui.tryAgainBody });
-  if (includeTurnHint) {
-    body.appendChild(documentRef.createElement('br'));
-    body.appendChild(createTextElement({ documentRef, tagName: 'span', text: text.ui.tryAgainTurns }));
-  }
-  const actions = documentRef.createElement('div');
-  actions.className = 'modal-actions';
-  const okButton = createTextElement({ documentRef, tagName: 'button', className: 'mok', text: text.ui.tryAgainAction, id: 'turn-hint-ok' });
-  okButton.type = 'button';
-
-  actions.appendChild(okButton);
-  box.append(closeButton, title, body, actions);
-  backdrop.appendChild(box);
-
-  const modal = openModal
-    ? openModal(backdrop, { initialFocusSelector: '#turn-hint-ok' })
-    : createManagedModal({
-      backdrop,
-      documentRef,
-      initialFocusSelector: '#turn-hint-ok'
-    });
-
-  closeButton.addEventListener('click', () => modal.close());
-  okButton.addEventListener('click', () => modal.close());
   return modal;
 }
 
@@ -224,7 +207,6 @@ export function renderResultModal({
 }
 
 export function renderLevelIntroModal({
-  completedLevelIds,
   documentRef = document,
   level,
   levelChipText,
@@ -233,35 +215,6 @@ export function renderLevelIntroModal({
   openModal,
   text
 }) {
-  const isDebug = level.type === 'debug';
-  const isOnboarding = level.id === 1 && completedLevelIds.length === 0;
-  const isEarlyLevel = level.id <= 3 && !isDebug;
-  const onboardingText = text.onboarding || {};
-  const earlyLevelText = text.earlyLevel || {};
-  const debugLevelText = text.debugLevel || {};
-  const introTitle = isOnboarding ? (onboardingText.title || level.name) : level.name;
-  const introGoal = isOnboarding ? (onboardingText.goal || level.goal) : level.goal;
-  const introTaskLabel = isOnboarding
-    ? (onboardingText.taskLabel || text.ui.taskLabel)
-    : isDebug
-      ? (debugLevelText.taskLabel || text.ui.taskLabel)
-      : isEarlyLevel
-        ? (earlyLevelText.taskLabel || text.ui.taskLabel)
-        : text.ui.taskLabel;
-  const introTaskText = isOnboarding
-    ? (onboardingText.taskText || level.hint)
-    : isDebug && debugLevelText.taskTextSuffix
-      ? `${level.hint} ${debugLevelText.taskTextSuffix}`
-      : level.hint;
-  const introListenAction = isEarlyLevel
-    ? (earlyLevelText.listenAction || text.ui.listenTask)
-    : text.ui.listenTask;
-  const introStartAction = isOnboarding
-    ? (onboardingText.startAction || text.ui.startAction)
-    : isEarlyLevel
-      ? (earlyLevelText.startAction || text.ui.startAction)
-      : text.ui.startAction;
-
   const backdrop = documentRef.createElement('div');
   backdrop.className = 'mbd level-intro-modal';
   backdrop.setAttribute('role', 'dialog');
@@ -272,37 +225,22 @@ export function renderLevelIntroModal({
   box.className = 'mbox level-intro-box modal-box-with-close';
   const closeButton = createModalCloseButton({ documentRef, id: 'level-intro-close', text });
   const chip = createTextElement({ documentRef, tagName: 'span', className: 'level-chip', text: levelChipText });
-  const title = createTextElement({ documentRef, tagName: 'h2', className: 'mttl level-intro-title', text: introTitle, id: 'level-intro-title' });
+  const title = createTextElement({ documentRef, tagName: 'h2', className: 'mttl level-intro-title', text: level.name, id: 'level-intro-title' });
   box.append(closeButton, chip, title);
-
-  if (isOnboarding && onboardingText.body) {
-    box.appendChild(createTextElement({ documentRef, tagName: 'p', className: 'mbdy', text: onboardingText.body }));
-  }
-
-  const levelCard = documentRef.createElement('div');
-  levelCard.className = 'level-card';
-  const badges = documentRef.createElement('div');
-  badges.className = 'level-badges';
-  if (isDebug) {
-    badges.appendChild(createTextElement({ documentRef, tagName: 'span', className: 'mode-chip debug', text: text.mode(true) }));
-  }
-  badges.appendChild(createTextElement({ documentRef, tagName: 'span', className: 'goal-chip', text: introGoal }));
 
   const taskCard = documentRef.createElement('div');
   taskCard.className = 'level-task-card';
-  const taskLabel = createTextElement({ documentRef, tagName: 'div', className: 'level-task-label', text: introTaskLabel });
-  const taskText = createTextElement({ documentRef, tagName: 'p', className: 'level-hint level-task-text', text: introTaskText });
-  const speakButton = createTextElement({ documentRef, tagName: 'button', className: 'speak-btn level-speak-btn', text: introListenAction, id: 'level-intro-speak' });
+  const taskText = createTextElement({ documentRef, tagName: 'p', className: 'level-hint level-task-text', text: level.hint });
+  const speakButton = createTextElement({ documentRef, tagName: 'button', className: 'speak-btn level-speak-btn', text: text.ui.listenTask, id: 'level-intro-speak' });
   speakButton.type = 'button';
-  taskCard.append(taskLabel, taskText, speakButton);
-  levelCard.append(badges, taskCard);
+  taskCard.append(taskText, speakButton);
 
   const actions = documentRef.createElement('div');
   actions.className = 'modal-actions';
-  const startButton = createTextElement({ documentRef, tagName: 'button', className: 'mok', text: introStartAction, id: 'level-intro-start' });
+  const startButton = createTextElement({ documentRef, tagName: 'button', className: 'mok', text: text.ui.startAction, id: 'level-intro-start' });
   startButton.type = 'button';
   actions.appendChild(startButton);
-  box.append(levelCard, actions);
+  box.append(taskCard, actions);
   backdrop.appendChild(box);
 
   const modal = openModal
@@ -376,22 +314,6 @@ export function createUiModals({
     }
   }
 
-  function showTurnHintModal(options = {}) {
-    const { includeTurnHint = false } = options;
-    if (activeModal?.backdrop?.classList.contains('turn-hint-modal')) {
-      return;
-    }
-
-    renderTurnHintModal({
-      documentRef,
-      includeTurnHint,
-      openModal(backdrop, modalOptions) {
-        return openManagedModal(backdrop, modalOptions);
-      },
-      text
-    });
-  }
-
   function openClearConfirmModal() {
     if (app.state.running) {
       return;
@@ -404,6 +326,7 @@ export function createUiModals({
       actionId: 'clear-confirm',
       actionText: text.ui.clearConfirmAction,
       bodyText: text.ui.clearConfirmBody,
+      cancelText: text.ui.clearCancelAction,
       closeId: 'clear-close',
       documentRef,
       modalClass: 'clear-confirm-modal',
@@ -424,7 +347,6 @@ export function createUiModals({
     stopTaskSpeech();
 
     renderLevelIntroModal({
-      completedLevelIds: app.state.completedLevelIds,
       documentRef,
       level: app.state.currentLevel,
       levelChipText: levelChipEl.textContent,
@@ -443,15 +365,37 @@ export function createUiModals({
       currentLevelId: app.state.currentLevel.id,
       documentRef,
       levels: app.levels,
+      onRestart: openRestartConfirmModal,
       onSelect(levelId) {
         if (app.setCurrentLevel(levelId)) {
-          loadCurrentLevel({ showIntro: false });
+          loadCurrentLevel();
         }
       },
       openModal(backdrop, options) {
         return openManagedModal(backdrop, options);
       },
       text
+    });
+  }
+
+  function openRestartConfirmModal() {
+    renderMessageModal({
+      actionId: 'restart-confirm',
+      actionText: text.ui.restartGame,
+      bodyText: text.ui.restartConfirmBody,
+      cancelText: text.ui.clearCancelAction,
+      closeId: 'restart-close',
+      documentRef,
+      modalClass: 'restart-confirm-modal',
+      onAction() {
+        app.restartProgress();
+        loadCurrentLevel();
+        refs.btnMap?.focus();
+      },
+      openModal: openManagedModal,
+      text,
+      titleId: 'restart-confirm-title',
+      titleText: text.ui.restartConfirmTitle
     });
   }
 
@@ -467,12 +411,11 @@ export function createUiModals({
       onAction() {
         if (hasNext) {
           if (app.setCurrentLevel(app.getNextLevelId())) {
-            loadCurrentLevel({ showIntro: true });
+            loadCurrentLevel();
           }
           return;
         }
-        app.restartProgress();
-        loadCurrentLevel({ showIntro: true });
+        openRestartConfirmModal();
       },
       openModal(backdrop, options) {
         return openManagedModal(backdrop, options);
@@ -496,13 +439,12 @@ export function createUiModals({
       onAction() {
         if (hasNext) {
           if (app.setCurrentLevel(app.getNextLevelId())) {
-            loadCurrentLevel({ showIntro: true });
+            loadCurrentLevel();
           }
           return;
         }
         if (isFinalWin) {
-          app.restartProgress();
-          loadCurrentLevel({ showIntro: true });
+          openRestartConfirmModal();
           return;
         }
         app.engine.clearAll();
@@ -524,7 +466,6 @@ export function createUiModals({
     openLevelIntro,
     openLevelMap,
     showAlreadySolvedModal,
-    showTurnHintModal,
     showWin
   };
 }

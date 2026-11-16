@@ -384,6 +384,6 @@ test('openLevelMap changes level and reloads UI without intro', async () => {
   buttons[2].click();
   assert.deepEqual(harness.app.setCurrentLevelCalls, [3]);
   assert.equal(harness.calls.loadCurrentLevel.length, 1);
-  assert.equal(harness.calls.loadCurrentLevel[0].showIntro, false);
+  assert.equal(harness.calls.loadCurrentLevel[0], undefined);
   assert.equal(harness.document.body.querySelector('#map-close'), null);
 });

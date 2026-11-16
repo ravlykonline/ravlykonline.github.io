@@ -59,6 +59,9 @@ function createHarness() {
     }
   };
   const effectsApi = {
+    clearStopMark() {
+      calls.push('clear-stop-mark');
+    },
     syncSizes() {
       calls.push('sync-sizes');
     }
@@ -96,7 +99,7 @@ function createHarness() {
   };
 }
 
-test('appUiLevelFlow reloads the current level and optionally opens intro', async () => {
+test('appUiLevelFlow renders the current level without clearing its route', async () => {
   const { createAppUiLevelFlow } = await importModule('js/ui/appUiLevelFlow.js');
   const harness = createHarness();
   const flow = createAppUiLevelFlow(harness);
@@ -104,7 +107,7 @@ test('appUiLevelFlow reloads the current level and optionally opens intro', asyn
   flow.loadCurrentLevel();
 
   assert.deepEqual(harness.calls, [
-    'clear-all',
+    'clear-stop-mark',
     'build-palette',
     'build-grid',
     'clear-pending-delete',
@@ -112,12 +115,7 @@ test('appUiLevelFlow reloads the current level and optionally opens intro', asyn
     'refresh-level-ui',
     'set-level-intro-status',
     'schedule-run-hint',
-    'sync-sizes',
-    'get-start',
-    'raf',
-    ['pos-snail', 1, 2, false, 'right'],
-    'raf',
-    'open-intro'
+    'sync-sizes'
   ]);
 });
 
@@ -142,21 +140,6 @@ test('appUiLevelFlow changes levels without reopening intro', async () => {
       ['set-level', 3]
     ]
   );
-});
-
-test('appUiLevelFlow auto-opens intro only for a clean first level session', async () => {
-  const { createAppUiLevelFlow } = await importModule('js/ui/appUiLevelFlow.js');
-  const harness = createHarness();
-  const flow = createAppUiLevelFlow(harness);
-
-  assert.equal(flow.shouldAutoOpenIntroOnSessionStart(), true);
-
-  harness.app.state.completedLevelIds = [1];
-  assert.equal(flow.shouldAutoOpenIntroOnSessionStart(), false);
-
-  harness.app.state.completedLevelIds = [];
-  harness.app.state.currentLevel.id = 2;
-  assert.equal(flow.shouldAutoOpenIntroOnSessionStart(), false);
 });
 
 test('appUiLevelFlow remains focused on level flow without storage or global app contracts', () => {

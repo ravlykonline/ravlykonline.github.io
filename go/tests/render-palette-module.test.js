@@ -52,13 +52,6 @@ test('renderPalette renders only allowed command tiles and selected state', asyn
       dragged.push([button.dataset.dir, tile.group]);
     },
     selectedDir: 'left-up',
-    text: {
-      render: {
-        dragToBoard(label) {
-          return `${label} — перетягни на поле`;
-        }
-      }
-    },
     tileDefs: TILE_DEFS
   });
 
@@ -66,8 +59,10 @@ test('renderPalette renders only allowed command tiles and selected state', asyn
   assert.equal(palette.children.length, 2);
   assert.equal(palette.children[0].dataset.dir, 'right');
   assert.equal(palette.children[0].type, 'button');
-  assert.equal(palette.children[0].attrs['aria-label'].includes('перетягни'), true);
+  assert.equal(palette.children[0].attrs['aria-label'], TILE_DEFS.find(({ dir }) => dir === 'right').label);
   assert.doesNotMatch(palette.children[0].className, /\bsel\b/);
+  assert.equal(palette.children[0].attrs['aria-pressed'], 'false');
+  assert.equal(palette.children[1].attrs['aria-pressed'], 'true');
   assert.match(palette.children[1].className, /\bsel\b/);
 
   palette.children[1].listeners.click();

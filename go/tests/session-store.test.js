@@ -109,10 +109,10 @@ test('sessionStore fails safely when storage throws', async () => {
   assert.equal(store.clearSession(throwingStorage), false);
 });
 
-test('sessionStore is the only new state module that names sessionStorage', () => {
+test('sessionStore provides access to browser session storage', () => {
   const source = readUtf8('js/state/sessionStore.js');
 
-  assert.match(source, /window\.sessionStorage/);
+  assert.match(source, /windowRef\?\.sessionStorage/);
   assert.doesNotMatch(source, /localStorage/);
   assert.doesNotMatch(source, /window\.SnailGame/);
 });

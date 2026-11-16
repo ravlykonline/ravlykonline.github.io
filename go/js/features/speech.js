@@ -1,63 +1,49 @@
-export function getSpeechEngine(windowRef = window) {
-  return windowRef.speechSynthesis || null;
-}
+export function createTaskSpeech({
+  windowRef = globalThis.window,
+  onStart,
+  onEnd,
+  onError
+}) {
+  let activePlayer = null;
 
-export function chooseVoice(windowRef = window) {
-  const synth = getSpeechEngine(windowRef);
-  if (!synth || typeof synth.getVoices !== 'function') {
-    return null;
+  function stop() {
+    const previous = activePlayer;
+    activePlayer = null;
+    previous?.pause();
+    return previous !== null;
   }
 
-  const voices = synth.getVoices();
-  if (!voices.length) {
-    return null;
+  function play(levelId) {
+    stop();
+    if (typeof windowRef?.Audio !== 'function' || !Number.isInteger(levelId) || levelId < 1) {
+      return false;
+    }
+
+    const player = new windowRef.Audio(`./assets/voice/${levelId}.mp3`);
+    activePlayer = player;
+
+    function finish(callback) {
+      if (activePlayer === player) {
+        activePlayer = null;
+        callback();
+      }
+    }
+
+    player.addEventListener('playing', () => {
+      if (activePlayer === player) {
+        onStart();
+      }
+    }, { once: true });
+    player.addEventListener('ended', () => finish(onEnd), { once: true });
+    player.addEventListener('error', () => finish(onError), { once: true });
+
+    try {
+      Promise.resolve(player.play()).catch(() => finish(onError));
+    } catch {
+      finish(onError);
+    }
+    return true;
   }
 
-  return (
-    voices.find((voice) => voice.lang && voice.lang.toLowerCase().startsWith('uk')) ||
-    voices.find((voice) => voice.lang && voice.lang.toLowerCase().startsWith('ru')) ||
-    voices[0] ||
-    null
-  );
-}
-
-export function stopSpeech(windowRef = window) {
-  const synth = getSpeechEngine(windowRef);
-  if (synth && typeof synth.cancel === 'function') {
-    synth.cancel();
-  }
-}
-
-export function speakText(text, options = {}) {
-  const {
-    onEnd = () => {},
-    onError = () => {},
-    onStart = () => {},
-    windowRef = window
-  } = options;
-  const synth = getSpeechEngine(windowRef);
-  const Utterance = windowRef.SpeechSynthesisUtterance;
-
-  if (!synth || typeof Utterance !== 'function') {
-    return false;
-  }
-
-  stopSpeech(windowRef);
-  const utterance = new Utterance(text);
-  const voice = chooseVoice(windowRef);
-
-  if (voice) {
-    utterance.voice = voice;
-    utterance.lang = voice.lang;
-  } else {
-    utterance.lang = 'uk-UA';
-  }
-
-  utterance.rate = 0.92;
-  utterance.pitch = 1.02;
-  utterance.onstart = onStart;
-  utterance.onend = onEnd;
-  utterance.onerror = onError;
-  synth.speak(utterance);
-  return true;
+  return { play, stop };
 }

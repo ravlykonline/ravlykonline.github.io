@@ -1,5 +1,6 @@
 export const SESSION_VERSION = 1;
 export const SESSION_STORAGE_KEY = 'ravlyk-code-session-v1';
+const THEME_STORAGE_KEY = 'ravlyk-go-theme';
 
 const VALID_DIRECTIONS = new Set([
   'up', 'right', 'down', 'left',
@@ -7,11 +8,31 @@ const VALID_DIRECTIONS = new Set([
   'right-down', 'down-left', 'left-up', 'up-right'
 ]);
 
-function getSessionStorage() {
+export function getSessionStorage(windowRef = globalThis.window) {
   try {
-    return window.sessionStorage || null;
+    return windowRef?.sessionStorage || null;
   } catch {
     return null;
+  }
+}
+
+export function loadThemePreference(storage = getSessionStorage()) {
+  try {
+    const theme = storage?.getItem(THEME_STORAGE_KEY);
+    return theme === 'light' || theme === 'dark' ? theme : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveThemePreference(theme, storage = getSessionStorage()) {
+  if (theme !== 'light' && theme !== 'dark') {
+    return;
+  }
+  try {
+    storage?.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    // Keep the theme available for this page if storage is blocked.
   }
 }
 

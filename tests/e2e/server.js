@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..', '..');
-const port = 4173;
+const port = Number(process.env.RAVLYK_PREVIEW_PORT || 4173);
 
 const mime = {
   '.html': 'text/html; charset=utf-8',
@@ -14,6 +14,8 @@ const mime = {
   '.js': 'application/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
+  '.woff2': 'font/woff2',
+  '.mp3': 'audio/mpeg',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
@@ -28,6 +30,7 @@ function safePathFromUrl(urlPath) {
   const normalized = path.normalize(decoded).replace(/^(\.\.[/\\])+/, '');
   let requested = normalized;
   if (requested === '/' || requested === '\\') requested = '/index.html';
+  if (requested === '/go/' || requested === '\\go\\') requested = '/go/index.html';
   const abs = path.resolve(rootDir, `.${requested}`);
   if (!abs.startsWith(rootDir)) return null;
   return abs;

@@ -90,23 +90,14 @@ test('appUiStartup renders the snail icon and schedules initial positioning', as
   const harness = createHarness();
   const startup = createAppUiStartup(harness);
 
-  startup.start({ shouldAutoOpenIntro: harness.shouldAutoOpenIntro });
-  flushRaf(harness);
+  startup.start();
 
   assert.deepEqual(harness.app.refs.snailEl.children, [harness.snailIcon]);
   assert.deepEqual(harness.calls, [
-    'raf',
-    'raf',
-    'sync-sizes',
     'set-level-intro-status',
-    'get-start',
     ['create-asset-icon', 'snail.svg', 'board-icon board-icon-snail'],
     ['replace-snail', harness.snailIcon],
-    'raf',
-    'should-auto-intro',
-    'raf',
-    ['pos-snail', 1, 2, false, 'down'],
-    'open-intro'
+    'sync-sizes'
   ]);
 });
 
@@ -115,8 +106,7 @@ test('appUiStartup skips intro modal when the session should not auto-open it', 
   const harness = createHarness({ autoIntro: false });
   const startup = createAppUiStartup(harness);
 
-  startup.start({ shouldAutoOpenIntro: harness.shouldAutoOpenIntro });
-  flushRaf(harness);
+  startup.start();
 
   assert.equal(harness.calls.includes('open-intro'), false);
 });

@@ -104,8 +104,7 @@ test('responsive UI and safe-delete styles remain present', () => {
   assert.ok(render.includes('ArrowRight'));
   assert.ok(renderBoard.includes("'0' : '-1'"));
   assert.ok(pwaRegister.includes("register('./sw.js')"));
-  assert.ok(uiEffects.includes("root.style.setProperty('--gs-w'"));
-  assert.ok(uiEffects.includes("root.style.setProperty('--gs-h'"));
+  assert.ok(uiEffects.includes('app.render.posSnail'));
   assert.ok(readUtf8('sw.js').includes('isSuccessfulDocumentResponse'));
   assert.ok(readUtf8('sw.js').includes('cacheDocumentResponse'));
   assert.ok(readUtf8('sw.js').includes("content-type"));

@@ -4,23 +4,23 @@ export function bindAppUiEvents({
   documentRef = document,
   goToNextLevel,
   goToPrevLevel,
-  layoutApi,
   modalApi,
   statusApi,
   syncSizes,
   windowRef = window
 }) {
-  let syncTimeout = null;
-  const { btnClr, btnLevelInfo, btnMap, btnNext, btnPrev, btnRun, btnSpeakTask } = app.refs;
-
-  audioApi.initTaskSpeech();
+  const { btnClr, btnLevelInfo, btnMap, btnNext, btnPrev, btnRun, btnSpeakTask, btnUndo } = app.refs;
 
   const unlockAudio = () => audioApi.primeAudio();
   windowRef.addEventListener('pointerdown', unlockAudio, { passive: true });
   windowRef.addEventListener('keydown', unlockAudio, { passive: true });
 
   windowRef.addEventListener('pointermove', (event) => {
-    if (!app.state.dragDir) {
+    if (!app.state.dragDir || event.pointerId !== app.state.dragPointerId) {
+      return;
+    }
+    if (!app.state.dragMoved &&
+        Math.hypot(event.clientX - app.state.dragStartX, event.clientY - app.state.dragStartY) < 6) {
       return;
     }
     app.state.dragMoved = true;
@@ -29,14 +29,14 @@ export function bindAppUiEvents({
   });
 
   windowRef.addEventListener('pointerup', (event) => {
-    if (!app.state.dragDir) {
+    if (!app.state.dragDir || event.pointerId !== app.state.dragPointerId) {
       return;
     }
     app.render.endPointerDrag(event.clientX, event.clientY);
   });
 
-  windowRef.addEventListener('pointercancel', () => {
-    if (!app.state.dragDir) {
+  windowRef.addEventListener('pointercancel', (event) => {
+    if (!app.state.dragDir || event.pointerId !== app.state.dragPointerId) {
       return;
     }
     app.render.endPointerDrag(-9999, -9999);
@@ -62,22 +62,20 @@ export function bindAppUiEvents({
     }
   });
 
-  windowRef.addEventListener('resize', () => {
-    windowRef.clearTimeout(syncTimeout);
-    syncTimeout = windowRef.setTimeout(() => {
-      layoutApi.syncCommandLayout();
-      layoutApi.updateResponsiveLabels();
-      syncSizes();
-      app.render.posSnail(app.state.snailPos.r, app.state.snailPos.c, false, app.state.snailFacing || 'right');
-    }, 80);
-  });
+  if (windowRef.ResizeObserver && app.refs.gwrap) {
+    new windowRef.ResizeObserver(syncSizes).observe(app.refs.gwrap);
+  } else {
+    windowRef.addEventListener('resize', syncSizes);
+  }
 
   btnRun.addEventListener('click', () => {
+    audioApi.stopTaskSpeech();
     statusApi.clearRunHint();
     audioApi.resumeAudio();
     app.engine.run();
   });
   btnClr.addEventListener('click', modalApi.openClearConfirmModal);
+  btnUndo?.addEventListener('click', app.render.undoArrowEdit);
   btnPrev.addEventListener('click', goToPrevLevel);
   btnNext.addEventListener('click', goToNextLevel);
   btnLevelInfo.addEventListener('click', modalApi.openLevelIntro);

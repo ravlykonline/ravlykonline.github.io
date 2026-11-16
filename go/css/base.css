@@ -8,8 +8,7 @@
 
 html,
 body {
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
 }
 
 html {
@@ -18,12 +17,17 @@ html {
 }
 
 body {
+  display: flow-root;
+  min-height: 100dvh;
   font-family: var(--font-body);
   font-size: var(--font-size-body);
   line-height: var(--line-body);
   background: var(--bg);
   color: var(--txt);
-  display: flex;
+  background-image: var(--garden-art), url('../assets/garden-paper.jpg');
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }

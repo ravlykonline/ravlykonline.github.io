@@ -91,7 +91,7 @@ test('renderLevelHeader updates level metadata and nav buttons', async () => {
     totalLevels: 20
   });
 
-  assert.equal(refs.levelChipEl.textContent, '2/20 done');
+  assert.equal(refs.levelChipEl.textContent, '2 / 20 ✓');
   assert.equal(refs.levelTitleEl.textContent, 'Level 2');
   assert.equal(refs.levelModeEl.className, 'mode-chip debug');
   assert.equal(refs.levelGoalEl.textContent, 'goal');

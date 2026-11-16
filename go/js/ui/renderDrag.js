@@ -20,7 +20,10 @@ export function createRenderDrag({
     if (iconEl) {
       ghostEl.appendChild(iconEl);
     }
-    ghostEl.style.background = group === 'trn' ? 'var(--t-trn)' : 'var(--t-str)';
+    ghostEl.classList.remove('trn');
+    if (group === 'trn') {
+      ghostEl.classList.add('trn');
+    }
     ghostEl.classList.add('show');
   }
 
@@ -56,13 +59,15 @@ export function createRenderDrag({
   }
 
   function beginPointerDrag(event, button, dir, group) {
-    if (state.running || button.disabled) {
+    if (state.running || state.dragDir || button.disabled) {
       return;
     }
 
     clearPendingDelete();
     state.dragDir = dir;
     state.dragPointerId = event.pointerId;
+    state.dragStartX = event.clientX;
+    state.dragStartY = event.clientY;
     state.dragButton = button;
     state.dragMoved = false;
     state.suppressTileClick = false;

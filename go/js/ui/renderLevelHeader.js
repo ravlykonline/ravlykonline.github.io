@@ -45,7 +45,8 @@ export function renderLevelHeader({
   const isDebug = level.type === 'debug';
   const taskButtons = getLevelTaskButtonLabels({ level, text });
 
-  levelChipEl.textContent = text.levelChip(levelIndex, totalLevels, done);
+  levelChipEl.textContent = `${levelIndex + 1} / ${totalLevels}${done ? ' ✓' : ''}`;
+  levelChipEl.setAttribute('aria-label', text.levelChip(levelIndex, totalLevels, done));
   levelTitleEl.textContent = level.name;
   levelModeEl.textContent = text.mode(isDebug);
   levelModeEl.className = `mode-chip ${isDebug ? 'debug' : 'play'}`;

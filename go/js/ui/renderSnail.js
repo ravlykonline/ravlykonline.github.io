@@ -1,21 +1,7 @@
 import { DIRECTION_DELTAS } from '../core/constants.js';
 
-function getSnailOrientation(dir) {
-  switch (dir) {
-    case 'up':
-      return ' rotate(-90deg)';
-    case 'down':
-      return ' rotate(90deg)';
-    case 'left':
-      return ' scaleX(-1)';
-    case 'right':
-    default:
-      return '';
-  }
-}
-
-function getSnailTransform(x, y, dir) {
-  return `translate(${x}px,${y}px)${getSnailOrientation(dir)}`;
+function getSnailTransform(x, y) {
+  return `translate(${x}px,${y}px)`;
 }
 
 export function createRenderSnail({
@@ -25,6 +11,13 @@ export function createRenderSnail({
   snailEl,
   windowRef = window
 }) {
+  function setFacing(dir) {
+    snailEl.dataset.facing = dir;
+    if (dir === 'left' || dir === 'right') {
+      snailEl.dataset.horizontal = dir;
+    }
+  }
+
   function getSnailCellPosition(r, c) {
     const el = cellEl(r, c);
     if (!el) {
@@ -35,8 +28,8 @@ export function createRenderSnail({
     const cellRect = el.getBoundingClientRect();
     return {
       cellRect,
-      x: cellRect.left - wrapRect.left,
-      y: cellRect.top - wrapRect.top
+      x: cellRect.left - wrapRect.left - (gwrap.clientLeft || 0),
+      y: cellRect.top - wrapRect.top - (gwrap.clientTop || 0)
     };
   }
 
@@ -50,8 +43,9 @@ export function createRenderSnail({
     const facing = dir || getSnailFacing() || 'right';
     const delta = DIRECTION_DELTAS[facing] || { dr: 0, dc: 0 };
     const bumpDistance = Math.round(Math.min(cellRect.width, cellRect.height) * 0.18);
-    const baseTransform = getSnailTransform(x, y, facing);
-    const bumpTransform = getSnailTransform(x + delta.dc * bumpDistance, y + delta.dr * bumpDistance, facing);
+    setFacing(facing);
+    const baseTransform = getSnailTransform(x, y);
+    const bumpTransform = getSnailTransform(x + delta.dc * bumpDistance, y + delta.dr * bumpDistance);
 
     if (typeof snailEl.animate === 'function' && !windowRef.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const animation = snailEl.animate(
@@ -81,6 +75,7 @@ export function createRenderSnail({
 
     const { cellRect, x, y } = position;
     const facing = facingDir || getSnailFacing() || 'right';
+    setFacing(facing);
 
     snailEl.style.width = `${cellRect.width}px`;
     snailEl.style.height = `${cellRect.height}px`;
@@ -88,13 +83,13 @@ export function createRenderSnail({
 
     if (!animate) {
       snailEl.style.transition = 'none';
-      snailEl.style.transform = getSnailTransform(x, y, facing);
+      snailEl.style.transform = getSnailTransform(x, y);
       snailEl.getBoundingClientRect();
       snailEl.style.transition = '';
       return;
     }
 
-    snailEl.style.transform = getSnailTransform(x, y, facing);
+    snailEl.style.transform = getSnailTransform(x, y);
   }
 
   return {

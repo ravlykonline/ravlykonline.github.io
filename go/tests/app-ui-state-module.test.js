@@ -58,6 +58,7 @@ function createHarness() {
       return false;
     },
     refs,
+    render: { refreshUndoButton() {} },
     state: {
       completedLevelIds: [1],
       currentLevel: {
@@ -128,7 +129,7 @@ test('appUiState refreshes level header and progress widgets', async () => {
 
   state.refreshLevelUi();
 
-  assert.equal(harness.refs.levelChipEl.textContent, '1/3/done');
+  assert.equal(harness.refs.levelChipEl.textContent, '2 / 3 ✓');
   assert.equal(harness.refs.levelTitleEl.textContent, 'Перший рівень');
   assert.equal(harness.refs.levelGoalEl.textContent, 'Дістатися яблука');
   assert.equal(harness.refs.levelHintEl.textContent, 'Спробуй праворуч');
@@ -137,7 +138,7 @@ test('appUiState refreshes level header and progress widgets', async () => {
   assert.equal(harness.refs.progressTrackEl.attributes['aria-valuenow'], '33');
   assert.equal(harness.refs.btnPrev.disabled, true);
   assert.equal(harness.refs.btnNext.disabled, false);
-  assert.deepEqual(harness.calls, [['body-toggle', 'debug-mode', false], 'responsive-labels']);
+  assert.deepEqual(harness.calls, [['body-toggle', 'debug-mode', false]]);
 });
 
 test('appUiState disables command controls and clears run hint when running', async () => {

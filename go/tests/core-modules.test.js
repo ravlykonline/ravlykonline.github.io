@@ -29,7 +29,7 @@ test('core Ukrainian texts module exports UI text without global app state', asy
 
   assert.equal(typeof textsUk, 'object');
   assert.equal(typeof textsUk.progress, 'function');
-  assert.equal(typeof textsUk.taskSpeech, 'function');
+  assert.equal(typeof textsUk.ui.speechStart, 'string');
   assert.ok(textsUk.static.pageTitle.includes('Пригоди'));
   assert.ok(textsUk.progress(0, 20).includes('20'));
   assert.doesNotMatch(source, /window\.SnailGame/);

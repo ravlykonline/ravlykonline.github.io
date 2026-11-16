@@ -30,7 +30,7 @@ test('core texts module stays UTF-8 without BOM and keeps readable Ukrainian str
   assert.equal(bytes[0], 0x65);
   assert.ok(!bytes.subarray(0, 3).equals(Buffer.from([0xef, 0xbb, 0xbf])), 'BOM should be absent');
   assert.ok(textsUk.includes('Пригоди Равлика')); 
-  assert.ok(textsUk.includes('Озвучення не підтримується у цьому браузері.')); 
+  assert.ok(textsUk.includes('Завдання можна прочитати, натиснувши «Завдання».'));
   assert.ok(!textsUk.includes('????????'));
   assert.ok(!textsUk.includes('\\u0420\\u0430\\u0432\\u043b\\u0438\\u043a'));
 });

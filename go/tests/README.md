@@ -2,7 +2,7 @@
 
 - `core.test.js`: levels, syntax, board structure, solvability.
 - `progress.test.js`: session storage and level progress behavior.
-- `engine.test.js`: engine regressions such as turn-hint behavior.
+- `engine.test.js`: engine regressions such as in-place feedback for missing or incompatible arrows.
 - `ui-structure.test.js`: HTML/CSS/UI smoke checks and safe-delete wiring.
 - `encoding.test.js`: UTF-8 and anti-mojibake checks.
 - `source-smoke.test.js`: source-level symbol and style smoke checks.

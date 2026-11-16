@@ -138,10 +138,6 @@ export function installAppStateFacade({
     return app.tileDefs.filter((tile) => allowed.includes(tile.dir));
   };
 
-  app.levelUsesTurnTiles = function levelUsesTurnTiles() {
-    return app.getAllowedTileDefs().some((tile) => tile.dir.includes('-'));
-  };
-
   app.isObstacle = function isObstacle(r, c) {
     return app.state.currentLevel.obstacles.some((item) => item.r === r && item.c === c);
   };
@@ -186,7 +182,7 @@ export function installAppStateFacade({
 
   app.markLevelComplete = function markAppLevelComplete(levelId) {
     if (markLevelComplete(moduleState, levelId)) {
-      syncAppState(app, moduleState);
+      app.state.completedLevelIds = moduleState.completedLevelIds;
       saveProgress();
     }
   };

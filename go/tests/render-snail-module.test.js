@@ -13,6 +13,7 @@ async function importModule(relativePath) {
 function createElement(rect) {
   return {
     style: {},
+    dataset: {},
     getBoundingClientRect() {
       return rect;
     }
@@ -37,7 +38,12 @@ test('renderSnail positions the snail relative to the board wrapper', async () =
   assert.equal(snailEl.style.width, '50px');
   assert.equal(snailEl.style.height, '40px');
   assert.equal(snailEl.style.fontSize, '26px');
-  assert.equal(snailEl.style.transform, 'translate(32px,48px) scaleX(-1)');
+  assert.equal(snailEl.style.transform, 'translate(32px,48px)');
+  assert.equal(snailEl.dataset.horizontal, 'left');
+  renderer.posSnail(0, 2, true, 'up');
+  assert.equal(snailEl.dataset.facing, 'up');
+  assert.equal(snailEl.dataset.horizontal, 'left');
+  assert.equal(snailEl.style.transform, 'translate(32px,48px)');
   assert.equal(snailEl.style.transition, '');
 });
 
@@ -67,9 +73,9 @@ test('renderSnail bump uses animation when motion is allowed', async () => {
   await renderer.bumpSnail(0, 0);
 
   assert.equal(frames.length, 1);
-  assert.equal(frames[0][0].transform, 'translate(5px,8px) rotate(90deg)');
-  assert.equal(frames[0][1].transform, 'translate(5px,15px) rotate(90deg)');
-  assert.equal(snailEl.style.transform, 'translate(5px,8px) rotate(90deg)');
+  assert.equal(frames[0][0].transform, 'translate(5px,8px)');
+  assert.equal(frames[0][1].transform, 'translate(5px,15px)');
+  assert.equal(snailEl.style.transform, 'translate(5px,8px)');
 });
 
 test('renderSnail module stays independent from storage and global app state', () => {

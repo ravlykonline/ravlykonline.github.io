@@ -1,7 +1,8 @@
 // Service worker for offline play.
 // Core app files use network-first so deployed updates can replace older cached
 // copies without relying entirely on manual cache version bumps.
-const STATIC_CACHE = 'ravlyk-static-v40';
+const CACHE_PREFIX = 'ravlyk-go-static-v';
+const STATIC_CACHE = 'ravlyk-go-static-v46';
 const APP_SHELL = [
   './',
   './index.html',
@@ -56,6 +57,29 @@ const APP_SHELL = [
   './assets/prev_level.svg',
   './assets/next_level.svg',
   './assets/apple.svg',
+  './assets/garden-paper.jpg',
+  './assets/nunito-cyrillic.woff2',
+  './assets/nunito-latin.woff2',
+  './assets/voice/1.mp3',
+  './assets/voice/2.mp3',
+  './assets/voice/3.mp3',
+  './assets/voice/4.mp3',
+  './assets/voice/5.mp3',
+  './assets/voice/6.mp3',
+  './assets/voice/7.mp3',
+  './assets/voice/8.mp3',
+  './assets/voice/9.mp3',
+  './assets/voice/10.mp3',
+  './assets/voice/11.mp3',
+  './assets/voice/12.mp3',
+  './assets/voice/13.mp3',
+  './assets/voice/14.mp3',
+  './assets/voice/15.mp3',
+  './assets/voice/16.mp3',
+  './assets/voice/17.mp3',
+  './assets/voice/18.mp3',
+  './assets/voice/19.mp3',
+  './assets/voice/20.mp3',
   './assets/snail.svg',
   './assets/rock.svg',
   './assets/stump.svg',
@@ -74,6 +98,7 @@ const APP_SHELL = [
   './assets/icon-192.png',
   './assets/icon-512.png'
 ];
+const SHELL_URLS = new Set(APP_SHELL.map((path) => new URL(path, self.registration.scope).href));
 
 function isSuccessfulDocumentResponse(response) {
   if (!response || !response.ok) {
@@ -117,16 +142,51 @@ function isRuntimeUpdatableAsset(pathname) {
   );
 }
 
-async function networkFirst(request, fallback) {
+async function networkFirst(request, shellUrl, fallback) {
+  let response;
   try {
-    const response = await fetch(request);
-    if (request.mode === 'navigate' || request.destination === 'document') {
-      return cacheDocumentResponse(request, response);
-    }
-    return cacheAssetResponse(request, response);
+    response = await fetch(request);
   } catch {
     return fallback();
   }
+
+  if (!SHELL_URLS.has(shellUrl)) {
+    return response;
+  }
+  try {
+    if (request.mode === 'navigate' || request.destination === 'document') {
+      return await cacheDocumentResponse(shellUrl, response);
+    }
+    return await cacheAssetResponse(shellUrl, response);
+  } catch {
+    return response;
+  }
+}
+
+async function readAudioRange(response, range) {
+  const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+  if (!match) {
+    return response;
+  }
+  const audio = await response.blob();
+  const [, first, last] = match;
+  const start = first ? Number(first) : Math.max(0, audio.size - Number(last));
+  const end = first && last ? Math.min(Number(last), audio.size - 1) : audio.size - 1;
+  if (start > end || start >= audio.size) {
+    return new Response(null, {
+      status: 416,
+      headers: { 'Content-Range': `bytes */${audio.size}` }
+    });
+  }
+  return new Response(audio.slice(start, end + 1, audio.type), {
+    status: 206,
+    headers: {
+      'Content-Type': audio.type || 'audio/mpeg',
+      'Content-Length': String(end - start + 1),
+      'Content-Range': `bytes ${start}-${end}/${audio.size}`,
+      'Accept-Ranges': 'bytes'
+    }
+  });
 }
 
 self.addEventListener('install', (event) => {
@@ -139,7 +199,8 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => Promise.all(
-      keys.filter((key) => key !== STATIC_CACHE).map((key) => caches.delete(key))
+      keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== STATIC_CACHE)
+        .map((key) => caches.delete(key))
     ))
   );
   self.clients.claim();
@@ -158,24 +219,37 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  const shellUrl = new URL(requestUrl.pathname, requestUrl.origin).href;
   if (isDocument) {
     event.respondWith(
-      networkFirst(event.request, async () => {
-        return (await caches.match(event.request)) || caches.match('./offline.html');
+      networkFirst(event.request, shellUrl, async () => {
+        const cache = await caches.open(STATIC_CACHE);
+        return (await cache.match(shellUrl)) || cache.match('./offline.html');
       })
     );
     return;
   }
 
+  if (!SHELL_URLS.has(shellUrl)) {
+    return;
+  }
+
   if (isRuntimeUpdatableAsset(requestUrl.pathname)) {
     event.respondWith(
-      networkFirst(event.request, async () => caches.match(event.request))
+      networkFirst(event.request, shellUrl, () => caches.match(shellUrl, { cacheName: STATIC_CACHE }))
     );
     return;
   }
 
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    caches.match(shellUrl, { cacheName: STATIC_CACHE })
+      .then((cached) => {
+        const range = event.request.headers.get('range');
+        if (cached && range && requestUrl.pathname.endsWith('.mp3')) {
+          return readAudioRange(cached, range);
+        }
+        return cached || fetch(event.request);
+      })
   );
 });
 

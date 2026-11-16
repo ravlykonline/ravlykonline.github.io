@@ -81,8 +81,8 @@ function createHarness() {
     }
   };
   const audioApi = {
-    initTaskSpeech() {
-      calls.push('init-speech');
+    stopTaskSpeech() {
+      calls.push('stop-speech');
     },
     primeAudio() {
       calls.push('prime-audio');
@@ -106,14 +106,6 @@ function createHarness() {
     },
     openLevelMap() {
       calls.push('level-map');
-    }
-  };
-  const layoutApi = {
-    syncCommandLayout() {
-      calls.push('sync-layout');
-    },
-    updateResponsiveLabels() {
-      calls.push('responsive-labels');
     }
   };
   const statusApi = {
@@ -148,7 +140,6 @@ function createHarness() {
     goToPrevLevel() {
       calls.push('prev-level');
     },
-    layoutApi,
     modalApi,
     statusApi,
     syncSizes() {
@@ -176,9 +167,9 @@ test('appUiEvents wires buttons to UI actions and primes audio input', async () 
   harness.app.refs.btnMap.click();
 
   assert.deepEqual(harness.calls, [
-    'init-speech',
     'prime-audio',
     'prime-audio',
+    'stop-speech',
     'clear-run-hint',
     'resume-audio',
     'run',
@@ -200,10 +191,12 @@ test('appUiEvents handles drag, escape and outside-click clearing', async () => 
   harness.windowRef.dispatch('pointermove', { clientX: 4, clientY: 5 });
   assert.equal(harness.calls.includes('move-ghost'), false);
 
-  harness.app.state.dragDir = 'right';
-  harness.windowRef.dispatch('pointermove', { clientX: 7, clientY: 8 });
-  harness.windowRef.dispatch('pointerup', { clientX: 9, clientY: 10 });
-  harness.windowRef.dispatch('pointercancel');
+  Object.assign(harness.app.state, { dragDir: 'right', dragPointerId: 1, dragStartX: 0, dragStartY: 0 });
+  harness.windowRef.dispatch('pointermove', { clientX: 3, clientY: 4, pointerId: 1 });
+  harness.windowRef.dispatch('pointerup', { clientX: 9, clientY: 10, pointerId: 2 });
+  harness.windowRef.dispatch('pointermove', { clientX: 7, clientY: 8, pointerId: 1 });
+  harness.windowRef.dispatch('pointerup', { clientX: 9, clientY: 10, pointerId: 1 });
+  harness.windowRef.dispatch('pointercancel', { pointerId: 1 });
   harness.documentRef.dispatch('keydown', { key: 'Escape' });
   harness.documentRef.dispatch('click', {
     target: {
@@ -215,7 +208,6 @@ test('appUiEvents handles drag, escape and outside-click clearing', async () => 
 
   assert.equal(harness.app.state.dragMoved, true);
   assert.deepEqual(harness.calls, [
-    'init-speech',
     ['move-ghost', 7, 8],
     ['update-drop-target', 7, 8],
     ['end-drag', 9, 10],
@@ -227,28 +219,14 @@ test('appUiEvents handles drag, escape and outside-click clearing', async () => 
   ]);
 });
 
-test('appUiEvents debounces resize and refreshes layout plus snail position', async () => {
+test('appUiEvents refreshes the snail position on resize without ResizeObserver', async () => {
   const { bindAppUiEvents } = await importModule('js/ui/appUiEvents.js');
   const harness = createHarness();
 
   bindAppUiEvents(harness);
 
   harness.windowRef.dispatch('resize');
-  harness.windowRef.dispatch('resize');
-
-  assert.equal(harness.timers.length, 2);
-  assert.equal(harness.timers[0].cleared, true);
-  assert.equal(harness.timers[1].delay, 80);
-
-  harness.timers[1].callback();
-
-  assert.deepEqual(harness.calls, [
-    'init-speech',
-    'sync-layout',
-    'responsive-labels',
-    'sync-sizes',
-    ['pos-snail', 1, 2, false, 'right']
-  ]);
+  assert.deepEqual(harness.calls, ['sync-sizes']);
 });
 
 test('appUiEvents remains a wiring helper without storage or global app contracts', () => {

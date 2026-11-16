@@ -180,30 +180,6 @@ test('renderMessageModal uses explicit close and action buttons', async () => {
   assert.equal(documentRef.body.children.includes(backdrop), false);
 });
 
-test('renderTurnHintModal renders optional turn guidance', async () => {
-  const { renderTurnHintModal } = await importModule('js/ui/modals.js');
-  const documentRef = createDocument();
-
-  renderTurnHintModal({
-    documentRef,
-    includeTurnHint: true,
-    text: {
-      ui: {
-        mapClose: 'Закрити',
-        tryAgainAction: 'Добре',
-        tryAgainBody: 'Маршрут не склався.',
-        tryAgainTitle: 'Спробуй ще раз',
-        tryAgainTurns: 'Перевір повороти.'
-      }
-    }
-  });
-
-  const backdrop = documentRef.body.children[0];
-  assert.equal(backdrop.querySelector('#turn-hint-close').type, 'button');
-  assert.equal(backdrop.querySelector('#turn-hint-ok').type, 'button');
-  assert.match(collectText(backdrop), /Перевір повороти/);
-});
-
 test('renderResultModal renders icon, close and action controls', async () => {
   const { renderResultModal } = await importModule('js/ui/modals.js');
   const documentRef = createDocument();
@@ -286,7 +262,7 @@ test('renderLevelIntroModal renders task controls and closes with callback', asy
   assert.equal(backdrop.querySelector('#level-intro-close').type, 'button');
   assert.equal(backdrop.querySelector('#level-intro-speak').type, 'button');
   assert.equal(backdrop.querySelector('#level-intro-start').type, 'button');
-  assert.match(collectText(backdrop), /Пригоди Равлика/);
+  assert.match(collectText(backdrop), /Рівень 1.*Постав стрілку/);
 
   backdrop.querySelector('#level-intro-speak').listeners.click();
   assert.equal(calls.speak, 1);
