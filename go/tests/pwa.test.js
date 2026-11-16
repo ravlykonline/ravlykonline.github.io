@@ -96,7 +96,7 @@ test('service worker app shell caches real local files', () => {
 test('service worker cache version is bumped for changed app shell files', () => {
   const source = readUtf8('sw.js');
 
-  assert.match(source, /const STATIC_CACHE = 'ravlyk-go-static-v46'/);
+  assert.match(source, /const STATIC_CACHE = 'ravlyk-go-static-v47'/);
   assert.match(source, /event\.request\.method !== 'GET'/);
 });
 
@@ -112,7 +112,7 @@ test('activation removes only outdated game caches', async () => {
     },
     caches: {
       keys: async () => [
-        'ravlyk-go-static-v42', 'ravlyk-go-static-v45', 'ravlyk-go-static-v46', 'ravlyk-static-v40',
+        'ravlyk-go-static-v42', 'ravlyk-go-static-v45', 'ravlyk-go-static-v46', 'ravlyk-go-static-v47', 'ravlyk-static-v40',
         'ravlyk-static-v28', 'ravlyk-runtime'
       ],
       delete: async (key) => deleted.push(key)
@@ -122,7 +122,7 @@ test('activation removes only outdated game caches', async () => {
   let activation;
   handlers.get('activate')({ waitUntil: (promise) => { activation = promise; } });
   await activation;
-  assert.deepEqual(deleted, ['ravlyk-go-static-v42', 'ravlyk-go-static-v45']);
+  assert.deepEqual(deleted, ['ravlyk-go-static-v42', 'ravlyk-go-static-v45', 'ravlyk-go-static-v46']);
 });
 
 test('manifest uses /go-compatible relative paths', () => {

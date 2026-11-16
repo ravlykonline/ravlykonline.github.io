@@ -2,7 +2,7 @@
 // Core app files use network-first so deployed updates can replace older cached
 // copies without relying entirely on manual cache version bumps.
 const CACHE_PREFIX = 'ravlyk-go-static-v';
-const STATIC_CACHE = 'ravlyk-go-static-v46';
+const STATIC_CACHE = 'ravlyk-go-static-v47';
 const APP_SHELL = [
   './',
   './index.html',

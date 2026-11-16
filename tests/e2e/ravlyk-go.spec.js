@@ -75,10 +75,12 @@ test('@cross-browser-smoke Ravlyk uses consistent controls and remembers the the
   await expect(root).toHaveAttribute('data-theme', 'dark');
 
   const dimensions = await page.locator(
-    '#btn-theme, #btn-map, #btn-undo, #btn-clr, #btn-run, #btn-level-info, #btn-speak-task, #btn-prev, #btn-next, #palette button'
+    '#btn-theme, #btn-map, #btn-undo, #btn-clr, #btn-run, #btn-level-info, #btn-speak-task, #btn-prev, #btn-next'
   ).evaluateAll((buttons) => buttons.map((button) => button.getBoundingClientRect().height));
-  expect(dimensions).toHaveLength(10);
+  expect(dimensions).toHaveLength(9);
   expect(new Set(dimensions)).toEqual(new Set([48]));
+  const tile = await page.locator('#palette button').first().boundingBox();
+  expect(tile.width).toBeGreaterThanOrEqual(56);
   await expect(page.locator('#board-goal')).toHaveCount(0);
   await expect(page.locator('.level-bar #progress-track')).toBeVisible();
 });

@@ -28,7 +28,7 @@
 
   color-scheme: light;
   --control-size: 48px;
-  --tile-sz: var(--control-size);
+  --tile-sz: clamp(56px, 9vmin, 72px);
   --tile-r: 10px;
 
   --space-px: 1px;
@@ -325,4 +325,10 @@
   --status-warn-bg: #6a4b08;
   --status-warn-text: #fff1c2;
   --focus-ring: #7cc4ff;
+}
+
+@media (max-height: 500px) {
+  :root {
+    --tile-sz: var(--control-size);
+  }
 }
