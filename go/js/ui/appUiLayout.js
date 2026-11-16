@@ -42,7 +42,7 @@ export function createAppUiLayout({ app, documentRef = document, refs, storage, 
       const isDark = theme === 'dark';
       const action = isDark ? text.static.useLightTheme : text.static.useDarkTheme;
       documentRef.documentElement.dataset.theme = theme;
-      icon.textContent = isDark ? '☀' : '☾';
+      icon.dataset.icon = isDark ? 'sun' : 'moon';
       label.textContent = isDark ? text.static.lightTheme : text.static.darkTheme;
       button.setAttribute('aria-label', action);
       button.setAttribute('title', action);

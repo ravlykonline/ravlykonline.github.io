@@ -198,14 +198,14 @@ export function createUiAudio({
 
   const speech = createTaskSpeech({
     onEnd: setLevelIntroStatus,
-    onError: () => setStatus('🔊', text.ui.speechError, 'warn'),
-    onStart: () => setStatus('🔊', text.ui.speechStart, 'run'),
+    onError: () => setStatus('sound', text.ui.speechError, 'warn'),
+    onStart: () => setStatus('sound', text.ui.speechStart, 'run'),
     windowRef
   });
 
   function speakCurrentTask() {
     if (!speech.play(getCurrentLevelId())) {
-      setStatus('\u{1F50A}', text.ui.speechUnsupported, 'warn');
+      setStatus('sound', text.ui.speechUnsupported, 'warn');
     }
   }
 

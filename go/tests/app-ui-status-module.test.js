@@ -33,7 +33,7 @@ function createHarness({
   const timers = [];
   const refs = {
     btnRun: { classList: createClassList() },
-    sicoEl: { textContent: '' },
+    sicoEl: { dataset: {} },
     statusEl: { className: '' },
     stxtEl: { textContent: '' }
   };
@@ -81,7 +81,7 @@ test('appUiStatus sets default and debug status copy', async () => {
 
   status.setLevelIntroStatus();
 
-  assert.equal(harness.refs.sicoEl.textContent, '💡');
+  assert.equal(harness.refs.sicoEl.dataset.icon, 'hint');
   assert.equal(harness.refs.stxtEl.textContent, 'Вибери стрілку');
   assert.equal(harness.refs.statusEl.className, '');
 
@@ -92,7 +92,7 @@ test('appUiStatus sets default and debug status copy', async () => {
   harness.app.state.currentLevel.type = 'debug';
   status.setLevelIntroStatus();
 
-  assert.equal(harness.refs.sicoEl.textContent, '🔍');
+  assert.equal(harness.refs.sicoEl.dataset.icon, 'search');
   assert.equal(harness.refs.stxtEl.textContent, 'Режим перевірки');
   assert.equal(harness.refs.statusEl.className, 'warn');
 });

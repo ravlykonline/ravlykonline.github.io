@@ -48,22 +48,22 @@ export function createAppUiStatus({
     const message = selDir
       ? text.ui.placeSelected
       : Object.keys(arrows).length > 0 ? text.ui.editRoute : text.ui.defaultStatus;
-    setStatus('💡', routeIsReadyForRunHint() ? text.ui.routeReady : message, '');
+    setStatus('hint', routeIsReadyForRunHint() ? text.ui.routeReady : message, '');
   }
 
   function setStatus(icon, message, type) {
-    refs.sicoEl.textContent = icon;
+    refs.sicoEl.dataset.icon = icon;
     refs.stxtEl.textContent = message;
     refs.statusEl.className = type || '';
   }
 
   function clearStatus() {
-    setStatus('\u{1F4A1}', text.ui.defaultStatus, '');
+    setStatus('hint', text.ui.defaultStatus, '');
   }
 
   function setLevelIntroStatus() {
     if (app.state.currentLevel.type === 'debug') {
-      setStatus('\u{1F50D}', text.ui.debugStatus, 'warn');
+      setStatus('search', text.ui.debugStatus, 'warn');
       return;
     }
     updateEditHint();

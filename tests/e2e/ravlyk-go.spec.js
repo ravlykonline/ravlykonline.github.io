@@ -65,8 +65,12 @@ test('@cross-browser-smoke Ravlyk uses consistent controls and remembers the the
   const root = page.locator('html');
   const theme = page.locator('#btn-theme');
   await expect(root).toHaveAttribute('data-theme', 'dark');
-  await expect(theme).toHaveAccessibleName('Увімкнути світлу тему');
+  await expect(theme).toHaveAccessibleName('Увімкнути денний режим');
+  await expect(theme).toHaveText('День');
+  await expect(theme.locator('[data-icon="sun"]')).toBeVisible();
   await theme.click();
+  await expect(theme).toHaveText('Ніч');
+  await expect(theme.locator('[data-icon="moon"]')).toBeVisible();
   await expect(root).toHaveAttribute('data-theme', 'light');
   await expect(root).toHaveCSS('color-scheme', 'light');
   await page.reload();
@@ -126,11 +130,11 @@ test('@desktop-chromium-only Ravlyk can reload and play offline after an online 
   await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
   await context.setOffline(true);
   await page.reload();
-  await page.evaluate(() => {
+  await page.evaluate(() => Promise.all(['garden-paper.jpg', 'ui-sun.svg', 'ui-map.svg'].map((file) => {
     const image = new Image();
-    image.src = './assets/garden-paper.jpg';
+    image.src = './assets/' + file;
     return image.decode();
-  });
+  })));
   await page.locator('#btn-speak-task').click();
   await expect(page.getByRole('status')).toContainText('Слухаємо завдання.');
   await page.locator('#palette button').click();
@@ -185,6 +189,7 @@ test('@desktop-chromium-only Ravlyk explains a missing arrow and lets the player
   await first.click();
   await run.click();
   await expect(page.getByRole('status')).toContainText('Тут бракує стрілки');
+  await expect(page.locator('#sico')).toHaveAttribute('data-icon', 'warning');
   await expect(second).toHaveClass(/cell--stop/);
   await expect(run).toBeEnabled();
   await expect(page.getByRole('dialog')).toHaveCount(0);

@@ -23,9 +23,9 @@ test('index.html links all extracted CSS and JS files', () => {
   assert.doesNotMatch(html, /<script src="js\/ui\.js"/);
   assert.doesNotMatch(html, /https?:\/\//i);
   assert.match(html, /ravlyk\.png/);
-  assert.match(html, /assets\/run_button\.svg/);
-  assert.match(html, /assets\/prev_level\.svg/);
-  assert.match(html, /assets\/next_level\.svg/);
+  assert.match(html, /data-icon="play"/);
+  assert.match(html, /data-icon="prev"/);
+  assert.match(html, /data-icon="next"/);
 });
 
 test('all JS files have valid syntax', () => {

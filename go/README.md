@@ -31,7 +31,7 @@ https://ravlyk.org/go
 
 Оформлення використовує локальну ілюстрацію саду й шрифт Nunito. Ліцензія шрифту лежить у `assets/LICENSE-Nunito.txt`. На широких екранах і телефонах в альбомній орієнтації команди стоять поруч із полем, а у вузькому портретному вікні — під полем.
 
-При зміні `hint` у `js/core/levels.js` оновіть відповідний MP3 та запис у `assets/voice/transcripts.json`. Записи синтезовано локально голосом Lada з української моделі Piper. Гра використовує лише готові файли. [Картка моделі Piper](https://huggingface.co/rhasspy/piper-voices/blob/main/uk/uk_UA/ukrainian_tts/medium/MODEL_CARD)
+При зміні `hint` у `js/core/levels.js` оновіть відповідний MP3 та обидва тексти в `assets/voice/`. `transcripts.json` зберігає видимий текст, а `pronunciation.json` додає словникові наголоси для синтезу. Записи синтезовано локально голосом Lada з української моделі Piper. Гра використовує готові MP3. [Картка моделі Piper](https://huggingface.co/rhasspy/piper-voices/blob/main/uk/uk_UA/ukrainian_tts/medium/MODEL_CARD) · [Словник наголосів Lang-uk](https://lang.org.ua/uk/produkty/slovniki/dictionary-of-word-stresses-in-the-ukrainian-language/)
 
 ## Ключові Правила
 

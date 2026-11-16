@@ -24,12 +24,12 @@
       <h1 class="level-title" id="level-title">Пряма доріжка</h1>
     </div>
     <div class="level-controls">
-      <button class="theme-btn" id="btn-theme" type="button" aria-label="Увімкнути темну тему" title="Увімкнути темну тему">
-        <span class="theme-icon" aria-hidden="true">☾</span>
-        <span class="theme-label">Темна</span>
+      <button class="theme-btn" id="btn-theme" type="button" aria-label="Увімкнути нічний режим" title="Увімкнути нічний режим">
+        <span class="ui-icon theme-icon" data-icon="moon" aria-hidden="true"></span>
+        <span class="theme-label">Ніч</span>
       </button>
       <button class="map-btn" id="btn-map" type="button" aria-label="Карта рівнів">
-        <span aria-hidden="true">🗺️</span> Рівні
+        <span class="ui-icon" data-icon="map" aria-hidden="true"></span> Рівні
       </button>
     </div>
     <div class="progress-box">
@@ -48,39 +48,39 @@
   <div class="side-panel">
     <div class="route-tools">
       <div id="status" role="status" aria-live="polite" aria-atomic="true">
-        <span id="sico" aria-hidden="true">&#128161;</span>
+        <span id="sico" class="ui-icon" data-icon="hint" aria-hidden="true"></span>
         <span id="stxt">Вибери картку зі стрілкою.</span>
       </div>
       <div class="command-tray">
         <div class="palette" id="palette" role="group" aria-label="Стрілки"></div>
         <button class="tool-btn" id="btn-undo" aria-label="Скасувати останню дію" title="Скасувати останню дію" type="button" disabled>
-          <span aria-hidden="true">↶</span>
+          <span class="ui-icon" data-icon="undo" aria-hidden="true"></span>
         </button>
         <button class="tool-btn" id="btn-clr" aria-label="Очистити поле" title="Очистити поле" type="button">
-          <img class="icon-btn-img" src="assets/trash_icon.svg" alt="">
+          <span class="ui-icon" data-icon="trash" aria-hidden="true"></span>
         </button>
       </div>
     </div>
 
     <div class="command-panel">
       <button class="icon-btn btn-run" id="btn-run" aria-label="Запустити алгоритм" type="button">
-        <img class="icon-btn-img" src="assets/run_button.svg" alt="">
+        <span class="ui-icon" data-icon="play" aria-hidden="true"></span>
         Запустити
       </button>
 
       <section class="level-toolbar" aria-label="Допомога й навігація">
         <div class="toolbar-actions">
           <button class="info-btn" id="btn-level-info" type="button">Завдання</button>
-          <button class="speak-btn" id="btn-speak-task" type="button" aria-label="Озвучити завдання" title="Озвучити завдання">&#128266; Слухати</button>
+          <button class="speak-btn" id="btn-speak-task" type="button" aria-label="Озвучити завдання" title="Озвучити завдання">Слухати</button>
         </div>
         <div class="level-nav" aria-label="Навігація рівнями">
           <button class="level-nav-btn" id="btn-prev" type="button" aria-label="Попередній рівень" title="Попередній рівень">
-            <img class="level-nav-icon" src="assets/prev_level.svg" alt="" aria-hidden="true">
+            <span class="ui-icon" data-icon="prev" aria-hidden="true"></span>
             Назад
           </button>
           <button class="level-nav-btn" id="btn-next" type="button" aria-label="Наступний рівень" title="Наступний рівень">
             Далі
-            <img class="level-nav-icon" src="assets/next_level.svg" alt="" aria-hidden="true">
+            <span class="ui-icon" data-icon="next" aria-hidden="true"></span>
           </button>
         </div>
       </section>

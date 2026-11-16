@@ -118,7 +118,7 @@ export function createGameEngine({ app }) {
 
   async function handleFailure(options) {
     const {
-      icon = '\u{1F914}',
+      icon = 'warning',
       text,
       statusType = 'err',
       flash = null,
@@ -159,7 +159,7 @@ export function createGameEngine({ app }) {
     }
     if (Object.keys(app.state.arrows).length === 0) {
       app.ui.playErrorSound();
-      app.ui.setStatus('\u{1F914}', engineText.placeCommandsFirst, 'warn');
+      app.ui.setStatus('warning', engineText.placeCommandsFirst, 'warn');
       return;
     }
 
@@ -175,7 +175,7 @@ export function createGameEngine({ app }) {
     app.state.running = true;
     app.ui.setDisabled(true);
     app.render.deselect();
-    app.ui.setStatus('\u{1F40C}', engineText.moving, 'run');
+    app.ui.setStatus('play', engineText.moving, 'run');
 
     let steps = 0;
     let firstStep = true;
@@ -197,7 +197,7 @@ export function createGameEngine({ app }) {
 
       if (!step.ok) {
         if (step.reason === 'loop') {
-          await handleFailure({ icon: '\u{1F635}', text: engineText.loop, statusType: 'err' });
+          await handleFailure({ icon: 'warning', text: engineText.loop, statusType: 'err' });
           break;
         }
 
@@ -211,7 +211,7 @@ export function createGameEngine({ app }) {
 
         app.ui.flashNeighbours(r, c);
         await handleFailure({
-          icon: '\u{1F914}',
+          icon: 'warning',
           text: engineText.placeNearby,
           statusType: 'warn',
           flash: { r, c, color: '#ff9800' }
@@ -229,13 +229,13 @@ export function createGameEngine({ app }) {
       const move = routeApi.inspectForwardMove({ r, c, dir: step.dir, rows, cols, apple });
       if (!move.ok) {
         if (move.reason === 'out-of-bounds') {
-          await handleFailure({ icon: '\u{1F62C}', text: engineText.outOfBounds, bumpDir: step.dir });
+          await handleFailure({ icon: 'warning', text: engineText.outOfBounds, bumpDir: step.dir });
           break;
         }
 
         if (move.reason === 'obstacle') {
           await handleFailure({
-            icon: '\u{1FAA8}',
+            icon: 'warning',
             text: engineText.obstacle,
             flash: { r: move.nr, c: move.nc, color: '#8b5e34' },
             bumpDir: step.dir
@@ -263,7 +263,7 @@ export function createGameEngine({ app }) {
         app.state.appleEaten = true;
         app.render.renderAll();
         app.ui.playSuccessSound();
-        app.ui.setStatus('\u{1F3C6}', engineText.success, 'ok');
+        app.ui.setStatus('check', engineText.success, 'ok');
         app.ui.refreshLevelUi();
         app.ui.launchConfetti();
         app.render.clearStartHighlight();
@@ -277,7 +277,7 @@ export function createGameEngine({ app }) {
     }
 
     if (steps >= app.config.maxSteps) {
-      await handleFailure({ icon: '\u{1F635}', text: engineText.tooManySteps, statusType: 'err' });
+      await handleFailure({ icon: 'warning', text: engineText.tooManySteps, statusType: 'err' });
     }
 
     app.render.clearStartHighlight();

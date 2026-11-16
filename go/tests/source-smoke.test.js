@@ -48,7 +48,7 @@ test('core JS files keep expected symbols for game logic and progress', () => {
   assert.ok(modalRenderers.includes('openManagedModal'));
   assert.ok(modalRenderers.includes('createModalCloseButton'));
   assert.ok(modalRenderers.includes('renderResultModal'));
-  assert.ok(modalRenderers.includes('\\u{1F389}'));
+  assert.ok(modalRenderers.includes("filename: 'apple.svg'"));
   assert.ok(renderDrag.includes('createRenderDrag'));
   assert.ok(renderDrag.includes('beginPointerDrag'));
   assert.ok(renderDrag.includes('updateDropTarget'));

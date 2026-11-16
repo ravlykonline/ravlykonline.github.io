@@ -191,7 +191,6 @@ test('renderResultModal renders icon, close and action controls', async () => {
     bodyText: 'Рівень пройдено.',
     closeId: 'result-close',
     documentRef,
-    iconText: '\u{1F389}',
     onAction() {
       actions += 1;
     },

@@ -1,4 +1,5 @@
 import { createManagedModal } from './focus.js';
+import { createAssetIcon } from './assets.js';
 import { renderLevelMap } from './renderLevelMap.js';
 
 export function createTextElement({ className, documentRef = document, id, tagName, text }) {
@@ -158,7 +159,6 @@ export function renderResultModal({
   bodyText,
   closeId,
   documentRef = document,
-  iconText,
   onAction,
   openModal,
   text,
@@ -174,10 +174,7 @@ export function renderResultModal({
   const box = documentRef.createElement('div');
   box.className = 'mbox win-modal-box';
   const closeButton = createModalCloseButton({ documentRef, id: closeId, text });
-  const icon = documentRef.createElement('div');
-  icon.className = 'mico';
-  icon.setAttribute('aria-hidden', 'true');
-  icon.textContent = iconText;
+  const icon = createAssetIcon({ documentRef, filename: 'apple.svg', className: 'mico' });
   const title = createTextElement({ documentRef, tagName: 'h2', className: 'mttl', text: titleText, id: titleId });
   const body = createTextElement({ documentRef, tagName: 'p', className: 'mbdy', text: bodyText });
   const actions = documentRef.createElement('div');
@@ -407,7 +404,6 @@ export function createUiModals({
       bodyText: text.ui.alreadySolvedBody,
       closeId: 'already-solved-close',
       documentRef,
-      iconText: '\u{1F3C6}',
       onAction() {
         if (hasNext) {
           if (app.setCurrentLevel(app.getNextLevelId())) {
@@ -435,7 +431,6 @@ export function createUiModals({
       bodyText: text.winBody(isFinalWin),
       closeId: 'win-close',
       documentRef,
-      iconText: '\u{1F389}',
       onAction() {
         if (hasNext) {
           if (app.setCurrentLevel(app.getNextLevelId())) {

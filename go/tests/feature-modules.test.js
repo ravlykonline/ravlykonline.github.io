@@ -173,9 +173,17 @@ test('all recorded tasks match the visible Ukrainian hints', async () => {
   const fs = require('node:fs');
   const folder = path.join(root, 'assets/voice');
   const transcripts = JSON.parse(fs.readFileSync(path.join(folder, 'transcripts.json'), 'utf8'));
+  const pronunciation = JSON.parse(fs.readFileSync(path.join(folder, 'pronunciation.json'), 'utf8'));
   assert.equal(Object.keys(transcripts).length, levels.length);
+  assert.equal(Object.keys(pronunciation).length, levels.length);
   for (const { id, hint } of levels) {
     assert.equal(transcripts[id], hint);
+    assert.equal(pronunciation[id].replaceAll('\u0301', ''), hint);
+    for (const word of pronunciation[id].match(/[а-яіїєґ\u0301]+/gi)) {
+      if ((word.match(/[аеєиіїоуюя]/gi) || []).length >= 2) {
+        assert.equal(word.split('\u0301').length, 2, `level ${id}: ${word}`);
+      }
+    }
     assert.ok(fs.statSync(path.join(folder, id + '.mp3')).size > 5000);
   }
 });
