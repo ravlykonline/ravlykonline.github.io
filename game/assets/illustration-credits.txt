@@ -1,0 +1,10 @@
+Selected illustrations adapted from OpenMoji 17.0.0 (HfG Schwäbisch Gmünd and
+the OpenMoji contributors). The adaptations change the palette and outline
+colors and combine the selected illustrations as SVG symbols.
+Source: https://github.com/hfg-gmuend/openmoji/releases/tag/17.0.0
+Project and contributors: https://openmoji.org/
+The original OpenMoji illustrations and the adapted versions are distributed
+under CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/
+
+The interface icons, mole, acorn, geometric shapes and terrain are original
+artwork for Ravlyk.

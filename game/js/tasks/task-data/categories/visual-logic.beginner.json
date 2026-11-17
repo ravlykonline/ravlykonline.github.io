@@ -7,6 +7,7 @@
       "id": "odd-one-out-mammals-bird",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто з цих тварин птах?",
         "items": [
           { "id": "fox", "label": "🦊" },
           { "id": "eagle", "label": "🦅" },
@@ -20,6 +21,7 @@
       "id": "odd-one-out-water-land",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто з цих тварин живе на суходолі?",
         "items": [
           { "id": "fish", "label": "🐟" },
           { "id": "rabbit", "label": "🐰" },
@@ -33,6 +35,7 @@
       "id": "odd-one-out-living-nonliving",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що не росте, як рослина?",
         "items": [
           { "id": "flower", "label": "🌸" },
           { "id": "gem", "label": "💎" },
@@ -76,6 +79,7 @@
       "id": "logic-pairs-dog-bone",
       "type": "logic-pairs",
       "variant": {
+        "question": "Що пес може погризти?",
         "id": "dog-bone",
         "promptItem": "🐶",
         "choices": [
@@ -91,6 +95,7 @@
       "id": "logic-pairs-rabbit-carrot",
       "type": "logic-pairs",
       "variant": {
+        "question": "Чим можна пригостити зайчика?",
         "id": "rabbit-carrot",
         "promptItem": "🐰",
         "choices": [
@@ -106,6 +111,7 @@
       "id": "logic-pairs-rain-umbrella",
       "type": "logic-pairs",
       "variant": {
+        "question": "Що захистить від дощу?",
         "id": "rain-umbrella",
         "promptItem": "🌧️",
         "choices": [
@@ -167,6 +173,7 @@
       "id": "odd-one-out-birds-butterfly",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто з цих тварин не птах?",
         "items": [
           { "id": "eagle", "label": "🦅" },
           { "id": "owl", "label": "🦉" },
@@ -180,6 +187,7 @@
       "id": "odd-one-out-plants-animal",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто сховався серед рослин?",
         "items": [
           { "id": "pine", "label": "🌲" },
           { "id": "bear", "label": "🐻" },
@@ -193,6 +201,7 @@
       "id": "odd-one-out-transport-living",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто зображений серед машин?",
         "items": [
           { "id": "car", "label": "🚗" },
           { "id": "bus", "label": "🚌" },
@@ -206,6 +215,7 @@
       "id": "odd-one-out-pets-wild",
       "type": "odd-one-out",
       "variant": {
+        "question": "Кого зазвичай не тримають удома?",
         "items": [
           { "id": "dog", "label": "🐶" },
           { "id": "fox", "label": "🦊" },
@@ -219,6 +229,7 @@
       "id": "odd-one-out-sea-land",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто з цих тварин живе на суходолі?",
         "items": [
           { "id": "dolphin", "label": "🐬" },
           { "id": "shark", "label": "🦈" },
@@ -232,6 +243,7 @@
       "id": "odd-one-out-insects-bird",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто з цих тварин птах?",
         "items": [
           { "id": "bee", "label": "🐝" },
           { "id": "caterpillar", "label": "🐛" },
@@ -245,6 +257,7 @@
       "id": "odd-one-out-fruits-vegetable",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що тут овоч?",
         "items": [
           { "id": "apple2", "label": "🍎" },
           { "id": "grapes", "label": "🍇" },
@@ -258,10 +271,11 @@
       "id": "odd-one-out-vegetables-fruit",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що тут фрукт?",
         "items": [
           { "id": "carrot2", "label": "🥕" },
           { "id": "orange", "label": "🍊" },
-          { "id": "corn", "label": "🌽" },
+          { "id": "broccoli", "label": "🥦" },
           { "id": "eggplant", "label": "🍆" }
         ],
         "correctChoiceId": "orange"
@@ -271,6 +285,7 @@
       "id": "odd-one-out-air-land-transport",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що їде по землі?",
         "items": [
           { "id": "plane", "label": "✈️" },
           { "id": "helicopter", "label": "🚁" },
@@ -284,6 +299,7 @@
       "id": "odd-one-out-sky-animal",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто живе у воді?",
         "items": [
           { "id": "sun", "label": "☀️" },
           { "id": "moon", "label": "🌙" },
@@ -297,6 +313,7 @@
       "id": "odd-one-out-instruments-animal",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто зображений серед музичних інструментів?",
         "items": [
           { "id": "guitar", "label": "🎸" },
           { "id": "piano", "label": "🎹" },
@@ -310,6 +327,7 @@
       "id": "odd-one-out-sports-food",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що з цього можна з’їсти?",
         "items": [
           { "id": "soccer", "label": "⚽" },
           { "id": "basketball", "label": "🏀" },
@@ -323,6 +341,7 @@
       "id": "odd-one-out-birds-fish",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто з цих тварин не птах?",
         "items": [
           { "id": "owl", "label": "🦉" },
           { "id": "peacock", "label": "🦚" },
@@ -336,6 +355,7 @@
       "id": "odd-one-out-land-sea-transport",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що пливе по воді?",
         "items": [
           { "id": "car3", "label": "🚗" },
           { "id": "ship", "label": "🚢" },
@@ -349,19 +369,21 @@
       "id": "odd-one-out-winter-summer",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що зазвичай їдять улітку?",
         "items": [
           { "id": "snowflake", "label": "❄️" },
           { "id": "snowman", "label": "⛄" },
-          { "id": "sun2", "label": "☀️" },
-          { "id": "snowman2", "label": "☃️" }
+          { "id": "watermelon", "label": "🍉" },
+          { "id": "mittens", "label": "🧤" }
         ],
-        "correctChoiceId": "sun2"
+        "correctChoiceId": "watermelon"
       }
     },
     {
       "id": "odd-one-out-clothing-animal",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто зображений серед речей, які можна вдягнути?",
         "items": [
           { "id": "hat", "label": "👒" },
           { "id": "gloves", "label": "🧤" },
@@ -375,6 +397,7 @@
       "id": "odd-one-out-flowers-tree",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що з цього дерево?",
         "items": [
           { "id": "cherry-blossom", "label": "🌸" },
           { "id": "hibiscus", "label": "🌺" },
@@ -428,6 +451,7 @@
       "id": "logic-pairs-key-door",
       "type": "logic-pairs",
       "variant": {
+        "question": "Що можна відімкнути ключем?",
         "id": "key-door",
         "promptItem": "🔑",
         "choices": [
@@ -443,6 +467,7 @@
       "id": "logic-pairs-chick-hen",
       "type": "logic-pairs",
       "variant": {
+        "question": "Кого курча може назвати мамою?",
         "id": "chick-hen",
         "promptItem": "🐣",
         "choices": [
@@ -458,6 +483,7 @@
       "id": "logic-pairs-bee-flower",
       "type": "logic-pairs",
       "variant": {
+        "question": "Де бджола шукає нектар?",
         "id": "bee-flower",
         "promptItem": "🐝",
         "choices": [

@@ -1,3 +1,4 @@
+import { setPictureOrText } from '../ui/illustrations.js';
 import { t } from '../i18n/index.js';
 import { evaluateSingleChoice } from './task-evaluators/single-choice.js';
 import { RewardEffects } from '../ui/reward-effects.js';
@@ -26,11 +27,12 @@ export function createChoiceGrid(task, onSolved, setStatus, extraClassName = '',
         button.type = 'button';
         button.className = `task-option-btn ${optionClassName}`.trim();
         button.dataset.choiceId = choice.id;
-        button.textContent = choice.label;
+        setPictureOrText(button, choice.label);
 
         button.addEventListener('click', () => {
             if (evaluateSingleChoice(task, choice.id)) {
                 setStatus(t('taskUi.correct'));
+                button.classList.add('is-correct-reveal');
                 disableChoiceButtons(choices);
                 onSolved();
                 return;
@@ -60,7 +62,7 @@ export function createChoiceGrid(task, onSolved, setStatus, extraClassName = '',
 
 function revealCorrectAnswer(container, correctChoiceId) {
     container.querySelectorAll('button').forEach((btn) => {
-        if (btn.dataset.choiceId === correctChoiceId) {
+        if (btn.dataset.choiceId === String(correctChoiceId)) {
             btn.classList.add('is-correct-reveal');
         } else {
             btn.disabled = true;
@@ -82,7 +84,7 @@ export function createVisualCollection(items) {
     items.forEach((item) => {
         const token = document.createElement('span');
         token.className = 'task-token task-token--display';
-        token.textContent = item;
+        setPictureOrText(token, item);
         collection.appendChild(token);
     });
 
@@ -92,34 +94,40 @@ export function createVisualCollection(items) {
 export function createCountDots(count) {
     const group = document.createElement('div');
     group.className = 'task-dots';
+    group.setAttribute('role', 'list');
 
     for (let index = 0; index < count; index += 1) {
         const dot = document.createElement('span');
         dot.className = 'task-dot';
-        dot.setAttribute('aria-hidden', 'true');
+        dot.setAttribute('role', 'listitem');
+        dot.setAttribute('aria-label', t('taskUi.dotLabel'));
         group.appendChild(dot);
     }
 
     return group;
 }
 
-export function createCompareColumns(leftCount, rightCount, task = null, onSolved = null, setStatus = null) {
+export function createCompareColumns(task, onSolved, setStatus) {
     const layout = document.createElement('div');
     layout.className = 'task-compare-layout';
 
-    const leftCard = document.createElement('div');
-    leftCard.className = 'task-card task-compare-card task-compare-card--left task-compare-group--clickable';
-    leftCard.append(createHelperLabel(t('taskUi.leftGroupLabel')), createCountDots(leftCount));
-
-    const rightCard = document.createElement('div');
-    rightCard.className = 'task-card task-compare-card task-compare-card--right task-compare-group--clickable';
-    rightCard.append(createHelperLabel(t('taskUi.rightGroupLabel')), createCountDots(rightCount));
-
-    if (task && onSolved && setStatus) {
-        function handleGroupChoice(choiceId, card) {
-            if (evaluateSingleChoice(task, choiceId)) {
+    for (const [choice, count] of [[task.choices[0], task.leftCount], [task.choices[1], task.rightCount]]) {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = `task-card task-compare-card task-compare-card--${choice.id} task-compare-group--clickable`;
+        card.dataset.choiceId = choice.id;
+        card.setAttribute('aria-label', t('taskUi.compareGroupLabel', { side: choice.label, count }));
+        const label = document.createElement('span');
+        label.className = 'task-helper-label';
+        label.textContent = choice.label;
+        const dots = createCountDots(count);
+        dots.setAttribute('aria-hidden', 'true');
+        card.append(label, dots);
+        card.addEventListener('click', () => {
+            if (evaluateSingleChoice(task, choice.id)) {
                 card.classList.add('task-compare-group--correct');
                 setStatus(t('taskUi.correct'));
+                disableChoiceButtons(layout);
                 onSolved();
             } else {
                 RewardEffects.playTryAgain();
@@ -127,22 +135,9 @@ export function createCompareColumns(leftCount, rightCount, task = null, onSolve
                 card.classList.add('task-compare-group--wrong');
                 setTimeout(() => card.classList.remove('task-compare-group--wrong'), 400);
             }
-        }
-
-        [leftCard, rightCard].forEach((card) => {
-            card.setAttribute('role', 'button');
-            card.setAttribute('tabindex', '0');
-            const choiceId = card.classList.contains('task-compare-card--left') ? 'left' : 'right';
-            card.addEventListener('click', () => handleGroupChoice(choiceId, card));
-            card.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    handleGroupChoice(choiceId, card);
-                }
-            });
         });
+        layout.append(card);
     }
 
-    layout.append(leftCard, rightCard);
     return layout;
 }

@@ -1,3 +1,4 @@
+import { setPictureOrText } from '../../ui/illustrations.js';
 import { t } from '../../i18n/index.js';
 import { shapePatternVariants } from '../task-data/shape-pattern-variants.js';
 import { createChoiceGrid, createTaskIntro } from '../task-ui-helpers.js';
@@ -32,7 +33,7 @@ export const ShapePatternTask = {
         task.series.forEach((item) => {
             const chip = document.createElement('span');
             chip.className = 'task-token task-token--display';
-            chip.textContent = item;
+            setPictureOrText(chip, item);
             series.appendChild(chip);
         });
 

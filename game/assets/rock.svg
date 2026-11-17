@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="stone" x2="0.3" y2="1">
+      <stop stop-color="#a6b9bf"/>
+      <stop offset="1" stop-color="#718996"/>
+    </linearGradient>
+  </defs>
+  <path d="M13 69Q15 57 22 50L38 31Q43 25 51 27L67 31Q72 33 75 39L87 59Q91 66 87 74Q84 80 75 81L25 80Q12 79 13 69Z" fill="url(#stone)" stroke="#465f68" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M18 67L34 51Q38 47 44 48L60 55L79 48L85 61Q88 66 85 72Q82 77 74 78L26 77Q18 77 18 67Z" fill="#668692" opacity=".6"/>
+  <path d="M27 49L41 34Q45 30 50 31L64 34" fill="none" stroke="#d2dfe0" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M44 49L60 55L67 70" fill="none" stroke="#5d7781" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,4 +1,5 @@
 import { t } from '../i18n/index.js';
+import { createIcon } from './illustrations.js';
 
 function resolveInitialTheme() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -16,19 +17,21 @@ export const ThemeModeController = {
         this.mode = resolveInitialTheme();
         this.applyMode();
 
-        this.dom.themeToggleBtn?.addEventListener('click', () => {
-            this.mode = this.mode === 'dark' ? 'light' : 'dark';
-            this.applyMode();
-        });
+        if (dom.themeToggleBtn) {
+            dom.themeToggleBtn.onclick = () => {
+                this.mode = this.mode === 'dark' ? 'light' : 'dark';
+                this.applyMode();
+            };
+        }
     },
 
     applyMode() {
         document.body.dataset.theme = this.mode;
         if (this.dom.themeToggleBtn) {
-            const labelKey = this.mode === 'dark' ? 'hud.themeToggleLight' : 'hud.themeToggleDark';
-            this.dom.themeToggleBtn.setAttribute('aria-pressed', String(this.mode === 'dark'));
-            this.dom.themeToggleBtn.setAttribute('aria-label', t('hud.themeToggleLabel'));
-            this.dom.themeToggleBtn.textContent = t(labelKey);
+            const isNight = this.mode === 'dark';
+            const labelKey = isNight ? 'hud.themeToggleLight' : 'hud.themeToggleDark';
+            this.dom.themeToggleBtn.setAttribute('aria-label', t(`${labelKey}Label`));
+            this.dom.themeToggleBtn.replaceChildren(createIcon(isNight ? 'sun' : 'moon'), t(labelKey));
         }
 
         const themeColor = document.querySelector('meta[name="theme-color"]');

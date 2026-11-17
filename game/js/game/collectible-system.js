@@ -10,6 +10,7 @@ import { shouldCollectItem, pickNearestByDistance } from './rules.js';
 import { RewardEffects } from '../ui/reward-effects.js';
 import { HUDController } from '../ui/hud-controller.js';
 import { t } from '../i18n/index.js';
+import { createIcon } from '../ui/illustrations.js';
 
 /** Види збірних предметів. Порядок визначає порядок лічильників у HUD. */
 export const COLLECTIBLE_KINDS = ['apple', 'pear'];
@@ -57,6 +58,7 @@ export function renderCollectibles(items, container) {
         element.style.top = `${item.y}px`;
         element.setAttribute('role', 'img');
         element.setAttribute('aria-label', t(`entities.${kind}`));
+        element.append(createIcon(kind));
         container.appendChild(element);
     });
 }

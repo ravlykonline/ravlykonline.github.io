@@ -4,13 +4,14 @@
  */
 
 /**
- * @param {{ viewport: Element|null }} dom
- * @returns {{ width: number, height: number }}
+ * @param {{ viewport: Element|null, uiLayer?: HTMLElement|null }} dom
+ * @returns {{ width: number, height: number, hudHeight: number }}
  */
 export function getViewportSize(dom) {
     return {
         width: dom.viewport?.clientWidth || window.innerWidth,
-        height: dom.viewport?.clientHeight || window.innerHeight
+        height: dom.viewport?.clientHeight || window.innerHeight,
+        hudHeight: dom.uiLayer?.offsetHeight ?? 0
     };
 }
 
@@ -47,7 +48,7 @@ export function getWorldPointFromClient(clientX, clientY, camera, viewportRect) 
  * Mutates state.camera and state.targetCamera in place.
  * @param {{ x: number, y: number, camera: {x:number,y:number}, targetCamera: {x:number,y:number} }} state
  * @param {{ worldWidth: number, worldHeight: number }} config
- * @param {{ width: number, height: number }} viewportSize
+ * @param {{ width: number, height: number, hudHeight?: number }} viewportSize
  */
 export function syncCameraToPlayer(state, config, viewportSize) {
     const tx = Math.max(0, Math.min(
@@ -70,23 +71,27 @@ export function syncCameraToPlayer(state, config, viewportSize) {
  * Mutates state.camera and state.targetCamera in place.
  * @param {{ x: number, y: number, camera: {x:number,y:number}, targetCamera: {x:number,y:number} }} state
  * @param {{ worldWidth: number, worldHeight: number, cameraThreshold: number, topHudSafeArea: number, cameraLerp: number }} config
- * @param {{ width: number, height: number }} viewportSize
+ * @param {{ width: number, height: number, hudHeight?: number }} viewportSize
  */
 export function updateCamera(state, config, viewportSize, scale = 1) {
-    const topCameraThreshold = config.cameraThreshold + config.topHudSafeArea;
+    const { width, height, hudHeight = 0 } = viewportSize;
+    const safeTop = Math.min(height * 0.6, Math.max(hudHeight, config.topHudSafeArea));
+    const marginX = Math.min(config.cameraThreshold, width / 3);
+    const marginY = Math.min(config.cameraThreshold, (height - safeTop) / 3);
+    const topCameraThreshold = safeTop + marginY;
     const screenX = state.x - state.targetCamera.x;
     const screenY = state.y - state.targetCamera.y;
 
-    if (screenX < config.cameraThreshold) {
-        state.targetCamera.x -= (config.cameraThreshold - screenX);
-    } else if (screenX > viewportSize.width - config.cameraThreshold) {
-        state.targetCamera.x += screenX - (viewportSize.width - config.cameraThreshold);
+    if (screenX < marginX) {
+        state.targetCamera.x -= marginX - screenX;
+    } else if (screenX > width - marginX) {
+        state.targetCamera.x += screenX - (width - marginX);
     }
 
     if (screenY < topCameraThreshold) {
         state.targetCamera.y -= (topCameraThreshold - screenY);
-    } else if (screenY > viewportSize.height - config.cameraThreshold) {
-        state.targetCamera.y += screenY - (viewportSize.height - config.cameraThreshold);
+    } else if (screenY > height - marginY) {
+        state.targetCamera.y += screenY - (height - marginY);
     }
 
     state.targetCamera.x = Math.max(0, Math.min(state.targetCamera.x, config.worldWidth - viewportSize.width));

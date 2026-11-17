@@ -44,17 +44,20 @@ export const TaskPicker = {
         return this.pickRandomTask(allowedPools, random, session);
     },
 
-    buildNpcSessionState(npc, random = Math.random, session = null) {
+    buildNpcSessionState(npc) {
         const taskPoolIds = npc.taskPoolIds ?? [npc.taskPoolId];
 
         return {
             ...npc,
             taskPoolIds,
             name: t(npc.nameKey),
-            // Initial task uses only easy pools (earnedStars = 0 at level start)
-            activeTask: this.pickAdaptiveTask(taskPoolIds, 0, random, session),
-            hasPrompted: false,
+            activeTask: null,
             isNearby: false
         };
+    },
+
+    getNpcTask(npc, earnedStars, random, session) {
+        npc.activeTask ??= this.pickAdaptiveTask(npc.taskPoolIds, earnedStars, random, session);
+        return npc.activeTask;
     }
 };

@@ -77,7 +77,7 @@ export const PAGES_PUBLICATION_MANIFEST = {
             'tokens.css',
             'sw.js',
         ],
-        directories: ['css', 'icons', 'js'],
+        directories: ['assets', 'css', 'icons', 'js'],
     },
     go: {
         files: [

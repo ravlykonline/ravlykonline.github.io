@@ -7,6 +7,7 @@
       "id": "odd-one-out-forest-food",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що тут гриб?",
         "items": [
           { "id": "apple",    "label": "🍎" },
           { "id": "pear",     "label": "🍐" },
@@ -20,6 +21,7 @@
       "id": "odd-one-out-shapes",
       "type": "odd-one-out",
       "variant": {
+        "question": "Яка фігура має кути?",
         "items": [
           { "id": "circle",   "label": "○" },
           { "id": "square",   "label": "□" },
@@ -33,8 +35,9 @@
       "id": "odd-one-out-animals",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто з цих тварин не комаха?",
         "items": [
-          { "id": "snail",    "label": "🐌" },
+          { "id": "ant",    "label": "🐜" },
           { "id": "rabbit",   "label": "🐰" },
           { "id": "bee",      "label": "🐝" },
           { "id": "ladybug",  "label": "🐞" }
@@ -46,10 +49,11 @@
       "id": "odd-one-out-leaves-acorn",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що не схоже на листок чи гілочку?",
         "items": [
           { "id": "leaf1",  "label": "🍃" },
           { "id": "herb",   "label": "🌿" },
-          { "id": "acorn",  "label": "🌰" },
+          { "id": "acorn",  "label": "acorn" },
           { "id": "sprout", "label": "🌱" }
         ],
         "correctChoiceId": "acorn"

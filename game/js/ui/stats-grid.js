@@ -1,4 +1,5 @@
 import { t } from '../i18n/index.js';
+import { createIcon } from './illustrations.js';
 
 /**
  * Картка одного показника (яблука / груші / зірочки).
@@ -14,7 +15,7 @@ function createStatCard(icon, value, label) {
     const iconEl = document.createElement('span');
     iconEl.className = 'win-stat-card__icon';
     iconEl.setAttribute('aria-hidden', 'true');
-    iconEl.textContent = icon;
+    iconEl.append(createIcon(icon));
 
     const valueEl = document.createElement('strong');
     valueEl.className = 'win-stat-card__value';
@@ -39,14 +40,14 @@ export function createStatsGrid(stats = {}) {
     const grid = document.createElement('div');
     grid.className = 'win-stats-grid';
 
-    const cards = [createStatCard('🍎', stats.apples, t('win.applesLabel'))];
+    const cards = [createStatCard('apple', stats.apples, t('win.applesLabel'))];
 
     if ((stats.pears ?? 0) > 0) {
-        cards.push(createStatCard('🍐', stats.pears, t('win.pearsLabel')));
+        cards.push(createStatCard('pear', stats.pears, t('win.pearsLabel')));
         grid.classList.add('win-stats-grid--three');
     }
 
-    cards.push(createStatCard('⭐', stats.stars, t('win.starsLabel')));
+    cards.push(createStatCard('star', stats.stars, t('win.starsLabel')));
     grid.append(...cards);
 
     return grid;

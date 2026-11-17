@@ -7,7 +7,7 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: var(--z-ui);
-    width: min(22rem, calc(100vw - 1rem));
+    width: min(32rem, calc(100vw - 1rem));
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
@@ -15,7 +15,7 @@
 
 /* Рівні з грушами мають три лічильники — панелі потрібно більше місця */
 #ui-layer.ui-layer--wide {
-    width: min(26rem, calc(100vw - 1rem));
+    width: min(38rem, calc(100vw - 1rem));
 }
 
 .hud-panel {
@@ -67,14 +67,25 @@
     margin-top: var(--space-1);
 }
 
-.hud-action-btn {
+#hud-npc-badge {
+    min-height: 44px;
     border: 1px solid var(--color-border);
-    border-radius: 50%;
+    color: var(--color-text);
+    cursor: pointer;
+}
+
+.hud-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     background: var(--color-surface-raised);
     color: var(--color-text);
-    width: 34px;
-    height: 34px;
-    padding: 0;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 var(--space-2);
     font: inherit;
     font-size: var(--font-size-sm);
     font-weight: 700;
@@ -82,17 +93,25 @@
     transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.2s;
 }
 
-.hud-action-btn:hover,
-.hud-action-btn:focus-visible {
+.hud-action-btn--theme {
+    min-width: 4.8rem;
+    white-space: nowrap;
+}
+
+.hud-action-btn:hover {
     background: var(--color-primary-soft);
     border-color: var(--color-primary);
     transform: translateY(-1px);
-    outline: none;
+}
+
+.hud-action-btn:focus-visible {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
 }
 
 .hud-action-btn[aria-pressed="true"] {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
+    background: var(--color-action);
+    border-color: var(--color-action);
     color: var(--color-text-inverse);
 }
 
@@ -333,12 +352,12 @@
     display: none;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 540px) {
     #ui-layer {
         top: 0;
         left: 50%;
         right: auto;
-        width: min(20rem, calc(100vw - 1rem));
+        width: min(30rem, calc(100vw - 1rem));
         transform: translateX(-50%);
     }
 
@@ -352,14 +371,13 @@
         border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     }
 
-    /* On narrow screens reduce button gap to keep everything in one row */
-    .hud-actions {
+    .hud-topbar {
+        display: grid;
         gap: var(--space-1);
     }
 
-    .hud-action-btn {
-        width: 30px;
-        height: 30px;
+    .hud-actions {
+        justify-content: center;
     }
 
     .hud-stat {

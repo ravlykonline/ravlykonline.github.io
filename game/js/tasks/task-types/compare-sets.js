@@ -1,5 +1,5 @@
 import { t } from '../../i18n/index.js';
-import { createChoiceGrid, createCompareColumns, createTaskIntro } from '../task-ui-helpers.js';
+import { createCompareColumns, createTaskIntro } from '../task-ui-helpers.js';
 import { compareSetsVariants } from '../task-data/compare-sets-variants.js';
 
 function pickVariant(random) {
@@ -30,8 +30,7 @@ export const CompareSetsTask = {
 
     render({ task, container, setStatus, onSolved }) {
         const intro = createTaskIntro(task.instructions);
-        const groups = createCompareColumns(task.leftCount, task.rightCount, task, onSolved, setStatus);
-        const choices = createChoiceGrid(task, onSolved, setStatus, '', '', t('taskUi.compareSetsHint'));
-        container.append(intro, groups, choices);
+        const groups = createCompareColumns(task, onSolved, setStatus);
+        container.append(intro, groups);
     }
 };

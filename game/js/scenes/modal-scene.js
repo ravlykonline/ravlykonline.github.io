@@ -8,7 +8,6 @@ export class ModalScene {
         this.buttonLabel = buttonLabel;
         this.announceText = announceText ?? `${title}. ${text}`;
         this.previousFocus = null;
-        this.focusableElements = [];
         this.handleActionBind = this.handleAction.bind(this);
         this.handleKeydownBind = this.handleKeydown.bind(this);
     }
@@ -32,17 +31,19 @@ export class ModalScene {
         this.dom.dialogBtn.textContent = this.buttonLabel;
         this.dom.dialogLayer.style.display = 'flex';
         this.dom.dialogLayer.setAttribute('aria-hidden', 'false');
+        if (this.dom.viewport) this.dom.viewport.inert = true;
+        if (this.dom.uiLayer) this.dom.uiLayer.inert = true;
 
         this.dom.dialogBtn.addEventListener('click', this.handleActionBind);
         document.addEventListener('keydown', this.handleKeydownBind);
 
-        setTimeout(() => {
-            this.dom.dialogBtn.focus();
-            this.focusableElements = Array.from(
-                this.dom.dialogLayer.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
-            );
-            this.announcer.announce(this.announceText, 'assertive');
-        }, 50);
+        this.isOpen = true;
+        queueMicrotask(() => {
+            if (!this.isOpen) return;
+            const initialFocus = this.dom.dialogLayer.querySelector('.dialog-listen') ?? this.dom.dialogBtn;
+            initialFocus.focus({ preventScroll: true });
+            if (this.announceText) this.announcer.announce(this.announceText, 'assertive');
+        });
     }
 
     handleKeydown(event) {
@@ -51,12 +52,16 @@ export class ModalScene {
             return;
         }
 
-        if (event.key !== 'Tab' || this.focusableElements.length === 0) {
-            return;
-        }
+        if (event.key !== 'Tab') return;
 
-        const first = this.focusableElements[0];
-        const last = this.focusableElements[this.focusableElements.length - 1];
+        const candidates = this.dom.dialogLayer.querySelectorAll('button, a[href], input, select, textarea, [tabindex]');
+        const focusable = Array.from(candidates).filter(element =>
+            !element.disabled && element.tabIndex >= 0 && element.getClientRects().length > 0
+        );
+        if (focusable.length === 0) return;
+
+        const first = focusable[0];
+        const last = focusable.at(-1);
 
         if (event.shiftKey && document.activeElement === first) {
             event.preventDefault();
@@ -70,6 +75,9 @@ export class ModalScene {
     handleAction() { }
 
     destroy() {
+        this.isOpen = false;
+        if (this.dom.viewport) this.dom.viewport.inert = false;
+        if (this.dom.uiLayer) this.dom.uiLayer.inert = false;
         this.dom.dialogLayer.style.display = 'none';
         this.dom.dialogLayer.setAttribute('aria-hidden', 'true');
         if (this.dom.dialogContent) {

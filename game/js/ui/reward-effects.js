@@ -1,4 +1,5 @@
 import { getSharedAudioContext } from '../core/audio-context.js';
+import { createIcon } from './illustrations.js';
 
 const AUDIO_VOLUME = 0.08;
 
@@ -75,7 +76,7 @@ export const RewardEffects = {
 
         const star = document.createElement('div');
         star.className = 'reward-star';
-        star.textContent = '★';
+        star.append(createIcon('star'));
         burst.appendChild(star);
 
         if (!prefersReducedMotion()) {

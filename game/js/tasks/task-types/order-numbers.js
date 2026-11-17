@@ -36,7 +36,7 @@ export const OrderNumbersTask = {
 
         const answerLabel = document.createElement('p');
         answerLabel.className = 'task-helper-label';
-        answerLabel.textContent = task.direction === 'desc' ? '9 → 1' : '1 → 9';
+        answerLabel.textContent = t('taskUi.answerLabel');
 
         const answerRow = document.createElement('div');
         answerRow.className = 'task-answer-row';

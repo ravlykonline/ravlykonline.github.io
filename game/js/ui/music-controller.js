@@ -65,6 +65,7 @@ function pump() {
     ensureCtx();
 
     const horizon = ctx.currentTime + 2.0; // schedule 2 s ahead
+    nextAt = Math.max(nextAt, ctx.currentTime);
 
     while (nextAt < horizon) {
         const freq = NOTES_HZ[PATTERN[patIdx % PATTERN.length]];
@@ -89,8 +90,9 @@ export const MusicController = {
      */
     start() {
         if (_started) return;
-        _started = true;
         ensureCtx();
+        if (!ctx) return;
+        _started = true;
         nextAt = ctx.currentTime + 0.5;
         pump();
         pumpTimer = setInterval(pump, 500);
@@ -123,14 +125,13 @@ export const MusicController = {
         this._btn = dom.musicToggleBtn;
         if (!this._btn) return;
 
-        // Music starts playing, so button is "active"
-        this._btn.setAttribute('aria-pressed', 'true');
+        this._btn.setAttribute('aria-pressed', String(!_muted));
 
-        this._btn.addEventListener('click', () => {
+        this._btn.onclick = () => {
             const nowMuted = this.toggle();
             // pressed = music ON = not muted
             this._btn.setAttribute('aria-pressed', String(!nowMuted));
-        });
+        };
     },
 
     destroy() {

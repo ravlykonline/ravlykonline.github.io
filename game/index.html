@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <!-- Content Security Policy: allow only same-origin resources; no inline scripts/styles -->
     <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; media-src 'self'; connect-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'">
@@ -45,7 +45,7 @@
         </div>
     </div>
 
-    <div id="ui-layer" role="status" aria-live="polite" aria-atomic="true" data-game-interactive>
+    <div id="ui-layer" data-game-interactive>
         <section id="hud-panel" class="hud-panel" data-i18n-aria-label="app.heading">
 
             <!-- ⓪ Номер рівня — окремий вузький рядок, щоб не тіснити лічильники -->
@@ -55,18 +55,18 @@
             <div class="hud-topbar">
                 <div id="hud-stats" class="hud-stats" data-i18n-aria-label="hud.statsLabel">
                     <article class="hud-stat hud-stat--apples">
-                        <span class="hud-stat__icon" aria-hidden="true">🍎</span>
+                        <span class="hud-stat__icon" aria-hidden="true"><svg class="game-icon"><use href="./assets/ui.svg#apple"/></svg></span>
                         <span class="hud-stat__label" data-i18n="hud.applesLabel"></span>
                         <strong id="apples-count" class="hud-stat__value">0</strong>
                     </article>
                     <!-- Груші є не на кожному рівні — блок ховається через .hidden -->
                     <article id="hud-stat-pears" class="hud-stat hud-stat--pears hidden">
-                        <span class="hud-stat__icon" aria-hidden="true">🍐</span>
+                        <span class="hud-stat__icon" aria-hidden="true"><svg class="game-icon"><use href="./assets/ui.svg#pear"/></svg></span>
                         <span class="hud-stat__label" data-i18n="hud.pearsLabel"></span>
                         <strong id="pears-count" class="hud-stat__value">0</strong>
                     </article>
                     <article class="hud-stat hud-stat--stars">
-                        <span class="hud-stat__icon" aria-hidden="true">★</span>
+                        <span class="hud-stat__icon" aria-hidden="true"><svg class="game-icon"><use href="./assets/ui.svg#star"/></svg></span>
                         <span class="hud-stat__label" data-i18n="hud.starsLabel"></span>
                         <strong id="stars-count" class="hud-stat__value">0</strong>
                     </article>
@@ -74,18 +74,18 @@
                 <div class="hud-actions" data-i18n-aria-label="hud.settingsLabel">
                     <button id="font-toggle-btn" class="hud-action-btn" type="button"
                         data-i18n="hud.fontToggle" data-i18n-aria-label="hud.fontToggleLabel"></button>
-                    <button id="theme-toggle-btn" class="hud-action-btn" type="button"
-                        data-i18n="hud.themeToggleDark" data-i18n-aria-label="hud.themeToggleLabel"></button>
+                    <button id="theme-toggle-btn" class="hud-action-btn hud-action-btn--theme" type="button"
+                        data-i18n-aria-label="hud.themeToggleDarkLabel"></button>
                     <button id="music-toggle-btn" class="hud-action-btn" type="button"
-                        data-i18n="hud.musicToggle" data-i18n-aria-label="hud.musicToggleLabel"></button>
+                        data-i18n-aria-label="hud.musicToggleLabel"><svg class="game-icon" aria-hidden="true"><use href="./assets/ui.svg#music"/></svg></button>
                     <button id="pause-btn" class="hud-action-btn" type="button"
-                        data-i18n="hud.pauseBtn" data-i18n-aria-label="hud.pauseBtnLabel"></button>
+                        data-i18n-aria-label="hud.pauseBtnLabel"><svg class="game-icon" aria-hidden="true"><use href="./assets/ui.svg#pause"/></svg></button>
                 </div>
             </div>
 
             <!-- ② NPC proximity badge — always in DOM, shown/hidden by JS -->
             <div class="hud-npc-row">
-                <span id="hud-npc-badge" class="hud-badge hud-badge--soft hidden"></span>
+                <button id="hud-npc-badge" class="hud-badge hud-badge--soft hidden" type="button"></button>
             </div>
 
             <!-- ③ Expand / collapse handle -->
@@ -124,10 +124,12 @@
     </div>
 
     <div id="dialog-layer" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-text"
-        aria-hidden="true" style="display: none;" data-game-interactive>
+        aria-hidden="true" data-game-interactive>
         <div class="dialog-box">
             <h2 id="dialog-title" class="dialog-title" data-i18n="app.dialogTitleFallback"></h2>
-            <p id="dialog-text" class="dialog-text" data-i18n="app.dialogTextFallback"></p>
+            <div class="dialog-summary">
+                <p id="dialog-text" class="dialog-text" data-i18n="app.dialogTextFallback"></p>
+            </div>
             <div id="dialog-content" class="dialog-content"></div>
             <p id="dialog-status" class="dialog-status" aria-live="polite"></p>
             <div class="dialog-actions">

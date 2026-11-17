@@ -18,12 +18,7 @@ import { DialogScene } from './dialog-scene.js';
 import { PauseScene } from './pause-scene.js';
 import { TaskPicker } from '../game/task-picker.js';
 import { Joystick } from '../ui/joystick.js';
-
-function getNpcIcon(npc) {
-    const iconKey = `entities.${npc.type}Icon`;
-    const icon = t(iconKey);
-    return icon === iconKey ? npc.name.slice(0, 1) : icon;
-}
+import { createAnimalHome } from '../ui/illustrations.js';
 
 export class GameScene {
     constructor(deps) {
@@ -170,6 +165,10 @@ export class GameScene {
             element.style.top = `${obstacle.y}px`;
             element.style.width = `${obstacle.w}px`;
             element.style.height = `${obstacle.h}px`;
+            if (obstacle.type === 'twig') {
+                element.style.setProperty('--twig-angle', obstacle.h > obstacle.w ? '90deg' : '0deg');
+                element.style.setProperty('--twig-length', `${Math.max(obstacle.w, obstacle.h)}px`);
+            }
             element.setAttribute('role', 'img');
             element.setAttribute('aria-label', t(`entities.${obstacle.type}`));
             this.dom.obstaclesContainer.appendChild(element);
@@ -200,7 +199,7 @@ export class GameScene {
                 element.setAttribute('tabindex', '0');
                 element.setAttribute('aria-label', t('entities.npcPrompt', { name: npc.name }));
             }
-            element.textContent = getNpcIcon(npc);
+            element.append(createAnimalHome(npc.type));
 
             // Completed NPCs are purely decorative — no interaction needed
             if (npc.completed) {
@@ -302,10 +301,7 @@ export class GameScene {
         this.updateNearbyNpcState();
 
         if (!this.input.keyboard.active && this.nearbyNpcId && this.input.consumeKey('Enter')) {
-            const npc = this.npcs.find((candidate) => candidate.id === this.nearbyNpcId);
-            if (npc) {
-                this.tryInteractWithNpc(npc);
-            }
+            this.interactWithNearbyNpc();
         }
 
         const intent = this.getMovementIntent();
@@ -438,6 +434,7 @@ export class GameScene {
     }
 
     updateNearbyNpcState() {
+        const previousNpcId = this.nearbyNpcId;
         let nearestNpc = null;
         let nearestDistance = Infinity;
 
@@ -460,25 +457,27 @@ export class GameScene {
                 nearestNpc = npc;
             }
 
-            if (!isNearby) {
-                npc.hasPrompted = false;
-            }
         });
 
         this.nearbyNpcId = nearestNpc ? nearestNpc.id : null;
         this.session.nearbyNpcId = this.nearbyNpcId;
+        if (this.nearbyNpcId === previousNpcId) return;
 
-        if (nearestNpc && !nearestNpc.hasPrompted) {
-            nearestNpc.hasPrompted = true;
+        if (nearestNpc) {
             HUDController.setObjective(t('hud.objectiveMeetNpc', { name: nearestNpc.name }));
             HUDController.setContext(t('announcer.npcNearby', { name: nearestNpc.name }));
             HUDController.setNearbyNpc(nearestNpc.name);
             this.announcer.announce(t('announcer.npcNearby', { name: nearestNpc.name }));
-        } else if (!nearestNpc) {
+        } else {
             HUDController.setObjective(this.describeObjective());
             HUDController.setContext(t('hud.contextExplore'));
             HUDController.setNearbyNpc(null);
         }
+    }
+
+    interactWithNearbyNpc() {
+        const npc = this.npcs.find(candidate => candidate.id === this.nearbyNpcId);
+        if (npc) this.tryInteractWithNpc(npc);
     }
 
     tryInteractWithNpc(npc) {
@@ -501,13 +500,7 @@ export class GameScene {
             return;
         }
 
-        // Re-pick task adaptively based on stars earned so far this session
-        npc.activeTask = TaskPicker.pickAdaptiveTask(
-            npc.taskPoolIds,
-            this._earnedStars,
-            Math.random,
-            this.session
-        );
+        TaskPicker.getNpcTask(npc, this._earnedStars, Math.random, this.session);
 
         this.sceneManager.push(new DialogScene({
             dom: this.dom,

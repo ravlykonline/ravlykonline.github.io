@@ -1,3 +1,4 @@
+import { setPictureOrText } from '../../ui/illustrations.js';
 import { t } from '../../i18n/index.js';
 import { logicPairsVariants } from '../task-data/logic-pairs-variants.js';
 import { createChoiceGrid, createTaskIntro } from '../task-ui-helpers.js';
@@ -26,7 +27,8 @@ export const LogicPairsTask = {
             id: entry.id ?? `${this.type}-${variant.id}`,
             type: this.type,
             prompt: t('taskUi.logicPairsPrompt'),
-            instructions: t('taskUi.logicPairsInstructions'),
+            instructions: variant.question ?? t('taskUi.logicPairsInstructions'),
+            voiceKey: variant.question ? entry.id : undefined,
             reward: { stars: 1 },
             promptItem: variant.promptItem,
             choices: shuffledChoices,
@@ -39,8 +41,7 @@ export const LogicPairsTask = {
 
         const promptCard = document.createElement('div');
         promptCard.className = 'task-card task-card--centered task-card--prompt-item';
-        promptCard.setAttribute('aria-label', task.instructions);
-        promptCard.textContent = task.promptItem;
+        setPictureOrText(promptCard, task.promptItem);
 
         const choices = createChoiceGrid(
             task,

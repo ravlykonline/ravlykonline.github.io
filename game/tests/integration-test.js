@@ -69,7 +69,7 @@ async function run() {
     await wait(80);
 
     assert(SceneManager.active.constructor.name === 'DialogScene', 'Клік по NPC має відкрити діалог.');
-    assert(document.getElementById('dialog-text').textContent.includes(targetNpc.activeTask.prompt), 'У діалозі має бути активне випадкове завдання.');
+    assert(document.getElementById('dialog-text').textContent === targetNpc.activeTask.instructions, 'У діалозі має бути видима інструкція активного завдання.');
 
     await solveTask(targetNpc.activeTask);
     assert(targetNpc.completed === true, 'NPC має позначатися виконаним після правильної відповіді.');

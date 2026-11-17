@@ -46,6 +46,7 @@
       "id": "odd-one-out-wild-vs-farm",
       "type": "odd-one-out",
       "variant": {
+        "question": "Кого зазвичай зустрінеш на фермі?",
         "items": [
           { "id": "wolf", "label": "🐺" },
           { "id": "fox", "label": "🦊" },
@@ -59,6 +60,7 @@
       "id": "odd-one-out-swim-vs-fly",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто з цих тварин не літає?",
         "items": [
           { "id": "bee", "label": "🐝" },
           { "id": "bird", "label": "🐦" },
@@ -72,6 +74,7 @@
       "id": "odd-one-out-tools-vs-toy",
       "type": "odd-one-out",
       "variant": {
+        "question": "Чим грають у футбол?",
         "items": [
           { "id": "hammer", "label": "🔨" },
           { "id": "wrench", "label": "🔧" },
@@ -85,9 +88,10 @@
       "id": "odd-one-out-vegetables-vs-fruit",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що тут фрукт?",
         "items": [
           { "id": "carrot", "label": "🥕" },
-          { "id": "corn", "label": "🌽" },
+          { "id": "broccoli", "label": "🥦" },
           { "id": "cucumber", "label": "🥒" },
           { "id": "pear", "label": "🍐" }
         ],
@@ -98,6 +102,7 @@
       "id": "odd-one-out-many-vs-one-side",
       "type": "odd-one-out",
       "variant": {
+        "question": "Яка фігура не має кутів?",
         "items": [
           { "id": "triangle", "label": "▲" },
           { "id": "square", "label": "■" },
@@ -111,6 +116,7 @@
       "id": "logic-pairs-sheep-wool",
       "type": "logic-pairs",
       "variant": {
+        "question": "Що роблять з овечої вовни?",
         "promptItem": "🐑",
         "choices": [
           { "id": "wool", "label": "🧶" },
@@ -124,6 +130,7 @@
       "id": "logic-pairs-cow-milk",
       "type": "logic-pairs",
       "variant": {
+        "question": "Що дає корова?",
         "promptItem": "🐮",
         "choices": [
           { "id": "milk", "label": "🥛" },
@@ -137,6 +144,7 @@
       "id": "logic-pairs-chicken-egg",
       "type": "logic-pairs",
       "variant": {
+        "question": "Що знесла курка?",
         "promptItem": "🐔",
         "choices": [
           { "id": "egg", "label": "🥚" },
@@ -150,7 +158,8 @@
       "id": "logic-pairs-seed-tree",
       "type": "logic-pairs",
       "variant": {
-        "promptItem": "🌰",
+        "question": "Що виросте з жолудя?",
+        "promptItem": "acorn",
         "choices": [
           { "id": "tree", "label": "🌳" },
           { "id": "milk", "label": "🥛" },
@@ -163,6 +172,7 @@
       "id": "logic-pairs-caterpillar-butterfly",
       "type": "logic-pairs",
       "variant": {
+        "question": "На кого перетвориться гусінь?",
         "promptItem": "🐛",
         "choices": [
           { "id": "butterfly", "label": "🦋" },

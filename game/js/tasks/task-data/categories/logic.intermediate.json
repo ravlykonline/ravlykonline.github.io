@@ -7,6 +7,7 @@
       "id": "logic-pairs-foot-shoe",
       "type": "logic-pairs",
       "variant": {
+        "question": "Що взувають на ногу?",
         "promptItem": "🦶",
         "choices": [
           { "id": "shoe", "label": "👟" },
@@ -20,11 +21,12 @@
       "id": "logic-pairs-snow-mittens",
       "type": "logic-pairs",
       "variant": {
+        "question": "Що зігріє руки взимку?",
         "promptItem": "❄️",
         "choices": [
           { "id": "mittens", "label": "🧤" },
           { "id": "icecream", "label": "🍦" },
-          { "id": "sun", "label": "☀️" }
+          { "id": "snowman", "label": "⛄" }
         ],
         "correctChoiceId": "mittens"
       }
@@ -33,6 +35,7 @@
       "id": "logic-pairs-fish-water",
       "type": "logic-pairs",
       "variant": {
+        "question": "Де плаває рибка?",
         "promptItem": "🐟",
         "choices": [
           { "id": "water", "label": "🌊" },
@@ -46,9 +49,10 @@
       "id": "logic-pairs-squirrel-acorn",
       "type": "logic-pairs",
       "variant": {
+        "question": "Що білка може сховати на зиму?",
         "promptItem": "🐿️",
         "choices": [
-          { "id": "acorn", "label": "🌰" },
+          { "id": "acorn", "label": "acorn" },
           { "id": "shell", "label": "🐚" },
           { "id": "mountain", "label": "⛰️" }
         ],
@@ -59,6 +63,7 @@
       "id": "logic-pairs-key-lock",
       "type": "logic-pairs",
       "variant": {
+        "question": "Що можна відімкнути ключем?",
         "promptItem": "🔑",
         "choices": [
           { "id": "lock", "label": "🔒" },
@@ -72,6 +77,7 @@
       "id": "logic-pairs-hand-glove",
       "type": "logic-pairs",
       "variant": {
+        "question": "Що вдягають на руки?",
         "promptItem": "✋",
         "choices": [
           { "id": "glove", "label": "🧤" },
@@ -85,6 +91,7 @@
       "id": "odd-one-out-round-vs-square",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що з цього не кругле?",
         "items": [
           { "id": "ball", "label": "⚽" },
           { "id": "orange", "label": "🍊" },
@@ -98,6 +105,7 @@
       "id": "odd-one-out-wheels-vs-wings",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що має крила?",
         "items": [
           { "id": "car", "label": "🚗" },
           { "id": "bus", "label": "🚌" },
@@ -111,6 +119,7 @@
       "id": "odd-one-out-hot-vs-cold",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що тане від тепла?",
         "items": [
           { "id": "fire", "label": "🔥" },
           { "id": "sun", "label": "☀️" },
@@ -124,6 +133,7 @@
       "id": "odd-one-out-day-vs-night",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що світить на небі вдень?",
         "items": [
           { "id": "moon", "label": "🌙" },
           { "id": "star", "label": "⭐" },
@@ -137,6 +147,7 @@
       "id": "odd-one-out-grow-vs-build",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що з цього збудували люди?",
         "items": [
           { "id": "tree", "label": "🌳" },
           { "id": "flower", "label": "🌼" },
@@ -150,6 +161,7 @@
       "id": "odd-one-out-legs-count",
       "type": "odd-one-out",
       "variant": {
+        "question": "У кого дві ноги?",
         "items": [
           { "id": "dog", "label": "🐶" },
           { "id": "cat", "label": "🐱" },

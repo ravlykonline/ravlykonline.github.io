@@ -16,6 +16,7 @@ import { MusicController } from '../ui/music-controller.js';
 import { WinScene } from '../scenes/win-scene.js';
 import { LevelCompleteScene } from '../scenes/level-complete-scene.js';
 import { Joystick } from '../ui/joystick.js';
+import { installTouchGuard } from '../ui/touch-guard.js';
 
 function resetSceneManager() {
     while (SceneManager.stack.length > 0) {
@@ -44,16 +45,15 @@ export function createGameScene(level = LevelData.level1) {
 }
 
 export function bootGame() {
+    installTouchGuard();
     applyDocumentTranslations();
     Announcer.init();
     Announcer.t = t;
     Input.init(Announcer);
     HUDController.init({
         dom: DOM,
-        onPause: () => {
-            const active = SceneManager.active;
-            if (active?.openPause) active.openPause();
-        }
+        onPause: () => SceneManager.active?.openPause?.(),
+        onNearbyNpc: () => SceneManager.active?.interactWithNearbyNpc?.()
     });
     FontModeController.init({ dom: DOM });
     ThemeModeController.init({ dom: DOM });

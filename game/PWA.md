@@ -26,7 +26,7 @@ js/ui/reward-effects.js
 - додає в кеш перелік `STATIC_ASSETS`;
 - `skipWaiting()` викликається всередині `.then()` після `cache.addAll()` — race condition виправлено;
 - видаляє старі кеші при activate;
-- для навігації повертає `offline.html`, якщо мережа недоступна;
+- для навігації до `/game/` або `/game/index.html` після першого завантаження повертає кешований вхід, якщо мережа недоступна. Інші навігації мають резервну сторінку `offline.html`;
 - для статичних файлів спочатку шукає кеш, потім мережу.
 
 ---
@@ -76,7 +76,7 @@ Offline mode має відкривати гру або offline page, але не
 У `sw.js` є:
 
 ```js
-const STATIC_CACHE = 'ravlyk-static-v27';
+const STATIC_CACHE = 'ravlyk-game-static-vNN';
 ```
 
 Коли змінюється будь-який файл зі списку `STATIC_ASSETS`, треба оновити версію кешу. Якщо цього не зробити, користувач може бачити стару версію файлів.
@@ -146,8 +146,10 @@ export function registerServiceWorker() {
 
 ```txt
 static assets: cache first, then network
-navigation: network first, fallback to offline.html
+navigation: network first, then cached game entry or offline.html
 ```
+
+Офлайн-список містить локальні SVG зі звірами, домівками, озерцями й картками, а також українські MP3. Для аудіозапитів із діапазоном байтів Service Worker формує часткову відповідь із закешованого повного запису. Кеш `ravlyk-game-static-*` обслуговує лише область `/game/`.
 
 Це нормально для маленької статичної гри.
 

@@ -87,6 +87,7 @@
       "id": "odd-one-out-lays-eggs",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто з цих тварин не відкладає яєць?",
         "items": [
           { "id": "chicken", "label": "🐔" },
           { "id": "duck", "label": "🦆" },
@@ -100,6 +101,7 @@
       "id": "odd-one-out-lives-in-water",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто з цих тварин літає?",
         "items": [
           { "id": "fish", "label": "🐟" },
           { "id": "crab", "label": "🦀" },
@@ -113,6 +115,7 @@
       "id": "odd-one-out-grows-on-tree",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що росте під землею?",
         "items": [
           { "id": "apple", "label": "🍎" },
           { "id": "pear", "label": "🍐" },
@@ -126,6 +129,7 @@
       "id": "odd-one-out-has-shell",
       "type": "odd-one-out",
       "variant": {
+        "question": "Хто не має панцира чи мушлі?",
         "items": [
           { "id": "snail", "label": "🐌" },
           { "id": "turtle", "label": "🐢" },
@@ -139,6 +143,7 @@
       "id": "odd-one-out-makes-light",
       "type": "odd-one-out",
       "variant": {
+        "question": "Що з цього не світить?",
         "items": [
           { "id": "sun", "label": "☀️" },
           { "id": "candle", "label": "🕯️" },
@@ -152,6 +157,7 @@
       "id": "odd-one-out-tools-for-writing",
       "type": "odd-one-out",
       "variant": {
+        "question": "Чим їдять, а не малюють?",
         "items": [
           { "id": "pencil", "label": "✏️" },
           { "id": "pen", "label": "🖊️" },

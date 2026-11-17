@@ -33,7 +33,8 @@ export const OddOneOutTask = {
             id: entry.id ?? `${this.type}-${variant.id}`,
             type: this.type,
             prompt: t('taskUi.oddOneOutPrompt'),
-            instructions: t('taskUi.oddOneOutInstructions'),
+            instructions: variant.question ?? t('taskUi.oddOneOutInstructions'),
+            voiceKey: variant.question ? entry.id : undefined,
             reward: { stars: 1 },
             choices: shuffledItems.map(createChoice),
             correctChoiceId: variant.correctChoiceId
@@ -42,7 +43,8 @@ export const OddOneOutTask = {
 
     render({ task, container, setStatus, onSolved }) {
         const intro = createTaskIntro(task.instructions);
-        const choices = createChoiceGrid(task, onSolved, setStatus, 'task-options-grid--odd-one-out', 'task-option-btn--symbol', t('taskUi.oddOneOutHint'));
+        const hint = task.voiceKey ? t('taskUi.questionHint') : t('taskUi.oddOneOutHint');
+        const choices = createChoiceGrid(task, onSolved, setStatus, 'task-options-grid--odd-one-out', 'task-option-btn--symbol', hint);
 
         container.append(intro, choices);
     }

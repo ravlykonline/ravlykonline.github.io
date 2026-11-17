@@ -1,3 +1,4 @@
+import { setPictureOrText } from '../../ui/illustrations.js';
 import { t } from '../../i18n/index.js';
 import { createTaskIntro } from '../task-ui-helpers.js';
 import { RewardEffects } from '../../ui/reward-effects.js';
@@ -55,7 +56,7 @@ export const MagicSquareTask = {
                 missingCell = cell;
             } else {
                 cell.className = 'task-magic-cell';
-                cell.textContent = item;
+                setPictureOrText(cell, item);
             }
             square.appendChild(cell);
         });
@@ -68,12 +69,12 @@ export const MagicSquareTask = {
             button.type = 'button';
             button.className = 'task-option-btn task-option-btn--symbol';
             button.dataset.choiceId = choice.id;
-            button.textContent = choice.label;
+            setPictureOrText(button, choice.label);
 
             button.addEventListener('click', () => {
                 if (evaluateSingleChoice(task, choice.id)) {
                     if (missingCell) {
-                        missingCell.textContent = choice.label;
+                        setPictureOrText(missingCell, choice.label);
                         missingCell.classList.remove('task-magic-cell--missing');
                         missingCell.classList.add('task-magic-cell--revealed');
                     }

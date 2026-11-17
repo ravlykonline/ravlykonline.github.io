@@ -1,6 +1,6 @@
 import { TaskPicker } from '../js/game/task-picker.js';
 import { EventBus } from '../js/core/event-bus.js';
-import { circleIntersectsRect, hasWorldCollision } from '../js/game/collision-system.js';
+import { circleIntersectsRect, hasWorldCollision, WORLD_COLLISION_MARGIN } from '../js/game/collision-system.js';
 import { LevelData } from '../js/game/level-data.js';
 import { createInitialSessionState } from '../js/game/session-state.js';
 import { getDistanceFromRectCenter, rectsOverlap, canPlaceRect } from '../js/game/spawn-rules.js';
@@ -15,6 +15,8 @@ import { validateTask } from '../js/tasks/task-validator.js';
 import { ScoreSystem } from '../js/systems/score-system.js';
 import { HUDController } from '../js/ui/hud-controller.js';
 import { ThemeModeController } from '../js/ui/theme-mode.js';
+import { createAnimal, setPictureOrText } from '../js/ui/illustrations.js';
+import { getTaskVoice } from '../js/tasks/task-voice.js';
 import { t } from '../js/i18n/index.js';
 import { Input } from '../js/core/input.js';
 import { CONFIG, createLevelConfig } from '../js/core/config.js';
@@ -22,6 +24,13 @@ import { CONFIG, createLevelConfig } from '../js/core/config.js';
 const results = document.getElementById('results');
 const summary = document.getElementById('summary');
 const testResults = [];
+const picturesResponse = await fetch('../assets/pictures.svg');
+const pictures = new DOMParser().parseFromString(await picturesResponse.text(), 'image/svg+xml');
+
+function hasAnimalArt(type) {
+    const href = createAnimal(type).querySelector('use').getAttribute('href');
+    return Boolean(pictures.getElementById(new URL(href).hash.slice(1)));
+}
 
 function createSeededRandom(seed) {
     let value = seed;
@@ -127,7 +136,8 @@ test('SessionState створює чисту сесію без збережен�
     assert(session.obstacles.length === 0, 'Нова сесія стартує без згенерованих перешкод до world generation.');
     assert(session.npcs.length === 1, 'SessionState має створювати NPC сесії.');
     assert(session.npcs[0].completed === false, 'NPC у новій сесії не має бути виконаним.');
-    assert(Boolean(session.npcs[0].activeTask), 'NPC має отримати випадкове завдання на сесію.');
+    assert(session.npcs[0].activeTask === null, 'Завдання має обиратися при першій зустрічі.');
+    assert(session.usedTaskIds.size === 0, 'Під час генерації світу завдання ще не витрачаються.');
     assert(session.flags.completedNpcIds.size === 0, 'Нова сесія не має збережених completed NPC.');
 });
 
@@ -301,14 +311,16 @@ test('ThemeModeController оновлює data-theme та meta theme-color', () =
     ThemeModeController.applyMode();
 
     assert(document.body.dataset.theme === 'dark', 'Має встановлюватися dark тема.');
-    assert(button.getAttribute('aria-pressed') === 'true', 'Для dark теми кнопка має містити aria-pressed=true.');
+    assert(button.textContent === 'День' && button.getAttribute('aria-label') === 'Увімкнути денний режим',
+        'Уночі кнопка має пропонувати ввімкнути денний режим.');
     assert(meta.getAttribute('content') === '#1f3a14', 'Має виставлятися dark theme-color.');
 
     ThemeModeController.mode = 'light';
     ThemeModeController.applyMode();
 
     assert(document.body.dataset.theme === 'light', 'Має встановлюватися light тема.');
-    assert(button.getAttribute('aria-pressed') === 'false', 'Для light теми кнопка має містити aria-pressed=false.');
+    assert(button.textContent === 'Ніч' && button.getAttribute('aria-label') === 'Увімкнути нічний режим',
+        'Удень кнопка має пропонувати ввімкнути нічний режим.');
     assert(meta.getAttribute('content') === '#7cb342', 'Має виставлятися light theme-color.');
 
     meta.remove();
@@ -531,7 +543,6 @@ test('LevelData contains target NPC count with valid tasks and text keys', () =>
     assert(ids.size === npcs.length, 'NPC ids should be unique.');
 
     npcs.forEach((npc) => {
-        const iconKey = `entities.${npc.type}Icon`;
         const poolIds = npc.taskPoolIds ?? [npc.taskPoolId];
 
         assert(poolIds.length >= 1, 'NPC should have at least one task pool.');
@@ -540,7 +551,7 @@ test('LevelData contains target NPC count with valid tasks and text keys', () =>
             assert(TaskCatalog.getCategory(poolId), `Task pool "${poolId}" should exist.`);
         });
         assert(t(npc.nameKey) !== npc.nameKey, `Name key "${npc.nameKey}" should be translated.`);
-        assert(t(iconKey) !== iconKey, `NPC type "${npc.type}" should have an icon.`);
+        assert(hasAnimalArt(npc.type), `NPC type "${npc.type}" should have local artwork.`);
     });
 });
 
@@ -559,12 +570,16 @@ test('LevelData keeps distribution groups distinct from task pool ids', () => {
 });
 
 test('SessionState assigns unique task ids while catalog has enough tasks', () => {
-    const session = createInitialSessionState(LevelData.level1, { random: createSeededRandom(7) });
-    const taskIds = session.npcs.map((npc) => npc.activeTask.id);
+    const session = createInitialSessionState(LevelData.level1);
+    const random = createSeededRandom(7);
+    const taskIds = session.npcs.map((npc) => TaskPicker.getNpcTask(npc, 0, random, session).id);
     const uniqueTaskIds = new Set(taskIds);
 
     assert(uniqueTaskIds.size === taskIds.length, 'NPCs should not receive duplicate tasks in one session.');
     assert(session.usedTaskIds.size === taskIds.length, 'Session should remember every assigned task id.');
+    assert(TaskPicker.getNpcTask(session.npcs[0], 20, () => 0.99, session).id === taskIds[0],
+        'Повторна зустріч має відкрити те саме завдання, навіть якщо стало більше зірочок.');
+    assert(session.usedTaskIds.size === taskIds.length, 'Перевідкриття не має витрачати інше завдання.');
 });
 
 test('TaskCatalog exposes JSON categories with stable task ids', () => {
@@ -907,8 +922,7 @@ test('Кожен рівень посилається лише на банки з
                 assert(TaskCatalog.getCategory(poolId), `${npc.id}: банк "${poolId}" не існує.`);
             });
             assert(t(npc.nameKey) !== npc.nameKey, `${npc.id}: імʼя "${npc.nameKey}" має бути перекладене.`);
-            const iconKey = `entities.${npc.type}Icon`;
-            assert(t(iconKey) !== iconKey, `${npc.id}: тип "${npc.type}" має мати іконку.`);
+            assert(hasAnimalArt(npc.type), `${npc.id}: тип "${npc.type}" має мати локальну ілюстрацію.`);
         });
     });
 });
@@ -1156,17 +1170,100 @@ test('Усі id завдань унікальні в межах усього к�
     });
 });
 
-test('Іконки звірів не використовують емодзі, новіші за Unicode 12', () => {
-    // Шкільні Windows часто не мають гліфів з Unicode 13+ — буде порожній квадрат.
-    const tooNew = [0x1F9AB, 0x1FAA8, 0x1FAD1, 0x1FAB0, 0x1FAB1, 0x1FABA, 0x1FAB9];
+test('Усі звірі мають SVG-ілюстрації незалежно від системних емодзі', () => {
     const types = new Set(LevelData.sequence.flatMap((level) => level.npcs.map((npc) => npc.type)));
 
     types.forEach((type) => {
-        const icon = t(`entities.${type}Icon`);
-        assert(icon.length > 0, `${type}: іконка не має бути порожньою.`);
-        assert(!tooNew.includes(icon.codePointAt(0)),
-            `${type}: емодзі "${icon}" занадто нове для старих ОС.`);
+        assert(hasAnimalArt(type), `${type}: у SVG-спрайті має бути зображення звіра.`);
     });
+});
+
+test('Густіші карти мають озерця й залишають Равлику проходи', () => {
+    for (const level of LevelData.sequence) {
+        const config = createLevelConfig(level);
+        const passageWidth = 2 * (config.playerRadius + WORLD_COLLISION_MARGIN);
+        for (const seed of [7, 18, 49]) {
+            const session = createInitialSessionState(level);
+            const { obstacles, collectibles, npcs } = generateWorld({
+                config,
+                player: session.player,
+                npcs: session.npcs,
+                random: createSeededRandom(seed)
+            });
+            const ponds = obstacles.filter(obstacle => obstacle.type === 'pond');
+            assert(obstacles.length === config.obstacleCount && ponds.length === config.pondCount, level.id);
+            assert(collectibles.length === config.appleCount + config.pearCount, level.id);
+            assert(npcs.every(npc => npc.x > 0 && npc.y > 0), level.id);
+            assert(ponds.every(pond => !circleIntersectsRect({ ...session.player, radius: 220 }, pond)), level.id);
+            assert(ponds.every(pond => hasWorldCollision({
+                x: pond.x + pond.w / 2, y: pond.y + pond.h / 2, radius: config.playerRadius,
+                worldWidth: config.worldWidth, worldHeight: config.worldHeight, rects: [pond]
+            })), level.id);
+            assert(obstacles.every((obstacle, index) => obstacles.slice(index + 1)
+                .every(other => !rectsOverlap(obstacle, other, passageWidth))), level.id);
+        }
+    }
+});
+
+test('Камера на вузькому екрані не зміщується між кадрами, якщо Равлик стоїть', async () => {
+    const { updateCamera } = await import('../js/game/camera-system.js');
+    const size = { width: 320, height: 360, hudHeight: 146 };
+    const config = { worldWidth: 2000, worldHeight: 2000, topHudSafeArea: 72, cameraThreshold: 250, cameraLerp: 1 };
+    const state = { x: 800, y: 800, camera: { x: 640, y: 675 }, targetCamera: { x: 640, y: 675 } };
+    updateCamera(state, config, size);
+    const settled = { ...state.targetCamera };
+    updateCamera(state, config, size);
+    assert(Math.abs(state.targetCamera.x - settled.x) < 0.01 && Math.abs(state.targetCamera.y - settled.y) < 0.01,
+        'Нерухомий Равлик не має спричиняти коливань камери.');
+    assert(state.y - state.camera.y > size.hudHeight, 'Панель не має перекривати Равлика.');
+});
+
+test('Каталог показує озвучувані запитання, унікальні варіанти та правильні числові відповіді', () => {
+    const entries = TaskCatalog.getTasks(TaskCatalog.categories.map(category => category.id));
+    const isPicture = /[\p{Extended_Pictographic}□■▲△◆○●◯⬤★]|^acorn$/u;
+    for (const entry of entries) {
+        const task = TaskRegistry.createTaskFromEntry(entry, createSeededRandom(4));
+        const labels = task.choices?.map(choice => choice.label);
+        const answer = task.choices?.find(choice => evaluateSingleChoice(task, choice.id));
+        const variant = entry.variant;
+        assert(getTaskVoice(task)?.endsWith('.mp3'), `${entry.id}: має бути локальний запис.`);
+        if (labels) {
+            const normalized = labels.map(label => String(label).replaceAll('\uFE0F', ''));
+            assert(new Set(normalized).size === labels.length, `${entry.id}: варіанти мають відрізнятись.`);
+        }
+        for (const token of [...(labels ?? []), ...(task.series ?? []), ...(task.grid ?? []), task.promptItem]) {
+            if (!token || !isPicture.test(token)) continue;
+            const element = document.createElement('span');
+            setPictureOrText(element, token);
+            const url = element.querySelector('use')?.getAttribute('href');
+            assert(url && pictures.getElementById(new URL(url).hash.slice(1)),
+                `${entry.id}: немає ілюстрації для "${token}".`);
+            assert(element.querySelector('.sr-only')?.textContent, `${entry.id}: малюнок потребує назви.`);
+        }
+        if (task.type === 'count-and-match') assert(+answer.label === variant.count, entry.id);
+        if (task.type === 'simple-addition') assert(+answer.label === variant.left + variant.right, entry.id);
+        if (task.type === 'simple-subtraction') assert(+answer.label === variant.left - variant.right, entry.id);
+        if (task.type === 'compare-sets') {
+            const expected = variant.mode === 'less'
+                ? Math.min(variant.leftCount, variant.rightCount)
+                : Math.max(variant.leftCount, variant.rightCount);
+            assert(variant.leftCount !== variant.rightCount && task.correctChoiceId === (variant.leftCount === expected ? 'left' : 'right'), entry.id);
+        }
+        if (task.type === 'magic-square') {
+            const filled = task.grid.map(cell => cell ?? answer.label);
+            assert(task.grid.filter(cell => cell === null).length === 1, entry.id);
+            assert(filled.length === task.size ** 2 && new Set(filled).size === task.size, entry.id);
+            for (let index = 0; index < task.size; index += 1) {
+                assert(new Set(filled.slice(index * task.size, (index + 1) * task.size)).size === task.size, entry.id);
+                assert(new Set(filled.filter((_, cellIndex) => cellIndex % task.size === index)).size === task.size, entry.id);
+            }
+        }
+        if (task.series && task.series.some(value => isPicture.test(value))) {
+            const period = task.series.findIndex((_, index) => index > 0 &&
+                task.series.slice(index).every((symbol, offset) => symbol === task.series[offset]));
+            assert(period > 0 && task.series[task.series.length % period] === answer.label, entry.id);
+        }
+    }
 });
 
 renderResults();

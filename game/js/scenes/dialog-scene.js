@@ -3,6 +3,8 @@ import { HUDController } from '../ui/hud-controller.js';
 import { t } from '../i18n/index.js';
 import { TaskRegistry } from '../tasks/task-registry.js';
 import { RewardEffects } from '../ui/reward-effects.js';
+import { createAnimal, createIcon } from '../ui/illustrations.js';
+import { getTaskVoice } from '../tasks/task-voice.js';
 
 export class DialogScene extends ModalScene {
     constructor(deps) {
@@ -11,9 +13,9 @@ export class DialogScene extends ModalScene {
         super({
             ...deps,
             title: npc.name,
-            text: npc.activeTask.prompt,
+            text: npc.activeTask.instructions,
             buttonLabel: t('dialog.back'),
-            announceText: t('dialog.announce', { name: npc.name, task: npc.activeTask.prompt })
+            announceText: ''
         });
 
         this.npc = npc;
@@ -25,9 +27,8 @@ export class DialogScene extends ModalScene {
     init() {
         super.init();
 
-        // The task prompt is re-rendered inside the task widget (task-intro pill).
-        // Hide the shared dialogText element to avoid duplication and prevent scroll.
-        this.dom.dialogText.classList.add('sr-only');
+        this.dom.dialogLayer.classList.add('task-dialog');
+        this.dom.dialogTitle.prepend(createAnimal(this.npc.type));
 
         this.setStatus('');
         TaskRegistry.renderTask({
@@ -36,6 +37,50 @@ export class DialogScene extends ModalScene {
             setStatus: this.setStatus.bind(this),
             onSolved: this.handleSolved.bind(this)
         });
+        this.addVoiceButton();
+    }
+
+    addVoiceButton() {
+        const source = getTaskVoice(this.npc.activeTask);
+        if (!source) return;
+
+        const audio = new Audio(source);
+        audio.preload = 'none';
+        this.audio = audio;
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'dialog-listen';
+        const label = document.createElement('span');
+        const setPlaying = (playing) => {
+            label.textContent = t(playing ? 'dialog.stopListeningShort' : 'dialog.listen');
+            button.setAttribute('aria-label', t(playing ? 'dialog.stopListening' : 'dialog.listen'));
+        };
+        const showPlaybackError = () => {
+            if (this.audio !== audio || this.isSolved) return;
+            setPlaying(false);
+            this.setStatus(t('dialog.audioUnavailable'), 'error');
+        };
+        setPlaying(false);
+        button.append(createIcon('sound'), label);
+        button.addEventListener('click', () => {
+            if (!audio.paused) {
+                audio.pause();
+                audio.currentTime = 0;
+                return;
+            }
+            audio.play().catch(error => {
+                if (error.name !== 'AbortError') showPlaybackError();
+            });
+        });
+        audio.addEventListener('playing', () => setPlaying(true));
+        audio.addEventListener('pause', () => setPlaying(false));
+        audio.addEventListener('ended', () => setPlaying(false));
+        audio.addEventListener('error', showPlaybackError);
+        this.listenButton = button;
+        const summary = this.dom.dialogText.closest('.dialog-summary');
+        if (summary) summary.append(button);
+        else this.dom.dialogContent.prepend(button);
     }
 
     setStatus(message, kind = 'info') {
@@ -53,6 +98,7 @@ export class DialogScene extends ModalScene {
         }
 
         this.isSolved = true;
+        this.audio?.pause();
         this.npc.completed = true;
         this.npc.isNearby = false;
 
@@ -65,6 +111,7 @@ export class DialogScene extends ModalScene {
         }
 
         this.dom.dialogBtn.textContent = t('dialog.complete');
+        this.dom.dialogBtn.focus({ preventScroll: true });
         this.setStatus(t('taskUi.successWithStar'), 'success');
         RewardEffects.showStarCelebration();
         HUDController.setContext(t('announcer.puzzleCompleted', { name: this.npc.name }));
@@ -76,7 +123,10 @@ export class DialogScene extends ModalScene {
     }
 
     destroy() {
-        this.dom.dialogText.classList.remove('sr-only');
+        this.audio?.pause();
+        this.audio = null;
+        this.listenButton?.remove();
+        this.dom.dialogLayer.classList.remove('task-dialog');
         super.destroy();
     }
 

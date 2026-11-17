@@ -14,7 +14,7 @@ export function createInitialPlayerState({ x = 2000, y = 2000 } = {}) {
     };
 }
 
-export function createInitialSessionState(levelData, { random = Math.random } = {}) {
+export function createInitialSessionState(levelData) {
     const session = {
         level: {
             id: levelData?.id ?? 'level1',
@@ -35,7 +35,7 @@ export function createInitialSessionState(levelData, { random = Math.random } = 
         }
     };
 
-    session.npcs = (levelData?.npcs ?? []).map((npc) => TaskPicker.buildNpcSessionState(npc, random, session));
+    session.npcs = (levelData?.npcs ?? []).map((npc) => TaskPicker.buildNpcSessionState(npc));
 
     return session;
 }

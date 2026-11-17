@@ -33,7 +33,7 @@ function showUpdateBanner() {
     banner.setAttribute('aria-live', 'polite');
 
     const text = document.createElement('span');
-    text.textContent = '🆕 Доступна нова версія гри!';
+    text.textContent = 'Доступна нова версія гри.';
 
     const btn = document.createElement('button');
     btn.type = 'button';

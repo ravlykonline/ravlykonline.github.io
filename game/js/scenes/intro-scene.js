@@ -1,5 +1,6 @@
 import { ModalScene } from './modal-scene.js';
 import { t } from '../i18n/index.js';
+import { createAnimal, createIcon } from '../ui/illustrations.js';
 
 export class IntroScene extends ModalScene {
     constructor(deps) {
@@ -19,16 +20,19 @@ export class IntroScene extends ModalScene {
     init() {
         super.init();
         this.dom.dialogTitle.classList.add('dialog-title--intro');
+        this.dom.dialogTitle.prepend(createAnimal('snailFriend'));
         this.dom.dialogText.classList.add('sr-only');
+        this.dom.dialogBtn.prepend(createIcon('play'));
 
         const rawText = t('intro.text');
         const list = document.createElement('ul');
         list.className = 'intro-list';
         this.introList = list;
 
-        rawText.split('\n').forEach((line) => {
+        const icons = ['walk', 'apple', 'star'];
+        rawText.split('\n').forEach((line, index) => {
             const item = document.createElement('li');
-            item.textContent = line;
+            item.append(createIcon(icons[index]), line);
             list.appendChild(item);
         });
 

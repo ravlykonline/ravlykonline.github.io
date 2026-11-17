@@ -15,7 +15,8 @@ export const CONFIG = {
     rotationSnapThreshold: 0.8,
     rotationMinSpeed: 0.18,
     pointerArrivalRadius: 16,
-    obstacleCount: 88,
+    obstacleCount: 156,
+    pondCount: 5,
     appleCount: 42,
     pearCount: 0,
     interactionRadius: 132

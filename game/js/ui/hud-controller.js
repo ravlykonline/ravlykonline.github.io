@@ -7,18 +7,19 @@ function setTextContent(element, value) {
 }
 
 export const HUDController = {
-    init({ dom, onPause }) {
+    init({ dom, onPause, onNearbyNpc }) {
         this.dom = dom;
         this.isExpanded = false;
+        clearTimeout(this._autoCollapseTimer);
         this._autoCollapseTimer = null;
-        this.dom.hudToggleBtn?.addEventListener('click', () => {
-            // Manual toggle cancels any pending auto-collapse
-            clearTimeout(this._autoCollapseTimer);
-            this.setExpanded(!this.isExpanded);
-        });
-        this.dom.pauseBtn?.addEventListener('click', () => {
-            onPause?.();
-        });
+        if (dom.hudToggleBtn) {
+            dom.hudToggleBtn.onclick = () => {
+                clearTimeout(this._autoCollapseTimer);
+                this.setExpanded(!this.isExpanded);
+            };
+        }
+        if (dom.pauseBtn) dom.pauseBtn.onclick = onPause;
+        if (dom.hudNpcBadge) dom.hudNpcBadge.onclick = onNearbyNpc;
         this.setExpanded(false);
         this.setPearsVisible(false);
         this.setSessionSummary({ apples: 0, pears: 0, stars: 0 });

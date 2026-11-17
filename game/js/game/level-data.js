@@ -61,7 +61,8 @@ const level1 = {
     world: {
         worldWidth: 4200,
         worldHeight: 4200,
-        obstacleCount: 88,
+        obstacleCount: 156,
+        pondCount: 5,
         appleCount: 42,
         pearCount: 0
     },
@@ -105,7 +106,8 @@ const level2 = {
     world: {
         worldWidth: 4600,
         worldHeight: 4600,
-        obstacleCount: 104,
+        obstacleCount: 192,
+        pondCount: 8,
         appleCount: 34,
         pearCount: 16
     },
@@ -147,7 +149,8 @@ const level3 = {
     world: {
         worldWidth: 5000,
         worldHeight: 5000,
-        obstacleCount: 118,
+        obstacleCount: 228,
+        pondCount: 12,
         appleCount: 30,
         pearCount: 24
     },
