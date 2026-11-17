@@ -31,7 +31,6 @@ function safePathFromUrl(urlPath) {
   let requested = normalized;
   if (requested === '/' || requested === '\\') requested = '/index.html';
   if (requested === '/go/' || requested === '\\go\\') requested = '/go/index.html';
-  if (requested === '/game/' || requested === '\\game\\') requested = '/game/index.html';
   const abs = path.resolve(rootDir, `.${requested}`);
   if (!abs.startsWith(rootDir)) return null;
   return abs;
