@@ -12,6 +12,17 @@ async function importModule(relativePath) {
 function createHarness({ autoIntro = true } = {}) {
   const calls = [];
   const snailIcon = { tagName: 'img' };
+  const documentRef = {
+    createElement() {
+      return {
+        children: [],
+        className: '',
+        append(...children) {
+          this.children.push(...children);
+        }
+      };
+    }
+  };
   const app = {
     createAssetIcon(filename, className) {
       calls.push(['create-asset-icon', filename, className]);
@@ -65,6 +76,7 @@ function createHarness({ autoIntro = true } = {}) {
   return {
     app,
     calls,
+    documentRef,
     effectsApi,
     modalApiProvider: () => modalApi,
     rafCallbacks,
@@ -92,13 +104,13 @@ test('appUiStartup renders the snail icon and schedules initial positioning', as
 
   startup.start();
 
-  assert.deepEqual(harness.app.refs.snailEl.children, [harness.snailIcon]);
-  assert.deepEqual(harness.calls, [
-    'set-level-intro-status',
-    ['create-asset-icon', 'snail.svg', 'board-icon board-icon-snail'],
-    ['replace-snail', harness.snailIcon],
-    'sync-sizes'
-  ]);
+  const [sprite] = harness.app.refs.snailEl.children;
+  assert.equal(sprite.className, 'snail-sprite');
+  assert.equal(sprite.children[0], harness.snailIcon);
+  assert.equal(sprite.children.length, 5);
+  assert.deepEqual(harness.calls[0], 'set-level-intro-status');
+  assert.deepEqual(harness.calls[1], ['create-asset-icon', 'snail.svg', 'board-icon board-icon-snail']);
+  assert.deepEqual(harness.calls.at(-1), 'sync-sizes');
 });
 
 test('appUiStartup skips intro modal when the session should not auto-open it', async () => {

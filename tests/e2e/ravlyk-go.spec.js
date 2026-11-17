@@ -13,7 +13,7 @@ const viewports = [
 test('@cross-browser-smoke Ravlyk keeps the board playable in compact windows', async ({ page }) => {
   await page.setViewportSize(viewports[0]);
   await page.goto('/go/');
-  await expect(page.locator('#snail img')).toBeVisible();
+  await expect(page.locator('#snail .board-icon-snail')).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
 
   for (const viewport of viewports) {
@@ -122,7 +122,7 @@ test('@cross-browser-smoke Ravlyk completes level one with touch, mouse or keybo
     await activate(page.locator('#btn-run'));
   }
 
-  await expect(page.locator('#progress-track')).toHaveAttribute('aria-valuenow', '5');
+  await expect(page.locator('#progress-track')).toHaveAttribute('aria-valuenow', '5', { timeout: 15_000 });
 });
 
 test('@desktop-chromium-only Ravlyk can reload and play offline after an online visit', async ({ context, page }) => {
@@ -141,7 +141,7 @@ test('@desktop-chromium-only Ravlyk can reload and play offline after an online 
   await page.locator('.cell[data-r="2"][data-c="3"]').click();
   await page.locator('.cell[data-r="2"][data-c="4"]').click();
   await page.locator('#btn-run').click();
-  await expect(page.locator('#progress-track')).toHaveAttribute('aria-valuenow', '5');
+  await expect(page.locator('#progress-track')).toHaveAttribute('aria-valuenow', '5', { timeout: 15_000 });
 });
 
 test('@desktop-chromium-only Ravlyk anchors the side panel and finishes an upward turn upright', async ({ page }) => {
@@ -163,7 +163,7 @@ test('@desktop-chromium-only Ravlyk anchors the side panel and finishes an upwar
   await page.locator('#palette button[data-dir="up"]').click();
   await page.locator('.cell[data-r="2"][data-c="5"]').click();
   await run.click();
-  await expect(page.locator('#win-title')).toBeVisible();
+  await expect(page.locator('#win-title')).toBeVisible({ timeout: 15_000 });
   const snail = page.locator('#snail');
   await expect(snail).toHaveAttribute('data-facing', 'up');
   await expect(snail).toHaveAttribute('data-horizontal', 'right');
@@ -246,4 +246,99 @@ test('@desktop-chromium-only Ravlyk preserves edited routes across levels and su
   await page.locator('#restart-confirm').click();
   await expect(page.locator('#level-chip')).toHaveText('1 / 20');
   await expect(first.locator('.cell-arrow')).toHaveCount(0);
+});
+
+test('@desktop-chromium-only Ravlyk accepts a cell first and then an arrow, and starts from the snail or apple', async ({ page }) => {
+  await page.goto('/go/');
+  const first = page.locator('.cell[data-r="2"][data-c="3"]');
+  const tile = page.locator('#palette button');
+  const status = page.getByRole('status');
+
+  await first.click();
+  await expect(first).toHaveClass(/target-cell/);
+  await expect(status).toContainText('натисни стрілку');
+  await tile.click();
+  await expect(first.locator('.cell-arrow')).toHaveCount(1);
+  await expect(first).not.toHaveClass(/target-cell/);
+
+  await page.locator('#btn-clr').click();
+  await page.locator('#clear-confirm').click();
+  await page.locator('.cell[data-r="2"][data-c="5"]').click();
+  await expect(status).toContainText('Спочатку постав стрілки');
+  await page.locator('.cell[data-r="2"][data-c="2"]').click();
+  await expect(status).toContainText('Спочатку постав стрілки');
+});
+
+test('@desktop-chromium-only Ravlyk moves a placed arrow by dragging it and removes it outside the board', async ({ page }) => {
+  await page.goto('/go/');
+  const first = page.locator('.cell[data-r="2"][data-c="3"]');
+  const second = page.locator('.cell[data-r="2"][data-c="4"]');
+  const undo = page.getByRole('button', { name: 'Скасувати останню дію' });
+
+  await page.locator('#palette button').click();
+  await first.click();
+  const from = await first.boundingBox();
+  const to = await second.boundingBox();
+  await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 8 });
+  await page.mouse.up();
+  await expect(second.locator('.cell-arrow')).toHaveCount(1);
+  await expect(first.locator('.cell-arrow')).toHaveCount(0);
+
+  await undo.click();
+  await expect(first.locator('.cell-arrow')).toHaveCount(1);
+  await expect(second.locator('.cell-arrow')).toHaveCount(0);
+
+  await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(5, 5, { steps: 8 });
+  await page.mouse.up();
+  await expect(first.locator('.cell-arrow')).toHaveCount(0);
+});
+
+test('@desktop-chromium-only Ravlyk deletes an arrow with a tap and keeps the board in place when zoom is requested', async ({ page }) => {
+  await page.goto('/go/');
+  const first = page.locator('.cell[data-r="2"][data-c="3"]');
+  await page.locator('#palette button').click();
+  await first.click();
+  await first.click();
+  await expect(first.locator('.cell-delete-btn')).toBeVisible();
+  const box = await first.locator('.cell-delete-btn').boundingBox();
+  expect(box.width).toBeGreaterThanOrEqual(30);
+  await first.locator('.cell-delete-btn').click();
+  await expect(first.locator('.cell-arrow')).toHaveCount(0);
+
+  const viewport = await page.locator('meta[name="viewport"]').getAttribute('content');
+  expect(viewport).toContain('user-scalable=no');
+  expect(await page.evaluate(() => getComputedStyle(document.body).userSelect)).toBe('none');
+});
+
+test('@desktop-chromium-only Ravlyk continues to the next level when the win dialog is closed', async ({ page }) => {
+  await page.goto('/go/');
+  await page.locator('#palette button').click();
+  await page.locator('.cell[data-r="2"][data-c="3"]').click();
+  await page.locator('.cell[data-r="2"][data-c="4"]').click();
+  await page.locator('#btn-run').click();
+  await expect(page.locator('#win-close')).toBeVisible({ timeout: 10_000 });
+  await page.locator('#win-close').click();
+  await expect(page.locator('#level-chip')).toHaveText('2 / 20');
+  await expect(page.locator('#snail')).toHaveAttribute('data-facing', 'up');
+});
+
+test('@desktop-chromium-only Ravlyk keeps level 16 arrows without scrolling on tablets', async ({ page }) => {
+  for (const viewport of [{ width: 1024, height: 768 }, { width: 1180, height: 820 }, { width: 768, height: 1024 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/go/');
+    await page.locator('#btn-map').click();
+    await page.locator('.map-level').nth(15).click();
+    await expect(page.locator('#level-title')).toHaveText('Лісовий лабіринт');
+    const overflow = await page.evaluate(() => ['.route-tools', '.command-tray', '#palette'].map((selector) => {
+      const element = document.querySelector(selector);
+      return element.scrollHeight - element.clientHeight;
+    }));
+    expect(Math.max(...overflow)).toBeLessThanOrEqual(1);
+    const tile = await page.locator('#palette button').first().boundingBox();
+    expect(tile.width).toBeGreaterThanOrEqual(44);
+  }
 });

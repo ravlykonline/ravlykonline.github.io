@@ -102,3 +102,21 @@ textarea {
     scroll-behavior: auto !important;
   }
 }
+
+/* Дитячий планшетний інтерфейс: без виділення тексту, довгого дотику й щипкового масштабу. */
+html,
+body {
+  touch-action: pan-x pan-y;
+  overscroll-behavior: none;
+}
+
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  -webkit-user-drag: none;
+}

@@ -1,6 +1,7 @@
 export function createAppUiLevelFlow({ app, effectsApi, refreshLevelUi, statusApi }) {
   function loadCurrentLevel() {
     app.ui?.stopTaskSpeech();
+    app.render.setSnailMood?.(null);
     effectsApi.clearStopMark();
     app.render.buildPalette();
     app.render.buildGrid();

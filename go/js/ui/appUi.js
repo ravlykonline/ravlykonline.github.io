@@ -51,6 +51,7 @@ export function createAppUi({
   });
   const startupApi = createAppUiStartup({
     app,
+    documentRef: document,
     effectsApi,
     statusApi
   });
@@ -119,7 +120,9 @@ export function createAppUi({
     setDisabled: stateApi.setDisabled,
     setLevelIntroStatus: statusApi.setLevelIntroStatus,
     setStatus: statusApi.setStatus,
+    playCrunchSound: audioApi.playCrunchSound,
     playErrorSound: audioApi.playErrorSound,
+    playFinaleSound: audioApi.playFinaleSound,
     playStepSound: audioApi.playStepSound,
     playSuccessSound: audioApi.playSuccessSound,
     resumeAudio: audioApi.resumeAudio,

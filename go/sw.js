@@ -2,7 +2,7 @@
 // Core app files use network-first so deployed updates can replace older cached
 // copies without relying entirely on manual cache version bumps.
 const CACHE_PREFIX = 'ravlyk-go-static-v';
-const STATIC_CACHE = 'ravlyk-go-static-v48';
+const STATIC_CACHE = 'ravlyk-go-static-v49';
 const APP_SHELL = [
   './',
   './index.html',
@@ -50,6 +50,7 @@ const APP_SHELL = [
   './js/ui/renderProgress.js',
   './js/ui/renderDrag.js',
   './js/ui/renderSnail.js',
+  './js/ui/snailSprite.js',
   './js/main.js',
   './js/main.module.js',
   './assets/run_button.svg',
@@ -94,6 +95,10 @@ const APP_SHELL = [
   './assets/voice/19.mp3',
   './assets/voice/20.mp3',
   './assets/snail.svg',
+  './assets/snail-face-neutral.svg',
+  './assets/snail-face-happy.svg',
+  './assets/snail-face-sad.svg',
+  './assets/snail-face-eat.svg',
   './assets/rock.svg',
   './assets/stump.svg',
   './assets/straight_up.svg',

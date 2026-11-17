@@ -20,10 +20,13 @@ export function bindAppUiEvents({
       return;
     }
     if (!app.state.dragMoved &&
-        Math.hypot(event.clientX - app.state.dragStartX, event.clientY - app.state.dragStartY) < 6) {
+        Math.hypot(event.clientX - app.state.dragStartX, event.clientY - app.state.dragStartY) < 10) {
       return;
     }
     app.state.dragMoved = true;
+    if (app.state.dragSource && !app.state.dragSource.active) {
+      app.render.activateSourceDrag(event.clientX, event.clientY);
+    }
     app.render.moveGhost(event.clientX, event.clientY);
     app.render.updateDropTarget(event.clientX, event.clientY);
   });
@@ -41,6 +44,23 @@ export function bindAppUiEvents({
     }
     app.render.endPointerDrag(-9999, -9999);
   });
+
+  // Діти часто випадково масштабують сторінку або виділяють текст довгим дотиком.
+  for (const gesture of ['gesturestart', 'gesturechange', 'gestureend']) {
+    documentRef.addEventListener(gesture, (event) => event.preventDefault());
+  }
+  documentRef.addEventListener('contextmenu', (event) => event.preventDefault());
+  documentRef.addEventListener('selectstart', (event) => event.preventDefault());
+  documentRef.addEventListener('touchmove', (event) => {
+    if (event.touches.length > 1) {
+      event.preventDefault();
+    }
+  }, { passive: false });
+  documentRef.addEventListener('wheel', (event) => {
+    if (event.ctrlKey) {
+      event.preventDefault();
+    }
+  }, { passive: false });
 
   documentRef.addEventListener('keydown', (event) => {
     if (modalApi.hasActiveModal()) {

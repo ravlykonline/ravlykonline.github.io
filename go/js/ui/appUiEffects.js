@@ -49,8 +49,33 @@ export function createAppUiEffects({
     });
   }
 
-  function launchConfetti() {
-    return launchFeatureConfetti({ documentRef, root: app.refs.confEl, windowRef });
+  function launchConfetti(options = {}) {
+    if (!options.finale) {
+      return launchFeatureConfetti({ documentRef, root: app.refs.confEl, windowRef });
+    }
+
+    // Фінал гри: кілька хвиль конфеті поспіль.
+    const waves = [0, 700, 1500, 2400];
+    let launched = false;
+    app.refs.confEl?.replaceChildren();
+    waves.forEach((delayMs) => {
+      const run = () => {
+        launched = launchFeatureConfetti({
+          append: true,
+          count: 130,
+          documentRef,
+          durationMs: 5200,
+          root: app.refs.confEl,
+          windowRef
+        }) || launched;
+      };
+      if (delayMs === 0) {
+        run();
+      } else {
+        windowRef.setTimeout(run, delayMs);
+      }
+    });
+    return launched;
   }
 
   function syncSizes() {

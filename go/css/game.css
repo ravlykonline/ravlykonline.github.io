@@ -348,8 +348,9 @@ body.debug-mode #status.warn {
   position: absolute;
   top: var(--space-1-5);
   right: var(--space-1-5);
-  width: var(--size-delete-btn);
-  height: var(--size-delete-btn);
+  width: min(var(--size-delete-btn), 85%);
+  height: auto;
+  aspect-ratio: 1;
   border: none;
   border-radius: var(--radius-pill);
   display: inline-flex;
@@ -435,11 +436,11 @@ body.debug-mode #status.warn {
 }
 
 #snail[data-facing="up"] {
-  --snail-tilt: -12deg;
+  --snail-tilt: -90deg;
 }
 
 #snail[data-facing="down"] {
-  --snail-tilt: 12deg;
+  --snail-tilt: 90deg;
 }
 
 #status {
@@ -917,10 +918,19 @@ body.debug-mode #status.warn {
   height: 84%;
 }
 
-.board-icon-snail {
+.snail-sprite {
+  position: relative;
+  display: block;
   width: 90%;
   height: 90%;
   transform: scaleX(var(--snail-mirror)) rotate(var(--snail-tilt));
+  transition: transform 0.25s ease;
+  transform-origin: 50% 60%;
+}
+
+.board-icon-snail {
+  width: 100%;
+  height: 100%;
 }
 
 .cell-obstacle {
@@ -1106,11 +1116,6 @@ body.debug-mode #status.warn {
   grid-column: 2;
 }
 
-.palette:has(> .atile:nth-child(6):last-child) {
-  display: grid;
-  grid-template-columns: repeat(3, var(--tile-sz));
-}
-
 .tool-btn {
   display: grid;
   place-items: center;
@@ -1278,4 +1283,149 @@ body.debug-mode #status.warn {
   .command-tray .atile {
     touch-action: pan-y;
   }
+}
+
+/* Дотик: стрілки на полі можна перетягувати, а клітинку — позначити перед вибором стрілки. */
+.cell.has-arrow {
+  touch-action: none;
+  cursor: grab;
+}
+
+.cell.drag-source .cell-arrow {
+  opacity: 0.25;
+  animation: none;
+}
+
+.cell.target-cell {
+  box-shadow: inset 0 0 0 4px var(--focus-ring);
+  animation: target-pulse 1s ease-in-out infinite;
+}
+
+@keyframes target-pulse {
+  50% {
+    box-shadow: inset 0 0 0 7px var(--focus-ring);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell.target-cell {
+    animation: none;
+  }
+}
+
+/* Равлик: обличчя, настрої та бульбашка з емоцією. */
+.snail-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.snail-face {
+  display: none;
+}
+
+.snail-face.face-neutral,
+#snail[data-mood="cheer"] .snail-face.face-happy,
+#snail[data-mood="happy"] .snail-face.face-happy,
+#snail[data-mood="sad"] .snail-face.face-sad,
+#snail[data-mood="eat"] .snail-face.face-eat {
+  display: block;
+}
+
+#snail[data-mood] .snail-face.face-neutral {
+  display: none;
+}
+
+#snail::after {
+  content: attr(data-bubble);
+  position: absolute;
+  top: -6%;
+  left: 50%;
+  translate: -50% -70%;
+  padding: 0.1em 0.35em;
+  border-radius: 999px;
+  background: #fffbe9;
+  border: 2px solid #231f20;
+  font-size: 0.42em;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+#snail[data-bubble]:not([data-bubble=""])::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #snail:not([data-mood]) .snail-sprite {
+    animation: snail-idle 3.2s ease-in-out infinite;
+  }
+
+  #snail[data-mood="happy"] .snail-sprite {
+    animation: snail-hop 0.55s ease-in-out 3;
+  }
+
+  #snail[data-mood="cheer"] .snail-sprite {
+    animation: snail-hop 0.5s ease-in-out 2;
+  }
+
+  #snail[data-mood="sad"] .snail-sprite {
+    animation: snail-shake 0.5s ease-in-out 3;
+  }
+
+  #snail[data-mood="eat"] .snail-sprite {
+    animation: snail-chomp 0.32s ease-in-out infinite;
+  }
+
+}
+
+@keyframes snail-idle {
+  50% {
+    translate: 0 -3%;
+    scale: 1.03 0.97;
+  }
+}
+
+@keyframes snail-hop {
+  40% {
+    translate: 0 -22%;
+  }
+}
+
+@keyframes snail-shake {
+  25% {
+    translate: -6% 0;
+  }
+
+  75% {
+    translate: 6% 0;
+  }
+}
+
+@keyframes snail-chomp {
+  50% {
+    scale: 1.06 0.9;
+  }
+}
+
+
+.palette.palette-dense {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+  gap: 4px;
+  width: 100%;
+}
+
+.palette.palette-dense .atile {
+  width: 100%;
+  max-width: var(--tile-sz);
+  height: auto;
+  aspect-ratio: 1;
+  justify-self: center;
 }

@@ -157,6 +157,7 @@ export function renderResultModal({
   actionId,
   actionText,
   bodyText,
+  closeActsAsAction = false,
   closeId,
   documentRef = document,
   onAction,
@@ -186,15 +187,26 @@ export function renderResultModal({
   box.append(closeButton, icon, title, body, actions);
   backdrop.appendChild(box);
 
+  const modalOptions = {
+    initialFocusSelector: `#${actionId}`,
+    ...(closeActsAsAction ? { closeOnBackdrop: false, closeOnEscape: false } : {})
+  };
   const modal = openModal
-    ? openModal(backdrop, { initialFocusSelector: `#${actionId}` })
+    ? openModal(backdrop, modalOptions)
     : createManagedModal({
       backdrop,
       documentRef,
-      initialFocusSelector: `#${actionId}`
+      ...modalOptions
     });
 
-  closeButton.addEventListener('click', () => modal.close());
+  closeButton.addEventListener('click', () => {
+    if (closeActsAsAction) {
+      modal.close({ restoreFocus: false });
+      onAction?.();
+      return;
+    }
+    modal.close();
+  });
   actionButton.addEventListener('click', () => {
     modal.close({ restoreFocus: false });
     onAction?.();
@@ -429,6 +441,7 @@ export function createUiModals({
       actionId: 'mok',
       actionText: text.winAction(hasNext),
       bodyText: text.winBody(isFinalWin),
+      closeActsAsAction: hasNext,
       closeId: 'win-close',
       documentRef,
       onAction() {

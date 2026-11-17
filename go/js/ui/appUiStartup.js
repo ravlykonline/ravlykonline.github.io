@@ -1,8 +1,13 @@
-export function createAppUiStartup({ app, effectsApi, statusApi }) {
+import { createSnailSprite } from './snailSprite.js';
+
+export function createAppUiStartup({ app, documentRef = globalThis.document, effectsApi, statusApi }) {
   function start() {
     statusApi.setLevelIntroStatus();
     app.refs.snailEl.replaceChildren(
-      app.createAssetIcon('snail.svg', 'board-icon board-icon-snail')
+      createSnailSprite({
+        createAssetIcon: (filename, className) => app.createAssetIcon(filename, className),
+        documentRef
+      })
     );
     effectsApi.syncSizes();
   }

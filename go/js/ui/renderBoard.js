@@ -8,6 +8,7 @@ export function createBoardGrid({
   onCellAction,
   onCellFocus,
   onCellKeyDown,
+  onCellPointerDown,
   rows
 }) {
   const grid = documentRef.createElement('div');
@@ -25,6 +26,9 @@ export function createBoardGrid({
       cell.setAttribute('tabindex', row === 0 && col === 0 ? '0' : '-1');
       cell.addEventListener('click', () => onCellAction?.(row, col));
       cell.addEventListener('focus', () => onCellFocus?.(row, col));
+      if (onCellPointerDown) {
+        cell.addEventListener('pointerdown', (event) => onCellPointerDown(event, cell, row, col));
+      }
       if (onCellKeyDown) {
         cell.addEventListener('keydown', (event) => onCellKeyDown(event, row, col));
       }
@@ -62,6 +66,8 @@ export function renderBoardCell({
   cell.replaceChildren();
   cell.classList.toggle('pending-delete', isPendingDelete);
   cell.classList.toggle('debug-cell', isDebugLevel && isPresetArrow);
+  cell.classList.toggle('has-arrow', !!tileDef && !shouldRenderApple && !obstacle);
+  cell.classList.toggle('target-cell', state.targetCellKey === key && !tileDef && !shouldRenderApple && !obstacle);
 
   if (obstacle) {
     const obstacleEl = cell.ownerDocument.createElement('span');

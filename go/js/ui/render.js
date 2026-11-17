@@ -21,6 +21,12 @@ export function createRender({
   function deselect() {
     const wasSelected = app.state.selDir !== null;
     app.state.selDir = null;
+    const staleTarget = app.state.targetCellKey;
+    app.state.targetCellKey = null;
+    if (staleTarget) {
+      const [tr, tc] = staleTarget.split(',').map(Number);
+      renderCell(tr, tc);
+    }
     for (const tile of documentRef.querySelectorAll('.atile.sel')) {
       tile.classList.remove('sel');
       tile.setAttribute('aria-pressed', 'false');
@@ -69,23 +75,60 @@ export function createRender({
   }
 
   function placeArrow(r, c, dir) {
-    const apple = app.getApple();
-    const start = app.getStart();
-
-    if (app.state.running) {
-      return;
-    }
-    if ((r === apple.r && c === apple.c) || (r === start.r && c === start.c) || app.isObstacle(r, c)) {
+    if (app.state.running || !canPlaceAt(r, c)) {
       return;
     }
 
     applyArrowEdit(r, c, dir);
   }
 
+  function canPlaceAt(r, c) {
+    const apple = app.getApple();
+    const start = app.getStart();
+    return !((r === apple.r && c === apple.c) || (r === start.r && c === start.c) || app.isObstacle(r, c));
+  }
+
+  function setTarget(r, c) {
+    const key = `${r},${c}`;
+    const previous = app.state.targetCellKey;
+    app.state.targetCellKey = previous === key ? null : key;
+    if (previous) {
+      const [pr, pc] = previous.split(',').map(Number);
+      renderCell(pr, pc);
+    }
+    renderCell(r, c);
+    app.ui?.updateEditHint?.();
+  }
+
+  function clearTarget() {
+    const previous = app.state.targetCellKey;
+    if (!previous) {
+      return;
+    }
+    app.state.targetCellKey = null;
+    const [pr, pc] = previous.split(',').map(Number);
+    renderCell(pr, pc);
+    app.ui?.updateEditHint?.();
+  }
+
+  function moveArrow(fromR, fromC, toR, toC, dir) {
+    if (app.state.running || !canPlaceAt(toR, toC) || app.state.arrows[`${fromR},${fromC}`] !== dir) {
+      return;
+    }
+    applyArrowEdit(toR, toC, dir);
+    applyArrowEdit(fromR, fromC, undefined, true, true);
+  }
+
   const dragApi = app.createRenderDrag({
     clearPendingDelete,
     ghostEl,
-    placeArrow
+    moveArrow,
+    onCellTap: (r, c) => {
+      setActiveGridCell(r, c, { focus: false });
+      cellClick(r, c);
+    },
+    placeArrow,
+    removeArrow: (r, c) => removeArrow(r, c)
   });
 
   function renderCell(r, c) {
@@ -160,27 +203,37 @@ export function createRender({
     if (app.state.running || arrowHistory.length === 0) {
       return;
     }
-    const { r, c, dir } = arrowHistory.pop();
+    let { r, c, dir, linked } = arrowHistory.pop();
     const undoHadFocus = documentRef.activeElement === btnUndo;
     applyArrowEdit(r, c, dir, false);
+    if (linked && arrowHistory.length > 0) {
+      ({ r, c, dir } = arrowHistory.pop());
+      applyArrowEdit(r, c, dir, false);
+    }
     if (btnUndo?.disabled && undoHadFocus) {
       setActiveGridCell(r, c);
     }
   }
 
-  function applyArrowEdit(r, c, dir, record = true) {
+  function applyArrowEdit(r, c, dir, record = true, linked = false) {
     const key = `${r},${c}`;
     const previous = app.state.arrows[key];
     if (previous === dir) {
       return;
     }
     if (record) {
-      arrowHistory.push({ r, c, dir: previous });
+      arrowHistory.push({ r, c, dir: previous, linked });
       if (arrowHistory.length > maxUndoSteps) {
         arrowHistory.shift();
       }
     }
     clearPendingDelete();
+    const staleTarget = app.state.targetCellKey;
+    if (staleTarget) {
+      app.state.targetCellKey = null;
+      const [tr, tc] = staleTarget.split(',').map(Number);
+      renderCell(tr, tc);
+    }
     if (app.state.appleEaten) {
       const start = app.getStart();
       const startFacing = app.getStartFacing();
@@ -207,15 +260,28 @@ export function createRender({
     if (app.state.running) {
       return;
     }
-    if (app.state.selDir) {
+    const apple = app.getApple();
+    const start = app.getStart();
+    if ((r === apple.r && c === apple.c) || (r === start.r && c === start.c)) {
+      clearPendingDelete();
+      clearTarget();
+      app.refs.btnRun?.click();
+      return;
+    }
+    const existing = app.state.arrows[`${r},${c}`];
+    if (app.state.selDir && app.state.selDir !== existing) {
       placeArrow(r, c, app.state.selDir);
       return;
     }
-    if (app.state.arrows[`${r},${c}`]) {
+    if (existing) {
+      clearTarget();
       setPendingDelete(r, c);
       return;
     }
     clearPendingDelete();
+    if (canPlaceAt(r, c)) {
+      setTarget(r, c);
+    }
   }
 
   let activeCellKey = null;
@@ -268,6 +334,11 @@ export function createRender({
         }
 
         clearPendingDelete();
+        if (app.state.targetCellKey) {
+          const [tr, tc] = app.state.targetCellKey.split(',').map(Number);
+          placeArrow(tr, tc, dir);
+          return;
+        }
         if (app.state.selDir === dir) {
           deselect();
         } else {
@@ -287,6 +358,8 @@ export function createRender({
     });
 
     paletteEl.replaceChildren(...Array.from(palette.childNodes));
+    // Багато карток (рівні 7+): вони стискаються до сітки, щоб не з'являлась прокрутка.
+    paletteEl.classList.toggle('palette-dense', paletteEl.childNodes.length >= 5);
   }
 
   function buildGrid() {
@@ -300,13 +373,30 @@ export function createRender({
     };
 
     activeCellKey = null;
+    app.state.targetCellKey = null;
     resetUndoHistory();
     const grid = createBoardGrid({
       cols,
       documentRef,
       onCellAction(r, c) {
+        if (Date.now() < (app.state.suppressCellClickUntil || 0)) {
+          return;
+        }
         setActiveGridCell(r, c, { focus: false });
         cellClick(r, c);
+      },
+      onCellPointerDown(event, cell, r, c) {
+        if ((event.button !== undefined && event.button !== 0) || !cell.classList.contains('has-arrow')) {
+          return;
+        }
+        if (event.target.closest?.('.cell-delete-btn')) {
+          return;
+        }
+        const dir = app.state.arrows[`${r},${c}`];
+        const tile = dir ? findTileDef(dir) : null;
+        if (tile) {
+          dragApi.beginCellDrag(event, cell, r, c, dir, tile.group);
+        }
       },
       onCellFocus(r, c) {
         setActiveGridCell(r, c, { focus: false });
@@ -392,6 +482,7 @@ export function createRender({
   }
 
   return {
+    activateSourceDrag: dragApi.activateSourceDrag,
     beginPointerDrag: dragApi.beginPointerDrag,
     buildPalette,
     buildGrid,
@@ -399,6 +490,7 @@ export function createRender({
     cellEl,
     clearDropTarget: dragApi.clearDropTarget,
     clearPendingDelete,
+    clearTarget,
     clearStartHighlight,
     clearTrail,
     deselect,
@@ -407,6 +499,7 @@ export function createRender({
     moveGhost: dragApi.moveGhost,
     placeArrow,
     posSnail: snailApi.posSnail,
+    setSnailMood: snailApi.setMood,
     removeArrow,
     refreshUndoButton,
     resetUndoHistory,

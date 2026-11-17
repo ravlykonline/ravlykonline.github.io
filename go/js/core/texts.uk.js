@@ -43,6 +43,7 @@ export const textsUk = {
   ui: {
     defaultStatus: "Вибери картку зі стрілкою.",
     placeSelected: "Тепер натисни клітинку на полі.",
+    pickArrowForCell: "Тепер натисни стрілку внизу.",
     editRoute: "Вибери стрілку або запусти Равлика.",
     routeReady: "Шлях готовий! Натисни «Запустити».",
     debugStatus: "Маршрут уже є. Знайди помилку.",

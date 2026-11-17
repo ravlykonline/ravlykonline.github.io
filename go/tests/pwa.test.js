@@ -96,7 +96,7 @@ test('service worker app shell caches real local files', () => {
 test('service worker cache version is bumped for changed app shell files', () => {
   const source = readUtf8('sw.js');
 
-  assert.match(source, /const STATIC_CACHE = 'ravlyk-go-static-v48'/);
+  assert.match(source, /const STATIC_CACHE = 'ravlyk-go-static-v49'/);
   assert.match(source, /event\.request\.method !== 'GET'/);
 });
 
@@ -112,7 +112,7 @@ test('activation removes only outdated game caches', async () => {
     },
     caches: {
       keys: async () => [
-        'ravlyk-go-static-v42', 'ravlyk-go-static-v45', 'ravlyk-go-static-v46', 'ravlyk-go-static-v47', 'ravlyk-go-static-v48', 'ravlyk-static-v40',
+        'ravlyk-go-static-v42', 'ravlyk-go-static-v45', 'ravlyk-go-static-v46', 'ravlyk-go-static-v47', 'ravlyk-go-static-v48', 'ravlyk-go-static-v49', 'ravlyk-static-v40',
         'ravlyk-static-v28', 'ravlyk-runtime'
       ],
       delete: async (key) => deleted.push(key)
@@ -122,7 +122,7 @@ test('activation removes only outdated game caches', async () => {
   let activation;
   handlers.get('activate')({ waitUntil: (promise) => { activation = promise; } });
   await activation;
-  assert.deepEqual(deleted, ['ravlyk-go-static-v42', 'ravlyk-go-static-v45', 'ravlyk-go-static-v46', 'ravlyk-go-static-v47']);
+  assert.deepEqual(deleted, ['ravlyk-go-static-v42', 'ravlyk-go-static-v45', 'ravlyk-go-static-v46', 'ravlyk-go-static-v47', 'ravlyk-go-static-v48']);
 });
 
 test('manifest uses /go-compatible relative paths', () => {
@@ -192,4 +192,29 @@ test('optional redirects file documents /go to /go/ fallback for supporting host
   const redirects = readUtf8('_redirects').trim();
 
   assert.equal(redirects, '/go /go/ 301');
+});
+
+test('service worker app shell caches every module and image the game loads', () => {
+  const appShell = new Set(readAppShell());
+  const missing = [];
+
+  function walk(directory, prefix) {
+    for (const entry of fs.readdirSync(path.join(root, directory), { withFileTypes: true })) {
+      const relative = `${directory}/${entry.name}`;
+      if (entry.isDirectory()) {
+        walk(relative, prefix);
+      } else if (prefix.test(entry.name) && !appShell.has(`./${relative}`)) {
+        missing.push(relative);
+      }
+    }
+  }
+
+  walk('js', /\.js$/);
+  for (const file of fs.readdirSync(path.join(root, 'assets'))) {
+    if (/^snail.*\.svg$/.test(file) && !appShell.has(`./assets/${file}`)) {
+      missing.push(`assets/${file}`);
+    }
+  }
+
+  assert.deepEqual(missing, []);
 });

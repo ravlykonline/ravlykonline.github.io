@@ -145,6 +145,49 @@ export function createAudioFeedback({ performanceRef = globalThis.performance, w
     return true;
   }
 
+  // Гучне хрумтіння яблука: короткі шумові удари з низьким «тук».
+  function playCrunchSound(bites = 5) {
+    const ctx = resumeAudio();
+    if (!ctx) {
+      return false;
+    }
+
+    const startAt = ctx.currentTime + 0.02;
+    for (let i = 0; i < bites; i += 1) {
+      const when = startAt + i * 0.32;
+      playNoiseBurst({ duration: 0.11, highpass: 500, lowpass: 2600 + (i % 2) * 700, volume: 0.09, when });
+      playNoiseBurst({ duration: 0.06, highpass: 1800, lowpass: 4200, volume: 0.05, when: when + 0.03 });
+      playTone({ attack: 0.002, duration: 0.05, frequency: 150 - (i % 2) * 20, release: 0.06, type: 'square', volume: 0.04, when });
+    }
+    return true;
+  }
+
+  // Фінальні овації: фанфари й «оплески» з багатьох коротких шумових ударів.
+  function playFinaleSound() {
+    const ctx = resumeAudio();
+    if (!ctx) {
+      return false;
+    }
+
+    const startAt = ctx.currentTime + 0.02;
+    const melody = [523.25, 659.25, 783.99, 659.25, 783.99, 1046.5];
+    melody.forEach((frequency, index) => {
+      playTone({ duration: 0.16, frequency, type: 'triangle', volume: 0.075, when: startAt + index * 0.16 });
+    });
+    playTone({ duration: 0.7, frequency: 1046.5, type: 'triangle', volume: 0.08, when: startAt + melody.length * 0.16 });
+    for (let i = 0; i < 70; i += 1) {
+      const when = startAt + 0.5 + Math.random() * 3.4;
+      playNoiseBurst({
+        duration: 0.04 + Math.random() * 0.05,
+        highpass: 900,
+        lowpass: 2500 + Math.random() * 2500,
+        volume: 0.03 + Math.random() * 0.03,
+        when
+      });
+    }
+    return true;
+  }
+
   function playErrorSound() {
     const ctx = resumeAudio();
     if (!ctx) {
@@ -176,7 +219,9 @@ export function createAudioFeedback({ performanceRef = globalThis.performance, w
   }
 
   return {
+    playCrunchSound,
     playErrorSound,
+    playFinaleSound,
     playStepSound,
     playSuccessSound,
     primeAudio,
@@ -210,7 +255,9 @@ export function createUiAudio({
   }
 
   return {
+    playCrunchSound: feedback.playCrunchSound,
     playErrorSound: feedback.playErrorSound,
+    playFinaleSound: feedback.playFinaleSound,
     playStepSound: feedback.playStepSound,
     playSuccessSound: feedback.playSuccessSound,
     primeAudio: feedback.primeAudio,

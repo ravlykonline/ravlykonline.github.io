@@ -10,6 +10,7 @@ function randomBetween(min, max, random) {
 
 export function launchConfetti(options = {}) {
   const {
+    append = false,
     count = 75,
     documentRef = globalThis.document,
     durationMs = 3800,
@@ -24,7 +25,9 @@ export function launchConfetti(options = {}) {
   }
 
   const pieces = [];
-  confettiRoot.replaceChildren();
+  if (!append) {
+    confettiRoot.replaceChildren();
+  }
 
   for (let i = 0; i < count; i += 1) {
     const part = documentRef.createElement('div');
@@ -43,7 +46,11 @@ export function launchConfetti(options = {}) {
 
   confettiRoot.append(...pieces);
   windowRef.setTimeout(() => {
-    confettiRoot.replaceChildren();
+    if (append) {
+      pieces.forEach((piece) => piece.remove?.());
+    } else {
+      confettiRoot.replaceChildren();
+    }
   }, durationMs);
   return true;
 }

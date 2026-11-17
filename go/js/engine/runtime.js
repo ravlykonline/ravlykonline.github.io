@@ -126,6 +126,7 @@ export function createGameEngine({ app }) {
     } = options || {};
 
     app.ui.playErrorSound();
+    app.render.setSnailMood?.('sad', '😢', 2200);
     app.ui.setStatus(icon, text, statusType);
 
     if (flash) {
@@ -163,6 +164,7 @@ export function createGameEngine({ app }) {
       return;
     }
 
+    app.render.setSnailMood?.(null);
     app.render.clearTrail();
     app.render.clearPendingDelete();
     app.render.clearStartHighlight();
@@ -259,14 +261,24 @@ export function createGameEngine({ app }) {
 
       if (move.isAppleAhead) {
         await delay(app.config.stepMs * 0.8);
+        app.render.setSnailMood?.('eat', '😋');
+        app.ui.playCrunchSound?.(5);
+        await delay(app.config.stepMs * 3);
+        const isFinalLevel = app.hasNextLevel ? !app.hasNextLevel() : false;
         app.markLevelComplete(app.state.currentLevel.id);
         app.state.appleEaten = true;
         app.render.renderAll();
-        app.ui.playSuccessSound();
+        app.render.setSnailMood?.('happy', '😍', isFinalLevel ? 6000 : 2600);
+        if (isFinalLevel && app.ui.playFinaleSound) {
+          app.ui.playFinaleSound();
+        } else {
+          app.ui.playSuccessSound();
+        }
         app.ui.setStatus('check', engineText.success, 'ok');
         app.ui.refreshLevelUi();
-        app.ui.launchConfetti();
+        app.ui.launchConfetti({ finale: isFinalLevel });
         app.render.clearStartHighlight();
+        await delay(isFinalLevel ? app.config.stepMs * 5 : app.config.stepMs * 1.5);
         app.state.running = false;
         app.ui.setDisabled(false);
         app.ui.showWin();

@@ -45,9 +45,11 @@ export function createAppUiStatus({
       return;
     }
     const { selDir, arrows } = app.state;
-    const message = selDir
+    const message = app.state.targetCellKey
+      ? text.ui.pickArrowForCell
+      : selDir
       ? text.ui.placeSelected
-      : Object.keys(arrows).length > 0 ? text.ui.editRoute : text.ui.defaultStatus;
+      : Object.keys(arrows).length > 0 ? text.ui.editRoute : (app.state.currentLevel.hint || text.ui.defaultStatus);
     setStatus('hint', routeIsReadyForRunHint() ? text.ui.routeReady : message, '');
   }
 
@@ -63,7 +65,7 @@ export function createAppUiStatus({
 
   function setLevelIntroStatus() {
     if (app.state.currentLevel.type === 'debug') {
-      setStatus('search', text.ui.debugStatus, 'warn');
+      setStatus('search', app.state.currentLevel.hint || text.ui.debugStatus, 'warn');
       return;
     }
     updateEditHint();

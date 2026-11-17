@@ -77,6 +77,7 @@ export const levels = [
     name: 'Крокуємо вгору',
     type: 'play', rows: 6, cols: 8,
     start: { r: 4, c: 3 }, apple: { r: 1, c: 3 }, obstacles: [],
+    startFacing: 'up',
     allowedTiles: ['up'], presetArrows: {},
     hint: 'Яблуко над Равликом. Проклади до нього шлях стрілками вгору.',
     goal: 'Рух угору.'
@@ -96,6 +97,7 @@ export const levels = [
     name: 'Кроки вниз',
     type: 'play', rows: 6, cols: 8,
     start: { r: 0, c: 3 }, apple: { r: 5, c: 3 }, obstacles: [],
+    startFacing: 'down',
     allowedTiles: ['down'], presetArrows: {},
     hint: 'Яблуко під Равликом. Проклади до нього шлях стрілками вниз.',
     goal: 'Рух униз.'
@@ -114,7 +116,11 @@ export const levels = [
     id: 6,
     name: 'Поворот до яблука',
     type: 'play', rows: 6, cols: 8,
-    start: { r: 3, c: 2 }, apple: { r: 1, c: 5 }, obstacles: [],
+    start: { r: 3, c: 2 }, apple: { r: 1, c: 5 },
+    obstacles: [
+      { r: 2, c: 3, kind: 'rock', label: 'Камінь' },
+      { r: 1, c: 4, kind: 'log', label: 'Пеньок' }
+    ],
     allowedTiles: ['up', 'right', 'left-up'],
     presetArrows: { '3,5': 'left-up' },
     hint: 'Доведи Равлика до готового повороту. Потім проклади шлях від повороту до яблука.',
@@ -124,7 +130,12 @@ export const levels = [
     id: 7,
     name: 'Звивистий шлях до яблука',
     type: 'play', rows: 6, cols: 8,
-    start: { r: 1, c: 2 }, apple: { r: 4, c: 5 }, obstacles: [],
+    start: { r: 1, c: 2 }, apple: { r: 4, c: 5 },
+    obstacles: [
+      { r: 3, c: 3, kind: 'log', label: 'Пеньок' },
+      { r: 2, c: 5, kind: 'rock', label: 'Камінь' },
+      { r: 4, c: 2, kind: 'rock', label: 'Камінь' }
+    ],
     allowedTiles: ['up', 'right', 'down', 'left', 'left-down', 'up-right'], presetArrows: {},
     hint: 'Проклади шлях до яблука. На прямій клади прямі стрілки, а там, де шлях змінює напрям, клади повороти.',
     goal: 'Прямо і поворот.'
@@ -238,7 +249,9 @@ export const levels = [
       { r: 2, c: 4, kind: 'rock', label: 'Камінь' },
       { r: 2, c: 5, kind: 'log', label: 'Пеньок' },
       { r: 3, c: 2, kind: 'rock', label: 'Камінь' },
-      { r: 4, c: 3, kind: 'log', label: 'Пеньок' }
+      { r: 4, c: 3, kind: 'log', label: 'Пеньок' },
+      { r: 1, c: 3, kind: 'rock', label: 'Камінь' },
+      { r: 4, c: 5, kind: 'rock', label: 'Камінь' }
     ],
     allowedTiles: ['right', 'down', 'left-down', 'up-right'],
     presetArrows: {},

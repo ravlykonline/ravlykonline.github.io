@@ -11,6 +11,23 @@ export function createRenderSnail({
   snailEl,
   windowRef = window
 }) {
+  let moodTimer = null;
+
+  function setMood(mood, bubble = '', durationMs = 0) {
+    windowRef.clearTimeout?.(moodTimer);
+    moodTimer = null;
+    if (!mood) {
+      delete snailEl.dataset.mood;
+      delete snailEl.dataset.bubble;
+      return;
+    }
+    snailEl.dataset.mood = mood;
+    snailEl.dataset.bubble = bubble;
+    if (durationMs > 0) {
+      moodTimer = windowRef.setTimeout(() => setMood(null), durationMs);
+    }
+  }
+
   function setFacing(dir) {
     snailEl.dataset.facing = dir;
     if (dir === 'left' || dir === 'right') {
@@ -94,6 +111,7 @@ export function createRenderSnail({
 
   return {
     bumpSnail,
-    posSnail
+    posSnail,
+    setMood
   };
 }
