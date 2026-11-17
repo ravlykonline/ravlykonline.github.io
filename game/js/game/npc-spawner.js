@@ -70,7 +70,7 @@ export function positionNpcs({ npcs, config, player, blockers = [], random = Mat
     const placementTiers = [
         { gap: NPC_GAP, startClear: NPC_START_CLEAR_RADIUS },
         { gap: NPC_GAP / 2, startClear: NPC_START_CLEAR_RADIUS },
-        { gap: 0, startClear: NPC_START_CLEAR_RADIUS / 2 }
+        { gap: 0, startClear: NPC_START_CLEAR_RADIUS }
     ];
 
     orderedNpcs.forEach((npc, index) => {
