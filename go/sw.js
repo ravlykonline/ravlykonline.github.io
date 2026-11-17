@@ -2,7 +2,7 @@
 // Core app files use network-first so deployed updates can replace older cached
 // copies without relying entirely on manual cache version bumps.
 const CACHE_PREFIX = 'ravlyk-go-static-v';
-const STATIC_CACHE = 'ravlyk-go-static-v49';
+const STATIC_CACHE = 'ravlyk-go-static-v50';
 const APP_SHELL = [
   './',
   './index.html',
@@ -163,7 +163,10 @@ function isRuntimeUpdatableAsset(pathname) {
 async function networkFirst(request, shellUrl, fallback) {
   let response;
   try {
-    response = await fetch(request);
+    // Хостинг віддає CSS/JS з max-age, тому оновлення без перевірки кешу браузера
+    // могли б надходити з запізненням до кількох годин.
+    const isDocument = request.mode === 'navigate' || request.destination === 'document';
+    response = await (isDocument ? fetch(request) : fetch(request, { cache: 'no-cache' }));
   } catch {
     return fallback();
   }
