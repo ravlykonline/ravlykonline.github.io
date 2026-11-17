@@ -129,3 +129,32 @@ test('@desktop-chromium-only adventure blocks accidental zoom and text selection
   });
   expect(prevented).toBe(true);
 });
+
+test('@desktop-chromium-only adventure places large animals without overlaps or corner fallbacks', async ({ page }) => {
+  await page.goto('/game/');
+  const result = await page.evaluate(async () => {
+    const { generateObstacles } = await import('/game/js/game/world-generator.js');
+    const { positionNpcs } = await import('/game/js/game/npc-spawner.js');
+    const { LevelData } = await import('/game/js/game/level-data.js');
+    const { createLevelConfig } = await import('/game/js/core/config.js');
+    const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+    let bad = 0;
+    let size = 0;
+    for (const index of [1, 2, 3]) {
+      const level = LevelData.getByIndex(index);
+      const config = createLevelConfig(level);
+      for (let run = 0; run < 15; run += 1) {
+        const player = { x: 2000, y: 2000 };
+        const obstacles = generateObstacles({ config, player });
+        const npcs = positionNpcs({ npcs: level.npcs.map(npc => ({ ...npc })), config, player, blockers: obstacles });
+        size = npcs[0].w;
+        npcs.forEach((npc, i) => {
+          if ((npc.x === 0 && npc.y === 0) || obstacles.some(o => overlap(npc, o)) || npcs.slice(i + 1).some(o => overlap(npc, o))) bad += 1;
+        });
+      }
+    }
+    return { bad, size };
+  });
+  expect(result.bad).toBe(0);
+  expect(result.size).toBeGreaterThanOrEqual(112);
+});

@@ -1,4 +1,4 @@
-const NPC_SIZE = 56;
+const NPC_SIZE = 128;
 
 // ── Банки завдань за рівнями складності ─────────────────────────────
 // Рівень 1 — beginner, рівень 2 — intermediate, рівень 3 — advanced.

@@ -1,6 +1,6 @@
 const CACHE_PREFIX = 'ravlyk-game-static-v';
 const LEGACY_CACHE = 'ravlyk-static-v28';
-const STATIC_CACHE = 'ravlyk-game-static-v32';
+const STATIC_CACHE = 'ravlyk-game-static-v33';
 const STATIC_ASSETS = [
     './',
     './index.html',

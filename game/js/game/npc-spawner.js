@@ -65,27 +65,35 @@ export function positionNpcs({ npcs, config, player, blockers = [], random = Mat
         random
     });
 
+    // Великі звірі важче вміщаються між перешкодами: якщо звичайні відступи не
+    // спрацювали, послаблюємо їх, але ніколи не залишаємо звіра в куті (0, 0).
+    const placementTiers = [
+        { gap: NPC_GAP, startClear: NPC_START_CLEAR_RADIUS },
+        { gap: NPC_GAP / 2, startClear: NPC_START_CLEAR_RADIUS },
+        { gap: 0, startClear: NPC_START_CLEAR_RADIUS / 2 }
+    ];
+
     orderedNpcs.forEach((npc, index) => {
         let placedNpc = null;
-        let attempts = 0;
 
-        while (!placedNpc && attempts < MAX_PLACEMENT_ATTEMPTS) {
-            const cell = cells[(index + attempts) % cells.length];
-            const candidate = createNpcPlacement(npc, random, config, cell);
+        for (const tier of placementTiers) {
+            for (let attempts = 0; attempts < MAX_PLACEMENT_ATTEMPTS && !placedNpc; attempts += 1) {
+                const cell = cells[(index + attempts) % cells.length];
+                const candidate = createNpcPlacement(npc, random, config, attempts < cells.length ? cell : null);
 
-            if (canPlaceRect(candidate, {
-                blockers: [...blockers, ...positionedNpcs],
-                blockerGap: NPC_GAP,
-                avoidPoint: player,
-                minDistanceFromPoint: NPC_START_CLEAR_RADIUS
-            })) {
-                placedNpc = candidate;
+                if (canPlaceRect(candidate, {
+                    blockers: [...blockers, ...positionedNpcs],
+                    blockerGap: tier.gap,
+                    avoidPoint: player,
+                    minDistanceFromPoint: tier.startClear
+                })) {
+                    placedNpc = candidate;
+                }
             }
-
-            attempts += 1;
+            if (placedNpc) break;
         }
 
-        positionedNpcs.push(placedNpc ?? npc);
+        positionedNpcs.push(placedNpc ?? createNpcPlacement(npc, random, config));
     });
 
     return positionedNpcs;

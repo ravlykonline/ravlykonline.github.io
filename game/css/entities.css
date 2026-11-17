@@ -132,14 +132,14 @@
 .npc.completed::after {
     content: '';
     position: absolute;
-    top: -8px;
-    right: -8px;
-    background: var(--color-picture-backing) url('../assets/star.svg') center / 17px no-repeat;
-    width: 24px;
-    height: 24px;
+    top: -12px;
+    right: -12px;
+    background: var(--color-picture-backing) url('../assets/star.svg') center / 28px no-repeat;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     text-align: center;
-    line-height: 24px;
+    line-height: 40px;
     font-size: 0.85rem;
     border: 2px solid #fff;
     box-shadow: var(--shadow-1);

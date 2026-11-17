@@ -19,7 +19,7 @@ export const CONFIG = {
     pondCount: 5,
     appleCount: 42,
     pearCount: 0,
-    interactionRadius: 132
+    interactionRadius: 168
 };
 
 /**
