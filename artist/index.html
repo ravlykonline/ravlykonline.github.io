@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/blocks.css">
 <link rel="stylesheet" href="css/responsive.css">
 <link rel="stylesheet" href="css/accessibility.css">
 </head>
@@ -40,18 +41,11 @@
               <button class="btn-history" id="btn-undo" type="button" title="Скасувати (Ctrl+Z)" aria-label="Скасувати" disabled>↩</button>
               <button class="btn-history" id="btn-redo" type="button" title="Повернути (Ctrl+Y)" aria-label="Повернути" disabled>↪</button>
             </div>
-            <div id="block-count">0 команд</div>
+            <button class="btn-style" id="btn-blocks-style" type="button" aria-pressed="false" title="Змінити вигляд блоків">Пастельні</button>
+            <div id="block-count" aria-live="off">Блоків: 0</div>
           </div>
           <div id="ws-stack">
-            <div class="evt-block">
-              <span aria-hidden="true">▶</span>
-              <span>Коли запущено</span>
-            </div>
-            <div id="ws-inner">
-              <div class="ws-empty" id="ws-empty">
-                Натисни команду зліва,<br>щоб додати її сюди
-              </div>
-            </div>
+            <div id="ws-canvas" class="ws-canvas" aria-label="Полотно програми"></div>
           </div>
         </section>
       </div>

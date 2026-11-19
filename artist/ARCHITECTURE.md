@@ -40,7 +40,9 @@ js/
     engine.js             ← moveSnail, sleep
     goals.js              ← evaluateGoal (exact-path, minimum-steps, path-match)
     state.js              ← appState, мутатори
-    workspace.js          ← операції з блоками (add, remove, move, flatten, up/down/out)
+    workspace.js          ← чисті операції над документом {main, loose}: liftTail, placeTail, placeLoose,
+                            appendToTarget, up/down/out, nearestInsertionPoint
+    blockShape.js         ← SVG-контури пазлів (stackPath, hatPath, loopPath), без DOM
 
   data/
     blocks.js             ← blockDefinitions (grid + turtle)
@@ -54,6 +56,9 @@ js/
 
   state/
     history.js            ← undo/redo (pushSnapshot, undo, redo, canUndo/canRedo)
+
+  ui/                     ← DOM: blockView (блок і поля), workspaceView (полотно, клавіатура, меню),
+                            dragdrop (pointer events), palette, popover (−/+, кольори, меню)
 
   utils/
     focus-trap.js         ← trapFocus(container)

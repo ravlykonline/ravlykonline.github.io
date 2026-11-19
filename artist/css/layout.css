@@ -90,7 +90,7 @@
   min-height: 0;
   overflow: hidden;
   display: grid;
-  grid-template-columns: minmax(13rem, 0.72fr) minmax(0, 1.28fr);
+  grid-template-columns: minmax(15.5rem, 0.9fr) minmax(0, 1.1fr);
   gap: var(--space-3);
 }
 

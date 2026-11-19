@@ -4,7 +4,9 @@ import { countBlocksIn, withIds } from './blockTree.js';
 export const appState = {
   currentLessonIndex: 0,
   currentLesson: lessons[0],
-  workspace: [],
+  workspace: [], // головний стос під «коли ▶ натиснуто» — єдине, що виконується
+  loose: [], // вільні стоси: [{ id, x, y, blocks }] — не виконуються
+  errorBlockId: null,
   running: false,
   doneLessons: new Set(),
   turtleSegments: [],
@@ -30,6 +32,8 @@ export function setLesson(index) {
   appState.currentLessonIndex = index;
   appState.currentLesson = lessons[index];
   appState.workspace = initialWorkspace(appState.currentLesson);
+  appState.loose = [];
+  appState.errorBlockId = null;
   appState.activeBlockId = null;
   resetRuntimeState();
 }

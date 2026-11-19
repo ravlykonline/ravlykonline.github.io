@@ -18,7 +18,7 @@
     "html:check-partials": "node scripts/sync-html-partials.mjs --check",
     "docs:check": "node scripts/check-docs.mjs",
     "perf:ast": "node scripts/measure-ast-performance.mjs",
-    "lint": "eslint js/ sw.js",
+    "lint": "eslint js/ sw.js artist/js/",
     "check": "npm run precache:check && npm run docs:check && npm run test:unit && npm run test:projects && npm run html:check-partials && npm run lint",
     "release:check-token": "node scripts/check-release-token.mjs"
   },

@@ -15,7 +15,7 @@
   }
 
   #editor-panels {
-    grid-template-columns: minmax(13.75rem, 0.7fr) minmax(0, 1.3fr);
+    grid-template-columns: minmax(15.5rem, 0.9fr) minmax(0, 1.1fr);
   }
 
   #canvas-panel {

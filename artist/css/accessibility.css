@@ -15,8 +15,6 @@
 }
 
 @media (prefers-contrast: more) {
-  .pblock,
-  .wb,
   .btn-run,
   .btn-reset,
   .btn-next,
