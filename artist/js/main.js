@@ -1,6 +1,7 @@
 import { lessons } from './data/lessons.js';
 import { blockDefinitions, describeBlock } from './data/blocks.js';
 import { buildProgramCode, programToText } from './core/codegen.js';
+import { buildEditorLink } from './core/editorLink.js';
 import { evaluateGoal } from './core/goals.js';
 import { getBestBlocks, getGhostSegments } from './core/ghost.js';
 import { describeGhost, describeTurtleStatus } from './core/describe.js';
@@ -157,6 +158,21 @@ function updateCodePanel() {
   programCode = buildProgramCode(appState.currentLesson, appState.workspace);
   renderCodeView(dom, programCode);
   highlightCodeLine(dom, activeCodeLine());
+  updateEditorLink();
+}
+
+/** «Відкрити в Равлику» несе код у фрагменті #code=…, тож редактор відкривається з ним. */
+function updateEditorLink() {
+  if (!dom.openRavlykLink) return;
+  const { href, fits } = buildEditorLink(programToText(programCode));
+  dom.openRavlykLink.href = href;
+  dom.openRavlykLink.dataset.fits = String(fits);
+}
+
+function onOpenRavlykClick() {
+  if (dom.openRavlykLink.dataset.fits !== 'false') return;
+  // Код задовгий для адреси: копіюємо його, а редактор відкривається порожнім.
+  void copyCode();
 }
 
 function switchView(view) {
@@ -695,6 +711,7 @@ function bindEvents() {
   dom.tabBlocks.addEventListener('click', () => switchView('blocks'));
   dom.tabCode.addEventListener('click', () => switchView('code'));
   dom.copyCodeButton.addEventListener('click', copyCode);
+  dom.openRavlykLink?.addEventListener('click', onOpenRavlykClick);
   dom.speedSwitch.addEventListener('click', (event) => {
     const button = event.target.closest('[data-speed]');
     if (!button || !(button.dataset.speed in SPEEDS)) return;

@@ -28,6 +28,7 @@ export function getDomReferences() {
     codeView: document.getElementById('code-view'),
     codeText: document.getElementById('code-text'),
     copyCodeButton: document.getElementById('btn-copy-code'),
+    openRavlykLink: document.getElementById('link-open-ravlyk'),
     copyStatus: document.getElementById('copy-status'),
     helpButton: document.getElementById('btn-help'),
     stepButton: document.getElementById('btn-step'),

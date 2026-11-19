@@ -279,7 +279,7 @@ export function buildBlockElement(block, handlers, renderChildren) {
   return el;
 }
 
-/** Стартовий блок «коли ▶ натиснуто» з прапорцем. Не видаляється й не перетягується. */
+/** Стартовий блок «коли ▶ натиснуто» (▶ — як на кнопці «Старт»). Не видаляється й не перетягується. */
 export function buildHatElement() {
   const el = document.createElement('div');
   el.className = 'blk blk-hat cat-start';
@@ -290,22 +290,9 @@ export function buildHatElement() {
 
   const head = document.createElement('div');
   head.className = 'blk-head';
-  const flag = document.createElementNS(SVG_NS, 'svg');
-  flag.setAttribute('class', 'blk-flag');
-  flag.setAttribute('viewBox', '0 0 16 18');
-  flag.setAttribute('width', '16');
-  flag.setAttribute('height', '18');
-  flag.setAttribute('aria-hidden', 'true');
-  const pole = document.createElementNS(SVG_NS, 'path');
-  pole.setAttribute('d', 'M3 1.5v15.5');
-  pole.setAttribute('class', 'blk-flag-pole');
-  const cloth = document.createElementNS(SVG_NS, 'path');
-  cloth.setAttribute('d', 'M3 2h10l-2.4 3.4L13 8.8H3z');
-  cloth.setAttribute('class', 'blk-flag-cloth');
-  flag.append(pole, cloth);
   const play = textSpan('▶');
   play.setAttribute('aria-hidden', 'true');
-  head.append(flag, textSpan('коли'), play, textSpan('натиснуто'));
+  head.append(textSpan('коли'), play, textSpan('натиснуто'));
   el.appendChild(head);
   attachShape(el, 'hat', head);
   return el;

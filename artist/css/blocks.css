@@ -69,24 +69,6 @@
   display: inline-block;
 }
 
-.blk-flag {
-  flex: none;
-}
-
-.blk-flag-pole {
-  fill: none;
-  stroke: var(--blk-flag);
-  stroke-width: 1.6;
-  stroke-linecap: round;
-}
-
-.blk-flag-cloth {
-  fill: var(--blk-flag);
-  stroke: var(--blk-flag);
-  stroke-width: 1;
-  stroke-linejoin: round;
-}
-
 /* ── Поля всередині блока ──────────────────────────────────────────────────── */
 .blk-field {
   display: inline-flex;
@@ -407,8 +389,7 @@ button.blk-field {
 
 .blk-preview .blk-head,
 .blk-preview .blk-text,
-.blk-preview .blk-field,
-.blk-preview .blk-flag {
+.blk-preview .blk-field {
   visibility: hidden;
 }
 

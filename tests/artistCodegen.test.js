@@ -18,6 +18,8 @@ import { blk, withIds } from '../artist/js/core/blockTree.js';
 import { buildProgramCode, programToText } from '../artist/js/core/codegen.js';
 import { runProgram } from '../artist/js/runtime/runner.js';
 import { runTest } from './testUtils.js';
+import { decodeCodeFromUrlHash } from '../js/modules/share.js';
+import { buildEditorLink, MAX_EDITOR_HASH_LENGTH } from '../artist/js/core/editorLink.js';
 
 const TOLERANCE = 0.5;
 const evalExpr = (expr, env) => evalAstNumberExpression(expr, env, { attachAstErrorLocation });
@@ -203,3 +205,19 @@ for (const lesson of lessons) {
         runRavlykCode(lesson.intro.code); // і виконується без помилок
     });
 }
+
+runTest('artist «Відкрити в Равлику»: головний редактор декодує код із посилання без змін', () => {
+    for (const lesson of lessons.filter((l) => l.solution)) {
+        const code = programToText(buildProgramCode(lesson, withIds(lesson.solution)));
+        const { href, fits } = buildEditorLink(code);
+        assert.equal(fits, true, `${lesson.id}: код має вміщатися в посилання`);
+        assert.ok(href.startsWith('/#code='), `${lesson.id}: посилання веде в редактор з #code=`);
+        assert.equal(decodeCodeFromUrlHash(href.slice('/#code='.length)), code, `${lesson.id}: код спотворено`);
+    }
+});
+
+runTest('artist «Відкрити в Равлику»: задовгий код не потрапляє в адресу', () => {
+    const { href, fits } = buildEditorLink('вперед 10\n'.repeat(MAX_EDITOR_HASH_LENGTH));
+    assert.equal(fits, false);
+    assert.equal(href, '/');
+});
