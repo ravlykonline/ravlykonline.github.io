@@ -617,7 +617,6 @@ body #global-message-display.message-error-global {
     color: #d50000 !important;
     border-left-style: solid !important;
     border-left-color: #d50000 !important;
-    background-image: linear-gradient(to right, rgba(255, 0, 0, 0.1), rgba(255, 0, 0, 0.02)) !important;
 }
 
 /* Стилі для успішних повідомлень */
@@ -626,7 +625,6 @@ body #global-message-display.message-success-global {
     color: #1b5e20 !important;
     border-left-style: solid !important;
     border-left-color: #1b5e20 !important;
-    background-image: linear-gradient(to right, rgba(27, 94, 32, 0.12), rgba(27, 94, 32, 0.03)) !important;
 }
 
 /* Стилі для інформаційних повідомлень */
@@ -635,7 +633,6 @@ body #global-message-display.message-info-global {
     color: #8a3b00 !important;
     border-left-style: solid !important;
     border-left-color: #8a3b00 !important;
-    background-image: linear-gradient(to right, rgba(138, 59, 0, 0.12), rgba(138, 59, 0, 0.03)) !important;
 }
 
 /* Стилі для повідомлень про доступність */
@@ -644,7 +641,6 @@ body #global-message-display.message-a11y-global {
     color: #333333 !important;
     border-left-style: solid !important;
     border-left-color: #333333 !important;
-    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02)) !important;
     font-weight: 500 !important;
 }
 

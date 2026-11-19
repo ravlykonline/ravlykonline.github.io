@@ -81,7 +81,6 @@ const publicSupportQuickLinkFiles = [
 ];
 
 const publicFooterAboutNavFiles = [
-    'index.html',
     'quiz.html',
     'teacher_guidelines.html',
     'advice_for_parents.html',
@@ -131,6 +130,15 @@ const publicExtendedFooterNavSlots = {
             ['editor', 'lessons', 'manual', 'about'],
             'nav-buttons-footer site-links-uniform',
             'Основна навігація сайтом'
+        ),
+    },
+    'index.html': {
+        begin: '<!-- BEGIN shared:site-nav-links:index-footer -->',
+        end: '<!-- END shared:site-nav-links:index-footer -->',
+        expected: renderExpectedWrappedSiteNavLinks(
+            ['resources', 'about'],
+            'footer-site-nav site-links-uniform',
+            'Нижня навігація сайтом'
         ),
     },
     'lessons.html': {

@@ -9,6 +9,9 @@ const newSetBtn = document.getElementById('quiz-new-set-btn');
 const checkBtn = document.getElementById('quiz-check-btn');
 const resetBtn = document.getElementById('quiz-reset-btn');
 const resultBox = document.getElementById('quiz-result');
+const progressFill = document.getElementById('quiz-progress-fill');
+const progressText = document.getElementById('quiz-progress-text');
+const OPTION_LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е'];
 
 let activeSet = [];
 
@@ -56,7 +59,12 @@ function buildQuestionNode(question, index) {
     fieldset.dataset.questionIndex = String(index);
 
     const legend = document.createElement('legend');
-    legend.textContent = `${index + 1}) ${question.q}`;
+    const num = document.createElement('span');
+    num.className = 'quiz-question-num';
+    num.setAttribute('aria-hidden', 'true');
+    num.textContent = String(index + 1);
+    legend.appendChild(num);
+    legend.appendChild(document.createTextNode(question.q));
     fieldset.appendChild(legend);
 
     question.options.forEach((optionText, optionIndex) => {
@@ -69,16 +77,29 @@ function buildQuestionNode(question, index) {
         input.name = `q${index}`;
         input.value = String(optionIndex);
 
+        const letter = document.createElement('span');
+        letter.className = 'quiz-option-letter';
+        letter.setAttribute('aria-hidden', 'true');
+        letter.textContent = OPTION_LETTERS[optionIndex] || String(optionIndex + 1);
+
         const text = document.createElement('span');
         text.className = 'quiz-option-text';
         text.textContent = optionText;
 
         label.appendChild(input);
+        label.appendChild(letter);
         label.appendChild(text);
         fieldset.appendChild(label);
     });
 
     return fieldset;
+}
+
+function updateProgress() {
+    const total = activeSet.length;
+    const answered = activeSet.filter((_, index) => form.querySelector(`input[name="q${index}"]:checked`)).length;
+    progressFill.style.inlineSize = total > 0 ? `${Math.round((answered / total) * 100)}%` : '0%';
+    progressText.textContent = `Відповіли: ${answered} з ${total}`;
 }
 
 function renderSet(themeKey) {
@@ -91,9 +112,10 @@ function renderSet(themeKey) {
         questionList.appendChild(buildQuestionNode(question, index));
     });
 
+    updateProgress();
     resultBox.classList.add('is-info');
     resultBox.dataset.mode = 'generated';
-    resultBox.textContent = `Згенеровано новий набір: ${QUIZ_THEME_LABELS[themeKey]} (${themeQuestions.length} питань).`;
+    resultBox.textContent = `Тема: ${QUIZ_THEME_LABELS[themeKey]} (${themeQuestions.length} питань). Удачі!`;
 }
 
 function collectScore() {
@@ -112,10 +134,10 @@ function collectScore() {
 
 function feedbackByScore(score, total) {
     const ratio = total > 0 ? score / total : 0;
-    if (ratio === 1) return 'Відмінно! Усе правильно.';
-    if (ratio >= 0.8) return 'Дуже добре! Ще трохи і буде максимум.';
-    if (ratio >= 0.6) return 'Гарний результат. Повтори складні моменти і спробуй ще.';
-    return 'Початок є. Переглянь тему і запусти новий набір.';
+    if (ratio === 1) return '🏆 Відмінно! Усе правильно — ти справжній майстер Равлика!';
+    if (ratio >= 0.8) return '🌟 Дуже добре! Ще трохи — і буде максимум.';
+    if (ratio >= 0.6) return '👍 Гарний результат. Повтори складні моменти і спробуй ще.';
+    return '🐌 Початок є! Переглянь урок і спробуй нові питання — у тебе вийде.';
 }
 
 function revealAnswers() {
@@ -175,6 +197,7 @@ checkBtn.addEventListener('click', () => {
     resultBox.classList.add(score === total ? 'is-success' : 'is-info');
     resultBox.dataset.mode = 'feedback';
     resultBox.textContent = `Результат: ${score} з ${total}. ${feedbackByScore(score, total)}`;
+    resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 
 resetBtn.addEventListener('click', () => {
@@ -182,10 +205,12 @@ resetBtn.addEventListener('click', () => {
     clearFeedback();
     resultBox.classList.add('is-info');
     resultBox.dataset.mode = 'reset';
-    resultBox.textContent = 'Відповіді скинуто. Можеш перевірити себе знову.';
+    resultBox.textContent = 'Відповіді скинуто. Можеш спробувати ще раз!';
+    updateProgress();
 });
 
 form.addEventListener('change', () => {
+    updateProgress();
     if (resultBox.dataset.mode === 'feedback') {
         clearFeedback();
         resultBox.classList.add('is-info');

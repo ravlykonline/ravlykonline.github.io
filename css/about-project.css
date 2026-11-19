@@ -14,16 +14,9 @@
 .about-community {
     background: #ffffff;
     border: 1px solid #d7e2f1;
-    border-radius: 24px;
+    border-radius: var(--radius-panel);
     padding: 28px;
-    box-shadow: 0 14px 34px rgba(26, 46, 59, 0.08);
-}
-
-.about-hero {
-    background:
-        radial-gradient(circle at top right, rgba(91, 191, 122, 0.18), transparent 34%),
-        radial-gradient(circle at top left, rgba(90, 169, 230, 0.2), transparent 32%),
-        #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .about-hero h2,
@@ -68,7 +61,7 @@
 .about-pillar {
     background: #f7fbff;
     border: 1px solid #d7e2f1;
-    border-radius: 18px;
+    border-radius: var(--radius-panel);
     padding: 18px;
 }
 
@@ -81,7 +74,7 @@
     margin-top: 16px;
     padding: 18px 20px;
     border-left: 5px solid #2f6fbf;
-    border-radius: 16px;
+    border-radius: var(--radius-control);
     background: #f4f8ff;
     color: #29404f;
     font-weight: 700;
@@ -90,16 +83,14 @@
 .about-note {
     margin-top: 16px;
     padding: 14px 16px;
-    border-radius: 16px;
+    border-radius: var(--radius-control);
     background: #fff9e8;
     border: 1px solid #f1d48a;
     color: #5c4700;
 }
 
 .about-community {
-    background:
-        linear-gradient(135deg, rgba(47, 111, 191, 0.08), rgba(91, 191, 122, 0.08)),
-        #ffffff;
+    background: var(--color-surface-card);
 }
 
 .about-footer-text {
@@ -149,6 +140,6 @@
     .about-highlight,
     .about-community {
         padding: 22px 18px;
-        border-radius: 20px;
+        border-radius: var(--radius-panel);
     }
 }

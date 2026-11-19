@@ -122,10 +122,21 @@ const partials = [
         fallbackStart: '<nav class="footer-site-nav site-links-uniform" aria-label="Нижня навігація сайтом">',
         tagName: 'nav',
         files: {
-            'index.html': {},
             'quiz.html': {},
             'teacher_guidelines.html': {},
             'advice_for_parents.html': {},
+        },
+    },
+    {
+        name: 'site-nav-links:index-footer',
+        render: () => renderSiteNavLinks(['resources', 'about'], {
+            wrapperClass: 'footer-site-nav site-links-uniform',
+            ariaLabel: 'Нижня навігація сайтом',
+        }),
+        fallbackStart: '<nav class="footer-site-nav site-links-uniform" aria-label="Нижня навігація сайтом">',
+        tagName: 'nav',
+        files: {
+            'index.html': {},
         },
     },
     {

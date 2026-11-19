@@ -7,7 +7,7 @@
     min-width: 0;
     background: #ffffff;
     border: 1px solid var(--color-border-soft-blue);
-    border-radius: 12px;
+    border-radius: var(--radius-panel);
     padding: 14px;
 }
 
@@ -19,12 +19,14 @@
     margin-top: 10px;
 }
 
+.teacher-card ol + p,
 .teacher-card p + p {
     margin-top: 8px;
 }
 
-.teacher-card ul {
-    padding-left: 20px;
+.teacher-card ul,
+.teacher-card ol {
+    padding-left: 24px;
 }
 
 .teacher-card li + li {
