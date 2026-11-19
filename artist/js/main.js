@@ -3,6 +3,9 @@ import { blockDefinitions, describeBlock } from './data/blocks.js';
 import { buildProgramCode, programToText } from './core/codegen.js';
 import { evaluateGoal } from './core/goals.js';
 import { getBestBlocks, getGhostSegments } from './core/ghost.js';
+import { describeGhost, describeTurtleStatus } from './core/describe.js';
+import { createLessonMenu } from './ui/lessonMenu.js';
+import { createMoreMenu } from './ui/moreMenu.js';
 import { createTurtleForLesson } from './domain/turtle.js';
 import { appState, markLessonDone, resetRuntimeState, setActiveBlock, setLesson, setRunning, setSpeed, setView } from './core/state.js';
 import {
@@ -38,6 +41,10 @@ let programCode = null; // { setup, body, lineByBlockId } для вкладки 
 let introReturnFocus = null;
 let copyStatusTimer = 0;
 let dragController = null;
+let moreMenu = null;
+let lessonMenu = null;
+const BACKGROUND_SELECTOR = '#hdr, .folk-divider, #app-main, #footer';
+const MODAL_OVERLAY_IDS = ['overlay', 'intro-overlay', 'reset-confirm-overlay'];
 // Стан перетягування існуючого блока: знімок ДО підняття й сам «хвіст».
 let dragSnapshot = null;
 let dragTail = null;
@@ -47,6 +54,32 @@ let dragTail = null;
 function announce(message) {
   dom.screenReaderAnnouncer.textContent = '';
   window.setTimeout(() => { dom.screenReaderAnnouncer.textContent = message; }, 30);
+}
+
+/** Поки відкрита модалка, решта сторінки недоступна для Tab і читача екрана. */
+function syncModalInert() {
+  const open = MODAL_OVERLAY_IDS.some((id) => document.getElementById(id).classList.contains('show'));
+  for (const element of document.querySelectorAll(BACKGROUND_SELECTOR)) {
+    element.inert = open;
+  }
+}
+
+function showSuccessModal(...args) {
+  showSuccess(dom, ...args);
+  syncModalInert();
+}
+
+function hideSuccessModal() {
+  hideSuccess(dom);
+  syncModalInert();
+}
+
+/** Лише коли поле бачить дитина на телефоні: прокрутити сторінку до поля перед виконанням. */
+function ensureFieldVisible() {
+  const rect = dom.gridSvg.getBoundingClientRect();
+  if (rect.top >= 0 && rect.bottom <= window.innerHeight) return;
+  if (window.matchMedia('(min-width: 700px) and (min-height: 501px)').matches) return;
+  dom.gridSvg.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 }
 
 function applyDoc(doc) {
@@ -64,6 +97,7 @@ function normalizeInsertTarget() {
 function setIntroOpen(isOpen) {
   dom.introOverlay.classList.toggle('show', isOpen);
   dom.introOverlay.setAttribute('aria-hidden', String(!isOpen));
+  syncModalInert();
   if (isOpen) {
     introReturnFocus = document.activeElement;
     dom.introOkButton.focus();
@@ -74,13 +108,16 @@ function setIntroOpen(isOpen) {
 }
 
 function setResetConfirmOpen(isOpen) {
+  const wasOpen = dom.resetConfirmOverlay.classList.contains('show');
   dom.resetConfirmOverlay.classList.toggle('show', isOpen);
   dom.resetConfirmOverlay.setAttribute('aria-hidden', String(!isOpen));
+  syncModalInert();
 
   if (isOpen) {
     dom.resetCancelButton.focus();
-  } else {
-    dom.resetButton.focus();
+  } else if (wasOpen) {
+    // На телефоні «Очистити» живе в меню «⋯» і може бути прихованою.
+    (dom.resetButton.offsetParent ? dom.resetButton : dom.moreButton).focus();
   }
 }
 
@@ -314,7 +351,9 @@ function refreshUi() {
     onAddBlock: addBlockFromPalette,
     shouldSuppressClick: () => dragController?.shouldSuppressClick() ?? false,
   });
-  renderLessonGuide(dom, appState.currentLesson, getGhostSegments(appState.currentLesson));
+  const ghost = getGhostSegments(appState.currentLesson);
+  renderLessonGuide(dom, appState.currentLesson, ghost);
+  dom.ghostDescription.textContent = describeGhost(ghost, appState.currentLesson.start);
   updateWorkspaceUi();
   renderControls(dom, appState);
 }
@@ -322,7 +361,7 @@ function refreshUi() {
 function resetBoard() {
   clearTurtleCanvas(dom);
   placeTurtleSnail(dom, createTurtleForLesson(appState.currentLesson));
-  dom.canvasStatus.textContent = 'Равлик готовий малювати.';
+  dom.canvasStatus.textContent = `${describeTurtleStatus(createTurtleForLesson(appState.currentLesson))}. Готовий малювати.`;
 }
 
 function loadLesson(index) {
@@ -334,9 +373,11 @@ function loadLesson(index) {
   clearHistory();
   appState.insertTargetId = null;
   clearFeedback(dom);
-  hideSuccess(dom);
+  hideSuccessModal();
   closePopover();
   setResetConfirmOpen(false);
+  moreMenu?.close();
+  lessonMenu?.close();
 
   refreshUi();
   resetBoard();
@@ -351,7 +392,7 @@ function performResetLesson() {
   appState.insertTargetId = null;
   appState.errorBlockId = null;
   clearFeedback(dom);
-  hideSuccess(dom);
+  hideSuccessModal();
   setResetConfirmOpen(false);
   renderControls(dom, appState);
   updateWorkspaceUi();
@@ -472,7 +513,7 @@ function beginSession() {
   appState.errorBlockId = null;
   closePopover();
   clearFeedback(dom);
-  hideSuccess(dom);
+  hideSuccessModal();
   resetRuntimeState();
   resetBoard();
   const created = { stepper: createStepper(appState.workspace, appState.currentLesson), controller: null };
@@ -518,7 +559,8 @@ async function playStep(current) {
   }
   if (session !== current) return { status: 'cancelled' };
 
-  dom.canvasStatus.textContent = `Равлик: x=${Math.round(turtle.x)}, y=${Math.round(turtle.y)}, напрямок=${Math.round(turtle.heading)}°.`;
+  // Під час автозапуску повідомляємо лише підсумок, щоб читач екрана не тараторив на кожен крок.
+  if (!appState.autoRun || current.stepper.done) dom.canvasStatus.textContent = describeTurtleStatus(turtle);
   return { status: current.stepper.done ? 'done' : 'ok' };
 }
 
@@ -541,7 +583,7 @@ async function finishProgram() {
     await sleep(SUCCESS_CELEBRATION_DELAY_MS);
     // Користувач міг почати інший сеанс або перейти на інший рівень.
     if (appState.currentLessonIndex !== lessonIndex || appState.running) return;
-    showSuccess(dom, appState.currentLesson, lessonIndex === lessons.length - 1, {
+    showSuccessModal(appState.currentLesson, lessonIndex === lessons.length - 1, {
       stars: result.stars,
       blockCount: countBlocks(),
       bestBlocks: getBestBlocks(appState.currentLesson),
@@ -569,6 +611,7 @@ async function settleStep(current, outcome) {
  */
 async function drive(kind) {
   const fresh = session === null;
+  ensureFieldVisible();
   const current = session ?? beginSession();
   if (!current) return;
   if (kind === 'step' && appState.autoRun) return;
@@ -610,7 +653,7 @@ function stopProgram() {
 function restartBoard() {
   if (session) endSession();
   clearFeedback(dom);
-  hideSuccess(dom);
+  hideSuccessModal();
   resetRuntimeState();
   resetBoard();
   highlightCodeLine(dom, null);
@@ -618,12 +661,12 @@ function restartBoard() {
 }
 
 function closeSuccess() {
-  hideSuccess(dom);
+  hideSuccessModal();
   dom.runButton.focus();
 }
 
 function goToNextLesson() {
-  hideSuccess(dom);
+  hideSuccessModal();
   if (appState.currentLessonIndex < lessons.length - 1) {
     loadLesson(appState.currentLessonIndex + 1);
   } else {
@@ -640,11 +683,11 @@ function setBlocksStyle(pastel) {
 function bindEvents() {
   dom.runButton.addEventListener('click', runProgram);
   dom.stopButton.addEventListener('click', stopProgram);
-  dom.resetButton.addEventListener('click', requestResetLesson);
+  dom.resetButton.addEventListener('click', () => { moreMenu.close(); requestResetLesson(); });
   dom.resetConfirmButton.addEventListener('click', performResetLesson);
   dom.resetCancelButton.addEventListener('click', () => setResetConfirmOpen(false));
   dom.stepButton.addEventListener('click', stepProgram);
-  dom.restartButton.addEventListener('click', restartBoard);
+  dom.restartButton.addEventListener('click', () => { moreMenu.close(); restartBoard(); });
   dom.stayButton.addEventListener('click', closeSuccess);
   dom.helpButton.addEventListener('click', () => openIntro(appState.currentLesson));
   dom.tabBlocks.addEventListener('click', () => switchView('blocks'));
@@ -685,7 +728,11 @@ function bindEvents() {
     const isInput = document.activeElement?.tagName === 'INPUT';
 
     if (key === 'Escape' && !event.defaultPrevented) {
-      if (isSuccessOpen(dom)) {
+      if (moreMenu?.isOpen()) {
+        moreMenu.close({ restoreFocus: true });
+      } else if (lessonMenu?.isOpen()) {
+        lessonMenu.close({ restoreFocus: true });
+      } else if (isSuccessOpen(dom)) {
         closeSuccess();
       } else if (dom.introOverlay.classList.contains('show')) {
         setIntroOpen(false);
@@ -729,6 +776,8 @@ function init() {
     onCancel: cancelDrag,
     onLongPress: (el, x, y) => openBlockMenu(el, { x, y }),
   });
+  moreMenu = createMoreMenu(dom);
+  lessonMenu = createLessonMenu(dom);
   bindEvents();
   setBlocksStyle(new URLSearchParams(window.location.search).get('blocks') === 'pastel');
   setEditorView(dom, appState.view);

@@ -2,6 +2,10 @@ export function getDomReferences() {
   return {
     lessonTitle: document.getElementById('lesson-title'),
     lessonNav: document.getElementById('lesson-nav'),
+    lessonNavToggle: document.getElementById('lesson-nav-toggle'),
+    ghostDescription: document.getElementById('ghost-desc'),
+    moreButton: document.getElementById('btn-more'),
+    moreMenu: document.getElementById('more-menu'),
     instructionText: document.getElementById('instr-text'),
     avatarBox: document.getElementById('avatar-box'),
     paletteList: document.getElementById('pblock-list'),

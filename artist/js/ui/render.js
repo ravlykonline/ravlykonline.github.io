@@ -4,7 +4,10 @@ import { starsCaption, starsLabel, starsText } from '../core/stars.js';
 import { buildSnailIcon } from './canvas.js';
 
 export function renderLessonHeader(dom, lesson) {
+  const number = lessons.indexOf(lesson) + 1;
   dom.lessonTitle.textContent = lesson.title;
+  dom.lessonNavToggle.textContent = `Рівень ${number} / ${lessons.length} ▾`;
+  dom.lessonNavToggle.setAttribute('aria-label', `Рівень ${number} / ${lessons.length}. ${lesson.title}. Обрати інший рівень`);
   dom.instructionText.textContent = lesson.instruction;
 }
 
