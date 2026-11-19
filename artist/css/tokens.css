@@ -201,7 +201,8 @@
   --blk-slot-bg: rgba(var(--color-black-rgb), 0.08);
   --blk-active-ring: #ffbf47;
   --blk-error-ring: #d7263d;
-  --blk-snapline: #ff5a3c;
+  --blk-preview-fill: #8c93a0;
+  --blk-preview-stroke: #6f7683;
   --blk-bin-bg: rgba(215, 38, 61, 0.14);
   --blk-bin-border: #d7263d;
   --blk-target-ring: #ff5a3c;

@@ -388,17 +388,31 @@ button.blk-field {
   opacity: 0.92;
 }
 
-.ws-snapline {
-  position: absolute;
-  z-index: 5;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--blk-snapline);
-  box-shadow: 0 0 0 2px var(--color-surface);
+/* Попередній перегляд вставки: сірий напівпрозорий силует тієї ж форми й висоти.
+   Заливка суцільна, а напівпрозорість — на всій групі, щоб виїмки сусідніх блоків
+   не темніли в місцях накладання. */
+.blk-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  opacity: 0.5;
   pointer-events: none;
 }
 
-.ws-snapline[hidden] {
+.blk-preview .blk-shape path {
+  fill: var(--blk-preview-fill);
+  stroke: var(--blk-preview-stroke);
+  stroke-width: 1;
+}
+
+.blk-preview .blk-head,
+.blk-preview .blk-text,
+.blk-preview .blk-field,
+.blk-preview .blk-flag {
+  visibility: hidden;
+}
+
+.blk-list.has-preview > .blk-slot {
   display: none;
 }
 

@@ -45,6 +45,20 @@ export function playSuccess() {
 }
 
 /**
+ * Tiny soft «click» when a block snaps into place.
+ */
+export function playSnap() {
+  try {
+    const ctx = getCtx();
+    const now = ctx.currentTime;
+    tone(ctx, 880, 'triangle', now, 0.06, 0.08);
+    tone(ctx, 660, 'sine', now + 0.012, 0.05, 0.05);
+  } catch {
+    // AudioContext not available — silently skip
+  }
+}
+
+/**
  * Short descending wobble — soft "oops" sound.
  */
 export function playFailure() {

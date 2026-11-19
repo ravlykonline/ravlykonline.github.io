@@ -1,29 +1,43 @@
 /**
  * Перетягування блоків на pointer events: одна реалізація для миші, дотику й пера.
  *
- * Модель (власна реалізація, логіка списків — у core/workspace.js):
+ * Модель (власна реалізація; математика зчеплення — core/snap.js, списки — core/workspace.js):
  *  - pointerdown запам’ятовує джерело: блок палітри або блок у програмі;
  *  - перетягування починається після зсуву ≥ DRAG_THRESHOLD px, інакше це клік;
  *  - беремо «хвіст» (блок і всі під ним у тому ж списку); оригінали зникають
  *    з моделі, під курсором — «привид»;
- *  - точки зчеплення збираються з DOM один раз на початку; найближча до
- *    верхнього лівого кута «привида» підсвічується лінією;
- *  - відпускання: на точку → вставка; на порожнє місце полотна → вільний стос;
- *    на палітру → видалення; деінде / Esc → скасування.
+ *  - точки зчеплення збираються з DOM один раз на початку (у координатах вмісту
+ *    полотна); магніт обирає точку за відстанню від кута «привида» з гістерезисом;
+ *  - над точкою в стосі з’являється ПОПЕРЕДНІЙ ПЕРЕГЛЯД — сірий напівпрозорий силует
+ *    тієї ж форми й висоти; блоки нижче плавно (≈120 мс) зсуваються вниз;
+ *  - відпускання: на точку → «привид» злітає в силует і вставляється справжній блок;
+ *    на порожнє місце → вільний стос; на палітру → видалення; Esc → скасування.
+ *  - prefers-reduced-motion: без зсувів і польоту, лише силует і миттєва вставка.
  */
-import { nearestInsertionPoint } from '../core/workspace.js';
+import {
+  SNAP_RADIUS, SNAP_RADIUS_TOUCH, connectionPointsFromLists, findSnapTarget, snapKey,
+} from '../core/snap.js';
 import { syncShapes } from './blockView.js';
 
 export const DRAG_THRESHOLD = 6;
 const LONG_PRESS_MS = 550;
 const EDGE_ZONE = 44;
 const MAX_SCROLL_SPEED = 18;
-const SNAP_RADIUS = { maxDx: 64, maxDy: 36 };
+const MAKE_ROOM_MS = 120;
+const FLY_MS = 140;
 
 const INTERACTIVE = 'input, button, select, textarea, [contenteditable="true"]';
 
 function ownerFromDataset(value) {
   return value === 'main' ? 'main' : Number(value);
+}
+
+function prefersReducedMotion() {
+  return Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+}
+
+function listKey(owner, parentId) {
+  return `${owner}|${parentId ?? ''}`;
 }
 
 export function createDragController({
@@ -35,6 +49,7 @@ export function createDragController({
   onDrop,
   onCancel,
   onLongPress,
+  onSnap,
 }) {
   let candidate = null;
   let session = null;
@@ -60,42 +75,118 @@ export function createDragController({
     return clones;
   }
 
+  /** Точки зчеплення з DOM (координати вмісту полотна) + мапа «список → елемент». */
   function buildPoints() {
     const origin = canvas.getBoundingClientRect();
     const toX = (rectX) => rectX - origin.left + canvas.scrollLeft;
     const toY = (rectY) => rectY - origin.top + canvas.scrollTop;
-    const points = [];
+    const listElements = new Map();
+    const lists = [];
     for (const list of canvas.querySelectorAll('.blk-list')) {
       const owner = ownerFromDataset(list.dataset.owner);
       const parentId = list.dataset.parent ? Number(list.dataset.parent) : null;
-      const kids = [...list.children].filter((child) => child.classList.contains('blk'));
-      if (kids.length === 0) {
-        const rect = list.getBoundingClientRect();
-        points.push({ owner, parentId, index: 0, x: toX(rect.left), y: toY(rect.top) });
-        continue;
-      }
-      kids.forEach((kid, index) => {
-        const rect = kid.getBoundingClientRect();
-        points.push({ owner, parentId, index, x: toX(rect.left), y: toY(rect.top) });
-      });
-      const lastRect = kids[kids.length - 1].getBoundingClientRect();
-      points.push({
-        owner, parentId, index: kids.length, x: toX(lastRect.left), y: toY(lastRect.bottom),
+      const rect = list.getBoundingClientRect();
+      const kids = [...list.children]
+        .filter((child) => child.classList.contains('blk'))
+        .map((kid) => {
+          const kidRect = kid.getBoundingClientRect();
+          return { left: toX(kidRect.left), top: toY(kidRect.top), bottom: toY(kidRect.bottom) };
+        });
+      listElements.set(listKey(owner, parentId), list);
+      lists.push({
+        owner,
+        parentId,
+        looseRoot: owner !== 'main' && parentId === null,
+        rect: { left: toX(rect.left), top: toY(rect.top) },
+        kids,
       });
     }
-    return points;
+    return { points: connectionPointsFromLists(lists), listElements };
   }
 
-  function setSnapline(point, width) {
-    const line = session.snapline;
-    if (!point) {
-      line.hidden = true;
-      return;
+  // ── Силует вставки ───────────────────────────────────────────────────────
+
+  function cancelCanvasAnimations() {
+    canvas.getAnimations?.({ subtree: true }).forEach((animation) => animation.cancel());
+  }
+
+  function measureBlocks() {
+    const tops = new Map();
+    for (const el of canvas.querySelectorAll('.blk')) tops.set(el, el.getBoundingClientRect().top);
+    return tops;
+  }
+
+  /** FLIP: блоки, що змістилися, плавно «доїжджають» зі старого місця. */
+  function animateFromBefore(before) {
+    if (prefersReducedMotion()) return;
+    const moved = [];
+    for (const el of canvas.querySelectorAll('.blk')) {
+      if (!before.has(el)) continue;
+      moved.push([el, before.get(el) - el.getBoundingClientRect().top]);
     }
-    line.hidden = false;
-    line.style.left = `${point.x}px`;
-    line.style.top = `${point.y - 2}px`;
-    line.style.width = `${Math.max(48, width)}px`;
+    const deltaOf = new Map(moved);
+    for (const [el, delta] of moved) {
+      // Вкладені блоки їдуть разом із батьківським циклом — віднімаємо його зсув.
+      const parent = el.parentElement?.closest('.blk');
+      const own = delta - (deltaOf.get(parent) ?? 0);
+      if (Math.abs(own) < 0.5) continue;
+      el.animate(
+        [{ transform: `translateY(${own}px)` }, { transform: 'translateY(0)' }],
+        { duration: MAKE_ROOM_MS, easing: 'ease-out' },
+      );
+    }
+  }
+
+  function buildPreview() {
+    const preview = document.createElement('div');
+    preview.className = 'blk-preview';
+    preview.setAttribute('aria-hidden', 'true');
+    preview.setAttribute('inert', '');
+    for (const child of session.ghost.children) preview.appendChild(child.cloneNode(true));
+    return preview;
+  }
+
+  function removePreview() {
+    const { preview } = session;
+    if (!preview) return;
+    preview.parentElement?.classList.remove('has-preview');
+    preview.remove();
+    if (session.shifted) {
+      session.shifted.stack.style.top = session.shifted.top;
+      session.shifted = null;
+    }
+    session.preview = null;
+  }
+
+  function insertPreview(slot) {
+    const list = session.listElements.get(listKey(slot.owner, slot.parentId));
+    if (!list) return;
+    const preview = buildPreview();
+    const kids = [...list.children].filter((child) => child.classList.contains('blk'));
+    list.classList.add('has-preview');
+    list.insertBefore(preview, kids[slot.index] ?? null);
+    session.preview = preview;
+    if (slot.anchor === 'bottom') {
+      // Хвіст ставав НАД стосом: піднімаємо стос, щоб його блоки лишилися на місці.
+      const stack = list.closest('.ws-loose');
+      if (stack) {
+        const top = Number.parseFloat(stack.style.top) || 0;
+        session.shifted = { stack, top: stack.style.top };
+        stack.style.top = `${Math.max(0, top - session.height)}px`;
+      }
+    }
+  }
+
+  /** Показує силует у точці slot (або прибирає його, якщо slot = null). */
+  function showPreview(slot) {
+    const key = slot ? snapKey(slot) : '';
+    if (key === session.previewKey) return;
+    session.previewKey = key;
+    cancelCanvasAnimations();
+    const before = measureBlocks();
+    removePreview();
+    if (slot) insertPreview(slot);
+    animateFromBefore(before);
   }
 
   // ── Життєвий цикл ────────────────────────────────────────────────────────
@@ -117,8 +208,8 @@ export function createDragController({
     if (!session) return;
     window.cancelAnimationFrame(scrollFrame);
     scrollFrame = 0;
+    removePreview();
     session.ghost.remove();
-    session.snapline.remove();
     document.body.classList.remove('is-dragging');
     palette.classList.remove('is-bin');
     canvas.classList.remove('is-drop-target');
@@ -146,20 +237,23 @@ export function createDragController({
     document.body.appendChild(ghost);
     syncShapes(ghost);
 
-    const snapline = document.createElement('div');
-    snapline.className = 'ws-snapline';
-    snapline.hidden = true;
-    canvas.appendChild(snapline);
-
+    const { points, listElements } = buildPoints();
     session = {
       source,
       ghost,
-      snapline,
       offset,
-      points: buildPoints(),
+      points,
+      listElements,
+      height: ghost.offsetHeight,
       pointer: { x: event.clientX, y: event.clientY },
+      coarse: event.pointerType === 'touch' || event.pointerType === 'pen',
       mode: 'none',
       slot: null,
+      slotKey: '',
+      previewKey: '',
+      preview: null,
+      shifted: null,
+      flying: false,
       loosePos: null,
     };
     document.body.classList.add('is-dragging');
@@ -168,6 +262,7 @@ export function createDragController({
   }
 
   function updateDrag() {
+    if (!session || session.flying) return;
     const { pointer, offset, ghost, points } = session;
     const left = pointer.x - offset.x;
     const top = pointer.y - offset.y;
@@ -188,28 +283,35 @@ export function createDragController({
     session.loosePos = null;
     if (overPalette) {
       session.mode = 'delete';
-      setSnapline(null);
     } else if (overCanvas) {
       const contentX = left - canvasRect.left + canvas.scrollLeft;
       const contentY = top - canvasRect.top + canvas.scrollTop;
-      const slot = nearestInsertionPoint(points, contentX, contentY, SNAP_RADIUS);
+      const scale = canvas.offsetWidth > 0 ? canvasRect.width / canvas.offsetWidth : 1;
+      const slot = findSnapTarget(
+        points,
+        { x: contentX, y: contentY, height: session.height },
+        {
+          radius: session.coarse ? SNAP_RADIUS_TOUCH : SNAP_RADIUS,
+          previousKey: session.slotKey,
+          scale,
+        },
+      );
       if (slot) {
         session.mode = 'snap';
         session.slot = slot;
-        setSnapline(slot, ghost.firstElementChild?.offsetWidth ?? 80);
       } else {
         session.mode = 'loose';
         session.loosePos = { x: Math.max(0, contentX), y: Math.max(0, contentY) };
-        setSnapline(null);
       }
     } else {
       session.mode = 'none';
-      setSnapline(null);
     }
+    session.slotKey = session.slot ? snapKey(session.slot) : '';
+    showPreview(session.slot);
   }
 
   function autoScroll() {
-    if (!session) return;
+    if (!session || session.flying) return;
     const rect = canvas.getBoundingClientRect();
     const { x, y } = session.pointer;
     let canvasDelta = 0;
@@ -235,19 +337,38 @@ export function createDragController({
     clearCandidate();
     suppressClickUntil = performance.now() + 350;
     if (!finished) return;
+    window.cancelAnimationFrame(scrollFrame);
+    scrollFrame = 0;
     const result = {
       source: finished.source,
       mode: finished.mode,
       slot: finished.slot,
+      height: finished.height,
       x: finished.loosePos?.x ?? 0,
       y: finished.loosePos?.y ?? 0,
     };
-    endSession();
-    if (!commit || result.mode === 'none') {
-      onCancel(result.source);
+
+    const complete = () => {
+      endSession();
+      if (!commit || result.mode === 'none') {
+        onCancel(result.source);
+        return;
+      }
+      onDrop(result);
+      if (result.mode === 'snap') onSnap?.();
+    };
+
+    if (commit && result.mode === 'snap' && finished.preview && !prefersReducedMotion()) {
+      // «Привид» злітає з-під курсора в силует, і лише тоді з’являється справжній блок.
+      finished.flying = true;
+      const target = finished.preview.getBoundingClientRect();
+      const { ghost } = finished;
+      ghost.style.transition = `transform ${FLY_MS}ms cubic-bezier(0.2, 0.8, 0.3, 1)`;
+      ghost.style.transform = `translate(${target.left}px, ${target.top}px) rotate(0deg)`;
+      window.setTimeout(complete, FLY_MS + 20);
       return;
     }
-    onDrop(result);
+    complete();
   }
 
   // ── Обробники подій ──────────────────────────────────────────────────────
@@ -294,7 +415,7 @@ export function createDragController({
   }
 
   function onKeyDown(event) {
-    if (event.key === 'Escape' && session) {
+    if (event.key === 'Escape' && session && !session.flying) {
       event.preventDefault();
       event.stopPropagation();
       finish(false);
@@ -302,7 +423,7 @@ export function createDragController({
   }
 
   function begin(event, source, el) {
-    if (candidate || isLocked()) return;
+    if (candidate || session || isLocked()) return;
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     candidate = {
       source,

@@ -9,7 +9,7 @@ import { createMoreMenu } from './ui/moreMenu.js';
 import { createTurtleForLesson } from './domain/turtle.js';
 import { appState, markLessonDone, resetRuntimeState, setActiveBlock, setLesson, setRunning, setSpeed, setView } from './core/state.js';
 import {
-  appendToTarget, clampBlockParam, clearWorkspace, cloneDoc, countBlocks, createBlock, findInDoc, getDoc,
+  appendToTarget, attachAbove, clampBlockParam, clearWorkspace, cloneDoc, countBlocks, createBlock, findInDoc, getDoc,
   liftTail, moveDownInDoc, moveOutInDoc, moveUpInDoc, placeLoose, placeTail, pruneLoose, removeFromDoc,
 } from './core/workspace.js';
 import { validateProgram } from './runtime/execution-limits.js';
@@ -18,7 +18,7 @@ import { createStepController } from './runtime/stepController.js';
 import { sleep } from './utils/sleep.js';
 import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from './state/history.js';
 import { trapFocus } from './utils/focus-trap.js';
-import { playSuccess, playFailure } from './utils/sounds.js';
+import { playSuccess, playFailure, playSnap } from './utils/sounds.js';
 import { addTrailSegment, clearTurtleCanvas, placeTurtleSnail, renderLessonGuide, setTrailEnd, setupCanvas, wiggleSnail } from './ui/canvas.js';
 import { REDUCED_MOTION_STEP_PAUSE_MS, SPEEDS, getStepDuration, interpolateTurtle, speedFactor } from './domain/snail.js';
 import { getDomReferences } from './ui/dom.js';
@@ -288,7 +288,7 @@ function liftForDrag(blockId) {
   updateWorkspaceUi();
 }
 
-function dropBlocks({ source, mode, slot, x, y }) {
+function dropBlocks({ source, mode, slot, height, x, y }) {
   if (appState.running) return;
   const fromPalette = source.kind === 'palette';
   const before = fromPalette ? cloneDoc(getDoc()) : dragSnapshot;
@@ -311,7 +311,9 @@ function dropBlocks({ source, mode, slot, x, y }) {
     }
     message = `Видалено блоків: ${tail.length}`;
   } else if (mode === 'snap') {
-    ok = placeTail(doc, tail, slot);
+    ok = slot.anchor === 'bottom'
+      ? attachAbove(doc, tail, slot.owner, height)
+      : placeTail(doc, tail, slot);
     message = 'Блок вставлено';
   } else {
     ok = Boolean(placeLoose(doc, tail, x, y));
@@ -775,6 +777,7 @@ function init() {
     onDrop: dropBlocks,
     onCancel: cancelDrag,
     onLongPress: (el, x, y) => openBlockMenu(el, { x, y }),
+    onSnap: playSnap,
   });
   moreMenu = createMoreMenu(dom);
   lessonMenu = createLessonMenu(dom);
