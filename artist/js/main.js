@@ -4,21 +4,23 @@ import { buildProgramCode, programToText } from './core/codegen.js';
 import { evaluateGoal } from './core/goals.js';
 import { getBestBlocks, getGhostSegments } from './core/ghost.js';
 import { createTurtleForLesson } from './domain/turtle.js';
-import { appState, markLessonDone, resetRuntimeState, setActiveBlock, setLesson, setRunning, toggleCodePanelState } from './core/state.js';
+import { appState, markLessonDone, resetRuntimeState, setActiveBlock, setLesson, setRunning, setSpeed, setView } from './core/state.js';
 import {
   appendToTarget, clampBlockParam, clearWorkspace, cloneDoc, countBlocks, createBlock, findInDoc, getDoc,
   liftTail, moveDownInDoc, moveOutInDoc, moveUpInDoc, placeLoose, placeTail, pruneLoose, removeFromDoc,
 } from './core/workspace.js';
 import { validateProgram } from './runtime/execution-limits.js';
-import { runSteps } from './runtime/runner.js';
+import { createStepper } from './runtime/stepper.js';
 import { sleep } from './utils/sleep.js';
 import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from './state/history.js';
 import { trapFocus } from './utils/focus-trap.js';
 import { playSuccess, playFailure } from './utils/sounds.js';
 import { addTrailSegment, clearTurtleCanvas, placeTurtleSnail, renderLessonGuide, setTrailEnd, setupCanvas, wiggleSnail } from './ui/canvas.js';
-import { REDUCED_MOTION_STEP_PAUSE_MS, getStepDuration, interpolateTurtle } from './domain/snail.js';
+import { REDUCED_MOTION_STEP_PAUSE_MS, SPEEDS, getStepDuration, interpolateTurtle, speedFactor } from './domain/snail.js';
 import { getDomReferences } from './ui/dom.js';
-import { clearFeedback, hideSuccess, renderBlockCount, renderCode, renderControls, renderHistoryControls, renderLessonHeader, renderLessonNavigation, showFeedback, showSuccess } from './ui/render.js';
+import { clearFeedback, hideSuccess, isSuccessOpen, renderBlockCount, renderControls, renderHistoryControls, renderLessonHeader, renderLessonNavigation, showFeedback, showSuccess } from './ui/render.js';
+import { highlightCodeLine, renderCodeView, setEditorView } from './ui/codeView.js';
+import { copyText } from './ui/clipboard.js';
 import { createPaletteGhostBlock, renderPalette } from './ui/palette.js';
 import {
   blockElementById, focusBlock, highlightBlocks, initWorkspaceView, openBlockMenu, renderWorkspaceView, scrollBlockIntoView,
@@ -28,7 +30,11 @@ import { closePopover } from './ui/popover.js';
 
 const dom = getDomReferences();
 const SUCCESS_CELEBRATION_DELAY_MS = 900;
-let cancelRequested = false;
+const COPY_STATUS_MS = 6000;
+let session = null; // { stepper } — поточний сеанс виконання (автоматичний або покроковий)
+let programCode = null; // { setup, body, lineByBlockId } для вкладки «Код»
+let introReturnFocus = null;
+let copyStatusTimer = 0;
 let dragController = null;
 // Стан перетягування існуючого блока: знімок ДО підняття й сам «хвіст».
 let dragSnapshot = null;
@@ -56,7 +62,13 @@ function normalizeInsertTarget() {
 function setIntroOpen(isOpen) {
   dom.introOverlay.classList.toggle('show', isOpen);
   dom.introOverlay.setAttribute('aria-hidden', String(!isOpen));
-  if (isOpen) dom.introOkButton.focus();
+  if (isOpen) {
+    introReturnFocus = document.activeElement;
+    dom.introOkButton.focus();
+  } else if (introReturnFocus?.isConnected) {
+    introReturnFocus.focus();
+    introReturnFocus = null;
+  }
 }
 
 function setResetConfirmOpen(isOpen) {
@@ -70,7 +82,7 @@ function setResetConfirmOpen(isOpen) {
   }
 }
 
-function showIntroIfNeeded(lesson) {
+function openIntro(lesson) {
   if (!lesson.intro) return;
   dom.introIcon.textContent = lesson.intro.icon ?? '';
   dom.introTitle.textContent = lesson.intro.title;
@@ -84,14 +96,50 @@ function showIntroIfNeeded(lesson) {
   setIntroOpen(true);
 }
 
+/** Інтро нової команди — лише при першому відкритті рівня за сесію; далі — кнопка «?». */
+function showIntroIfNeeded(lesson) {
+  if (!lesson.intro || appState.introSeen.has(lesson.id)) return;
+  appState.introSeen.add(lesson.id);
+  openIntro(lesson);
+}
+
 // --- code panel ---
 
 function currentCodeText() {
   return programToText(buildProgramCode(appState.currentLesson, appState.workspace));
 }
 
+function activeCodeLine() {
+  if (appState.activeBlockId === null || !programCode) return null;
+  return programCode.lineByBlockId.get(appState.activeBlockId) ?? null;
+}
+
 function updateCodePanel() {
-  renderCode(dom, currentCodeText(), appState.codePanelOpen);
+  programCode = buildProgramCode(appState.currentLesson, appState.workspace);
+  renderCodeView(dom, programCode);
+  highlightCodeLine(dom, activeCodeLine());
+}
+
+function switchView(view) {
+  setView(view);
+  setEditorView(dom, appState.view);
+  if (appState.view === 'code') {
+    updateCodePanel();
+  } else {
+    dom.copyStatus.textContent = '';
+  }
+}
+
+async function copyCode() {
+  const ok = await copyText(currentCodeText());
+  const message = ok
+    ? 'Код скопійовано — встав його в редактор Равлика'
+    : 'Не вдалося скопіювати. Виділи код мишкою й натисни Ctrl+C.';
+  dom.copyStatus.textContent = message;
+  dom.copyStatus.classList.toggle('is-error', !ok);
+  announce(message);
+  window.clearTimeout(copyStatusTimer);
+  copyStatusTimer = window.setTimeout(() => { dom.copyStatus.textContent = ''; }, COPY_STATUS_MS);
 }
 
 /** Усе, що залежить від моделі, крім самого полотна. */
@@ -276,6 +324,9 @@ function resetBoard() {
 }
 
 function loadLesson(index) {
+  session = null;
+  appState.animating = false;
+  setRunning(false);
   setLesson(index);
   clearHistory();
   appState.insertTargetId = null;
@@ -286,6 +337,7 @@ function loadLesson(index) {
 
   refreshUi();
   resetBoard();
+  highlightCodeLine(dom, null);
   showIntroIfNeeded(appState.currentLesson);
 }
 
@@ -312,10 +364,6 @@ function requestResetLesson() {
   setResetConfirmOpen(true);
 }
 
-function stopProgram() {
-  cancelRequested = true;
-}
-
 function restoreSnapshot(snapshot) {
   if (!snapshot) return;
   applyDoc(snapshot);
@@ -339,7 +387,7 @@ function prefersReducedMotion() {
 }
 
 /** Плавно проводить равлика від step.before до step.after; лінія росте разом із ним. */
-function animateStep(step, duration) {
+function animateStep(step, duration, isCancelled) {
   const { before, after, segment } = step;
   const line = segment ? addTrailSegment(dom, { ...segment, to: [before.x, before.y] }) : null;
 
@@ -353,7 +401,7 @@ function animateStep(step, duration) {
       if (line) setTrailEnd(line, turtle.x, turtle.y);
       if (t >= 1) {
         resolve(true);
-      } else if (cancelRequested || !appState.running) {
+      } else if (isCancelled()) {
         // Зупинка: лінія лишається там, де зараз кінчик олівця.
         resolve(false);
       } else {
@@ -364,40 +412,24 @@ function animateStep(step, duration) {
   });
 }
 
-async function animateProgram() {
-  const lesson = appState.currentLesson;
-  appState.turtleSegments = [];
-  const reduced = prefersReducedMotion();
-
-  for (const step of runSteps(appState.workspace, lesson)) {
-    if (!appState.running || cancelRequested) break;
-
-    setActiveBlock(step.blockId);
-    highlightBlocks(appState);
-
-    if (step.segment) appState.turtleSegments.push(step.segment);
-
-    const turtle = step.after;
-    if (reduced) {
-      if (step.segment) addTrailSegment(dom, step.segment);
-      placeTurtleSnail(dom, turtle);
-      await sleep(REDUCED_MOTION_STEP_PAUSE_MS);
-    } else {
-      const finished = await animateStep(step, getStepDuration(step.before, step.after));
-      if (!finished) break;
-    }
-    dom.canvasStatus.textContent = `Равлик: x=${Math.round(turtle.x)}, y=${Math.round(turtle.y)}, напрямок=${Math.round(turtle.heading)}°.`;
-  }
+/** Завершує сеанс виконання: знімає блокування й підсвітку. */
+function endSession() {
+  session = null;
+  appState.animating = false;
+  setRunning(false);
+  setActiveBlock(null);
+  highlightCodeLine(dom, null);
+  renderControls(dom, appState);
+  updateWorkspaceUi();
 }
 
-async function runProgram() {
-  if (appState.running) return;
-
+/** Перевіряє програму й починає сеанс: поле скидається, програма заморожується. */
+function beginSession() {
   if (appState.workspace.length === 0) {
     showFeedback(dom, appState.loose.length > 0
       ? 'Приєднай блоки до «коли ▶ натиснуто» — окремі блоки не виконуються.'
       : 'Додай хоча б одну команду.');
-    return;
+    return null;
   }
 
   const validation = validateProgram(appState.workspace);
@@ -405,33 +437,60 @@ async function runProgram() {
     appState.errorBlockId = validation.blockId ?? null;
     highlightBlocks(appState);
     showFeedback(dom, validation.message);
-    return;
+    return null;
   }
 
-  cancelRequested = false;
   appState.errorBlockId = null;
   closePopover();
-  setRunning(true);
   clearFeedback(dom);
+  hideSuccess(dom);
   resetRuntimeState();
-  renderControls(dom, appState);
-  updateWorkspaceUi();
   resetBoard();
-
-  await sleep(120);
-
-  await animateProgram();
-
-  setActiveBlock(null);
-  setRunning(false);
+  const created = { stepper: createStepper(appState.workspace, appState.currentLesson) };
+  session = created;
+  setRunning(true);
   renderControls(dom, appState);
   updateWorkspaceUi();
+  return created;
+}
 
-  if (cancelRequested) {
-    showFeedback(dom, 'Програму зупинено.', 'info');
-    cancelRequested = false;
-    return;
+/**
+ * Виконує рівно один примітив сеансу й показує його.
+ * @returns {Promise<{ status: 'ok'|'done'|'cancelled'|'error', message?: string }>}
+ */
+async function playStep(current) {
+  let step;
+  try {
+    step = current.stepper.next();
+  } catch (error) {
+    return { status: 'error', message: error?.message || 'Програму не вдалося виконати.' };
   }
+  if (!step) return { status: 'done' };
+
+  setActiveBlock(step.blockId);
+  highlightBlocks(appState);
+  highlightCodeLine(dom, activeCodeLine());
+  if (step.segment) appState.turtleSegments.push(step.segment);
+
+  const turtle = step.after;
+  if (prefersReducedMotion()) {
+    // «Менше руху» сильніше за перемикач швидкості: без анімації, лише кроки.
+    if (step.segment) addTrailSegment(dom, step.segment);
+    placeTurtleSnail(dom, turtle);
+    await sleep(REDUCED_MOTION_STEP_PAUSE_MS);
+  } else {
+    const duration = getStepDuration(step.before, step.after, speedFactor(appState.speed));
+    const finished = await animateStep(step, duration, () => session !== current);
+    if (!finished) return { status: 'cancelled' };
+  }
+  if (session !== current) return { status: 'cancelled' };
+
+  dom.canvasStatus.textContent = `Равлик: x=${Math.round(turtle.x)}, y=${Math.round(turtle.y)}, напрямок=${Math.round(turtle.heading)}°.`;
+  return { status: current.stepper.done ? 'done' : 'ok' };
+}
+
+async function finishProgram() {
+  endSession();
 
   const result = evaluateGoal(appState.currentLesson, {
     segments: appState.turtleSegments,
@@ -445,12 +504,92 @@ async function runProgram() {
     refreshUi();
     wiggleSnail(dom);
     dom.screenReaderAnnouncer.textContent = appState.currentLesson.successMessage;
+    const lessonIndex = appState.currentLessonIndex;
     await sleep(SUCCESS_CELEBRATION_DELAY_MS);
-    showSuccess(dom, appState.currentLesson, appState.currentLessonIndex === lessons.length - 1);
+    // Користувач міг почати інший сеанс або перейти на інший рівень.
+    if (appState.currentLessonIndex !== lessonIndex || appState.running) return;
+    showSuccess(dom, appState.currentLesson, lessonIndex === lessons.length - 1, {
+      stars: result.stars,
+      blockCount: countBlocks(),
+      bestBlocks: getBestBlocks(appState.currentLesson),
+    });
   } else {
     playFailure();
     showFeedback(dom, result.message);
   }
+}
+
+/** Розбирає підсумок playStep: завершення програми, помилка рушія або пауза. */
+async function settleStep(current, outcome) {
+  if (session !== current) return; // зупинено або скинуто — стан уже прибрано
+  if (outcome.status === 'done') {
+    await finishProgram();
+  } else if (outcome.status === 'error') {
+    endSession();
+    showFeedback(dom, outcome.message);
+  }
+}
+
+/** Старт: виконує програму до кінця (або продовжує після кроків). */
+async function runProgram() {
+  if (appState.animating) return;
+  const fresh = session === null;
+  const current = session ?? beginSession();
+  if (!current) return;
+
+  appState.animating = true;
+  renderControls(dom, appState);
+  if (fresh) await sleep(120);
+
+  let outcome = { status: 'ok' };
+  while (session === current && outcome.status === 'ok') {
+    outcome = await playStep(current);
+  }
+  if (session !== current) return;
+  appState.animating = false;
+  renderControls(dom, appState);
+  await settleStep(current, outcome);
+}
+
+/** Крок: рівно один примітив; повторні натискання продовжують. */
+async function stepProgram() {
+  if (appState.animating) return;
+  const current = session ?? beginSession();
+  if (!current) return;
+
+  appState.animating = true;
+  renderControls(dom, appState);
+  const outcome = await playStep(current);
+  if (session !== current) return;
+  appState.animating = false;
+  renderControls(dom, appState);
+  if (outcome.status === 'ok') {
+    announce('Крок виконано');
+  } else {
+    await settleStep(current, outcome);
+  }
+}
+
+function stopProgram() {
+  if (!session) return;
+  endSession();
+  showFeedback(dom, 'Програму зупинено.', 'info');
+}
+
+/** Спочатку: поле й равлик як на старті, програма лишається. */
+function restartBoard() {
+  if (session) endSession();
+  clearFeedback(dom);
+  hideSuccess(dom);
+  resetRuntimeState();
+  resetBoard();
+  highlightCodeLine(dom, null);
+  announce('Поле очищено, програма лишилась');
+}
+
+function closeSuccess() {
+  hideSuccess(dom);
+  dom.runButton.focus();
 }
 
 function goToNextLesson() {
@@ -460,10 +599,6 @@ function goToNextLesson() {
   } else {
     loadLesson(0);
   }
-}
-
-function toggleCodePanel() {
-  renderCode(dom, currentCodeText(), toggleCodePanelState());
 }
 
 function setBlocksStyle(pastel) {
@@ -478,7 +613,29 @@ function bindEvents() {
   dom.resetButton.addEventListener('click', requestResetLesson);
   dom.resetConfirmButton.addEventListener('click', performResetLesson);
   dom.resetCancelButton.addEventListener('click', () => setResetConfirmOpen(false));
-  dom.codeToggleButton.addEventListener('click', toggleCodePanel);
+  dom.stepButton.addEventListener('click', stepProgram);
+  dom.restartButton.addEventListener('click', restartBoard);
+  dom.stayButton.addEventListener('click', closeSuccess);
+  dom.helpButton.addEventListener('click', () => openIntro(appState.currentLesson));
+  dom.tabBlocks.addEventListener('click', () => switchView('blocks'));
+  dom.tabCode.addEventListener('click', () => switchView('code'));
+  dom.copyCodeButton.addEventListener('click', copyCode);
+  dom.speedSwitch.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-speed]');
+    if (!button || !(button.dataset.speed in SPEEDS)) return;
+    setSpeed(button.dataset.speed);
+    renderControls(dom, appState);
+  });
+  dom.tabBlocks.parentElement.addEventListener('keydown', (event) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    const next = appState.view === 'blocks' ? 'code' : 'blocks';
+    switchView(next);
+    (next === 'code' ? dom.tabCode : dom.tabBlocks).focus();
+  });
+  dom.overlay.addEventListener('click', (event) => {
+    if (event.target === dom.overlay) closeSuccess();
+  });
   dom.nextButton.addEventListener('click', goToNextLesson);
   dom.undoButton.addEventListener('click', performUndo);
   dom.redoButton.addEventListener('click', performRedo);
@@ -498,7 +655,9 @@ function bindEvents() {
     const isInput = document.activeElement?.tagName === 'INPUT';
 
     if (key === 'Escape' && !event.defaultPrevented) {
-      if (dom.introOverlay.classList.contains('show')) {
+      if (isSuccessOpen(dom)) {
+        closeSuccess();
+      } else if (dom.introOverlay.classList.contains('show')) {
         setIntroOpen(false);
       } else if (dom.resetConfirmOverlay.classList.contains('show')) {
         setResetConfirmOpen(false);
@@ -542,6 +701,7 @@ function init() {
   });
   bindEvents();
   setBlocksStyle(new URLSearchParams(window.location.search).get('blocks') === 'pastel');
+  setEditorView(dom, appState.view);
   setResetConfirmOpen(false);
   loadLesson(0);
 }

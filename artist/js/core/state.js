@@ -1,4 +1,5 @@
 import { lessons } from '../data/lessons.js';
+import { DEFAULT_SPEED } from '../domain/snail.js';
 import { countBlocksIn, withIds } from './blockTree.js';
 
 export const appState = {
@@ -7,12 +8,15 @@ export const appState = {
   workspace: [], // головний стос під «коли ▶ натиснуто» — єдине, що виконується
   loose: [], // вільні стоси: [{ id, x, y, blocks }] — не виконуються
   errorBlockId: null,
-  running: false,
+  running: false, // є активний сеанс виконання (редагування заблоковане), навіть на паузі
   doneLessons: new Set(),
   turtleSegments: [],
   activeBlockId: null,
   insertTargetId: null,
-  codePanelOpen: false,
+  view: 'blocks', // 'blocks' | 'code'
+  speed: DEFAULT_SPEED,
+  animating: false, // триває анімація кроку (поза нею сеанс може стояти на паузі)
+  introSeen: new Set(), // id рівнів, чиє інтро вже показано в цій сесії (без localStorage)
 };
 
 let blockIdCounter = 1;
@@ -55,7 +59,11 @@ export function markLessonDone(index) {
   appState.doneLessons.add(index);
 }
 
-export function toggleCodePanelState() {
-  appState.codePanelOpen = !appState.codePanelOpen;
-  return appState.codePanelOpen;
+export function setView(view) {
+  appState.view = view === 'code' ? 'code' : 'blocks';
+  return appState.view;
+}
+
+export function setSpeed(speed) {
+  appState.speed = speed;
 }

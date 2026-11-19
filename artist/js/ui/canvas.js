@@ -1,5 +1,5 @@
 import { FIELD_HALF_HEIGHT, FIELD_HALF_WIDTH, GRID_STEP } from '../core/constants.js';
-import { getSnailTransform } from '../domain/snail.js';
+import { getSnailTransform, isAtStart } from '../domain/snail.js';
 import { avatarSvg, snailSvg } from './icons.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -38,19 +38,28 @@ export function setupCanvas(dom) {
 }
 
 function appendArrow(layer, x, y, heading) {
-  const group = svgElement('g', { transform: `translate(${x} ${y}) rotate(${heading})` });
+  const group = svgElement('g', { transform: `translate(${x} ${y}) rotate(${heading})`, opacity: 0.55 });
   group.appendChild(svgElement('path', {
-    d: 'M0 -26 L7 -14 L-7 -14 Z',
+    d: 'M0 -24 L5.5 -15 L-5.5 -15 Z',
     fill: GHOST_COLOR,
     stroke: 'none',
   }));
   layer.appendChild(group);
+  return group;
+}
+
+/** Стрілка старту ховається, поки равлик стоїть на старті, щоб не заважати його голові. */
+function syncStartArrow(dom, turtle) {
+  const marker = dom.startMarker;
+  if (!marker) return;
+  marker.arrow.setAttribute('visibility', isAtStart(turtle, marker.start) ? 'hidden' : 'visible');
 }
 
 /** Малює межі поля, сітку (якщо `lesson.showGrid`) і ghost-фігуру (пунктир, старт, стрілка). */
 export function renderLessonGuide(dom, lesson, ghostSegments = []) {
   const guideLayer = dom.guideLayer;
   guideLayer.replaceChildren();
+  dom.startMarker = null;
 
   guideLayer.appendChild(svgElement('rect', {
     x: -FIELD_HALF_WIDTH + 1,
@@ -90,10 +99,12 @@ export function renderLessonGuide(dom, lesson, ghostSegments = []) {
   if (ghostSegments.length > 0) {
     const sx = lesson.start?.x ?? 0;
     const sy = lesson.start?.y ?? 0;
+    // Позначка старту лежить у шарі ghost — під слідом і під равликом, ледь помітна.
     guideLayer.appendChild(svgElement('circle', {
-      cx: sx, cy: sy, r: 7, fill: 'var(--color-grid-background)', stroke: GHOST_COLOR, 'stroke-width': 3,
+      cx: sx, cy: sy, r: 6, fill: 'none', stroke: GHOST_COLOR, 'stroke-width': 2, opacity: 0.6,
     }));
-    appendArrow(guideLayer, sx, sy, lesson.start?.heading ?? 0);
+    const arrow = appendArrow(guideLayer, sx, sy, lesson.start?.heading ?? 0);
+    dom.startMarker = { arrow, start: { x: sx, y: sy, heading: lesson.start?.heading ?? 0 } };
   }
 }
 
@@ -107,6 +118,12 @@ export function placeTurtleSnail(dom, turtle) {
   const tip = dom.snailElement.querySelector('[data-pen-tip]');
   if (tip) tip.setAttribute('fill', turtle.color);
   dom.snailElement.classList.toggle('pen-up', !turtle.penDown);
+  syncStartArrow(dom, turtle);
+}
+
+/** Окремий значок равлика (для модалок) без innerHTML. */
+export function buildSnailIcon() {
+  return document.importNode(parseSvg(snailSvg), true);
 }
 
 /** Додає в слід лінію (повертає її, щоб анімація могла дотягувати кінець). */

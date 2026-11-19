@@ -16,9 +16,10 @@
 
 @media (prefers-contrast: more) {
   .btn-run,
+  .btn-step,
   .btn-reset,
-  .btn-next,
-  #show-code-btn {
+  .btn-copy-code,
+  .btn-next {
     box-shadow: none;
   }
 }

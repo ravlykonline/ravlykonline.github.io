@@ -156,7 +156,8 @@ const appState = {
   trailPoints: [],                // [x, y][]
   activeBlockId: null,
   insertTargetId: null,           // id repeat-блоку як цілі вставки
-  codePanelOpen: false,
+  view: 'blocks', // вкладка «Блоки | Код»
+  speed: 'normal', // повільно | звичайно | швидко
 };
 ```
 

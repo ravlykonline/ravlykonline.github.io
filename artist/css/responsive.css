@@ -51,10 +51,6 @@
     height: 26rem;
     grid-template-columns: 16.5rem minmax(0, 1fr);
   }
-
-  #code-panel {
-    width: min(100vw, 42.5rem);
-  }
 }
 
 @media (max-width: 43.6875rem) {
@@ -120,8 +116,10 @@
   }
 
   .btn-run,
-  .btn-reset,
-  #show-code-btn {
+  .btn-step,
+  .btn-stop,
+  .btn-restart,
+  .btn-reset {
     min-height: var(--size-touch-comfortable);
   }
 
@@ -130,12 +128,13 @@
     width: 100%;
   }
 
-  #code-panel {
-    width: 100%;
-    left: 0;
-    bottom: 0;
-    max-height: 46vh;
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  #code-view {
+    height: 24rem;
+    max-height: 60vh;
+  }
+
+  .run-controls {
+    justify-content: center;
   }
 }
 

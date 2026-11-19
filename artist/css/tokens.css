@@ -57,6 +57,12 @@
   --color-feedback-error: #ffb3ba;
   --color-overlay: rgba(13, 60, 50, 0.55);
   --color-code-text: #7fffd4;
+  --color-code-keyword: #ffb86b;
+  --color-code-number: #ffe27a;
+  --color-code-color: #ff9fc4;
+  --color-code-comment: #9ccfc3;
+  --color-code-punct: #c8e6df;
+  --color-code-line-active: rgba(255, 255, 255, 0.18);
   --color-focus-ring: #ffbf47;
   --color-trail-orange: #f5962a;
   --color-trail-teal: #1a9080;

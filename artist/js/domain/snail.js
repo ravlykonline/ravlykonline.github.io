@@ -26,13 +26,40 @@ export function headingDelta(from, to) {
   return delta;
 }
 
-/** Тривалість анімації кроку (мс): рух ~250 мс на 50 одиниць, поворот ~200 мс на 90°. */
-export function getStepDuration(before, after) {
+/** Швидкість показу: множник тривалості анімації. */
+export const SPEEDS = {
+  slow: { label: 'повільно', factor: 2 },
+  normal: { label: 'звичайно', factor: 1 },
+  fast: { label: 'швидко', factor: 0.35 },
+};
+export const DEFAULT_SPEED = 'normal';
+
+export function speedFactor(speed) {
+  return (SPEEDS[speed] ?? SPEEDS[DEFAULT_SPEED]).factor;
+}
+
+/**
+ * Тривалість анімації кроку (мс): рух ~250 мс на 50 одиниць, поворот ~200 мс на 90°.
+ * `factor` — множник швидкості (див. SPEEDS). Режим «менше руху» вирішує викликач.
+ */
+export function getStepDuration(before, after, factor = 1) {
   const distance = Math.hypot(after.x - before.x, after.y - before.y);
-  if (distance > 0) return (distance / 50) * MS_PER_50_UNITS;
-  const turn = Math.abs(headingDelta(before.heading, after.heading));
-  if (turn > 0) return (turn / 90) * MS_PER_QUARTER_TURN;
-  return MS_PER_INSTANT_STEP;
+  let base = MS_PER_INSTANT_STEP;
+  if (distance > 0) {
+    base = (distance / 50) * MS_PER_50_UNITS;
+  } else {
+    const turn = Math.abs(headingDelta(before.heading, after.heading));
+    if (turn > 0) base = (turn / 90) * MS_PER_QUARTER_TURN;
+  }
+  return base * factor;
+}
+
+/** Чи стоїть равлик у стартовій точці й дивиться в стартовий бік. */
+export function isAtStart(turtle, start = {}) {
+  const sx = start.x ?? 0;
+  const sy = start.y ?? 0;
+  const sh = start.heading ?? 0;
+  return Math.hypot(turtle.x - sx, turtle.y - sy) < 1 && Math.abs(headingDelta(turtle.heading, sh)) < 1;
 }
 
 /** Проміжний стан черепахи між before і after, t ∈ [0, 1]. Колір і перо змінюються в кінці. */
