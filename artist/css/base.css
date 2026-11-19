@@ -15,14 +15,12 @@ body {
   height: 100vh;
   height: 100dvh;
   display: grid;
-  grid-template-rows: auto var(--space-1) minmax(0, 1fr) auto;
+  grid-template-rows: auto 0 minmax(0, 1fr) auto;
   overflow: hidden;
   font-family: var(--font-body);
   font-size: var(--font-size-base);
   line-height: 1.5;
-  background:
-    radial-gradient(circle at top left, var(--color-page-glow), transparent 28%),
-    linear-gradient(180deg, var(--color-page-tint) 0%, var(--color-cream) 28%, var(--color-warm-background) 100%);
+  background: var(--color-page);
   color: var(--color-text);
 }
 

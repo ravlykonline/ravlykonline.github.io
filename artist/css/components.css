@@ -18,28 +18,33 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  min-width: 2rem;
-  height: 2rem;
-  border: 0.125rem solid var(--color-button-border-light);
+  width: 1.75rem;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  border: 0.125rem solid var(--color-primary);
   border-radius: var(--radius-pill);
-  background: transparent;
-  color: var(--color-surface);
-  font-size: var(--font-size-sm);
+  background: var(--color-surface);
+  color: var(--color-heading);
+  font-size: var(--font-size-xs);
   font-weight: 800;
   cursor: pointer;
 }
 
-.ldot.active {
-  border-color: var(--color-orange);
-  background: var(--color-orange);
-  color: var(--color-on-orange);
+.ldot:hover {
+  background: var(--color-primary-soft);
 }
 
+/* Пройдений рівень — заповнена точка (успіх) + маленький значок із зірками. */
 .ldot.done {
-  border-color: var(--color-teal-light);
-  background: var(--color-teal-light);
-  color: var(--color-teal-dark);
+  border-color: var(--color-success-solid);
+  background: var(--color-success-solid);
+  color: var(--color-on-solid);
+}
+
+.ldot.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-solid);
 }
 
 #instr-box {
@@ -48,10 +53,10 @@
   gap: var(--space-3);
   width: 100%;
   padding: var(--space-4);
-  border: 0.0625rem solid var(--color-surface-border-soft);
+  border: 0.0625rem solid var(--color-border);
   border-radius: var(--radius-xl);
-  background: linear-gradient(135deg, var(--color-card-gradient-top), var(--color-card-gradient-bottom));
-  box-shadow: var(--shadow-2);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-1);
 }
 
 .snail-avatar svg {
@@ -73,9 +78,9 @@
   min-width: 14rem;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  border: 0.1875rem solid var(--color-teal-light);
+  border: 0.1875rem solid var(--color-tomato);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-2);
+  box-shadow: var(--shadow-1);
   background: var(--color-grid-background);
 }
 
@@ -131,42 +136,55 @@
   min-width: var(--size-touch-comfortable);
   height: var(--size-touch-comfortable);
   border-radius: var(--radius-pill);
-  background: var(--color-block-surface-strong);
-  color: var(--color-surface);
+  background: var(--color-primary-soft);
+  color: var(--color-heading);
   font-size: var(--font-size-md);
 }
 
+/* Кнопки за змістом кольорів сайту: Старт — success, Стоп — warning, Крок — primary. */
 .btn-run {
   min-height: var(--size-touch-primary);
   padding: var(--space-2) var(--space-5);
   border-radius: var(--radius-pill);
-  background: var(--color-orange);
-  color: var(--color-on-orange);
+  background: var(--color-success-solid);
+  color: var(--color-on-solid);
   font-size: var(--font-size-lg);
   font-weight: 800;
-  box-shadow: 0 0.25rem 0 var(--color-orange-dark);
+  box-shadow: var(--shadow-1);
+}
+
+.btn-run:not(:disabled):hover {
+  background: var(--color-success-solid-hover);
 }
 
 .btn-stop {
   min-height: var(--size-touch-primary);
   padding: var(--space-2) var(--space-5);
   border-radius: var(--radius-pill);
-  background: var(--color-feedback-error);
-  color: var(--color-on-stop);
+  background: var(--color-warning);
+  color: var(--color-on-warning);
   font-size: var(--font-size-lg);
   font-weight: 800;
-  box-shadow: 0 0.25rem 0 #8b0000;
+  box-shadow: var(--shadow-1);
+}
+
+.btn-stop:not(:disabled):hover {
+  background: var(--color-warning-hover);
 }
 
 .btn-step {
   min-height: var(--size-touch-primary);
   padding: var(--space-2) var(--space-5);
   border-radius: var(--radius-pill);
-  background: var(--color-teal-light);
-  color: var(--color-text);
+  background: var(--color-primary);
+  color: var(--color-on-solid);
   font-size: var(--font-size-lg);
   font-weight: 800;
-  box-shadow: 0 0.25rem 0 var(--color-teal);
+  box-shadow: var(--shadow-1);
+}
+
+.btn-step:not(:disabled):hover {
+  background: var(--color-primary-hover);
 }
 
 .run-controls {
@@ -188,12 +206,16 @@
 .btn-restart {
   min-height: var(--size-touch-comfortable);
   padding: var(--space-2) var(--space-4);
-  border: 0.125rem solid var(--color-button-border-light);
+  border: 0.125rem solid var(--color-info);
   border-radius: var(--radius-pill);
-  background: var(--color-block-surface-muted);
-  color: var(--color-surface);
+  background: var(--color-info);
+  color: var(--color-on-solid);
   font-size: var(--font-size-md);
   font-weight: 700;
+}
+
+.btn-restart:not(:disabled):hover {
+  background: var(--color-info-hover);
 }
 
 .speed-switch {
@@ -202,7 +224,7 @@
   gap: var(--space-1);
   padding: var(--space-1);
   border-radius: var(--radius-pill);
-  background: var(--color-block-surface-muted);
+  background: var(--color-primary-soft);
 }
 
 .speed-btn {
@@ -210,14 +232,14 @@
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-pill);
   background: transparent;
-  color: var(--color-surface);
+  color: var(--color-heading);
   font-size: var(--font-size-sm);
   font-weight: 700;
 }
 
 .speed-btn[aria-pressed="true"] {
-  background: var(--color-surface);
-  color: var(--color-teal-dark);
+  background: var(--color-primary);
+  color: var(--color-on-solid);
 }
 
 .instr-head {
@@ -229,10 +251,10 @@
 .btn-help {
   width: 2.25rem;
   height: 2.25rem;
-  border: 0.125rem solid var(--color-teal);
+  border: 0.125rem solid var(--color-primary);
   border-radius: var(--radius-pill);
   background: var(--color-surface);
-  color: var(--color-teal-dark);
+  color: var(--color-heading);
   font-size: var(--font-size-md);
   font-weight: 900;
 }
@@ -244,17 +266,21 @@
 .btn-reset {
   min-height: var(--size-touch-comfortable);
   padding: var(--space-2) var(--space-4);
-  border: 0.125rem solid var(--color-button-border-light);
+  border: 0.125rem solid var(--color-danger);
   border-radius: var(--radius-pill);
-  background: var(--color-block-surface-muted);
-  color: var(--color-surface);
+  background: var(--color-danger);
+  color: var(--color-on-solid);
   font-size: var(--font-size-md);
   font-weight: 700;
 }
 
+.btn-reset:not(:disabled):hover {
+  background: var(--color-danger-hover);
+}
+
 #feedback {
   flex: 1;
-  color: var(--color-surface);
+  color: var(--color-text);
   font-size: var(--font-size-base);
   font-weight: 800;
   text-align: center;
@@ -317,10 +343,10 @@
 .btn-stay {
   min-height: var(--size-touch-comfortable);
   padding: var(--space-2) var(--space-5);
-  border: 0.125rem solid var(--color-teal);
+  border: 0.125rem solid var(--color-primary);
   border-radius: var(--radius-pill);
   background: transparent;
-  color: var(--color-teal-dark);
+  color: var(--color-heading);
   font-size: var(--font-size-md);
   font-weight: 800;
 }
@@ -337,7 +363,7 @@
 
 .success-card h2 {
   margin-bottom: var(--space-2);
-  color: var(--color-teal-dark);
+  color: var(--color-heading);
   font-size: var(--font-size-2xl);
   font-weight: 900;
 }
@@ -353,11 +379,11 @@
   min-height: var(--size-touch-primary);
   padding: var(--space-3) var(--space-6);
   border-radius: var(--radius-pill);
-  background: var(--color-teal);
-  color: var(--color-surface);
+  background: var(--color-success-solid);
+  color: var(--color-on-solid);
   font-size: var(--font-size-lg);
   font-weight: 800;
-  box-shadow: 0 0.25rem 0 var(--color-teal-dark);
+  box-shadow: var(--shadow-1);
 }
 
 .snail-wiggle {
@@ -396,7 +422,7 @@
 
 .confirm-card h2 {
   margin-bottom: var(--space-2);
-  color: var(--color-teal-dark);
+  color: var(--color-heading);
   font-size: var(--font-size-3xl);
   font-weight: 900;
 }
@@ -421,8 +447,8 @@
   height: 2rem;
   border: 0.0625rem solid var(--color-workspace-border);
   border-radius: var(--radius-sm);
-  background: var(--color-teal-pale);
-  color: var(--color-teal-dark);
+  background: var(--color-primary-soft);
+  color: var(--color-heading);
   font-size: var(--font-size-base);
   cursor: pointer;
   transition: opacity 0.1s;
@@ -454,15 +480,14 @@
 }
 
 .btn-confirm-secondary {
-  border: 0.125rem solid var(--color-confirm-secondary-border);
-  background: var(--color-confirm-secondary-surface);
-  color: var(--color-teal-dark);
+  border: 0.125rem solid var(--color-primary);
+  background: var(--color-surface);
+  color: var(--color-heading);
 }
 
 .btn-confirm-danger {
-  background: var(--color-orange);
-  color: var(--color-on-orange);
-  box-shadow: 0 0.25rem 0 var(--color-orange-dark);
+  background: var(--color-danger);
+  color: var(--color-on-solid);
 }
 
 /* ── Intro modal ─────────────────────────────────────────────────────────────── */
@@ -520,7 +545,7 @@
   width: 100%;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-lg);
-  background: var(--color-teal-dark);
+  background: var(--color-code-bg);
   color: var(--color-code-text);
   font-family: 'Courier New', monospace;
   font-size: var(--font-size-sm);
@@ -533,11 +558,11 @@
   min-height: var(--size-touch-comfortable);
   padding: var(--space-2) var(--space-5);
   border-radius: var(--radius-pill);
-  background: var(--color-teal);
-  color: var(--color-surface);
+  background: var(--color-primary);
+  color: var(--color-on-solid);
   font-size: var(--font-size-md);
   font-weight: 800;
-  box-shadow: 0 0.25rem 0 var(--color-teal-dark);
+  box-shadow: var(--shadow-1);
   cursor: pointer;
   transition: transform 0.1s;
 }

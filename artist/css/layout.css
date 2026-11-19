@@ -4,82 +4,100 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-4);
-  min-height: var(--size-header);
-  padding: var(--space-1) var(--space-4);
-  background: var(--color-teal-dark);
+  flex-wrap: nowrap;
+  gap: var(--space-4);
+  height: var(--size-header);
+  padding: 0 var(--space-4);
+  border-bottom: 0.0625rem solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-1);
 }
 
 .logo {
   display: flex;
+  flex: none;
   align-items: center;
-  gap: var(--space-3);
-  color: var(--color-surface);
+  gap: var(--space-2);
+  color: var(--color-heading);
   font-size: var(--font-size-xl);
   font-weight: 900;
+  white-space: nowrap;
 }
 
 .logo-snail {
   font-size: 1.5rem;
 }
 
+/* Назва поточного рівня — праворуч, лише коли вона вміщається (див. responsive.css). */
 .lesson-title {
-  flex: 1 1 auto;
-  text-align: right;
-  color: var(--color-surface);
-  font-size: var(--font-size-md);
+  display: none;
+  order: 3;
+  flex: 0 1 16rem;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-soft);
+  font-size: var(--font-size-sm);
   font-weight: 700;
-  opacity: 0.9;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+/* Один компактний ряд: точки рівнів; між розділами — лише невеликий проміжок.
+   Назва розділу є в підказці й aria-label кожної точки. */
 .lesson-nav {
   display: flex;
-  align-items: flex-start;
+  flex: 1 1 auto;
+  align-items: center;
   justify-content: center;
-  gap: var(--space-2) var(--space-4);
-  flex: 1 0 100%;
-  flex-wrap: wrap;
+  gap: var(--space-4);
+  min-width: 0;
 }
 
 .lesson-chapter {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.125rem;
+  align-items: center;
 }
 
 .lesson-chapter-title {
-  color: var(--color-surface);
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  opacity: 0.85;
-  white-space: nowrap;
+  display: none;
 }
 
 .lesson-chapter-dots {
   display: flex;
-  gap: var(--space-1);
+  gap: 0.1875rem;
 }
 
+/* Зірки — маленький значок на куті точки, щоб ряд не ставав вищим. */
 .lcell {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .lstars {
-  min-height: 0.9rem;
-  color: var(--color-orange-light);
-  font-size: 0.65rem;
-  line-height: 0.9rem;
-  letter-spacing: 0.05em;
+  position: absolute;
+  top: -0.3125rem;
+  right: -0.3125rem;
+  display: none;
+  min-width: 1rem;
+  padding: 0 0.1875rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-warning);
+  color: var(--color-on-warning);
+  font-size: 0.625rem;
+  font-weight: 900;
+  line-height: 1rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.lstars:not(:empty) {
+  display: block;
 }
 
 .folk-divider {
   flex-shrink: 0;
-  height: var(--space-1);
-  background: repeating-linear-gradient(90deg, var(--color-orange) 0 var(--space-2), var(--color-teal-light) var(--space-2) var(--space-4), var(--color-orange-light) var(--space-4) var(--space-5), var(--color-teal) var(--space-5) var(--space-6));
+  height: 0;
 }
 
 #body {
@@ -90,7 +108,7 @@
   grid-template-columns: minmax(0, 1fr) clamp(21rem, 38%, 36rem);
   align-items: stretch;
   overflow: hidden;
-  background: linear-gradient(180deg, var(--color-page-gradient-start), var(--color-page-gradient-end));
+  background: var(--color-page);
 }
 
 #control-panel,
@@ -114,10 +132,8 @@
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4) var(--space-4);
-  background:
-    linear-gradient(180deg, var(--color-panel-gradient-top), var(--color-panel-gradient-bottom)),
-    linear-gradient(145deg, var(--color-panel-gradient-accent), var(--color-panel-gradient-accent-soft));
-  border-right: 0.0625rem solid var(--color-violet-border-faint);
+  background: var(--color-page);
+  border-right: 0.0625rem solid var(--color-border);
 }
 
 #editor-panels {
@@ -136,9 +152,7 @@
   justify-content: stretch;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4) var(--space-4);
-  background:
-    radial-gradient(circle at top right, var(--color-canvas-glow), transparent 32%),
-    linear-gradient(180deg, var(--color-panel-gradient-top), var(--color-canvas-gradient-bottom));
+  background: var(--color-page);
 }
 
 #canvas-shell {
@@ -148,18 +162,18 @@
   justify-content: center;
   min-width: 0;
   padding: var(--space-4);
-  border: 0.0625rem solid var(--color-surface-border);
-  border-radius: var(--radius-2xl);
-  background: linear-gradient(180deg, var(--color-canvas-shell-top), var(--color-canvas-shell-bottom));
-  box-shadow: inset 0 0.0625rem 0 var(--color-canvas-shell-highlight), var(--shadow-1);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-1);
 }
 
 #palette {
   overflow: hidden;
   padding: var(--space-3);
-  border: 0.0625rem solid var(--color-violet-border-soft);
+  border: 0.0625rem solid var(--color-border);
   border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, var(--color-brand-violet-soft) 0%, var(--color-page-tint) 100%);
+  background: var(--color-primary-soft);
   box-shadow: var(--shadow-1);
 }
 
@@ -168,9 +182,9 @@
   flex-direction: column;
   overflow: hidden;
   padding: var(--space-3);
-  border: 0.0625rem solid var(--color-surface-border);
+  border: 0.1875rem solid var(--color-primary);
   border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-elevated) 100%);
+  background: var(--color-surface);
   box-shadow: var(--shadow-1);
 }
 
@@ -198,7 +212,8 @@
   gap: var(--space-3);
   min-height: calc(var(--size-touch-primary) + var(--space-5));
   padding: var(--space-2) var(--space-4);
-  background: var(--color-teal-dark);
+  border-top: 0.0625rem solid var(--color-border);
+  background: var(--color-surface);
 }
 
 #editor-tabs {
@@ -210,7 +225,7 @@
 .editor-tab {
   min-height: var(--size-touch-comfortable);
   padding: var(--space-2) var(--space-5);
-  border: 0.125rem solid var(--color-surface-border);
+  border: 0.125rem solid var(--color-border);
   border-radius: var(--radius-pill);
   background: var(--color-surface);
   color: var(--color-text-accent);
@@ -220,9 +235,9 @@
 }
 
 .editor-tab[aria-selected="true"] {
-  border-color: var(--color-teal-dark);
-  background: var(--color-teal-dark);
-  color: var(--color-surface);
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-solid);
 }
 
 #editor-panels.show-code {
@@ -241,8 +256,9 @@
   gap: var(--space-2);
   overflow: hidden;
   padding: var(--space-3);
+  border: 0.1875rem solid var(--color-primary);
   border-radius: var(--radius-xl);
-  background: var(--color-teal-dark);
+  background: var(--color-surface);
   box-shadow: var(--shadow-1);
 }
 
@@ -272,14 +288,22 @@
 }
 
 .btn-copy-code {
-  background: var(--color-orange);
-  color: var(--color-on-orange);
-  box-shadow: 0 0.25rem 0 var(--color-orange-dark);
+  background: var(--color-info);
+  color: var(--color-on-solid);
+  box-shadow: var(--shadow-1);
+}
+
+.btn-copy-code:hover {
+  background: var(--color-info-hover);
 }
 
 .link-open-ravlyk {
-  border: 0.125rem solid var(--color-button-border-light);
-  color: var(--color-surface);
+  border: 0.125rem solid var(--color-primary);
+  color: var(--color-heading);
+}
+
+.link-open-ravlyk:hover {
+  background: var(--color-primary-soft);
 }
 
 .copy-status {
@@ -299,7 +323,7 @@
   overflow: auto;
   padding: var(--space-2) 0;
   border-radius: var(--radius-lg);
-  background: rgba(0, 0, 0, 0.18);
+  background: var(--color-code-bg);
   color: var(--color-code-text);
   font-family: 'Cascadia Mono', 'Consolas', 'Courier New', monospace;
   font-size: var(--font-size-md);
@@ -315,7 +339,7 @@
 }
 
 .code-line.is-active {
-  border-left-color: var(--color-orange);
+  border-left-color: var(--color-warning);
   background: var(--color-code-line-active);
 }
 

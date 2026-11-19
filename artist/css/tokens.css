@@ -18,111 +18,69 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/* Палітра головного сайту Равлика (css/global.css, DESIGN_GUIDE.md §3–4):
+   фон #f0f8ff, текст #333, заголовки #4b0082, дії — primary / success / warning /
+   danger / info. Градієнтів немає. */
 :root {
   --font-body: 'Nunito', sans-serif;
 
-  --color-teal: #1a7a6e;
-  --color-teal-dark: #0d5248;
-  --color-teal-light: #4db5a7;
-  --color-teal-pale: #d0ede9;
-  --color-orange: #f5962a;
-  --color-orange-dark: #c0700a;
-  --color-orange-light: #ffd08a;
-  --color-cream: #fff8ee;
-  --color-warm-background: #f9f3e8;
-  --color-page-tint: #eef4ff;
-  --color-page-tint-strong: #dfeafc;
-  --color-brand-violet: #6a5acd;
-  --color-brand-violet-soft: #ece9ff;
-  --color-text: #2c1a0e;
-  --color-text-soft: #6b4e35;
-  --color-text-accent: #2f1364;
-  --color-move-block: #1a9080;
-  --color-move-block-dark: #0e5a4e;
-  --color-turn-block: #7b3f9e;
-  --color-turn-block-dark: #5a2d77;
-  --color-pen-block: #1e66c8;
-  --color-pen-block-dark: #1450a0;
-  --color-repeat-block: #c72070;
-  --color-repeat-block-dark: #8a1550;
-  --color-event-block: #e8940a;
+  --color-page: #f0f8ff;
+  --color-text: #333333;
+  --color-text-soft: #555555;
+  --color-heading: #4b0082;
+  --color-text-accent: #4b0082;
+
+  --color-primary: #6a5acd;
+  --color-primary-hover: #5849a9;
+  --color-primary-soft: #ece9ff;
+  --color-teal: #00796b;
+  --color-teal-dark: #004d40;
+  --color-teal-light: #4db6ac;
+  --color-teal-pale: #e0f2f1;
+  --color-tomato: #ff6347;
+  --color-success: #32cd32;
+  --color-success-hover: #28a428;
+  /* Кнопка «Старт»: той самий зелений, але темніший, щоб білий текст мав ≥ 4.5:1 (як btn-success сайту). */
+  --color-success-solid: #237a23;
+  --color-success-solid-hover: #1b601b;
+  --color-warning: #ffb300;
+  --color-warning-hover: #e6a100;
+  --color-danger: #c0392b;
+  --color-danger-hover: #a93226;
+  --color-info: #2f6fbf;
+  --color-info-hover: #275fa4;
+
+  --color-on-solid: #ffffff;
+  --color-on-warning: #333333;
+
   --color-surface: #ffffff;
-  --color-surface-muted: #ede6db;
-  --color-surface-soft: #f4efe6;
   --color-surface-elevated: #f8fafc;
-  --color-workspace: #e4dbce;
-  --color-workspace-border: #c8b9a8;
-  --color-grid-background: #fffcf5;
-  --color-feedback-ok: #7fffcf;
-  --color-feedback-error: #ffb3ba;
-  --color-overlay: rgba(13, 60, 50, 0.55);
+  --color-border: #d9d4f2;
+  --color-border-soft: #e6e2f7;
+  --color-workspace-border: #cfc8ee;
+  --color-grid-background: #ffffff;
+  --color-overlay: rgba(46, 16, 101, 0.5);
+
+  --color-feedback-ok: #237a23;
+  --color-feedback-error: #c0392b;
+
+  --color-code-bg: #2d1b4e;
   --color-code-text: #7fffd4;
   --color-code-keyword: #ffb86b;
   --color-code-number: #ffe27a;
   --color-code-color: #ff9fc4;
-  --color-code-comment: #9ccfc3;
-  --color-code-punct: #c8e6df;
+  --color-code-comment: #b9acd9;
+  --color-code-punct: #d8d0ee;
   --color-code-line-active: rgba(255, 255, 255, 0.18);
+
   --color-focus-ring: #ffbf47;
-  --color-focus-contrast: #2f1364;
-  --color-on-orange: #2c1a0e;
-  --color-on-stop: #5a0f18;
-  --color-trail-orange: #f5962a;
-  --color-trail-teal: #1a9080;
-  --color-trail-pink: #c72070;
-  --color-trail-purple: #7b3f9e;
-  --color-trail-green: #5dad3a;
+  --color-focus-contrast: #4b0082;
 
   --color-black-rgb: 0, 0, 0;
   --color-white-rgb: 255, 255, 255;
-  --color-teal-light-rgb: 77, 181, 167;
-  --color-brand-violet-rgb: 106, 90, 205;
-  --color-page-tint-rgb: 238, 244, 255;
-  --color-warm-background-rgb: 249, 243, 232;
-  --color-teal-dark-rgb: 13, 82, 72;
-
-  --color-grid-cell-alt: rgba(var(--color-black-rgb), 0.025);
-  --color-grid-line: rgba(180, 160, 130, 0.35);
-  --color-page-glow: rgba(var(--color-brand-violet-rgb), 0.09);
+  --color-primary-rgb: 106, 90, 205;
+  --color-grid-line: rgba(var(--color-primary-rgb), 0.22);
   --color-scroll-thumb: rgba(var(--color-black-rgb), 0.18);
-  --color-surface-border-soft: rgba(var(--color-teal-light-rgb), 0.28);
-  --color-surface-border: rgba(var(--color-teal-light-rgb), 0.22);
-  --color-violet-border-soft: rgba(var(--color-brand-violet-rgb), 0.14);
-  --color-violet-border-faint: rgba(var(--color-brand-violet-rgb), 0.12);
-  --color-page-gradient-start: rgba(var(--color-white-rgb), 0.36);
-  --color-page-gradient-end: rgba(255, 248, 238, 0.82);
-  --color-panel-gradient-top: rgba(var(--color-white-rgb), 0.72);
-  --color-panel-gradient-bottom: rgba(255, 248, 238, 0.96);
-  --color-panel-gradient-accent: rgba(234, 240, 255, 0.65);
-  --color-panel-gradient-accent-soft: rgba(var(--color-warm-background-rgb), 0.35);
-  --color-canvas-glow: rgba(var(--color-teal-light-rgb), 0.15);
-  --color-canvas-gradient-bottom: rgba(var(--color-warm-background-rgb), 0.96);
-  --color-canvas-shell-top: rgba(var(--color-white-rgb), 0.68);
-  --color-canvas-shell-bottom: rgba(255, 252, 245, 0.98);
-  --color-canvas-shell-highlight: rgba(var(--color-white-rgb), 0.85);
-  --color-card-gradient-top: rgba(var(--color-white-rgb), 0.96);
-  --color-card-gradient-bottom: rgba(var(--color-page-tint-rgb), 0.96);
-  --color-workspace-overlay-top: rgba(var(--color-white-rgb), 0.12);
-  --color-workspace-overlay-bottom: rgba(var(--color-white-rgb), 0);
-  --color-ghost-line: rgba(var(--color-teal-light-rgb), 0.24);
-  --color-ghost-ring: rgba(var(--color-teal-light-rgb), 0.14);
-  --color-ghost-border: rgba(var(--color-teal-light-rgb), 0.55);
-  --color-ghost-surface: rgba(var(--color-white-rgb), 0.28);
-  --color-ghost-active-surface: rgba(var(--color-teal-light-rgb), 0.16);
-  --color-icon-chip: rgba(var(--color-white-rgb), 0.16);
-  --color-icon-chip-strong: rgba(var(--color-white-rgb), 0.18);
-  --color-icon-chip-highlight: rgba(var(--color-white-rgb), 0.22);
-  --color-inner-shadow: rgba(var(--color-black-rgb), 0.22);
-  --color-soft-shadow: rgba(var(--color-black-rgb), 0.2);
-  --color-block-surface: rgba(var(--color-white-rgb), 0.3);
-  --color-block-surface-strong: rgba(var(--color-white-rgb), 0.25);
-  --color-block-surface-muted: rgba(var(--color-white-rgb), 0.12);
-  --color-block-text-muted: rgba(var(--color-white-rgb), 0.8);
-  --color-button-border-light: rgba(var(--color-white-rgb), 0.28);
-  --color-button-border-soft: rgba(var(--color-white-rgb), 0.25);
-  --color-button-text-soft: rgba(var(--color-white-rgb), 0.8);
-  --color-confirm-secondary-border: rgba(var(--color-teal-dark-rgb), 0.22);
-  --color-confirm-secondary-surface: rgba(var(--color-teal-dark-rgb), 0.08);
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -133,7 +91,7 @@
   --space-7: 3rem;
   --space-8: 4rem;
 
-  --size-header: 3.25rem;
+  --size-header: 3.5rem;
   --size-footer: 3.625rem;
   --size-touch-min: 1.5rem;
   --size-touch-comfortable: 3rem;
@@ -151,9 +109,9 @@
   --radius-2xl: 1.5rem;
   --radius-pill: 9999px;
 
-  --shadow-1: 0 0.125rem 0.5rem rgba(var(--color-black-rgb), 0.1);
-  --shadow-2: 0 0.25rem 1.125rem rgba(var(--color-black-rgb), 0.14);
-  --shadow-3: 0 0.5rem 2.25rem rgba(var(--color-black-rgb), 0.18);
+  --shadow-1: 0 0.125rem 0.25rem rgba(var(--color-black-rgb), 0.08);
+  --shadow-2: 0 0.25rem 0.75rem rgba(var(--color-black-rgb), 0.1);
+  --shadow-3: 0 0.5rem 1.5rem rgba(var(--color-black-rgb), 0.16);
 
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
@@ -169,75 +127,77 @@
   --z-modal: 600;
 }
 
-/* ── Блоки «як у Scratch» ─────────────────────────────────────────────────────
-   Варіант за замовчуванням — насичений: світлий текст на темній заливці
-   (контраст ≥ 4.5:1; перевіряє tests/art.blocks.test.js). Жовтий «цикл» і м’ятний
-   «старт» мають темний текст, бо білий на них не читається.
-   Пастельний варіант вмикається класом blocks-pastel на <body>. */
+/* ── Блоки «як у Scratch», кольори з палітри Равлика ──────────────────────────
+   Рух — info-синій, повороти — primary-фіолетовий, олівець — бірюзовий,
+   колір — томатний, цикли — warning-бурштиновий, старт — success-зелений.
+   Світлий текст на темній заливці (синій, фіолетовий, бірюзовий) і темний текст
+   на світлій (томатний, бурштиновий, зелений): контраст ≥ 4.5:1 перевіряє
+   tests/art.blocks.test.js. Пастельний варіант (клас blocks-pastel на <body>)
+   — світліші тони тих самих відтінків. */
 :root {
-  --blk-move-fill: #2f6fd6;
-  --blk-move-stroke: #1f4f9c;
+  --blk-move-fill: #2f6fbf;
+  --blk-move-stroke: #1f4f8c;
   --blk-move-text: #ffffff;
-  --blk-turn-fill: #7a4bd1;
-  --blk-turn-stroke: #583496;
+  --blk-turn-fill: #6a5acd;
+  --blk-turn-stroke: #4a3da0;
   --blk-turn-text: #ffffff;
-  --blk-pen-fill: #2e7d32;
-  --blk-pen-stroke: #1f5a23;
+  --blk-pen-fill: #00796b;
+  --blk-pen-stroke: #00564c;
   --blk-pen-text: #ffffff;
-  --blk-color-fill: #c2358a;
-  --blk-color-stroke: #8f2566;
-  --blk-color-text: #ffffff;
+  --blk-color-fill: #ff6347;
+  --blk-color-stroke: #b8381f;
+  --blk-color-text: #2b0f08;
   --blk-repeat-fill: #ffb300;
   --blk-repeat-stroke: #b37d00;
-  --blk-repeat-text: #2c1a0e;
-  --blk-start-fill: #6fd9bf;
-  --blk-start-stroke: #37a98c;
-  --blk-start-text: #1c3a33;
+  --blk-repeat-text: #332400;
+  --blk-start-fill: #32cd32;
+  --blk-start-stroke: #1f8f1f;
+  --blk-start-text: #10300d;
 
   --blk-field-bg: #ffffff;
-  --blk-field-text: #2c1a0e;
+  --blk-field-text: #333333;
   --blk-field-border: rgba(var(--color-black-rgb), 0.18);
   --blk-slot-border: rgba(var(--color-black-rgb), 0.35);
-  --blk-slot-bg: rgba(var(--color-black-rgb), 0.08);
-  --blk-active-ring: #ffbf47;
-  --blk-error-ring: #d7263d;
+  --blk-slot-bg: rgba(var(--color-black-rgb), 0.06);
+  --blk-active-ring: #4b0082;
+  --blk-error-ring: #c0392b;
   --blk-preview-fill: #8c93a0;
   --blk-preview-stroke: #6f7683;
-  --blk-bin-bg: rgba(215, 38, 61, 0.14);
-  --blk-bin-border: #d7263d;
-  --blk-target-ring: #ff5a3c;
+  --blk-bin-bg: rgba(192, 57, 43, 0.12);
+  --blk-bin-border: #c0392b;
+  --blk-target-ring: #6a5acd;
   --blk-shadow: rgba(var(--color-black-rgb), 0.3);
-  --blk-flag: #ffffff;
+  --blk-flag: #10300d;
 
-  --ws-bg: #f7f5f0;
-  --ws-dot: rgba(120, 100, 80, 0.32);
+  --ws-bg: #fbfbff;
+  --ws-dot: rgba(var(--color-primary-rgb), 0.3);
   --ws-dot-step: 22px;
-  --ws-hint: #6b4e35;
+  --ws-hint: #555555;
 
   --popover-bg: #ffffff;
   --popover-border: rgba(var(--color-black-rgb), 0.18);
-  --popover-hover: #eef4ff;
+  --popover-hover: #ece9ff;
 }
 
 body.blocks-pastel {
-  --blk-move-fill: #cfe0ff;
-  --blk-move-stroke: #6f9be0;
-  --blk-move-text: #1b2d52;
-  --blk-turn-fill: #e3d6ff;
-  --blk-turn-stroke: #9b7fd8;
-  --blk-turn-text: #2e1b57;
-  --blk-pen-fill: #cdeccb;
-  --blk-pen-stroke: #6fb06f;
-  --blk-pen-text: #1a3a1c;
-  --blk-color-fill: #ffd3ea;
-  --blk-color-stroke: #e27fb4;
-  --blk-color-text: #4d1535;
-  --blk-repeat-fill: #ffe9a8;
-  --blk-repeat-stroke: #d9b13f;
+  --blk-move-fill: #d3e3f8;
+  --blk-move-stroke: #7aa5da;
+  --blk-move-text: #14305a;
+  --blk-turn-fill: #e2defa;
+  --blk-turn-stroke: #9d92e2;
+  --blk-turn-text: #2b2468;
+  --blk-pen-fill: #cdeae5;
+  --blk-pen-stroke: #5fb3a8;
+  --blk-pen-text: #0b3b35;
+  --blk-color-fill: #ffdad1;
+  --blk-color-stroke: #ee8c78;
+  --blk-color-text: #5a1a0c;
+  --blk-repeat-fill: #ffefc2;
+  --blk-repeat-stroke: #e0b13a;
   --blk-repeat-text: #3d2c00;
-  --blk-start-fill: #c8f0e6;
-  --blk-start-stroke: #6fc9ae;
-  --blk-start-text: #123a30;
+  --blk-start-fill: #d5f4d5;
+  --blk-start-stroke: #72cf72;
+  --blk-start-text: #14340f;
   --blk-field-border: rgba(var(--color-black-rgb), 0.22);
-  --blk-flag: #1c3a33;
+  --blk-flag: #14340f;
 }

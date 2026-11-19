@@ -117,32 +117,34 @@ function contrast(foreground, background) {
 /** [назва, текст, тло, мінімум]. Усі токени з css/tokens.css. */
 const TEXT_PAIRS = [
   ['основний текст на білому', '--color-text', '--color-surface'],
-  ['основний текст на кремовому', '--color-text', '--color-cream'],
-  ['основний текст на тлі сторінки', '--color-text', '--color-warm-background'],
-  ['основний текст на помаранчевій кнопці', '--color-on-orange', '--color-orange'],
+  ['основний текст на тлі сторінки #f0f8ff', '--color-text', '--color-page'],
   ['приглушений текст на білому', '--color-text-soft', '--color-surface'],
-  ['приглушений текст на панелі палітри', '--color-text-soft', '--color-brand-violet-soft'],
+  ['приглушений текст на тлі сторінки', '--color-text-soft', '--color-page'],
+  ['приглушений текст на панелі палітри', '--color-text-soft', '--color-primary-soft'],
   ['приглушений текст на тлі програми', '--color-text-soft', '--ws-bg'],
-  ['приглушений текст на тлі сторінки', '--color-text-soft', '--color-warm-background'],
   ['підказка в слоті', '--ws-hint', '--ws-bg'],
-  ['акцентний текст завдання', '--color-text-accent', '--color-surface'],
-  ['акцентний текст на вкладці', '--color-text-accent', '--color-page-tint'],
-  ['білий на темно-бірюзовому (шапка, підвал)', '--color-surface', '--color-teal-dark'],
-  ['білий на бірюзовому (кнопка «Далі»)', '--color-surface', '--color-teal'],
-  ['темно-бірюзовий на білому', '--color-teal-dark', '--color-surface'],
-  ['темно-бірюзовий на блідо-бірюзовому', '--color-teal-dark', '--color-teal-pale'],
-  ['текст кнопки «Крок»', '--color-text', '--color-teal-light'],
-  ['текст кнопки «Стоп»', '--color-on-stop', '--color-feedback-error'],
+  ['заголовки/бренд #4b0082 на білому (шапка, підвал, картки)', '--color-heading', '--color-surface'],
+  ['заголовки на тлі сторінки', '--color-heading', '--color-page'],
+  ['заголовки на лавандовій панелі (швидкість, кнопка історії)', '--color-heading', '--color-primary-soft'],
+  ['білий на primary (Крок, активний рівень, вкладка)', '--color-on-solid', '--color-primary'],
+  ['білий на primary hover', '--color-on-solid', '--color-primary-hover'],
+  ['білий на success (Старт, пройдений рівень)', '--color-on-solid', '--color-success-solid'],
+  ['білий на success hover', '--color-on-solid', '--color-success-solid-hover'],
+  ['білий на info (Спочатку, Копіювати код)', '--color-on-solid', '--color-info'],
+  ['білий на info hover', '--color-on-solid', '--color-info-hover'],
+  ['білий на danger (Очистити)', '--color-on-solid', '--color-danger'],
+  ['білий на danger hover', '--color-on-solid', '--color-danger-hover'],
+  ['темний на warning (Стоп, значок зірок)', '--color-on-warning', '--color-warning'],
+  ['темний на warning hover', '--color-on-warning', '--color-warning-hover'],
   ['текст поля в блоці', '--blk-field-text', '--blk-field-bg'],
-  ['повідомлення про успіх у підвалі', '--color-feedback-ok', '--color-teal-dark'],
-  ['повідомлення про помилку в підвалі', '--color-feedback-error', '--color-teal-dark'],
-  ['зірки рівнів у шапці', '--color-orange-light', '--color-teal-dark'],
-  ['код: звичайний текст', '--color-code-text', '--color-teal-dark'],
-  ['код: ключове слово', '--color-code-keyword', '--color-teal-dark'],
-  ['код: число', '--color-code-number', '--color-teal-dark'],
-  ['код: колір', '--color-code-color', '--color-teal-dark'],
-  ['код: коментар', '--color-code-comment', '--color-teal-dark'],
-  ['код: розділювач', '--color-code-punct', '--color-teal-dark'],
+  ['повідомлення про успіх у підвалі', '--color-feedback-ok', '--color-surface'],
+  ['повідомлення про помилку в підвалі', '--color-feedback-error', '--color-surface'],
+  ['код: звичайний текст', '--color-code-text', '--color-code-bg'],
+  ['код: ключове слово', '--color-code-keyword', '--color-code-bg'],
+  ['код: число', '--color-code-number', '--color-code-bg'],
+  ['код: колір', '--color-code-color', '--color-code-bg'],
+  ['код: коментар', '--color-code-comment', '--color-code-bg'],
+  ['код: розділювач', '--color-code-punct', '--color-code-bg'],
 ];
 
 runTest('main text/background token pairs meet WCAG AA (4.5:1)', () => {
@@ -157,7 +159,7 @@ runTest('main text/background token pairs meet WCAG AA (4.5:1)', () => {
 runTest('dimmed code lines (setup block) still read at 4.5:1', () => {
   const css = readFileSync(new URL('../css/layout.css', import.meta.url), 'utf8');
   const opacity = Number(css.match(/\.code-line\.is-setup \.code-src\s*\{\s*opacity:\s*([\d.]+)/)?.[1] ?? 1);
-  const panel = blend(colorOf('rgba(0, 0, 0, 0.18)'), colorOf('--color-teal-dark'));
+  const panel = colorOf('--color-code-bg');
   for (const token of ['--color-code-text', '--color-code-keyword', '--color-code-number', '--color-code-color', '--color-code-comment']) {
     const [r, g, b] = colorOf(token);
     const dimmed = [r, g, b, opacity];
@@ -170,9 +172,9 @@ runTest('graphics and focus indicators meet 3:1', () => {
   const ghost = canvasJs.match(/GHOST_COLOR = '(#[0-9a-fA-F]{6})'/)?.[1];
   assert.ok(ghost, 'ghost colour constant exists');
   assert.ok(contrast(colorOf(ghost), colorOf('--color-grid-background')) >= 3, 'ghost dashes vs field');
-  assert.ok(contrast(colorOf('--color-focus-ring'), colorOf('--color-teal-dark')) >= 3, 'focus ring vs dark chrome');
+  assert.ok(contrast(colorOf('--color-focus-ring'), colorOf('--color-code-bg')) >= 3, 'focus ring vs dark code panel');
   assert.ok(contrast(colorOf('--color-focus-contrast'), colorOf('--color-surface')) >= 3, 'focus contrast vs white');
-  assert.ok(contrast(colorOf('--color-focus-contrast'), colorOf('--color-warm-background')) >= 3, 'focus contrast vs page');
+  assert.ok(contrast(colorOf('--color-focus-contrast'), colorOf('--color-page')) >= 3, 'focus contrast vs page');
 });
 
 // ── Розмітка: живий статус, фокус-пастки ───────────────────────────────────────
@@ -198,4 +200,44 @@ runTest('touch-action: none is limited to blocks; the palette strip keeps horizo
     }
   }
   assert.match(responsive, /\.blk-palette\s*\{[^}]*touch-action:\s*pan-x/);
+});
+
+// ── Палітра головного сайту й компактна шапка ──────────────────────────────────
+
+runTest('tokens carry the main Ravlyk palette', () => {
+  const expected = {
+    '--color-page': '#f0f8ff',
+    '--color-text': '#333333',
+    '--color-heading': '#4b0082',
+    '--color-primary': '#6a5acd',
+    '--color-teal': '#00796b',
+    '--color-tomato': '#ff6347',
+    '--color-success': '#32cd32',
+    '--color-success-hover': '#28a428',
+    '--color-warning': '#ffb300',
+    '--color-danger': '#c0392b',
+    '--color-info': '#2f6fbf',
+  };
+  for (const [name, value] of Object.entries(expected)) assert.equal(tokenValue(name).toLowerCase(), value, name);
+});
+
+runTest('stylesheets use no gradients except the workspace dot pattern', () => {
+  for (const file of ['base', 'layout', 'components', 'blocks', 'responsive', 'accessibility']) {
+    const css = readFileSync(new URL(`../css/${file}.css`, import.meta.url), 'utf8');
+    const gradients = css.match(/(?:linear|conic|repeating-[a-z]+)-gradient\(/g) ?? [];
+    assert.deepEqual(gradients, [], `${file}.css`);
+  }
+  const blocks = readFileSync(new URL('../css/blocks.css', import.meta.url), 'utf8');
+  assert.equal([...blocks.matchAll(/radial-gradient\(/g)].length, 1, 'only the dot grid');
+});
+
+runTest('the header is one light row: no chapter titles, chapter name lives in each dot label', () => {
+  const layout = readFileSync(new URL('../css/layout.css', import.meta.url), 'utf8');
+  assert.match(layout, /#hdr\s*\{[^}]*height:\s*var\(--size-header\)/);
+  assert.match(layout, /#hdr\s*\{[^}]*background:\s*var\(--color-surface\)/);
+  assert.match(layout, /\.lesson-chapter-title\s*\{\s*display:\s*none/);
+  const px = Number.parseFloat(tokenValue('--size-header')) * 16;
+  assert.ok(px >= 52 && px <= 56, `header height ${px}px`);
+  const render = readFileSync(new URL('../js/ui/render.js', import.meta.url), 'utf8');
+  assert.match(render, /Рівень \$\{index \+ 1\} — \$\{lesson\.chapter\}:/);
 });

@@ -42,14 +42,15 @@ export function renderLessonNavigation(dom, state, onLessonSelect) {
     if (index === state.currentLessonIndex) button.classList.add('active');
     if (state.doneLessons.has(index)) button.classList.add('done');
     button.textContent = String(index + 1);
-    button.title = lesson.title;
-    button.setAttribute('aria-label', stars ? `${lesson.title}. ${starsLabel(stars)}` : lesson.title);
+    const levelLabel = `Рівень ${index + 1} — ${lesson.chapter}: ${lesson.title.replace(/^Рівень\s+\d+:\s*/, '')}`;
+    button.title = levelLabel;
+    button.setAttribute('aria-label', stars ? `${levelLabel}. ${starsLabel(stars)}` : levelLabel);
     if (index === state.currentLessonIndex) button.setAttribute('aria-current', 'step');
     button.addEventListener('click', () => onLessonSelect(index));
     const starsLine = document.createElement('span');
     starsLine.className = 'lstars';
     starsLine.setAttribute('aria-hidden', 'true');
-    starsLine.textContent = stars ? starsText(stars) : '';
+    starsLine.textContent = stars ? `★${stars}` : '';
     cell.append(button, starsLine);
     group.lastChild.appendChild(cell);
   });
