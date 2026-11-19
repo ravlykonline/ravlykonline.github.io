@@ -1,5 +1,6 @@
 import { lessons } from '../data/lessons.js';
 import { blockDefinitions } from '../data/blocks.js';
+import { COLOR_NAMES } from '../data/colors.js';
 import { makeTouchDraggable, makeDropTarget } from '../utils/touch-drag.js';
 
 function getBlockWord(count) {
@@ -186,12 +187,12 @@ function buildBlockElement(block, state, handlers, ctx = { isFirst: true, isLast
     input.className = 'rep-count';
     input.type = 'number';
     input.min = '1';
-    input.max = '20';
-    input.value = String(block.count);
+    input.max = String(definition.param.max);
+    input.value = String(block.n);
     input.title = 'Кількість повторів';
     input.setAttribute('aria-label', 'Кількість повторів');
     input.addEventListener('change', (event) => {
-      handlers.onUpdateRepeatCount(block.id, event.target.value);
+      handlers.onUpdateBlockParam(block.id, definition.param.key, event.target.value);
     });
 
     const suffix = document.createElement('span');
@@ -235,27 +236,45 @@ function buildBlockElement(block, state, handlers, ctx = { isFirst: true, isLast
   row.className = 'wb-row';
   row.appendChild(createBlockTitle(definition));
 
-  if (definition.paramKey) {
+  if (definition.param) {
     const paramWrap = document.createElement('span');
     paramWrap.className = 'wb-param';
+    const { param } = definition;
 
-    const input = document.createElement('input');
-    input.type = 'number';
-    input.className = 'wb-param-input';
-    input.min = String(definition.paramMin);
-    input.max = String(definition.paramMax);
-    input.value = String(block[definition.paramKey]);
-    input.setAttribute('aria-label', definition.paramLabel);
-    input.addEventListener('click', (e) => e.stopPropagation());
-    input.addEventListener('change', (event) => {
-      handlers.onUpdateBlockParam(block.id, definition.paramKey, event.target.value);
-    });
+    if (param.kind === 'color') {
+      const select = document.createElement('select');
+      select.className = 'wb-param-input wb-param-select';
+      select.setAttribute('aria-label', 'Колір');
+      COLOR_NAMES.forEach((name) => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        option.selected = block[param.key] === name;
+        select.appendChild(option);
+      });
+      select.addEventListener('click', (e) => e.stopPropagation());
+      select.addEventListener('change', (event) => {
+        handlers.onUpdateBlockParam(block.id, param.key, event.target.value);
+      });
+      paramWrap.appendChild(select);
+    } else {
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.className = 'wb-param-input';
+      input.min = String(param.min);
+      input.max = String(param.max);
+      input.value = String(block[param.key]);
+      input.setAttribute('aria-label', param.label);
+      input.addEventListener('click', (e) => e.stopPropagation());
+      input.addEventListener('change', (event) => {
+        handlers.onUpdateBlockParam(block.id, param.key, event.target.value);
+      });
 
-    const paramLabel = document.createElement('span');
-    paramLabel.className = 'wb-param-label';
-    paramLabel.textContent = definition.paramLabel;
-
-    paramWrap.append(input, paramLabel);
+      const paramLabel = document.createElement('span');
+      paramLabel.className = 'wb-param-label';
+      paramLabel.textContent = param.label;
+      paramWrap.append(input, paramLabel);
+    }
     row.appendChild(paramWrap);
   }
 

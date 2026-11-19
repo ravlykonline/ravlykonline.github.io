@@ -1,17 +1,12 @@
 import { lessons } from '../data/lessons.js';
-
-function createSnail(lesson) {
-  return { ...lesson.start };
-}
+import { countBlocksIn, withIds } from './blockTree.js';
 
 export const appState = {
   currentLessonIndex: 0,
   currentLesson: lessons[0],
-  snail: createSnail(lessons[0]),
   workspace: [],
   running: false,
   doneLessons: new Set(),
-  trailPoints: [],
   turtleSegments: [],
   activeBlockId: null,
   insertTargetId: null,
@@ -24,17 +19,22 @@ export function nextBlockId() {
   return blockIdCounter++;
 }
 
+function initialWorkspace(lesson) {
+  if (!lesson.startBlocks) return [];
+  const blocks = withIds(lesson.startBlocks, blockIdCounter);
+  blockIdCounter += countBlocksIn(blocks);
+  return blocks;
+}
+
 export function setLesson(index) {
   appState.currentLessonIndex = index;
   appState.currentLesson = lessons[index];
-  appState.workspace = [];
+  appState.workspace = initialWorkspace(appState.currentLesson);
   appState.activeBlockId = null;
   resetRuntimeState();
 }
 
 export function resetRuntimeState() {
-  appState.snail = createSnail(appState.currentLesson);
-  appState.trailPoints = [];
   appState.turtleSegments = [];
   appState.activeBlockId = null;
 }

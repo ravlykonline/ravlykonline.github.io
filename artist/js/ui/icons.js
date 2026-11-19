@@ -1,5 +1,5 @@
 export const snailSvg = `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <g data-snail-body transform="translate(72 0) scale(-1 1)">
+  <g data-snail-body="" transform="translate(72 0) scale(-1 1)">
     <circle cx="49" cy="24" r="17.5" fill="#D4822A"/>
     <circle cx="49" cy="24" r="12.5" fill="#E8A050" opacity=".65"/>
     <circle cx="49" cy="24" r="7" fill="#D4822A"/>
@@ -19,14 +19,14 @@ export const snailSvg = `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/
     <path d="M9 43.5 Q13 47.5 18 43.5" fill="none" stroke="#559925" stroke-width="2" stroke-linecap="round"/>
     <ellipse cx="9" cy="42" rx="3" ry="2.1" fill="#FF9898" opacity=".45"/>
   </g>
-  <g data-brush transform="rotate(0 36 36)">
+  <g data-brush="" transform="rotate(0 36 36)">
     <line x1="17" y1="36" x2="34" y2="36" stroke="#4A2500" stroke-width="9.2" stroke-linecap="round"/>
     <line x1="17" y1="36" x2="34" y2="36" stroke="#FFD34D" stroke-width="7" stroke-linecap="round"/>
     <line x1="21.4" y1="36" x2="24.6" y2="36" stroke="#FFF3A8" stroke-width="7.1" stroke-linecap="round" opacity=".95"/>
     <path d="M34 29.6 L34 42.4 L45 36 Z" fill="#FF8C1A" stroke="#A63D00" stroke-width="1.8" stroke-linejoin="round"/>
     <path d="M41.4 32.9 L41.4 39.1 L46.9 36 Z" fill="#FFF8D8" stroke="#E5C76B" stroke-width="1.2" stroke-linejoin="round"/>
   </g>
-  <g data-front-arm transform="translate(72 0) scale(-1 1)">
+  <g data-front-arm="" transform="translate(72 0) scale(-1 1)">
     <path d="M19 42 C22 41, 25 39.5, 28.5 36.8" fill="none" stroke="#A7F06C" stroke-width="5.4" stroke-linecap="round"/>
     <path d="M19 42 C22 41, 25 39.5, 28.5 36.8" fill="none" stroke="#5DA030" stroke-width="1.5" stroke-linecap="round" opacity=".55"/>
     <ellipse cx="24.9" cy="39.2" rx="3.6" ry="3.8" fill="#A7F06C"/>

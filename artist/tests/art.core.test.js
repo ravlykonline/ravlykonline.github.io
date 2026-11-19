@@ -1,15 +1,17 @@
 import assert from 'node:assert/strict';
 
-import { lessons } from '../js/data/lessons.js';
-import { createTurtle, moveForward, turnRight, turnLeft, penUp, penDown } from '../js/domain/turtle.js';
-import { buildProgramCode } from '../js/core/codegen.js';
-import { cellToGridIntersection, moveSnail } from '../js/core/engine.js';
-import { evaluateGoal } from '../js/core/goals.js';
+import { blk, countBlocksIn, withIds } from '../js/core/blockTree.js';
+import { blockDefinitions } from '../js/data/blocks.js';
+import { createTurtle, moveBack, moveForward, turnRight, turnLeft, penUp, penDown, setColor } from '../js/domain/turtle.js';
 import { appState } from '../js/core/state.js';
-import { clearWorkspace, countBlocks, createBlock, findBlock, flattenBlocks, insertBlock, moveBlockInList, moveBlockUp, moveBlockDown, moveBlockOut } from '../js/core/workspace.js';
-import { validateProgram } from '../js/runtime/execution-limits.js';
+import {
+  clearWorkspace, countBlocks, createBlock, findBlock, insertBlock, moveBlockInList,
+  moveBlockUp, moveBlockDown, moveBlockOut, updateBlockParam,
+} from '../js/core/workspace.js';
+import { LIMITS, validateProgram } from '../js/runtime/execution-limits.js';
+import { runProgram, runSteps } from '../js/runtime/runner.js';
 import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from '../js/state/history.js';
-import { getBrushTransform, getLessonGuidePoints, getSnailScreenPosition } from '../js/ui/canvas.js';
+import { snailSvg } from '../js/ui/icons.js';
 
 function runTest(name, fn) {
   try {
@@ -21,367 +23,246 @@ function runTest(name, fn) {
   }
 }
 
-runTest('lessons expose stable ids and order', () => {
-  assert.equal(lessons.length, 14);
-  assert.equal(lessons[0].id, 'lesson-01');
-  assert.equal(lessons[5].order, 6);
-  assert.equal(lessons[6].id, 'lesson-07');
-  assert.equal(lessons[13].order, 14);
-});
+const near = (a, b, eps = 1e-6) => Math.abs(a - b) < eps;
 
-runTest('turtle levels have mode turtle and valid toolbox', () => {
-  const turtleLessons = lessons.filter((l) => l.mode === 'turtle');
-  assert.equal(turtleLessons.length, 8);
-  for (const lesson of turtleLessons) {
-    assert.ok(Array.isArray(lesson.toolbox));
-    assert.ok(lesson.toolbox.some((t) => t.startsWith('turtle_')));
-    assert.equal(lesson.success.mode, 'turtle-minimum');
-    assert.ok(lesson.success.minSegments >= 1);
-  }
+// ── Блоки ─────────────────────────────────────────────────────────────────────
 
-  // Levels with goal segments have a ghost guide
-  const withGoal = turtleLessons.filter((l) => l.goalSegments);
-  assert.equal(withGoal.length, 7); // level 14 (free) has no ghost
-
-  // Last turtle level is free drawing — no ghost
-  const lastTurtle = turtleLessons.at(-1);
-  assert.equal(lastTurtle.id, 'lesson-14');
-  assert.equal(lastTurtle.goalSegments, undefined);
-});
-
-runTest('lessons use instruction instead of instructionHtml', () => {
-  for (const lesson of lessons) {
-    assert.equal(typeof lesson.instruction, 'string', `${lesson.id} має мати поле instruction`);
-    assert.equal('instructionHtml' in lesson, false, `${lesson.id} не повинен мати instructionHtml`);
+runTest('block definitions: code() is produced for every type and has no legacy syntax', () => {
+  for (const [type, def] of Object.entries(blockDefinitions)) {
+    const block = createBlock(type, 1);
+    const code = def.code(block);
+    assert.equal(typeof code, 'string', type);
+    assert.doesNotMatch(code, /коли запущено|разів \{|рухатися\(/);
   }
 });
 
-runTest('moveSnail clamps to board edges', () => {
-  assert.deepEqual(moveSnail({ x: 0, y: 0, dir: 'N' }, 'move_n'), { x: 0, y: 0, dir: 'N' });
-  assert.deepEqual(moveSnail({ x: 8, y: 6, dir: 'E' }, 'move_e'), { x: 8, y: 6, dir: 'E' });
-  assert.deepEqual(moveSnail({ x: 1, y: 1, dir: 'E' }, 'move_w'), { x: 0, y: 1, dir: 'W' });
+runTest('createBlock uses parameter defaults', () => {
+  assert.equal(createBlock('forward').n, 50);
+  assert.equal(createBlock('right').n, 90);
+  assert.equal(createBlock('repeat').n, 4);
+  assert.deepEqual(createBlock('repeat').blocks, []);
+  assert.equal(createBlock('color').color, 'червоний');
+  assert.equal('n' in createBlock('step'), false);
 });
 
-runTest('cellToGridIntersection maps logical positions to grid nodes', () => {
-  assert.equal(cellToGridIntersection(0), 0);
-  assert.equal(cellToGridIntersection(3), 156);
+runTest('updateBlockParam clamps numbers and validates colors', () => {
+  appState.workspace = [createBlock('forward', 1), createBlock('repeat', 2), createBlock('color', 3)];
+  updateBlockParam(1, 'n', '9999');
+  assert.equal(findBlock(appState.workspace, 1).n, 300);
+  updateBlockParam(1, 'n', '-5');
+  assert.equal(findBlock(appState.workspace, 1).n, 1);
+  updateBlockParam(2, 'n', '100');
+  assert.equal(findBlock(appState.workspace, 2).n, 36);
+  updateBlockParam(3, 'color', 'синій');
+  assert.equal(findBlock(appState.workspace, 3).color, 'синій');
+  updateBlockParam(3, 'color', 'не-колір');
+  assert.equal(findBlock(appState.workspace, 3).color, 'червоний');
+  clearWorkspace();
 });
 
-runTest('getLessonGuidePoints returns start plus target path for fixed-shape lessons', () => {
-  assert.deepEqual(getLessonGuidePoints(lessons[0]).map(({ x, y }) => [x, y]), [[4, 1], [4, 2], [4, 3], [4, 4], [4, 5]]);
-  assert.deepEqual(getLessonGuidePoints(lessons[5]), []);
+runTest('block tree helpers: withIds, countBlocksIn', () => {
+  const tree = withIds([blk('repeat', 2, [blk('step'), blk('turn_right90')]), blk('step')]);
+  assert.deepEqual(tree.map((b) => b.id), [1, 4]);
+  assert.deepEqual(tree[0].blocks.map((b) => b.id), [2, 3]);
+  assert.equal(countBlocksIn(tree), 4);
 });
 
-runTest('getSnailScreenPosition anchors the brush to grid intersections', () => {
-  assert.deepEqual(getSnailScreenPosition({ x: 4, y: 1 }), { left: 184, top: 28 });
+// ── Ліміти ────────────────────────────────────────────────────────────────────
+
+runTest('limits are 36 repeats, nesting 3, 1000 expanded actions', () => {
+  assert.equal(LIMITS.maxRepeatCount, 36);
+  assert.equal(LIMITS.maxNestingDepth, 3);
+  assert.equal(LIMITS.maxExpandedActions, 1000);
 });
 
-runTest('getBrushTransform rotates only the brush toward the movement direction', () => {
-  assert.equal(getBrushTransform('E'), 'rotate(0 36 36)');
-  assert.equal(getBrushTransform('S'), 'rotate(90 36 36)');
-  assert.equal(getBrushTransform('W'), 'rotate(180 36 36)');
-  assert.equal(getBrushTransform('N'), 'rotate(-90 36 36)');
+runTest('validateProgram accepts repeat 36 (circle) and rejects 37', () => {
+  const circle = (n) => withIds([blk('repeat', n, [blk('forward', 10), blk('right', 10)])]);
+  assert.equal(validateProgram(circle(36)).ok, true);
+  assert.equal(validateProgram(circle(37)).ok, false);
 });
 
-runTest('buildProgramCode prints nested repeat blocks in Ukrainian', () => {
-  const workspace = [
-    {
-      type: 'repeat',
-      id: 1,
-      count: 2,
-      blocks: [{ type: 'move_s', id: 2 }],
-    },
-  ];
-
-  assert.equal(buildProgramCode(workspace), 'коли запущено {\n  повторити 2 разів {\n    рухатися(вниз)\n  }\n}');
+runTest('validateProgram rejects too many expanded actions', () => {
+  const workspace = withIds([blk('repeat', 36, [blk('repeat', 36, [blk('step')])])]);
+  assert.equal(validateProgram(workspace).ok, false); // 1296 > 1000
 });
 
-runTest('evaluateGoal accepts exact matching path for exact-path lessons', () => {
-  const result = evaluateGoal(lessons[0], [[4, 2], [4, 3], [4, 4], [4, 5]]);
-  assert.equal(result.ok, true);
+runTest('validateProgram: nesting of 3 repeats is allowed, 4 is not', () => {
+  const nest = (depth) => (depth === 0 ? [blk('step')] : [blk('repeat', 2, nest(depth - 1))]);
+  assert.equal(validateProgram(withIds(nest(3))).ok, true);
+  assert.equal(validateProgram(withIds(nest(4))).ok, false);
 });
 
-runTest('evaluateGoal rejects wrong-length path for exact-path lessons', () => {
-  const tooShort = evaluateGoal(lessons[0], [[4, 2], [4, 3]]);
-  assert.equal(tooShort.ok, false);
+// ── Turtle ────────────────────────────────────────────────────────────────────
 
-  const tooLong = evaluateGoal(lessons[0], [[4, 2], [4, 3], [4, 4], [4, 5], [4, 6]]);
-  assert.equal(tooLong.ok, false);
+runTest('createTurtle default state has a hex color', () => {
+  const t = createTurtle();
+  assert.equal(t.penDown, true);
+  assert.match(t.color, /^#[0-9A-F]{6}$/i);
 });
 
-runTest('evaluateGoal rejects wrong-order path for exact-path lessons', () => {
-  const wrongOrder = evaluateGoal(lessons[0], [[4, 5], [4, 4], [4, 3], [4, 2]]);
-  assert.equal(wrongOrder.ok, false);
+runTest('moveForward heading 0 (up) moves y negative, heading 90 moves x positive', () => {
+  const up = moveForward(createTurtle({ heading: 0 }), 100);
+  assert.ok(near(up.turtle.x, 0) && near(up.turtle.y, -100));
+  const right = moveForward(createTurtle({ heading: 90 }), 100);
+  assert.ok(near(right.turtle.x, 100) && near(right.turtle.y, 0));
 });
 
-runTest('evaluateGoal enforces minimum step lessons', () => {
-  const failResult = evaluateGoal(lessons[5], [[4, 3], [5, 3]]);
-  const successResult = evaluateGoal(lessons[5], [[4, 3], [5, 3], [5, 4], [4, 4], [4, 5], [5, 5]]);
-
-  assert.equal(failResult.ok, false);
-  assert.equal(successResult.ok, true);
+runTest('moveBack goes opposite to heading without turning', () => {
+  const { turtle, segment } = moveBack(createTurtle({ heading: 0 }), 50);
+  assert.ok(near(turtle.y, 50));
+  assert.equal(turtle.heading, 0);
+  assert.ok(segment !== null);
 });
 
-runTest('validateProgram rejects programs exceeding expanded action limit', () => {
-  const workspace = [
-    { type: 'repeat', id: 1, count: 20, blocks: [
-      { type: 'repeat', id: 2, count: 20, blocks: [
-        { type: 'repeat', id: 3, count: 20, blocks: [{ type: 'move_s', id: 4 }] },
-      ]},
-    ]},
-  ];
-  const result = validateProgram(workspace);
-  assert.equal(result.ok, false);
+runTest('moveForward with pen up returns null segment', () => {
+  assert.equal(moveForward(createTurtle({ penDown: false }), 50).segment, null);
 });
 
-runTest('validateProgram accepts a reasonable program', () => {
-  const workspace = [
-    { type: 'repeat', id: 1, count: 3, blocks: [{ type: 'move_s', id: 2 }] },
-  ];
-  const result = validateProgram(workspace);
-  assert.equal(result.ok, true);
+runTest('movement is clamped to the 400 × 300 field', () => {
+  const { turtle } = moveForward(createTurtle({ heading: 90 }), 300);
+  assert.equal(turtle.x, 200);
+  const up = moveForward(createTurtle({ heading: 0 }), 300);
+  assert.equal(up.turtle.y, -150);
 });
 
-runTest('workspace helpers support nested lookup, count, and flatten', () => {
-  const workspace = [
-    {
-      type: 'repeat',
-      id: 10,
-      count: 2,
-      blocks: [
-        { type: 'move_e', id: 11 },
-        { type: 'move_s', id: 12 },
-      ],
-    },
-    { type: 'move_w', id: 13 },
-  ];
+runTest('turnRight / turnLeft wrap at 360', () => {
+  assert.equal(turnRight(createTurtle({ heading: 270 }), 90).heading, 0);
+  assert.equal(turnLeft(createTurtle({ heading: 0 }), 90).heading, 270);
+  assert.equal(turnLeft(createTurtle({ heading: 0 }), 360).heading, 0);
+});
 
-  assert.equal(findBlock(workspace, 12).type, 'move_s');
+runTest('penUp / penDown / setColor', () => {
+  const t = createTurtle();
+  assert.equal(penUp(t).penDown, false);
+  assert.equal(penDown(penUp(t)).penDown, true);
+  assert.equal(setColor(t, '#112233').color, '#112233');
+});
+
+// ── Runner ────────────────────────────────────────────────────────────────────
+
+runTest('runSteps is lazy: a repeat is not expanded ahead of time', () => {
+  const blocks = withIds([blk('repeat', 36, [blk('forward', 5), blk('right', 10)])]);
+  const iterator = runSteps(blocks, { start: { x: 0, y: 0, heading: 0 } });
+  const first = iterator.next();
+  assert.equal(first.done, false);
+  assert.equal(first.value.blockId, 2);
+  assert.ok(first.value.segment);
+  assert.ok(near(first.value.after.y, -5));
+});
+
+runTest('runSteps stops with an error beyond maxSteps', () => {
+  const blocks = withIds([blk('repeat', 5, [blk('step')])]);
+  assert.throws(() => runProgram(blocks, { start: {} }, { maxSteps: 3 }));
+});
+
+runTest('runProgram: square of 4 × (вперед 100, праворуч 90) closes and makes 4 segments', () => {
+  const blocks = withIds([blk('repeat', 4, [blk('forward', 100), blk('right', 90)])]);
+  const { segments, turtle } = runProgram(blocks, { start: { x: -50, y: 50, heading: 0 } });
+  assert.equal(segments.length, 4);
+  assert.ok(near(turtle.x, -50) && near(turtle.y, 50));
+  assert.ok(near(turtle.heading, 0));
+});
+
+runTest('runProgram: color block changes segment color; pen up yields no segment', () => {
+  const blocks = withIds([blk('color', 'синій'), blk('step'), blk('pen_up'), blk('step'), blk('pen_down'), blk('step')]);
+  const { segments } = runProgram(blocks, { start: { x: 0, y: 100, heading: 0 }, pen: { color: 'червоний', width: 4 } });
+  assert.equal(segments.length, 2);
+  assert.equal(segments[0].color, '#1A56DB');
+});
+
+// ── Валідність SVG равлика (A1) ──────────────────────────────────────────────
+
+runTest('snailSvg has no attributes without a value (valid XML for DOMParser)', () => {
+  const tags = snailSvg.match(/<[a-zA-Z][^>]*>/g) ?? [];
+  for (const tag of tags) {
+    const withoutQuoted = tag.replace(/"[^"]*"/g, '""');
+    assert.doesNotMatch(withoutQuoted, /\s[a-zA-Z-]+(?=\s|\/?>)/, `атрибут без значення: ${tag}`);
+  }
+});
+
+// ── Workspace ─────────────────────────────────────────────────────────────────
+
+runTest('workspace helpers support nested lookup and count', () => {
+  const workspace = withIds([blk('repeat', 2, [blk('step'), blk('turn_right90')]), blk('turn_left90')]);
+  assert.equal(findBlock(workspace, 3).type, 'turn_right90');
   assert.equal(countBlocks(workspace), 4);
-  assert.deepEqual(flattenBlocks(workspace).map((block) => block.id), [11, 12, 11, 12, 13]);
 });
 
 runTest('clearWorkspace removes blocks and active block state', () => {
-  appState.workspace = [createBlock('move_s', 21)];
+  appState.workspace = [createBlock('step', 21)];
   appState.activeBlockId = 21;
-
   clearWorkspace();
-
   assert.deepEqual(appState.workspace, []);
   assert.equal(appState.activeBlockId, null);
 });
 
 runTest('insertBlock places blocks at root and inside repeat containers', () => {
-  const workspace = [
-    createBlock('move_s', 1),
-    { type: 'repeat', id: 2, count: 3, blocks: [] },
-  ];
-
-  assert.equal(insertBlock(workspace, createBlock('move_e', 3), null, 1), true);
-  assert.equal(insertBlock(workspace, createBlock('move_n', 4), 2, 0), true);
+  const workspace = [createBlock('step', 1), createBlock('repeat', 2)];
+  assert.equal(insertBlock(workspace, createBlock('turn_right90', 3), null, 1), true);
+  assert.equal(insertBlock(workspace, createBlock('step', 4), 2, 0), true);
   assert.deepEqual(workspace.map((block) => block.id), [1, 3, 2]);
   assert.deepEqual(workspace[2].blocks.map((block) => block.id), [4]);
 });
 
 runTest('moveBlockInList reorders blocks across root and nested repeat containers', () => {
-  const workspace = [
-    createBlock('move_s', 1),
-    { type: 'repeat', id: 2, count: 3, blocks: [createBlock('move_e', 3)] },
-    createBlock('move_w', 4),
-  ];
-
+  const workspace = [createBlock('step', 1), { ...createBlock('repeat', 2), blocks: [createBlock('step', 3)] }, createBlock('turn_left90', 4)];
   assert.equal(moveBlockInList(workspace, 4, null, 0), true);
   assert.deepEqual(workspace.map((block) => block.id), [4, 1, 2]);
-
   assert.equal(moveBlockInList(workspace, 1, 2, 1), true);
   assert.deepEqual(workspace.map((block) => block.id), [4, 2]);
   assert.deepEqual(findBlock(workspace, 2).blocks.map((block) => block.id), [3, 1]);
 });
 
-runTest('moveBlockUp and moveBlockDown reorder blocks in-place', () => {
-  appState.workspace = [createBlock('move_n', 1), createBlock('move_s', 2), createBlock('move_e', 3)];
+runTest('moveBlockInList prevents moving a repeat block into its own descendants', () => {
+  const inner = { ...createBlock('repeat', 11), blocks: [createBlock('step', 12)] };
+  const workspace = [{ ...createBlock('repeat', 10), blocks: [inner] }];
+  assert.equal(moveBlockInList(workspace, 10, 11, 0), false);
+  assert.deepEqual(workspace[0].blocks.map((block) => block.id), [11]);
+});
 
+runTest('moveBlockUp and moveBlockDown reorder blocks in-place', () => {
+  appState.workspace = [createBlock('step', 1), createBlock('turn_right90', 2), createBlock('turn_left90', 3)];
   assert.equal(moveBlockUp(2), true);
   assert.deepEqual(appState.workspace.map((b) => b.id), [2, 1, 3]);
-
-  assert.equal(moveBlockUp(2), false); // already first
-  assert.equal(moveBlockDown(3), false); // already last
-
+  assert.equal(moveBlockUp(2), false);
+  assert.equal(moveBlockDown(3), false);
   assert.equal(moveBlockDown(1), true);
   assert.deepEqual(appState.workspace.map((b) => b.id), [2, 3, 1]);
-
   clearWorkspace();
 });
 
 runTest('moveBlockOut moves nested block after its parent repeat', () => {
   appState.workspace = [
-    { type: 'repeat', id: 10, count: 2, blocks: [createBlock('move_s', 11), createBlock('move_e', 12)] },
-    createBlock('move_w', 13),
+    { ...createBlock('repeat', 10), blocks: [createBlock('step', 11), createBlock('turn_right90', 12)] },
+    createBlock('turn_left90', 13),
   ];
-
   assert.equal(moveBlockOut(11), true);
   assert.deepEqual(appState.workspace.map((b) => b.id), [10, 11, 13]);
   assert.deepEqual(appState.workspace[0].blocks.map((b) => b.id), [12]);
-
-  assert.equal(moveBlockOut(10), false); // already at root
+  assert.equal(moveBlockOut(10), false);
   clearWorkspace();
 });
 
-runTest('history supports undo and redo', () => {
+// ── Історія ───────────────────────────────────────────────────────────────────
+
+runTest('history supports undo and redo; new action clears redo', () => {
   clearHistory();
-  appState.workspace = [createBlock('move_s', 21)];
-
+  appState.workspace = [createBlock('step', 21)];
   pushSnapshot(appState.workspace);
-  appState.workspace.push(createBlock('move_e', 22));
-
+  appState.workspace.push(createBlock('turn_right90', 22));
   assert.equal(canUndo(), true);
   assert.equal(canRedo(), false);
 
-  const restored = undo(appState.workspace);
-  appState.workspace = restored;
+  appState.workspace = undo(appState.workspace);
   assert.deepEqual(appState.workspace.map((b) => b.id), [21]);
   assert.equal(canRedo(), true);
 
-  const redone = redo(appState.workspace);
-  appState.workspace = redone;
+  appState.workspace = redo(appState.workspace);
   assert.deepEqual(appState.workspace.map((b) => b.id), [21, 22]);
 
-  clearWorkspace();
-  clearHistory();
-});
-
-runTest('pushSnapshot clears redo stack on new action', () => {
-  clearHistory();
-  appState.workspace = [createBlock('move_s', 31)];
-
+  undo(appState.workspace);
   pushSnapshot(appState.workspace);
-  appState.workspace.push(createBlock('move_e', 32));
-
-  undo(appState.workspace); // creates redo entry
-  assert.equal(canRedo(), true);
-
-  pushSnapshot(appState.workspace); // new action clears redo
   assert.equal(canRedo(), false);
-
   clearWorkspace();
   clearHistory();
-});
-
-// ── Turtle domain ────────────────────────────────────────────────────────────
-
-runTest('createTurtle returns default state', () => {
-  const t = createTurtle();
-  assert.equal(t.x, 0);
-  assert.equal(t.y, 0);
-  assert.equal(t.heading, 0);
-  assert.equal(t.penDown, true);
-});
-
-runTest('moveForward heading 0 (up) moves y negative', () => {
-  const t = createTurtle({ heading: 0 });
-  const { turtle, segment } = moveForward(t, 100);
-  assert.ok(Math.abs(turtle.x) < 0.001);
-  assert.ok(Math.abs(turtle.y + 100) < 0.001);
-  assert.ok(segment !== null);
-});
-
-runTest('moveForward heading 90 (right) moves x positive', () => {
-  const t = createTurtle({ heading: 90 });
-  const { turtle } = moveForward(t, 100);
-  assert.ok(Math.abs(turtle.x - 100) < 0.001);
-  assert.ok(Math.abs(turtle.y) < 0.001);
-});
-
-runTest('moveForward with penDown false returns null segment', () => {
-  const t = createTurtle({ penDown: false });
-  const { segment } = moveForward(t, 50);
-  assert.equal(segment, null);
-});
-
-runTest('turnRight increases heading, wraps at 360', () => {
-  const t = createTurtle({ heading: 270 });
-  const turned = turnRight(t, 90);
-  assert.equal(turned.heading, 0);
-});
-
-runTest('turnLeft decreases heading, wraps correctly', () => {
-  const t = createTurtle({ heading: 0 });
-  const turned = turnLeft(t, 90);
-  assert.equal(turned.heading, 270);
-});
-
-runTest('square (4 × forward + right 90) closes back to origin', () => {
-  let t = createTurtle({ heading: 0 });
-  const segments = [];
-  for (let i = 0; i < 4; i += 1) {
-    const { turtle: t2, segment } = moveForward(t, 100);
-    t = turnRight(t2, 90);
-    if (segment) segments.push(segment);
-  }
-  assert.equal(segments.length, 4);
-  assert.ok(Math.abs(t.x) < 0.001, `x should be ~0, got ${t.x}`);
-  assert.ok(Math.abs(t.y) < 0.001, `y should be ~0, got ${t.y}`);
-});
-
-runTest('penUp / penDown toggle penDown flag', () => {
-  const t = createTurtle();
-  const up = penUp(t);
-  assert.equal(up.penDown, false);
-  const down = penDown(up);
-  assert.equal(down.penDown, true);
-});
-
-runTest('createBlock turtle_forward uses paramDefault steps:50', () => {
-  const b = createBlock('turtle_forward');
-  assert.equal(b.type, 'turtle_forward');
-  assert.equal(b.steps, 50);
-});
-
-runTest('createBlock turtle_right uses paramDefault degrees:90', () => {
-  const b = createBlock('turtle_right');
-  assert.equal(b.degrees, 90);
-});
-
-runTest('buildProgramCode generates РАВЛИК turtle code', () => {
-  const workspace = [
-    { type: 'turtle_forward', id: 1, steps: 50 },
-    { type: 'turtle_right', id: 2, degrees: 90 },
-    { type: 'turtle_pen_up', id: 3 },
-    {
-      type: 'repeat', id: 4, count: 2,
-      blocks: [{ type: 'turtle_forward', id: 5, steps: 70 }],
-    },
-  ];
-  const code = buildProgramCode(workspace);
-  assert.ok(code.includes('вперед 50'));
-  assert.ok(code.includes('праворуч 90'));
-  assert.ok(code.includes('підняти'));
-  assert.ok(code.includes('повторити 2 разів {'));
-  assert.ok(code.includes('вперед 70'));
-});
-
-runTest('evaluateGoal turtle-minimum passes when enough segments drawn', () => {
-  const lesson = lessons.find((l) => l.id === 'lesson-07');
-  assert.equal(evaluateGoal(lesson, 1).ok, true);  // minSegments = 1
-  assert.equal(evaluateGoal(lesson, 0).ok, false);
-
-  const star = lessons.find((l) => l.id === 'lesson-13');
-  assert.equal(evaluateGoal(star, 5).ok, true);    // minSegments = 5
-  assert.equal(evaluateGoal(star, 4).ok, false);
-});
-
-runTest('moveBlockInList prevents moving a repeat block into its own descendants', () => {
-  const workspace = [
-    {
-      type: 'repeat',
-      id: 10,
-      count: 2,
-      blocks: [
-        { type: 'repeat', id: 11, count: 2, blocks: [createBlock('move_s', 12)] },
-      ],
-    },
-  ];
-
-  assert.equal(moveBlockInList(workspace, 10, 11, 0), false);
-  assert.deepEqual(workspace[0].blocks.map((block) => block.id), [11]);
 });

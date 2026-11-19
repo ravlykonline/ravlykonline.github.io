@@ -1,74 +1,74 @@
 /**
- * Визначення всіх блоків — grid і turtle.
+ * Визначення блоків.
  *
  * Поля:
  *   label       — назва в UI (українська)
+ *   category    — move | turn | pen | color | repeat
  *   className   — CSS-клас
  *   icon        — символ
- *   code        — рядок для codegen (мова РАВЛИК)
- *   paramKey    — ключ параметра в об'єкті блоку (якщо є)
- *   paramLabel  — підпис поряд з input
- *   paramDefault, paramMin, paramMax — обмеження числового параметра
+ *   param       — опис параметра: { kind: 'number', key, label, default, min, max }
+ *                 або { kind: 'color', key, default }; без поля — блок без параметра
+ *   code(block) — рядок коду РАВЛИК (для repeat — заголовок «повторити N (»,
+ *                 закриваюча «)» додається в codegen). Тільки валідний РАВЛИК.
  */
+export const MAX_REPEAT_COUNT = 36;
+
+const numberParam = (label, defaultValue, min, max) => ({
+  kind: 'number', key: 'n', label, default: defaultValue, min, max,
+});
+
 export const blockDefinitions = {
-  // ── Grid-блоки ───────────────────────────────────────────────────────────
-  move_n: { label: 'вгору',   className: 'move', icon: '↑', code: 'рухатися(вгору)'  },
-  move_s: { label: 'вниз',    className: 'move', icon: '↓', code: 'рухатися(вниз)'  },
-  move_e: { label: 'вправо',  className: 'move', icon: '→', code: 'рухатися(вправо)' },
-  move_w: { label: 'вліво',   className: 'move', icon: '←', code: 'рухатися(вліво)'  },
-
-  // ── Turtle-блоки (команди мови РАВЛИК) ───────────────────────────────────
-  turtle_forward: {
-    label: 'вперед',
-    className: 'move turtle',
-    icon: '↑',
-    code: 'вперед',
-    paramKey: 'steps',
-    paramLabel: 'кроків',
-    paramDefault: 50,
-    paramMin: 1,
-    paramMax: 500,
+  step: {
+    label: 'крок вперед', category: 'move', className: 'move turtle', icon: '↑',
+    code: () => 'вперед 50',
   },
-  turtle_right: {
-    label: 'праворуч',
-    className: 'turn turtle',
-    icon: '↻',
-    code: 'праворуч',
-    paramKey: 'degrees',
-    paramLabel: '°',
-    paramDefault: 90,
-    paramMin: 1,
-    paramMax: 360,
+  turn_right90: {
+    label: 'поворот праворуч', category: 'turn', className: 'turn turtle', icon: '↻',
+    code: () => 'праворуч 90',
   },
-  turtle_left: {
-    label: 'ліворуч',
-    className: 'turn turtle',
-    icon: '↺',
-    code: 'ліворуч',
-    paramKey: 'degrees',
-    paramLabel: '°',
-    paramDefault: 90,
-    paramMin: 1,
-    paramMax: 360,
+  turn_left90: {
+    label: 'поворот ліворуч', category: 'turn', className: 'turn turtle', icon: '↺',
+    code: () => 'ліворуч 90',
   },
-  turtle_pen_up: {
-    label: 'підняти',
-    className: 'pen turtle',
-    icon: '⬆',
-    code: 'підняти',
+  forward: {
+    label: 'вперед', category: 'move', className: 'move turtle', icon: '↑',
+    param: numberParam('кроків', 50, 1, 300),
+    code: (block) => `вперед ${block.n}`,
   },
-  turtle_pen_down: {
-    label: 'опустити',
-    className: 'pen turtle',
-    icon: '⬇',
-    code: 'опустити',
+  back: {
+    label: 'назад', category: 'move', className: 'move turtle', icon: '↓',
+    param: numberParam('кроків', 50, 1, 300),
+    code: (block) => `назад ${block.n}`,
   },
-
-  // ── Спільне ──────────────────────────────────────────────────────────────
+  right: {
+    label: 'праворуч', category: 'turn', className: 'turn turtle', icon: '↻',
+    param: numberParam('°', 90, 1, 360),
+    code: (block) => `праворуч ${block.n}`,
+  },
+  left: {
+    label: 'ліворуч', category: 'turn', className: 'turn turtle', icon: '↺',
+    param: numberParam('°', 90, 1, 360),
+    code: (block) => `ліворуч ${block.n}`,
+  },
+  pen_up: {
+    label: 'підняти олівець', category: 'pen', className: 'pen turtle', icon: '⬆',
+    code: () => 'підняти',
+  },
+  pen_down: {
+    label: 'опустити олівець', category: 'pen', className: 'pen turtle', icon: '⬇',
+    code: () => 'опустити',
+  },
+  color: {
+    label: 'колір', category: 'color', className: 'pen turtle', icon: '●',
+    param: { kind: 'color', key: 'color', default: 'червоний' },
+    code: (block) => `колір ${block.color}`,
+  },
   repeat: {
-    label: 'повторити',
-    className: 'repeat',
-    icon: '↻',
-    code: 'повторити',
+    label: 'повторити', category: 'repeat', className: 'repeat', icon: '↻',
+    param: numberParam('рази', 4, 1, MAX_REPEAT_COUNT),
+    container: true,
+    code: (block) => `повторити ${block.n} (`,
   },
 };
+
+export const BLOCK_TYPES = Object.keys(blockDefinitions);

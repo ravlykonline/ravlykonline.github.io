@@ -1,15 +1,17 @@
 import { lessons } from './data/lessons.js';
-import { buildProgramCode } from './core/codegen.js';
-import { moveSnail, sleep } from './core/engine.js';
-import { createTurtle, moveForward, turnLeft, turnRight, penUp, penDown } from './domain/turtle.js';
+import { buildProgramCode, programToText } from './core/codegen.js';
 import { evaluateGoal } from './core/goals.js';
+import { getBestBlocks, getGhostSegments } from './core/ghost.js';
+import { createTurtleForLesson } from './domain/turtle.js';
 import { appState, markLessonDone, resetRuntimeState, setActiveBlock, setLesson, setRunning, toggleCodePanelState } from './core/state.js';
-import { addBlock, addBlockAt, clearWorkspace, countBlocks, flattenBlocks, moveBlock, moveBlockDown, moveBlockOut, moveBlockUp, removeBlock, updateBlockParam, updateRepeatCount } from './core/workspace.js';
+import { addBlock, addBlockAt, clearWorkspace, countBlocks, moveBlock, moveBlockDown, moveBlockOut, moveBlockUp, removeBlock, updateBlockParam } from './core/workspace.js';
 import { validateProgram } from './runtime/execution-limits.js';
+import { runSteps } from './runtime/runner.js';
+import { sleep } from './utils/sleep.js';
 import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from './state/history.js';
 import { trapFocus } from './utils/focus-trap.js';
 import { playSuccess, playFailure } from './utils/sounds.js';
-import { clearTrail, clearTurtleCanvas, drawTurtleSegment, drawTrail, initTurtleCanvas, placeSnail, placeTurtleSnail, renderLessonGuide, setupCanvas, setupTurtleMode, teardownTurtleMode, wiggleSnail } from './ui/canvas.js';
+import { clearTurtleCanvas, drawTurtleSegment, placeTurtleSnail, renderLessonGuide, setupCanvas, wiggleSnail } from './ui/canvas.js';
 import { getDomReferences } from './ui/dom.js';
 import { clearFeedback, hideSuccess, renderBlockCount, renderCode, renderControls, renderHistoryControls, renderLessonHeader, renderLessonNavigation, renderPalette, renderWorkspace, showFeedback, showSuccess } from './ui/render.js';
 
@@ -95,8 +97,12 @@ function resetWorkspaceDragState() {
 
 // --- code panel ---
 
+function currentCodeText() {
+  return programToText(buildProgramCode(appState.currentLesson, appState.workspace));
+}
+
 function updateCodePanel() {
-  renderCode(dom, buildProgramCode(appState.workspace), appState.codePanelOpen);
+  renderCode(dom, currentCodeText(), appState.codePanelOpen);
 }
 
 // --- workspace mutation helpers (all go through history) ---
@@ -132,9 +138,6 @@ function updateWorkspaceUi() {
         if (appState.insertTargetId === id) appState.insertTargetId = null;
       });
       restoreFocus();
-    },
-    onUpdateRepeatCount: (id, value) => {
-      withSnapshot(() => updateRepeatCount(id, value), id);
     },
     onUpdateBlockParam: (id, paramKey, value) => {
       withSnapshot(() => updateBlockParam(id, paramKey, value), id);
@@ -176,31 +179,18 @@ function refreshUi() {
     onDragStart: () => setWorkspaceDragActive(true),
     onDragEnd: resetWorkspaceDragState,
   });
-  renderLessonGuide(dom, appState.currentLesson);
+  renderLessonGuide(dom, appState.currentLesson, getGhostSegments(appState.currentLesson));
   updateWorkspaceUi();
   renderControls(dom, appState);
 }
 
-function isTurtleLesson() {
-  return appState.currentLesson.mode === 'turtle';
-}
-
 function resetBoard() {
-  if (isTurtleLesson()) {
-    const lesson = appState.currentLesson;
-    const t = createTurtle({ x: lesson.start.x ?? 0, y: lesson.start.y ?? 0, heading: lesson.start.heading ?? 0 });
-    initTurtleCanvas(dom, lesson.goalSegments);
-    placeTurtleSnail(dom, t);
-    dom.canvasStatus.textContent = 'Равлик готовий малювати.';
-  } else {
-    clearTrail(dom);
-    placeSnail(dom, appState.snail, true);
-    dom.canvasStatus.textContent = `Равлик на стовпці ${appState.snail.x + 1}, рядку ${appState.snail.y + 1}.`;
-  }
+  clearTurtleCanvas(dom);
+  placeTurtleSnail(dom, createTurtleForLesson(appState.currentLesson));
+  dom.canvasStatus.textContent = 'Равлик готовий малювати.';
 }
 
 function loadLesson(index) {
-  const prevWasTurtle = isTurtleLesson();
   setLesson(index);
   clearHistory();
   appState.insertTargetId = null;
@@ -208,13 +198,6 @@ function loadLesson(index) {
   hideSuccess(dom);
   resetWorkspaceDragState();
   setResetConfirmOpen(false);
-
-  const nowTurtle = isTurtleLesson();
-  if (nowTurtle && !prevWasTurtle) {
-    setupTurtleMode(dom);
-  } else if (!nowTurtle && prevWasTurtle) {
-    teardownTurtleMode(dom);
-  }
 
   refreshUi();
   resetBoard();
@@ -268,42 +251,24 @@ function performRedo() {
   }
 }
 
-async function runTurtleProgram() {
+async function animateProgram() {
   const lesson = appState.currentLesson;
-  const start = lesson.start;
-  let turtle = createTurtle({ x: start.x ?? 0, y: start.y ?? 0, heading: start.heading ?? 0 });
   appState.turtleSegments = [];
 
-  initTurtleCanvas(dom, lesson.goalSegments);
-  placeTurtleSnail(dom, turtle);
-
-  const actions = flattenBlocks();
-  for (const action of actions) {
+  for (const step of runSteps(appState.workspace, lesson)) {
     if (!appState.running || cancelRequested) break;
 
-    setActiveBlock(action.id);
+    setActiveBlock(step.blockId);
     updateWorkspaceUi();
 
-    if (action.type === 'turtle_forward') {
-      const result = moveForward(turtle, action.steps ?? 50);
-      const segment = result.segment;
-      turtle = result.turtle;
-      if (segment) {
-        appState.turtleSegments.push(segment);
-        drawTurtleSegment(dom, { ...segment, color: lesson.trailColor, width: 5 });
-      }
-    } else if (action.type === 'turtle_right') {
-      turtle = turnRight(turtle, action.degrees ?? 90);
-    } else if (action.type === 'turtle_left') {
-      turtle = turnLeft(turtle, action.degrees ?? 90);
-    } else if (action.type === 'turtle_pen_up') {
-      turtle = penUp(turtle);
-    } else if (action.type === 'turtle_pen_down') {
-      turtle = penDown(turtle);
+    if (step.segment) {
+      appState.turtleSegments.push(step.segment);
+      drawTurtleSegment(dom, step.segment);
     }
 
+    const turtle = step.after;
     placeTurtleSnail(dom, turtle);
-    dom.canvasStatus.textContent = `Равлик: x=${Math.round(turtle.x)}, y=${Math.round(turtle.y)}, напрямок=${turtle.heading}°.`;
+    dom.canvasStatus.textContent = `Равлик: x=${Math.round(turtle.x)}, y=${Math.round(turtle.y)}, напрямок=${Math.round(turtle.heading)}°.`;
     await sleep(300);
   }
 }
@@ -332,26 +297,7 @@ async function runProgram() {
 
   await sleep(120);
 
-  if (isTurtleLesson()) {
-    await runTurtleProgram();
-  } else {
-    const actions = flattenBlocks();
-    for (const action of actions) {
-      if (!appState.running || cancelRequested) break;
-
-      setActiveBlock(action.id);
-      updateWorkspaceUi();
-
-      const previousSnail = { ...appState.snail };
-      appState.snail = moveSnail(appState.snail, action.type);
-
-      placeSnail(dom, appState.snail);
-      drawTrail(dom, appState.currentLesson, previousSnail, appState.snail);
-      appState.trailPoints.push([appState.snail.x, appState.snail.y]);
-      dom.canvasStatus.textContent = `Равлик перемістився до стовпця ${appState.snail.x + 1}, рядку ${appState.snail.y + 1}.`;
-      await sleep(340);
-    }
-  }
+  await animateProgram();
 
   setActiveBlock(null);
   setRunning(false);
@@ -364,8 +310,12 @@ async function runProgram() {
     return;
   }
 
-  const goalData = isTurtleLesson() ? appState.turtleSegments.length : appState.trailPoints;
-  const result = evaluateGoal(appState.currentLesson, goalData);
+  const result = evaluateGoal(appState.currentLesson, {
+    segments: appState.turtleSegments,
+    workspace: appState.workspace,
+    expected: getGhostSegments(appState.currentLesson),
+    bestBlocks: getBestBlocks(appState.currentLesson),
+  });
   if (result.ok) {
     playSuccess();
     markLessonDone(appState.currentLessonIndex);
@@ -390,7 +340,7 @@ function goToNextLesson() {
 }
 
 function toggleCodePanel() {
-  renderCode(dom, buildProgramCode(appState.workspace), toggleCodePanelState());
+  renderCode(dom, currentCodeText(), toggleCodePanelState());
 }
 
 function bindEvents() {

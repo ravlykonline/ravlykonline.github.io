@@ -1,7 +1,7 @@
 export const LIMITS = {
-  maxExpandedActions: 500,
-  maxRepeatCount: 20,
-  maxNestingDepth: 4,
+  maxExpandedActions: 1000,
+  maxRepeatCount: 36,
+  maxNestingDepth: 3,
 };
 
 function validateBlocks(blocks, depth = 0) {
@@ -13,7 +13,7 @@ function validateBlocks(blocks, depth = 0) {
 
   for (const block of blocks) {
     if (block.type === 'repeat') {
-      if (block.count > LIMITS.maxRepeatCount) {
+      if (block.n > LIMITS.maxRepeatCount) {
         return { ok: false, message: `Максимальна кількість повторів — ${LIMITS.maxRepeatCount}. Спробуй зменшити.` };
       }
 
@@ -22,7 +22,7 @@ function validateBlocks(blocks, depth = 0) {
         return inner;
       }
 
-      expandedCount += block.count * inner.expandedCount;
+      expandedCount += block.n * inner.expandedCount;
     } else {
       expandedCount += 1;
     }

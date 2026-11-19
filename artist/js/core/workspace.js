@@ -1,5 +1,7 @@
 import { appState, nextBlockId } from './state.js';
 import { blockDefinitions } from '../data/blocks.js';
+import { isColorName } from '../data/colors.js';
+import { countBlocksIn } from './blockTree.js';
 
 export function findBlock(list, id) {
   for (const block of list) {
@@ -37,23 +39,28 @@ export function findBlockLocation(list, id, parentId = null) {
 }
 
 export function createBlock(type, id = nextBlockId()) {
-  if (type === 'repeat') return { type, id, count: 3, blocks: [] };
-
   const def = blockDefinitions[type];
-  if (def?.paramKey) {
-    return { type, id, [def.paramKey]: def.paramDefault };
-  }
+  const block = { type, id };
+  if (def?.param) block[def.param.key] = def.param.default;
+  if (def?.container) block.blocks = [];
+  return block;
+}
 
-  return { type, id };
+export function clampBlockParam(def, rawValue) {
+  const { param } = def;
+  if (param.kind === 'color') {
+    return isColorName(rawValue) ? rawValue : param.default;
+  }
+  const parsed = Number.parseInt(rawValue, 10);
+  return Math.max(param.min, Math.min(param.max, Number.isFinite(parsed) ? parsed : param.default));
 }
 
 export function updateBlockParam(id, paramKey, rawValue) {
   const block = findBlock(appState.workspace, id);
   if (!block) return;
   const def = blockDefinitions[block.type];
-  if (!def?.paramKey || def.paramKey !== paramKey) return;
-  const parsed = Number.parseInt(rawValue, 10);
-  block[paramKey] = Math.max(def.paramMin, Math.min(def.paramMax, Number.isFinite(parsed) ? parsed : def.paramDefault));
+  if (!def?.param || def.param.key !== paramKey) return;
+  block[paramKey] = clampBlockParam(def, rawValue);
 }
 
 export function getBlockChildren(list, parentId = null) {
@@ -180,27 +187,8 @@ export function moveBlock(id, targetParentId = null, targetIndex = 0) {
   return moveBlockInList(appState.workspace, id, targetParentId, targetIndex);
 }
 
-export function updateRepeatCount(id, value) {
-  const block = findBlock(appState.workspace, id);
-  if (!block || block.type !== 'repeat') {
-    return;
-  }
-
-  const parsedValue = Number.parseInt(value, 10);
-  block.count = Math.max(1, Math.min(20, Number.isFinite(parsedValue) ? parsedValue : 1));
-}
-
 export function countBlocks(list = appState.workspace) {
-  let total = 0;
-
-  for (const block of list) {
-    total += 1;
-    if (block.blocks) {
-      total += countBlocks(block.blocks);
-    }
-  }
-
-  return total;
+  return countBlocksIn(list);
 }
 
 export function moveBlockUp(id) {
@@ -230,20 +218,4 @@ export function moveBlockOut(id) {
   const [removedBlock] = location.list.splice(location.index, 1);
   parentLocation.list.splice(parentLocation.index + 1, 0, removedBlock);
   return true;
-}
-
-export function flattenBlocks(list = appState.workspace) {
-  const actions = [];
-
-  for (const block of list) {
-    if (block.type === 'repeat') {
-      for (let index = 0; index < block.count; index += 1) {
-        actions.push(...flattenBlocks(block.blocks));
-      }
-    } else {
-      actions.push(block);
-    }
-  }
-
-  return actions;
 }

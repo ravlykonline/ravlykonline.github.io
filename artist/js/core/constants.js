@@ -1,9 +1,11 @@
-export const COLS = 9;
-export const ROWS = 7;
-export const CELL_SIZE = 52;
-export const GRID_WIDTH = COLS * CELL_SIZE;
-export const GRID_HEIGHT = ROWS * CELL_SIZE;
-export const SNAIL_SIZE = 48;
+// Логічне поле гри: 400 × 300 одиниць, початок (0, 0) у центрі, вісь y вниз.
+export const FIELD_WIDTH = 400;
+export const FIELD_HALF_WIDTH = FIELD_WIDTH / 2;
+export const FIELD_HEIGHT = 300;
+export const FIELD_HALF_HEIGHT = FIELD_HEIGHT / 2;
+export const GRID_STEP = 50;
 
-// After SVG body-flip, head faces RIGHT (East) at 0 deg. CSS clockwise rotations:
-export const directionRotation = { E: 0, S: 90, W: 180, N: -90 };
+// Розмір полотна в пікселях (тимчасово до фази 2, де поле стане масштабованим SVG).
+export const GRID_WIDTH = 468;
+export const GRID_HEIGHT = 364;
+export const SNAIL_SIZE = 48;
