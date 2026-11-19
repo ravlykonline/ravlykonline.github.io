@@ -121,7 +121,8 @@ function buildNumberField(block, definition, handlers) {
   const { param } = definition;
   const input = document.createElement('input');
   input.type = 'text';
-  input.inputMode = 'numeric';
+  // На дотику екранна клавіатура закрила б спливаюче вікно з −/+ — там цифри вводять кнопками.
+  input.inputMode = window.matchMedia?.('(pointer: coarse)').matches ? 'none' : 'numeric';
   input.autocomplete = 'off';
   input.spellcheck = false;
   input.maxLength = String(param.max).length;

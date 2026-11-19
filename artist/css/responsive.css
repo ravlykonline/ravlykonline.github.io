@@ -380,6 +380,11 @@
     padding: var(--space-1) var(--space-2);
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  #pblock-list::-webkit-scrollbar {
+    display: none;
   }
 
   .pal-group {
@@ -569,5 +574,21 @@
     content: '';
     position: absolute;
     inset: -0.375rem -0.25rem;
+  }
+}
+
+/* Вузькі телефони (≤ 416 px): шапка в один рядок без обрізання */
+@media (max-width: 26rem) {
+  .logo {
+    font-size: var(--font-size-md);
+  }
+
+  .logo-snail {
+    font-size: 1.125rem;
+  }
+
+  .lesson-nav-toggle {
+    padding: 0 var(--space-2);
+    font-size: 0.9375rem;
   }
 }

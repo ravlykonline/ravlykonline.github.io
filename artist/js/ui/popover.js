@@ -84,6 +84,38 @@ function makeButton(text, className, ariaLabel) {
   return button;
 }
 
+const HOLD_DELAY_MS = 450;
+const HOLD_INTERVAL_MS = 90;
+
+/** Клік — один крок; утримання (миша чи палець) — автоповтор, щоб дійти від 50 до 150 без 10 тапів. */
+function attachRepeat(button, step) {
+  let delayTimer = 0;
+  let repeatTimer = 0;
+  let repeated = false;
+  const stop = () => {
+    window.clearTimeout(delayTimer);
+    window.clearInterval(repeatTimer);
+  };
+  button.addEventListener('pointerdown', () => {
+    repeated = false;
+    stop();
+    delayTimer = window.setTimeout(() => {
+      repeated = true;
+      step();
+      repeatTimer = window.setInterval(step, HOLD_INTERVAL_MS);
+    }, HOLD_DELAY_MS);
+  });
+  for (const type of ['pointerup', 'pointercancel', 'pointerleave']) button.addEventListener(type, stop);
+  button.addEventListener('click', (event) => {
+    if (repeated) {
+      repeated = false;
+      event.preventDefault();
+      return;
+    }
+    step();
+  });
+}
+
 /**
  * Кнопки −/+ і швидкий вибір під числовим полем.
  * getValue() → число, setValue(число) застосовує (і прикріплює до моделі).
@@ -99,8 +131,8 @@ export function openNumberPopover({ anchor, param, getValue, setValue }) {
   };
   const minus = makeButton('−', 'blk-pop-step', 'Менше');
   const plus = makeButton('+', 'blk-pop-step', 'Більше');
-  minus.addEventListener('click', () => apply(-(param.step ?? 1)));
-  plus.addEventListener('click', () => apply(param.step ?? 1));
+  attachRepeat(minus, () => apply(-(param.step ?? 1)));
+  attachRepeat(plus, () => apply(param.step ?? 1));
   row.append(minus, plus);
   view.node.appendChild(row);
 

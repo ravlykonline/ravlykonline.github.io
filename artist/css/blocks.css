@@ -556,3 +556,18 @@ button.blk-field {
     min-height: 18rem;
   }
 }
+
+/* Палітра й «привид» блока-циклу: компактний статичний рот і підошва. У <button>
+   вкладені <span> інлайнові, тож явно робимо їх блоками. */
+.blk-palette .blk-mouth,
+.blk-palette .blk-foot {
+  display: block;
+}
+
+.blk-mouth-static {
+  min-height: 16px;
+}
+
+.blk-mouth-static + .blk-foot {
+  height: 16px;
+}
