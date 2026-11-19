@@ -23,7 +23,7 @@ import { playSuccess, playFailure, playSnap } from './utils/sounds.js';
 import { addTrailSegment, clearTurtleCanvas, placeTurtleSnail, renderLessonGuide, setTrailEnd, setupCanvas, wiggleSnail } from './ui/canvas.js';
 import { REDUCED_MOTION_STEP_PAUSE_MS, SPEEDS, getStepDuration, interpolateTurtle, speedFactor } from './domain/snail.js';
 import { getDomReferences } from './ui/dom.js';
-import { clearFeedback, hideSuccess, isSuccessOpen, renderBlockCount, renderControls, renderHistoryControls, renderLessonHeader, renderLessonNavigation, showFeedback, showSuccess } from './ui/render.js';
+import { clearFeedback, hideSuccess, isSuccessOpen, renderBlockCount, renderControls, renderHistoryControls, renderHint, renderLessonHeader, renderLessonNavigation, showFeedback, showSuccess } from './ui/render.js';
 import { highlightCodeLine, renderCodeView, setEditorView } from './ui/codeView.js';
 import { copyText } from './ui/clipboard.js';
 import { createPaletteGhostBlock, renderPalette } from './ui/palette.js';
@@ -708,6 +708,11 @@ function bindEvents() {
   dom.restartButton.addEventListener('click', () => { moreMenu.close(); restartBoard(); });
   dom.stayButton.addEventListener('click', closeSuccess);
   dom.helpButton.addEventListener('click', () => openIntro(appState.currentLesson));
+  dom.hintButton?.addEventListener('click', () => {
+    const open = dom.hintButton.getAttribute('aria-expanded') !== 'true';
+    renderHint(dom, appState.currentLesson, open);
+    if (open) announce(appState.currentLesson.hint);
+  });
   dom.tabBlocks.addEventListener('click', () => switchView('blocks'));
   dom.tabCode.addEventListener('click', () => switchView('code'));
   dom.copyCodeButton.addEventListener('click', copyCode);

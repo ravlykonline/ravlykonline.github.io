@@ -1,5 +1,6 @@
 import { FIELD_HALF_HEIGHT, FIELD_HALF_WIDTH, GRID_STEP } from '../core/constants.js';
 import { getSnailTransform, isAtStart } from '../domain/snail.js';
+import { getStepMarks, shouldShowStepMarks } from '../core/ghost.js';
 import { avatarSvg, snailSvg } from './icons.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -96,6 +97,13 @@ export function renderLessonGuide(dom, lesson, ghostSegments = []) {
       'stroke-linecap': 'round',
       'stroke-dasharray': '9 11',
     }));
+  }
+
+  // Крапка в кінці кожного кроку: видно, скільки «кроків вперед» у лінії.
+  if (shouldShowStepMarks(lesson)) {
+    for (const [cx, cy] of getStepMarks(ghostSegments)) {
+      guideLayer.appendChild(svgElement('circle', { cx, cy, r: 4.5, fill: GHOST_COLOR }));
+    }
   }
 
   if (ghostSegments.length > 0) {

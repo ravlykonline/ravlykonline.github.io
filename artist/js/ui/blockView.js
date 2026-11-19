@@ -279,7 +279,7 @@ export function buildBlockElement(block, handlers, renderChildren) {
   return el;
 }
 
-/** Стартовий блок «коли ▶ натиснуто» (▶ — як на кнопці «Старт»). Не видаляється й не перетягується. */
+/** Стартовий блок «коли ▶ натиснуто»: зелений і з ▶, як кнопка «Старт». Не видаляється й не перетягується. */
 export function buildHatElement() {
   const el = document.createElement('div');
   el.className = 'blk blk-hat cat-start';

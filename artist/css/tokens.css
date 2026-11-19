@@ -150,8 +150,8 @@
   --blk-repeat-fill: #ffb300;
   --blk-repeat-stroke: #b37d00;
   --blk-repeat-text: #332400;
-  --blk-start-fill: #4b0082;
-  --blk-start-stroke: #300055;
+  --blk-start-fill: #237a23;
+  --blk-start-stroke: #175217;
   --blk-start-text: #ffffff;
 
   --blk-field-bg: #ffffff;
@@ -194,8 +194,8 @@ body.blocks-pastel {
   --blk-repeat-fill: #ffefc2;
   --blk-repeat-stroke: #e0b13a;
   --blk-repeat-text: #3d2c00;
-  --blk-start-fill: #e8ddf5;
-  --blk-start-stroke: #9b7fc7;
-  --blk-start-text: #4b0082;
+  --blk-start-fill: #d9f0d9;
+  --blk-start-stroke: #5aa05a;
+  --blk-start-text: #175217;
   --blk-field-border: rgba(var(--color-black-rgb), 0.22);
 }

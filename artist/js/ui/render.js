@@ -9,6 +9,22 @@ export function renderLessonHeader(dom, lesson) {
   dom.lessonNavToggle.textContent = `Рівень ${number} / ${lessons.length} ▾`;
   dom.lessonNavToggle.setAttribute('aria-label', `Рівень ${number} / ${lessons.length}. ${lesson.title}. Обрати інший рівень`);
   dom.instructionText.textContent = lesson.instruction;
+  // Новий рівень — підказка знову згорнута; той самий — лишаємо як була.
+  const sameLesson = dom.hintLessonId === lesson.id;
+  dom.hintLessonId = lesson.id;
+  renderHint(dom, lesson, sameLesson && dom.hintButton?.getAttribute('aria-expanded') === 'true');
+}
+
+/** Підказка схована за кнопкою, щоб завдання не видавало готову відповідь. */
+export function renderHint(dom, lesson, isOpen) {
+  if (!dom.hintButton || !dom.hintText) return;
+  const hasHint = Boolean(lesson.hint);
+  dom.hintButton.hidden = !hasHint;
+  dom.hintText.textContent = lesson.hint ?? '';
+  const open = hasHint && isOpen;
+  dom.hintText.hidden = !open;
+  dom.hintButton.setAttribute('aria-expanded', String(open));
+  dom.hintButton.textContent = open ? 'Сховати підказку' : 'Підказка';
 }
 
 /** Точки рівнів, згруповані за розділами; пройдені показують найкращі зірки сесії. */

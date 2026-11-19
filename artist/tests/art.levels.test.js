@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 
 import { blk, countBlocksIn, withIds } from '../js/core/blockTree.js';
 import { evaluateGoal } from '../js/core/goals.js';
-import { getBestBlocks, getGhostSegments } from '../js/core/ghost.js';
+import { getStepMarks, shouldShowStepMarks, getBestBlocks, getGhostSegments } from '../js/core/ghost.js';
 import { lessons } from '../js/data/lessons.js';
 import { runProgram } from '../js/runtime/runner.js';
 import { appState, markLessonDone, setLesson } from '../js/core/state.js';
@@ -346,4 +346,32 @@ runTest('stepController: cancel drops queued presses', () => {
   h.controller.cancel();
   assert.equal(h.controller.pending, 0);
   assert.equal(h.controller.mode, 'idle');
+});
+
+runTest('step marks: a dot at every step end, shared corners not duplicated', () => {
+  const marks = getStepMarks([
+    { from: [0, 0], to: [0, -100] },
+    { from: [0, -100], to: [100, -100] },
+  ]);
+  assert.deepEqual(marks.map(([x, y]) => [Math.round(x), Math.round(y)]), [[0, 0], [0, -50], [0, -100], [50, -100], [100, -100]]);
+  const odd = getStepMarks([{ from: [0, 0], to: [0, -60] }]);
+  assert.equal(odd.length, 2, 'length not a multiple of the step: only the ends');
+});
+
+runTest('step marks are shown only on grid levels with a solution', () => {
+  for (const lesson of lessons) {
+    assert.equal(shouldShowStepMarks(lesson), lesson.showGrid === true && Boolean(lesson.solution), lesson.id);
+  }
+  assert.equal(shouldShowStepMarks(lessons[0]), true, 'level 1 shows step dots');
+});
+
+runTest('chapter 1 tasks state the goal; the step-by-step answer is in a hidden hint', () => {
+  for (const lesson of lessons.filter((l) => l.chapter === lessons[0].chapter)) {
+    assert.doesNotMatch(lesson.instruction, /крок(и|ів)? вперед|поворот (праворуч|ліворуч)/, `${lesson.id}: завдання не перелічує блоки`);
+    assert.equal(typeof lesson.hint, 'string', `${lesson.id}: є підказка`);
+  }
+  for (const lesson of lessons.filter((l) => l.hint !== undefined)) {
+    assert.ok(lesson.hint.length > 0, lesson.id);
+    assert.doesNotMatch(lesson.hint, /[<>]/, `${lesson.id}: підказка без HTML`);
+  }
 });

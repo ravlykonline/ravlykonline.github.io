@@ -31,6 +31,8 @@ export function getDomReferences() {
     openRavlykLink: document.getElementById('link-open-ravlyk'),
     copyStatus: document.getElementById('copy-status'),
     helpButton: document.getElementById('btn-help'),
+    hintButton: document.getElementById('btn-hint'),
+    hintText: document.getElementById('hint-text'),
     stepButton: document.getElementById('btn-step'),
     restartButton: document.getElementById('btn-restart'),
     speedSwitch: document.getElementById('speed-switch'),
