@@ -278,6 +278,17 @@ export function placeTail(doc, tail, slot) {
   return true;
 }
 
+/**
+ * Приєднує хвіст ЗВЕРХУ до вільного стосу `owner`: хвіст стає на початок списку,
+ * а сам стос піднімається на висоту хвоста, щоб блоки стосу лишилися на місці.
+ */
+export function attachAbove(doc, tail, owner, tailHeight = 0) {
+  const stack = doc.loose.find((item) => item.id === owner);
+  if (!stack || !placeTail(doc, tail, { owner, parentId: null, index: 0 })) return false;
+  stack.y = Math.max(0, Math.round(stack.y - tailHeight));
+  return true;
+}
+
 /** Кладе хвіст на порожнє місце полотна як новий вільний стос. */
 export function placeLoose(doc, tail, x, y, id = nextBlockId()) {
   if (!Array.isArray(tail) || tail.length === 0) return null;
