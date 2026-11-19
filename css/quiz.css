@@ -30,8 +30,8 @@
 
 .quiz-settings select {
     min-height: 48px;
-    border: 1px solid #aac0e5;
-    border-radius: 12px;
+    border: 2px solid #aac0e5;
+    border-radius: var(--radius-control);
     padding: 10px 16px;
     font-size: 1rem;
     font-family: inherit;
@@ -43,58 +43,119 @@
 .quiz-card {
     background: #fff;
     border: 1px solid var(--color-border-soft-blue);
-    border-radius: 18px;
+    border-radius: var(--radius-panel);
     padding: 18px 18px 20px;
-    box-shadow: 0 8px 22px rgba(24, 39, 75, 0.06);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .quiz-card p {
     margin-top: 10px;
 }
 
+.quiz-subtitle {
+    text-align: center;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    color: #555;
+    margin-top: 6px;
+}
+
+.quiz-steps {
+    list-style: none;
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.quiz-steps li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.05rem;
+}
+
+.quiz-step-num {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 32px;
+    block-size: 32px;
+    border-radius: 50%;
+    background: #ffa500;
+    color: #3a2400;
+    font-weight: 800;
+}
+
+.quiz-progress-bar {
+    block-size: 12px;
+    border-radius: 999px;
+    background: var(--color-surface-summary);
+    border: 1px solid var(--color-border-soft-blue);
+    overflow: hidden;
+}
+
+.quiz-progress-fill {
+    block-size: 100%;
+    inline-size: 0;
+    background: #6a5acd;
+    transition: inline-size 0.3s;
+}
+
+.quiz-progress-text {
+    margin-top: 6px;
+    font-weight: 700;
+    color: #3e2a6c;
+}
+
 .quiz-question {
     border: 1px solid #d9e6fb;
-    border-radius: 16px;
+    border-radius: var(--radius-panel);
     padding: 18px 16px 16px;
     margin: 0;
-    background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
-    box-shadow: 0 3px 12px rgba(31, 41, 55, 0.04);
+    background: #ffffff;
+    box-shadow: var(--shadow-card-soft);
 }
 
 .quiz-question.is-correct {
     border-color: #9cd2a3;
-    box-shadow: 0 6px 18px rgba(76, 175, 80, 0.12);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.12);
 }
 
 .quiz-question.is-incorrect {
     border-color: #f0b4ab;
-    box-shadow: 0 6px 18px rgba(192, 57, 43, 0.1);
+    box-shadow: 0 4px 12px rgba(192, 57, 43, 0.1);
 }
 
 .quiz-question.is-unanswered {
     border-color: #f0d28a;
-    box-shadow: 0 6px 18px rgba(255, 179, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(255, 179, 0, 0.1);
 }
 
 .quiz-question legend {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    float: left;
     width: 100%;
     font-weight: 700;
     color: #3e2a6c;
     margin-bottom: 14px;
-    padding: 0 0 4px;
+    padding: 0;
     font-size: clamp(1.1rem, 2.8vw, 1.35rem);
     line-height: 1.35;
 }
 
 .quiz-option {
     display: grid;
-    grid-template-columns: 22px minmax(0, 1fr);
+    grid-template-columns: 36px minmax(0, 1fr);
     gap: 12px;
-    align-items: start;
-    padding: 12px 12px 12px 10px;
+    align-items: center;
+    position: relative;
+    min-height: 56px;
+    padding: 10px 14px 10px 10px;
     margin-top: 10px;
-    border: 1px solid transparent;
-    border-radius: 12px;
+    border: 2px solid var(--color-border-soft-blue);
+    border-radius: var(--radius-control);
     background: #fff;
     cursor: pointer;
     transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
@@ -106,20 +167,53 @@
 }
 
 .quiz-option:has(input:focus-visible) {
-    border-color: #7aa7e8;
-    box-shadow: 0 0 0 3px rgba(122, 167, 232, 0.2);
+    border-color: #6a5acd;
+    outline: 3px solid #6a5acd;
+    outline-offset: 2px;
 }
 
 .quiz-option:has(input:checked) {
     background: var(--color-surface-summary);
-    border-color: #9db7ea;
+    border-color: #6a5acd;
 }
 
 .quiz-option input {
-    margin: 2px 0 0;
-    inline-size: 18px;
-    block-size: 18px;
-    accent-color: #6a5acd;
+    position: absolute;
+    opacity: 0;
+    inline-size: 1px;
+    block-size: 1px;
+}
+
+.quiz-question-num {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 34px;
+    block-size: 34px;
+    border-radius: 50%;
+    background: #6a5acd;
+    color: #fff;
+    font-size: 1.05rem;
+}
+
+.quiz-option-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 32px;
+    block-size: 32px;
+    border-radius: 50%;
+    background: var(--color-surface-summary);
+    border: 2px solid #9db7ea;
+    color: #3e2a6c;
+    font-weight: 800;
+}
+
+.quiz-option:has(input:checked) .quiz-option-letter {
+    background: #6a5acd;
+    border-color: #6a5acd;
+    color: #fff;
 }
 
 .quiz-option.is-correct,
@@ -134,7 +228,7 @@
 }
 
 .quiz-option.is-correct-answer .quiz-option-text::after {
-    content: "  <- правильна відповідь";
+    content: "  ✓ правильна відповідь";
     color: #2f7d32;
     font-weight: 700;
 }
@@ -155,7 +249,8 @@
 
 .quiz-result {
     margin-top: 4px;
-    border-radius: 14px;
+    font-size: 1.15rem;
+    border-radius: var(--radius-panel);
     padding: 14px 16px;
     border: 1px solid var(--color-border-soft-blue);
     background: var(--color-surface-summary);
@@ -187,7 +282,7 @@
     display: block;
     padding: 18px;
     border: 1px dashed #c8d9f6;
-    border-radius: 14px;
+    border-radius: var(--radius-panel);
     background: #f8fbff;
     color: #546274;
 }
@@ -195,7 +290,7 @@
 @media (max-width: 720px) {
     .quiz-card {
         padding: 16px 14px 18px;
-        border-radius: 16px;
+        border-radius: var(--radius-panel);
     }
 
     .quiz-question {
@@ -207,7 +302,7 @@
     }
 
     .quiz-option {
-        grid-template-columns: 20px minmax(0, 1fr);
+        grid-template-columns: 32px minmax(0, 1fr);
         gap: 10px;
         padding-inline: 10px;
     }
@@ -225,6 +320,7 @@
 
 @media print {
     .quiz-nav,
+    .quiz-progress,
     .quiz-actions,
     .quiz-settings,
     #quiz-result {
@@ -250,6 +346,10 @@
     background: #1a1a1a !important;
     border-color: #7dd3ff !important;
     box-shadow: none !important;
+}
+
+.a11y-high-contrast .quiz-option:has(input:focus-visible) {
+    outline-color: #7dd3ff !important;
 }
 
 .a11y-high-contrast .quiz-option input {

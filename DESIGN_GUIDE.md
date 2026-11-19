@@ -342,6 +342,7 @@ When creating or editing UI:
 - Do not replace the font stack casually.
 - Do not add new button colors for convenience.
 - Do not mix multiple border-radius systems on the same page.
+- Do not use gradients (linear or radial) for backgrounds or decoration; use flat token colors.
 - Do not use low-contrast pastel-on-pastel text.
 - Do not remove focus styles.
 - Do not build a new modal system.

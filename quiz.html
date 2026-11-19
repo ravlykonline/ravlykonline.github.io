@@ -13,10 +13,10 @@
     <meta name="author" content="Равлик" />
     <meta name="robots" content="index, follow" />
     <title>Вікторина Равлик — Перевір свої знання команд онлайн</title>
-    <!-- Static deployment release token: 2026-09-11-5 -->
-    <link rel="stylesheet" href="css/global.css?v=2026-09-11-5" />
-    <link rel="stylesheet" href="css/accessibility.css?v=2026-09-11-5" />
-    <link rel="stylesheet" href="css/quiz.css?v=2026-09-11-5" />
+    <!-- Static deployment release token: 2026-11-19-1 -->
+    <link rel="stylesheet" href="css/global.css?v=2026-11-19-1" />
+    <link rel="stylesheet" href="css/accessibility.css?v=2026-11-19-1" />
+    <link rel="stylesheet" href="css/quiz.css?v=2026-11-19-1" />
     <meta property="og:type" content="article" />
     <meta property="og:locale" content="uk_UA" />
     <meta property="og:site_name" content="Мова програмування РАВЛИК" />
@@ -75,7 +75,8 @@
     <a class="skip-link" href="#main-content">Перейти до основного вмісту</a>
     <div class="page-wrapper">
         <header class="main-header">
-            <h1>РАВЛИК-КВІЗ</h1>
+            <h1><span aria-hidden="true">🐌 </span>РАВЛИК-КВІЗ</h1>
+            <p class="quiz-subtitle">Перевір, наскільки добре ти знаєш команди Равлика!</p>
         </header>
         <main id="main-content" class="content-container quiz-wrap">
             <nav class="quiz-nav site-links-uniform" aria-label="Швидка навігація">
@@ -88,21 +89,29 @@
             </nav>
 
             <section class="quiz-card" aria-labelledby="quiz-settings-title">
-                <h3>Правила</h3>
-                <p>Обери тему і натисни “Нова добірка”. Щоразу формується випадковий набір із 10 питань.</p>
+                <h3>Як грати</h3>
+                <ol class="quiz-steps">
+                    <li><span class="quiz-step-num" aria-hidden="true">1</span><span>Обери тему.</span></li>
+                    <li><span class="quiz-step-num" aria-hidden="true">2</span><span>Відповідай на 10 питань — клацай на потрібну відповідь.</span></li>
+                    <li><span class="quiz-step-num" aria-hidden="true">3</span><span>Натисни «Перевірити результат» і дізнайся, скільки балів ти набрав!</span></li>
+                </ol>
                 <div class="quiz-settings">
-                    <h4 id="quiz-settings-title">Налаштування</h4>
-                    <label for="quiz-theme">Тема:</label>
+                    <h4 id="quiz-settings-title">Обери тему</h4>
+                    <label for="quiz-theme" class="visually-hidden">Тема</label>
                     <select id="quiz-theme">
                         <option value="basic">Основні команди</option>
                         <option value="loops">Цикли та умови</option>
                         <option value="vars">Змінні та функції</option>
                     </select>
-                    <button type="button" id="quiz-new-set-btn" class="btn btn-primary">Нова добірка</button>
+                    <button type="button" id="quiz-new-set-btn" class="btn btn-primary">Нові питання</button>
                 </div>
             </section>
 
             <form id="ravlyk-quiz-form" class="quiz-card" novalidate>
+                <div class="quiz-progress" aria-live="polite">
+                    <div class="quiz-progress-bar" aria-hidden="true"><div id="quiz-progress-fill" class="quiz-progress-fill"></div></div>
+                    <p id="quiz-progress-text" class="quiz-progress-text">Відповіли: 0 з 10</p>
+                </div>
                 <div id="quiz-question-list"></div>
 
                 <div class="quiz-actions">
@@ -183,10 +192,10 @@
     </div>
 </div>
 <!-- END shared:accessibility-panel -->
-<script type="module" src="js/accessibility.js?v=2026-09-11-5"></script>
+<script type="module" src="js/accessibility.js?v=2026-11-19-1"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "46477cad50284d57abdf0b005192f4c0"}'></script><!-- End Cloudflare Web Analytics -->
-<script type="module" src="js/registerServiceWorker.js?v=2026-09-11-5"></script>
-    <script type="module" src="js/quizPage.js?v=2026-09-11-5"></script>
+<script type="module" src="js/registerServiceWorker.js?v=2026-11-19-1"></script>
+    <script type="module" src="js/quizPage.js?v=2026-11-19-1"></script>
 </body>
 
 </html>
