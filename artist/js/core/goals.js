@@ -12,7 +12,7 @@
  * Потім кожен еталонний відрізок має знайти пару серед намальованих (кінці
  * збігаються з допуском 2 одиниці в будь-якому напрямку) і навпаки.
  */
-import { containsBlockType, countBlocksIn } from './blockTree.js';
+import { containsBlockType, countBlocksIn, hasNestedRepeat } from './blockTree.js';
 
 export const TOLERANCE = 2;
 const MIN_SEGMENT_LENGTH = 0.01;
@@ -179,6 +179,14 @@ export function evaluateGoal(lesson, run) {
           message: 'Фігура правильна! А тепер зроби її з блоком «повторити».',
         };
       }
+    }
+
+    if (lesson.constraints?.requireNestedRepeat && !hasNestedRepeat(workspace)) {
+      return {
+        ok: false,
+        reason: 'requireNested',
+        message: 'Фігура правильна! А тепер спробуй вкласти один «повторити» в інший.',
+      };
     }
 
     const best = lesson.constraints?.bestBlocks ?? run.bestBlocks ?? countBlocksIn(workspace);

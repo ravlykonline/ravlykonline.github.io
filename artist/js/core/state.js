@@ -10,11 +10,13 @@ export const appState = {
   errorBlockId: null,
   running: false, // є активний сеанс виконання (редагування заблоковане), навіть на паузі
   doneLessons: new Set(),
+  bestStars: new Map(), // індекс рівня → найкращі зірки за сесію (без localStorage)
   turtleSegments: [],
   activeBlockId: null,
   insertTargetId: null,
   view: 'blocks', // 'blocks' | 'code'
   speed: DEFAULT_SPEED,
+  autoRun: false, // триває безперервний запуск («Старт/Далі»): «Крок» і «Старт» тоді вимкнені
   animating: false, // триває анімація кроку (поза нею сеанс може стояти на паузі)
   introSeen: new Set(), // id рівнів, чиє інтро вже показано в цій сесії (без localStorage)
 };
@@ -55,8 +57,9 @@ export function setActiveBlock(id) {
   appState.activeBlockId = id;
 }
 
-export function markLessonDone(index) {
+export function markLessonDone(index, stars = 3) {
   appState.doneLessons.add(index);
+  appState.bestStars.set(index, Math.max(stars, appState.bestStars.get(index) ?? 0));
 }
 
 export function setView(view) {

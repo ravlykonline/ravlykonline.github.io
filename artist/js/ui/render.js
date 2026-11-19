@@ -8,10 +8,31 @@ export function renderLessonHeader(dom, lesson) {
   dom.instructionText.textContent = lesson.instruction;
 }
 
+/** Точки рівнів, згруповані за розділами; пройдені показують найкращі зірки сесії. */
 export function renderLessonNavigation(dom, state, onLessonSelect) {
   dom.lessonNav.replaceChildren();
+  let group = null;
+  let currentChapter = null;
 
   lessons.forEach((lesson, index) => {
+    if (lesson.chapter !== currentChapter) {
+      currentChapter = lesson.chapter;
+      group = document.createElement('div');
+      group.className = 'lesson-chapter';
+      group.setAttribute('role', 'group');
+      group.setAttribute('aria-label', lesson.chapter);
+      const heading = document.createElement('span');
+      heading.className = 'lesson-chapter-title';
+      heading.textContent = lesson.chapter;
+      const dots = document.createElement('div');
+      dots.className = 'lesson-chapter-dots';
+      group.append(heading, dots);
+      dom.lessonNav.appendChild(group);
+    }
+
+    const stars = state.bestStars?.get(index);
+    const cell = document.createElement('div');
+    cell.className = 'lcell';
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'ldot';
@@ -19,9 +40,15 @@ export function renderLessonNavigation(dom, state, onLessonSelect) {
     if (state.doneLessons.has(index)) button.classList.add('done');
     button.textContent = String(index + 1);
     button.title = lesson.title;
-    button.setAttribute('aria-label', lesson.title);
+    button.setAttribute('aria-label', stars ? `${lesson.title}. ${starsLabel(stars)}` : lesson.title);
+    if (index === state.currentLessonIndex) button.setAttribute('aria-current', 'step');
     button.addEventListener('click', () => onLessonSelect(index));
-    dom.lessonNav.appendChild(button);
+    const starsLine = document.createElement('span');
+    starsLine.className = 'lstars';
+    starsLine.setAttribute('aria-hidden', 'true');
+    starsLine.textContent = stars ? starsText(stars) : '';
+    cell.append(button, starsLine);
+    group.lastChild.appendChild(cell);
   });
 }
 
@@ -37,10 +64,10 @@ export function renderHistoryControls(dom, canUndo, canRedo) {
 }
 
 export function renderControls(dom, state) {
-  const paused = state.running && !state.animating;
-  dom.runButton.disabled = state.animating;
+  const paused = state.running && !state.autoRun;
+  dom.runButton.disabled = state.autoRun;
   dom.runButton.textContent = paused ? '▶ Далі' : '▶ Старт';
-  dom.stepButton.disabled = state.animating;
+  dom.stepButton.disabled = state.autoRun;
   dom.stopButton.disabled = !state.running;
   dom.resetButton.disabled = state.running;
   dom.helpButton.hidden = !state.currentLesson.intro;
@@ -73,9 +100,9 @@ export function showSuccess(dom, lesson, isLastLesson, result = {}) {
   dom.successStars.textContent = starsText(stars);
   dom.successStars.setAttribute('aria-label', starsLabel(stars));
   dom.successCaption.textContent = starsCaption(stars, result.blockCount ?? 0, result.bestBlocks);
-  dom.successTitle.textContent = lesson.successTitle;
+  dom.successTitle.textContent = lesson.successTitle ?? 'Чудова робота!';
   dom.successMessage.textContent = lesson.successMessage;
-  dom.nextButton.textContent = isLastLesson ? 'Почати знову' : lesson.successButton;
+  dom.nextButton.textContent = isLastLesson ? 'Почати знову' : (lesson.successButton ?? 'Наступний рівень →');
   dom.overlay.classList.add('show');
   dom.overlay.setAttribute('aria-hidden', 'false');
   dom.nextButton.focus();

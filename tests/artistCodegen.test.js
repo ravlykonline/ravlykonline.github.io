@@ -187,3 +187,19 @@ runTest('artist codegen: y is inverted in «перейти в»', () => {
     assert.deepEqual([goto.x, goto.y], [-100, -100]);
     // точка гри (-100, 100) — нижній лівий бік поля → у РАВЛИК y вгору дорівнює -100
 });
+
+for (const lesson of lessons) {
+    if (!lesson.intro?.code) continue;
+    runTest(`artist intro: ${lesson.id} example code parses in real РАВЛИК`, () => {
+        const ast = validateProgramAst(new RavlykParser().parseCodeToAst(lesson.intro.code));
+        assert.ok(ast, `${lesson.id}: інтро-код має розібратися`);
+        assert.doesNotMatch(lesson.intro.code, /коли запущено|разів \{|рухатися\(/);
+        // приклад не повинен бути самим розв'язком рівня
+        const solutionCode = lesson.solution
+            ? programToText(buildProgramCode({ start: { x: 0, y: 0, heading: 0 }, pen: { color: 'чорний', width: 1 } }, withIds(lesson.solution)))
+            : '';
+        const normalize = (text) => text.split('\n').map((line) => line.trim()).filter((line) => line && !line.startsWith('//')).join('\n');
+        assert.notEqual(normalize(lesson.intro.code), normalize(solutionCode), `${lesson.id}: інтро видає розв'язок`);
+        runRavlykCode(lesson.intro.code); // і виконується без помилок
+    });
+}

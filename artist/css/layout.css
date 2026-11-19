@@ -4,8 +4,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
   min-height: var(--size-header);
-  padding: 0 var(--space-4);
+  padding: var(--space-1) var(--space-4);
   background: var(--color-teal-dark);
 }
 
@@ -23,22 +25,55 @@
 }
 
 .lesson-title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  flex: 1 1 auto;
+  text-align: right;
   color: var(--color-surface);
   font-size: var(--font-size-md);
   font-weight: 700;
   opacity: 0.9;
-  white-space: nowrap;
-  pointer-events: none;
 }
 
 .lesson-nav {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-2) var(--space-4);
+  flex: 1 0 100%;
+  flex-wrap: wrap;
+}
+
+.lesson-chapter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+}
+
+.lesson-chapter-title {
+  color: var(--color-surface);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+.lesson-chapter-dots {
+  display: flex;
   gap: var(--space-1);
-  flex-wrap: nowrap;
+}
+
+.lcell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lstars {
+  min-height: 0.9rem;
+  color: var(--color-orange-light);
+  font-size: 0.65rem;
+  line-height: 0.9rem;
+  letter-spacing: 0.05em;
 }
 
 .folk-divider {

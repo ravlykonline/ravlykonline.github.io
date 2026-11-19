@@ -45,3 +45,11 @@ export function containsBlockType(list, type) {
   return list.some((block) => block.type === type
     || (block.blocks ? containsBlockType(block.blocks, type) : false));
 }
+
+/** Чи є «повторити» всередині іншого «повторити». */
+export function hasNestedRepeat(list, insideRepeat = false) {
+  return list.some((block) => {
+    if (block.type === 'repeat' && insideRepeat) return true;
+    return block.blocks ? hasNestedRepeat(block.blocks, insideRepeat || block.type === 'repeat') : false;
+  });
+}

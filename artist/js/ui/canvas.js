@@ -71,17 +71,19 @@ export function renderLessonGuide(dom, lesson, ghostSegments = []) {
     'stroke-width': 2,
   }));
 
+  // showGrid: true — звичайна сітка, 'faint' — ледь помітна (розділ «Числа і кути»).
+  const gridOpacity = lesson.showGrid === 'faint' ? 0.4 : 1;
   if (lesson.showGrid) {
     for (let x = -FIELD_HALF_WIDTH + GRID_STEP; x < FIELD_HALF_WIDTH; x += GRID_STEP) {
       guideLayer.appendChild(svgElement('line', {
         x1: x, y1: -FIELD_HALF_HEIGHT, x2: x, y2: FIELD_HALF_HEIGHT,
-        stroke: 'var(--color-grid-line)', 'stroke-width': 1,
+        stroke: 'var(--color-grid-line)', 'stroke-width': 1, opacity: gridOpacity,
       }));
     }
     for (let y = -FIELD_HALF_HEIGHT + GRID_STEP; y < FIELD_HALF_HEIGHT; y += GRID_STEP) {
       guideLayer.appendChild(svgElement('line', {
         x1: -FIELD_HALF_WIDTH, y1: y, x2: FIELD_HALF_WIDTH, y2: y,
-        stroke: 'var(--color-grid-line)', 'stroke-width': 1,
+        stroke: 'var(--color-grid-line)', 'stroke-width': 1, opacity: gridOpacity,
       }));
     }
   }

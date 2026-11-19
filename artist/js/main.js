@@ -11,6 +11,7 @@ import {
 } from './core/workspace.js';
 import { validateProgram } from './runtime/execution-limits.js';
 import { createStepper } from './runtime/stepper.js';
+import { createStepController } from './runtime/stepController.js';
 import { sleep } from './utils/sleep.js';
 import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from './state/history.js';
 import { trapFocus } from './utils/focus-trap.js';
@@ -31,7 +32,8 @@ import { closePopover } from './ui/popover.js';
 const dom = getDomReferences();
 const SUCCESS_CELEBRATION_DELAY_MS = 900;
 const COPY_STATUS_MS = 6000;
-let session = null; // { stepper } — поточний сеанс виконання (автоматичний або покроковий)
+let session = null; // { stepper, controller } — поточний сеанс виконання (автоматичний або покроковий)
+let finishAnimation = () => {}; // миттєво доводить поточний крок до кінця
 let programCode = null; // { setup, body, lineByBlockId } для вкладки «Код»
 let introReturnFocus = null;
 let copyStatusTimer = 0;
@@ -326,6 +328,7 @@ function resetBoard() {
 function loadLesson(index) {
   session = null;
   appState.animating = false;
+  appState.autoRun = false;
   setRunning(false);
   setLesson(index);
   clearHistory();
@@ -386,24 +389,49 @@ function prefersReducedMotion() {
   return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 }
 
-/** Плавно проводить равлика від step.before до step.after; лінія росте разом із ним. */
+/**
+ * Плавно проводить равлика від step.before до step.after; лінія росте разом із ним.
+ * `finishAnimation()` у будь-який момент миттєво ставить кінцевий стан кроку.
+ */
 function animateStep(step, duration, isCancelled) {
   const { before, after, segment } = step;
   const line = segment ? addTrailSegment(dom, { ...segment, to: [before.x, before.y] }) : null;
 
   return new Promise((resolve) => {
     const startedAt = window.performance.now();
+    let settled = false;
+
+    function finish(value) {
+      if (settled) return;
+      settled = true;
+      finishAnimation = () => {};
+      resolve(value);
+    }
+
+    function showFinal() {
+      placeTurtleSnail(dom, after);
+      if (line) setTrailEnd(line, after.x, after.y);
+    }
+
+    finishAnimation = () => {
+      if (settled) return;
+      showFinal();
+      finish(true);
+    };
 
     function frame(now) {
+      if (settled) return;
+      if (isCancelled()) {
+        // Зупинка або перехід на інший рівень: нічого не чіпаємо, лінія лишається як є.
+        finish(false);
+        return;
+      }
       const t = Math.min(1, (now - startedAt) / duration);
       const turtle = interpolateTurtle(before, after, t);
       placeTurtleSnail(dom, turtle);
       if (line) setTrailEnd(line, turtle.x, turtle.y);
       if (t >= 1) {
-        resolve(true);
-      } else if (isCancelled()) {
-        // Зупинка: лінія лишається там, де зараз кінчик олівця.
-        resolve(false);
+        finish(true);
       } else {
         window.requestAnimationFrame(frame);
       }
@@ -416,6 +444,7 @@ function animateStep(step, duration, isCancelled) {
 function endSession() {
   session = null;
   appState.animating = false;
+  appState.autoRun = false;
   setRunning(false);
   setActiveBlock(null);
   highlightCodeLine(dom, null);
@@ -446,7 +475,11 @@ function beginSession() {
   hideSuccess(dom);
   resetRuntimeState();
   resetBoard();
-  const created = { stepper: createStepper(appState.workspace, appState.currentLesson) };
+  const created = { stepper: createStepper(appState.workspace, appState.currentLesson), controller: null };
+  created.controller = createStepController({
+    playStep: () => playStep(created),
+    finishNow: () => finishAnimation(),
+  });
   session = created;
   setRunning(true);
   renderControls(dom, appState);
@@ -500,7 +533,7 @@ async function finishProgram() {
   });
   if (result.ok) {
     playSuccess();
-    markLessonDone(appState.currentLessonIndex);
+    markLessonDone(appState.currentLessonIndex, result.stars);
     refreshUi();
     wiggleSnail(dom);
     dom.screenReaderAnnouncer.textContent = appState.currentLesson.successMessage;
@@ -530,38 +563,31 @@ async function settleStep(current, outcome) {
   }
 }
 
-/** Старт: виконує програму до кінця (або продовжує після кроків). */
-async function runProgram() {
-  if (appState.animating) return;
+/**
+ * Спільний вхід для «Старт/Далі» і «Крок». Натискання під час анімації кроку
+ * доводить його до кінця й виконує наступне (див. stepController.js).
+ */
+async function drive(kind) {
   const fresh = session === null;
   const current = session ?? beginSession();
   if (!current) return;
+  if (kind === 'step' && appState.autoRun) return;
+  if (kind === 'run' && appState.autoRun) return;
 
+  if (kind === 'run') appState.autoRun = true;
   appState.animating = true;
   renderControls(dom, appState);
-  if (fresh) await sleep(120);
+  if (fresh && kind === 'run') await sleep(120);
 
-  let outcome = { status: 'ok' };
-  while (session === current && outcome.status === 'ok') {
-    outcome = await playStep(current);
+  const pending = kind === 'run' ? current.controller.pressRun() : current.controller.pressStep();
+  if (pending === null) {
+    renderControls(dom, appState);
+    return; // натискання приєднано до циклу, що вже працює
   }
+  const outcome = await pending;
   if (session !== current) return;
   appState.animating = false;
-  renderControls(dom, appState);
-  await settleStep(current, outcome);
-}
-
-/** Крок: рівно один примітив; повторні натискання продовжують. */
-async function stepProgram() {
-  if (appState.animating) return;
-  const current = session ?? beginSession();
-  if (!current) return;
-
-  appState.animating = true;
-  renderControls(dom, appState);
-  const outcome = await playStep(current);
-  if (session !== current) return;
-  appState.animating = false;
+  appState.autoRun = false;
   renderControls(dom, appState);
   if (outcome.status === 'ok') {
     announce('Крок виконано');
@@ -570,8 +596,12 @@ async function stepProgram() {
   }
 }
 
+const runProgram = () => drive('run');
+const stepProgram = () => drive('step');
+
 function stopProgram() {
   if (!session) return;
+  session.controller.cancel();
   endSession();
   showFeedback(dom, 'Програму зупинено.', 'info');
 }

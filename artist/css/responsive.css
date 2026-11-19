@@ -70,15 +70,13 @@
   }
 
   .lesson-title {
-    position: static;
     width: 100%;
-    transform: none;
     text-align: left;
   }
 
   .lesson-nav {
     width: 100%;
-    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 
   #control-panel,
