@@ -1,23 +1,10 @@
-import {
-  FIELD_HALF_HEIGHT,
-  FIELD_HALF_WIDTH,
-  GRID_HEIGHT,
-  GRID_STEP,
-  GRID_WIDTH,
-  SNAIL_SIZE,
-} from '../core/constants.js';
+import { FIELD_HALF_HEIGHT, FIELD_HALF_WIDTH, GRID_STEP } from '../core/constants.js';
+import { getSnailTransform } from '../domain/snail.js';
 import { avatarSvg, snailSvg } from './icons.js';
 
-// Початок логічних координат (0, 0) — центр полотна.
-export const TURTLE_ORIGIN_X = GRID_WIDTH / 2;
-export const TURTLE_ORIGIN_Y = GRID_HEIGHT / 2;
-
 const SVG_NS = 'http://www.w3.org/2000/svg';
-
-/** Safely parse an SVG string into a DOM element via DOMParser (avoids innerHTML). */
-function parseSvg(svgString) {
-  return new DOMParser().parseFromString(svgString, 'image/svg+xml').documentElement;
-}
+const SNAIL_SCALE = 0.9;
+const GHOST_COLOR = '#7d7790';
 
 function svgElement(name, attributes = {}) {
   const element = document.createElementNS(SVG_NS, name);
@@ -25,49 +12,51 @@ function svgElement(name, attributes = {}) {
   return element;
 }
 
-function ensureGuideLayer(gridSvg) {
-  let guideLayer = gridSvg.querySelector('[data-guide-layer]');
-  if (!guideLayer) {
-    guideLayer = svgElement('g', {
-      'data-guide-layer': 'true',
-      transform: `translate(${TURTLE_ORIGIN_X} ${TURTLE_ORIGIN_Y})`,
-    });
-    gridSvg.appendChild(guideLayer);
-  }
-  return guideLayer;
+/** Розбирає валідний SVG-рядок (без innerHTML). */
+function parseSvg(svgString) {
+  return new DOMParser().parseFromString(svgString, 'image/svg+xml').documentElement;
 }
 
 export function setupCanvas(dom) {
-  const { gridSvg, trailCanvas, snailElement, avatarBox } = dom;
+  const { gridSvg, snailElement, avatarBox } = dom;
 
-  gridSvg.setAttribute('width', GRID_WIDTH);
-  gridSvg.setAttribute('height', GRID_HEIGHT);
-  gridSvg.setAttribute('viewBox', `0 0 ${GRID_WIDTH} ${GRID_HEIGHT}`);
-  gridSvg.appendChild(svgElement('rect', {
-    width: GRID_WIDTH,
-    height: GRID_HEIGHT,
-    fill: 'var(--color-grid-background)',
-  }));
-  ensureGuideLayer(gridSvg);
+  gridSvg.setAttribute('viewBox', `${-FIELD_HALF_WIDTH} ${-FIELD_HALF_HEIGHT} ${FIELD_HALF_WIDTH * 2} ${FIELD_HALF_HEIGHT * 2}`);
+  gridSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  dom.fieldBackground.setAttribute('x', -FIELD_HALF_WIDTH);
+  dom.fieldBackground.setAttribute('y', -FIELD_HALF_HEIGHT);
+  dom.fieldBackground.setAttribute('width', FIELD_HALF_WIDTH * 2);
+  dom.fieldBackground.setAttribute('height', FIELD_HALF_HEIGHT * 2);
 
-  trailCanvas.width = GRID_WIDTH;
-  trailCanvas.height = GRID_HEIGHT;
-  snailElement.style.width = `${SNAIL_SIZE}px`;
-  snailElement.style.height = `${SNAIL_SIZE}px`;
-  snailElement.replaceChildren(parseSvg(snailSvg));
+  // Равлик: зовнішня <g> задає позицію/кут, внутрішня — масштаб і «вигляд».
+  const sprite = svgElement('g', { transform: `scale(${SNAIL_SCALE})` });
+  const wiggle = svgElement('g', { 'data-snail-wiggle': 'true' });
+  for (const child of parseSvg(snailSvg).children) wiggle.appendChild(document.importNode(child, true));
+  sprite.appendChild(wiggle);
+  snailElement.replaceChildren(sprite);
+
   avatarBox.replaceChildren(parseSvg(avatarSvg));
 }
 
-/** Малює межі поля, сітку (якщо `lesson.showGrid`) і ghost-фігуру (пунктир). */
+function appendArrow(layer, x, y, heading) {
+  const group = svgElement('g', { transform: `translate(${x} ${y}) rotate(${heading})` });
+  group.appendChild(svgElement('path', {
+    d: 'M0 -26 L7 -14 L-7 -14 Z',
+    fill: GHOST_COLOR,
+    stroke: 'none',
+  }));
+  layer.appendChild(group);
+}
+
+/** Малює межі поля, сітку (якщо `lesson.showGrid`) і ghost-фігуру (пунктир, старт, стрілка). */
 export function renderLessonGuide(dom, lesson, ghostSegments = []) {
-  const guideLayer = ensureGuideLayer(dom.gridSvg);
+  const guideLayer = dom.guideLayer;
   guideLayer.replaceChildren();
 
   guideLayer.appendChild(svgElement('rect', {
-    x: -FIELD_HALF_WIDTH,
-    y: -FIELD_HALF_HEIGHT,
-    width: FIELD_HALF_WIDTH * 2,
-    height: FIELD_HALF_HEIGHT * 2,
+    x: -FIELD_HALF_WIDTH + 1,
+    y: -FIELD_HALF_HEIGHT + 1,
+    width: FIELD_HALF_WIDTH * 2 - 2,
+    height: FIELD_HALF_HEIGHT * 2 - 2,
     fill: 'none',
     stroke: 'var(--color-grid-line)',
     'stroke-width': 2,
@@ -91,48 +80,60 @@ export function renderLessonGuide(dom, lesson, ghostSegments = []) {
   for (const segment of ghostSegments) {
     guideLayer.appendChild(svgElement('line', {
       x1: segment.from[0], y1: segment.from[1], x2: segment.to[0], y2: segment.to[1],
-      stroke: 'rgba(110, 90, 140, 0.45)',
-      'stroke-width': 6,
+      stroke: GHOST_COLOR,
+      'stroke-width': 5,
       'stroke-linecap': 'round',
-      'stroke-dasharray': '10 12',
+      'stroke-dasharray': '9 11',
     }));
+  }
+
+  if (ghostSegments.length > 0) {
+    const sx = lesson.start?.x ?? 0;
+    const sy = lesson.start?.y ?? 0;
+    guideLayer.appendChild(svgElement('circle', {
+      cx: sx, cy: sy, r: 7, fill: 'var(--color-grid-background)', stroke: GHOST_COLOR, 'stroke-width': 3,
+    }));
+    appendArrow(guideLayer, sx, sy, lesson.start?.heading ?? 0);
   }
 }
 
 export function clearTurtleCanvas(dom) {
-  dom.trailCanvas.getContext('2d').clearRect(0, 0, GRID_WIDTH, GRID_HEIGHT);
+  dom.trailLayer.replaceChildren();
 }
 
-/**
- * Positions and rotates the snail element at a turtle's canvas coordinates.
- * heading: 0=up, 90=right, 180=down, 270=left.
- * CSS rotation: heading - 90  (because snail head faces RIGHT at 0°)
- */
+/** Ставить равлика в позицію й кут черепахи; колір і піднятість олівця — з її стану. */
 export function placeTurtleSnail(dom, turtle) {
-  const cx = TURTLE_ORIGIN_X + turtle.x;
-  const cy = TURTLE_ORIGIN_Y + turtle.y;
-  dom.snailElement.style.left = `${cx - SNAIL_SIZE / 2}px`;
-  dom.snailElement.style.top = `${cy - SNAIL_SIZE / 2}px`;
-  dom.snailElement.style.transform = `rotate(${turtle.heading - 90}deg)`;
+  dom.snailElement.setAttribute('transform', getSnailTransform(turtle));
+  const tip = dom.snailElement.querySelector('[data-pen-tip]');
+  if (tip) tip.setAttribute('fill', turtle.color);
+  dom.snailElement.classList.toggle('pen-up', !turtle.penDown);
 }
 
-/** Draws a line segment. segment = { from: [x, y], to: [x, y], color (hex), width } */
+/** Додає в слід лінію (повертає її, щоб анімація могла дотягувати кінець). */
+export function addTrailSegment(dom, segment) {
+  const line = svgElement('line', {
+    x1: segment.from[0], y1: segment.from[1], x2: segment.to[0], y2: segment.to[1],
+    stroke: segment.color,
+    'stroke-width': segment.width,
+    'stroke-linecap': 'round',
+  });
+  dom.trailLayer.appendChild(line);
+  return line;
+}
+
+/** Миттєво малює відрізок цілком. */
 export function drawTurtleSegment(dom, segment) {
-  const ctx = dom.trailCanvas.getContext('2d');
-  ctx.save();
-  ctx.strokeStyle = segment.color;
-  ctx.lineWidth = segment.width;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(TURTLE_ORIGIN_X + segment.from[0], TURTLE_ORIGIN_Y + segment.from[1]);
-  ctx.lineTo(TURTLE_ORIGIN_X + segment.to[0], TURTLE_ORIGIN_Y + segment.to[1]);
-  ctx.stroke();
-  ctx.restore();
+  return addTrailSegment(dom, segment);
+}
+
+export function setTrailEnd(line, x, y) {
+  line.setAttribute('x2', String(x));
+  line.setAttribute('y2', String(y));
 }
 
 export function wiggleSnail(dom) {
-  dom.snailElement.classList.remove('snail-wiggle');
-  window.requestAnimationFrame(() => {
-    dom.snailElement.classList.add('snail-wiggle');
-  });
+  const target = dom.snailElement.querySelector('[data-snail-wiggle]');
+  if (!target) return;
+  target.classList.remove('snail-wiggle');
+  window.requestAnimationFrame(() => target.classList.add('snail-wiggle'));
 }

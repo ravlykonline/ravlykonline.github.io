@@ -1,25 +1,55 @@
-@media (max-width: 63.9375rem) {
+/* Планшет: 700–1099 px. Угорі завдання + поле, нижче «Команди | Програма». */
+@media (max-width: 68.6875rem) {
   #app-main {
     height: auto;
   }
 
   #body {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
   }
 
+  #canvas-panel,
   #control-panel {
-    border-right: none;
-    border-bottom: 0.0625rem solid var(--color-violet-border-faint);
-  }
-
-  #editor-panels {
-    grid-template-columns: minmax(15.5rem, 0.9fr) minmax(0, 1.1fr);
+    flex: none;
   }
 
   #canvas-panel {
-    min-height: 28.75rem;
+    order: -1;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    overflow: visible;
+    border-bottom: 0.0625rem solid var(--color-violet-border-faint);
+  }
+
+  #instr-box {
+    flex: 1 1 38%;
+    min-width: 0;
+    width: auto;
+  }
+
+  #canvas-shell {
+    flex: 1 1 52%;
+    min-width: 0;
+    padding: var(--space-3);
+  }
+
+  #grid-wrap {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #control-panel {
+    height: auto;
+    overflow: visible;
+    border-right: none;
+  }
+
+  #editor-panels {
+    height: 26rem;
+    grid-template-columns: 16.5rem minmax(0, 1fr);
   }
 
   #code-panel {
@@ -27,7 +57,7 @@
   }
 }
 
-@media (max-width: 47.9375rem) {
+@media (max-width: 43.6875rem) {
   body {
     min-height: 100vh;
     height: auto;
@@ -66,8 +96,18 @@
     grid-template-columns: 1fr;
   }
 
-  #grid-wrap {
-    max-width: 100%;
+  #canvas-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #instr-box,
+  #canvas-shell {
+    flex: none;
+  }
+
+  #editor-panels {
+    height: auto;
   }
 
   #footer {
@@ -96,5 +136,11 @@
     bottom: 0;
     max-height: 46vh;
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+}
+
+@media (min-width: 43.75rem) and (max-width: 62rem) {
+  .lesson-title {
+    display: none;
   }
 }

@@ -67,6 +67,9 @@
 
 #grid-wrap {
   position: relative;
+  width: min(100%, calc((100vh - 16rem) * 4 / 3));
+  min-width: 14rem;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   border: 0.1875rem solid var(--color-teal-light);
   border-radius: var(--radius-lg);
@@ -74,29 +77,29 @@
   background: var(--color-grid-background);
 }
 
-#grid-svg,
-#trail-canvas {
+#grid-svg {
   display: block;
+  width: 100%;
+  height: 100%;
 }
 
-#trail-canvas,
 #snail-el {
-  position: absolute;
-  left: 0;
-  top: 0;
   pointer-events: none;
 }
 
-#snail-el {
-  z-index: var(--z-raised);
-  transform-origin: center center;
-  transition: left 0.32s ease, top 0.32s ease;
-  will-change: left, top;
+#snail-el.pen-up {
+  opacity: 0.55;
 }
 
-#snail-el svg {
-  display: block;
-  overflow: visible;
+#snail-el.pen-up [data-pencil] {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transform: rotate(28deg);
+}
+
+[data-snail-wiggle] {
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 #block-count {
@@ -248,6 +251,12 @@
 
   75% {
     transform: rotate(-10deg) scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snail-wiggle {
+    animation: none;
   }
 }
 

@@ -61,9 +61,12 @@
       </div>
       <div id="canvas-shell">
         <div id="grid-wrap" aria-describedby="canvas-status">
-          <svg id="grid-svg" aria-hidden="true"></svg>
-          <canvas id="trail-canvas" aria-hidden="true"></canvas>
-          <div id="snail-el" aria-hidden="true"></div>
+          <svg id="grid-svg" viewBox="-200 -150 400 300" aria-hidden="true" focusable="false">
+            <rect id="field-bg" x="-200" y="-150" width="400" height="300" fill="var(--color-grid-background)"></rect>
+            <g id="guide-layer"></g>
+            <g id="trail-layer"></g>
+            <g id="snail-el"></g>
+          </svg>
           <div id="canvas-status" class="sr-only">Полотно готове.</div>
         </div>
       </div>

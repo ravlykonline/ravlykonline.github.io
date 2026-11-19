@@ -15,7 +15,8 @@ import { sleep } from './utils/sleep.js';
 import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from './state/history.js';
 import { trapFocus } from './utils/focus-trap.js';
 import { playSuccess, playFailure } from './utils/sounds.js';
-import { clearTurtleCanvas, drawTurtleSegment, placeTurtleSnail, renderLessonGuide, setupCanvas, wiggleSnail } from './ui/canvas.js';
+import { addTrailSegment, clearTurtleCanvas, placeTurtleSnail, renderLessonGuide, setTrailEnd, setupCanvas, wiggleSnail } from './ui/canvas.js';
+import { REDUCED_MOTION_STEP_PAUSE_MS, getStepDuration, interpolateTurtle } from './domain/snail.js';
 import { getDomReferences } from './ui/dom.js';
 import { clearFeedback, hideSuccess, renderBlockCount, renderCode, renderControls, renderHistoryControls, renderLessonHeader, renderLessonNavigation, showFeedback, showSuccess } from './ui/render.js';
 import { createPaletteGhostBlock, renderPalette } from './ui/palette.js';
@@ -333,9 +334,40 @@ function performRedo() {
   restoreSnapshot(redo(getDoc()));
 }
 
+function prefersReducedMotion() {
+  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+}
+
+/** Плавно проводить равлика від step.before до step.after; лінія росте разом із ним. */
+function animateStep(step, duration) {
+  const { before, after, segment } = step;
+  const line = segment ? addTrailSegment(dom, { ...segment, to: [before.x, before.y] }) : null;
+
+  return new Promise((resolve) => {
+    const startedAt = window.performance.now();
+
+    function frame(now) {
+      const t = Math.min(1, (now - startedAt) / duration);
+      const turtle = interpolateTurtle(before, after, t);
+      placeTurtleSnail(dom, turtle);
+      if (line) setTrailEnd(line, turtle.x, turtle.y);
+      if (t >= 1) {
+        resolve(true);
+      } else if (cancelRequested || !appState.running) {
+        // Зупинка: лінія лишається там, де зараз кінчик олівця.
+        resolve(false);
+      } else {
+        window.requestAnimationFrame(frame);
+      }
+    }
+    window.requestAnimationFrame(frame);
+  });
+}
+
 async function animateProgram() {
   const lesson = appState.currentLesson;
   appState.turtleSegments = [];
+  const reduced = prefersReducedMotion();
 
   for (const step of runSteps(appState.workspace, lesson)) {
     if (!appState.running || cancelRequested) break;
@@ -343,15 +375,18 @@ async function animateProgram() {
     setActiveBlock(step.blockId);
     highlightBlocks(appState);
 
-    if (step.segment) {
-      appState.turtleSegments.push(step.segment);
-      drawTurtleSegment(dom, step.segment);
-    }
+    if (step.segment) appState.turtleSegments.push(step.segment);
 
     const turtle = step.after;
-    placeTurtleSnail(dom, turtle);
+    if (reduced) {
+      if (step.segment) addTrailSegment(dom, step.segment);
+      placeTurtleSnail(dom, turtle);
+      await sleep(REDUCED_MOTION_STEP_PAUSE_MS);
+    } else {
+      const finished = await animateStep(step, getStepDuration(step.before, step.after));
+      if (!finished) break;
+    }
     dom.canvasStatus.textContent = `Равлик: x=${Math.round(turtle.x)}, y=${Math.round(turtle.y)}, напрямок=${Math.round(turtle.heading)}°.`;
-    await sleep(300);
   }
 }
 

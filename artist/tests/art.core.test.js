@@ -11,7 +11,10 @@ import {
 import { LIMITS, validateProgram } from '../js/runtime/execution-limits.js';
 import { runProgram, runSteps } from '../js/runtime/runner.js';
 import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from '../js/state/history.js';
-import { snailSvg } from '../js/ui/icons.js';
+import { avatarSvg, snailSvg } from '../js/ui/icons.js';
+import {
+  getSnailTransform, getStepDuration, headingDelta, interpolateTurtle,
+} from '../js/domain/snail.js';
 
 function runTest(name, fn) {
   try {
@@ -265,4 +268,48 @@ runTest('history supports undo and redo; new action clears redo', () => {
   assert.equal(canRedo(), false);
   clearWorkspace();
   clearHistory();
+});
+
+// ── Равлик і анімація (фаза 2) ───────────────────────────────────────────────
+
+runTest('getSnailTransform: heading 0/90/180/270 and tip at the turtle coordinate', () => {
+  for (const heading of [0, 90, 180, 270]) {
+    assert.equal(
+      getSnailTransform({ x: 50, y: -100, heading }),
+      `translate(50 -100) rotate(${heading})`,
+    );
+  }
+  assert.equal(getSnailTransform({ x: 0, y: 0, heading: 0 }), 'translate(0 0) rotate(0)');
+});
+
+runTest('snail SVG: balanced tags, tip at (0, 0), avatar is the same snail', () => {
+  const tags = snailSvg.match(new RegExp('</?[a-zA-Z][^>]*>', 'g')) ?? [];
+  const stack = [];
+  for (const tag of tags) {
+    const name = tag.match(new RegExp('^</?([a-zA-Z]+)'))[1];
+    if (tag.startsWith('</')) assert.equal(stack.pop(), name);
+    else if (!tag.endsWith('/>')) stack.push(name);
+  }
+  assert.equal(stack.length, 0);
+  assert.match(snailSvg, /data-pen-tip="tip" d="M-3.2 6 L3.2 6 L0 0 Z"/);
+  assert.equal(avatarSvg, snailSvg);
+});
+
+runTest('animation: duration, heading interpolation and scale independence', () => {
+  const a = { x: 0, y: 0, heading: 0, penDown: true, color: '#111', strokeWidth: 4 };
+  assert.equal(getStepDuration(a, { ...a, y: -50 }), 250);
+  assert.equal(getStepDuration(a, { ...a, y: -100 }), 500);
+  assert.equal(getStepDuration(a, { ...a, heading: 90 }), 200);
+  assert.equal(headingDelta(270, 0), 90);
+  assert.equal(headingDelta(0, 270), -90);
+  const b = { ...a, heading: 90, x: 40, color: '#222' };
+  const mid = interpolateTurtle(a, b, 0.5);
+  assert.equal(mid.x, 20);
+  assert.equal(mid.heading, 45);
+  assert.equal(mid.color, '#111');
+  assert.equal(interpolateTurtle(a, b, 1), b);
+  // логіка не залежить від розміру екрана: рушій не знає про пікселі
+  const lesson = { start: { x: 0, y: 0, heading: 0 } };
+  const run = runProgram(withIds([blk('forward', 100)]), lesson);
+  assert.ok(near(run.segments[0].to[0], 0) && near(run.segments[0].to[1], -100));
 });
