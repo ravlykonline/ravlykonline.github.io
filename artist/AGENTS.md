@@ -24,7 +24,7 @@
 8. **Дружні тексти дітям**: українською, на «ти», без стек-трейсів і англійських помилок.
 9. **Логіка окремо від DOM.** `core/`, `domain/`, `runtime/`, `data/`, `state/` — чисті модулі без DOM. DOM — лише `ui/`, `main.js`, `utils/focus-trap.js`.
 10. **Кольори — тільки токени** з `css/tokens.css` (у `blocks.css` hex заборонені тестом).
-11. **Не змінювати нічого поза `artist/`**, крім кореневого `tests/artistCodegen.test.js`, його рядка в `package.json` (`test:unit`) і релізного токена (`release-version.json` через `npm run release:sync`).
+11. **Не змінювати нічого поза `artist/`**, крім кореневого `tests/artistCodegen.test.js`, його рядка в `package.json` (`test:unit`) і релізного токена (`release-version.json` через `npm run release:sync-version -- YYYY-MM-DD-N`).
 
 ## 4. Контракт codegen
 
@@ -77,7 +77,7 @@ npm run check                 # усе разом + docs/release перевір�
 
 ## 9. Реліз і кеш
 
-Кореневий Service Worker (`/sw.js`, scope `/`) кешує `/artist/js/*.js` за схемою cache-first із незмінними URL. Тому **перед деплоєм**, якщо змінювалися файли `artist/`, треба підняти release-токен: оновити `release-version.json` і виконати `npm run release:sync` (див. `RELEASE_CHECKLIST.md` кореня), інакше користувачі бачитимуть старий код. `sitemap.xml` не чіпати (artist поки поза індексом — рішення власника).
+Cloudflare Pages віддає файли з `Cache-Control: max-age=14400` (4 години) і ігнорує `_headers`, а кореневий Service Worker (`/sw.js`, scope `/`) кешує файли cache-first. Тому всі адреси гри версіоновані release-токеном: CSS і `js/main.js` в `index.html` мають `?v=<токен>`, а згенерована import map (між маркерами `generated:artist-importmap`) перенаправляє кожен модуль `artist/js/**` на `<модуль>?v=<токен>`. Генерує це `scripts/sync-artist-version.mjs` у складі `npm run release:sync-version -- YYYY-MM-DD-N`. Будь-яка зміна `artist/index.html`, `artist/js/**` чи `artist/css/**` вимагає нового токена — це перевіряє `npm run release:check-token` у CI. Import map не редагувати вручну; новий модуль потрапляє в неї після запуску скрипта (тест `tests/releaseVersion.test.js` впаде, якщо забути). `sitemap.xml` не чіпати (artist поки поза індексом — рішення власника).
 
 ## 10. Формат відповіді агента після роботи
 

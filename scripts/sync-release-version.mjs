@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { syncPrecacheManifest } from './sync-precache-manifest.mjs';
+import { syncArtistEntryPoint } from './sync-artist-version.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -99,6 +100,8 @@ for (const relativePath of targetFiles) {
         console.log(`No changes needed in ${relativePath}`);
     }
 }
+
+syncArtistEntryPoint({ projectRoot, version: nextVersion });
 
 if (requestedVersion && requestedVersion !== configuredRelease.releaseVersion) {
     fs.writeFileSync(

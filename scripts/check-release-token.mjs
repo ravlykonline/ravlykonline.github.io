@@ -15,10 +15,15 @@ import { pathToFileURL } from 'node:url';
 const TOKEN_FILE = 'release-version.json';
 
 // Only assets the release token actually governs: the root site files that are
-// requested with ?v=<token> or precached by sw.js. Published subprojects
-// (go/, artist/, game/, old/) are not versioned by the token.
+// requested with ?v=<token> or precached by sw.js, plus the artist/ game, whose
+// CSS and modules are requested with ?v=<token> through its generated import
+// map (scripts/sync-artist-version.mjs). Other published subprojects (go/,
+// game/, old/) are not versioned by the token.
 export function isTokenGovernedAsset(filePath) {
     if (filePath === 'sw.js') return true;
+    if (filePath === 'artist/index.html') return true;
+    if (filePath.startsWith('artist/js/') && filePath.endsWith('.js')) return true;
+    if (filePath.startsWith('artist/css/') && filePath.endsWith('.css')) return true;
     if (/^[^/]+\.html$/.test(filePath)) return true;
     if (filePath.startsWith('js/') && filePath.endsWith('.js')) return true;
     if (filePath.startsWith('css/') && filePath.endsWith('.css')) return true;

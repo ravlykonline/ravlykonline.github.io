@@ -9,6 +9,12 @@ runTest('release token guard recognises cache-versioned assets', () => {
     assert.equal(isTokenGovernedAsset('js/modules/canvasStateController.js'), true);
     assert.equal(isTokenGovernedAsset('css/main-editor.css'), true);
     assert.equal(isTokenGovernedAsset('sw.js'), true);
+    assert.equal(isTokenGovernedAsset('artist/index.html'), true);
+    assert.equal(isTokenGovernedAsset('artist/js/main.js'), true);
+    assert.equal(isTokenGovernedAsset('artist/js/core/codegen.js'), true);
+    assert.equal(isTokenGovernedAsset('artist/css/blocks.css'), true);
+    assert.equal(isTokenGovernedAsset('artist/tests/art.core.test.js'), false);
+    assert.equal(isTokenGovernedAsset('artist/README.md'), false);
 });
 
 runTest('release token guard ignores files the token does not version', () => {

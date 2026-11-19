@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { listArtistModules, versionArtistIndex } from '../scripts/sync-artist-version.mjs';
 
 function runTest(name, fn) {
     try {
@@ -103,3 +104,27 @@ runTest('release version stays synchronized inside generated SW precache arrays'
 });
 
 console.log('Release version tests completed.');
+
+runTest('artist/index.html versions its CSS, entry script and every module with the release token', () => {
+    const releaseVersion = getCanonicalReleaseVersion();
+    const html = fs.readFileSync('artist/index.html', 'utf8');
+
+    const stylesheets = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => match[1]);
+    assert.ok(stylesheets.length > 0, 'artist/index.html should link stylesheets');
+    for (const href of stylesheets) {
+        assert.ok(href.endsWith(`?v=${releaseVersion}`), `artist stylesheet is not versioned: ${href}`);
+    }
+    assert.ok(html.includes(`src="js/main.js?v=${releaseVersion}"`), 'artist entry script should carry the release token');
+
+    const mapMatch = html.match(/<script type="importmap">\n([\s\S]*?)\n<\/script>/);
+    assert.ok(mapMatch, 'artist/index.html should contain the generated import map');
+    assert.ok(html.indexOf('type="importmap"') < html.indexOf('type="module"'), 'import map must precede module scripts');
+    const { imports } = JSON.parse(mapMatch[1]);
+    const modules = listArtistModules(process.cwd());
+    assert.deepEqual(Object.keys(imports).sort(), [...modules].sort(), 'import map should list every module in artist/js');
+    for (const [specifier, target] of Object.entries(imports)) {
+        assert.equal(target, `${specifier}?v=${releaseVersion}`, `stale artist module version for ${specifier}`);
+    }
+
+    assert.equal(versionArtistIndex(html, modules, releaseVersion), html, 'artist/index.html is out of sync: run npm run release:sync-version');
+});
