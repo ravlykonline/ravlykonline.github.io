@@ -10,9 +10,12 @@
     overflow-y: auto;
   }
 
-  #canvas-panel,
-  #control-panel {
+  #canvas-panel {
     flex: none;
+  }
+
+  #control-panel {
+    flex: 1 0 auto;
   }
 
   #canvas-panel {
@@ -48,7 +51,8 @@
   }
 
   #editor-panels {
-    height: 26rem;
+    height: auto;
+    min-height: 26rem;
     grid-template-columns: 16.5rem minmax(0, 1fr);
   }
 }
@@ -56,29 +60,9 @@
 /* ── Телефон: < 700 px і короткий ландшафт ───────────────────────────────────────
    Порядок: завдання → поле → «Блоки | Код» → палітра-стрічка (sticky) → програма.
    Вікно прокручується саме (жоден предок sticky-палітри не має overflow ≠ visible). */
-@media (max-width: 43.6875rem), (orientation: landscape) and (max-height: 32.5rem) {
-  body {
-    height: auto;
-    min-height: 100vh;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-  }
-
-  #app-main {
-    display: block;
-    flex: 1 0 auto;
-    overflow: visible;
-  }
-
-  #body {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    overflow: visible;
-  }
-
+/* ── Шапка й нижня панель: ≤ 900 px і короткий ландшафт ─────────────────────────
+   «Рівень N / 20 ▾» замість ряду точок; Старт/Крок/Стоп + «⋯» в один ряд. */
+@media (max-width: 56.25rem), (orientation: landscape) and (max-height: 32.5rem) {
   /* шапка: логотип + «Рівень N / 20 ▾» */
   #hdr {
     flex-wrap: nowrap;
@@ -160,6 +144,138 @@
     width: 2.75rem;
     min-width: 2.75rem;
     height: 2.75rem;
+  }
+
+  /* нижня панель: один компактний ряд */
+  #footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 8;
+    display: block;
+    min-height: 0;
+    padding: var(--space-1) var(--space-2);
+  }
+
+  .run-controls {
+    flex-wrap: nowrap;
+    gap: var(--space-1);
+    width: 100%;
+  }
+
+  .btn-run,
+  .btn-step,
+  .btn-stop {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 3rem;
+    min-height: 2.75rem;
+    padding: 0 var(--space-2);
+    font-size: var(--font-size-md);
+    white-space: nowrap;
+    box-shadow: none;
+  }
+
+  .btn-run {
+    flex-grow: 1.35;
+  }
+
+  .btn-more {
+    display: flex;
+    flex: 0 0 3rem;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border: 0.125rem solid var(--color-button-border-light);
+    border-radius: var(--radius-pill);
+    background: var(--color-block-surface-muted);
+    color: var(--color-surface);
+    font-size: var(--font-size-xl);
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .btn-more[aria-expanded="true"] {
+    background: var(--color-surface);
+    color: var(--color-teal-dark);
+  }
+
+  .more-menu {
+    position: absolute;
+    right: var(--space-2);
+    bottom: calc(100% + var(--space-1));
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    width: min(18rem, calc(100vw - 1rem));
+    padding: var(--space-3);
+    border-radius: var(--radius-xl);
+    background: var(--color-teal-dark);
+    box-shadow: var(--shadow-3);
+  }
+
+  .more-menu.is-open {
+    display: flex;
+  }
+
+  .more-menu .btn-restart,
+  .more-menu .btn-reset {
+    min-height: 2.75rem;
+  }
+
+  .more-menu .speed-switch {
+    order: 0;
+    justify-content: space-between;
+  }
+
+  .more-menu .speed-btn {
+    flex: 1;
+    min-height: 2.75rem;
+    padding: var(--space-1) var(--space-2);
+  }
+
+  /* повідомлення — «тост» над панеллю, а не третій ряд */
+  #feedback {
+    position: absolute;
+    right: var(--space-2);
+    bottom: calc(100% + var(--space-1));
+    left: var(--space-2);
+    order: 0;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-lg);
+    background: var(--color-teal-dark);
+    box-shadow: var(--shadow-2);
+    pointer-events: none;
+  }
+
+  #feedback:empty {
+    display: none;
+  }
+}
+
+@media (max-width: 43.6875rem), (orientation: landscape) and (max-height: 32.5rem) {
+  body {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+  }
+
+  #app-main {
+    display: block;
+    flex: 1 0 auto;
+    overflow: visible;
+  }
+
+  #body {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
   }
 
   /* завдання */
@@ -317,114 +433,6 @@
     max-height: 60dvh;
   }
 
-  /* нижня панель: один компактний ряд */
-  #footer {
-    position: sticky;
-    bottom: 0;
-    z-index: 8;
-    display: block;
-    min-height: 0;
-    padding: var(--space-1) var(--space-2);
-  }
-
-  .run-controls {
-    flex-wrap: nowrap;
-    gap: var(--space-1);
-    width: 100%;
-  }
-
-  .btn-run,
-  .btn-step,
-  .btn-stop {
-    flex: 1 1 0;
-    min-width: 0;
-    height: 3rem;
-    min-height: 2.75rem;
-    padding: 0 var(--space-2);
-    font-size: var(--font-size-md);
-    white-space: nowrap;
-    box-shadow: none;
-  }
-
-  .btn-run {
-    flex-grow: 1.35;
-  }
-
-  .btn-more {
-    display: flex;
-    flex: 0 0 3rem;
-    align-items: center;
-    justify-content: center;
-    width: 3rem;
-    height: 3rem;
-    border: 0.125rem solid var(--color-button-border-light);
-    border-radius: var(--radius-pill);
-    background: var(--color-block-surface-muted);
-    color: var(--color-surface);
-    font-size: var(--font-size-xl);
-    font-weight: 900;
-    line-height: 1;
-    cursor: pointer;
-  }
-
-  .btn-more[aria-expanded="true"] {
-    background: var(--color-surface);
-    color: var(--color-teal-dark);
-  }
-
-  .more-menu {
-    position: absolute;
-    right: var(--space-2);
-    bottom: calc(100% + var(--space-1));
-    display: none;
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-2);
-    width: min(18rem, calc(100vw - 1rem));
-    padding: var(--space-3);
-    border-radius: var(--radius-xl);
-    background: var(--color-teal-dark);
-    box-shadow: var(--shadow-3);
-  }
-
-  .more-menu.is-open {
-    display: flex;
-  }
-
-  .more-menu .btn-restart,
-  .more-menu .btn-reset {
-    min-height: 2.75rem;
-  }
-
-  .more-menu .speed-switch {
-    order: 0;
-    justify-content: space-between;
-  }
-
-  .more-menu .speed-btn {
-    flex: 1;
-    min-height: 2.75rem;
-    padding: var(--space-1) var(--space-2);
-  }
-
-  /* повідомлення — «тост» над панеллю, а не третій ряд */
-  #feedback {
-    position: absolute;
-    right: var(--space-2);
-    bottom: calc(100% + var(--space-1));
-    left: var(--space-2);
-    order: 0;
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-lg);
-    background: var(--color-teal-dark);
-    box-shadow: var(--shadow-2);
-    pointer-events: none;
-  }
-
-  #feedback:empty {
-    display: none;
-  }
-
   /* модалки й спливаючі вікна */
   .success-card,
   .intro-card,
@@ -522,12 +530,6 @@
   .success-card p,
   .confirm-card p {
     margin-bottom: var(--space-2);
-  }
-}
-
-@media (min-width: 43.75rem) and (max-width: 62rem) and (min-height: 32.5rem) {
-  .lesson-title {
-    display: none;
   }
 }
 

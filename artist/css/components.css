@@ -33,11 +33,13 @@
 .ldot.active {
   border-color: var(--color-orange);
   background: var(--color-orange);
+  color: var(--color-on-orange);
 }
 
 .ldot.done {
   border-color: var(--color-teal-light);
   background: var(--color-teal-light);
+  color: var(--color-teal-dark);
 }
 
 #instr-box {
@@ -139,7 +141,7 @@
   padding: var(--space-2) var(--space-5);
   border-radius: var(--radius-pill);
   background: var(--color-orange);
-  color: var(--color-surface);
+  color: var(--color-on-orange);
   font-size: var(--font-size-lg);
   font-weight: 800;
   box-shadow: 0 0.25rem 0 var(--color-orange-dark);
@@ -150,7 +152,7 @@
   padding: var(--space-2) var(--space-5);
   border-radius: var(--radius-pill);
   background: var(--color-feedback-error);
-  color: #5a0f18;
+  color: var(--color-on-stop);
   font-size: var(--font-size-lg);
   font-weight: 800;
   box-shadow: 0 0.25rem 0 #8b0000;
@@ -161,7 +163,7 @@
   padding: var(--space-2) var(--space-5);
   border-radius: var(--radius-pill);
   background: var(--color-teal-light);
-  color: var(--color-teal-dark);
+  color: var(--color-text);
   font-size: var(--font-size-lg);
   font-weight: 800;
   box-shadow: 0 0.25rem 0 var(--color-teal);
@@ -459,7 +461,7 @@
 
 .btn-confirm-danger {
   background: var(--color-orange);
-  color: var(--color-surface);
+  color: var(--color-on-orange);
   box-shadow: 0 0.25rem 0 var(--color-orange-dark);
 }
 

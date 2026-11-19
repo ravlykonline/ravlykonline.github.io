@@ -1,6 +1,8 @@
+/* Двоколірний фокус: жовте кільце видно на темному, темна обвідка — на світлому. */
 :focus-visible {
   outline: 3px solid var(--color-focus-ring);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--color-focus-contrast);
 }
 
 @media (prefers-reduced-motion: reduce) {

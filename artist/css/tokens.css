@@ -64,6 +64,9 @@
   --color-code-punct: #c8e6df;
   --color-code-line-active: rgba(255, 255, 255, 0.18);
   --color-focus-ring: #ffbf47;
+  --color-focus-contrast: #2f1364;
+  --color-on-orange: #2c1a0e;
+  --color-on-stop: #5a0f18;
   --color-trail-orange: #f5962a;
   --color-trail-teal: #1a9080;
   --color-trail-pink: #c72070;

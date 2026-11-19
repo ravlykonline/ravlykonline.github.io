@@ -273,7 +273,7 @@
 
 .btn-copy-code {
   background: var(--color-orange);
-  color: var(--color-surface);
+  color: var(--color-on-orange);
   box-shadow: 0 0.25rem 0 var(--color-orange-dark);
 }
 
@@ -324,13 +324,12 @@
   min-width: 2.25rem;
   padding-left: var(--space-2);
   color: var(--color-code-comment);
-  opacity: 0.6;
   text-align: right;
   user-select: none;
 }
 
 .code-line.is-setup .code-src {
-  opacity: 0.62;
+  opacity: 0.9;
 }
 
 .tok-keyword { color: var(--color-code-keyword); font-weight: 700; }
