@@ -1,100 +1,594 @@
-@media (max-width: 63.9375rem) {
+/* Планшет: 700–1099 px. Угорі завдання + поле, нижче «Команди | Програма». */
+@media (max-width: 68.6875rem) {
   #app-main {
     height: auto;
   }
 
   #body {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
   }
 
-  #control-panel {
-    border-right: none;
-    border-bottom: 0.0625rem solid var(--color-violet-border-faint);
+  #canvas-panel {
+    flex: none;
   }
 
-  #editor-panels {
-    grid-template-columns: minmax(13.75rem, 0.7fr) minmax(0, 1.3fr);
+  #control-panel {
+    flex: 1 0 auto;
   }
 
   #canvas-panel {
-    min-height: 28.75rem;
+    order: -1;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    overflow: visible;
+    border-bottom: 0.0625rem solid var(--color-violet-border-faint);
   }
 
-  #code-panel {
-    width: min(100vw, 42.5rem);
+  #instr-box {
+    flex: 1 1 38%;
+    min-width: 0;
+    width: auto;
+  }
+
+  #canvas-shell {
+    flex: 1 1 52%;
+    min-width: 0;
+    padding: var(--space-3);
+  }
+
+  #grid-wrap {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #control-panel {
+    height: auto;
+    overflow: visible;
+    border-right: none;
+  }
+
+  #editor-panels {
+    height: auto;
+    min-height: 26rem;
+    grid-template-columns: 16.5rem minmax(0, 1fr);
   }
 }
 
-@media (max-width: 47.9375rem) {
+/* ── Телефон: < 700 px і короткий ландшафт ───────────────────────────────────────
+   Порядок: завдання → поле → «Блоки | Код» → палітра-стрічка (sticky) → програма.
+   Вікно прокручується саме (жоден предок sticky-палітри не має overflow ≠ visible). */
+/* ── Шапка й нижня панель: ≤ 900 px і короткий ландшафт ─────────────────────────
+   «Рівень N / 20 ▾» замість ряду точок; Старт/Крок/Стоп + «⋯» в один ряд. */
+@media (max-width: 56.25rem), (orientation: landscape) and (max-height: 32.5rem) {
+  /* шапка: логотип + «Рівень N / 20 ▾» */
+  #hdr {
+    flex-wrap: nowrap;
+    min-height: 2.75rem;
+    padding: var(--space-1) var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .logo {
+    min-width: 0;
+    gap: var(--space-2);
+    font-size: var(--font-size-lg);
+    white-space: nowrap;
+  }
+
+  .logo-snail {
+    font-size: 1.25rem;
+  }
+
+  .lesson-title {
+    display: none;
+  }
+
+  .lesson-nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    min-height: 2.75rem;
+    padding: 0 var(--space-3);
+    border: 0.125rem solid var(--color-button-border-light);
+    border-radius: var(--radius-pill);
+    background: var(--color-block-surface-muted);
+    color: var(--color-surface);
+    font-size: var(--font-size-md);
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .lesson-nav-toggle[aria-expanded="true"] {
+    background: var(--color-surface);
+    color: var(--color-teal-dark);
+  }
+
+  .lesson-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    z-index: var(--z-raised);
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: var(--space-3);
+    max-height: calc(100dvh - 8rem);
+    padding: var(--space-3);
+    overflow-y: auto;
+    background: var(--color-teal-dark);
+    border-top: 0.0625rem solid var(--color-button-border-light);
+    box-shadow: var(--shadow-3);
+  }
+
+  .lesson-nav.is-open {
+    display: flex;
+  }
+
+  .lesson-chapter {
+    align-items: stretch;
+  }
+
+  .lesson-chapter-dots {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .ldot {
+    width: 2.75rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  /* нижня панель: один компактний ряд */
+  #footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 8;
+    display: block;
+    min-height: 0;
+    padding: var(--space-1) var(--space-2);
+  }
+
+  .run-controls {
+    flex-wrap: nowrap;
+    gap: var(--space-1);
+    width: 100%;
+  }
+
+  .btn-run,
+  .btn-step,
+  .btn-stop {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 3rem;
+    min-height: 2.75rem;
+    padding: 0 var(--space-2);
+    font-size: var(--font-size-md);
+    white-space: nowrap;
+    box-shadow: none;
+  }
+
+  .btn-run {
+    flex-grow: 1.35;
+  }
+
+  .btn-more {
+    display: flex;
+    flex: 0 0 3rem;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border: 0.125rem solid var(--color-button-border-light);
+    border-radius: var(--radius-pill);
+    background: var(--color-block-surface-muted);
+    color: var(--color-surface);
+    font-size: var(--font-size-xl);
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .btn-more[aria-expanded="true"] {
+    background: var(--color-surface);
+    color: var(--color-teal-dark);
+  }
+
+  .more-menu {
+    position: absolute;
+    right: var(--space-2);
+    bottom: calc(100% + var(--space-1));
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    width: min(18rem, calc(100vw - 1rem));
+    padding: var(--space-3);
+    border-radius: var(--radius-xl);
+    background: var(--color-teal-dark);
+    box-shadow: var(--shadow-3);
+  }
+
+  .more-menu.is-open {
+    display: flex;
+  }
+
+  .more-menu .btn-restart,
+  .more-menu .btn-reset {
+    min-height: 2.75rem;
+  }
+
+  .more-menu .speed-switch {
+    order: 0;
+    justify-content: space-between;
+  }
+
+  .more-menu .speed-btn {
+    flex: 1;
+    min-height: 2.75rem;
+    padding: var(--space-1) var(--space-2);
+  }
+
+  /* повідомлення — «тост» над панеллю, а не третій ряд */
+  #feedback {
+    position: absolute;
+    right: var(--space-2);
+    bottom: calc(100% + var(--space-1));
+    left: var(--space-2);
+    order: 0;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-lg);
+    background: var(--color-teal-dark);
+    box-shadow: var(--shadow-2);
+    pointer-events: none;
+  }
+
+  #feedback:empty {
+    display: none;
+  }
+}
+
+@media (max-width: 43.6875rem), (orientation: landscape) and (max-height: 32.5rem) {
   body {
-    min-height: 100vh;
     height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     overflow: auto;
   }
 
-  #hdr {
-    min-height: auto;
-    padding: var(--space-3);
+  #app-main {
+    display: block;
+    flex: 1 0 auto;
+    overflow: visible;
+  }
+
+  #body {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* завдання */
+  #canvas-panel {
+    order: -1;
+    height: auto;
+    flex-direction: column;
+    align-items: stretch;
     gap: var(--space-2);
-    flex-wrap: wrap;
+    padding: var(--space-2) var(--space-3);
+    overflow: visible;
   }
 
-  .lesson-title {
-    position: static;
-    width: 100%;
-    transform: none;
-    text-align: left;
+  #instr-box {
+    flex: none;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
   }
 
-  .lesson-nav {
-    width: 100%;
-    flex-wrap: wrap;
+  #instr-box .panel-label {
+    margin-bottom: 0;
+    font-size: var(--font-size-xs);
   }
 
-  #control-panel,
-  #canvas-panel,
-  #palette,
-  #workspace {
-    padding: var(--space-3);
+  #instr-text {
+    font-size: var(--font-size-sm);
+    line-height: 1.4;
   }
 
-  #editor-panels {
-    grid-template-columns: 1fr;
+  .snail-avatar svg {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  /* поле на всю ширину, 4:3 */
+  #canvas-shell {
+    flex: none;
+    padding: var(--space-1);
+    border-radius: var(--radius-xl);
   }
 
   #grid-wrap {
-    max-width: 100%;
+    width: 100%;
+    min-width: 0;
+    border-width: 0.125rem;
   }
 
-  #footer {
+  /* програма */
+  #control-panel {
+    flex: none;
+    height: auto;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3) var(--space-3);
+    overflow: visible;
+    border-right: none;
+  }
+
+  #editor-tabs {
+    gap: var(--space-1);
+  }
+
+  .editor-tab {
+    flex: 1;
+    min-height: 2.75rem;
+    padding: var(--space-1) var(--space-3);
+  }
+
+  #editor-panels {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    height: auto;
+    overflow: visible;
+  }
+
+  #palette {
     position: sticky;
-    bottom: 0;
-    min-height: auto;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: var(--space-3);
+    top: 0;
+    z-index: 5;
+    max-height: none;
+    padding: var(--space-1) var(--space-2);
+    overflow: visible;
   }
 
-  .btn-run,
-  .btn-reset,
-  #show-code-btn {
-    min-height: var(--size-touch-comfortable);
+  #palette-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
   }
 
-  #feedback {
-    order: 4;
-    width: 100%;
+  #pblock-list {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-4);
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: var(--space-1) var(--space-2);
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
 
-  #code-panel {
-    width: 100%;
-    left: 0;
-    bottom: 0;
-    max-height: 46vh;
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  #pblock-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pal-group {
+    display: flex;
+    flex: none;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    padding-left: var(--space-3);
+    border-left: 0.125rem solid var(--color-violet-border-soft);
+  }
+
+  .pal-group:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .pal-heading {
+    display: none;
+  }
+
+  .blk-palette {
+    flex: none;
+    margin: 0;
+    /* горизонтальний рух гортає стрічку, вертикальний — тягне блок у програму */
+    touch-action: pan-x;
+  }
+
+  #workspace {
+    min-height: 0;
+    padding: var(--space-2);
+  }
+
+  #ws-stack {
+    overflow: visible;
+  }
+
+  .ws-canvas {
+    min-height: 14rem;
+    padding: var(--space-3) var(--space-3) 4.5rem;
+  }
+
+  #code-view {
+    height: auto;
+    max-height: none;
+    min-height: 16rem;
+  }
+
+  .code-lines {
+    max-height: 60dvh;
+  }
+
+  /* модалки й спливаючі вікна */
+  .success-card,
+  .intro-card,
+  .confirm-card {
+    max-height: 94dvh;
+    overflow-y: auto;
+  }
+
+  .intro-card {
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .intro-code {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .blk-popover {
+    max-width: calc(100vw - 0.75rem);
+  }
+
+  .blk-popover-row {
+    max-width: min(14rem, calc(100vw - 2.5rem));
+  }
+}
+
+/* ── Короткий ландшафт (телефон набік): поле ліворуч, програма праворуч ──────── */
+@media (orientation: landscape) and (max-height: 32.5rem) {
+  #body {
+    display: grid;
+    grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "field instr"
+      "field control";
+    align-items: start;
+  }
+
+  #canvas-panel {
+    display: contents;
+  }
+
+  #canvas-shell {
+    grid-area: field;
+    position: sticky;
+    top: var(--space-2);
+    align-self: start;
+    margin: var(--space-2);
+  }
+
+  #grid-wrap {
+    width: min(100%, calc((100dvh - 7.5rem) * 4 / 3));
+    margin-inline: auto;
+  }
+
+  #instr-box {
+    grid-area: instr;
+    margin: var(--space-2) var(--space-2) 0 0;
+    padding: var(--space-1) var(--space-3);
+  }
+
+  #instr-box .snail-avatar {
+    display: none;
+  }
+
+  #control-panel {
+    grid-area: control;
+    padding-left: 0;
+  }
+
+  .ws-canvas {
+    min-height: 9rem;
+  }
+
+  .intro-card,
+  .success-card,
+  .confirm-card {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .intro-icon {
+    font-size: 2rem;
+  }
+
+  .success-snail svg {
+    width: 2rem;
+    height: 3.2rem;
+  }
+
+  .success-stars {
+    font-size: 2rem;
+  }
+
+  .success-card p,
+  .confirm-card p {
+    margin-bottom: var(--space-2);
+  }
+}
+
+/* ── Дотик: цілі ≥ 44 px ───────────────────────────────────────────────────────── */
+@media (pointer: coarse) {
+  .btn-help,
+  .btn-history {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .btn-style {
+    min-height: 2.75rem;
+  }
+
+  .speed-btn {
+    min-height: 2.75rem;
+  }
+
+  .ldot {
+    width: 2.75rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .blk-palette .blk-head {
+    min-height: 2.75rem;
+  }
+
+  button.blk-field,
+  .blk-menu-btn {
+    position: relative;
+  }
+
+  button.blk-field::after,
+  .blk-menu-btn::after {
+    content: '';
+    position: absolute;
+    inset: -0.375rem -0.25rem;
+  }
+}
+
+/* Вузькі телефони (≤ 416 px): шапка в один рядок без обрізання */
+@media (max-width: 26rem) {
+  .logo {
+    font-size: var(--font-size-md);
+  }
+
+  .logo-snail {
+    font-size: 1.125rem;
+  }
+
+  .lesson-nav-toggle {
+    padding: 0 var(--space-2);
+    font-size: 0.9375rem;
   }
 }

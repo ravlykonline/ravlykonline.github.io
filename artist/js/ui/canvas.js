@@ -1,285 +1,158 @@
-import { CELL_SIZE, GRID_HEIGHT, GRID_WIDTH, SNAIL_SIZE, directionRotation } from '../core/constants.js';
-
-export const TURTLE_ORIGIN_X = GRID_WIDTH / 2;
-export const TURTLE_ORIGIN_Y = GRID_HEIGHT / 2;
-import { cellToGridIntersection } from '../core/engine.js';
+import { FIELD_HALF_HEIGHT, FIELD_HALF_WIDTH, GRID_STEP } from '../core/constants.js';
+import { getSnailTransform, isAtStart } from '../domain/snail.js';
 import { avatarSvg, snailSvg } from './icons.js';
 
-/** Safely parse an SVG string into a DOM element via DOMParser (avoids innerHTML). */
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const SNAIL_SCALE = 0.9;
+const GHOST_COLOR = '#7d7790';
+
+function svgElement(name, attributes = {}) {
+  const element = document.createElementNS(SVG_NS, name);
+  for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, String(value));
+  return element;
+}
+
+/** Розбирає валідний SVG-рядок (без innerHTML). */
 function parseSvg(svgString) {
   return new DOMParser().parseFromString(svgString, 'image/svg+xml').documentElement;
 }
 
-function ensureGuideLayer(gridSvg) {
-  let guideLayer = gridSvg.querySelector('[data-guide-layer]');
-  if (!guideLayer) {
-    guideLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    guideLayer.setAttribute('data-guide-layer', 'true');
-    gridSvg.appendChild(guideLayer);
-  }
-
-  return guideLayer;
-}
-
-/** Returns the CSS rotation degree for a given grid direction letter. */
-function snailCssDeg(dir) {
-  return directionRotation[dir] ?? 0;
-}
-
-export function getLessonGuidePoints(lesson) {
-  const mode = lesson?.success?.mode;
-  if (mode !== 'path-match' && mode !== 'exact-path') {
-    return [];
-  }
-
-  return [lesson.start, ...lesson.success.goal.map(([x, y]) => ({ x, y }))];
-}
-
-export function getSnailScreenPosition(snail) {
-  return {
-    left: cellToGridIntersection(snail.x) - (SNAIL_SIZE / 2),
-    top: cellToGridIntersection(snail.y) - (SNAIL_SIZE / 2),
-  };
-}
-
-export function getBrushTransform(direction) {
-  return `rotate(${directionRotation[direction] ?? 0} 36 36)`;
-}
-
 export function setupCanvas(dom) {
-  const { gridSvg, trailCanvas, snailElement, avatarBox } = dom;
+  const { gridSvg, snailElement, avatarBox } = dom;
 
-  gridSvg.setAttribute('width', GRID_WIDTH);
-  gridSvg.setAttribute('height', GRID_HEIGHT);
-  gridSvg.setAttribute('viewBox', `0 0 ${GRID_WIDTH} ${GRID_HEIGHT}`);
+  gridSvg.setAttribute('viewBox', `${-FIELD_HALF_WIDTH} ${-FIELD_HALF_HEIGHT} ${FIELD_HALF_WIDTH * 2} ${FIELD_HALF_HEIGHT * 2}`);
+  gridSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  dom.fieldBackground.setAttribute('x', -FIELD_HALF_WIDTH);
+  dom.fieldBackground.setAttribute('y', -FIELD_HALF_HEIGHT);
+  dom.fieldBackground.setAttribute('width', FIELD_HALF_WIDTH * 2);
+  dom.fieldBackground.setAttribute('height', FIELD_HALF_HEIGHT * 2);
 
-  const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-  background.setAttribute('width', GRID_WIDTH);
-  background.setAttribute('height', GRID_HEIGHT);
-  background.setAttribute('fill', 'var(--color-grid-background)');
-  gridSvg.appendChild(background);
+  // Равлик: зовнішня <g> задає позицію/кут, внутрішня — масштаб і «вигляд».
+  const sprite = svgElement('g', { transform: `scale(${SNAIL_SCALE})` });
+  const wiggle = svgElement('g', { 'data-snail-wiggle': 'true' });
+  for (const child of parseSvg(snailSvg).children) wiggle.appendChild(document.importNode(child, true));
+  sprite.appendChild(wiggle);
+  snailElement.replaceChildren(sprite);
 
-  for (let row = 0; row < GRID_HEIGHT / CELL_SIZE; row += 1) {
-    for (let column = 0; column < GRID_WIDTH / CELL_SIZE; column += 1) {
-      if ((row + column) % 2 === 0) {
-        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('x', column * CELL_SIZE);
-        rect.setAttribute('y', row * CELL_SIZE);
-        rect.setAttribute('width', CELL_SIZE);
-        rect.setAttribute('height', CELL_SIZE);
-        rect.setAttribute('fill', 'var(--color-grid-cell-alt)');
-        gridSvg.appendChild(rect);
-      }
-    }
-  }
-
-  for (let column = 0; column <= GRID_WIDTH / CELL_SIZE; column += 1) {
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', column * CELL_SIZE);
-    line.setAttribute('y1', 0);
-    line.setAttribute('x2', column * CELL_SIZE);
-    line.setAttribute('y2', GRID_HEIGHT);
-    line.setAttribute('stroke', 'var(--color-grid-line)');
-    line.setAttribute('stroke-width', '1');
-    gridSvg.appendChild(line);
-  }
-
-  for (let row = 0; row <= GRID_HEIGHT / CELL_SIZE; row += 1) {
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', 0);
-    line.setAttribute('y1', row * CELL_SIZE);
-    line.setAttribute('x2', GRID_WIDTH);
-    line.setAttribute('y2', row * CELL_SIZE);
-    line.setAttribute('stroke', 'var(--color-grid-line)');
-    line.setAttribute('stroke-width', '1');
-    gridSvg.appendChild(line);
-  }
-
-  ensureGuideLayer(gridSvg);
-
-  trailCanvas.width = GRID_WIDTH;
-  trailCanvas.height = GRID_HEIGHT;
-  snailElement.style.width = `${SNAIL_SIZE}px`;
-  snailElement.style.height = `${SNAIL_SIZE}px`;
-  snailElement.replaceChildren(parseSvg(snailSvg));
   avatarBox.replaceChildren(parseSvg(avatarSvg));
 }
 
-export function renderLessonGuide(dom, lesson) {
-  const guideLayer = ensureGuideLayer(dom.gridSvg);
+function appendArrow(layer, x, y, heading) {
+  const group = svgElement('g', { transform: `translate(${x} ${y}) rotate(${heading})`, opacity: 0.55 });
+  group.appendChild(svgElement('path', {
+    d: 'M0 -24 L5.5 -15 L-5.5 -15 Z',
+    fill: GHOST_COLOR,
+    stroke: 'none',
+  }));
+  layer.appendChild(group);
+  return group;
+}
+
+/** Стрілка старту ховається, поки равлик стоїть на старті, щоб не заважати його голові. */
+function syncStartArrow(dom, turtle) {
+  const marker = dom.startMarker;
+  if (!marker) return;
+  marker.arrow.setAttribute('visibility', isAtStart(turtle, marker.start) ? 'hidden' : 'visible');
+}
+
+/** Малює межі поля, сітку (якщо `lesson.showGrid`) і ghost-фігуру (пунктир, старт, стрілка). */
+export function renderLessonGuide(dom, lesson, ghostSegments = []) {
+  const guideLayer = dom.guideLayer;
   guideLayer.replaceChildren();
+  dom.startMarker = null;
 
-  const points = getLessonGuidePoints(lesson);
-  if (points.length < 2) {
-    return;
+  guideLayer.appendChild(svgElement('rect', {
+    x: -FIELD_HALF_WIDTH + 1,
+    y: -FIELD_HALF_HEIGHT + 1,
+    width: FIELD_HALF_WIDTH * 2 - 2,
+    height: FIELD_HALF_HEIGHT * 2 - 2,
+    fill: 'none',
+    stroke: 'var(--color-grid-line)',
+    'stroke-width': 2,
+  }));
+
+  // showGrid: true — звичайна сітка, 'faint' — ледь помітна (розділ «Числа і кути»).
+  const gridOpacity = lesson.showGrid === 'faint' ? 0.4 : 1;
+  if (lesson.showGrid) {
+    for (let x = -FIELD_HALF_WIDTH + GRID_STEP; x < FIELD_HALF_WIDTH; x += GRID_STEP) {
+      guideLayer.appendChild(svgElement('line', {
+        x1: x, y1: -FIELD_HALF_HEIGHT, x2: x, y2: FIELD_HALF_HEIGHT,
+        stroke: 'var(--color-grid-line)', 'stroke-width': 1, opacity: gridOpacity,
+      }));
+    }
+    for (let y = -FIELD_HALF_HEIGHT + GRID_STEP; y < FIELD_HALF_HEIGHT; y += GRID_STEP) {
+      guideLayer.appendChild(svgElement('line', {
+        x1: -FIELD_HALF_WIDTH, y1: y, x2: FIELD_HALF_WIDTH, y2: y,
+        stroke: 'var(--color-grid-line)', 'stroke-width': 1, opacity: gridOpacity,
+      }));
+    }
   }
 
-  const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-  polyline.setAttribute('fill', 'none');
-  polyline.setAttribute('stroke', 'rgba(123, 79, 46, 0.22)');
-  polyline.setAttribute('stroke-width', '6');
-  polyline.setAttribute('stroke-linecap', 'round');
-  polyline.setAttribute('stroke-linejoin', 'round');
-  polyline.setAttribute('stroke-dasharray', '10 12');
-  polyline.setAttribute(
-    'points',
-    points.map(({ x, y }) => `${cellToGridIntersection(x)},${cellToGridIntersection(y)}`).join(' '),
-  );
-  guideLayer.appendChild(polyline);
-
-  points.slice(1).forEach(({ x, y }) => {
-    const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    point.setAttribute('cx', cellToGridIntersection(x));
-    point.setAttribute('cy', cellToGridIntersection(y));
-    point.setAttribute('r', '4.5');
-    point.setAttribute('fill', 'rgba(123, 79, 46, 0.24)');
-    guideLayer.appendChild(point);
-  });
-}
-
-export function clearTrail(dom) {
-  const context = dom.trailCanvas.getContext('2d');
-  context.clearRect(0, 0, GRID_WIDTH, GRID_HEIGHT);
-}
-
-export function placeSnail(dom, snail, immediate = false) {
-  if (immediate) {
-    dom.snailElement.style.transition = 'none';
+  for (const segment of ghostSegments) {
+    guideLayer.appendChild(svgElement('line', {
+      x1: segment.from[0], y1: segment.from[1], x2: segment.to[0], y2: segment.to[1],
+      stroke: GHOST_COLOR,
+      'stroke-width': 5,
+      'stroke-linecap': 'round',
+      'stroke-dasharray': '9 11',
+    }));
   }
 
-  const { left, top } = getSnailScreenPosition(snail);
-  dom.snailElement.style.left = `${left}px`;
-  dom.snailElement.style.top = `${top}px`;
-  dom.snailElement.style.transform = `rotate(${snailCssDeg(snail.dir)}deg)`;
-
-  if (immediate) {
-    window.requestAnimationFrame(() => {
-      dom.snailElement.style.transition = '';
-    });
+  if (ghostSegments.length > 0) {
+    const sx = lesson.start?.x ?? 0;
+    const sy = lesson.start?.y ?? 0;
+    // Позначка старту лежить у шарі ghost — під слідом і під равликом, ледь помітна.
+    guideLayer.appendChild(svgElement('circle', {
+      cx: sx, cy: sy, r: 6, fill: 'none', stroke: GHOST_COLOR, 'stroke-width': 2, opacity: 0.6,
+    }));
+    const arrow = appendArrow(guideLayer, sx, sy, lesson.start?.heading ?? 0);
+    dom.startMarker = { arrow, start: { x: sx, y: sy, heading: lesson.start?.heading ?? 0 } };
   }
-}
-
-export function drawTrail(dom, lesson, from, to) {
-  const context = dom.trailCanvas.getContext('2d');
-  const fromX = cellToGridIntersection(from.x);
-  const fromY = cellToGridIntersection(from.y);
-  const toX = cellToGridIntersection(to.x);
-  const toY = cellToGridIntersection(to.y);
-
-  context.save();
-  context.strokeStyle = lesson.trailColor;
-  context.lineWidth = 5;
-  context.lineCap = 'round';
-  context.shadowColor = lesson.trailColor;
-  context.shadowBlur = 6;
-  context.beginPath();
-  context.moveTo(fromX, fromY);
-  context.lineTo(toX, toY);
-  context.stroke();
-
-  context.fillStyle = lesson.trailColor;
-  context.shadowBlur = 0;
-  context.beginPath();
-  context.arc(toX, toY, 4.5, 0, Math.PI * 2);
-  context.fill();
-  context.restore();
-}
-
-// ── Turtle mode ──────────────────────────────────────────────────────────────
-
-export function setupTurtleMode(dom) {
-  // hide the grid, keep snailElement visible — it becomes the turtle indicator
-  dom.gridSvg.style.visibility = 'hidden';
-  dom.trailCanvas.width = GRID_WIDTH;
-  dom.trailCanvas.height = GRID_HEIGHT;
-}
-
-export function teardownTurtleMode(dom) {
-  dom.gridSvg.style.visibility = '';
-  // reset snail transforms that may have been set in turtle mode
-  dom.snailElement.style.transition = 'none';
-  dom.snailElement.style.transform = '';
-  window.requestAnimationFrame(() => { dom.snailElement.style.transition = ''; });
 }
 
 export function clearTurtleCanvas(dom) {
-  const ctx = dom.trailCanvas.getContext('2d');
-  ctx.clearRect(0, 0, GRID_WIDTH, GRID_HEIGHT);
+  dom.trailLayer.replaceChildren();
 }
 
-/**
- * Positions and rotates the snail element at a turtle's canvas coordinates.
- * heading: 0=up, 90=right, 180=down, 270=left.
- * CSS rotation: heading - 90  (because snail head faces RIGHT at 0°)
- */
+/** Ставить равлика в позицію й кут черепахи; колір і піднятість олівця — з її стану. */
 export function placeTurtleSnail(dom, turtle) {
-  const cx = TURTLE_ORIGIN_X + turtle.x;
-  const cy = TURTLE_ORIGIN_Y + turtle.y;
-  dom.snailElement.style.left = `${cx - SNAIL_SIZE / 2}px`;
-  dom.snailElement.style.top  = `${cy - SNAIL_SIZE / 2}px`;
-  dom.snailElement.style.transform = `rotate(${turtle.heading - 90}deg)`;
+  dom.snailElement.setAttribute('transform', getSnailTransform(turtle));
+  const tip = dom.snailElement.querySelector('[data-pen-tip]');
+  if (tip) tip.setAttribute('fill', turtle.color);
+  dom.snailElement.classList.toggle('pen-up', !turtle.penDown);
+  syncStartArrow(dom, turtle);
 }
 
-/**
- * Draws ghost (expected) segments in a translucent grey dashed style.
- * goalSegments = [{from:[x,y], to:[x,y]}, ...]  (pixel coords relative to center)
- */
-export function renderTurtleGuide(dom, goalSegments) {
-  if (!goalSegments || goalSegments.length === 0) return;
-  const ctx = dom.trailCanvas.getContext('2d');
-
-  ctx.save();
-  ctx.strokeStyle = 'rgba(130, 100, 200, 0.28)';
-  ctx.lineWidth = 6;
-  ctx.lineCap = 'round';
-  ctx.setLineDash([12, 10]);
-
-  for (const seg of goalSegments) {
-    ctx.beginPath();
-    ctx.moveTo(TURTLE_ORIGIN_X + seg.from[0], TURTLE_ORIGIN_Y + seg.from[1]);
-    ctx.lineTo(TURTLE_ORIGIN_X + seg.to[0], TURTLE_ORIGIN_Y + seg.to[1]);
-    ctx.stroke();
-  }
-
-  ctx.restore();
+/** Окремий значок равлика (для модалок) без innerHTML. */
+export function buildSnailIcon() {
+  return document.importNode(parseSvg(snailSvg), true);
 }
 
-/**
- * Draws a line segment. segment = { from: [x, y], to: [x, y], color, width }
- * Coordinates are in pixels relative to center.
- */
+/** Додає в слід лінію (повертає її, щоб анімація могла дотягувати кінець). */
+export function addTrailSegment(dom, segment) {
+  const line = svgElement('line', {
+    x1: segment.from[0], y1: segment.from[1], x2: segment.to[0], y2: segment.to[1],
+    stroke: segment.color,
+    'stroke-width': segment.width,
+    'stroke-linecap': 'round',
+  });
+  dom.trailLayer.appendChild(line);
+  return line;
+}
+
+/** Миттєво малює відрізок цілком. */
 export function drawTurtleSegment(dom, segment) {
-  const ctx = dom.trailCanvas.getContext('2d');
-  const fx = TURTLE_ORIGIN_X + segment.from[0];
-  const fy = TURTLE_ORIGIN_Y + segment.from[1];
-  const tx = TURTLE_ORIGIN_X + segment.to[0];
-  const ty = TURTLE_ORIGIN_Y + segment.to[1];
-
-  ctx.save();
-  ctx.strokeStyle = segment.color;
-  ctx.lineWidth = segment.width;
-  ctx.lineCap = 'round';
-  ctx.shadowColor = segment.color;
-  ctx.shadowBlur = 4;
-  ctx.beginPath();
-  ctx.moveTo(fx, fy);
-  ctx.lineTo(tx, ty);
-  ctx.stroke();
-  ctx.restore();
+  return addTrailSegment(dom, segment);
 }
 
-/**
- * Initialises the turtle canvas: clears it and draws the ghost guide.
- * Call once at the start of a run or on reset.
- */
-export function initTurtleCanvas(dom, goalSegments) {
-  clearTurtleCanvas(dom);
-  if (goalSegments) renderTurtleGuide(dom, goalSegments);
+export function setTrailEnd(line, x, y) {
+  line.setAttribute('x2', String(x));
+  line.setAttribute('y2', String(y));
 }
 
 export function wiggleSnail(dom) {
-  dom.snailElement.classList.remove('snail-wiggle');
-  window.requestAnimationFrame(() => {
-    dom.snailElement.classList.add('snail-wiggle');
-  });
+  const target = dom.snailElement.querySelector('[data-snail-wiggle]');
+  if (!target) return;
+  target.classList.remove('snail-wiggle');
+  window.requestAnimationFrame(() => target.classList.add('snail-wiggle'));
 }

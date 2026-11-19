@@ -1,34 +1,34 @@
 export const LIMITS = {
-  maxExpandedActions: 500,
-  maxRepeatCount: 20,
-  maxNestingDepth: 4,
+  maxExpandedActions: 1000,
+  maxRepeatCount: 36,
+  maxNestingDepth: 3,
 };
 
-function validateBlocks(blocks, depth = 0) {
+function validateBlocks(blocks, depth = 0, ownerId = null) {
   if (depth > LIMITS.maxNestingDepth) {
-    return { ok: false, message: 'Програма надто глибоко вкладена. Спробуй зменшити кількість вкладених повторень.' };
+    return { ok: false, blockId: ownerId, message: 'Програма надто глибоко вкладена. Спробуй зменшити кількість вкладених повторень.' };
   }
 
   let expandedCount = 0;
 
   for (const block of blocks) {
     if (block.type === 'repeat') {
-      if (block.count > LIMITS.maxRepeatCount) {
-        return { ok: false, message: `Максимальна кількість повторів — ${LIMITS.maxRepeatCount}. Спробуй зменшити.` };
+      if (block.n > LIMITS.maxRepeatCount) {
+        return { ok: false, blockId: block.id, message: `Максимальна кількість повторів — ${LIMITS.maxRepeatCount}. Спробуй зменшити.` };
       }
 
-      const inner = validateBlocks(block.blocks, depth + 1);
+      const inner = validateBlocks(block.blocks, depth + 1, block.id);
       if (!inner.ok) {
         return inner;
       }
 
-      expandedCount += block.count * inner.expandedCount;
+      expandedCount += block.n * inner.expandedCount;
     } else {
       expandedCount += 1;
     }
 
     if (expandedCount > LIMITS.maxExpandedActions) {
-      return { ok: false, message: 'У програмі забагато кроків. Спробуй зменшити кількість повторів.' };
+      return { ok: false, blockId: block.id, message: 'У програмі забагато кроків. Спробуй зменшити кількість повторів.' };
     }
   }
 

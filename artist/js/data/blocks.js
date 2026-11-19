@@ -1,74 +1,109 @@
 /**
- * Визначення всіх блоків — grid і turtle.
+ * Визначення блоків.
  *
  * Поля:
  *   label       — назва в UI (українська)
- *   className   — CSS-клас
+ *   category    — move | turn | pen | color | repeat
+ *   className   — службовий клас (залишено для сумісності)
  *   icon        — символ
- *   code        — рядок для codegen (мова РАВЛИК)
- *   paramKey    — ключ параметра в об'єкті блоку (якщо є)
- *   paramLabel  — підпис поряд з input
- *   paramDefault, paramMin, paramMax — обмеження числового параметра
+ *   text        — фраза блока як у Scratch: [до поля, після поля] (поле — параметр)
+ *   param       — опис параметра: { kind: 'number', key, label, default, min, max, step, aria, quick? }
+ *                 або { kind: 'color', key, default, aria }; без поля — блок без параметра
+ *   code(block) — рядок коду РАВЛИК (для repeat — заголовок «повторити N (»,
+ *                 закриваюча «)» додається в codegen). Тільки валідний РАВЛИК.
  */
+export const MAX_REPEAT_COUNT = 36;
+
+export const ANGLE_QUICK_PICKS = [30, 45, 60, 90, 120, 144];
+
+/** Категорії палітри в порядку показу. */
+export const BLOCK_CATEGORIES = [
+  { id: 'move', title: 'Рух' },
+  { id: 'turn', title: 'Повороти' },
+  { id: 'pen', title: 'Олівець' },
+  { id: 'color', title: 'Колір' },
+  { id: 'repeat', title: 'Цикли' },
+];
+
+const numberParam = (label, defaultValue, min, max, extra) => ({
+  kind: 'number', key: 'n', label, default: defaultValue, min, max, ...extra,
+});
+
+const stepsParam = () => numberParam('кроків', 50, 1, 300, { step: 10, aria: 'Кількість кроків' });
+const angleParam = () => numberParam('°', 90, 1, 360, { step: 15, aria: 'Кут у градусах', quick: ANGLE_QUICK_PICKS });
+
 export const blockDefinitions = {
-  // ── Grid-блоки ───────────────────────────────────────────────────────────
-  move_n: { label: 'вгору',   className: 'move', icon: '↑', code: 'рухатися(вгору)'  },
-  move_s: { label: 'вниз',    className: 'move', icon: '↓', code: 'рухатися(вниз)'  },
-  move_e: { label: 'вправо',  className: 'move', icon: '→', code: 'рухатися(вправо)' },
-  move_w: { label: 'вліво',   className: 'move', icon: '←', code: 'рухатися(вліво)'  },
-
-  // ── Turtle-блоки (команди мови РАВЛИК) ───────────────────────────────────
-  turtle_forward: {
-    label: 'вперед',
-    className: 'move turtle',
-    icon: '↑',
-    code: 'вперед',
-    paramKey: 'steps',
-    paramLabel: 'кроків',
-    paramDefault: 50,
-    paramMin: 1,
-    paramMax: 500,
+  step: {
+    label: 'крок вперед', category: 'move', className: 'move turtle', icon: '↑',
+    text: ['крок вперед', ''],
+    code: () => 'вперед 50',
   },
-  turtle_right: {
-    label: 'праворуч',
-    className: 'turn turtle',
-    icon: '↻',
-    code: 'праворуч',
-    paramKey: 'degrees',
-    paramLabel: '°',
-    paramDefault: 90,
-    paramMin: 1,
-    paramMax: 360,
+  turn_right90: {
+    label: 'поворот праворуч', category: 'turn', className: 'turn turtle', icon: '↻',
+    text: ['поворот праворуч', ''],
+    code: () => 'праворуч 90',
   },
-  turtle_left: {
-    label: 'ліворуч',
-    className: 'turn turtle',
-    icon: '↺',
-    code: 'ліворуч',
-    paramKey: 'degrees',
-    paramLabel: '°',
-    paramDefault: 90,
-    paramMin: 1,
-    paramMax: 360,
+  turn_left90: {
+    label: 'поворот ліворуч', category: 'turn', className: 'turn turtle', icon: '↺',
+    text: ['поворот ліворуч', ''],
+    code: () => 'ліворуч 90',
   },
-  turtle_pen_up: {
-    label: 'підняти',
-    className: 'pen turtle',
-    icon: '⬆',
-    code: 'підняти',
+  forward: {
+    label: 'вперед', category: 'move', className: 'move turtle', icon: '↑',
+    text: ['вперед', 'кроків'],
+    param: stepsParam(),
+    code: (block) => `вперед ${block.n}`,
   },
-  turtle_pen_down: {
-    label: 'опустити',
-    className: 'pen turtle',
-    icon: '⬇',
-    code: 'опустити',
+  back: {
+    label: 'назад', category: 'move', className: 'move turtle', icon: '↓',
+    text: ['назад', 'кроків'],
+    param: stepsParam(),
+    code: (block) => `назад ${block.n}`,
   },
-
-  // ── Спільне ──────────────────────────────────────────────────────────────
+  right: {
+    label: 'праворуч', category: 'turn', className: 'turn turtle', icon: '↻',
+    text: ['праворуч ↻', 'градусів'],
+    param: angleParam(),
+    code: (block) => `праворуч ${block.n}`,
+  },
+  left: {
+    label: 'ліворуч', category: 'turn', className: 'turn turtle', icon: '↺',
+    text: ['ліворуч ↺', 'градусів'],
+    param: angleParam(),
+    code: (block) => `ліворуч ${block.n}`,
+  },
+  pen_up: {
+    label: 'підняти олівець', category: 'pen', className: 'pen turtle', icon: '⬆',
+    text: ['підняти олівець', ''],
+    code: () => 'підняти',
+  },
+  pen_down: {
+    label: 'опустити олівець', category: 'pen', className: 'pen turtle', icon: '⬇',
+    text: ['опустити олівець', ''],
+    code: () => 'опустити',
+  },
+  color: {
+    label: 'колір', category: 'color', className: 'pen turtle', icon: '●',
+    text: ['колір', ''],
+    param: { kind: 'color', key: 'color', default: 'червоний', aria: 'Колір' },
+    code: (block) => `колір ${block.color}`,
+  },
   repeat: {
-    label: 'повторити',
-    className: 'repeat',
-    icon: '↻',
-    code: 'повторити',
+    label: 'повторити', category: 'repeat', className: 'repeat', icon: '↻',
+    text: ['повторити', 'рази'],
+    param: numberParam('рази', 4, 1, MAX_REPEAT_COUNT, { step: 1, aria: 'Кількість повторів' }),
+    container: true,
+    code: (block) => `повторити ${block.n} (`,
   },
 };
+
+export const BLOCK_TYPES = Object.keys(blockDefinitions);
+
+/** Читабельний текст блока для скрінрідера й aria-label: «вперед 50 кроків». */
+export function describeBlock(block) {
+  const definition = blockDefinitions[block.type];
+  if (!definition) return '';
+  const [before, after] = definition.text;
+  const value = definition.param ? String(block[definition.param.key]) : '';
+  return [before, value, after].filter(Boolean).join(' ');
+}

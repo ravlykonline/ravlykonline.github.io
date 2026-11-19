@@ -57,7 +57,16 @@
   --color-feedback-error: #ffb3ba;
   --color-overlay: rgba(13, 60, 50, 0.55);
   --color-code-text: #7fffd4;
+  --color-code-keyword: #ffb86b;
+  --color-code-number: #ffe27a;
+  --color-code-color: #ff9fc4;
+  --color-code-comment: #9ccfc3;
+  --color-code-punct: #c8e6df;
+  --color-code-line-active: rgba(255, 255, 255, 0.18);
   --color-focus-ring: #ffbf47;
+  --color-focus-contrast: #2f1364;
+  --color-on-orange: #2c1a0e;
+  --color-on-stop: #5a0f18;
   --color-trail-orange: #f5962a;
   --color-trail-teal: #1a9080;
   --color-trail-pink: #c72070;
@@ -158,4 +167,76 @@
   --z-raised: 10;
   --z-overlay: 500;
   --z-modal: 600;
+}
+
+/* ── Блоки «як у Scratch» ─────────────────────────────────────────────────────
+   Варіант за замовчуванням — насичений: світлий текст на темній заливці
+   (контраст ≥ 4.5:1; перевіряє tests/art.blocks.test.js). Жовтий «цикл» і м’ятний
+   «старт» мають темний текст, бо білий на них не читається.
+   Пастельний варіант вмикається класом blocks-pastel на <body>. */
+:root {
+  --blk-move-fill: #2f6fd6;
+  --blk-move-stroke: #1f4f9c;
+  --blk-move-text: #ffffff;
+  --blk-turn-fill: #7a4bd1;
+  --blk-turn-stroke: #583496;
+  --blk-turn-text: #ffffff;
+  --blk-pen-fill: #2e7d32;
+  --blk-pen-stroke: #1f5a23;
+  --blk-pen-text: #ffffff;
+  --blk-color-fill: #c2358a;
+  --blk-color-stroke: #8f2566;
+  --blk-color-text: #ffffff;
+  --blk-repeat-fill: #ffb300;
+  --blk-repeat-stroke: #b37d00;
+  --blk-repeat-text: #2c1a0e;
+  --blk-start-fill: #6fd9bf;
+  --blk-start-stroke: #37a98c;
+  --blk-start-text: #1c3a33;
+
+  --blk-field-bg: #ffffff;
+  --blk-field-text: #2c1a0e;
+  --blk-field-border: rgba(var(--color-black-rgb), 0.18);
+  --blk-slot-border: rgba(var(--color-black-rgb), 0.35);
+  --blk-slot-bg: rgba(var(--color-black-rgb), 0.08);
+  --blk-active-ring: #ffbf47;
+  --blk-error-ring: #d7263d;
+  --blk-snapline: #ff5a3c;
+  --blk-bin-bg: rgba(215, 38, 61, 0.14);
+  --blk-bin-border: #d7263d;
+  --blk-target-ring: #ff5a3c;
+  --blk-shadow: rgba(var(--color-black-rgb), 0.3);
+  --blk-flag: #ffffff;
+
+  --ws-bg: #f7f5f0;
+  --ws-dot: rgba(120, 100, 80, 0.32);
+  --ws-dot-step: 22px;
+  --ws-hint: #6b4e35;
+
+  --popover-bg: #ffffff;
+  --popover-border: rgba(var(--color-black-rgb), 0.18);
+  --popover-hover: #eef4ff;
+}
+
+body.blocks-pastel {
+  --blk-move-fill: #cfe0ff;
+  --blk-move-stroke: #6f9be0;
+  --blk-move-text: #1b2d52;
+  --blk-turn-fill: #e3d6ff;
+  --blk-turn-stroke: #9b7fd8;
+  --blk-turn-text: #2e1b57;
+  --blk-pen-fill: #cdeccb;
+  --blk-pen-stroke: #6fb06f;
+  --blk-pen-text: #1a3a1c;
+  --blk-color-fill: #ffd3ea;
+  --blk-color-stroke: #e27fb4;
+  --blk-color-text: #4d1535;
+  --blk-repeat-fill: #ffe9a8;
+  --blk-repeat-stroke: #d9b13f;
+  --blk-repeat-text: #3d2c00;
+  --blk-start-fill: #c8f0e6;
+  --blk-start-stroke: #6fc9ae;
+  --blk-start-text: #123a30;
+  --blk-field-border: rgba(var(--color-black-rgb), 0.22);
+  --blk-flag: #1c3a33;
 }

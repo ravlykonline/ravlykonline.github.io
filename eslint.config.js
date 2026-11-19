@@ -5,7 +5,7 @@
 export default [
     {
         // Lint production JS only. Tests use assert/process which trigger some rules.
-        files: ['js/**/*.js', 'sw.js'],
+        files: ['js/**/*.js', 'sw.js', 'artist/js/**/*.js'],
         languageOptions: {
             ecmaVersion: 2022,
             sourceType: 'module',
@@ -43,6 +43,7 @@ export default [
                 KeyboardEvent: 'readonly',
                 MouseEvent: 'readonly',
                 HTMLElement: 'readonly',
+                DOMParser: 'readonly',
                 HTMLCanvasElement: 'readonly',
                 Image: 'readonly',
                 Map: 'readonly',

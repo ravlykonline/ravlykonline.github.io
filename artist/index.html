@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/blocks.css">
 <link rel="stylesheet" href="css/responsive.css">
 <link rel="stylesheet" href="css/accessibility.css">
 </head>
@@ -20,6 +21,7 @@
     Равлик Художник
   </div>
   <div class="lesson-title" id="lesson-title">Рівень 1</div>
+  <button class="lesson-nav-toggle" id="lesson-nav-toggle" type="button" aria-expanded="false" aria-controls="lesson-nav">Рівень 1 / 20 ▾</button>
   <nav class="lesson-nav" id="lesson-nav" aria-label="Навігація по рівнях"></nav>
 </header>
 <div class="folk-divider"></div>
@@ -27,6 +29,10 @@
 <main id="app-main">
   <div id="body">
     <section id="control-panel" aria-label="Команди та програма">
+      <div id="editor-tabs" role="tablist" aria-label="Вигляд програми">
+        <button class="editor-tab" id="tab-blocks" type="button" role="tab" aria-selected="true" aria-controls="editor-panels">Блоки</button>
+        <button class="editor-tab" id="tab-code" type="button" role="tab" aria-selected="false" aria-controls="code-view" tabindex="-1">Код</button>
+      </div>
       <div id="editor-panels">
         <aside id="palette" aria-labelledby="palette-title">
           <div class="panel-label" id="palette-title">Команди</div>
@@ -40,19 +46,21 @@
               <button class="btn-history" id="btn-undo" type="button" title="Скасувати (Ctrl+Z)" aria-label="Скасувати" disabled>↩</button>
               <button class="btn-history" id="btn-redo" type="button" title="Повернути (Ctrl+Y)" aria-label="Повернути" disabled>↪</button>
             </div>
-            <div id="block-count">0 команд</div>
+            <button class="btn-style" id="btn-blocks-style" type="button" aria-pressed="false" title="Змінити вигляд блоків">Пастельні</button>
+            <div id="block-count" aria-live="off">Блоків: 0</div>
           </div>
           <div id="ws-stack">
-            <div class="evt-block">
-              <span aria-hidden="true">▶</span>
-              <span>Коли запущено</span>
-            </div>
-            <div id="ws-inner">
-              <div class="ws-empty" id="ws-empty">
-                Натисни команду зліва,<br>щоб додати її сюди
-              </div>
-            </div>
+            <div id="ws-canvas" class="ws-canvas" aria-label="Полотно програми"></div>
           </div>
+        </section>
+
+        <section id="code-view" role="tabpanel" aria-labelledby="tab-code" hidden>
+          <div class="code-toolbar">
+            <button class="btn-copy-code" id="btn-copy-code" type="button">Копіювати код</button>
+            <a class="link-open-ravlyk" id="link-open-ravlyk" href="/" target="_blank" rel="noopener">Відкрити в Равлику</a>
+            <span class="copy-status" id="copy-status" role="status" aria-live="polite"></span>
+          </div>
+          <div class="code-lines" id="code-text" tabindex="0" role="region" aria-label="Код програми"></div>
         </section>
       </div>
     </section>
@@ -61,16 +69,23 @@
       <div id="instr-box">
         <div class="snail-avatar" id="avatar-box" aria-hidden="true"></div>
         <div>
-          <p class="panel-label">Завдання</p>
+          <div class="instr-head">
+            <p class="panel-label">Завдання</p>
+            <button class="btn-help" id="btn-help" type="button" title="Показати підказку" aria-label="Показати підказку до рівня" hidden>?</button>
+          </div>
           <div id="instr-text">Завантаження рівня...</div>
+          <p class="sr-only" id="ghost-desc"></p>
         </div>
       </div>
       <div id="canvas-shell">
         <div id="grid-wrap" aria-describedby="canvas-status">
-          <svg id="grid-svg" aria-hidden="true"></svg>
-          <canvas id="trail-canvas" aria-hidden="true"></canvas>
-          <div id="snail-el" aria-hidden="true"></div>
-          <div id="canvas-status" class="sr-only">Полотно готове.</div>
+          <svg id="grid-svg" viewBox="-200 -150 400 300" aria-hidden="true" focusable="false">
+            <rect id="field-bg" x="-200" y="-150" width="400" height="300" fill="var(--color-grid-background)"></rect>
+            <g id="guide-layer"></g>
+            <g id="trail-layer"></g>
+            <g id="snail-el"></g>
+          </svg>
+          <div id="canvas-status" class="sr-only" role="status" aria-live="polite">Полотно готове.</div>
         </div>
       </div>
     </section>
@@ -78,23 +93,35 @@
 </main>
 
 <footer id="footer">
-  <button class="btn-run" id="btn-run" type="button">Запустити</button>
-  <button class="btn-stop" id="btn-stop" type="button" hidden>Зупинити</button>
-  <button class="btn-reset" id="btn-reset" type="button">Очистити</button>
+  <div class="run-controls" role="group" aria-label="Керування виконанням">
+    <button class="btn-run" id="btn-run" type="button">▶ Старт</button>
+    <button class="btn-step" id="btn-step" type="button" title="Виконати одну команду">↷ Крок</button>
+    <button class="btn-stop" id="btn-stop" type="button" disabled>■ Стоп</button>
+    <button class="btn-more" id="btn-more" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="more-menu" aria-label="Ще: спочатку, очистити, швидкість" title="Ще">⋯</button>
+  </div>
+  <div class="more-menu" id="more-menu">
+    <button class="btn-restart" id="btn-restart" type="button" title="Повернути равлика на початок, програма лишається">Спочатку</button>
+    <button class="btn-reset" id="btn-reset" type="button">Очистити</button>
+    <div class="speed-switch" id="speed-switch" role="group" aria-label="Швидкість">
+      <button class="speed-btn" type="button" data-speed="slow" aria-pressed="false">повільно</button>
+      <button class="speed-btn" type="button" data-speed="normal" aria-pressed="true">звичайно</button>
+      <button class="speed-btn" type="button" data-speed="fast" aria-pressed="false">швидко</button>
+    </div>
+  </div>
   <div id="feedback" aria-live="polite"></div>
-  <button id="show-code-btn" type="button">Код</button>
 </footer>
-
-<div id="code-panel" aria-label="Згенерований код">
-  <pre id="code-text"></pre>
-</div>
 
 <div id="overlay" aria-hidden="true">
   <div class="success-card" role="dialog" aria-modal="true" aria-labelledby="success-title" aria-describedby="success-msg">
-    <div class="success-emoji">OK</div>
+    <div class="success-snail" id="success-snail" aria-hidden="true"></div>
+    <div class="success-stars" id="success-stars" role="img" aria-label="Зірок: 3 з 3">★★★</div>
     <h2 id="success-title">Чудова робота!</h2>
     <p id="success-msg">Равлик виконав завдання.</p>
-    <button class="btn-next" id="btn-next" type="button">Наступний рівень →</button>
+    <p class="success-caption" id="success-caption"></p>
+    <div class="success-actions">
+      <button class="btn-next" id="btn-next" type="button">Наступний рівень →</button>
+      <button class="btn-stay" id="btn-stay" type="button">Залишитися</button>
+    </div>
   </div>
 </div>
 

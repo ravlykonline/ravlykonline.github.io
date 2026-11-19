@@ -1,305 +1,129 @@
-# ARCHITECTURE.md — практична архітектура Ravlyk Artist
+# ARCHITECTURE.md — архітектура «Равлика Художника»
 
----
+## 1. Ціль
 
-## 1. Архітектурна ціль
-
-Статичне браузерне навчальне середовище для алгоритмічного малювання:
-
-- без backend; без реєстрації; без персональних даних;
-- offline-first; модульний JavaScript; контрольована модель стану;
-- окремий runtime/interpreter; перевірка рівнів через декларативну схему;
-- доступний UI, який не залежить лише від drag-and-drop.
-
----
-
-## 2. Поточна структура (після Фаз 1–2)
+Статична браузерна гра без backend, реєстрації й персональних даних. Одна модель (черепаха), один рушій, один синтаксис — мова РАВЛИК. Дитина складає програму з блоків; та сама програма показується як справжній код РАВЛИК і малює ту саму фігуру в головному редакторі.
 
 ```text
-index.html
-package.json
-
-legacy/
-  script.legacy.js        ← старий моноліт, не редагувати
-  style.legacy.css
-
-css/
-  tokens.css
-  base.css
-  layout.css
-  components.css
-  responsive.css
-  accessibility.css
-
-js/
-  main.js                 ← точка входу, orchestration
-
-  core/
-    codegen.js            ← генерація псевдокоду (мова РАВЛИК)
-    constants.js          ← COLS, ROWS, CELL_SIZE, GRID_WIDTH/HEIGHT
-    engine.js             ← moveSnail, sleep
-    goals.js              ← evaluateGoal (exact-path, minimum-steps, path-match)
-    state.js              ← appState, мутатори
-    workspace.js          ← операції з блоками (add, remove, move, flatten, up/down/out)
-
-  data/
-    blocks.js             ← blockDefinitions (grid + turtle)
-    lessons.js            ← всі рівні (grid mode: 1–6, turtle mode: 7+)
-
-  domain/                 ← [планується] чиста бізнес-логіка
-    turtle.js             ← [P2] turtle model, moveForward, turnRight/Left
-
-  runtime/
-    execution-limits.js   ← validateProgram, MAX_EXPANDED_ACTIONS/REPEAT/NESTING
-
-  state/
-    history.js            ← undo/redo (pushSnapshot, undo, redo, canUndo/canRedo)
-
-  utils/
-    focus-trap.js         ← trapFocus(container)
-
-  ui/
-    canvas.js             ← setupCanvas, renderLessonGuide, drawTrail, placeSnail
-    dom.js                ← getDomReferences
-    icons.js              ← avatarSvg, snailSvg
-    render.js             ← renderWorkspace, renderPalette, renderControls...
-
-tests/
-  art.core.test.js        ← 23 unit-тести (Node.js, без фреймворку)
-
-tools/                    ← [планується]
-  validate-levels.js
+дані (lessons, blocks, colors)
+   └─► дерево блоків ──► codegen ──► код РАВЛИК (вкладка «Код»)
+            │
+            └─► runner (ліниві кроки) ──► turtle ──► відрізки ──► goals (фігура) ──► зірки
+                                              └─► snail (анімація) ──► SVG-поле
 ```
 
----
-
-## 3. Legacy-файли
-
-Вирішено: `script.js` і `style.css` перенесено у `legacy/`.
-`index.html` не посилається на них.
-
----
-
-## 4. Цільова структура (після P2–P3)
+## 2. Модулі
 
 ```text
-js/
-  data/
-    blocks.grid.js        ← grid block definitions
-    blocks.turtle.js      ← turtle block definitions (команди РАВЛИК)
-    lessons.grid.js
-    lessons.turtle.js
-    i18n.uk.js            ← [планується] всі UI-рядки
+index.html               розмітка; усе поле — одна <svg id="grid-svg" viewBox="-200 -150 400 300">
+css/                     tokens → base → layout → components → blocks → responsive → accessibility
+js/main.js               оркестрація: події, зміни моделі через commit(), сеанс виконання, модалки
 
-  domain/
-    turtle.js             ← turtle model (чисті функції)
-    goal-evaluator.js     ← [планується] всі режими перевірки
-    constraints.js        ← [планується]
+js/data/
+  blocks.js              blockDefinitions: тип, фраза-мітка, категорія, параметр, code(block)
+  colors.js              назви й HEX кольорів пера (звіряються з COLOR_REGISTRY кореня тестом)
+  lessons.js             20 рівнів у 4 розділах (схема — LEVELS.md)
 
-  runtime/
-    execution-limits.js   ✅
-    interpreter.js        ← [планується] async iterator runner
+js/core/                 чиста логіка без DOM
+  constants.js           поле 400×300, GRID_STEP = 50
+  blockTree.js           blk(), withIds(), підрахунки, пошук типів
+  workspace.js           документ {main, loose}; хвіст, вставка, вільні стоси, найближча точка зчеплення
+  blockShape.js          SVG-шлях пазла за виміряними розмірами
+  codegen.js             buildProgramCode → { setup, body, lineByBlockId }
+  codeHighlight.js       токенізатор підсвітки коду
+  goals.js               evaluateGoal: shape / free, requireBlocks, requireNestedRepeat, зірки
+  ghost.js               пунктир і bestBlocks із lesson.solution
+  describe.js            тексти для читачів екрана (статус равлика, опис фігури)
+  stars.js               форматування зірок
+  state.js               appState (лише пам'ять сесії)
 
-  state/
-    history.js            ✅
-    persistence.js        ← [планується]
+js/domain/
+  turtle.js              createTurtle, moveForward/Back, turnLeft/Right, penUp/Down, setColor, clamp меж
+  snail.js               getSnailTransform, тривалість і інтерполяція кроку, швидкості
 
-  utils/
-    focus-trap.js         ✅
-    ids.js
-    sanitize.js
+js/runtime/
+  runner.js              runSteps (генератор): цикли не розгортаються наперед; крок { blockId, before, after, segment }
+  stepper.js             next() = рівно один примітив
+  stepController.js      Старт/Крок під час анімації: натискання доводить крок і виконує наступний
+  execution-limits.js    validateProgram: ≤ 36 повторів, вкладеність ≤ 3, ≤ 1000 дій
 
-tools/
-  validate-levels.js      ← [P3]
+js/state/history.js      скасування/повернення (знімки документа)
+
+js/ui/                   DOM (без innerHTML з даними)
+  blockView.js           блок: SVG-контур + HTML-текст і поля
+  palette.js, workspaceView.js, dragdrop.js, popover.js
+  canvas.js, icons.js    поле, пунктир, слід, равлик (createElementNS / валідний XML)
+  render.js, codeView.js, clipboard.js, dom.js
+  popupToggle.js, lessonMenu.js, moreMenu.js   мобільні меню
+js/utils/                focus-trap, sleep, sounds
 ```
 
----
+Правила залежностей: `core`, `domain`, `runtime`, `data`, `state` не працюють з DOM; `ui` не знає про правила гри (лише викликає колбеки з `main.js`).
 
-## 5. Розділення відповідальності
+## 3. Модель координат
 
-### `data/`
-Тільки декларативні дані: блоки, рівні, toolbox, стартова позиція, цілі, підказки.
-Без DOM-логіки та мутацій state.
+- Поле 400 × 300 одиниць, початок (0, 0) у центрі, вісь **y вниз**, `heading`: 0 = вгору, 90 = праворуч.
+- У РАВЛИК `перейти в X Y` має **y вгору**, тому точка гри (x, y) → `перейти в x −y` (codegen і тест на це).
+- Рух за межі поля обмежується (clamp). Фігури рівнів тримаються в ±180 × ±130.
+- Масштаб екрана на логіку не впливає: SVG масштабується за шириною контейнера (4:3).
 
-### `domain/`
-Чиста логіка: turtle/grid-модель, перевірка рівня, нормалізація.
-Функції мають бути **pure**: прийняли дані → повернули результат.
+## 4. Дерево блоків і робоча область
 
-### `runtime/`
-Виконує програму: flatten/interpret blocks, ліміти, stop/cancel, події для анімації.
-Не малює DOM напряму.
+Блок: `{ id, type, n?, color?, blocks? }`. Робоча область — документ `{ main, loose }`: `main` — стос під hat «коли ▶ натиснуто» (виконується); `loose` — вільні стоси `{ id, x, y, blocks }` (напівпрозорі, не виконуються, не потрапляють у код). Порожні вільні стоси видаляються. Усі зміни йдуть через `commit()` у `main.js` (знімок у `history`, нормалізація цілі вставки).
 
-### `state/`
-Стан застосунку: workspace, runtime, completed lessons, modal, undo/redo.
-UI викликає action-функції, не мутує appState напряму.
+Перетягування (`ui/dragdrop.js`): `pointerdown` запам’ятовує джерело, drag стартує після зсуву ≥ 6 px; береться «хвіст» (блок і все під ним); збираються точки зчеплення (перед кожним блоком і після останнього кожного списку); найближча в межах |dx| < 64, |dy| < 36 підсвічується snapline; скидання — у список, у вільне місце (новий вільний стос) або на палітру (видалення). Довге натискання на блоці → меню. Логіка пошуку точки — чиста функція `nearestInsertionPoint`.
 
-### `ui/`
-Тільки DOM, події користувача, рендеринг, доступність, анімації.
+## 5. Codegen
 
----
+`buildProgramCode(lesson, workspace)`:
 
-## 6. Модель стану (поточна)
+1. `setup`: `// Підготовка поля`, `підняти`, `перейти в x −y`, `праворуч <heading>` (за потреби), `опустити`, `товщина N`, `колір назва`.
+2. `body`: `// Твоя програма` і рядки блоків; `повторити N (` … `)` з відступом 2 пробіли.
+3. `lineByBlockId` — відповідність блок → номер рядка для підсвітки під час виконання.
 
-```js
-const appState = {
-  currentLessonIndex: 0,
-  currentLesson: lessons[0],
-  snail: { x, y, dir },          // grid mode
-  workspace: [],                  // Block[]
-  running: false,
-  doneLessons: new Set(),
-  trailPoints: [],                // [x, y][]
-  activeBlockId: null,
-  insertTargetId: null,           // id repeat-блоку як цілі вставки
-  codePanelOpen: false,
-};
-```
+Код не містить `коли запущено`, `разів {`, `рухатися(` — лише команди з `LANGUAGE_SPEC.md`. Кореневий `tests/artistCodegen.test.js` перевіряє це проти справжнього парсера й рантайму.
 
-Undo/redo — у `js/state/history.js` (окремий модуль, не в appState).
+## 6. Виконання
 
----
+`createStepper(blocks, lesson)` обгортає `runSteps`. `main.js` тримає один сеанс `{ stepper, controller }`:
 
-## 7. Grid-модель і Turtle-модель
+- **Старт/Далі** — безперервний запуск, **Крок** — один примітив. `stepController` гарантує: натискання під час анімації доводить поточний крок до кінця й виконує наступний (жодного втраченого чи подвоєного).
+- Анімація — rAF: лінія росте разом з равликом (`MS_PER_50_UNITS = 250`, поворот `MS_PER_QUARTER_TURN`); `prefers-reduced-motion` вимикає анімацію (лише кроки).
+- Перед запуском `validateProgram` перевіряє ліміти. Помилки — дружні, з підсвіткою блока (`is-error`).
+- Після завершення `evaluateGoal` порівнює намальоване з пунктиром.
 
-### Grid-модель (рівні 1–6)
+## 7. Перевірка цілі
 
-```js
-{ x: 4, y: 1, dir: 'S' }
-```
+`shape`: відрізки зливаються за колінеарністю (і кольором, якщо `checkColor`), далі кожен еталонний має пару серед намальованих і навпаки з допуском 2 одиниці. Повідомлення: «не вистачає», «зайві лінії», «майже — перевір кути», «колір не той». `free`: ≥ `minSegments` відрізків. Обмеження: `requireBlocks`, `requireNestedRepeat`. Зірки: ≤ best — 3★, ≤ best+2 — 2★, інакше 1★.
 
-Команди: `move_n`, `move_s`, `move_e`, `move_w`, `repeat`.
+## 8. Поле (SVG)
 
-### Turtle-модель (рівні 7+, мова РАВЛИК)
+Шари `#guide-layer` (межі, сітка за `showGrid`, пунктир, позначка старту зі стрілкою), `#trail-layer` (`<line>` зі `stroke-linecap: round`), `#snail-el` (равлик зверху, кінчик олівця в (0, 0), обертання за `heading`, напівпрозорий при піднятому олівці). Равлик — валідний XML (кожен атрибут має значення), вставляється через `DOMParser` + `importNode`.
 
-```js
-{
-  x: 0,          // пікселі від центру canvas
-  y: 0,
-  heading: 0,    // 0 = вгору, 90 = вправо, 180 = вниз, 270 = вліво
-  penDown: true,
-  color: '#f5962a',
-  strokeWidth: 4
-}
-```
+## 9. Адаптивність
 
-Команди (відповідають мові РАВЛИК):
+Один DOM, різні розкладки в `css/responsive.css`:
 
-| Блок | Внутрішній тип | Параметр | РАВЛИК-код |
-|---|---|---|---|
-| вперед | `turtle_forward` | `steps` (default 50) | `вперед 50` |
-| праворуч | `turtle_right` | `degrees` (default 90) | `праворуч 90` |
-| ліворуч | `turtle_left` | `degrees` (default 90) | `ліворуч 90` |
-| підняти | `turtle_pen_up` | — | `підняти` |
-| опустити | `turtle_pen_down` | — | `опустити` |
-| повторити | `repeat` | `count` | `повторити N ( ... )` |
+| Ширина | Розкладка |
+|---|---|
+| ≥ 1100 px | палітра \| програма \| поле (поле й завдання праворуч) |
+| 700–1099 px | зверху завдання + поле, знизу палітра \| програма |
+| < 700 px | завдання → поле (4:3) → «Блоки \| Код» → палітра-стрічка (sticky, `touch-action: pan-x`) → програма |
+| короткий ландшафт | поле (sticky) ліворуч, завдання + програма праворуч |
 
-Рівень має містити `mode: 'grid'` або `mode: 'turtle'`.
+Нижня панель на ≤ 900 px — один ряд (Старт/Далі, Крок, Стоп, «⋯» з меню Спочатку/Очистити/швидкість; повідомлення — «тост» над панеллю). Шапка на ≤ 900 px — «Рівень N / 20 ▾». Вікно прокручується саме (предки sticky-палітри не мають `overflow ≠ visible`). `ensureFieldVisible()` у `main.js` прокручує до поля перед запуском на телефоні.
 
----
+## 10. Доступність
 
-## 8. Параметричні блоки
+- `#canvas-status` — `role="status" aria-live="polite"`; текст із `describeTurtleStatus`; під час автозапуску оновлюється лише в кінці.
+- `#ghost-desc` (sr-only) — `describeGhost` із відрізків пунктиру.
+- Модалки (`role="dialog" aria-modal`): `trapFocus` + `inert` на решті сторінки (`syncModalInert`), Escape, повернення фокуса.
+- Токени кольорів перевіряє `tests/art.a11y.test.js` (≥ 4.5:1 для тексту, ≥ 3:1 для графіки й фокусу).
 
-На відміну від grid-блоків (які є атомарними), turtle-блоки мають числовий параметр:
+## 11. Приватність і безпека
 
-```js
-// Grid-блок (атомарний)
-{ type: 'move_s', id: 1 }
+Без `localStorage`/cookies/мережевих запитів (крім шрифтів і сторінок сайту); без `innerHTML` з даними; без `eval`. Захисні заголовки (CSP тощо) задає хостинг сайту — див. `SECURITY.md`.
 
-// Turtle-блок (параметричний)
-{ type: 'turtle_forward', id: 2, steps: 50 }
-{ type: 'turtle_right',   id: 3, degrees: 90 }
-```
+## 12. Кеш і реліз
 
-`blockDefinitions` розширено полями `paramKey`, `paramDefault`, `paramMin`, `paramMax`.
-`render.js` відображає вбудований number input для параметричних блоків.
-`workspace.js createBlock` ініціалізує параметр зі значення `paramDefault`.
-
----
-
-## 9. Runtime / interpreter
-
-Поточна схема:
-
-```text
-workspace blocks
-  → flattenBlocks()        ← розгортає repeat
-  → validateProgram()      ← перевіряє ліміти
-  → runGrid / runTurtle    ← виконує крок за кроком з await sleep()
-  → evaluateGoal()         ← перевіряє результат
-```
-
-Цільова схема (P3):
-
-```js
-for await (const event of runProgram({ blocks, level, signal })) {
-  renderEvent(event);
-}
-```
-
----
-
-## 10. Execution limits
-
-```js
-// js/runtime/execution-limits.js
-MAX_EXPANDED_ACTIONS = 500
-MAX_REPEAT_COUNT     = 20
-MAX_NESTING_DEPTH    = 4
-```
-
-Перевіряється до запуску. При перевищенні показується дружнє повідомлення.
-
----
-
-## 11. Goal evaluator
-
-Поточні режими (`js/core/goals.js`):
-
-| Режим | Опис | Статус |
-|---|---|---|
-| `exact-path` | Точна послідовність клітинок (порядок + кількість) | ✅ |
-| `minimum-steps` | Мінімальна кількість кроків | ✅ |
-| `path-match` | Legacy alias (тільки множина клітинок) | ✅ |
-| `exact-segments` | Намальовані відрізки для turtle | [P2] |
-| `contains-segments` | Підмножина сегментів | [P2] |
-
----
-
-## 12. Canvas rendering
-
-Grid mode: клітинкова сітка, `trail-canvas` малює відрізки між вузлами сітки.
-
-Turtle mode: пікселеві координати, (0,0) = центр canvas, малювання між довільними точками.
-
----
-
-## 13. Codegen (мова РАВЛИК)
-
-```
-коли запущено {
-  повторити 4 разів {
-    вперед 100
-    праворуч 90
-  }
-}
-```
-
-Grid-блоки: `рухатися(вниз)`, `рухатися(вгору)` тощо.
-Turtle-блоки: `вперед N`, `праворуч N`, `ліворуч N`, `підняти`, `опустити`.
-
----
-
-## 14. Порядок архітектурного рефакторингу
-
-1. ✅ Ізолювати legacy
-2. ✅ Додати `package.json`
-3. ✅ Винести UI-тексти на Ukrainian
-4. ✅ Додати execution limits
-5. ✅ Переписати goal evaluator (exact-path)
-6. ✅ Додати action-based workspace helpers (up/down/out)
-7. ✅ Додати undo/redo history
-8. ✅ Додати keyboard workspace controls
-9. 🚧 Додати turtle-engine (P2.1)
-10. ⬜ Перенести рівні на нову схему з constraints
-11. ⬜ Додати `tools/validate-levels.js`
-12. ⬜ Додати PWA
+Кореневий Service Worker кешує `/artist/js/*.js` cache-first без версії в URL: після змін у `artist/` піднімайте release-токен (`npm run release:sync-version -- YYYY-MM-DD-N`). Див. `AGENTS.md`, розділ 9.

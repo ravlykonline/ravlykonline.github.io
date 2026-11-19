@@ -1,5 +1,7 @@
 import { appState, nextBlockId } from './state.js';
 import { blockDefinitions } from '../data/blocks.js';
+import { isColorName } from '../data/colors.js';
+import { countBlocksIn } from './blockTree.js';
 
 export function findBlock(list, id) {
   for (const block of list) {
@@ -37,23 +39,28 @@ export function findBlockLocation(list, id, parentId = null) {
 }
 
 export function createBlock(type, id = nextBlockId()) {
-  if (type === 'repeat') return { type, id, count: 3, blocks: [] };
-
   const def = blockDefinitions[type];
-  if (def?.paramKey) {
-    return { type, id, [def.paramKey]: def.paramDefault };
-  }
+  const block = { type, id };
+  if (def?.param) block[def.param.key] = def.param.default;
+  if (def?.container) block.blocks = [];
+  return block;
+}
 
-  return { type, id };
+export function clampBlockParam(def, rawValue) {
+  const { param } = def;
+  if (param.kind === 'color') {
+    return isColorName(rawValue) ? rawValue : param.default;
+  }
+  const parsed = Number.parseInt(rawValue, 10);
+  return Math.max(param.min, Math.min(param.max, Number.isFinite(parsed) ? parsed : param.default));
 }
 
 export function updateBlockParam(id, paramKey, rawValue) {
-  const block = findBlock(appState.workspace, id);
+  const block = findInDoc(getDoc(), id)?.block;
   if (!block) return;
   const def = blockDefinitions[block.type];
-  if (!def?.paramKey || def.paramKey !== paramKey) return;
-  const parsed = Number.parseInt(rawValue, 10);
-  block[paramKey] = Math.max(def.paramMin, Math.min(def.paramMax, Number.isFinite(parsed) ? parsed : def.paramDefault));
+  if (!def?.param || def.param.key !== paramKey) return;
+  block[paramKey] = clampBlockParam(def, rawValue);
 }
 
 export function getBlockChildren(list, parentId = null) {
@@ -146,6 +153,7 @@ export function moveBlockInList(list, id, targetParentId = null, targetIndex = 0
 
 export function clearWorkspace() {
   appState.workspace = [];
+  appState.loose = [];
   appState.activeBlockId = null;
 }
 
@@ -169,7 +177,7 @@ export function removeBlock(id) {
     return null;
   }
 
-  return removeBlockFromList(appState.workspace, id);
+  return removeFromDoc(getDoc(), id);
 }
 
 export function moveBlock(id, targetParentId = null, targetIndex = 0) {
@@ -180,70 +188,194 @@ export function moveBlock(id, targetParentId = null, targetIndex = 0) {
   return moveBlockInList(appState.workspace, id, targetParentId, targetIndex);
 }
 
-export function updateRepeatCount(id, value) {
-  const block = findBlock(appState.workspace, id);
-  if (!block || block.type !== 'repeat') {
-    return;
-  }
-
-  const parsedValue = Number.parseInt(value, 10);
-  block.count = Math.max(1, Math.min(20, Number.isFinite(parsedValue) ? parsedValue : 1));
+export function countBlocks(list = appState.workspace) {
+  return countBlocksIn(list);
 }
 
-export function countBlocks(list = appState.workspace) {
-  let total = 0;
+// ── Документ: головний стос + «вільні» стоси ─────────────────────────────────
+//
+// doc = { main: Block[], loose: [{ id, x, y, blocks: Block[] }] }
+// Виконується й потрапляє в код лише doc.main (стос під «коли ▶ натиснуто»).
+// Вільні стоси — блоки, кинуті на порожнє місце: вони не виконуються.
+// Власник списку (owner): 'main' або числовий id вільного стосу.
 
-  for (const block of list) {
-    total += 1;
-    if (block.blocks) {
-      total += countBlocks(block.blocks);
+export const MAIN_OWNER = 'main';
+
+/** Поточний документ додатка (посилання на живі масиви стану). */
+export function getDoc() {
+  return { main: appState.workspace, loose: appState.loose };
+}
+
+export function cloneDoc(doc) {
+  return JSON.parse(JSON.stringify({ main: doc.main, loose: doc.loose }));
+}
+
+/** Усі верхні списки документа: [{ owner, list }]. */
+export function docLists(doc) {
+  return [
+    { owner: MAIN_OWNER, list: doc.main },
+    ...doc.loose.map((stack) => ({ owner: stack.id, list: stack.blocks })),
+  ];
+}
+
+/** Знаходить блок у всьому документі. */
+export function findInDoc(doc, id) {
+  for (const { owner, list } of docLists(doc)) {
+    const location = findBlockLocation(list, id);
+    if (location) return { ...location, owner };
+  }
+  return null;
+}
+
+/** Список, у якому лежить `parentId` (null → верхній список власника). */
+function resolveList(doc, owner, parentId) {
+  const root = owner === MAIN_OWNER ? doc.main : doc.loose.find((stack) => stack.id === owner)?.blocks;
+  if (!root) return null;
+  return getBlockChildren(root, parentId);
+}
+
+/** Прибирає порожні вільні стоси. Повертає true, якщо щось видалено. */
+export function pruneLoose(doc) {
+  let removed = false;
+  for (let index = doc.loose.length - 1; index >= 0; index -= 1) {
+    if (doc.loose[index].blocks.length === 0) {
+      doc.loose.splice(index, 1);
+      removed = true;
     }
   }
-
-  return total;
+  return removed;
 }
 
-export function moveBlockUp(id) {
-  if (appState.running) return false;
-  const location = findBlockLocation(appState.workspace, id);
-  if (!location || location.index === 0) return false;
-  const { list, index } = location;
+/**
+ * «Хвіст»: блок і всі блоки під ним у тому ж списку (як у Scratch).
+ * Вилучає їх із документа й повертає. Порожні вільні стоси зникають.
+ * @returns {{ tail: object[], from: { owner, parentId, index } } | null}
+ */
+export function liftTail(doc, id) {
+  const found = findInDoc(doc, id);
+  if (!found) return null;
+  const tail = found.list.splice(found.index);
+  const from = { owner: found.owner, parentId: found.parentId, index: found.index };
+  pruneLoose(doc);
+  return { tail, from };
+}
+
+/**
+ * Вставляє хвіст у точку зчеплення { owner, parentId, index }.
+ * Повертає false, якщо точки не існує або вона всередині самого хвоста.
+ */
+export function placeTail(doc, tail, slot) {
+  if (!Array.isArray(tail) || tail.length === 0) return false;
+  const target = resolveList(doc, slot.owner, slot.parentId ?? null);
+  if (!target) return false;
+  for (const block of tail) {
+    if (slot.parentId !== null && slot.parentId !== undefined
+      && (block.id === slot.parentId || (block.blocks && findBlock(block.blocks, slot.parentId)))) {
+      return false;
+    }
+  }
+  target.splice(normalizeInsertIndex(target.length, slot.index), 0, ...tail);
+  return true;
+}
+
+/** Кладе хвіст на порожнє місце полотна як новий вільний стос. */
+export function placeLoose(doc, tail, x, y, id = nextBlockId()) {
+  if (!Array.isArray(tail) || tail.length === 0) return null;
+  const stack = { id, x: Math.round(x), y: Math.round(y), blocks: tail };
+  doc.loose.push(stack);
+  return stack;
+}
+
+/** Видаляє один блок (разом із вмістом циклу). */
+export function removeFromDoc(doc, id) {
+  for (const { list } of docLists(doc)) {
+    const removed = removeBlockFromList(list, id);
+    if (removed) {
+      pruneLoose(doc);
+      return removed;
+    }
+  }
+  return null;
+}
+
+/**
+ * Додає блок у кінець «поточної цілі»: цикл із id `targetId` (якщо він є
+ * в документі) або кінець головного стосу.
+ */
+export function appendToTarget(doc, block, targetId = null) {
+  if (targetId !== null && targetId !== undefined) {
+    const found = findInDoc(doc, targetId);
+    if (found && Array.isArray(found.block.blocks)) {
+      found.block.blocks.push(block);
+      return found.block.id;
+    }
+  }
+  doc.main.push(block);
+  return null;
+}
+
+export function moveUpInDoc(doc, id) {
+  const found = findInDoc(doc, id);
+  if (!found || found.index === 0) return false;
+  const { list, index } = found;
   [list[index - 1], list[index]] = [list[index], list[index - 1]];
   return true;
 }
 
-export function moveBlockDown(id) {
-  if (appState.running) return false;
-  const location = findBlockLocation(appState.workspace, id);
-  if (!location || location.index >= location.list.length - 1) return false;
-  const { list, index } = location;
+export function moveDownInDoc(doc, id) {
+  const found = findInDoc(doc, id);
+  if (!found || found.index >= found.list.length - 1) return false;
+  const { list, index } = found;
   [list[index], list[index + 1]] = [list[index + 1], list[index]];
   return true;
 }
 
-export function moveBlockOut(id) {
-  if (appState.running) return false;
-  const location = findBlockLocation(appState.workspace, id);
-  if (!location || location.parentId === null) return false;
-  const parentLocation = findBlockLocation(appState.workspace, location.parentId);
-  if (!parentLocation) return false;
-  const [removedBlock] = location.list.splice(location.index, 1);
-  parentLocation.list.splice(parentLocation.index + 1, 0, removedBlock);
+/** Виносить блок із циклу одразу після цього циклу. */
+export function moveOutInDoc(doc, id) {
+  const found = findInDoc(doc, id);
+  if (!found || found.parentId === null) return false;
+  const parent = findInDoc(doc, found.parentId);
+  if (!parent) return false;
+  const [block] = found.list.splice(found.index, 1);
+  parent.list.splice(parent.index + 1, 0, block);
   return true;
 }
 
-export function flattenBlocks(list = appState.workspace) {
-  const actions = [];
-
-  for (const block of list) {
-    if (block.type === 'repeat') {
-      for (let index = 0; index < block.count; index += 1) {
-        actions.push(...flattenBlocks(block.blocks));
-      }
-    } else {
-      actions.push(block);
+/**
+ * Найближча точка зчеплення до позиції (x, y) — верхнього лівого кута «привида».
+ * points: [{ owner, parentId, index, x, y }] у тій самій системі координат.
+ * Відстань по вертикалі важить удвічі більше, ніж по горизонталі, бо блоки
+ * лежать стовпчиком. Поза радіусами (maxDx, maxDy) повертає null.
+ */
+export function nearestInsertionPoint(points, x, y, { maxDx = 64, maxDy = 36, dyWeight = 2 } = {}) {
+  let best = null;
+  let bestScore = Infinity;
+  for (const point of points) {
+    const dx = Math.abs(point.x - x);
+    const dy = Math.abs(point.y - y);
+    if (dx > maxDx || dy > maxDy) continue;
+    const score = dx + dy * dyWeight;
+    if (score < bestScore) {
+      bestScore = score;
+      best = point;
     }
   }
+  return best;
+}
 
-  return actions;
+// ── Обгортки над станом додатка (блокуються під час виконання) ───────────────
+
+export function moveBlockUp(id) {
+  if (appState.running) return false;
+  return moveUpInDoc(getDoc(), id);
+}
+
+export function moveBlockDown(id) {
+  if (appState.running) return false;
+  return moveDownInDoc(getDoc(), id);
+}
+
+export function moveBlockOut(id) {
+  if (appState.running) return false;
+  return moveOutInDoc(getDoc(), id);
 }

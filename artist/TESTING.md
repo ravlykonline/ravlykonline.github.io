@@ -1,164 +1,41 @@
-# TESTING.md — практична стратегія тестування Ravlyk Artist
+# TESTING.md — тести «Равлика Художника»
 
----
-
-## 1. Поточний стан
-
-Файл: `tests/art.core.test.js` — **23 тести**, всі проходять.
-
-Покриває:
-- стабільні id і порядок рівнів
-- відсутність `instructionHtml` (XSS-захист)
-- рух Равлика, клампінг до країв
-- координати canvas (grid mode)
-- генерацію псевдокоду (мова РАВЛИК)
-- `exact-path` — правильний шлях, хибний порядок, надлишкові кроки
-- `minimum-steps`
-- `validateProgram` — execution limits
-- workspace helpers: findBlock, countBlocks, flattenBlocks
-- clearWorkspace, insertBlock, moveBlockInList
-- `moveBlockUp`, `moveBlockDown`, `moveBlockOut`
-- undo/redo: pushSnapshot, undo, redo, canUndo/canRedo, clear redo on new action
-
----
-
-## 2. Як запускати
+## Команди
 
 ```bash
-npm test
-# або
-node tests/art.core.test.js
+npm --prefix artist test     # усі art.*.test.js (node, без фреймворків)
+npm run test:unit            # кореневі тести, включно з tests/artistCodegen.test.js
+npm run lint                 # eslint js/ sw.js artist/js/
+npm run check                # precache + docs + test:unit + test:projects + partials + lint
 ```
 
-Очікуваний результат: всі рядки `ok - ...`, жодного `not ok`.
+Перед зеленим PR мають проходити всі чотири.
 
----
+## Що де перевіряється
 
-## 3. Які тести додати (P2–P3)
+| Файл | Що |
+|---|---|
+| `tests/art.core.test.js` | визначення блоків, ліміти (36/3/1000), turtle (рух, повороти, clamp, колір), ліниве виконання runner, валід XML равлика, робоча область (вставка, переміщення), history, трансформація й анімація равлика |
+| `tests/art.goals.test.js` | злиття колінеарних відрізків, допуск 2 одиниці, зайві/відсутні лінії, колір, зірки, **codegen** (точні рядки, setup-блок, y-інверсія, вкладені цикли, `lineByBlockId`, без застарілого синтаксису), таблиця кольорів |
+| `tests/art.blocks.test.js` | чисті функції робочої області (хвіст, вставка, вільні стоси, найближча точка зчеплення), контури блоків, контраст кольорів блоків (обидва варіанти), відсутність hex у `blocks.css` |
+| `tests/art.controls.test.js` | stepController (натискання під час анімації), stepper (один примітив за крок), токенізатор підсвітки, швидкості, позначка старту, зірки |
+| `tests/art.levels.test.js` | структура курсу (20 рівнів у 4 розділах), `solution` дає 3★, класичні хибні кути не проходять, інтро без готової відповіді, рівні 17–20, `startBlocks`, пам’ять сесії |
+| `tests/art.a11y.test.js` | `describeHeading/TurtleStatus/Ghost`, контраст текстових пар за токенами (≥ 4.5:1) і графіки/фокусу (≥ 3:1), живий статус і фокус-пастки в розмітці, `touch-action: none` лише на блоках |
+| `../tests/artistCodegen.test.js` | **контракт codegen**: розв’язок кожного рівня → `buildProgramCode` → справжній `RavlykParser` + `validateProgramAst` + `createAstRuntime` → відрізки в координатах гри (y-інверсія) збігаються з рушієм гри (допуск 0.5); у коді немає `коли запущено`, `разів {`, `рухатися(`; кольори збігаються з `COLOR_REGISTRY`; приклади `intro.code` парсяться |
 
-### 3.1. Turtle domain
+Новий рівень не потребує окремого тесту — його підхоплюють `art.levels` і `artistCodegen`. Нова команда мови або блок — з тестами в `art.core`/`art.blocks` і кореневому тесті.
 
-- `moveForward` повертає правильні координати для різних heading
-- `turnRight` / `turnLeft` коректно змінюють heading
-- heading wrapped в межах 0–359
-- `penDown: false` → segment не повертається
-- Квадрат через `moveForward × 4 + turnRight(90) × 4` утворює замкнений контур
+## Ручна перевірка (браузер)
 
-### 3.2. Turtle codegen
+`node tests/e2e/server.js` → `http://127.0.0.1:4173/artist/index.html` (порт: `RAVLYK_PREVIEW_PORT`).
 
-- `вперед 50` генерується для `turtle_forward` з `steps: 50`
-- `праворуч 90` для `turtle_right`
-- `підняти` / `опустити` без параметрів
-- `повторити 4 разів { вперед 50\n  праворуч 90 }` для вкладеного repeat
+- Вʼюпорти: 1280×800, 1024×768, 768×1024, 414×896, 375×812, 360×740, 812×375 (ландшафт).
+- Немає горизонтального скролу сторінки (`document.documentElement.scrollWidth === innerWidth`).
+- Нижня панель на телефоні ≤ 72 px, кнопки ≥ 44×44.
+- Рівні 1, 7, 13, 18 проходяться лише пальцем: перетягування з палітри (pointer events `touch`), тап по роту циклу, −/+ і швидкі кути, Старт.
+- Клавіатура: Tab до палітри, Enter додає блок, Ctrl+Enter запускає, Esc закриває модалки, фокус повертається.
+- Модалки: Tab не виходить за межі, решта сторінки недоступна.
 
-### 3.3. Parameterized blocks
+## Чого не покрито
 
-- `createBlock('turtle_forward')` → `{ type, id, steps: 50 }`
-- `createBlock('turtle_right')` → `{ type, id, degrees: 90 }`
-- `updateBlockParam(id, 'steps', 100)` → оновлює значення
-- `flattenBlocks` зберігає параметри в розгорнутих блоках
-
-### 3.4. Goal evaluator (turtle)
-
-- `minimum-steps` рахує turtle-кроки
-- `exact-segments` перевіряє намальовані відрізки
-
-### 3.5. Level validation (P3, tools/validate-levels.js)
-
-- дубльований `id` ловиться
-- `mode` не `grid`/`turtle` ловиться
-- невідомий block type ловиться
-- HTML у `instruction` ловиться
-
----
-
-## 4. Структура тестів (ціль)
-
-```text
-tests/
-  art.core.test.js        ← поточні 23 тести (зростає)
-  unit/                   ← [планується] розбивка по модулях
-    turtle.test.js
-    goals.test.js
-    workspace.test.js
-    codegen.test.js
-  e2e/                    ← [P3, Playwright]
-    basic-flow.spec.js
-    keyboard-flow.spec.js
-```
-
----
-
-## 5. E2E-сценарії (Playwright, P3)
-
-### 5.1. Базове проходження рівня
-1. Відкрити сторінку
-2. Натиснути блок у палітрі
-3. Натиснути `Запустити`
-4. Перевірити вікно успіху
-5. Натиснути `Наступний рівень`
-
-### 5.2. Keyboard-only
-1. Tab до палітри → Enter (додати блок)
-2. ArrowUp/Down (перемістити)
-3. Delete (видалити)
-4. Ctrl+Z (undo)
-5. Ctrl+Enter (запустити)
-
-### 5.3. Stop button
-1. Додати довгу програму
-2. Запустити
-3. Натиснути `Зупинити`
-4. Перевірити повідомлення `Програму зупинено.`
-
-### 5.4. Turtle рівень
-1. Відкрити turtle-рівень
-2. Додати блоки `вперед`, `праворуч`
-3. Запустити
-4. Перевірити намальовані лінії на canvas
-
----
-
-## 6. Manual QA checklist
-
-- [ ] Сайт відкривається на desktop Chrome
-- [ ] Сайт відкривається на mobile/tablet
-- [ ] Всі кнопки українською
-- [ ] Grid рівень 1 проходиться
-- [ ] Turtle рівень проходиться
-- [ ] Неправильне рішення не зараховується
-- [ ] Reset → workspace очищується, Равлик на старті
-- [ ] Next lesson → перехід до наступного
-- [ ] Code panel відкривається/закривається
-- [ ] Repeat count змінюється
-- [ ] Undo/redo працює (Ctrl+Z, Ctrl+Y, кнопки)
-- [ ] ↑↓ переміщують блоки
-- [ ] ↖ виносить блок з repeat
-- [ ] `+ Додати` + клік на палітрі → вставляє в repeat
-- [ ] Execution limit блокує величезний repeat
-- [ ] Stop зупиняє програму
-- [ ] Keyboard-only: перший рівень проходиться
-- [ ] Focus outline видно
-- [ ] Modals: Tab не виходить за межі
-- [ ] Escape закриває reset modal
-
----
-
-## 7. CI (планується, P3)
-
-```yaml
-name: CI
-on:
-  pull_request:
-  push:
-    branches: [main]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22 }
-      - run: npm test
-      - run: npm run validate:levels
-```
+Реальні пристрої (iOS/Android), екранні читачі, Playwright-сценарії для artist (кореневі e2e покривають лише головний сайт). Див. `TASKS.md`.
