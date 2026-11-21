@@ -131,3 +131,13 @@ test('runtime confetti respects reduced motion and avoids innerHTML clearing', (
   assert.doesNotMatch(confetti, /innerHTML\s*=/);
   assert.doesNotMatch(confetti, /style\.cssText/);
 });
+
+test('cell hover highlight applies only to fine pointers so it cannot stick on tablets', () => {
+  const css = fs.readFileSync(path.join(root, 'css/game.css'), 'utf8');
+  const hoverRules = [...css.matchAll(/\.cell:hover\s*\{/g)];
+  assert.equal(hoverRules.length, 1);
+  const before = css.slice(0, hoverRules[0].index);
+  const lastMedia = before.lastIndexOf('@media');
+  assert.ok(lastMedia >= 0, '.cell:hover must sit inside a media query');
+  assert.match(before.slice(lastMedia), /^@media \(hover: hover\) and \(pointer: fine\) \{\s*$/);
+});

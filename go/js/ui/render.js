@@ -245,6 +245,8 @@ export function createRender({
       renderAll();
       snailApi.posSnail(start.r, start.c, false, startFacing);
     }
+    // Після зміни карток слід попереднього запуску вже неправдивий.
+    clearTrail();
     if (dir) {
       app.state.arrows[key] = dir;
     } else {
