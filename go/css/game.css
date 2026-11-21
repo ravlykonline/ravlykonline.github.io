@@ -277,8 +277,11 @@ body.debug-mode #status.warn {
   background: var(--cb);
 }
 
-.cell:hover {
-  background: var(--chov) !important;
+/* Лише для миші: на планшетах :hover «залипає» на останній торкнутій клітинці. */
+@media (hover: hover) and (pointer: fine) {
+  .cell:hover {
+    background: var(--chov) !important;
+  }
 }
 
 .cell.drop {

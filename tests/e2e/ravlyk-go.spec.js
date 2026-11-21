@@ -191,12 +191,14 @@ test('@desktop-chromium-only Ravlyk explains a missing arrow and lets the player
   await expect(page.getByRole('status')).toContainText('Тут бракує стрілки');
   await expect(page.locator('#sico')).toHaveAttribute('data-icon', 'warning');
   await expect(second).toHaveClass(/cell--stop/);
+  await expect(page.locator('.cell.trail').first()).toBeAttached();
   await expect(run).toBeEnabled();
   await expect(page.getByRole('dialog')).toHaveCount(0);
 
   await undo.click();
   await expect(first.locator('.cell-arrow')).toHaveCount(0);
   await expect(second).not.toHaveClass(/cell--stop/);
+  await expect(page.locator('.cell.trail')).toHaveCount(0);
   await expect(undo).toBeDisabled();
 
   await tile.click();

@@ -172,20 +172,21 @@ export const levels = [
   }),
   createLevel({
     id: 10,
-    name: 'Сходинки до яблука',
+    name: 'Два повороти підряд',
     type: 'play', rows: 6, cols: 8,
-    start: { r: 1, c: 0 }, apple: { r: 4, c: 6 },
+    start: { r: 2, c: 1 }, apple: { r: 3, c: 6 },
     obstacles: [
-      { r: 1, c: 3, kind: 'rock', label: 'Камінь' },
-      { r: 2, c: 1, kind: 'log', label: 'Пеньок' },
-      { r: 2, c: 4, kind: 'log', label: 'Пеньок' },
+      { r: 2, c: 4, kind: 'rock', label: 'Камінь' },
+      { r: 2, c: 5, kind: 'log', label: 'Пеньок' },
       { r: 3, c: 2, kind: 'rock', label: 'Камінь' },
-      { r: 3, c: 5, kind: 'rock', label: 'Камінь' },
-      { r: 4, c: 3, kind: 'log', label: 'Пеньок' }
+      { r: 4, c: 3, kind: 'log', label: 'Пеньок' },
+      { r: 1, c: 3, kind: 'rock', label: 'Камінь' },
+      { r: 4, c: 5, kind: 'rock', label: 'Камінь' }
     ],
-    allowedTiles: ['up', 'right', 'down', 'left', 'left-down', 'up-right'], presetArrows: {},
-    hint: 'Проведи Равлика між перешкодами. Став повороти там, де шлях змінює напрям.',
-    goal: 'Шлях між камінням.'
+    allowedTiles: ['right', 'down', 'left-down', 'up-right'],
+    presetArrows: {},
+    hint: 'Прямо не пройти. Обійди перешкоду двома поворотами, як по сходинці.',
+    goal: 'Два повороти поруч.'
   }),
   createLevel({
     id: 11,
@@ -202,14 +203,15 @@ export const levels = [
       { r: 4, c: 3, kind: 'rock', label: 'Камінь' }
     ],
     allowedTiles: ['up', 'right', 'down', 'left', 'left-down', 'up-left', 'right-down', 'down-left'],
+    // Сходинки вниз-ліворуч; єдина помилка — поворот угору на (2,3) замість униз.
     presetArrows: {
       '1,5': 'left',
-      '1,4': 'left',
-      '2,4': 'down-left',
-      '2,3': 'right-down',
-      '3,3': 'left',
+      '1,4': 'right-down',
+      '2,4': 'up-left',
+      '2,3': 'right-up',
+      '3,3': 'up-left',
       '3,2': 'right-down',
-      '4,2': 'down-left'
+      '4,2': 'up-left'
     },
     hint: 'Запусти Равлика й подивись, біля якого повороту він зупиниться. Заміни цей поворот.',
     goal: 'Помилка в повороті.'
@@ -226,7 +228,8 @@ export const levels = [
       { r: 4, c: 2, kind: 'log', label: 'Пеньок' },
       { r: 4, c: 5, kind: 'rock', label: 'Камінь' }
     ],
-    allowedTiles: ['up', 'right', 'down', 'left-up', 'down-right', 'left-down'],
+    // up-right є в палітрі, щоб випадково прибрану готову картку на (3,5) можна було повернути.
+    allowedTiles: ['up', 'right', 'down', 'left-up', 'down-right', 'left-down', 'up-right'],
     presetArrows: {
       '3,1': 'left-up',
       '2,1': 'down-right',
@@ -242,21 +245,22 @@ export const levels = [
   }),
   createLevel({
     id: 13,
-    name: 'Два повороти підряд',
+    name: 'Сходинки до яблука',
     type: 'play', rows: 6, cols: 8,
-    start: { r: 2, c: 1 }, apple: { r: 3, c: 6 },
+    // Равлик одразу перед першою сходинкою, яблуко одразу після останньої:
+    // єдиний шлях — шість поворотів поспіль, без прямих стрілок.
+    start: { r: 1, c: 1 }, apple: { r: 4, c: 5 },
     obstacles: [
-      { r: 2, c: 4, kind: 'rock', label: 'Камінь' },
-      { r: 2, c: 5, kind: 'log', label: 'Пеньок' },
-      { r: 3, c: 2, kind: 'rock', label: 'Камінь' },
-      { r: 4, c: 3, kind: 'log', label: 'Пеньок' },
       { r: 1, c: 3, kind: 'rock', label: 'Камінь' },
-      { r: 4, c: 5, kind: 'rock', label: 'Камінь' }
+      { r: 2, c: 1, kind: 'log', label: 'Пеньок' },
+      { r: 2, c: 4, kind: 'log', label: 'Пеньок' },
+      { r: 3, c: 2, kind: 'rock', label: 'Камінь' },
+      { r: 3, c: 5, kind: 'rock', label: 'Камінь' },
+      { r: 4, c: 3, kind: 'log', label: 'Пеньок' }
     ],
-    allowedTiles: ['right', 'down', 'left-down', 'up-right'],
-    presetArrows: {},
-    hint: 'Прямо не пройти. Обійди перешкоду двома поворотами, як по сходинці.',
-    goal: 'Два повороти поруч.'
+    allowedTiles: ['right', 'down', 'left-down', 'up-right'], presetArrows: {},
+    hint: 'Проведи Равлика між перешкодами. Став повороти там, де шлях змінює напрям.',
+    goal: 'Шлях між камінням.'
   }),
   createLevel({
     id: 14,
@@ -333,7 +337,9 @@ export const levels = [
       { r: 3, c: 5, kind: 'rock', label: 'Камінь' },
       { r: 2, c: 3, kind: 'log', label: 'Пеньок' },
       { r: 2, c: 5, kind: 'rock', label: 'Камінь' },
-      { r: 1, c: 3, kind: 'log', label: 'Пеньок' }
+      { r: 1, c: 3, kind: 'log', label: 'Пеньок' },
+      // Камінь над першою помилкою: Равлик зупиняється саме на хибній стрілці.
+      { r: 2, c: 2, kind: 'rock', label: 'Камінь' }
     ],
     allowedTiles: ['right', 'up', 'left-up', 'down-right'],
     presetArrows: {
