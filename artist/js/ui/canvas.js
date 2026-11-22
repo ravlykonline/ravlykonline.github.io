@@ -4,7 +4,7 @@ import { getStepMarks, shouldColorGhost, shouldShowStepMarks } from '../core/gho
 import { avatarSvg, snailSvg } from './icons.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
-const GHOST_COLOR = '#7d7790';
+export const GHOST_COLOR = '#7d7790';
 
 function svgElement(name, attributes = {}) {
   const element = document.createElementNS(SVG_NS, name);

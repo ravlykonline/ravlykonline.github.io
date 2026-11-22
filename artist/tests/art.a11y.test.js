@@ -207,8 +207,9 @@ runTest('index.html has a live field status and traps focus in every modal', () 
   const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   assert.match(html, /id="canvas-status"[^>]*role="status"[^>]*aria-live="polite"/);
   assert.match(html, /id="ghost-desc"/);
-  assert.equal([...html.matchAll(/role="dialog" aria-modal="true"/g)].length, 3);
+  assert.equal([...html.matchAll(/role="dialog" aria-modal="true"/g)].length, 4);
   const main = readFileSync(new URL('../js/main.js', import.meta.url), 'utf8');
+  assert.match(main, /trapFocus\(dom\.welcomeOverlay/);
   assert.match(main, /trapFocus\(dom\.introOverlay/);
   assert.match(main, /trapFocus\(dom\.resetConfirmOverlay/);
   assert.match(main, /trapFocus\(dom\.overlay/);

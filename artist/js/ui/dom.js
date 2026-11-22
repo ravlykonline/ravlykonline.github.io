@@ -62,5 +62,9 @@ export function getDomReferences() {
     introTitle: document.getElementById('intro-title'),
     introBody: document.getElementById('intro-body'),
     introOkButton: document.getElementById('btn-intro-ok'),
+    welcomeOverlay: document.getElementById('welcome-overlay'),
+    welcomeDemo: document.getElementById('welcome-demo'),
+    welcomeNote: document.getElementById('welcome-note'),
+    welcomeStartButton: document.getElementById('btn-welcome-start'),
   };
 }

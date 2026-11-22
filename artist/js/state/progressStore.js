@@ -52,3 +52,24 @@ export function saveProgress({ done, stars }, lessonIds, storage = getSessionSto
     return false;
   }
 }
+
+const WELCOME_KEY = 'ravlyk-artist-welcome-v1';
+
+/** Чи натискали «Розпочати» на вітальному екрані в цій вкладці. */
+export function loadWelcomeSeen(storage = getSessionStorage()) {
+  try {
+    return storage?.getItem(WELCOME_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function saveWelcomeSeen(storage = getSessionStorage()) {
+  if (!storage) return false;
+  try {
+    storage.setItem(WELCOME_KEY, '1');
+    return true;
+  } catch {
+    return false;
+  }
+}

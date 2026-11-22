@@ -334,7 +334,8 @@ runTest('level link: ?level=N parses 1-based, invalid values fall back to level 
   }
   assert.equal(buildLevelSearch('?blocks=pastel', 13), '?blocks=pastel&level=14');
   assert.equal(buildLevelSearch('?level=3&blocks=pastel', 4), '?level=5&blocks=pastel');
-  assert.equal(buildLevelSearch('', 0), '?level=1');
+  assert.equal(buildLevelSearch('', 0), '', 'level 1 keeps a clean address');
+  assert.equal(buildLevelSearch('?level=3&blocks=pastel', 0), '?blocks=pastel');
 });
 
 runTest('progress store: saves done levels and stars by lesson id, never code; survives bad data and missing storage', async () => {
@@ -393,4 +394,50 @@ runTest('feedback stays until cleared (no auto-hide timer)', async () => {
   clearFeedback(dom);
   assert.equal(dom.feedback.className, '');
   delete globalThis.window;
+});
+
+// ── Вітальний екран ───────────────────────────────────────────────────────────
+import { WELCOME_DEMO, shouldShowWelcome, welcomeDemoBlocks } from '../js/core/welcome.js';
+import { loadWelcomeSeen, saveWelcomeSeen } from '../js/state/progressStore.js';
+import { getGhostSegments } from '../js/core/ghost.js';
+import { compareShapes } from '../js/core/goals.js';
+import { lessons as allLessons } from '../js/data/lessons.js';
+
+runTest('welcome: shown only to a newcomer without ?level, progress or an earlier «Розпочати»', () => {
+  assert.equal(shouldShowWelcome({ search: '' }), true);
+  assert.equal(shouldShowWelcome({ search: '?blocks=pastel' }), true);
+  assert.equal(shouldShowWelcome({ search: '?level=7' }), false, 'teacher deep link goes straight to the level');
+  assert.equal(shouldShowWelcome({ search: '?level=abc' }), false);
+  assert.equal(shouldShowWelcome({ search: '', hasProgress: true }), false);
+  assert.equal(shouldShowWelcome({ search: '', seen: true }), false);
+  assert.equal(shouldShowWelcome(), true);
+});
+
+runTest('welcome: the «seen» flag lives in sessionStorage and survives missing or broken storage', () => {
+  const store = new Map();
+  const storage = { getItem: (k) => store.get(k) ?? null, setItem: (k, v) => store.set(k, v) };
+  assert.equal(loadWelcomeSeen(storage), false);
+  assert.equal(saveWelcomeSeen(storage), true);
+  assert.equal(loadWelcomeSeen(storage), true);
+  assert.equal(saveWelcomeSeen(null), false);
+  assert.equal(loadWelcomeSeen(null), false);
+  const broken = { getItem() { throw new Error('denied'); }, setItem() { throw new Error('denied'); } };
+  assert.equal(saveWelcomeSeen(broken), false);
+  assert.equal(loadWelcomeSeen(broken), false);
+});
+
+runTest('welcome demo: a closed house inside the demo viewBox that gives away no level answer', () => {
+  const { segments, turtle } = runProgram(withIds(welcomeDemoBlocks()), WELCOME_DEMO);
+  assert.equal(segments.length, 5);
+  assert.ok(near(turtle.x, WELCOME_DEMO.start.x, 1e-6) && near(turtle.y, WELCOME_DEMO.start.y, 1e-6), 'returns to the start');
+  // viewBox у index.html: -80 -92 160 160; равлику лишається запас навколо фігури.
+  for (const { from, to } of segments) {
+    for (const [x, y] of [from, to]) {
+      assert.ok(x >= -45 && x <= 45 && y >= -86 && y <= 46, `point ${x}, ${y} fits the demo`);
+    }
+  }
+  for (const lesson of allLessons) {
+    if (!lesson.solution) continue;
+    assert.equal(compareShapes(segments, getGhostSegments(lesson)).ok, false, `${lesson.id} differs from the demo`);
+  }
 });

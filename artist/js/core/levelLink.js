@@ -10,9 +10,14 @@ export function parseLevelParam(search, total) {
   return number >= 1 && number <= total ? number - 1 : 0;
 }
 
-/** Рядок пошуку з оновленим `level`; інші параметри (наприклад, blocks=pastel) зберігаються. */
+/**
+ * Рядок пошуку з оновленим `level`; інші параметри (наприклад, blocks=pastel) зберігаються.
+ * Перший рівень — без `level`: адреса з рядка браузера не ховає вітальний екран від новачків.
+ */
 export function buildLevelSearch(search, index) {
   const params = new URLSearchParams(search ?? '');
-  params.set('level', String(index + 1));
-  return `?${params.toString()}`;
+  if (index > 0) params.set('level', String(index + 1));
+  else params.delete('level');
+  const query = params.toString();
+  return query ? `?${query}` : '';
 }

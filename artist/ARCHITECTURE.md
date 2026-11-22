@@ -50,7 +50,9 @@ js/runtime/
   execution-limits.js    validateProgram: ≤ 500 повторів, вкладеність ≤ 3, ≤ 1000 дій
 
 js/state/history.js      скасування/повернення (знімки документа)
-js/state/progressStore.js прогрес (пройдені рівні, зірки) у sessionStorage вкладки
+js/state/progressStore.js прогрес (пройдені рівні, зірки) і позначка «вітання бачили» у sessionStorage вкладки
+js/core/welcome.js       коли показувати вітальний екран (shouldShowWelcome) і демо-програма будиночка
+js/ui/welcomeDemo.js     жива ілюстрація вітання: runSteps + interpolateTurtle, цикл rAF, «менше руху» — готовий малюнок
 
 js/ui/                   DOM (без innerHTML з даними)
   blockView.js           блок: SVG-контур + HTML-текст і поля
@@ -122,6 +124,7 @@ js/utils/                focus-trap, sleep, sounds
 
 - `#canvas-status` — `role="status" aria-live="polite"`; текст із `describeTurtleStatus`; під час автозапуску оновлюється лише в кінці.
 - `#ghost-desc` (sr-only) — `describeGhost` із відрізків пунктиру.
+- Вітальний екран — така сама модалка; фокус одразу на «Розпочати малювати!», Escape теж закриває його. Після нього відкривається інтро поточного рівня (`showIntroIfNeeded` чекає, доки вітання відкрите). Рівень 1 не пише `?level=1` в адресу, щоб скопійоване посилання не ховало вітання від новачків.
 - Модалки (`role="dialog" aria-modal`): `trapFocus` + `inert` на решті сторінки (`syncModalInert`), Escape, повернення фокуса.
 - Токени кольорів перевіряє `tests/art.a11y.test.js` (≥ 4.5:1 для тексту, ≥ 3:1 для графіки й фокусу).
 
