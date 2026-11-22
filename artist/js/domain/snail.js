@@ -20,6 +20,26 @@ export function getSnailTransform(turtle) {
   return `translate(${round(turtle.x)} ${round(turtle.y)}) rotate(${round(turtle.heading)})`;
 }
 
+// Межі малюнка відносно кінчика олівця, із запасом для підняття пера й похитування.
+const SPRITE_CORNERS = [[-3, -24], [-3, 24], [45, -24], [45, 24]];
+export const SNAIL_SPRITE_RADIUS = 51;
+
+/** Відсуває лише зображення від краю. Координати пера та сліду залишаються точними. */
+export function getSnailFieldOffset({ x, y, heading }, side) {
+  const radians = heading * Math.PI / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  const corners = SPRITE_CORNERS.map(([dx, dy]) => [
+    x + side * dx * cos - dy * sin,
+    y + side * dx * sin + dy * cos,
+  ]);
+  function offset(axis, limit) {
+    const values = corners.map((corner) => corner[axis]);
+    return Math.max(0, -limit - Math.min(...values)) - Math.max(0, Math.max(...values) - limit);
+  }
+  return [offset(0, FIELD_HALF_WIDTH - 2), offset(1, FIELD_HALF_HEIGHT - 2)];
+}
+
 /** Найкоротша різниця кутів у діапазоні (-180, 180]. */
 export function headingDelta(from, to) {
   let delta = (to - from) % 360;

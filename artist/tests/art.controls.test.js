@@ -2,13 +2,14 @@ import assert from 'node:assert/strict';
 
 import { blk, withIds } from '../js/core/blockTree.js';
 import { buildProgramCode } from '../js/core/codegen.js';
+import { FIELD_HALF_HEIGHT, FIELD_HALF_WIDTH } from '../js/core/constants.js';
 import { tokenizeLine } from '../js/core/codeHighlight.js';
 import { evaluateGoal } from '../js/core/goals.js';
 import { starsCaption, starsLabel, starsText } from '../js/core/stars.js';
 import { createStepper } from '../js/runtime/stepper.js';
 import { setEditorView } from '../js/ui/codeView.js';
 import {
-  SPEEDS, chooseSnailSide, getStepDuration, speedFactor,
+  SPEEDS, chooseSnailSide, getSnailFieldOffset, getStepDuration, speedFactor,
 } from '../js/domain/snail.js';
 
 function runTest(name, fn) {
@@ -127,6 +128,28 @@ runTest('snail pose avoids a nearby line and chooses the inward side at the edge
   assert.equal(chooseSnailSide(rightEdge, rightEdge, [], 1), -1);
   const bottomEdge = { ...start, y: 145, heading: 90 };
   assert.equal(chooseSnailSide(bottomEdge, bottomEdge, [], 1), -1);
+});
+
+runTest('snail sprite stays inside the field at corners for either mirror pose', () => {
+  assert.deepEqual(getSnailFieldOffset({ x: 0, y: 0, heading: 90 }, 1), [0, 0]);
+  for (const side of [-1, 1]) {
+    for (const x of [-FIELD_HALF_WIDTH, FIELD_HALF_WIDTH]) {
+      for (const y of [-FIELD_HALF_HEIGHT, FIELD_HALF_HEIGHT]) {
+        for (const heading of [0, 30, 45, 90, 135, 180, 225, 270, 315]) {
+          const turtle = { x, y, heading };
+          const [dx, dy] = getSnailFieldOffset(turtle, side);
+          assert.ok(dx * x < 0 && dy * y < 0);
+          const radians = heading * Math.PI / 180;
+          for (const [sx, sy] of [[0, 0], [18, -19], [32, -20], [40, 7], [28, 19]]) {
+            const visibleX = x + dx + side * sx * Math.cos(radians) - sy * Math.sin(radians);
+            const visibleY = y + dy + side * sx * Math.sin(radians) + sy * Math.cos(radians);
+            assert.ok(Math.abs(visibleX) < FIELD_HALF_WIDTH);
+            assert.ok(Math.abs(visibleY) < FIELD_HALF_HEIGHT);
+          }
+        }
+      }
+    }
+  }
 });
 
 // ── Зірки ───────────────────────────────────────────────────────────────────
