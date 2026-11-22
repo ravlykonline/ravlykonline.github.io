@@ -22,7 +22,10 @@ import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from './stat
 import { trapFocus } from './utils/focus-trap.js';
 import { playSuccess, playFailure, playSnap, setSoundEnabled } from './utils/sounds.js';
 import { buildLevelSearch, parseLevelParam } from './core/levelLink.js';
-import { loadProgress, saveProgress } from './state/progressStore.js';
+import { loadProgress, loadWelcomeSeen, saveProgress, saveWelcomeSeen } from './state/progressStore.js';
+import { shouldShowWelcome } from './core/welcome.js';
+import { pluralUk } from './core/plural.js';
+import { createWelcomeDemo } from './ui/welcomeDemo.js';
 import { addTrailSegment, clearTurtleCanvas, placeTurtleSnail, renderLessonGuide, selectTurtlePose, setTrailEnd, setupCanvas, wiggleSnail } from './ui/canvas.js';
 import { REDUCED_MOTION_STEP_PAUSE_MS, SPEEDS, getStepDuration, interpolateTurtle, speedFactor } from './domain/snail.js';
 import { getDomReferences } from './ui/dom.js';
@@ -49,7 +52,8 @@ let moreMenu = null;
 let workspaceMenu = null;
 let lessonMenu = null;
 const BACKGROUND_SELECTOR = '#hdr, .folk-divider, #app-main';
-const MODAL_OVERLAY_IDS = ['overlay', 'intro-overlay', 'reset-confirm-overlay'];
+const MODAL_OVERLAY_IDS = ['overlay', 'intro-overlay', 'reset-confirm-overlay', 'welcome-overlay'];
+let welcomeDemo = null;
 // Стан перетягування існуючого блока: знімок ДО підняття й сам «хвіст».
 let dragSnapshot = null;
 let dragTail = null;
@@ -133,8 +137,37 @@ function openIntro(lesson) {
   setIntroOpen(true);
 }
 
+function isWelcomeOpen() {
+  return dom.welcomeOverlay.classList.contains('show');
+}
+
+/** Вітальний екран для новачка: що це за гра, живе демо й кнопка «Розпочати». */
+function openWelcome() {
+  const count = lessons.length;
+  dom.welcomeNote.textContent = `${count} ${pluralUk(count, ['рівень', 'рівні', 'рівнів'])}: від першої лінії до зірки й квітки`;
+  dom.welcomeOverlay.classList.add('show');
+  dom.welcomeOverlay.setAttribute('aria-hidden', 'false');
+  syncModalInert();
+  welcomeDemo ??= createWelcomeDemo(dom.welcomeDemo, { reducedMotion: prefersReducedMotion });
+  welcomeDemo.start();
+  dom.welcomeStartButton.focus();
+}
+
+/** «Розпочати»: вітання більше не показується в цій вкладці, далі — інтро поточного рівня. */
+function closeWelcome() {
+  if (!isWelcomeOpen()) return;
+  welcomeDemo?.stop();
+  dom.welcomeOverlay.classList.remove('show');
+  dom.welcomeOverlay.setAttribute('aria-hidden', 'true');
+  syncModalInert();
+  saveWelcomeSeen();
+  dom.runButton.focus({ preventScroll: true });
+  showIntroIfNeeded(appState.currentLesson);
+}
+
 /** Інтро нової команди — лише при першому відкритті рівня за сесію; далі — кнопка «?». */
 function showIntroIfNeeded(lesson) {
+  if (isWelcomeOpen()) return; // інтро покажеться після «Розпочати»
   if (!lesson.intro || appState.introSeen.has(lesson.id)) return;
   appState.introSeen.add(lesson.id);
   openIntro(lesson);
@@ -409,7 +442,7 @@ function loadLesson(index) {
   showIntroIfNeeded(appState.currentLesson);
 }
 
-/** Адреса завжди веде на поточний рівень (?level=N); решта параметрів лишається. */
+/** Адреса веде на поточний рівень (?level=N, для першого — без параметра); решта параметрів лишається. */
 function syncLevelInUrl() {
   try {
     const { pathname, search, hash } = window.location;
@@ -795,7 +828,9 @@ function bindEvents() {
     const isInput = document.activeElement?.tagName === 'INPUT';
 
     if (key === 'Escape' && !event.defaultPrevented) {
-      if (moreMenu?.isOpen()) {
+      if (isWelcomeOpen()) {
+        closeWelcome();
+      } else if (moreMenu?.isOpen()) {
         moreMenu.close({ restoreFocus: true });
       } else if (workspaceMenu?.isOpen()) {
         workspaceMenu.close({ restoreFocus: true });
@@ -827,6 +862,7 @@ function bindEvents() {
   });
 
   // focus traps for modals
+  trapFocus(dom.welcomeOverlay.querySelector('.welcome-card'));
   trapFocus(dom.introOverlay.querySelector('.intro-card'));
   trapFocus(dom.resetConfirmOverlay.querySelector('.confirm-card'));
   trapFocus(dom.overlay.querySelector('.success-card'));
@@ -854,6 +890,14 @@ function init() {
   setEditorView(dom, appState.view);
   setResetConfirmOpen(false);
   restoreProgress();
+  dom.welcomeStartButton.addEventListener('click', closeWelcome);
+  if (shouldShowWelcome({
+    search: window.location.search,
+    hasProgress: appState.doneLessons.size > 0,
+    seen: loadWelcomeSeen(),
+  })) {
+    openWelcome();
+  }
   loadLesson(parseLevelParam(window.location.search, lessons.length));
 }
 
