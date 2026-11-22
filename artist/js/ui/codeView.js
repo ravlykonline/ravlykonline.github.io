@@ -3,6 +3,7 @@
  * textContent — без innerHTML. Рядки підготовки приглушені.
  */
 import { tokenizeLine } from '../core/codeHighlight.js';
+import { revealInside } from './scrollView.js';
 
 function buildLine(text, index, isSetup) {
   const line = document.createElement('div');
@@ -46,12 +47,13 @@ export function highlightCodeLine(dom, index) {
   const line = dom.codeText.querySelector(`[data-line="${index}"]`);
   if (!line) return;
   line.classList.add('is-active');
-  if (dom.codeView && !dom.codeView.hidden) line.scrollIntoView({ block: 'nearest' });
+  if (!dom.codeView.hidden) revealInside(dom.codeText, line);
 }
 
 export function setEditorView(dom, view) {
   const isCode = view === 'code';
   dom.editorPanels.classList.toggle('show-code', isCode);
+  dom.blocksView.hidden = isCode;
   dom.codeView.hidden = !isCode;
   dom.tabBlocks.setAttribute('aria-selected', String(!isCode));
   dom.tabCode.setAttribute('aria-selected', String(isCode));

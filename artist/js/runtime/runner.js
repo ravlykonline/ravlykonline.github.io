@@ -21,6 +21,16 @@ import { LIMITS } from './execution-limits.js';
 const STEP_LENGTH = 50;
 const QUARTER_TURN = 90;
 
+/** Порожні цикли не створюють дій, незалежно від числа повторів. */
+function executableBlocks(blocks) {
+  return blocks.flatMap((block) => {
+    if (block.type !== 'repeat') return [block];
+    if (block.n <= 0) return [];
+    const children = executableBlocks(block.blocks);
+    return children.length ? [{ ...block, blocks: children }] : [];
+  });
+}
+
 /** Застосовує один примітивний блок. Повертає { turtle, segment }. */
 export function applyBlock(turtle, block) {
   switch (block.type) {
@@ -67,7 +77,7 @@ export function* runSteps(blocks, lesson, options = {}) {
     }
   }
 
-  yield* execute(blocks);
+  yield* execute(executableBlocks(blocks));
 }
 
 /** Виконує програму повністю (без анімації): відрізки й фінальний стан. */

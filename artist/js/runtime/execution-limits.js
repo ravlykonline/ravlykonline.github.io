@@ -1,6 +1,8 @@
+import { MAX_REPEAT_COUNT } from '../data/blocks.js';
+
 export const LIMITS = {
   maxExpandedActions: 1000,
-  maxRepeatCount: 36,
+  maxRepeatCount: MAX_REPEAT_COUNT,
   maxNestingDepth: 3,
 };
 

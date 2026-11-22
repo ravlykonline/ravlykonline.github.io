@@ -193,9 +193,16 @@
 
 .run-controls {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
+}
+
+.run-controls :is(.btn-run, .btn-step, .btn-stop) {
+  flex: 1 1 0;
+  min-height: 2.75rem;
+  padding-inline: var(--space-2);
+  font-size: var(--font-size-md);
+  white-space: nowrap;
 }
 
 .btn-run:disabled,
@@ -308,7 +315,8 @@
 }
 
 #feedback {
-  flex: 1;
+  min-height: 1.4em;
+  margin-top: var(--space-1);
   color: var(--color-text);
   font-size: var(--font-size-base);
   font-weight: 800;
@@ -589,21 +597,76 @@
   transform: translateY(-0.1rem);
 }
 
-/* Нижня панель: на ПК кнопка «⋯» не потрібна, меню розгорнуте в рядок */
 .btn-more {
-  display: none;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0.125rem solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-heading);
+  font-size: var(--font-size-lg);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.run-controls .btn-more {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.btn-more[aria-expanded="true"] {
+  color: var(--color-on-solid);
+  background: var(--color-primary);
 }
 
 .more-menu {
-  display: contents;
+  position: absolute;
+  z-index: 9;
+  inset-inline-end: 0;
+  display: none;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: min(18rem, calc(100vw - 2rem));
+  padding: var(--space-3);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-3);
+}
+
+.more-menu.is-open {
+  display: flex;
+}
+
+#more-menu {
+  bottom: calc(100% + var(--space-1));
+}
+
+#workspace-menu {
+  top: calc(100% + var(--space-1));
+  width: min(13rem, 100%);
+}
+
+#workspace-menu .btn-style {
+  align-self: stretch;
+}
+
+#workspace-menu .btn-reset {
+  padding-inline: var(--space-2);
+  font-size: var(--font-size-sm);
 }
 
 .more-menu .speed-switch {
-  order: 3;
+  justify-content: space-between;
 }
 
-#feedback {
-  order: 2;
+.more-menu .speed-btn {
+  flex: 1;
+  min-height: 2.75rem;
+  padding-inline: var(--space-2);
 }
 
 .lesson-nav-toggle {

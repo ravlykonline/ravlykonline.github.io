@@ -46,7 +46,7 @@ const typesIn = (list) => list.flatMap((b) => [b.type, ...(b.blocks ? typesIn(b.
 
 // ── Структура курсу ───────────────────────────────────────────────────────────
 
-runTest('course: 20 levels in 4 chapters of 5, 5, 6 and 4 levels, ids are sequential', () => {
+runTest('course: 20 levels in 4 chapters of 5, 5, 7 and 3 levels, ids are sequential', () => {
   assert.equal(lessons.length, 20);
   const counts = {};
   const order = [];
@@ -55,7 +55,7 @@ runTest('course: 20 levels in 4 chapters of 5, 5, 6 and 4 levels, ids are sequen
     if (!order.includes(lesson.chapter)) order.push(lesson.chapter);
   }
   assert.deepEqual(order, ['Перші кроки', 'Повторення', 'Числа і кути', 'Кольори і творчість']);
-  assert.deepEqual(order.map((c) => counts[c]), [5, 5, 6, 4]);
+  assert.deepEqual(order.map((c) => counts[c]), [5, 5, 7, 3]);
   lessons.forEach((lesson, index) => {
     assert.equal(lesson.id, `lesson-${String(index + 1).padStart(2, '0')}`);
     assert.ok(lesson.title.startsWith(`Рівень ${index + 1}:`), lesson.title);
@@ -98,13 +98,15 @@ runTest('intros: have title and body, no HTML; code is plain text', () => {
   }
 });
 
-runTest('pedagogy: intros of levels 13 and 14 do not give the answer', () => {
+runTest('pedagogy: draw a triangle, debug it, then find a new angle independently', () => {
   const level13 = lessons[12];
   const level14 = lessons[13];
+  const level15 = lessons[14];
   assert.match(level13.intro.body, /360 ÷/);
   assert.doesNotMatch(level13.intro.body, /120/);
-  assert.equal(level14.intro, undefined);
-  assert.doesNotMatch(level14.instruction, /\b60°|праворуч 60/);
+  assert.ok(level14.startBlocks?.length);
+  assert.equal(level15.intro, undefined);
+  assert.doesNotMatch(level15.instruction, /\b60°|праворуч 60/);
 });
 
 // ── Приклади з «майже правильними» програмами ─────────────────────────────────
@@ -149,27 +151,34 @@ for (const lesson of lessons.filter((l) => l.success.mode === 'shape')) {
   });
 }
 
-runTest('level 13/14/15: classic wrong angles fail', () => {
+runTest('triangle, hexagon, star and circle reject common wrong angles', () => {
   const swapAngle = (lesson, n) => mapTree(lesson.solution, (b) => (b.type === 'right' ? { ...b, n } : b));
   assert.equal(play(lessons[12], swapAngle(lessons[12], 60)).ok, false);
   assert.equal(play(lessons[12], swapAngle(lessons[12], 90)).ok, false);
-  assert.equal(play(lessons[13], swapAngle(lessons[13], 120)).ok, false);
-  assert.equal(play(lessons[14], swapAngle(lessons[14], 72)).ok, false);
-  assert.equal(play(lessons[15], swapAngle(lessons[15], 12)).ok, false);
+  assert.equal(play(lessons[14], swapAngle(lessons[14], 120)).ok, false);
+  assert.equal(play(lessons[15], swapAngle(lessons[15], 72)).ok, false);
+  assert.equal(play(lessons[16], swapAngle(lessons[16], 12)).ok, false);
 });
 
-runTest('level 17 checks colour; level 18 needs nested repeat; level 20 is free with 8 segments', () => {
-  const level17 = lessons[16];
-  assert.equal(level17.success.checkColor, true);
+runTest('a full turn with unit moves does not reproduce the specified circle', () => {
+  const circle = lessons[16];
+  const alternate = [blk('repeat', 360, [blk('forward', 1), blk('right', 1)])];
+  assert.equal(play(circle, alternate).ok, false);
+  assert.equal(play(circle, circle.solution).stars, 3);
+});
+
+runTest('level 18 checks colour; level 19 needs nested repeat; level 20 is free with 8 segments', () => {
   const level18 = lessons[17];
+  assert.equal(level18.success.checkColor, true);
+  const level19 = lessons[18];
   const flat = [blk('repeat', 6, [
     blk('forward', 60), blk('right', 90), blk('forward', 60), blk('right', 90),
     blk('forward', 60), blk('right', 90), blk('forward', 60), blk('right', 90), blk('right', 60),
   ])];
-  const flatResult = play(level18, flat);
+  const flatResult = play(level19, flat);
   assert.equal(flatResult.ok, false);
   assert.equal(flatResult.reason, 'requireNested');
-  assert.equal(play(level18, level18.solution).stars, 3);
+  assert.equal(play(level19, level19.solution).stars, 3);
   const level20 = lessons[19];
   assert.deepEqual([level20.success.mode, level20.success.minSegments], ['free', 8]);
   assert.equal(level20.toolbox.length, 11);
@@ -184,16 +193,16 @@ runTest('best blocks come from the solution (3 stars on the solution, fewer for 
   assert.equal(getBestBlocks(level7), 4);
 });
 
-// ── Рівень 19: «Знайди помилку» ───────────────────────────────────────────────
+// ── Рівень 14: «Знайди помилку» ───────────────────────────────────────────────
 
-runTest('level 19: startBlocks fail, the fixed program passes, workspace loads with fresh ids', () => {
-  const level = lessons[18];
+runTest('level 14: startBlocks fail, the fixed program passes, workspace loads with fresh ids', () => {
+  const level = lessons[13];
   assert.ok(level.startBlocks?.length > 0);
   assert.equal(play(level, level.startBlocks).ok, false);
   const fixed = mapTree(level.startBlocks, (b) => (b.type === 'right' ? { ...b, n: 120 } : b));
   assert.equal(play(level, fixed).ok, true);
 
-  setLesson(18);
+  setLesson(13);
   const first = appState.workspace;
   assert.equal(countBlocksIn(first), countBlocksIn(level.startBlocks));
   const ids = [];
@@ -201,7 +210,7 @@ runTest('level 19: startBlocks fail, the fixed program passes, workspace loads w
   collect(first);
   assert.ok(ids.every((id) => Number.isInteger(id)) && new Set(ids).size === ids.length);
 
-  setLesson(18);
+  setLesson(13);
   const secondIds = [];
   const collectSecond = (list) => list.forEach((b) => { secondIds.push(b.id); if (b.blocks) collectSecond(b.blocks); });
   collectSecond(appState.workspace);
@@ -210,9 +219,9 @@ runTest('level 19: startBlocks fail, the fixed program passes, workspace loads w
   setLesson(0);
 });
 
-runTest('level 19: the prefilled workspace works with undo/redo', () => {
+runTest('level 14: the prefilled workspace works with undo/redo', () => {
   clearHistory();
-  setLesson(18);
+  setLesson(13);
   const doc = () => ({ main: appState.workspace, loose: appState.loose });
   const before = doc();
   pushSnapshot(before);
@@ -231,7 +240,7 @@ runTest('level 19: the prefilled workspace works with undo/redo', () => {
 runTest('other levels start with an empty workspace', () => {
   for (let i = 0; i < lessons.length; i += 1) {
     setLesson(i);
-    assert.equal(appState.workspace.length > 0, i === 18, `рівень ${i + 1}`);
+    assert.equal(appState.workspace.length > 0, i === 13, `рівень ${i + 1}`);
   }
   setLesson(0);
 });

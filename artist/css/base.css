@@ -15,7 +15,7 @@ body {
   height: 100vh;
   height: 100dvh;
   display: grid;
-  grid-template-rows: auto 0 minmax(0, 1fr) auto;
+  grid-template-rows: auto 0 minmax(0, 1fr);
   overflow: hidden;
   font-family: var(--font-body);
   font-size: var(--font-size-base);

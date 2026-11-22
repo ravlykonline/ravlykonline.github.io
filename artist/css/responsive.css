@@ -1,5 +1,5 @@
-/* Планшет: 700–1099 px. Угорі завдання + поле, нижче «Команди | Програма». */
-@media (max-width: 68.6875rem) {
+/* Планшет: 700–1023 px. Угорі завдання + поле, нижче «Команди | Програма». */
+@media (max-width: 63.9375rem) {
   #app-main {
     height: auto;
   }
@@ -33,8 +33,11 @@
     width: auto;
   }
 
-  #canvas-shell {
+  #stage-panel {
     flex: 1 1 52%;
+  }
+
+  #canvas-shell {
     min-width: 0;
     padding: var(--space-3);
   }
@@ -58,10 +61,9 @@
 }
 
 /* ── Телефон: < 700 px і короткий ландшафт ───────────────────────────────────────
-   Порядок: завдання → поле → «Блоки | Код» → палітра-стрічка (sticky) → програма.
+   Порядок: завдання → сцена з керуванням → палітра-стрічка (sticky) → програма.
    Вікно прокручується саме (жоден предок sticky-палітри не має overflow ≠ visible). */
-/* ── Шапка й нижня панель: ≤ 900 px і короткий ландшафт ─────────────────────────
-   «Рівень N / 20 ▾» замість ряду точок; Старт/Крок/Стоп + «⋯» в один ряд. */
+/* ── Шапка: «Рівень N / 20 ▾» замість ряду точок до 900 px. ──────────────────── */
 /* Назва рівня в шапці — лише коли вона вміщається поруч із рядом точок. */
 @media (min-width: 80rem) {
   .lesson-title {
@@ -181,115 +183,7 @@
     height: 2.75rem;
   }
 
-  /* нижня панель: один компактний ряд */
-  #footer {
-    position: sticky;
-    bottom: 0;
-    z-index: 8;
-    display: block;
-    min-height: 0;
-    padding: var(--space-1) var(--space-2);
-  }
 
-  .run-controls {
-    flex-wrap: nowrap;
-    gap: var(--space-1);
-    width: 100%;
-  }
-
-  .btn-run,
-  .btn-step,
-  .btn-stop {
-    flex: 1 1 0;
-    min-width: 0;
-    height: 3rem;
-    min-height: 2.75rem;
-    padding: 0 var(--space-2);
-    font-size: var(--font-size-md);
-    white-space: nowrap;
-    box-shadow: none;
-  }
-
-  .btn-run {
-    flex-grow: 1.35;
-  }
-
-  .btn-more {
-    display: flex;
-    flex: 0 0 3rem;
-    align-items: center;
-    justify-content: center;
-    width: 3rem;
-    height: 3rem;
-    border: 0.125rem solid var(--color-primary);
-    border-radius: var(--radius-pill);
-    background: var(--color-surface);
-    color: var(--color-heading);
-    font-size: var(--font-size-xl);
-    font-weight: 900;
-    line-height: 1;
-    cursor: pointer;
-  }
-
-  .btn-more[aria-expanded="true"] {
-    background: var(--color-primary);
-    color: var(--color-on-solid);
-  }
-
-  .more-menu {
-    position: absolute;
-    right: var(--space-2);
-    bottom: calc(100% + var(--space-1));
-    display: none;
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-2);
-    width: min(18rem, calc(100vw - 1rem));
-    padding: var(--space-3);
-    border-radius: var(--radius-xl);
-    border: 0.0625rem solid var(--color-border);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-3);
-  }
-
-  .more-menu.is-open {
-    display: flex;
-  }
-
-  .more-menu .btn-restart,
-  .more-menu .btn-reset {
-    min-height: 2.75rem;
-  }
-
-  .more-menu .speed-switch {
-    order: 0;
-    justify-content: space-between;
-  }
-
-  .more-menu .speed-btn {
-    flex: 1;
-    min-height: 2.75rem;
-    padding: var(--space-1) var(--space-2);
-  }
-
-  /* повідомлення — «тост» над панеллю, а не третій ряд */
-  #feedback {
-    position: absolute;
-    right: var(--space-2);
-    bottom: calc(100% + var(--space-1));
-    left: var(--space-2);
-    order: 0;
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-lg);
-    border: 0.0625rem solid var(--color-border);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-2);
-    pointer-events: none;
-  }
-
-  #feedback:empty {
-    display: none;
-  }
 }
 
 @media (max-width: 43.6875rem), (orientation: landscape) and (max-height: 32.5rem) {
@@ -370,14 +264,13 @@
     border-right: none;
   }
 
-  #editor-tabs {
-    gap: var(--space-1);
-  }
-
-  .editor-tab {
-    flex: 1;
+  .stage-link {
+    display: inline-flex;
+    align-items: center;
     min-height: 2.75rem;
-    padding: var(--space-1) var(--space-3);
+    margin-inline-start: auto;
+    color: var(--color-heading);
+    font-size: var(--font-size-sm);
   }
 
   #editor-panels {
@@ -456,6 +349,19 @@
     padding: var(--space-2);
   }
 
+  .ws-meta {
+    gap: var(--space-1);
+  }
+
+  .ws-meta .panel-label,
+  .ws-meta #block-count {
+    font-size: var(--font-size-xs);
+  }
+
+  .ws-meta #block-count {
+    margin-inline-start: 0;
+  }
+
   #ws-stack {
     overflow: visible;
   }
@@ -513,7 +419,7 @@
     display: contents;
   }
 
-  #canvas-shell {
+  #stage-panel {
     grid-area: field;
     position: sticky;
     top: var(--space-2);
@@ -578,11 +484,21 @@
     height: 2.75rem;
   }
 
-  .btn-style {
+  .btn-style,
+  .editor-tab,
+  .btn-more {
     min-height: 2.75rem;
   }
 
+  .btn-more {
+    min-width: 2.75rem;
+  }
+
   .speed-btn {
+    min-height: 2.75rem;
+  }
+
+  .blk-pop-quick {
     min-height: 2.75rem;
   }
 

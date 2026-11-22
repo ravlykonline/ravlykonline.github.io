@@ -7,6 +7,7 @@ import { getBestBlocks, getGhostSegments } from './core/ghost.js';
 import { describeGhost, describeTurtleStatus } from './core/describe.js';
 import { createLessonMenu } from './ui/lessonMenu.js';
 import { createMoreMenu } from './ui/moreMenu.js';
+import { createPopupToggle } from './ui/popupToggle.js';
 import { createTurtleForLesson } from './domain/turtle.js';
 import { appState, markLessonDone, resetRuntimeState, setActiveBlock, setLesson, setRunning, setSpeed, setView } from './core/state.js';
 import {
@@ -43,8 +44,9 @@ let introReturnFocus = null;
 let copyStatusTimer = 0;
 let dragController = null;
 let moreMenu = null;
+let workspaceMenu = null;
 let lessonMenu = null;
-const BACKGROUND_SELECTOR = '#hdr, .folk-divider, #app-main, #footer';
+const BACKGROUND_SELECTOR = '#hdr, .folk-divider, #app-main';
 const MODAL_OVERLAY_IDS = ['overlay', 'intro-overlay', 'reset-confirm-overlay'];
 // Стан перетягування існуючого блока: знімок ДО підняття й сам «хвіст».
 let dragSnapshot = null;
@@ -75,12 +77,11 @@ function hideSuccessModal() {
   syncModalInert();
 }
 
-/** Лише коли поле бачить дитина на телефоні: прокрутити сторінку до поля перед виконанням. */
+/** На прокручуваному екрані під час запуску показує одночасно поле й керування. */
 function ensureFieldVisible() {
-  const rect = dom.gridSvg.getBoundingClientRect();
+  const rect = dom.stagePanel.getBoundingClientRect();
   if (rect.top >= 0 && rect.bottom <= window.innerHeight) return;
-  if (window.matchMedia('(min-width: 700px) and (min-height: 501px)').matches) return;
-  dom.gridSvg.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+  dom.stagePanel.scrollIntoView({ block: 'nearest', behavior: 'auto' });
 }
 
 function applyDoc(doc) {
@@ -391,6 +392,7 @@ function loadLesson(index) {
   closePopover();
   setResetConfirmOpen(false);
   moreMenu?.close();
+  workspaceMenu?.close();
   lessonMenu?.close();
 
   refreshUi();
@@ -692,13 +694,15 @@ function goToNextLesson() {
 function setBlocksStyle(pastel) {
   document.body.classList.toggle('blocks-pastel', pastel);
   dom.blocksStyleButton.setAttribute('aria-pressed', String(pastel));
-  dom.blocksStyleButton.textContent = pastel ? 'Яскраві' : 'Пастельні';
 }
 
 function bindEvents() {
   dom.runButton.addEventListener('click', runProgram);
   dom.stopButton.addEventListener('click', stopProgram);
-  dom.resetButton.addEventListener('click', () => { moreMenu.close(); requestResetLesson(); });
+  dom.resetButton.addEventListener('click', () => {
+    workspaceMenu.close({ restoreFocus: true });
+    requestResetLesson();
+  });
   dom.resetConfirmButton.addEventListener('click', performResetLesson);
   dom.resetCancelButton.addEventListener('click', () => setResetConfirmOpen(false));
   dom.stepButton.addEventListener('click', stepProgram);
@@ -751,6 +755,8 @@ function bindEvents() {
     if (key === 'Escape' && !event.defaultPrevented) {
       if (moreMenu?.isOpen()) {
         moreMenu.close({ restoreFocus: true });
+      } else if (workspaceMenu?.isOpen()) {
+        workspaceMenu.close({ restoreFocus: true });
       } else if (lessonMenu?.isOpen()) {
         lessonMenu.close({ restoreFocus: true });
       } else if (isSuccessOpen(dom)) {
@@ -799,6 +805,7 @@ function init() {
     onSnap: playSnap,
   });
   moreMenu = createMoreMenu(dom);
+  workspaceMenu = createPopupToggle({ button: dom.workspaceMenuButton, panel: dom.workspaceMenu });
   lessonMenu = createLessonMenu(dom);
   bindEvents();
   setBlocksStyle(new URLSearchParams(window.location.search).get('blocks') === 'pastel');
