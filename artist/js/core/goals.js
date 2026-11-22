@@ -22,8 +22,10 @@ const MESSAGES = {
   missing: 'Не вистачає частини малюнка — подивись на пунктир.',
   extra: 'Є зайві лінії. Подивись на пунктир.',
   almost: 'Майже! Перевір кути повороту.',
+  mirrored: 'Равлик повертає не в той бік. Перевір: праворуч чи ліворуч?',
+  length: 'Напрямки правильні, але довжина ліній не та. Порахуй кроки на пунктирі.',
   colors: 'Фігура правильна, але колір ліній не той. Перевір блоки «колір».',
-  empty: 'Равлик ще нічого не намалював. Додай команди й натисни «Запустити».',
+  empty: 'Равлик ще нічого не намалював. Додай команди й натисни «▶ Старт».',
 };
 
 function pointDistance(a, b) {
@@ -104,11 +106,66 @@ function endpointsMatch(a, b, checkColor) {
   return straight || flipped;
 }
 
+const DIRECTION_TOLERANCE_DEG = 1;
+
+/** Неорієнтований напрямок відрізка в градусах, [0, 180). */
+function undirectedAngle(segment) {
+  const dx = segment.to[0] - segment.from[0];
+  const dy = segment.to[1] - segment.from[1];
+  const degrees = (Math.atan2(dy, dx) * 180) / Math.PI;
+  return ((degrees % 180) + 180) % 180;
+}
+
+function angleDifference(a, b) {
+  const diff = Math.abs(a - b) % 180;
+  return Math.min(diff, 180 - diff);
+}
+
+/**
+ * Чи має кожен відрізок той самий напрямок, що й парний еталонний (у порядку малювання).
+ * Довжини не важливі. Порядок потрібен, щоб не сплутати трикутник із «неправильним» кутом
+ * (його сторони дають ті самі неорієнтовані напрямки 0°, 60°, 120°, але в іншій послідовності).
+ */
+export function haveSameDirections(first, second) {
+  if (first.length !== second.length) return false;
+  return first.every((segment, i) => (
+    angleDifference(undirectedAngle(segment), undirectedAngle(second[i])) <= DIRECTION_TOLERANCE_DEG
+  ));
+}
+
+/** Відбиває відрізки відносно прямої через старт уздовж початкового напрямку (0° — вгору, y вниз). */
+export function mirrorSegments(segments, start) {
+  const heading = ((start.heading ?? 0) * Math.PI) / 180;
+  const dx = Math.sin(heading);
+  const dy = -Math.cos(heading);
+  const sx = start.x ?? 0;
+  const sy = start.y ?? 0;
+  const reflect = ([x, y]) => {
+    const px = x - sx;
+    const py = y - sy;
+    const along = px * dx + py * dy;
+    return [sx + 2 * along * dx - px, sy + 2 * along * dy - py];
+  };
+  return segments.map((segment) => ({ ...segment, from: reflect(segment.from), to: reflect(segment.to) }));
+}
+
+function allMatched(drawn, target, checkColor) {
+  if (drawn.length !== target.length) return false;
+  const used = new Set();
+  for (const wanted of target) {
+    const index = drawn.findIndex((candidate, i) => !used.has(i) && endpointsMatch(candidate, wanted, checkColor));
+    if (index === -1) return false;
+    used.add(index);
+  }
+  return true;
+}
+
 /**
  * Порівнює намальовані відрізки з еталоном.
- * @returns {{ ok: boolean, reason?: 'missing'|'extra'|'almost'|'colors'|'empty', message?: string }}
+ * `start` (необов’язково) — старт рівня {x, y, heading}: потрібен, щоб упізнати дзеркальну фігуру.
+ * @returns {{ ok: boolean, reason?: 'missing'|'extra'|'almost'|'mirrored'|'length'|'colors'|'empty', message?: string }}
  */
-export function compareShapes(actual, expected, { checkColor = false } = {}) {
+export function compareShapes(actual, expected, { checkColor = false, start = null } = {}) {
   const drawn = mergeSegments(actual, { checkColor });
   const target = mergeSegments(expected, { checkColor });
 
@@ -132,6 +189,12 @@ export function compareShapes(actual, expected, { checkColor = false } = {}) {
   }
 
   if (unmatchedTarget > 0 && unmatchedDrawn > 0 && drawn.length === target.length) {
+    if (start && allMatched(mergeSegments(mirrorSegments(drawn, start)), target, false)) {
+      return { ok: false, reason: 'mirrored', message: MESSAGES.mirrored };
+    }
+    if (haveSameDirections(drawn, target)) {
+      return { ok: false, reason: 'length', message: MESSAGES.length };
+    }
     return { ok: false, reason: 'almost', message: MESSAGES.almost };
   }
   if (unmatchedTarget > 0) return { ok: false, reason: 'missing', message: MESSAGES.missing };
@@ -149,7 +212,8 @@ export function getStars(blockCount, bestBlocks) {
  * @param {{ segments: object[], workspace: object[], expected?: object[], bestBlocks?: number }} run
  *   expected — відрізки еталона (будуються з `lesson.solution` рушієм);
  *   bestBlocks — кількість блоків еталонного розв’язку (за замовчуванням для зірок).
- * @returns {{ ok: boolean, message: string, stars?: number, reason?: string }}
+ * @returns {{ ok: boolean, message: string, stars?: number, reason?: string, partial?: boolean }}
+ *   partial — фігура правильна, але бракує обов’язкового блока (не помилка, а підказка).
  */
 export function evaluateGoal(lesson, run) {
   const { segments, workspace } = run;
@@ -157,26 +221,29 @@ export function evaluateGoal(lesson, run) {
 
   if (success.mode === 'free') {
     const minimum = success.minSegments ?? 1;
-    if (segments.length >= minimum) {
+    // Рахуємо справжні лінії: колінеарні шматки зливаються, нульової довжини не існує.
+    const lineCount = mergeSegments(segments).length;
+    if (lineCount >= minimum) {
       return { ok: true, message: lesson.successMessage, stars: 3 };
     }
     return {
       ok: false,
       reason: 'missing',
-      message: `Равлик намалював лише ${segments.length}, а треба щонайменше ${minimum} відрізків. Додай більше команд.`,
+      message: `Поки що намальовано ліній: ${lineCount}, а треба щонайменше ${minimum}. Додай більше команд.`,
     };
   }
 
   if (success.mode === 'shape') {
-    const comparison = compareShapes(segments, run.expected ?? [], { checkColor: Boolean(success.checkColor) });
+    const comparison = compareShapes(segments, run.expected ?? [], { checkColor: Boolean(success.checkColor), start: lesson.start });
     if (!comparison.ok) return comparison;
 
     for (const type of lesson.constraints?.requireBlocks ?? []) {
       if (!containsBlockType(workspace, type)) {
         return {
           ok: false,
+          partial: true,
           reason: 'requireBlocks',
-          message: 'Фігура правильна! А тепер зроби її з блоком «повторити».',
+          message: 'Фігура правильна! Тепер спробуй зробити її коротше — з блоком «повторити».',
         };
       }
     }
@@ -184,8 +251,9 @@ export function evaluateGoal(lesson, run) {
     if (lesson.constraints?.requireNestedRepeat && !hasNestedRepeat(workspace)) {
       return {
         ok: false,
+        partial: true,
         reason: 'requireNested',
-        message: 'Фігура правильна! А тепер спробуй вкласти один «повторити» в інший.',
+        message: 'Фігура правильна! Тепер спробуй вкласти один «повторити» в інший.',
       };
     }
 

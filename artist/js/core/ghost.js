@@ -50,6 +50,11 @@ export function getStepMarks(segments, step = STEP_LENGTH) {
   return marks;
 }
 
+/** На рівнях, де перевіряється колір, пунктир показує колір кожної лінії. */
+export function shouldColorGhost(lesson) {
+  return Boolean(lesson.success?.checkColor) && Boolean(lesson.solution);
+}
+
 /** Крапки-кроки показуємо на рівнях із сіткою (розділи, де працює блок «крок вперед»). */
 export function shouldShowStepMarks(lesson) {
   return lesson.showGrid === true && Boolean(lesson.solution);

@@ -5,7 +5,8 @@ import { evaluateGoal } from '../js/core/goals.js';
 import { getStepMarks, shouldShowStepMarks, getBestBlocks, getGhostSegments } from '../js/core/ghost.js';
 import { lessons } from '../js/data/lessons.js';
 import { runProgram } from '../js/runtime/runner.js';
-import { appState, markLessonDone, setLesson } from '../js/core/state.js';
+import { appState, clearLevelMemory, markLessonDone, setLesson } from '../js/core/state.js';
+import { mergeSegments } from '../js/core/goals.js';
 import { pushSnapshot, undo, redo, clearHistory } from '../js/state/history.js';
 import { createStepController } from '../js/runtime/stepController.js';
 
@@ -46,8 +47,8 @@ const typesIn = (list) => list.flatMap((b) => [b.type, ...(b.blocks ? typesIn(b.
 
 // ── Структура курсу ───────────────────────────────────────────────────────────
 
-runTest('course: 20 levels in 4 chapters of 5, 5, 7 and 3 levels, ids are sequential', () => {
-  assert.equal(lessons.length, 20);
+runTest('course: 21 levels in 4 chapters of 5, 5, 7 and 4 levels, ids are sequential', () => {
+  assert.equal(lessons.length, 21);
   const counts = {};
   const order = [];
   for (const lesson of lessons) {
@@ -55,7 +56,7 @@ runTest('course: 20 levels in 4 chapters of 5, 5, 7 and 3 levels, ids are sequen
     if (!order.includes(lesson.chapter)) order.push(lesson.chapter);
   }
   assert.deepEqual(order, ['Перші кроки', 'Повторення', 'Числа і кути', 'Кольори і творчість']);
-  assert.deepEqual(order.map((c) => counts[c]), [5, 5, 7, 3]);
+  assert.deepEqual(order.map((c) => counts[c]), [5, 5, 7, 4]);
   lessons.forEach((lesson, index) => {
     assert.equal(lesson.id, `lesson-${String(index + 1).padStart(2, '0')}`);
     assert.ok(lesson.title.startsWith(`Рівень ${index + 1}:`), lesson.title);
@@ -167,7 +168,7 @@ runTest('a full turn with unit moves does not reproduce the specified circle', (
   assert.equal(play(circle, circle.solution).stars, 3);
 });
 
-runTest('level 18 checks colour; level 19 needs nested repeat; level 20 is free with 8 segments', () => {
+runTest('level 18 checks colour; level 19 needs nested repeat; level 20 mixes colour and repeat; level 21 is free with 8 lines', () => {
   const level18 = lessons[17];
   assert.equal(level18.success.checkColor, true);
   const level19 = lessons[18];
@@ -180,8 +181,12 @@ runTest('level 18 checks colour; level 19 needs nested repeat; level 20 is free 
   assert.equal(flatResult.reason, 'requireNested');
   assert.equal(play(level19, level19.solution).stars, 3);
   const level20 = lessons[19];
-  assert.deepEqual([level20.success.mode, level20.success.minSegments], ['free', 8]);
-  assert.equal(level20.toolbox.length, 11);
+  assert.equal(level20.success.checkColor, true);
+  assert.deepEqual(level20.constraints.requireBlocks, ['repeat']);
+  assert.equal(play(level20, level20.solution).stars, 3);
+  const level21 = lessons[20];
+  assert.deepEqual([level21.success.mode, level21.success.minSegments], ['free', 8]);
+  assert.equal(level21.toolbox.length, 11);
 });
 
 runTest('best blocks come from the solution (3 stars on the solution, fewer for padded programs)', () => {
@@ -196,11 +201,13 @@ runTest('best blocks come from the solution (3 stars on the solution, fewer for 
 // ── Рівень 14: «Знайди помилку» ───────────────────────────────────────────────
 
 runTest('level 14: startBlocks fail, the fixed program passes, workspace loads with fresh ids', () => {
+  clearLevelMemory();
   const level = lessons[13];
   assert.ok(level.startBlocks?.length > 0);
   assert.equal(play(level, level.startBlocks).ok, false);
-  const fixed = mapTree(level.startBlocks, (b) => (b.type === 'right' ? { ...b, n: 120 } : b));
+  const fixed = mapTree(level.startBlocks, (b) => (b.type === 'repeat' ? { ...b, n: 4 } : b));
   assert.equal(play(level, fixed).ok, true);
+  assert.notEqual(lessons[12].solution[0].blocks[1].n, level.startBlocks[0].blocks[1].n, 'помилка не повторює рівень 13');
 
   setLesson(13);
   const first = appState.workspace;
@@ -210,6 +217,7 @@ runTest('level 14: startBlocks fail, the fixed program passes, workspace loads w
   collect(first);
   assert.ok(ids.every((id) => Number.isInteger(id)) && new Set(ids).size === ids.length);
 
+  clearLevelMemory();
   setLesson(13);
   const secondIds = [];
   const collectSecond = (list) => list.forEach((b) => { secondIds.push(b.id); if (b.blocks) collectSecond(b.blocks); });
@@ -238,11 +246,50 @@ runTest('level 14: the prefilled workspace works with undo/redo', () => {
 });
 
 runTest('other levels start with an empty workspace', () => {
+  clearLevelMemory();
   for (let i = 0; i < lessons.length; i += 1) {
     setLesson(i);
     assert.equal(appState.workspace.length > 0, i === 13, `рівень ${i + 1}`);
   }
   setLesson(0);
+});
+
+runTest('level memory: leaving a level keeps its program, returning restores a deep copy', () => {
+  clearLevelMemory();
+  setLesson(13);
+  const edited = [blk('forward', 77)];
+  appState.workspace = withIds(edited, 9000);
+  appState.loose = [{ id: 9100, x: 10, y: 10, blocks: withIds([blk('step')], 9101) }];
+  setLesson(2);
+  assert.equal(appState.workspace.length, 0, 'інший рівень — свій (порожній) стос');
+  setLesson(13);
+  assert.equal(appState.workspace[0].n, 77);
+  assert.equal(appState.loose.length, 1);
+  // заміна вмісту не псує збережене
+  appState.workspace[0].n = 5;
+  setLesson(2);
+  setLesson(13);
+  assert.equal(appState.workspace[0].n, 5);
+  clearLevelMemory();
+  setLesson(13);
+  assert.equal(appState.workspace.length, 1, 'без пам’яті — знову startBlocks');
+  assert.equal(appState.workspace[0].type, 'repeat');
+  clearLevelMemory();
+  setLesson(0);
+});
+
+runTest('level 21 (free) counts real lines: one straight line or wall hugging is not many segments', () => {
+  const free = lessons[20];
+  const straight = Array.from({ length: 8 }, () => blk('forward', 10));
+  assert.equal(play(free, straight).ok, false);
+  assert.equal(mergeSegments(runProgram(withIds(straight), free).segments).length, 1);
+  // 8 різних ліній — восьмикутник
+  const octagon = Array.from({ length: 8 }, () => [blk('forward', 10), blk('right', 45)]).flat();
+  assert.equal(play(free, octagon).ok, true);
+  assert.equal(play(free, octagon.slice(2)).ok, false);
+  // вперед — назад по тій самій лінії теж одна лінія
+  const back = [blk('repeat', 8, [blk('forward', 10), blk('back', 10)])];
+  assert.equal(play(free, back).ok, false);
 });
 
 runTest('session memory: best stars never decrease', () => {

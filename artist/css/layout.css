@@ -22,6 +22,7 @@
   font-size: var(--font-size-xl);
   font-weight: 900;
   white-space: nowrap;
+  text-decoration: none;
 }
 
 .logo-snail {

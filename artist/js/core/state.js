@@ -10,7 +10,7 @@ export const appState = {
   errorBlockId: null,
   running: false, // є активний сеанс виконання (редагування заблоковане), навіть на паузі
   doneLessons: new Set(),
-  bestStars: new Map(), // індекс рівня → найкращі зірки за сесію (без localStorage)
+  bestStars: new Map(), // індекс рівня → найкращі зірки за сесію (зберігаються в sessionStorage, див. state/progressStore.js)
   turtleSegments: [],
   activeBlockId: null,
   insertTargetId: null,
@@ -34,11 +34,39 @@ function initialWorkspace(lesson) {
   return blocks;
 }
 
+// Програма кожного рівня в пам’яті сесії: при поверненні на рівень вона не губиться.
+// Лише в оперативній пам’яті — не в localStorage/sessionStorage (див. AGENTS.md).
+const deepClone = (value) => JSON.parse(JSON.stringify(value)); // дерево блоків — звичайний JSON
+const levelMemory = new Map();
+let hasLoadedLesson = false;
+
+function rememberCurrentLesson() {
+  if (!hasLoadedLesson) return;
+  levelMemory.set(appState.currentLesson.id, {
+    workspace: deepClone(appState.workspace),
+    loose: deepClone(appState.loose),
+  });
+}
+
+/** Скидає пам’ять програм (для тестів). */
+export function clearLevelMemory() {
+  levelMemory.clear();
+  hasLoadedLesson = false;
+}
+
 export function setLesson(index) {
+  rememberCurrentLesson();
+  hasLoadedLesson = true;
   appState.currentLessonIndex = index;
   appState.currentLesson = lessons[index];
-  appState.workspace = initialWorkspace(appState.currentLesson);
-  appState.loose = [];
+  const remembered = levelMemory.get(appState.currentLesson.id);
+  if (remembered) {
+    appState.workspace = deepClone(remembered.workspace);
+    appState.loose = deepClone(remembered.loose);
+  } else {
+    appState.workspace = initialWorkspace(appState.currentLesson);
+    appState.loose = [];
+  }
   appState.errorBlockId = null;
   appState.activeBlockId = null;
   resetRuntimeState();

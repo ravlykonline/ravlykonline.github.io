@@ -1,6 +1,6 @@
 import { FIELD_HALF_HEIGHT, FIELD_HALF_WIDTH, GRID_STEP } from '../core/constants.js';
 import { chooseSnailSide, getSnailTransform } from '../domain/snail.js';
-import { getStepMarks, shouldShowStepMarks } from '../core/ghost.js';
+import { getStepMarks, shouldColorGhost, shouldShowStepMarks } from '../core/ghost.js';
 import { avatarSvg, snailSvg } from './icons.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -81,13 +81,28 @@ export function renderLessonGuide(dom, lesson, ghostSegments = []) {
     }
   }
 
+  // На кольорових рівнях риски пунктиру мають колір лінії; сіра облямівка
+  // під ними тримає контраст навіть для жовтого на світлому полі.
+  const colored = shouldColorGhost(lesson);
   for (const segment of ghostSegments) {
+    const coords = { x1: segment.from[0], y1: segment.from[1], x2: segment.to[0], y2: segment.to[1] };
+    if (colored) {
+      guideLayer.appendChild(svgElement('line', {
+        ...coords,
+        stroke: GHOST_COLOR,
+        'stroke-width': 8,
+        'stroke-linecap': 'round',
+        'stroke-dasharray': '9 11',
+        opacity: 0.5,
+      }));
+    }
     guideLayer.appendChild(svgElement('line', {
-      x1: segment.from[0], y1: segment.from[1], x2: segment.to[0], y2: segment.to[1],
-      stroke: GHOST_COLOR,
+      ...coords,
+      stroke: colored ? segment.color : GHOST_COLOR,
       'stroke-width': 5,
       'stroke-linecap': 'round',
       'stroke-dasharray': '9 11',
+      ...(colored ? { 'data-ghost-color': segment.color } : {}),
     }));
   }
 

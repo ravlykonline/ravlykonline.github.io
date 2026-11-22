@@ -91,6 +91,67 @@ runTest('compareShapes reports missing, extra and almost', () => {
   assert.equal(compareShapes([], square).reason, 'empty');
 });
 
+// ── Точна діагностика помилок ────────────────────────────────────────────────
+
+const L = (n) => lessons[n - 1];
+const reasonOf = (lesson, tree) => play(lesson, tree).reason;
+
+runTest('feedback: wrong length with right directions is «length», not «almost»', () => {
+  assert.equal(reasonOf(L(1), [blk('step'), blk('step')]), 'length');
+  assert.equal(reasonOf(L(1), [blk('step'), blk('step'), blk('step'), blk('step')]), 'length');
+  assert.equal(reasonOf(L(11), [blk('forward', 100)]), 'length');
+  assert.equal(reasonOf(L(13), [blk('repeat', 3, [blk('forward', 80), blk('right', 120)])]), 'length');
+  assert.match(play(L(11), [blk('forward', 100)]).message, /довжина/);
+});
+
+runTest('feedback: mirror image is «mirrored»', () => {
+  assert.equal(reasonOf(L(2), [blk('step'), blk('step'), blk('turn_left90'), blk('step'), blk('step')]), 'mirrored');
+  assert.equal(reasonOf(L(13), [blk('repeat', 3, [blk('forward', 100), blk('left', 120)])]), 'mirrored');
+  const allLeft = lessons[4].solution.map((b) => (b.type === 'turn_right90' ? { ...b, type: 'turn_left90' } : b));
+  assert.equal(reasonOf(L(5), allLeft), 'mirrored');
+  assert.match(play(L(2), [blk('step'), blk('step'), blk('turn_left90'), blk('step'), blk('step')]).message, /праворуч чи ліворуч/);
+});
+
+runTest('feedback: wrong angle stays «almost» (not length/mirrored)', () => {
+  const result = play(L(13), [blk('repeat', 3, [blk('forward', 100), blk('right', 60)])]);
+  assert.equal(result.ok, false);
+  assert.ok(!['length', 'mirrored'].includes(result.reason), result.reason);
+  assert.equal(reasonOf(L(13), [blk('repeat', 3, [blk('forward', 100), blk('right', 90)])]), 'almost');
+});
+
+runTest('compareShapes: mirror detection needs start, old signature still works', () => {
+  const start = { x: 0, y: 0, heading: 0 };
+  const target = [seg(0, 0, 0, -50), seg(0, -50, 50, -50)];
+  const mirrored = [seg(0, 0, 0, -50), seg(0, -50, -50, -50)];
+  assert.equal(compareShapes(mirrored, target, { start }).reason, 'mirrored');
+  assert.notEqual(compareShapes(mirrored, target).reason, 'mirrored');
+  assert.notEqual(compareShapes(mirrored, target, { start: { x: 0, y: 0, heading: 90 } }).reason, 'mirrored');
+});
+
+runTest('feedback: empty message names the real «▶ Старт» button', () => {
+  assert.match(compareShapes([], [seg(0, 0, 0, -50)]).message, /▶ Старт/);
+});
+
+runTest('correct shape without required block is a partial success', () => {
+  const level = L(6);
+  const result = play(level, [blk('step'), blk('step'), blk('step'), blk('step')]);
+  assert.equal(result.ok, false);
+  assert.equal(result.partial, true);
+  assert.equal(result.reason, 'requireBlocks');
+  assert.match(result.message, /Фігура правильна/);
+  assert.match(result.message, /повторити/);
+  const flat = L(19);
+  const flatTree = [blk('repeat', 6, [
+    blk('forward', 60), blk('right', 90), blk('forward', 60), blk('right', 90),
+    blk('forward', 60), blk('right', 90), blk('forward', 60), blk('right', 90), blk('right', 60),
+  ])];
+  const nested = play(flat, flatTree);
+  assert.equal(nested.partial, true);
+  assert.equal(nested.reason, 'requireNested');
+  // справжня помилка — не partial
+  assert.equal(play(level, [blk('step')]).partial, undefined);
+});
+
 runTest('compareShapes: checkColor compares colors', () => {
   const red = '#E8302A';
   const blue = '#1A56DB';
@@ -127,9 +188,11 @@ for (const lesson of lessons) {
   if (lesson.success.mode === 'free') {
     runTest(`${lesson.id} (free): empty program fails, enough segments pass`, () => {
       assert.equal(play(lesson, []).ok, false);
-      const many = Array.from({ length: lesson.success.minSegments }, () => blk('forward', 10));
+      const n = lesson.success.minSegments;
+      // кожна лінія в іншому напрямку, щоб нічого не злилося в одну
+      const many = Array.from({ length: n }, () => [blk('forward', 10), blk('right', 360 / n)]).flat();
       assert.equal(play(lesson, many).ok, true);
-      assert.equal(play(lesson, many.slice(1)).ok, false);
+      assert.equal(play(lesson, many.slice(2)).ok, false);
     });
     continue;
   }

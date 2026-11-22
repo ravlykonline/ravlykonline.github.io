@@ -3,7 +3,8 @@ import { readFileSync } from 'node:fs';
 
 import { describeGhost, describeHeading, describeTurtleStatus } from '../js/core/describe.js';
 import { createTurtle } from '../js/domain/turtle.js';
-import { getGhostSegments } from '../js/core/ghost.js';
+import { getGhostSegments, shouldColorGhost } from '../js/core/ghost.js';
+import { colorHex, colorName } from '../js/data/colors.js';
 import { lessons } from '../js/data/lessons.js';
 
 function runTest(name, fn) {
@@ -65,6 +66,29 @@ runTest('every level with a solution gets a non-empty ghost description without 
     assert.ok(text.length > 20, `${lesson.id}: description exists`);
     assert.doesNotMatch(text, /[<>]/, `${lesson.id}: plain text`);
   }
+});
+
+runTest('colour levels show a coloured ghost and name the colours for screen readers', () => {
+  const colored = lessons.filter(shouldColorGhost);
+  assert.ok(colored.length >= 2, 'rainbow and two-colour levels colour their ghost');
+  for (const lesson of lessons) {
+    assert.equal(shouldColorGhost(lesson), Boolean(lesson.success?.checkColor && lesson.solution), lesson.id);
+  }
+  assert.equal(colorName(colorHex('синій')), 'синій');
+  assert.equal(colorName(colorHex('синій').toLowerCase()), 'синій');
+  assert.equal(colorName('#123456'), null);
+
+  const rainbow = lessons.find((lesson) => lesson.title.includes('Веселковий'));
+  const text = describeGhost(getGhostSegments(rainbow), rainbow.start, { withColors: true });
+  assert.match(text, /вгору на 100, колір червоний; праворуч на 100, колір жовтий; вниз на 100, колір зелений; ліворуч на 100, колір синій/);
+  assert.doesNotMatch(describeGhost(getGhostSegments(rainbow), rainbow.start), /колір/, 'colours only when asked');
+
+  // Однаковий напрямок, різні кольори — не зливаються.
+  const twoTone = [
+    { from: [0, 0], to: [50, 0], color: colorHex('червоний') },
+    { from: [50, 0], to: [100, 0], color: colorHex('синій') },
+  ];
+  assert.match(describeGhost(twoTone, { x: 0, y: 0 }, { withColors: true }), /праворуч на 50, колір червоний; праворуч на 50, колір синій/);
 });
 
 // ── Контраст текстових пар (WCAG AA, ≥ 4.5:1) ──────────────────────────────────
