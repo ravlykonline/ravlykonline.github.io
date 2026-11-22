@@ -144,7 +144,7 @@ function isWelcomeOpen() {
 /** Вітальний екран для новачка: що це за гра, живе демо й кнопка «Розпочати». */
 function openWelcome() {
   const count = lessons.length;
-  dom.welcomeNote.textContent = `${count} ${pluralUk(count, ['рівень', 'рівні', 'рівнів'])}: від першої лінії до зірки й квітки`;
+  dom.welcomeNote.textContent = `${count} ${pluralUk(count, ['рівень', 'рівні', 'рівнів'])}`;
   dom.welcomeOverlay.classList.add('show');
   dom.welcomeOverlay.setAttribute('aria-hidden', 'false');
   syncModalInert();

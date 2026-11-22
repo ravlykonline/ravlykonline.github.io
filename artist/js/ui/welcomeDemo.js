@@ -1,19 +1,20 @@
 /**
  * Жива ілюстрація вітального екрана: равлик малює будиночок за пунктиром.
  * Та сама модель, що й у грі: кроки дає runSteps, рух — interpolateTurtle,
- * поза равлика — chooseSnailSide. Без innerHTML.
+ * равлик тримається із зовнішнього боку будиночка. Без innerHTML.
  */
 import { withIds } from '../core/blockTree.js';
 import { WELCOME_DEMO, welcomeDemoBlocks } from '../core/welcome.js';
-import { chooseSnailSide, getSnailTransform, getStepDuration, interpolateTurtle } from '../domain/snail.js';
-import { runProgram, runSteps } from '../runtime/runner.js';
+import { getSnailTransform, getStepDuration, interpolateTurtle, SNAIL_SPRITE_RADIUS } from '../domain/snail.js';
+import { runSteps } from '../runtime/runner.js';
 import { GHOST_COLOR } from './canvas.js';
 import { snailSvg } from './icons.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const DEMO_SPEED_FACTOR = 1.3;
-const START_PAUSE_MS = 600;
-const END_PAUSE_MS = 1800;
+const START_PAUSE_MS = 450;
+const SPRITE_SCALE = 0.7;
+const VIEW_PADDING = SNAIL_SPRITE_RADIUS * SPRITE_SCALE + 5;
 
 function svgElement(name, attributes = {}) {
   const element = document.createElementNS(SVG_NS, name);
@@ -25,18 +26,32 @@ function lineAttributes(segment) {
   return { x1: segment.from[0], y1: segment.from[1], x2: segment.to[0], y2: segment.to[1] };
 }
 
+function fitView(svg, start, steps) {
+  const poses = [start, ...steps.map(({ after }) => after)];
+  const x = poses.map((pose) => pose.x);
+  const y = poses.map((pose) => pose.y);
+  const left = Math.min(...x);
+  const top = Math.min(...y);
+  const width = Math.max(...x) - left;
+  const height = Math.max(...y) - top;
+  const size = Math.max(width, height) + 2 * VIEW_PADDING;
+  svg.setAttribute('viewBox', `${left + (width - size) / 2} ${top + (height - size) / 2} ${size} ${size}`);
+}
+
 /**
- * @param {SVGSVGElement} svg порожній <svg> з viewBox
+ * @param {SVGSVGElement} svg порожній <svg>
  * @param {{ reducedMotion: () => boolean }} options
  * @returns {{ start(): void, stop(): void }}
  */
 export function createWelcomeDemo(svg, { reducedMotion }) {
   const blocks = withIds(welcomeDemoBlocks());
-  const ghost = runProgram(blocks, WELCOME_DEMO).segments;
   const steps = [...runSteps(blocks, WELCOME_DEMO)];
+  const start = steps[0].before;
+  fitView(svg, start, steps);
 
   const ghostLayer = svgElement('g');
-  for (const segment of ghost) {
+  for (const { segment } of steps) {
+    if (!segment) continue;
     ghostLayer.appendChild(svgElement('line', {
       ...lineAttributes(segment),
       stroke: GHOST_COLOR,
@@ -47,15 +62,14 @@ export function createWelcomeDemo(svg, { reducedMotion }) {
   }
   const trailLayer = svgElement('g');
   const snail = svgElement('g');
-  const sprite = svgElement('g');
+  const sprite = svgElement('g', { transform: `scale(${-SPRITE_SCALE} ${SPRITE_SCALE})` });
   const parsed = new DOMParser().parseFromString(snailSvg, 'image/svg+xml').documentElement;
   for (const child of parsed.children) sprite.appendChild(document.importNode(child, true));
-  sprite.querySelector('[data-pen-tip]')?.setAttribute('fill', steps[0]?.before.color ?? GHOST_COLOR);
+  sprite.querySelector('[data-pen-tip]')?.setAttribute('fill', start.color);
   snail.appendChild(sprite);
   svg.replaceChildren(ghostLayer, trailLayer, snail);
 
   let frame = 0;
-  let side = 1;
   let running = false;
 
   function place(turtle) {
@@ -76,10 +90,7 @@ export function createWelcomeDemo(svg, { reducedMotion }) {
   function drawStill() {
     trailLayer.replaceChildren();
     for (const step of steps) if (step.segment) addLine(step.segment);
-    const last = steps[steps.length - 1];
-    side = chooseSnailSide(last.before, last.after, [ghost], side);
-    sprite.setAttribute('transform', `scale(${side} 1)`);
-    place(last.after);
+    place(steps.at(-1).after);
   }
 
   /** Розклад: [{ step, startsAt, duration }] і загальна тривалість одного проходу. */
@@ -91,27 +102,19 @@ export function createWelcomeDemo(svg, { reducedMotion }) {
       time += duration;
       return item;
     });
-    return { plan, total: time + END_PAUSE_MS };
+    return { plan, total: time };
   }
 
   function animate() {
     const { plan, total } = schedule();
-    let loopStart = null;
+    let startTime = null;
     let index = -1;
     let line = null;
 
-    function resetLoop(now) {
-      loopStart = now;
-      index = -1;
-      line = null;
-      trailLayer.replaceChildren();
-      place(steps[0].before);
-    }
-
     function tick(now) {
       if (!running) return;
-      if (loopStart === null || now - loopStart >= total) resetLoop(now);
-      const elapsed = now - loopStart;
+      startTime ??= now;
+      const elapsed = now - startTime;
 
       // Доводимо до кінця кроки, час яких минув, і починаємо поточний.
       while (index + 1 < plan.length && elapsed >= plan[index + 1].startsAt) {
@@ -122,8 +125,6 @@ export function createWelcomeDemo(svg, { reducedMotion }) {
         }
         index += 1;
         const { step } = plan[index];
-        side = chooseSnailSide(step.before, step.after, [ghost], side);
-        sprite.setAttribute('transform', `scale(${side} 1)`);
         line = step.segment ? addLine(step.segment, step.segment.from) : null;
       }
 
@@ -136,16 +137,18 @@ export function createWelcomeDemo(svg, { reducedMotion }) {
           line.setAttribute('y2', turtle.y);
         }
       }
-      frame = window.requestAnimationFrame(tick);
+      running = elapsed < total;
+      if (running) frame = window.requestAnimationFrame(tick);
     }
 
-    place(steps[0].before);
+    trailLayer.replaceChildren();
+    place(start);
     frame = window.requestAnimationFrame(tick);
   }
 
   return {
     start() {
-      if (running || steps.length === 0) return;
+      if (running) return;
       if (reducedMotion()) {
         drawStill();
         return;

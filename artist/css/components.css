@@ -98,7 +98,8 @@
   opacity: 0.55;
 }
 
-#snail-el:not(.pen-up) [data-pen-position] {
+#snail-el:not(.pen-up, .sprite-offset) [data-pen-position],
+#snail-el:not(.sprite-offset) [data-pen-guide] {
   visibility: hidden;
 }
 
@@ -556,7 +557,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-3);
   width: min(34rem, 100%);
   margin: auto;
   padding: var(--space-6);
@@ -568,7 +569,7 @@
 
 .welcome-demo {
   display: block;
-  width: min(13rem, 52vw);
+  width: min(12rem, 48vw);
   aspect-ratio: 1;
   border: 0.125rem solid var(--color-border);
   border-radius: var(--radius-2xl);

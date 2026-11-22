@@ -1,5 +1,5 @@
 import { FIELD_HALF_HEIGHT, FIELD_HALF_WIDTH, GRID_STEP } from '../core/constants.js';
-import { chooseSnailSide, getSnailTransform } from '../domain/snail.js';
+import { chooseSnailSide, getSnailFieldOffset, getSnailTransform } from '../domain/snail.js';
 import { getStepMarks, shouldColorGhost, shouldShowStepMarks } from '../core/ghost.js';
 import { avatarSvg, snailSvg } from './icons.js';
 
@@ -27,11 +27,18 @@ export function setupCanvas(dom) {
   dom.fieldBackground.setAttribute('width', FIELD_HALF_WIDTH * 2);
   dom.fieldBackground.setAttribute('height', FIELD_HALF_HEIGHT * 2);
 
-  // Поворот належить зовнішній групі, віддзеркалення — групі з позою.
   const anchor = svgElement('circle', { 'data-pen-position': 'true', r: 2.5, fill: GHOST_COLOR });
+  const guide = svgElement('line', {
+    'data-pen-guide': 'true', stroke: GHOST_COLOR, 'stroke-width': 1.5, 'stroke-dasharray': '2 3',
+  });
+  const pose = svgElement('g');
   const sprite = svgElement('g');
   for (const child of parseSvg(snailSvg).children) sprite.appendChild(document.importNode(child, true));
-  snailElement.replaceChildren(anchor, sprite);
+  pose.appendChild(sprite);
+  snailElement.replaceChildren(guide, anchor, pose);
+  dom.snailAnchor = anchor;
+  dom.snailGuide = guide;
+  dom.snailPose = pose;
   dom.snailSprite = sprite;
   dom.snailTip = sprite.querySelector('[data-pen-tip]');
 
@@ -136,7 +143,15 @@ export function selectTurtlePose(dom, before, after, trail = []) {
 
 /** Ставить равлика в позицію й кут черепахи; колір і піднятість олівця — з її стану. */
 export function placeTurtleSnail(dom, turtle) {
-  dom.snailElement.setAttribute('transform', getSnailTransform(turtle));
+  const { x, y } = turtle;
+  const [dx, dy] = getSnailFieldOffset(turtle, dom.snailSide);
+  dom.snailElement.classList.toggle('sprite-offset', dx !== 0 || dy !== 0);
+  dom.snailAnchor.setAttribute('cx', x);
+  dom.snailAnchor.setAttribute('cy', y);
+  setTrailEnd(dom.snailGuide, x + dx, y + dy);
+  dom.snailGuide.setAttribute('x1', x);
+  dom.snailGuide.setAttribute('y1', y);
+  dom.snailPose.setAttribute('transform', getSnailTransform({ x: x + dx, y: y + dy, heading: turtle.heading }));
   dom.snailTip.setAttribute('fill', turtle.color);
   dom.snailElement.classList.toggle('pen-up', !turtle.penDown);
 }
