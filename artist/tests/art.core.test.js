@@ -55,7 +55,7 @@ runTest('updateBlockParam clamps numbers and validates colors', () => {
   updateBlockParam(1, 'n', '-5');
   assert.equal(findBlock(appState.workspace, 1).n, 1);
   updateBlockParam(2, 'n', '100');
-  assert.equal(findBlock(appState.workspace, 2).n, 36);
+  assert.equal(findBlock(appState.workspace, 2).n, 100);
   updateBlockParam(3, 'color', 'синій');
   assert.equal(findBlock(appState.workspace, 3).color, 'синій');
   updateBlockParam(3, 'color', 'не-колір');
@@ -72,18 +72,26 @@ runTest('block tree helpers: withIds, countBlocksIn', () => {
 
 // ── Ліміти ────────────────────────────────────────────────────────────────────
 
-runTest('limits are 36 repeats, nesting 3, 1000 expanded actions', () => {
-  assert.equal(LIMITS.maxRepeatCount, 36);
+runTest('limits are 500 repeats, nesting 3, 1000 expanded actions', () => {
+  assert.equal(LIMITS.maxRepeatCount, 500);
   assert.equal(LIMITS.maxNestingDepth, 3);
   assert.equal(LIMITS.maxExpandedActions, 1000);
 });
 
-runTest('validateProgram accepts repeat 36 (circle) and rejects 37', () => {
+runTest('validateProgram accepts three-digit repeats within both limits', () => {
   const circle = (n) => withIds([blk('repeat', n, [blk('forward', 10), blk('right', 10)])]);
   assert.equal(validateProgram(circle(36)).ok, true);
-  assert.equal(validateProgram(circle(37)).ok, false);
+  assert.deepEqual(validateProgram(circle(360)), { ok: true, expandedCount: 720 });
+  assert.equal(validateProgram(circle(500)).ok, true);
+  assert.match(validateProgram(circle(501)).message, /500/);
 });
 
+runTest('large nested empty cycles do not generate work before a movement', () => {
+  const repeat = (children) => blk('repeat', 500, children);
+  const blocks = withIds([repeat([repeat([repeat([])])]), blk('step')]);
+  assert.deepEqual(validateProgram(blocks), { ok: true, expandedCount: 1 });
+  assert.equal(runProgram(blocks, {}).steps, 1);
+});
 runTest('validateProgram rejects too many expanded actions', () => {
   const workspace = withIds([blk('repeat', 36, [blk('repeat', 36, [blk('step')])])]);
   assert.equal(validateProgram(workspace).ok, false); // 1296 > 1000

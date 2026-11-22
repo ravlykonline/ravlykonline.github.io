@@ -71,9 +71,9 @@ dom.instructionText.textContent = lesson.instruction;   // ✅
 
 ```js
 // js/runtime/execution-limits.js
-MAX_EXPANDED_ACTIONS = 500
-MAX_REPEAT_COUNT     = 20
-MAX_NESTING_DEPTH    = 4
+MAX_EXPANDED_ACTIONS = 1000
+MAX_REPEAT_COUNT     = 500
+MAX_NESTING_DEPTH    = 3
 ```
 
 Перевіряється в `validateProgram()` до запуску. При перевищенні — дружнє повідомлення, runtime не запускається.

@@ -6,6 +6,7 @@
 import { blockDefinitions } from '../data/blocks.js';
 import { buildBlockElement, buildHatElement, syncShapes } from './blockView.js';
 import { closePopover } from './popover.js';
+import { revealInside } from './scrollView.js';
 
 export const LOOSE_HINT = 'Не приєднано до «коли ▶ натиснуто» — не виконується';
 const MAIN_HINT = 'Натисни блок зліва, щоб додати його сюди, або перетягни його';
@@ -93,7 +94,7 @@ export function highlightBlocks(state) {
     const el = blockElementById(state.activeBlockId);
     if (el) {
       el.classList.add('is-active');
-      el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      revealInside(canvas, el);
     }
   }
   if (state.errorBlockId !== null && state.errorBlockId !== undefined) {

@@ -12,9 +12,9 @@
  *   code(block) — рядок коду РАВЛИК (для repeat — заголовок «повторити N (»,
  *                 закриваюча «)» додається в codegen). Тільки валідний РАВЛИК.
  */
-export const MAX_REPEAT_COUNT = 36;
+export const MAX_REPEAT_COUNT = 500;
 
-export const ANGLE_QUICK_PICKS = [30, 45, 60, 90, 120, 144];
+export const ANGLE_QUICK_PICKS = [10, 30, 45, 60, 90, 120, 144];
 
 /** Категорії палітри в порядку показу. */
 export const BLOCK_CATEGORIES = [
@@ -30,7 +30,7 @@ const numberParam = (label, defaultValue, min, max, extra) => ({
 });
 
 const stepsParam = () => numberParam('кроків', 50, 1, 300, { step: 10, aria: 'Кількість кроків' });
-const angleParam = () => numberParam('°', 90, 1, 360, { step: 15, aria: 'Кут у градусах', quick: ANGLE_QUICK_PICKS });
+const angleParam = () => numberParam('°', 90, 1, 360, { step: 1, aria: 'Кут у градусах', quick: ANGLE_QUICK_PICKS });
 
 export const blockDefinitions = {
   step: {

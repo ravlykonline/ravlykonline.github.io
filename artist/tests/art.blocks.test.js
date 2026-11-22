@@ -207,7 +207,7 @@ runTest('history snapshots keep loose stacks', () => {
 // ── Помилковий блок ──────────────────────────────────────────────────────────
 
 runTest('validateProgram reports the id of the offending block', () => {
-  const tooMany = withIds([blk('forward', 10), blk('repeat', 40, [blk('step')])], 1);
+  const tooMany = withIds([blk('forward', 10), blk('repeat', 501, [blk('step')])], 1);
   const result = validateProgram(tooMany);
   assert.equal(result.ok, false);
   assert.equal(result.blockId, 2);
@@ -242,8 +242,10 @@ runTest('every block has a text phrase, a known category and numeric fields have
       assert.ok(definition.param.step >= 1, type);
     }
   }
-  assert.deepEqual(blockDefinitions.right.param.quick, [30, 45, 60, 90, 120, 144]);
-  assert.deepEqual(blockDefinitions.left.param.quick, [30, 45, 60, 90, 120, 144]);
+  assert.deepEqual(blockDefinitions.right.param.quick, [10, 30, 45, 60, 90, 120, 144]);
+  assert.deepEqual(blockDefinitions.left.param.quick, [10, 30, 45, 60, 90, 120, 144]);
+  assert.equal(blockDefinitions.right.param.step, 1);
+  assert.equal(blockDefinitions.left.param.step, 1);
 });
 
 // ── Форма пазла ──────────────────────────────────────────────────────────────

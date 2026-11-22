@@ -1,4 +1,4 @@
-/** Меню «⋯» нижньої панелі на телефоні: Спочатку, Очистити, швидкість. */
+/** Меню «⋯» під сценою: повернення на старт і швидкість виконання. */
 import { createPopupToggle } from './popupToggle.js';
 
 export function createMoreMenu(dom) {

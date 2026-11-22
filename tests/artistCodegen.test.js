@@ -165,6 +165,11 @@ const SAMPLE_PROGRAMS = [
         tree: [blk('repeat', 36, [blk('forward', 10), blk('right', 10)])],
     },
     {
+        name: 'three-digit repeat with 360 tiny steps',
+        lesson: origin,
+        tree: [blk('repeat', 360, [blk('forward', 1), blk('right', 1)])],
+    },
+    {
         name: 'heading 270 and upper-half start (y inversion)',
         lesson: { start: { x: 50, y: -50, heading: 270 }, pen: { color: 'червоний', width: 4 } },
         tree: [blk('forward', 100), blk('left', 90), blk('back', 30), blk('color', 'жовтий'), blk('forward', 20)],

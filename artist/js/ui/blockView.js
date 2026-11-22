@@ -121,8 +121,7 @@ function buildNumberField(block, definition, handlers) {
   const { param } = definition;
   const input = document.createElement('input');
   input.type = 'text';
-  // На дотику екранна клавіатура закрила б спливаюче вікно з −/+ — там цифри вводять кнопками.
-  input.inputMode = window.matchMedia?.('(pointer: coarse)').matches ? 'none' : 'numeric';
+  input.inputMode = 'numeric';
   input.autocomplete = 'off';
   input.spellcheck = false;
   input.maxLength = String(param.max).length;
@@ -133,6 +132,7 @@ function buildNumberField(block, definition, handlers) {
 
   // Одна «сесія редагування» = один запис в історії скасування.
   let session = { taken: false };
+  let selectOnClick = false;
   const current = () => Number.parseInt(input.value, 10) || param.default;
   const commit = (raw) => {
     const value = handlers.onParamChange(block.id, param.key, raw, session);
@@ -144,6 +144,7 @@ function buildNumberField(block, definition, handlers) {
 
   input.addEventListener('focus', () => {
     session = { taken: false };
+    selectOnClick = true;
     input.select();
     openNumberPopover({
       anchor: input,
@@ -152,11 +153,16 @@ function buildNumberField(block, definition, handlers) {
       setValue: (value) => { commit(value); input.select(); },
     });
   });
+  input.addEventListener('click', () => {
+    if (selectOnClick) input.select();
+    selectOnClick = false;
+  });
   input.addEventListener('blur', () => {
     commit(input.value);
     closePopover();
   });
   input.addEventListener('input', () => {
+    selectOnClick = false;
     input.value = input.value.replace(/\D+/g, '');
     sizeInput(input);
   });
