@@ -8,11 +8,9 @@
  *    з моделі, під курсором — «привид»;
  *  - точки зчеплення збираються з DOM один раз на початку (у координатах вмісту
  *    полотна); магніт обирає точку за відстанню від кута «привида» з гістерезисом;
- *  - над точкою в стосі з’являється ПОПЕРЕДНІЙ ПЕРЕГЛЯД — сірий напівпрозорий силует
- *    тієї ж форми й висоти; блоки нижче плавно (≈120 мс) зсуваються вниз;
- *  - відпускання: на точку → «привид» злітає в силует і вставляється справжній блок;
- *    на порожнє місце → вільний стос; на палітру → видалення; Esc → скасування.
- *  - prefers-reduced-motion: без зсувів і польоту, лише силует і миттєва вставка.
+ *  - позначка зчеплення лежить поверх полотна і не змінює розміри програми;
+ *  - відпускання: на точку → вставка; на порожнє місце → вільний стос;
+ *    на палітру → видалення; Esc → скасування.
  */
 import {
   SNAP_RADIUS, SNAP_RADIUS_TOUCH, connectionPointsFromLists, findSnapTarget, snapKey,
@@ -22,26 +20,18 @@ import { syncShapes } from './blockView.js';
 export const DRAG_THRESHOLD = 6;
 const EDGE_ZONE = 44;
 const MAX_SCROLL_SPEED = 18;
-const MAKE_ROOM_MS = 120;
-const FLY_MS = 140;
 
 const INTERACTIVE = 'input, button, select, textarea, [contenteditable="true"]';
+const GRIP = '.blk-head, .blk-shape path';
 
 function ownerFromDataset(value) {
   return value === 'main' ? 'main' : Number(value);
 }
 
-function prefersReducedMotion() {
-  return Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
-}
-
-function listKey(owner, parentId) {
-  return `${owner}|${parentId ?? ''}`;
-}
-
 export function createDragController({
   canvas,
   palette,
+  editor,
   isLocked,
   lift,
   createPaletteBlock,
@@ -72,12 +62,11 @@ export function createDragController({
     return clones;
   }
 
-  /** Точки зчеплення з DOM (координати вмісту полотна) + мапа «список → елемент». */
+  /** Точки зчеплення з DOM у координатах вмісту полотна. */
   function buildPoints() {
     const origin = canvas.getBoundingClientRect();
     const toX = (rectX) => rectX - origin.left + canvas.scrollLeft;
     const toY = (rectY) => rectY - origin.top + canvas.scrollTop;
-    const listElements = new Map();
     const lists = [];
     for (const list of canvas.querySelectorAll('.blk-list')) {
       const owner = ownerFromDataset(list.dataset.owner);
@@ -89,7 +78,6 @@ export function createDragController({
           const kidRect = kid.getBoundingClientRect();
           return { left: toX(kidRect.left), top: toY(kidRect.top), bottom: toY(kidRect.bottom) };
         });
-      listElements.set(listKey(owner, parentId), list);
       lists.push({
         owner,
         parentId,
@@ -98,92 +86,23 @@ export function createDragController({
         kids,
       });
     }
-    return { points: connectionPointsFromLists(lists), listElements };
+    return connectionPointsFromLists(lists);
   }
 
-  // ── Силует вставки ───────────────────────────────────────────────────────
-
-  function cancelCanvasAnimations() {
-    canvas.getAnimations?.({ subtree: true }).forEach((animation) => animation.cancel());
-  }
-
-  function measureBlocks() {
-    const tops = new Map();
-    for (const el of canvas.querySelectorAll('.blk')) tops.set(el, el.getBoundingClientRect().top);
-    return tops;
-  }
-
-  /** FLIP: блоки, що змістилися, плавно «доїжджають» зі старого місця. */
-  function animateFromBefore(before) {
-    if (prefersReducedMotion()) return;
-    const moved = [];
-    for (const el of canvas.querySelectorAll('.blk')) {
-      if (!before.has(el)) continue;
-      moved.push([el, before.get(el) - el.getBoundingClientRect().top]);
+  function positionMarker(slot, rect) {
+    const { marker } = session;
+    if (!slot) {
+      marker.hidden = true;
+      return;
     }
-    const deltaOf = new Map(moved);
-    for (const [el, delta] of moved) {
-      // Вкладені блоки їдуть разом із батьківським циклом — віднімаємо його зсув.
-      const parent = el.parentElement?.closest('.blk');
-      const own = delta - (deltaOf.get(parent) ?? 0);
-      if (Math.abs(own) < 0.5) continue;
-      el.animate(
-        [{ transform: `translateY(${own}px)` }, { transform: 'translateY(0)' }],
-        { duration: MAKE_ROOM_MS, easing: 'ease-out' },
-      );
-    }
-  }
-
-  function buildPreview() {
-    const preview = document.createElement('div');
-    preview.className = 'blk-preview';
-    preview.setAttribute('aria-hidden', 'true');
-    preview.setAttribute('inert', '');
-    for (const child of session.ghost.children) preview.appendChild(child.cloneNode(true));
-    return preview;
-  }
-
-  function removePreview() {
-    const { preview } = session;
-    if (!preview) return;
-    preview.parentElement?.classList.remove('has-preview');
-    preview.remove();
-    if (session.shifted) {
-      session.shifted.stack.style.top = session.shifted.top;
-      session.shifted = null;
-    }
-    session.preview = null;
-  }
-
-  function insertPreview(slot) {
-    const list = session.listElements.get(listKey(slot.owner, slot.parentId));
-    if (!list) return;
-    const preview = buildPreview();
-    const kids = [...list.children].filter((child) => child.classList.contains('blk'));
-    list.classList.add('has-preview');
-    list.insertBefore(preview, kids[slot.index] ?? null);
-    session.preview = preview;
-    if (slot.anchor === 'bottom') {
-      // Хвіст ставав НАД стосом: піднімаємо стос, щоб його блоки лишилися на місці.
-      const stack = list.closest('.ws-loose');
-      if (stack) {
-        const top = Number.parseFloat(stack.style.top) || 0;
-        session.shifted = { stack, top: stack.style.top };
-        stack.style.top = `${Math.max(0, top - session.height)}px`;
-      }
-    }
-  }
-
-  /** Показує силует у точці slot (або прибирає його, якщо slot = null). */
-  function showPreview(slot) {
-    const key = slot ? snapKey(slot) : '';
-    if (key === session.previewKey) return;
-    session.previewKey = key;
-    cancelCanvasAnimations();
-    const before = measureBlocks();
-    removePreview();
-    if (slot) insertPreview(slot);
-    animateFromBefore(before);
+    const x = rect.left + slot.x - canvas.scrollLeft;
+    const y = rect.top + slot.y - canvas.scrollTop;
+    const width = rect.left + canvas.clientLeft + canvas.clientWidth - x;
+    const top = rect.top + canvas.clientTop;
+    marker.hidden = x < rect.left + canvas.clientLeft || width < 10 || y < top || y > top + canvas.clientHeight;
+    if (marker.hidden) return;
+    marker.style.transform = `translate(${x}px, ${y}px)`;
+    marker.style.maxWidth = `${width}px`;
   }
 
   // ── Життєвий цикл ────────────────────────────────────────────────────────
@@ -194,6 +113,8 @@ export function createDragController({
     window.removeEventListener('pointercancel', onPointerCancel);
     window.removeEventListener('keydown', onKeyDown, true);
     window.removeEventListener('blur', onPointerCancel);
+    canvas.removeEventListener('scroll', updateDrag);
+    window.removeEventListener('scroll', updateDrag);
   }
 
   function clearCandidate() {
@@ -204,10 +125,11 @@ export function createDragController({
     if (!session) return;
     window.cancelAnimationFrame(scrollFrame);
     scrollFrame = 0;
-    removePreview();
+    session.marker.remove();
     session.ghost.remove();
     document.body.classList.remove('is-dragging');
     palette.classList.remove('is-bin');
+    delete palette.dataset.deleteHint;
     canvas.classList.remove('is-drop-target');
     session = null;
   }
@@ -232,33 +154,39 @@ export function createDragController({
     }
     document.body.appendChild(ghost);
     syncShapes(ghost);
+    const dragCount = ghost.querySelectorAll('.blk').length;
+    palette.dataset.deleteHint = dragCount === 1
+      ? 'Відпусти, щоб видалити блок'
+      : 'Відпусти, щоб видалити весь стос';
 
-    const { points, listElements } = buildPoints();
+    const marker = document.createElement('div');
+    marker.className = 'blk-insert-marker';
+    marker.setAttribute('aria-hidden', 'true');
+    marker.hidden = true;
+    document.body.appendChild(marker);
     session = {
       source,
       ghost,
+      marker,
       offset,
-      points,
-      listElements,
+      points: buildPoints(),
       height: ghost.offsetHeight,
       pointer: { x: event.clientX, y: event.clientY },
       coarse: event.pointerType === 'touch' || event.pointerType === 'pen',
       mode: 'none',
       slot: null,
       slotKey: '',
-      previewKey: '',
-      preview: null,
-      shifted: null,
-      flying: false,
       loosePos: null,
     };
     document.body.classList.add('is-dragging');
     window.addEventListener('keydown', onKeyDown, true);
+    canvas.addEventListener('scroll', updateDrag, { passive: true });
+    window.addEventListener('scroll', updateDrag, { passive: true });
     updateDrag();
   }
 
   function updateDrag() {
-    if (!session || session.flying) return;
+    if (!session) return;
     const { pointer, offset, ghost, points } = session;
     const left = pointer.x - offset.x;
     const top = pointer.y - offset.y;
@@ -271,8 +199,9 @@ export function createDragController({
     const overCanvas = pointer.x >= canvasRect.left && pointer.x <= canvasRect.right
       && pointer.y >= canvasRect.top && pointer.y <= canvasRect.bottom;
 
-    palette.classList.toggle('is-bin', overPalette);
-    ghost.classList.toggle('is-deleting', overPalette);
+    const deleting = overPalette && session.source.kind === 'block';
+    palette.classList.toggle('is-bin', deleting);
+    ghost.classList.toggle('is-deleting', deleting);
     canvas.classList.toggle('is-drop-target', overCanvas);
 
     session.slot = null;
@@ -303,11 +232,11 @@ export function createDragController({
       session.mode = 'none';
     }
     session.slotKey = session.slot ? snapKey(session.slot) : '';
-    showPreview(session.slot);
+    positionMarker(session.slot, canvasRect);
   }
 
   function autoScroll() {
-    if (!session || session.flying) return;
+    if (!session) return;
     const rect = canvas.getBoundingClientRect();
     const { x, y } = session.pointer;
     let canvasDelta = 0;
@@ -321,9 +250,11 @@ export function createDragController({
     if (y < EDGE_ZONE) pageDelta = -MAX_SCROLL_SPEED * ((EDGE_ZONE - y) / EDGE_ZONE);
     else if (y > window.innerHeight - EDGE_ZONE) pageDelta = MAX_SCROLL_SPEED * ((y - (window.innerHeight - EDGE_ZONE)) / EDGE_ZONE);
 
+    const previousCanvasScroll = canvas.scrollTop;
+    const previousPageScroll = window.scrollY;
     if (canvasDelta !== 0) canvas.scrollTop += canvasDelta;
     if (pageDelta !== 0) window.scrollBy(0, pageDelta);
-    if (canvasDelta !== 0 || pageDelta !== 0) updateDrag();
+    if (canvas.scrollTop !== previousCanvasScroll || window.scrollY !== previousPageScroll) updateDrag();
     scrollFrame = window.requestAnimationFrame(autoScroll);
   }
 
@@ -344,27 +275,13 @@ export function createDragController({
       y: finished.loosePos?.y ?? 0,
     };
 
-    const complete = () => {
-      endSession();
-      if (!commit || result.mode === 'none') {
-        onCancel(result.source);
-        return;
-      }
-      onDrop(result);
-      if (result.mode === 'snap') onSnap?.();
-    };
-
-    if (commit && result.mode === 'snap' && finished.preview && !prefersReducedMotion()) {
-      // «Привид» злітає з-під курсора в силует, і лише тоді з’являється справжній блок.
-      finished.flying = true;
-      const target = finished.preview.getBoundingClientRect();
-      const { ghost } = finished;
-      ghost.style.transition = `transform ${FLY_MS}ms cubic-bezier(0.2, 0.8, 0.3, 1)`;
-      ghost.style.transform = `translate(${target.left}px, ${target.top}px) rotate(0deg)`;
-      window.setTimeout(complete, FLY_MS + 20);
+    endSession();
+    if (!commit || result.mode === 'none') {
+      onCancel(result.source);
       return;
     }
-    complete();
+    onDrop(result);
+    if (result.mode === 'snap') onSnap?.();
   }
 
   // ── Обробники подій ──────────────────────────────────────────────────────
@@ -407,7 +324,7 @@ export function createDragController({
   }
 
   function onKeyDown(event) {
-    if (event.key === 'Escape' && session && !session.flying) {
+    if (event.key === 'Escape' && session) {
       event.preventDefault();
       event.stopPropagation();
       finish(false);
@@ -430,10 +347,13 @@ export function createDragController({
     window.addEventListener('blur', onPointerCancel);
   }
 
+  editor.addEventListener('dragstart', (event) => event.preventDefault());
+
   canvas.addEventListener('pointerdown', (event) => {
     const el = event.target.closest('.blk');
     if (!el || el.dataset.hat) return;
     if (event.target.closest(INTERACTIVE)) return;
+    if (event.target.closest(GRIP)?.closest('.blk') !== el) return;
     begin(event, { kind: 'block', id: Number(el.dataset.blockId) }, el);
   });
 

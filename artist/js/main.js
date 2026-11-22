@@ -319,7 +319,7 @@ function dropBlocks({ source, mode, slot, height, x, y }) {
       updateWorkspaceUi();
       return;
     }
-    message = `Видалено блоків: ${tail.length}`;
+    message = `Видалено блоків: ${countBlocks(tail)}`;
   } else if (mode === 'snap') {
     ok = slot.anchor === 'bottom'
       ? attachAbove(doc, tail, slot.owner, height)
@@ -342,7 +342,7 @@ function dropBlocks({ source, mode, slot, height, x, y }) {
   appState.errorBlockId = null;
   normalizeInsertTarget();
   updateWorkspaceUi();
-  if (mode !== 'delete') focusBlock(tail[0].id);
+  if (mode !== 'delete') focusBlock(tail[0].id, { preventScroll: true });
   announce(message);
 }
 
@@ -790,6 +790,7 @@ function init() {
   dragController = createDragController({
     canvas: dom.workspaceCanvas,
     palette: dom.paletteSection,
+    editor: dom.editorPanels,
     isLocked: () => appState.running,
     lift: liftForDrag,
     createPaletteBlock: createPaletteGhostBlock,

@@ -202,6 +202,12 @@ runTest('touch-action: none is limited to blocks; the palette strip keeps horizo
   assert.match(responsive, /\.blk-palette\s*\{[^}]*touch-action:\s*pan-x/);
 });
 
+runTest('editor chrome cannot be selected during a missed drag, but number inputs stay editable', () => {
+  const css = readFileSync(new URL('../css/blocks.css', import.meta.url), 'utf8');
+  assert.match(css, /#editor-panels\s*\{[^}]*user-select:\s*none/);
+  assert.match(css, /input\.blk-field\s*\{[^}]*user-select:\s*text/);
+});
+
 // ── Палітра головного сайту й компактна шапка ──────────────────────────────────
 
 runTest('tokens carry the main Ravlyk palette', () => {

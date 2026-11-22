@@ -10,6 +10,11 @@
 .cat-start { --blk-fill: var(--blk-start-fill); --blk-stroke: var(--blk-start-stroke); --blk-text: var(--blk-start-text); }
 
 /* ── Блок ──────────────────────────────────────────────────────────────────── */
+#editor-panels {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 .blk {
   position: relative;
   display: block;
@@ -46,6 +51,19 @@
   stroke: var(--blk-stroke);
   stroke-width: 1;
   stroke-linejoin: round;
+}
+
+.ws-canvas .blk {
+  cursor: default;
+}
+
+.ws-canvas:not(.is-running) .blk:not(.blk-hat) > .blk-head,
+.ws-canvas:not(.is-running) .blk:not(.blk-hat) > .blk-shape path {
+  cursor: grab;
+}
+
+.ws-canvas .blk:not(.blk-hat) > .blk-shape path {
+  pointer-events: visiblePainted;
 }
 
 .blk-head {
@@ -128,6 +146,10 @@ button.blk-field {
   position: relative;
   z-index: 1;
   height: 24px;
+}
+
+.ws-canvas .blk-foot {
+  pointer-events: none;
 }
 
 .blk-list {
@@ -268,7 +290,7 @@ button.blk-field {
 }
 
 #palette.is-bin::after {
-  content: 'Відпусти, щоб видалити';
+  content: attr(data-delete-hint);
   position: absolute;
   right: var(--space-3);
   bottom: var(--space-3);
@@ -293,6 +315,7 @@ button.blk-field {
   flex: 1;
   min-height: 12rem;
   overflow: auto;
+  scrollbar-gutter: stable;
   padding: 20px 20px 56px;
   border: 0.125rem solid var(--color-workspace-border);
   border-radius: var(--radius-md);
@@ -333,31 +356,18 @@ button.blk-field {
   opacity: 0.92;
 }
 
-/* Попередній перегляд вставки: сірий напівпрозорий силует тієї ж форми й висоти.
-   Заливка суцільна, а напівпрозорість — на всій групі, щоб виїмки сусідніх блоків
-   не темніли в місцях накладання. */
-.blk-preview {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  opacity: 0.5;
+/* Позначка поверх полотна не впливає на висоту програми. */
+.blk-insert-marker {
+  position: fixed;
+  top: -2px;
+  left: 0;
+  z-index: var(--z-modal);
+  width: 3.25rem;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-surface);
   pointer-events: none;
-}
-
-.blk-preview .blk-shape path {
-  fill: var(--blk-preview-fill);
-  stroke: var(--blk-preview-stroke);
-  stroke-width: 1;
-}
-
-.blk-preview .blk-head,
-.blk-preview .blk-text,
-.blk-preview .blk-field {
-  visibility: hidden;
-}
-
-.blk-list.has-preview > .blk-slot {
-  display: none;
 }
 
 /* ── Перетягування ─────────────────────────────────────────────────────────── */
