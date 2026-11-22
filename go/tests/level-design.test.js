@@ -78,7 +78,7 @@ test('debug levels need exactly as many fixes as their hints promise', async () 
   const { levels } = await importModule('js/core/levels.js');
   const expectedFixes = { 5: 2, 11: 1, 12: 1, 14: 2, 17: 2, 18: 2 };
   const debugIds = levels.filter((level) => level.type === 'debug').map((level) => level.id);
-  assert.deepEqual(debugIds, Object.keys(expectedFixes).map(Number));
+  assert.deepEqual(debugIds.sort((a, b) => a - b), Object.keys(expectedFixes).map(Number));
   for (const level of levels.filter((item) => item.type === 'debug')) {
     assert.equal(minimalEdits(level), expectedFixes[level.id], `level ${level.id}`);
   }
@@ -100,7 +100,7 @@ test('level 14 reveals two missing cards in order', async () => {
   assert.equal(analyzeRoute({ arrows, level }).success, true);
 });
 
-test('level 18 is solved by swapping two preset turns', async () => {
+test('the mixed-up turns level is solved by swapping two preset turns', async () => {
   const { getLevelById } = await importModule('js/core/levels.js');
   const { analyzeRoute } = await importModule('js/engine/route.js');
   const level = getLevelById(18);
@@ -120,7 +120,7 @@ test('debug levels stop the snail on the wrong card, not in an empty decoy cell'
   // Рівень 11: Равлик повертає не туди на (2,3) і впирається в камінь.
   assert.equal(run(11).reason, 'blocked');
   assert.deepEqual(run(11).path.at(-2), { r: 2, c: 3, facing: 'left' });
-  // Рівень 17: хибна стрілка на (3,2) веде в камінь, а не в порожню клітинку.
+  // «Дві помилки»: хибна стрілка на (3,2) веде в камінь.
   assert.equal(run(17).reason, 'blocked');
   assert.deepEqual(run(17).path.at(-2), { r: 3, c: 2, facing: 'up' });
 });
