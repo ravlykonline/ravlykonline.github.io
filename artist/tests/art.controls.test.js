@@ -6,6 +6,7 @@ import { tokenizeLine } from '../js/core/codeHighlight.js';
 import { evaluateGoal } from '../js/core/goals.js';
 import { starsCaption, starsLabel, starsText } from '../js/core/stars.js';
 import { createStepper } from '../js/runtime/stepper.js';
+import { setEditorView } from '../js/ui/codeView.js';
 import {
   SPEEDS, chooseSnailSide, getStepDuration, speedFactor,
 } from '../js/domain/snail.js';
@@ -40,6 +41,28 @@ runTest('tokenizer: tokens concatenate back to the original line', () => {
     assert.equal(tokenizeLine(line).map((t) => t.text).join(''), line);
   }
   assert.deepEqual(tokenizeLine(''), []);
+});
+
+runTest('code tab keeps the palette visible while making inactive block controls inert', () => {
+  const tab = () => ({
+    setAttribute(name, value) { this[name] = value; },
+  });
+  const dom = { paletteSection: {}, blocksView: {}, codeView: {}, tabBlocks: tab(), tabCode: tab() };
+  setEditorView(dom, 'code');
+  assert.equal(dom.paletteSection.inert, true);
+  assert.equal(dom.paletteSection.hidden, undefined);
+  assert.equal(dom.blocksView.hidden, true);
+  assert.equal(dom.blocksView.inert, true);
+  assert.equal(dom.codeView.hidden, false);
+  assert.equal(dom.tabCode['aria-selected'], 'true');
+  assert.equal(dom.tabBlocks.tabIndex, -1);
+  setEditorView(dom, 'blocks');
+  assert.equal(dom.paletteSection.inert, false);
+  assert.equal(dom.blocksView.inert, false);
+  assert.equal(dom.blocksView.hidden, false);
+  assert.equal(dom.codeView.hidden, true);
+  assert.equal(dom.tabBlocks['aria-selected'], 'true');
+  assert.equal(dom.tabCode.tabIndex, -1);
 });
 
 // ── Покроковий виконавець ───────────────────────────────────────────────────

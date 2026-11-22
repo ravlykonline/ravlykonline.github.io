@@ -116,6 +116,7 @@
 #palette,
 #workspace,
 #editor-panels,
+#program-view,
 #ws-stack,
 #stage-panel,
 #canvas-shell {
@@ -222,15 +223,24 @@
   display: none;
 }
 
+#program-view,
 #ws-stack {
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+#program-view {
+  position: relative;
+}
+
+#ws-stack {
   overflow: hidden;
 }
 
+/* Приховане полотно зберігає розміри й прокрутку під вкладкою «Код». */
 #ws-stack[hidden] {
-  display: none;
+  visibility: hidden;
 }
 
 #editor-tabs {
@@ -257,17 +267,13 @@
   color: var(--color-on-solid);
 }
 
-#editor-panels.show-code {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-#editor-panels.show-code #palette,
-#editor-panels.show-code #block-count {
-  display: none;
+#palette[inert] #pblock-list {
+  opacity: 0.6;
 }
 
 #code-view {
-  flex: 1;
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -328,6 +334,10 @@
 
 .copy-status.is-error {
   color: var(--color-feedback-error);
+}
+
+.copy-status:empty {
+  display: none;
 }
 
 .code-lines {
