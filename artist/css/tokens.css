@@ -161,8 +161,6 @@
   --blk-slot-bg: rgba(var(--color-black-rgb), 0.06);
   --blk-active-ring: #4b0082;
   --blk-error-ring: #c0392b;
-  --blk-preview-fill: #8c93a0;
-  --blk-preview-stroke: #6f7683;
   --blk-bin-bg: rgba(192, 57, 43, 0.12);
   --blk-bin-border: #c0392b;
   --blk-target-ring: #6a5acd;

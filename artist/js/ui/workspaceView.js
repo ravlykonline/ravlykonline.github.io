@@ -105,8 +105,8 @@ export function blockElementById(id) {
   return canvas.querySelector(`[data-block-id="${id}"]`);
 }
 
-export function focusBlock(id) {
-  blockElementById(id)?.focus();
+export function focusBlock(id, options) {
+  blockElementById(id)?.focus(options);
 }
 
 export function scrollBlockIntoView(id) {
