@@ -98,6 +98,10 @@
   opacity: 0.55;
 }
 
+#snail-el:not(.pen-up) [data-pen-position] {
+  visibility: hidden;
+}
+
 #snail-el.pen-up [data-pencil] {
   transform-box: fill-box;
   transform-origin: 50% 100%;
@@ -564,18 +568,6 @@
   color: var(--color-text-soft);
   font-size: var(--font-size-md);
   line-height: 1.6;
-}
-
-.intro-code {
-  width: 100%;
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-lg);
-  background: var(--color-code-bg);
-  color: var(--color-code-text);
-  font-family: 'Courier New', monospace;
-  font-size: var(--font-size-sm);
-  text-align: left;
-  white-space: pre;
 }
 
 .btn-intro-ok {

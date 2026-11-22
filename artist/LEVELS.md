@@ -11,7 +11,7 @@
   title: 'Рівень 7: Квадрат циклом',
   instruction: '…',                // коротко, на «ти», без HTML; лише мета, а не список блоків
   hint?: '…',                      // покрокова підказка, схована за кнопкою «Підказка»
-  intro: { icon, title, body, code? }, // лише там, де з’являється нова ідея; code — справжній синтаксис РАВЛИК
+  intro: { icon, title, body }, // коротке пояснення нової ідеї
   start: { x, y, heading },        // кратні 50; вісь y вниз; heading 0 = вгору, 90 = праворуч
   pen: { color, width },           // колір — назва з data/colors.js
   showGrid: true | 'faint' | false,

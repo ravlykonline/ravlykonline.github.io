@@ -1,28 +1,25 @@
-// Равлик зверху: кінчик олівця в (0, 0), голова дивиться вгору (heading 0).
-// Це валідний XML: кожен атрибут має значення (A1).
+// Поза праворуч від лінії. Під час гри групу можна віддзеркалити відносно маршруту.
+// Олівець торкається поля в (0, 0), а очі спрямовані вгору (heading 0).
 const SNAIL_PARTS = `
-  <g data-snail-body="body">
-    <ellipse cx="0" cy="39" rx="10" ry="17" fill="#7DC953"/>
-    <ellipse cx="0" cy="45" rx="7" ry="9" fill="#5DA030" opacity=".35"/>
-    <circle cx="0" cy="19" r="8.5" fill="#8FD860"/>
-    <line x1="-4.5" y1="13" x2="-9" y2="6" stroke="#7DC953" stroke-width="2.6" stroke-linecap="round"/>
-    <circle cx="-9.5" cy="5" r="3.6" fill="#6BBF45"/>
-    <circle cx="-9.5" cy="4.2" r="2" fill="#1A1A2E"/>
-    <line x1="4.5" y1="13" x2="9" y2="6" stroke="#7DC953" stroke-width="2.6" stroke-linecap="round"/>
-    <circle cx="9.5" cy="5" r="3.6" fill="#6BBF45"/>
-    <circle cx="9.5" cy="4.2" r="2" fill="#1A1A2E"/>
-    <circle cx="0" cy="40" r="14" fill="#D4822A"/>
-    <circle cx="0" cy="40" r="10" fill="#E8A050" opacity=".7"/>
-    <path d="M-1.5 40 a1.5 1.5 0 1 1 3 0 a4 4 0 1 1 -8 0 a6.5 6.5 0 1 1 13 0" fill="none" stroke="#B06020" stroke-width="1.6" stroke-linecap="round"/>
-    <circle cx="-5" cy="33" r="3" fill="#FFFFFF" opacity=".18"/>
-  </g>
   <g data-pencil="pencil">
-    <rect x="-3.2" y="6" width="6.4" height="13" rx="1" fill="#FFD34D" stroke="#4A2500" stroke-width="1"/>
-    <path data-pen-tip="tip" d="M-3.2 6 L3.2 6 L0 0 Z" fill="#FF8C1A" stroke="#4A2500" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M5 -4 L21 -9 L23 -4 L6 1 Z" fill="#FFD34D" stroke="#4A2500" stroke-width="1" stroke-linejoin="round"/>
+    <path data-pen-tip="tip" d="M5 -4 L6 1 L0 0 Z" fill="#FF8C1A" stroke="#4A2500" stroke-width="1" stroke-linejoin="round"/>
+  </g>
+  <g data-snail-wiggle="true">
+    <path d="M20 15 Q13 10 16 2 L19 -6 Q20 -13 27 -12 Q34 -11 35 -3 Q39 11 31 17 Q25 20 20 15 Z" fill="#7DC953" stroke="#4F8D35" stroke-width="1.2"/>
+    <path d="M22 -8 L18 -14 M30 -8 L32 -15" fill="none" stroke="#4F8D35" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="18" cy="-15" r="3.2" fill="#8FD860"/>
+    <circle cx="32" cy="-16" r="3.2" fill="#8FD860"/>
+    <circle cx="18" cy="-16" r="1.5" fill="#1A1A2E"/>
+    <circle cx="32" cy="-17" r="1.5" fill="#1A1A2E"/>
+    <path d="M22 -7 Q25 -4 28 -7" fill="none" stroke="#365E28" stroke-linecap="round"/>
+    <circle cx="28" cy="7" r="10.5" fill="#E8A050" stroke="#A85418" stroke-width="1.5"/>
+    <path d="M24 10 A5 5 0 1 1 31 10 A2.5 2.5 0 1 1 29 6" fill="none" stroke="#A85418" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M19 -4 Q16 -5 15 -3" fill="none" stroke="#4F8D35" stroke-width="3.3" stroke-linecap="round"/>
   </g>
 `;
 
-export const snailSvg = `<svg viewBox="-20 -3 40 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${SNAIL_PARTS}</svg>`;
+export const snailSvg = `<svg viewBox="-2 -21 43 42" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${SNAIL_PARTS}</svg>`;
 
 /** Аватар у «Завданні» — той самий равлик. */
 export const avatarSvg = snailSvg;

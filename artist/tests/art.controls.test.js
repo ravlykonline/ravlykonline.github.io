@@ -7,7 +7,7 @@ import { evaluateGoal } from '../js/core/goals.js';
 import { starsCaption, starsLabel, starsText } from '../js/core/stars.js';
 import { createStepper } from '../js/runtime/stepper.js';
 import {
-  SPEEDS, getStepDuration, isAtStart, speedFactor,
+  SPEEDS, chooseSnailSide, getStepDuration, speedFactor,
 } from '../js/domain/snail.js';
 
 function runTest(name, fn) {
@@ -88,12 +88,22 @@ runTest('speed: factors scale animation durations', () => {
   assert.ok(SPEEDS.slow.factor > SPEEDS.normal.factor && SPEEDS.normal.factor > SPEEDS.fast.factor);
 });
 
-runTest('start marker: arrow is hidden only while the snail sits at the start', () => {
-  const start = { x: 50, y: 100, heading: 90 };
-  assert.equal(isAtStart({ x: 50, y: 100, heading: 90 }, start), true);
-  assert.equal(isAtStart({ x: 50, y: 100, heading: 450 }, start), true);
-  assert.equal(isAtStart({ x: 50, y: 50, heading: 90 }, start), false);
-  assert.equal(isAtStart({ x: 50, y: 100, heading: 0 }, start), false);
+runTest('snail pose keeps the chosen side along a straight route', () => {
+  const start = { x: 0, y: 50, heading: 0 };
+  const end = { ...start, y: 0 };
+  const guide = [{ from: [0, 50], to: [0, -100] }];
+  assert.equal(chooseSnailSide(start, end, [guide], 1), 1);
+  assert.equal(chooseSnailSide(start, end, [guide], -1), -1);
+});
+
+runTest('snail pose avoids a nearby line and chooses the inward side at the edge', () => {
+  const start = { x: 0, y: 0, heading: 0 };
+  const rightBranch = [{ from: [0, 0], to: [50, 0] }];
+  assert.equal(chooseSnailSide(start, start, [rightBranch], 1), -1);
+  const rightEdge = { ...start, x: 190 };
+  assert.equal(chooseSnailSide(rightEdge, rightEdge, [], 1), -1);
+  const bottomEdge = { ...start, y: 145, heading: 90 };
+  assert.equal(chooseSnailSide(bottomEdge, bottomEdge, [], 1), -1);
 });
 
 // ── Зірки ───────────────────────────────────────────────────────────────────

@@ -20,7 +20,6 @@ import {
 import { syncShapes } from './blockView.js';
 
 export const DRAG_THRESHOLD = 6;
-const LONG_PRESS_MS = 550;
 const EDGE_ZONE = 44;
 const MAX_SCROLL_SPEED = 18;
 const MAKE_ROOM_MS = 120;
@@ -48,7 +47,6 @@ export function createDragController({
   createPaletteBlock,
   onDrop,
   onCancel,
-  onLongPress,
   onSnap,
 }) {
   let candidate = null;
@@ -64,7 +62,6 @@ export function createDragController({
     });
     root.querySelectorAll('[tabindex]').forEach((node) => node.removeAttribute('tabindex'));
     root.querySelectorAll('input, button').forEach((node) => { node.tabIndex = -1; });
-    root.querySelectorAll('.blk-menu-btn').forEach((node) => node.remove());
   }
 
   function collectTailClones(el) {
@@ -200,7 +197,6 @@ export function createDragController({
   }
 
   function clearCandidate() {
-    if (candidate?.longPressTimer) window.clearTimeout(candidate.longPressTimer);
     candidate = null;
   }
 
@@ -379,10 +375,6 @@ export function createDragController({
     const dy = event.clientY - candidate.startY;
     if (!session) {
       if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
-      if (candidate.longPressTimer) {
-        window.clearTimeout(candidate.longPressTimer);
-        candidate.longPressTimer = 0;
-      }
       startDrag(event);
       scrollFrame = window.requestAnimationFrame(autoScroll);
       return;
@@ -431,18 +423,7 @@ export function createDragController({
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
-      longPressTimer: 0,
     };
-    if (source.kind === 'block' && event.pointerType !== 'mouse') {
-      candidate.longPressTimer = window.setTimeout(() => {
-        if (!candidate || session) return;
-        const { el: target, startX, startY } = candidate;
-        cleanupListeners();
-        clearCandidate();
-        suppressClickUntil = performance.now() + 600;
-        onLongPress(target, startX, startY);
-      }, LONG_PRESS_MS);
-    }
     window.addEventListener('pointermove', onPointerMove, { passive: false });
     window.addEventListener('pointerup', onPointerUp);
     window.addEventListener('pointercancel', onPointerCancel);

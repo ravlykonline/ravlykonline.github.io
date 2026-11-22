@@ -291,7 +291,7 @@ runTest('snail SVG: balanced tags, tip at (0, 0), avatar is the same snail', () 
     else if (!tag.endsWith('/>')) stack.push(name);
   }
   assert.equal(stack.length, 0);
-  assert.match(snailSvg, /data-pen-tip="tip" d="M-3.2 6 L3.2 6 L0 0 Z"/);
+  assert.match(snailSvg, /data-pen-tip="tip" d="M5 -4 L6 1 L0 0 Z"/);
   assert.equal(avatarSvg, snailSvg);
 });
 

@@ -6,7 +6,7 @@
 import { blockDefinitions, describeBlock } from '../data/blocks.js';
 import { COLORS, colorHex } from '../data/colors.js';
 import { hatPath, loopPath, stackPath, SHAPE } from '../core/blockShape.js';
-import { closePopover, openList, openNumberPopover } from './popover.js';
+import { closePopover, openColorPopover, openNumberPopover } from './popover.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const partsByBlock = new WeakMap();
@@ -198,7 +198,7 @@ function buildColorField(block, definition, handlers) {
 
   button.addEventListener('click', (event) => {
     event.stopPropagation();
-    openList({
+    openColorPopover({
       anchor: button,
       label: 'Колір олівця',
       items: COLORS.map((color) => ({
@@ -231,16 +231,6 @@ function buildPhrase(block, definition, handlers) {
 
 // ── Блоки ───────────────────────────────────────────────────────────────────
 
-function buildMenuButton() {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'blk-menu-btn';
-  button.textContent = '⋯';
-  button.setAttribute('aria-label', 'Дії з блоком');
-  button.setAttribute('aria-haspopup', 'menu');
-  return button;
-}
-
 /**
  * Блок програми.
  * handlers: { onParamChange(id, key, raw, session) → нове значення }
@@ -261,7 +251,7 @@ export function buildBlockElement(block, handlers, renderChildren) {
 
   const head = document.createElement('div');
   head.className = 'blk-head';
-  head.append(...buildPhrase(block, definition, handlers), buildMenuButton());
+  head.append(...buildPhrase(block, definition, handlers));
   el.appendChild(head);
 
   if (isLoop) {
