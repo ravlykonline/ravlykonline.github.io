@@ -42,6 +42,6 @@ test('core levels module contains no typical mojibake markers', () => {
   assert.equal(bytes[0], 0x63);
   assert.ok(!bytes.subarray(0, 3).equals(Buffer.from([0xef, 0xbb, 0xbf])), 'BOM should be absent');
   assert.ok(levels.includes('Пряма доріжка'));
-  assert.ok(levels.includes('Велика подорож равлика'));
+  assert.ok(levels.includes('Велика подорож Равлика'));
   assert.ok(!levels.includes('????????')); 
 });

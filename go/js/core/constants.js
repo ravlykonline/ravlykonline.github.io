@@ -15,18 +15,18 @@ export const DIRECTION_DELTAS = {
 };
 
 export const TILE_DEFS = [
-  { dir: 'up', group: TILE_GROUPS.straight, label: '\u0412\u0433\u043e\u0440\u0443', iconFile: 'straight_up.svg' },
-  { dir: 'right', group: TILE_GROUPS.straight, label: '\u0412\u043f\u0440\u0430\u0432\u043e', iconFile: 'straight_right.svg' },
-  { dir: 'down', group: TILE_GROUPS.straight, label: '\u0412\u043d\u0438\u0437', iconFile: 'straight_down.svg' },
-  { dir: 'left', group: TILE_GROUPS.straight, label: '\u0412\u043b\u0456\u0432\u043e', iconFile: 'straight_left.svg' },
-  { dir: 'right-up', group: TILE_GROUPS.turn, label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u043b\u0456\u0432\u043e \u2192 \u0432\u0433\u043e\u0440\u0443', iconFile: 'right_to_up.svg' },
-  { dir: 'down-right', group: TILE_GROUPS.turn, label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u0433\u043e\u0440\u0443 \u2192 \u0432\u043f\u0440\u0430\u0432\u043e', iconFile: 'bottom_to_right.svg' },
-  { dir: 'left-down', group: TILE_GROUPS.turn, label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u043f\u0440\u0430\u0432\u043e \u2192 \u0432\u043d\u0438\u0437', iconFile: 'left_to_down.svg' },
-  { dir: 'up-left', group: TILE_GROUPS.turn, label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u043d\u0438\u0437 \u2192 \u0432\u043b\u0456\u0432\u043e', iconFile: 'top_to_left.svg' },
-  { dir: 'right-down', group: TILE_GROUPS.turn, label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u043b\u0456\u0432\u043e \u2192 \u0432\u043d\u0438\u0437', iconFile: 'right_to_down.svg' },
-  { dir: 'down-left', group: TILE_GROUPS.turn, label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u0433\u043e\u0440\u0443 \u2192 \u0432\u043b\u0456\u0432\u043e', iconFile: 'bottom_to_left.svg' },
-  { dir: 'left-up', group: TILE_GROUPS.turn, label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u043f\u0440\u0430\u0432\u043e \u2192 \u0432\u0433\u043e\u0440\u0443', iconFile: 'left_to_up.svg' },
-  { dir: 'up-right', group: TILE_GROUPS.turn, label: '\u041f\u043e\u0432\u043e\u0440\u043e\u0442 \u0432\u043d\u0438\u0437 \u2192 \u0432\u043f\u0440\u0430\u0432\u043e', iconFile: 'top_to_right.svg' }
+  { dir: 'up', group: TILE_GROUPS.straight, label: 'Угору', iconFile: 'straight_up.svg' },
+  { dir: 'right', group: TILE_GROUPS.straight, label: 'Праворуч', iconFile: 'straight_right.svg' },
+  { dir: 'down', group: TILE_GROUPS.straight, label: 'Униз', iconFile: 'straight_down.svg' },
+  { dir: 'left', group: TILE_GROUPS.straight, label: 'Ліворуч', iconFile: 'straight_left.svg' },
+  { dir: 'right-up', group: TILE_GROUPS.turn, label: 'Поворот ліворуч → угору', iconFile: 'right_to_up.svg' },
+  { dir: 'down-right', group: TILE_GROUPS.turn, label: 'Поворот угору → праворуч', iconFile: 'bottom_to_right.svg' },
+  { dir: 'left-down', group: TILE_GROUPS.turn, label: 'Поворот праворуч → униз', iconFile: 'left_to_down.svg' },
+  { dir: 'up-left', group: TILE_GROUPS.turn, label: 'Поворот униз → ліворуч', iconFile: 'top_to_left.svg' },
+  { dir: 'right-down', group: TILE_GROUPS.turn, label: 'Поворот ліворуч → униз', iconFile: 'right_to_down.svg' },
+  { dir: 'down-left', group: TILE_GROUPS.turn, label: 'Поворот угору → ліворуч', iconFile: 'bottom_to_left.svg' },
+  { dir: 'left-up', group: TILE_GROUPS.turn, label: 'Поворот праворуч → угору', iconFile: 'left_to_up.svg' },
+  { dir: 'up-right', group: TILE_GROUPS.turn, label: 'Поворот униз → праворуч', iconFile: 'top_to_right.svg' }
 ];
 
 export const TILE_IDS = TILE_DEFS.map((tile) => tile.dir);

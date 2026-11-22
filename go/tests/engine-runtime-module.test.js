@@ -28,11 +28,15 @@ test('engine runtime creates route helpers from explicit app state', async () =>
     }
   });
 
-  assert.deepEqual(route.findNeighborStartMove(1, 0, 3, 3), {
-    dir: 'right',
-    startKey: '1,1'
-  });
   assert.equal(route.analyzeCurrentRoute().canReachApple, true);
+
+  const walker = route.createWalker();
+  const first = walker.next();
+  assert.equal(first.ok, true);
+  assert.equal(first.firstStep, true);
+  assert.equal(first.startKey, '1,1');
+  assert.deepEqual(first.to, { r: 1, c: 1 });
+  assert.equal(walker.next().isAppleAhead, true);
 });
 
 test('engine runtime module avoids storage, DOM globals and window app state', () => {

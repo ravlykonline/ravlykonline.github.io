@@ -314,6 +314,9 @@ async function createModalHarness(options = {}) {
       mode(isDebug) {
         return isDebug ? '????????????' : '?????????';
       },
+      mapLevelAria(number, name, state) {
+        return `${number}: ${name}. ${state}`;
+      },
       mapState(isCurrent, isDone) {
         if (isCurrent) return '????????';
         if (isDone) return '????????';

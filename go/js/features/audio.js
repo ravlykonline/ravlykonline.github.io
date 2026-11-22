@@ -1,6 +1,10 @@
 import { createTaskSpeech } from './speech.js';
 
-export function createAudioFeedback({ performanceRef = globalThis.performance, windowRef = globalThis.window } = {}) {
+export function createAudioFeedback({
+  isMuted = () => false,
+  performanceRef = globalThis.performance,
+  windowRef = globalThis.window
+} = {}) {
   let audioCtx = null;
   let noiseBuffer = null;
   let lastStepSoundAt = 0;
@@ -133,6 +137,10 @@ export function createAudioFeedback({ performanceRef = globalThis.performance, w
   }
 
   function playSuccessSound() {
+    if (isMuted()) {
+      return false;
+    }
+
     const ctx = resumeAudio();
     if (!ctx) {
       return false;
@@ -147,6 +155,10 @@ export function createAudioFeedback({ performanceRef = globalThis.performance, w
 
   // Гучне хрумтіння яблука: короткі шумові удари з низьким «тук».
   function playCrunchSound(bites = 5) {
+    if (isMuted()) {
+      return false;
+    }
+
     const ctx = resumeAudio();
     if (!ctx) {
       return false;
@@ -164,6 +176,10 @@ export function createAudioFeedback({ performanceRef = globalThis.performance, w
 
   // Фінальні овації: фанфари й «оплески» з багатьох коротких шумових ударів.
   function playFinaleSound() {
+    if (isMuted()) {
+      return false;
+    }
+
     const ctx = resumeAudio();
     if (!ctx) {
       return false;
@@ -189,6 +205,10 @@ export function createAudioFeedback({ performanceRef = globalThis.performance, w
   }
 
   function playErrorSound() {
+    if (isMuted()) {
+      return false;
+    }
+
     const ctx = resumeAudio();
     if (!ctx) {
       return false;
@@ -202,6 +222,10 @@ export function createAudioFeedback({ performanceRef = globalThis.performance, w
   }
 
   function playStepSound() {
+    if (isMuted()) {
+      return false;
+    }
+
     const ctx = resumeAudio();
     if (!ctx) {
       return false;
@@ -231,12 +255,16 @@ export function createAudioFeedback({ performanceRef = globalThis.performance, w
 
 export function createUiAudio({
   getCurrentLevelId,
+  initialMuted = false,
   setLevelIntroStatus,
   setStatus,
   text,
   windowRef = globalThis.window
 }) {
+  let muted = Boolean(initialMuted);
+
   const feedback = createAudioFeedback({
+    isMuted: () => muted,
     performanceRef: windowRef?.performance,
     windowRef
   });
@@ -249,6 +277,10 @@ export function createUiAudio({
   });
 
   function speakCurrentTask() {
+    if (muted) {
+      setStatus('sound', text.ui.speechMuted, 'warn');
+      return;
+    }
     if (!speech.play(getCurrentLevelId())) {
       setStatus('sound', text.ui.speechUnsupported, 'warn');
     }
@@ -262,6 +294,13 @@ export function createUiAudio({
     playSuccessSound: feedback.playSuccessSound,
     primeAudio: feedback.primeAudio,
     resumeAudio: feedback.resumeAudio,
+    isMuted: () => muted,
+    setMuted(value) {
+      muted = Boolean(value);
+      if (muted && speech.stop()) {
+        setLevelIntroStatus();
+      }
+    },
     speakCurrentTask,
     stopTaskSpeech() {
       if (speech.stop()) {

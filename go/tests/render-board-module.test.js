@@ -79,15 +79,19 @@ test('createBoardGrid builds stable grid cells with coordinates and events', asy
     rows: 2
   });
 
-  assert.equal(grid.children.length, 4);
-  assert.equal(grid.children[0].dataset.r, '0');
-  assert.equal(grid.children[0].dataset.c, '0');
-  assert.equal(grid.children[0].attrs.role, 'gridcell');
-  assert.equal(grid.children[0].attrs.tabindex, '0');
-  assert.equal(grid.children[3].attrs.tabindex, '-1');
+  assert.equal(grid.children.length, 2);
+  assert.ok(grid.children.every((row) => row.attrs.role === 'row' && row.className === 'board-row'));
+  const cells = grid.children.flatMap((row) => row.children);
+  assert.equal(cells.length, 4);
+  assert.equal(cells[0].dataset.r, '0');
+  assert.equal(cells[0].dataset.c, '0');
+  assert.equal(cells[0].attrs.role, 'gridcell');
+  assert.equal(cells[0].attrs.tabindex, '0');
+  assert.equal(cells[3].attrs.tabindex, '-1');
+  assert.equal(grid.children[1].children[0], cells[2]);
 
-  grid.children[2].listeners.click();
-  grid.children[1].listeners.keydown({ key: 'Enter' });
+  cells[2].listeners.click();
+  cells[1].listeners.keydown({ key: 'Enter' });
   assert.deepEqual(clicked, [[1, 0]]);
   assert.deepEqual(keyed, [['Enter', 0, 1]]);
 });
@@ -137,4 +141,10 @@ test('renderBoard module stays independent from storage and global app state', (
   assert.doesNotMatch(source, /sessionStorage|localStorage/);
   assert.doesNotMatch(source, /window\.SnailGame/);
   assert.doesNotMatch(source, /\.innerHTML\s*=/);
+});
+
+test('board rows are ARIA-only wrappers that keep the CSS grid layout', () => {
+  const fs = require('node:fs');
+  const css = fs.readFileSync(path.join(root, 'css/game.css'), 'utf8');
+  assert.match(css, /\.board-row \{\n  display: contents;\n\}/);
 });

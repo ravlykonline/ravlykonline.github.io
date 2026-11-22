@@ -40,3 +40,23 @@ for (const { name, presetArrows, stop, message } of failures) {
     assert.equal(modalCalls.turnHint, 0);
   });
 }
+
+test('an obstacle flashes the rock but marks the card under the snail as the stop', async () => {
+  const { app } = await bootstrapEngineHarness({
+    obstacles: [{ r: 1, c: 3, kind: 'rock', label: 'Камінь' }],
+    presetArrows: { '1,2': 'right' }
+  });
+  const markers = [];
+  const flashes = [];
+  const statuses = [];
+  app.ui.setStopMark = (r, c) => markers.push([r, c]);
+  app.ui.flashCell = (r, c) => flashes.push([r, c]);
+  app.ui.setStatus = (_icon, text) => statuses.push(text);
+
+  await app.engine.run();
+
+  assert.deepEqual(markers, [[1, 2]]);
+  assert.deepEqual(flashes, [[1, 3]]);
+  assert.equal(statuses.at(-1), app.text.engine.obstacle);
+  assert.match(app.text.engine.obstacle, /Заміни картку/);
+});

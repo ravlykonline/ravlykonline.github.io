@@ -8,42 +8,6 @@ function cloneArrowMap(source) {
   return Object.fromEntries(Object.entries(source || {}).map(([key, value]) => [key, value]));
 }
 
-function centerLevelLayout(level) {
-  const coords = [
-    level.start,
-    level.apple,
-    ...level.obstacles.map((item) => ({ r: item.r, c: item.c })),
-    ...Object.keys(level.presetArrows).map((key) => {
-      const [r, c] = key.split(',').map(Number);
-      return { r, c };
-    })
-  ];
-
-  const minR = Math.min(...coords.map((item) => item.r));
-  const maxR = Math.max(...coords.map((item) => item.r));
-  const minC = Math.min(...coords.map((item) => item.c));
-  const maxC = Math.max(...coords.map((item) => item.c));
-  const boxHeight = maxR - minR + 1;
-  const boxWidth = maxC - minC + 1;
-  const targetMinR = Math.max(0, Math.floor((level.rows - boxHeight) / 2));
-  const targetMinC = Math.max(0, Math.floor((level.cols - boxWidth) / 2));
-  const shiftR = targetMinR - minR;
-  const shiftC = targetMinC - minC;
-
-  return {
-    ...level,
-    start: { r: level.start.r + shiftR, c: level.start.c + shiftC },
-    apple: { r: level.apple.r + shiftR, c: level.apple.c + shiftC },
-    obstacles: level.obstacles.map((item) => ({ ...item, r: item.r + shiftR, c: item.c + shiftC })),
-    presetArrows: Object.fromEntries(
-      Object.entries(level.presetArrows).map(([key, value]) => {
-        const [r, c] = key.split(',').map(Number);
-        return [`${r + shiftR},${c + shiftC}`, value];
-      })
-    )
-  };
-}
-
 function createLevel(definition) {
   return {
     id: definition.id,
@@ -110,8 +74,8 @@ export const levels = [
     start: { r: 3, c: 1 }, apple: { r: 3, c: 6 }, obstacles: [],
     allowedTiles: ['left', 'right'],
     presetArrows: { '3,2': 'right', '3,3': 'right', '3,4': 'left', '3,5': 'left' },
-    hint: 'Запусти Равлика. Коли він зупиниться, заміни неправильну стрілку в підсвіченій клітинці.',
-    goal: 'Знайди помилку.'
+    hint: 'Запусти Равлика. Коли він зупиниться, заміни неправильну стрілку в підсвіченій клітинці. Повтори, доки Равлик не дійде до яблука.',
+    goal: 'Знайди помилки.'
   }),
   createLevel({
     id: 6,
@@ -141,7 +105,7 @@ export const levels = [
       { r: 2, c: 5, kind: 'rock', label: 'Камінь' },
       { r: 4, c: 2, kind: 'rock', label: 'Камінь' }
     ],
-    allowedTiles: ['up', 'right', 'down', 'left', 'left-down', 'up-right'], presetArrows: {},
+    allowedTiles: ['right', 'down', 'left-down', 'up-right'], presetArrows: {},
     hint: 'Проклади шлях до яблука. На прямій клади прямі стрілки, а там, де шлях змінює напрям, клади повороти.',
     goal: 'Прямо і поворот.'
   }),
@@ -190,7 +154,7 @@ export const levels = [
       { r: 1, c: 3, kind: 'rock', label: 'Камінь' },
       { r: 4, c: 5, kind: 'rock', label: 'Камінь' }
     ],
-    allowedTiles: ['right', 'down', 'left-down', 'up-right'],
+    allowedTiles: ['right', 'left-down', 'up-right'],
     presetArrows: {},
     hint: 'Прямо не пройти. Обійди перешкоду двома поворотами, як по сходинці.',
     goal: 'Два повороти поруч.'
@@ -265,13 +229,13 @@ export const levels = [
       { r: 3, c: 5, kind: 'rock', label: 'Камінь' },
       { r: 4, c: 3, kind: 'log', label: 'Пеньок' }
     ],
-    allowedTiles: ['right', 'down', 'left-down', 'up-right'], presetArrows: {},
+    allowedTiles: ['left-down', 'up-right'], presetArrows: {},
     hint: 'Проведи Равлика між перешкодами. Став повороти там, де шлях змінює напрям.',
     goal: 'Шлях між камінням.'
   }),
   createLevel({
     id: 14,
-    name: 'Дві загублені команди',
+    name: 'Дві загублені картки',
     type: 'debug', rows: 6, cols: 8,
     start: { r: 4, c: 0 }, apple: { r: 1, c: 7 },
     obstacles: [
@@ -434,7 +398,7 @@ export const levels = [
   }),
   createLevel({
     id: 20,
-    name: 'Велика подорож равлика',
+    name: 'Велика подорож Равлика',
     type: 'play', rows: 6, cols: 8,
     start: { r: 0, c: 0 }, apple: { r: 5, c: 7 },
     obstacles: [

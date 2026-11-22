@@ -28,6 +28,9 @@
         <span class="ui-icon theme-icon" data-icon="moon" aria-hidden="true"></span>
         <span class="theme-label">Ніч</span>
       </button>
+      <button class="theme-btn sound-btn" id="btn-sound" type="button" aria-pressed="false" aria-label="Вимкнути звук" title="Вимкнути звук">
+        <span class="ui-icon" data-icon="sound" aria-hidden="true"></span>
+      </button>
       <button class="map-btn" id="btn-map" type="button" aria-label="Карта рівнів">
         <span class="ui-icon" data-icon="map" aria-hidden="true"></span> Рівні
       </button>
@@ -42,7 +45,7 @@
   </header>
 
   <div class="gwrap" id="gwrap">
-    <div id="grid" role="grid" aria-label="Поле 8 на 6. Тут можна ставити команди для маршруту."></div>
+    <div id="grid" role="grid" aria-label="Поле 8 на 6. Тут можна класти картки для маршруту."></div>
     <div id="snail" aria-hidden="true"></div>
   </div>
   <div class="side-panel">
@@ -92,6 +95,8 @@
   <div class="mbox">
     <div class="welcome-illustration" aria-hidden="true">
       <img class="mico" src="./assets/snail.svg" alt="">
+      <span class="welcome-step"><img class="tile-icon" src="./assets/straight_right.svg" alt=""></span>
+      <span class="welcome-step"><img class="tile-icon" src="./assets/straight_right.svg" alt=""></span>
       <img class="mico" src="./assets/apple.svg" alt="">
     </div>
     <h2 class="mttl" id="welcome-title">Вітаємо у «Пригодах Равлика»!</h2>
@@ -107,13 +112,13 @@
     <span class="mode-chip" id="level-mode">Звичайний рівень</span>
     <span class="goal-chip" id="level-goal">Навчитися рухатися праворуч.</span>
   </div>
-  <p class="level-hint" id="level-hint">Постав стрілочки праворуч, щоб равлик дійшов до яблука.</p>
+  <p class="level-hint" id="level-hint">Постав стрілочки праворуч, щоб Равлик дійшов до яблука.</p>
   <p class="debug-note" id="debug-note" hidden></p>
 </section>
 
 <noscript>
   <section class="level-card" aria-label="Повідомлення без JavaScript">
-    <p>Для цієї гри потрібен JavaScript. Увімкніть його, щоб керувати равликом і проходити рівні.</p>
+    <p>Для цієї гри потрібен JavaScript. Увімкніть його, щоб керувати Равликом і проходити рівні.</p>
   </section>
 </noscript>
 

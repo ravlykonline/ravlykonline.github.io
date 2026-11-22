@@ -1,95 +1,24 @@
-import { DIRECTION_DELTAS, resolveTileExit } from '../core/constants.js';
-import { analyzeRoute } from './route.js';
+import { analyzeRoute, createRouteWalker } from './route.js';
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Тонка обгортка над чистим route.js: лише збирає вхідні дані з app.
 export function createEngineRoute(app) {
-  const scanOrder = app.config.scanOrder;
-
-  function findNeighborStartMove(r, c, rows, cols) {
-    for (const dir of scanOrder) {
-      const { dr, dc } = DIRECTION_DELTAS[dir];
-      const nr = r + dr;
-      const nc = c + dc;
-      if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) {
-        continue;
-      }
-
-      const tileDir = app.state.arrows[`${nr},${nc}`];
-      if (tileDir && resolveTileExit(tileDir, dir)) {
-        return { dir, startKey: `${nr},${nc}` };
-      }
-    }
-
-    return { dir: null, startKey: null };
-  }
-
-  function resolveRouteStep(stepState) {
-    const { c, facing, firstStep, r, rows, cols, visited } = stepState;
-    const key = `${r},${c}`;
-
-    if (firstStep) {
-      const neighborMove = findNeighborStartMove(r, c, rows, cols);
-      if (!neighborMove.dir) {
-        return { ok: false, reason: 'invalid-turn' };
-      }
-      return { ok: true, dir: neighborMove.dir, startKey: neighborMove.startKey };
-    }
-
-    const tileDir = app.state.arrows[key];
-    if (!tileDir) {
-      return { ok: false, reason: 'missing-tile' };
-    }
-    if (visited.has(key)) {
-      return { ok: false, reason: 'loop' };
-    }
-
-    visited.add(key);
-    const dir = resolveTileExit(tileDir, facing);
-    if (!dir) {
-      return { ok: false, reason: 'invalid-turn' };
-    }
-
-    return { ok: true, dir };
-  }
-
-  function inspectForwardMove(moveState) {
-    const { apple, c, dir, r, rows, cols } = moveState;
-    const { dr, dc } = DIRECTION_DELTAS[dir];
-    const nr = r + dr;
-    const nc = c + dc;
-
-    if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) {
-      return { ok: false, reason: 'out-of-bounds', dir, nr, nc };
-    }
-    if (app.isObstacle(nr, nc)) {
-      return { ok: false, reason: 'obstacle', dir, nr, nc };
-    }
-
-    const isAppleAhead = nr === apple.r && nc === apple.c;
-    const nextTileDir = app.state.arrows[`${nr},${nc}`];
-    if (!isAppleAhead && !nextTileDir) {
-      return { ok: false, reason: 'missing-tile', dir, nr, nc };
-    }
-    if (!isAppleAhead && !resolveTileExit(nextTileDir, dir)) {
-      return { ok: false, reason: 'invalid-next-step', dir, nr, nc };
-    }
-
-    return { ok: true, dir, nr, nc, isAppleAhead };
-  }
-
-  function analyzeCurrentRoute() {
-    const result = analyzeRoute({
+  function routeInput() {
+    return {
       arrows: app.state.arrows,
       config: {
         maxSteps: app.config.maxSteps,
         routeScanOrder: app.config.scanOrder
       },
       level: app.state.currentLevel
-    });
+    };
+  }
 
+  function analyzeCurrentRoute() {
+    const result = analyzeRoute(routeInput());
     return {
       canReachApple: result.canReachApple,
       reason: result.reason || 'success',
@@ -97,12 +26,11 @@ export function createEngineRoute(app) {
     };
   }
 
-  return {
-    analyzeCurrentRoute,
-    findNeighborStartMove,
-    inspectForwardMove,
-    resolveRouteStep
-  };
+  function createWalker() {
+    return createRouteWalker(routeInput());
+  }
+
+  return { analyzeCurrentRoute, createWalker };
 }
 
 export function createGameEngine({ app }) {
@@ -124,6 +52,9 @@ export function createGameEngine({ app }) {
       flash = null,
       bumpDir = null
     } = options || {};
+    // Позначка «тут зупинка» за замовчуванням стоїть там, де блимає клітинка,
+    // але може бути на іншій (перешкода блимає, а помилка — у картці під Равликом).
+    const stopMark = options && 'stopMark' in options ? options.stopMark : flash;
 
     app.ui.playErrorSound();
     app.render.setSnailMood?.('sad', '😢', 2200);
@@ -131,7 +62,9 @@ export function createGameEngine({ app }) {
 
     if (flash) {
       app.ui.flashCell(flash.r, flash.c, flash.color);
-      app.ui.setStopMark(flash.r, flash.c);
+    }
+    if (stopMark) {
+      app.ui.setStopMark(stopMark.r, stopMark.c);
     }
 
     if (bumpDir) {
@@ -145,11 +78,58 @@ export function createGameEngine({ app }) {
 
   const routeApi = createEngineRoute(app);
 
+  async function handleRouteFailure(step) {
+    const { r, c } = step.from;
+    const bumpDir = step.dir || null;
+    const target = step.to;
+
+    switch (step.reason) {
+      case 'loop':
+        await handleFailure({ icon: 'warning', text: engineText.loop, statusType: 'err' });
+        return;
+      case 'max-steps':
+        await handleFailure({ icon: 'warning', text: engineText.tooManySteps, statusType: 'err' });
+        return;
+      case 'out-of-board':
+        await handleFailure({ icon: 'warning', text: engineText.outOfBounds, bumpDir });
+        return;
+      case 'blocked':
+        // Каменю не виправиш: блимає перешкода, а позначка зупинки — на картці під Равликом.
+        await handleFailure({
+          icon: 'warning',
+          text: engineText.obstacle,
+          flash: { r: target.r, c: target.c, color: 'var(--flash-obstacle)' },
+          stopMark: { r, c },
+          bumpDir
+        });
+        return;
+      default:
+        break;
+    }
+
+    if (step.firstStep) {
+      // Немає жодної картки біля Равлика, з якої можна почати.
+      app.ui.flashNeighbours(r, c);
+      await handleFailure({
+        icon: 'warning',
+        text: engineText.placeNearby,
+        statusType: 'warn',
+        flash: { r, c, color: 'var(--flash-warn)' }
+      });
+      return;
+    }
+
+    const isMissing = step.reason === 'missing-arrow';
+    const bad = target || { r, c };
+    await handleFailure({
+      text: isMissing ? engineText.noCommand : engineText.invalidTurn,
+      flash: { r: bad.r, c: bad.c, color: 'var(--flash-missing)' },
+      bumpDir
+    });
+  }
+
   async function run() {
     const start = app.getStart();
-    const apple = app.getApple();
-    const rows = app.config.rows;
-    const cols = app.config.cols;
 
     if (app.state.running) {
       return;
@@ -179,48 +159,17 @@ export function createGameEngine({ app }) {
     app.render.deselect();
     app.ui.setStatus('play', engineText.moving, 'run');
 
-    let steps = 0;
-    let firstStep = true;
-    const visited = new Set();
+    const walker = routeApi.createWalker();
 
-    while (steps < app.config.maxSteps) {
-      steps += 1;
-      const { r, c } = app.state.snailPos;
-      const step = routeApi.resolveRouteStep({
-        r,
-        c,
-        rows,
-        cols,
-        firstStep,
-        facing: app.state.snailFacing,
-        visited
-      });
-      firstStep = false;
+    for (;;) {
+      const step = walker.next();
 
       if (!step.ok) {
-        if (step.reason === 'loop') {
-          await handleFailure({ icon: 'warning', text: engineText.loop, statusType: 'err' });
-          break;
-        }
-
-        if (step.reason === 'missing-tile') {
-          await handleFailure({
-            text: engineText.noCommand,
-            flash: { r, c, color: '#d94d1a' }
-          });
-          break;
-        }
-
-        app.ui.flashNeighbours(r, c);
-        await handleFailure({
-          icon: 'warning',
-          text: engineText.placeNearby,
-          statusType: 'warn',
-          flash: { r, c, color: '#ff9800' }
-        });
+        await handleRouteFailure(step);
         break;
       }
 
+      const { r, c } = step.from;
       if (step.startKey) {
         const [sr, sc] = step.startKey.split(',').map(Number);
         if (!Number.isNaN(sr) && !Number.isNaN(sc)) {
@@ -228,38 +177,13 @@ export function createGameEngine({ app }) {
         }
       }
 
-      const move = routeApi.inspectForwardMove({ r, c, dir: step.dir, rows, cols, apple });
-      if (!move.ok) {
-        if (move.reason === 'out-of-bounds') {
-          await handleFailure({ icon: 'warning', text: engineText.outOfBounds, bumpDir: step.dir });
-          break;
-        }
-
-        if (move.reason === 'obstacle') {
-          await handleFailure({
-            icon: 'warning',
-            text: engineText.obstacle,
-            flash: { r: move.nr, c: move.nc, color: '#8b5e34' },
-            bumpDir: step.dir
-          });
-          break;
-        }
-
-        await handleFailure({
-          text: move.reason === 'missing-tile' ? engineText.noCommand : engineText.invalidTurn,
-          flash: { r: move.nr, c: move.nc, color: '#d94d1a' },
-          bumpDir: step.dir
-        });
-        break;
-      }
-
       app.render.setTrail(r, c);
       app.ui.playStepSound();
-      app.state.snailPos = { r: move.nr, c: move.nc };
+      app.state.snailPos = { r: step.to.r, c: step.to.c };
       app.state.snailFacing = step.dir;
-      app.render.posSnail(move.nr, move.nc, true, step.dir);
+      app.render.posSnail(step.to.r, step.to.c, true, step.dir);
 
-      if (move.isAppleAhead) {
+      if (step.isAppleAhead) {
         await delay(app.config.stepMs * 0.8);
         app.render.setSnailMood?.('eat', '😋');
         app.ui.playCrunchSound?.(5);
@@ -286,10 +210,6 @@ export function createGameEngine({ app }) {
       }
 
       await delay(app.config.stepMs);
-    }
-
-    if (steps >= app.config.maxSteps) {
-      await handleFailure({ icon: 'warning', text: engineText.tooManySteps, statusType: 'err' });
     }
 
     app.render.clearStartHighlight();

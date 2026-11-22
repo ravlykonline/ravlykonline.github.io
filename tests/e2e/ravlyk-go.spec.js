@@ -289,9 +289,9 @@ test('@desktop-chromium-only Ravlyk accepts a cell first and then an arrow, and 
   await page.locator('#btn-clr').click();
   await page.locator('#clear-confirm').click();
   await page.locator('.cell[data-r="2"][data-c="5"]').click();
-  await expect(status).toContainText('Спочатку постав стрілки');
+  await expect(status).toContainText('Спочатку постав картки');
   await page.locator('.cell[data-r="2"][data-c="2"]').click();
-  await expect(status).toContainText('Спочатку постав стрілки');
+  await expect(status).toContainText('Спочатку постав картки');
 });
 
 test('@desktop-chromium-only Ravlyk moves a placed arrow by dragging it and removes it outside the board', async ({ page }) => {
@@ -356,7 +356,7 @@ test('@desktop-chromium-only Ravlyk displays the new order on the map and in nav
   await page.locator('#btn-map').click();
   const levels = page.locator('.map-level');
   const orderedNames = [
-    'Дві загублені команди',
+    'Дві загублені картки',
     'Переплутані повороти в лабіринті',
     'Дві помилки на звивистій дорозі',
     'Довга дорога з пастками',

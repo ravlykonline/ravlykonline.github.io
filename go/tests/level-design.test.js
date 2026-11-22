@@ -144,3 +144,89 @@ test('level 12 palette can restore every preset card', async () => {
     assert.ok(level.allowedTiles.includes(tile), `${tile} missing from palette`);
   }
 });
+
+// Мінімальна кількість змін карток, після яких справжній рушій (analyzeRoute з
+// route.js, той самий, що рухає Равлика в грі) доводить Равлика до яблука.
+function minimalEngineEdits(level, analyzeRoute, maxEdits) {
+  const blocked = new Set([
+    `${level.start.r},${level.start.c}`,
+    `${level.apple.r},${level.apple.c}`,
+    ...level.obstacles.map((item) => `${item.r},${item.c}`)
+  ]);
+  const cells = [];
+  for (let r = 0; r < level.rows; r += 1) {
+    for (let c = 0; c < level.cols; c += 1) {
+      if (!blocked.has(`${r},${c}`)) {
+        cells.push(`${r},${c}`);
+      }
+    }
+  }
+  const tiles = [undefined, ...level.allowedTiles];
+
+  function search(arrows, from, left) {
+    if (analyzeRoute({ arrows, level }).success) {
+      return true;
+    }
+    if (left === 0) {
+      return false;
+    }
+    for (let i = from; i < cells.length; i += 1) {
+      const key = cells[i];
+      const original = arrows[key];
+      for (const tile of tiles) {
+        if (tile === original) {
+          continue;
+        }
+        const edited = { ...arrows };
+        if (tile) {
+          edited[key] = tile;
+        } else {
+          delete edited[key];
+        }
+        if (search(edited, i + 1, left - 1)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  for (let edits = 0; edits <= maxEdits; edits += 1) {
+    if (search({ ...level.presetArrows }, 0, edits)) {
+      return edits;
+    }
+  }
+  return null;
+}
+
+test('debug levels: preset run fails and the minimal fix count matches the design', async () => {
+  const { levels } = await importModule('js/core/levels.js');
+  const { analyzeRoute } = await importModule('js/engine/route.js');
+  const expectedFixes = { 5: 2, 11: 1, 12: 1, 14: 2, 17: 2, 18: 2 };
+  const debugLevels = levels.filter((level) => level.type === 'debug');
+  assert.deepEqual(debugLevels.map((level) => level.id).sort((a, b) => a - b), Object.keys(expectedFixes).map(Number));
+
+  for (const level of debugLevels) {
+    const preset = analyzeRoute({ arrows: level.presetArrows, level });
+    assert.equal(preset.success, false, `level ${level.id} is already solved`);
+    assert.equal(
+      minimalEngineEdits(level, analyzeRoute, expectedFixes[level.id]),
+      expectedFixes[level.id],
+      `level ${level.id}`
+    );
+  }
+});
+
+test('level-design route analysis reports the same stop the UI shows', async () => {
+  const { analyzeRoute } = await importModule('js/engine/route.js');
+  const level = {
+    rows: 3, cols: 5, start: { r: 1, c: 0 }, apple: { r: 1, c: 4 },
+    obstacles: [], startFacing: 'right', allowedTiles: [], presetArrows: {}
+  };
+  // Равлик зупиняється ПЕРЕД клітинкою без картки і ПЕРЕД карткою, що не пропустить його.
+  const missing = analyzeRoute({ arrows: { '1,1': 'right' }, level, config: { routeScanOrder: ['right'] } });
+  assert.equal(missing.reason, 'missing-arrow');
+  assert.deepEqual(missing.path.at(-1), { r: 1, c: 2, facing: 'right' });
+  const wrong = analyzeRoute({ arrows: { '1,1': 'right', '1,2': 'left' }, level, config: { routeScanOrder: ['right'] } });
+  assert.equal(wrong.reason, 'wrong-turn');
+});

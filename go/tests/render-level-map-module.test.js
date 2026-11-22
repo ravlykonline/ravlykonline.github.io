@@ -14,6 +14,7 @@ function createElement(tagName) {
     children: [],
     className: '',
     dataset: {},
+    attrs: {},
     listeners: {},
     tagName,
     textContent: '',
@@ -26,6 +27,9 @@ function createElement(tagName) {
     },
     addEventListener(name, handler) {
       this.listeners[name] = handler;
+    },
+    setAttribute(name, value) {
+      this.attrs[name] = value;
     }
   };
 }
@@ -38,6 +42,9 @@ test('renderLevelMap renders all levels as unlocked buttons with current and don
   const selected = [];
   const documentRef = { createElement };
   const text = {
+    mapLevelAria(number, name, state) {
+      return `Рівень ${number}: ${name}. ${state}`;
+    },
     mapState(isCurrent, isDone) {
       return isCurrent ? 'Ми тут' : (isDone ? 'Пройдено' : 'Ще попереду');
     }
@@ -63,6 +70,9 @@ test('renderLevelMap renders all levels as unlocked buttons with current and don
   assert.match(grid.children[2].className, /\bcurrent\b/);
   assert.match(grid.children[2].className, /\bdone\b/);
   assert.equal(grid.children[2].children[2].textContent, 'Ми тут');
+
+  assert.equal(grid.children[0].attrs['aria-label'], 'Рівень 1: Пряма доріжка. Пройдено');
+  assert.equal(grid.children[2].attrs['aria-label'], 'Рівень 3: ' + levels[2].name + '. Ми тут');
 
   grid.children[19].listeners.click();
   assert.deepEqual(selected, [20]);

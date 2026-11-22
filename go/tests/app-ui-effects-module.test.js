@@ -107,7 +107,7 @@ test('appUiEffects flashes one cell and clears the outline later', async () => {
   effects.flashCell(1, 2);
 
   assert.deepEqual(harness.calls, [['cell', 1, 2]]);
-  assert.equal(harness.cell.style.outline, '4px solid #ff9800');
+  assert.equal(harness.cell.style.outline, '4px solid var(--flash-warn)');
   assert.equal(harness.cell.style.outlineOffset, '-4px');
   assert.equal(harness.timers[0].delay, 1200);
 

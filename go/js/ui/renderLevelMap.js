@@ -26,6 +26,8 @@ export function renderLevelMap({ completedLevelIds, currentLevelId, documentRef 
     stateEl.className = 'map-level-state';
     stateEl.textContent = text.mapState(isCurrent, isDone);
 
+    // Без цього екранний диктор читає номер, назву й стан злитно.
+    button.setAttribute('aria-label', text.mapLevelAria(index + 1, level.name, stateEl.textContent));
     button.append(numberEl, nameEl, stateEl);
     button.addEventListener('click', () => onSelect(level.id));
     grid.appendChild(button);

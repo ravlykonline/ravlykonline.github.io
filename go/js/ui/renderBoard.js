@@ -17,6 +17,10 @@ export function createBoardGrid({
   grid.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
 
   for (let row = 0; row < rows; row += 1) {
+    // role="row" потрібен для role="grid"; CSS-сітку не ламає (display: contents).
+    const rowEl = documentRef.createElement('div');
+    rowEl.className = 'board-row';
+    rowEl.setAttribute('role', 'row');
     for (let col = 0; col < cols; col += 1) {
       const cell = documentRef.createElement('div');
       cell.className = `cell ${(row + col) % 2 === 0 ? 'odd' : 'even'}`;
@@ -32,8 +36,9 @@ export function createBoardGrid({
       if (onCellKeyDown) {
         cell.addEventListener('keydown', (event) => onCellKeyDown(event, row, col));
       }
-      grid.appendChild(cell);
+      rowEl.appendChild(cell);
     }
+    grid.appendChild(rowEl);
   }
 
   return grid;
