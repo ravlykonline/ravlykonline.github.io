@@ -10,9 +10,32 @@ const viewports = [
   { width: 1280, height: 720 }
 ];
 
-test('@cross-browser-smoke Ravlyk keeps the board playable in compact windows', async ({ page }) => {
+async function openGame(page) {
+  await page.goto('/go/');
+  await page.getByRole('button', { name: 'Розпочати пригоди!' }).click();
+}
+
+test('@cross-browser-smoke Ravlyk welcomes a fresh tab and restores play after reload', async ({ page }) => {
   await page.setViewportSize(viewports[0]);
   await page.goto('/go/');
+  const welcome = page.getByRole('dialog', { name: 'Вітаємо у «Пригодах Равлика»!' });
+  const start = welcome.getByRole('button', { name: 'Розпочати пригоди!' });
+  await expect(welcome).toContainText('Допоможи Равлику дістатися до яблука!');
+  await expect(start).toBeInViewport({ ratio: 1 });
+  await expect(start).toBeFocused();
+  await expect(page.locator('#grid')).toBeHidden();
+  await start.press('Enter');
+  await expect(welcome).toBeHidden();
+  await expect(page.locator('#level-chip')).toHaveText('1 / 20');
+  await expect(page.locator('#palette button').first()).toBeFocused();
+  await page.reload();
+  await expect(page.locator('#palette button').first()).toBeVisible();
+  await expect(welcome).toBeHidden();
+});
+
+test('@cross-browser-smoke Ravlyk keeps the board playable in compact windows', async ({ page }) => {
+  await page.setViewportSize(viewports[0]);
+  await openGame(page);
   await expect(page.locator('#snail .board-icon-snail')).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
 
@@ -61,7 +84,7 @@ test('@cross-browser-smoke Ravlyk keeps the board playable in compact windows', 
 
 test('@cross-browser-smoke Ravlyk uses consistent controls and remembers the theme in the tab', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
-  await page.goto('/go/');
+  await openGame(page);
   const root = page.locator('html');
   const theme = page.locator('#btn-theme');
   await expect(root).toHaveAttribute('data-theme', 'dark');
@@ -95,7 +118,7 @@ test('@cross-browser-smoke Ravlyk completes level one with touch, mouse or keybo
   if (touch) {
     await page.setViewportSize({ width: 844, height: 390 });
   }
-  await page.goto('/go/');
+  await openGame(page);
   const activate = (locator) => touch ? locator.tap() : locator.click();
   const tile = page.locator('#palette button');
   const first = page.locator('.cell[data-r="2"][data-c="3"]');
@@ -126,7 +149,7 @@ test('@cross-browser-smoke Ravlyk completes level one with touch, mouse or keybo
 });
 
 test('@desktop-chromium-only Ravlyk can reload and play offline after an online visit', async ({ context, page }) => {
-  await page.goto('/go/');
+  await openGame(page);
   await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
   await context.setOffline(true);
   await page.reload();
@@ -146,7 +169,7 @@ test('@desktop-chromium-only Ravlyk can reload and play offline after an online 
 
 test('@desktop-chromium-only Ravlyk anchors the side panel and finishes an upward turn upright', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto('/go/');
+  await openGame(page);
   const run = page.locator('#btn-run');
   const initial = await run.boundingBox();
 
@@ -171,7 +194,7 @@ test('@desktop-chromium-only Ravlyk anchors the side panel and finishes an upwar
 });
 
 test('@desktop-chromium-only Ravlyk explains a missing arrow and lets the player undo edits', async ({ page }) => {
-  await page.goto('/go/');
+  await openGame(page);
   const tile = page.locator('#palette button');
   const first = page.locator('.cell[data-r="2"][data-c="3"]');
   const second = page.locator('.cell[data-r="2"][data-c="4"]');
@@ -218,7 +241,7 @@ test('@desktop-chromium-only Ravlyk explains a missing arrow and lets the player
 });
 
 test('@desktop-chromium-only Ravlyk preserves edited routes across levels and supports explicit restart', async ({ page }) => {
-  await page.goto('/go/');
+  await openGame(page);
   const first = page.locator('.cell[data-r="2"][data-c="3"]');
   await page.locator('#palette button').click();
   await first.click();
@@ -251,7 +274,7 @@ test('@desktop-chromium-only Ravlyk preserves edited routes across levels and su
 });
 
 test('@desktop-chromium-only Ravlyk accepts a cell first and then an arrow, and starts from the snail or apple', async ({ page }) => {
-  await page.goto('/go/');
+  await openGame(page);
   const first = page.locator('.cell[data-r="2"][data-c="3"]');
   const tile = page.locator('#palette button');
   const status = page.getByRole('status');
@@ -272,7 +295,7 @@ test('@desktop-chromium-only Ravlyk accepts a cell first and then an arrow, and 
 });
 
 test('@desktop-chromium-only Ravlyk moves a placed arrow by dragging it and removes it outside the board', async ({ page }) => {
-  await page.goto('/go/');
+  await openGame(page);
   const first = page.locator('.cell[data-r="2"][data-c="3"]');
   const second = page.locator('.cell[data-r="2"][data-c="4"]');
   const undo = page.getByRole('button', { name: 'Скасувати останню дію' });
@@ -300,7 +323,7 @@ test('@desktop-chromium-only Ravlyk moves a placed arrow by dragging it and remo
 });
 
 test('@desktop-chromium-only Ravlyk deletes an arrow with a tap and keeps the board in place when zoom is requested', async ({ page }) => {
-  await page.goto('/go/');
+  await openGame(page);
   const first = page.locator('.cell[data-r="2"][data-c="3"]');
   await page.locator('#palette button').click();
   await first.click();
@@ -317,7 +340,7 @@ test('@desktop-chromium-only Ravlyk deletes an arrow with a tap and keeps the bo
 });
 
 test('@desktop-chromium-only Ravlyk continues to the next level when the win dialog is closed', async ({ page }) => {
-  await page.goto('/go/');
+  await openGame(page);
   await page.locator('#palette button').click();
   await page.locator('.cell[data-r="2"][data-c="3"]').click();
   await page.locator('.cell[data-r="2"][data-c="4"]').click();
@@ -329,9 +352,9 @@ test('@desktop-chromium-only Ravlyk continues to the next level when the win dia
 });
 
 test('@desktop-chromium-only Ravlyk keeps level 16 arrows without scrolling on tablets', async ({ page }) => {
+  await openGame(page);
   for (const viewport of [{ width: 1024, height: 768 }, { width: 1180, height: 820 }, { width: 768, height: 1024 }]) {
     await page.setViewportSize(viewport);
-    await page.goto('/go/');
     await page.locator('#btn-map').click();
     await page.locator('.map-level').nth(15).click();
     await expect(page.locator('#level-title')).toHaveText('Лісовий лабіринт');

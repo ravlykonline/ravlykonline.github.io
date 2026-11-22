@@ -23,6 +23,7 @@ export function getDomRefs(documentRef = document) {
     progressTrackEl: documentRef.getElementById('progress-track'),
     progressFillEl: documentRef.getElementById('progress-fill'),
     btnMap: documentRef.getElementById('btn-map'),
+    welcomeDialog: documentRef.getElementById('welcome-dialog'),
     ghostEl: documentRef.getElementById('ghost'),
     confEl: documentRef.getElementById('confetti'),
     paletteEl: documentRef.getElementById('palette')
