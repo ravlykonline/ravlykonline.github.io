@@ -105,10 +105,6 @@ function createHarness() {
       return `${completed} з ${total}`;
     },
     static: {
-      earlyLevelInfoButton: 'Що робити',
-      earlyLevelSpeakAria: 'Пояснити завдання',
-      earlyLevelSpeakButton: 'Пояснити',
-      earlyLevelSpeakTitle: 'Пояснити завдання',
       infoButton: 'Інфо',
       speakAria: 'Озвучити',
       speakButton: 'Озвучити',

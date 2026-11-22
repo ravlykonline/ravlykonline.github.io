@@ -1,6 +1,7 @@
 export const SESSION_VERSION = 1;
 export const SESSION_STORAGE_KEY = 'ravlyk-code-session-v1';
 const THEME_STORAGE_KEY = 'ravlyk-go-theme';
+const SOUND_MUTED_STORAGE_KEY = 'ravlyk-go-sound-muted';
 
 const VALID_DIRECTIONS = new Set([
   'up', 'right', 'down', 'left',
@@ -33,6 +34,22 @@ export function saveThemePreference(theme, storage = getSessionStorage()) {
     storage?.setItem(THEME_STORAGE_KEY, theme);
   } catch {
     // Keep the theme available for this page if storage is blocked.
+  }
+}
+
+export function loadSoundMuted(storage = getSessionStorage()) {
+  try {
+    return storage?.getItem(SOUND_MUTED_STORAGE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function saveSoundMuted(muted, storage = getSessionStorage()) {
+  try {
+    storage?.setItem(SOUND_MUTED_STORAGE_KEY, muted ? '1' : '0');
+  } catch {
+    // Keep the choice for this page if storage is blocked.
   }
 }
 

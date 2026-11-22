@@ -1,22 +1,3 @@
-export function getLevelTaskButtonLabels({ level, text }) {
-  const isEarlyLevel = level.id <= 3 && level.type !== 'debug';
-  if (isEarlyLevel) {
-    return {
-      infoText: text.static.earlyLevelInfoButton,
-      speakText: text.static.earlyLevelSpeakButton,
-      speakAria: text.static.earlyLevelSpeakAria,
-      speakTitle: text.static.earlyLevelSpeakTitle
-    };
-  }
-
-  return {
-    infoText: text.static.infoButton,
-    speakText: text.static.speakButton,
-    speakAria: text.static.speakAria,
-    speakTitle: text.static.speakTitle
-  };
-}
-
 export function renderLevelHeader({
   canGoNext,
   canGoPrev,
@@ -43,7 +24,6 @@ export function renderLevelHeader({
   } = refs;
   const done = completedLevelIds.includes(level.id);
   const isDebug = level.type === 'debug';
-  const taskButtons = getLevelTaskButtonLabels({ level, text });
 
   levelChipEl.textContent = `${levelIndex + 1} / ${totalLevels}${done ? ' ✓' : ''}`;
   levelChipEl.setAttribute('aria-label', text.levelChip(levelIndex, totalLevels, done));
@@ -54,10 +34,10 @@ export function renderLevelHeader({
   levelHintEl.textContent = level.hint;
   debugNoteEl.hidden = !isDebug;
   debugNoteEl.textContent = isDebug ? text.ui.debugNote : '';
-  btnLevelInfo.textContent = taskButtons.infoText;
-  btnSpeakTask.textContent = taskButtons.speakText;
-  btnSpeakTask.setAttribute('aria-label', taskButtons.speakAria);
-  btnSpeakTask.setAttribute('title', taskButtons.speakTitle);
+  btnLevelInfo.textContent = text.static.infoButton;
+  btnSpeakTask.textContent = text.static.speakButton;
+  btnSpeakTask.setAttribute('aria-label', text.static.speakAria);
+  btnSpeakTask.setAttribute('title', text.static.speakTitle);
   documentRef.body?.classList?.toggle('debug-mode', isDebug);
   btnPrev.disabled = !canGoPrev || isRunning;
   btnNext.disabled = !canGoNext || isRunning;

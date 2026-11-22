@@ -68,138 +68,113 @@ export function resolveRouteStep({ arrows = {}, current, facing, firstStep, leve
   return { dir, ok: true };
 }
 
+// Дивиться на клітинку попереду. Равлик не заходить на клітинку без картки або
+// з карткою, яка не пропустить його далі, тому такі випадки теж є помилками кроку.
 export function inspectForwardMove({ arrows = {}, current, dir, level }) {
   const next = getNextPosition(current.r, current.c, dir);
   if (!next || !isInsideBoard(level, next.r, next.c)) {
-    return {
-      dir,
-      next,
-      ok: false,
-      reason: 'out-of-board'
-    };
+    return { dir, next, ok: false, reason: 'out-of-board' };
   }
 
   if (isObstacle(level, next.r, next.c)) {
-    return {
-      dir,
-      next,
-      ok: false,
-      reason: 'blocked'
-    };
+    return { dir, next, ok: false, reason: 'blocked' };
   }
 
   if (isApple(level, next.r, next.c)) {
-    return {
-      dir,
-      isAppleAhead: true,
-      next,
-      ok: true
-    };
+    return { dir, isAppleAhead: true, next, ok: true };
   }
 
-  return {
-    dir,
-    isAppleAhead: false,
-    next,
-    ok: true
-  };
+  const nextArrow = getArrow(arrows, next.r, next.c);
+  if (!nextArrow) {
+    return { dir, next, ok: false, reason: 'missing-arrow' };
+  }
+  if (!resolveTileExit(nextArrow, dir)) {
+    return { dir, next, ok: false, reason: 'wrong-turn' };
+  }
+
+  return { dir, isAppleAhead: false, next, ok: true };
 }
 
-export function analyzeRoute({ arrows = {}, config = {}, level }) {
+// Єдине джерело правди про рух Равлика: і анімований запуск, і тести рівнів
+// ходять маршрутом через цей крокувальник. Кожен next() — один крок до сусідньої клітинки.
+export function createRouteWalker({ arrows = {}, config = {}, level }) {
   const maxSteps = config.maxSteps || 80;
   const scanOrder = config.routeScanOrder || config.scanOrder || ['down', 'right', 'up', 'left'];
-  const path = [{
-    c: level.start.c,
-    facing: level.startFacing || 'right',
-    r: level.start.r
-  }];
   const visited = new Set();
   let current = { ...level.start };
   let facing = level.startFacing || 'right';
   let firstStep = true;
   let startKey = null;
+  let stepCount = 0;
 
-  for (let stepCount = 0; stepCount < maxSteps; stepCount += 1) {
-    const step = resolveRouteStep({
-      arrows,
-      current,
-      facing,
-      firstStep,
-      level,
-      scanOrder,
-      visited
-    });
+  function next() {
+    const from = { ...current };
+    if (stepCount >= maxSteps) {
+      return { firstStep: false, from, ok: false, reason: 'max-steps', startKey };
+    }
+    stepCount += 1;
+    const isFirstStep = firstStep;
     firstStep = false;
 
+    const step = resolveRouteStep({ arrows, current, facing, firstStep: isFirstStep, level, scanOrder, visited });
     if (!step.ok) {
-      return {
-        canReachApple: false,
-        path,
-        reason: step.reason,
-        startKey,
-        success: false
-      };
+      return { firstStep: isFirstStep, from, ok: false, reason: step.reason, startKey };
     }
-
     if (step.startKey) {
       startKey = step.startKey;
     }
 
-    const move = inspectForwardMove({
-      arrows,
-      current,
-      dir: step.dir,
-      level
-    });
-
-    if (move.next && isInsideBoard(level, move.next.r, move.next.c)) {
-      path.push({
-        c: move.next.c,
-        facing: step.dir,
-        r: move.next.r
-      });
-    }
-
+    const move = inspectForwardMove({ arrows, current, dir: step.dir, level });
     if (!move.ok) {
       return {
-        canReachApple: false,
-        path,
+        dir: step.dir,
+        firstStep: isFirstStep,
+        from,
+        ok: false,
         reason: move.reason,
         startKey,
-        success: false
-      };
-    }
-
-    if (move.isAppleAhead) {
-      return {
-        canReachApple: true,
-        path,
-        reason: null,
-        startKey,
-        success: true
-      };
-    }
-
-    const nextKey = coordinateKey(move.next.r, move.next.c);
-    if (visited.has(nextKey)) {
-      return {
-        canReachApple: false,
-        path,
-        reason: 'loop',
-        startKey,
-        success: false
+        to: move.next
       };
     }
 
     current = move.next;
     facing = step.dir;
+    return {
+      dir: step.dir,
+      firstStep: isFirstStep,
+      from,
+      isAppleAhead: move.isAppleAhead,
+      ok: true,
+      startKey,
+      to: move.next
+    };
   }
 
-  return {
-    canReachApple: false,
-    path,
-    reason: 'max-steps',
-    startKey,
-    success: false
-  };
+  return { next };
+}
+
+export function analyzeRoute({ arrows = {}, config = {}, level }) {
+  const walker = createRouteWalker({ arrows, config, level });
+  const path = [{
+    c: level.start.c,
+    facing: level.startFacing || 'right',
+    r: level.start.r
+  }];
+  let startKey = null;
+
+  for (;;) {
+    const step = walker.next();
+    startKey = step.startKey || startKey;
+
+    if (step.to && isInsideBoard(level, step.to.r, step.to.c)) {
+      path.push({ c: step.to.c, facing: step.dir, r: step.to.r });
+    }
+
+    if (!step.ok) {
+      return { canReachApple: false, path, reason: step.reason, startKey, success: false };
+    }
+    if (step.isAppleAhead) {
+      return { canReachApple: true, path, reason: null, startKey, success: true };
+    }
+  }
 }

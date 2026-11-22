@@ -1,4 +1,4 @@
-import { loadThemePreference, saveThemePreference } from '../state/sessionStore.js';
+import { loadThemePreference, saveSoundMuted, saveThemePreference } from '../state/sessionStore.js';
 
 export function createAppUiLayout({ app, documentRef = document, refs, storage, text, windowRef = globalThis.window }) {
   function applyStaticText() {
@@ -58,5 +58,29 @@ export function createAppUiLayout({ app, documentRef = document, refs, storage, 
     });
   }
 
-  return { applyStaticText, bindThemeControl };
+  function bindSoundControl(audioApi) {
+    const button = documentRef.querySelector('#btn-sound');
+    if (!button || !audioApi?.setMuted) {
+      return;
+    }
+
+    function renderSound() {
+      const muted = audioApi.isMuted();
+      const action = muted ? text.static.unmuteSound : text.static.muteSound;
+      button.setAttribute('aria-pressed', muted ? 'true' : 'false');
+      button.setAttribute('aria-label', action);
+      button.setAttribute('title', action);
+      button.classList.toggle('is-muted', muted);
+    }
+
+    renderSound();
+    button.addEventListener('click', () => {
+      const muted = !audioApi.isMuted();
+      audioApi.setMuted(muted);
+      saveSoundMuted(muted, storage);
+      renderSound();
+    });
+  }
+
+  return { applyStaticText, bindSoundControl, bindThemeControl };
 }

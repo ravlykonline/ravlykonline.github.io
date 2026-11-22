@@ -257,6 +257,11 @@ body.debug-mode #status.warn {
   padding: var(--gap);
 }
 
+/* Обгортка рядка лише для ARIA: клітинки лишаються елементами CSS-сітки #grid. */
+.board-row {
+  display: contents;
+}
+
 .cell {
   border-radius: var(--space-2);
   display: flex;
@@ -567,7 +572,9 @@ body.debug-mode #status.warn {
 }
 
 .welcome-dialog {
-  width: min(90%, var(--size-modal-max-w));
+  width: min(92vw, var(--size-welcome-max-w));
+  /* base.css resets margin, which breaks the native <dialog> centering. */
+  margin: auto;
   padding: 0;
   border: 0;
   border-radius: var(--radius-2xl);
@@ -581,13 +588,86 @@ body.debug-mode #status.warn {
 
 .welcome-dialog .mbox {
   width: 100%;
+  max-width: none;
+  padding: var(--space-8) var(--space-6);
+  gap: var(--space-4);
   box-shadow: none;
   animation: none;
 }
 
 .welcome-illustration {
   display: flex;
-  gap: var(--space-3);
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.welcome-dialog .mico {
+  width: 80px;
+  height: 80px;
+  padding: 10px;
+}
+
+.welcome-step {
+  --card-top: #b7edce;
+  --card-bottom: #85d0a9;
+  --card-edge: #4f9176;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--card-edge);
+  border-radius: 20%;
+  background: linear-gradient(150deg, var(--card-top), var(--card-bottom));
+  box-shadow: 0 1px 2px #362f2433;
+}
+
+.welcome-step .tile-icon {
+  width: 78%;
+  height: 78%;
+  filter: brightness(0);
+  opacity: 0.82;
+}
+
+.welcome-dialog .mttl {
+  font-size: 1.9rem;
+  line-height: var(--line-heading);
+}
+
+.welcome-dialog .mbdy {
+  font-size: 1.2rem;
+  line-height: var(--line-body);
+  max-width: 34ch;
+}
+
+.welcome-dialog .mok {
+  font-size: 1.15rem;
+  padding: var(--space-4) var(--space-8);
+}
+
+@media (max-width: 420px) {
+  .welcome-dialog .mbox {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .welcome-dialog .mico {
+    width: 60px;
+    height: 60px;
+    padding: 7px;
+  }
+
+  .welcome-step {
+    width: 44px;
+    height: 44px;
+  }
+
+  .welcome-dialog .mttl {
+    font-size: 1.5rem;
+  }
+
+  .welcome-dialog .mbdy {
+    font-size: 1.05rem;
+  }
 }
 
 body:has(.welcome-dialog[open]) .grid-area {
@@ -1108,6 +1188,33 @@ body:has(.welcome-dialog[open]) .grid-area {
   color: var(--text-strong);
   font-weight: 900;
   cursor: pointer;
+}
+
+.sound-btn {
+  position: relative;
+  min-width: var(--control-size);
+  padding-inline: 0;
+}
+
+/* Звук вимкнено: перекреслена іконка й приглушений колір. */
+.sound-btn.is-muted {
+  opacity: 0.8;
+}
+
+/* Перекреслення робимо на кнопці: сама іконка — маска, дітей маски вона б обрізала. */
+.sound-btn.is-muted::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 26px;
+  height: 2px;
+  margin: -1px 0 0 -13px;
+  border-radius: 1px;
+  background: currentColor;
+  box-shadow: 0 0 0 1.5px var(--garden-paper);
+  transform: rotate(-45deg);
+  pointer-events: none;
 }
 
 .map-btn,

@@ -1,3 +1,4 @@
+import { loadSoundMuted } from '../state/sessionStore.js';
 import { createAppUiEffects } from './appUiEffects.js';
 import { bindAppUiEvents } from './appUiEvents.js';
 import { createAppUiLevelFlow } from './appUiLevelFlow.js';
@@ -58,6 +59,7 @@ export function createAppUi({
 
   audioApi = app.createUiAudio({
     getCurrentLevelId: () => app.state.currentLevel.id,
+    initialMuted: loadSoundMuted(storage),
     setLevelIntroStatus: statusApi.setLevelIntroStatus,
     setStatus: statusApi.setStatus,
     text
@@ -77,6 +79,7 @@ export function createAppUi({
   function init() {
     layoutApi.applyStaticText();
     layoutApi.bindThemeControl();
+    layoutApi.bindSoundControl(audioApi);
     app.render.buildPalette();
     app.render.buildGrid();
     app.render.clearPendingDelete();

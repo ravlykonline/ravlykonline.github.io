@@ -111,6 +111,9 @@ function collectText(node) {
 }
 
 const text = {
+  mapLevelAria(number, name, state) {
+    return `Рівень ${number}: ${name}. ${state}`;
+  },
   mapState(isCurrent, isDone) {
     if (isCurrent) return 'поточний';
     if (isDone) return 'пройдено';

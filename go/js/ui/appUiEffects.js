@@ -10,7 +10,7 @@ export function createAppUiEffects({
     if (!el) {
       return;
     }
-    el.style.outline = `4px solid ${color || '#ff9800'}`;
+    el.style.outline = `4px solid ${color || 'var(--flash-warn)'}`;
     el.style.outlineOffset = '-4px';
     windowRef.setTimeout(() => {
       el.style.outline = '';
@@ -44,7 +44,7 @@ export function createAppUiEffects({
       const nr = r + dr;
       const nc = c + dc;
       if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
-        flashCell(nr, nc, '#ff9800');
+        flashCell(nr, nc, 'var(--flash-warn)');
       }
     });
   }

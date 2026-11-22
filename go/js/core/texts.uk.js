@@ -6,8 +6,8 @@ export const textsUk = {
     logoAria: "Пригоди Равлика — гра з алгоритмами.",
     logoName: "Пригоди",
     logoSub: "Равлика",
-    commandsLabel: "Команди",
-    paletteAria: "Команди для равлика",
+    commandsLabel: "Картки",
+    paletteAria: "Картки для Равлика",
     runAria: "Запустити алгоритм",
     runTitle: "Запустити",
     clearAria: "Очистити поле",
@@ -23,11 +23,9 @@ export const textsUk = {
     speakButton: "Слухати",
     speakAria: "Озвучити завдання",
     speakTitle: "Озвучити завдання",
-    earlyLevelInfoButton: "Що робити",
-    earlyLevelSpeakButton: "Пояснити",
-    earlyLevelSpeakAria: "Озвучити пояснення до рівня",
-    earlyLevelSpeakTitle: "Пояснити завдання",
     mapButton: "Карта рівнів",
+    muteSound: "Вимкнути звук",
+    unmuteSound: "Увімкнути звук",
     useLightTheme: "Увімкнути денний режим",
     useDarkTheme: "Увімкнути нічний режим",
     lightTheme: "День",
@@ -37,7 +35,7 @@ export const textsUk = {
       return 'Ігрове поле: ' + cols + ' на ' + rows + '.';
     },
     gridAria(rows, cols) {
-      return 'Поле: ' + cols + ' на ' + rows + '. Тут можна ставити стрілки.';
+      return 'Поле: ' + cols + ' на ' + rows + '. Тут можна класти картки.';
     }
   },
   ui: {
@@ -50,6 +48,7 @@ export const textsUk = {
     debugTaskSuffix: "Знайди й виправ.",
     speechUnsupported: "Завдання можна прочитати, натиснувши «Завдання».",
     speechStart: "Слухаємо завдання.",
+    speechMuted: "Звук вимкнено. Увімкни його, щоб послухати завдання.",
     speechError: "Звук не відтворився. Спробуй ще раз або прочитай завдання.",
     debugNote: "Стрілки вже стоять. У них сховалась помилка.",
     modeDebug: "Виправ помилку!",
@@ -61,7 +60,7 @@ export const textsUk = {
     listenTask: "Слухати завдання",
     startAction: "До гри",
     mapTitle: "Карта рівнів",
-    mapBody: "Обирай будь-який відкритий рівень або просто подивись свій прогрес.",
+    mapBody: "Обирай будь-який рівень або подивись свій прогрес.",
     mapClose: "Закрити",
     mapStateCurrent: "Ми тут",
     mapStateDone: "Пройдено",
@@ -86,34 +85,29 @@ export const textsUk = {
     title: "Пригоди Равлика",
     body: "",
     taskLabel: "ЩО РОБИТИ",
-    taskText: "Постав стрілки між равликом і яблуком. Потім натисни «Запустити».",
+    taskText: "Постав картки між Равликом і яблуком. Потім натисни «Запустити».",
     startAction: "Поїхали!",
     goal: "Равлик хоче яблуко. Допоможи йому знайти дорогу."
   },
-  earlyLevel: {
-    taskLabel: "ЩО РОБИТИ",
-    listenAction: "Пояснити",
-    startAction: "Почати"
-  },
   debugLevel: {
     taskLabel: "ЗНАЙДИ ПОМИЛКУ",
-    taskTextSuffix: "Запусти равлика. Потім виправ місце зупинки."
+    taskTextSuffix: "Запусти Равлика. Подивись, де він зупинився, і заміни картку."
   },
   engine: {
-    placeCommandsFirst: "Спочатку постав стрілки!",
+    placeCommandsFirst: "Спочатку постав картки!",
     moving: "Равлик іде...",
-    placeNearby: "Постав першу стрілку біля равлика!",
+    placeNearby: "Постав першу картку біля Равлика!",
     noCommand: "Тут бракує стрілки. Додай її в підсвічену клітинку.",
     loop: "Равлик ходить по колу.",
     invalidTurn: "Ця стрілка не підходить. Заміни її в підсвіченій клітинці.",
     outOfBounds: "Равлик виходить за поле.",
-    obstacle: "Попереду перешкода.",
+    obstacle: "Попереду перешкода. Заміни картку в підсвіченій клітинці.",
     success: "Равлик знайшов яблуко!",
-    tooManySteps: "Шлях заплутався.",
+    tooManySteps: "Равлик заблукав. Перевір, куди ведуть стрілки.",
     alreadySolved: "Рівень уже пройдено.",
   },
   render: {
-    deleteCommand: "Видалити цю команду",
+    deleteCommand: "Видалити цю картку",
     rowCol(r, c) {
       return 'Рядок ' + (r + 1) + ', колонка ' + (c + 1);
     },
@@ -138,6 +132,9 @@ export const textsUk = {
   },
   mapState(isCurrent, isDone) {
     return isCurrent ? this.ui.mapStateCurrent : (isDone ? this.ui.mapStateDone : this.ui.mapStateTodo);
+  },
+  mapLevelAria(number, name, stateText) {
+    return this.ui.levelWord + ' ' + number + ': ' + name + '. ' + stateText;
   },
   winTitle(isFinalWin) {
     return isFinalWin ? this.ui.winTitleFinal : this.ui.winTitle;

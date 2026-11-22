@@ -45,10 +45,6 @@ const text = {
     return isDebug ? 'debug' : 'play';
   },
   static: {
-    earlyLevelInfoButton: 'early info',
-    earlyLevelSpeakAria: 'early speak aria',
-    earlyLevelSpeakButton: 'early speak',
-    earlyLevelSpeakTitle: 'early speak title',
     infoButton: 'info',
     speakAria: 'speak aria',
     speakButton: 'speak',
@@ -101,6 +97,29 @@ test('renderLevelHeader updates level metadata and nav buttons', async () => {
   assert.equal(refs.btnPrev.disabled, true);
   assert.equal(refs.btnNext.disabled, false);
   assert.deepEqual(toggles, [['debug-mode', true]]);
+});
+
+test('renderLevelHeader uses the same task buttons on early and later levels', async () => {
+  const { renderLevelHeader } = await importModule('js/ui/renderLevelHeader.js');
+  for (const id of [1, 3, 4, 12]) {
+    const refs = createRefs();
+    renderLevelHeader({
+      canGoNext: true,
+      canGoPrev: true,
+      completedLevelIds: [],
+      documentRef: { body: { classList: { toggle() {} } } },
+      isRunning: false,
+      level: { goal: 'g', hint: 'h', id, name: 'L', type: 'play' },
+      levelIndex: id - 1,
+      refs,
+      text,
+      totalLevels: 20
+    });
+    assert.equal(refs.btnLevelInfo.textContent, 'info');
+    assert.equal(refs.btnSpeakTask.textContent, 'speak');
+    assert.equal(refs.btnSpeakTask.attrs['aria-label'], 'speak aria');
+    assert.equal(refs.btnSpeakTask.attrs.title, 'speak title');
+  }
 });
 
 test('renderLevelHeader module stays independent from engine and storage', () => {

@@ -80,7 +80,7 @@ test('simulator reports blocked and out-of-board failures', async () => {
   }).reason, 'out-of-board');
 });
 
-test('simulator reports wrong-turn and loop failures', async () => {
+test('simulator reports wrong-turn before re-entering a visited cell and loop on a revisited step', async () => {
   const { simulateLevel } = await importModule('js/engine/simulator.js');
 
   assert.equal(simulateLevel({
@@ -106,7 +106,20 @@ test('simulator reports wrong-turn and loop failures', async () => {
       '1,2': 'down-left'
     },
     config: { maxSteps: 10, routeScanOrder: ['right'] }
-  }).reason, 'loop');
+  }).reason, 'wrong-turn');
+
+  // The route stops BEFORE a card that cannot accept the snail, so a visited cell can
+  // only be reported as a loop by the step resolver itself.
+  const { resolveRouteStep } = await importModule('js/engine/route.js');
+  assert.deepEqual(resolveRouteStep({
+    arrows: { '1,1': 'right' },
+    current: { r: 1, c: 1 },
+    facing: 'right',
+    firstStep: false,
+    level: baseLevel(),
+    scanOrder: ['right'],
+    visited: new Set(['1,1'])
+  }), { ok: false, reason: 'loop' });
 });
 
 test('simulator reports max-steps when route exceeds configured limit', async () => {
