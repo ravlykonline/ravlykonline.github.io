@@ -76,12 +76,39 @@ test('every level has at least one solution under the card rules', async () => {
 
 test('debug levels need exactly as many fixes as their hints promise', async () => {
   const { levels } = await importModule('js/core/levels.js');
-  const expectedFixes = { 5: 2, 11: 1, 12: 1, 14: 1, 17: 2, 18: 2 };
+  const expectedFixes = { 5: 2, 11: 1, 12: 1, 14: 2, 17: 2, 18: 2 };
   const debugIds = levels.filter((level) => level.type === 'debug').map((level) => level.id);
   assert.deepEqual(debugIds, Object.keys(expectedFixes).map(Number));
   for (const level of levels.filter((item) => item.type === 'debug')) {
     assert.equal(minimalEdits(level), expectedFixes[level.id], `level ${level.id}`);
   }
+});
+
+test('level 14 reveals two missing cards in order', async () => {
+  const { getLevelById } = await importModule('js/core/levels.js');
+  const { analyzeRoute } = await importModule('js/engine/route.js');
+  const level = getLevelById(14);
+  const arrows = { ...level.presetArrows };
+
+  for (const [r, c, tile] of [[2, 3, 'right'], [1, 4, 'down-right']]) {
+    const attempt = analyzeRoute({ arrows, level });
+    assert.equal(attempt.reason, 'missing-arrow');
+    assert.equal(attempt.path.at(-1).r, r);
+    assert.equal(attempt.path.at(-1).c, c);
+    arrows[`${r},${c}`] = tile;
+  }
+  assert.equal(analyzeRoute({ arrows, level }).success, true);
+});
+
+test('level 18 is solved by swapping two preset turns', async () => {
+  const { getLevelById } = await importModule('js/core/levels.js');
+  const { analyzeRoute } = await importModule('js/engine/route.js');
+  const level = getLevelById(18);
+  const arrows = { ...level.presetArrows };
+  assert.equal(analyzeRoute({ arrows, level }).reason, 'wrong-turn');
+
+  [arrows['3,4'], arrows['3,7']] = [arrows['3,7'], arrows['3,4']];
+  assert.equal(analyzeRoute({ arrows, level }).success, true);
 });
 
 test('debug levels stop the snail on the wrong card, not in an empty decoy cell', async () => {

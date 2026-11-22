@@ -14,14 +14,27 @@ function getInitialArrowsForLevel(level) {
   return cloneArrowMap(level?.presetArrows || {});
 }
 
+function matchesPreviousPreset(savedArrows, previousPreset) {
+  if (!previousPreset) {
+    return false;
+  }
+  const entries = Object.entries(previousPreset);
+  return Object.keys(savedArrows).length === entries.length &&
+    entries.every(([key, tile]) => savedArrows[key] === tile);
+}
+
 function createInitialArrowsByLevel(levels, savedSession) {
   const arrowsByLevel = {};
 
   for (const level of levels) {
     const savedArrows = savedSession?.arrowsByLevel?.[String(level.id)];
-    arrowsByLevel[String(level.id)] = savedArrows
+    const arrows = savedArrows && !matchesPreviousPreset(savedArrows, level.previousPresetArrows)
       ? cloneArrowMap(savedArrows)
       : getInitialArrowsForLevel(level);
+    for (const { r, c } of level.obstacles || []) {
+      delete arrows[`${r},${c}`];
+    }
+    arrowsByLevel[String(level.id)] = arrows;
   }
 
   return arrowsByLevel;

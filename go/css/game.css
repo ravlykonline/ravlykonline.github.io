@@ -566,6 +566,34 @@ body.debug-mode #status.warn {
   animation: mpop var(--anim-modal) var(--ease-pop) both;
 }
 
+.welcome-dialog {
+  width: min(90%, var(--size-modal-max-w));
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  box-shadow: var(--modal-shadow);
+}
+
+.welcome-dialog::backdrop {
+  background: var(--overlay-dark);
+}
+
+.welcome-dialog .mbox {
+  width: 100%;
+  box-shadow: none;
+  animation: none;
+}
+
+.welcome-illustration {
+  display: flex;
+  gap: var(--space-3);
+}
+
+body:has(.welcome-dialog[open]) .grid-area {
+  visibility: hidden;
+}
+
 @keyframes mpop {
   from {
     transform: scale(0.45);

@@ -64,7 +64,7 @@ test('placed arrows persist by level across reloads in the same tab', async () =
     currentLevelId: 6,
     arrowsByLevel: {
       6: {
-        '2,3': 'right',
+        '3,3': 'right',
         '2,4': 'left-up'
       }
     },
@@ -73,7 +73,7 @@ test('placed arrows persist by level across reloads in the same tab', async () =
 
   assert.equal(app.state.currentLevel.id, 6);
   assert.deepEqual(plain(app.state.arrows), {
-    '2,3': 'right',
+    '3,3': 'right',
     '2,4': 'left-up'
   });
 
@@ -83,7 +83,7 @@ test('placed arrows persist by level across reloads in the same tab', async () =
   const reloaded = (await bootstrapCore(null, storage)).app;
   assert.equal(reloaded.state.currentLevel.id, 6);
   assert.deepEqual(plain(reloaded.state.arrows), {
-    '2,3': 'right',
+    '3,3': 'right',
     '2,4': 'left-up',
     '3,4': 'down'
   });

@@ -10,6 +10,15 @@ export function createAppUiStartup({ app, documentRef = globalThis.document, eff
       })
     );
     effectsApi.syncSizes();
+
+    const { welcomeDialog, paletteEl } = app.refs;
+    if (typeof welcomeDialog?.showModal === 'function' && !app.storage.loadProgress()) {
+      welcomeDialog.addEventListener('close', () => {
+        app.storage.saveProgress();
+        paletteEl.querySelector('button')?.focus();
+      }, { once: true });
+      welcomeDialog.showModal();
+    }
   }
 
   return { start };

@@ -26,7 +26,8 @@ test('gameState creates initial state from levels and saved session', async () =
     arrowsByLevel: {
       7: {
         '1,2': 'right',
-        '1,3': 'down'
+        '1,3': 'down',
+        '1,6': 'right'
       }
     },
     completedLevelIds: [1, 2, 999, 2]
@@ -51,6 +52,19 @@ test('gameState changes levels without locking any level', async () => {
   assert.equal(state.snailPos.c, levels[19].start.c);
   assert.equal(gameState.setCurrentLevel(state, 21), false);
   assert.equal(state.currentLevelId, 20);
+});
+
+test('gameState upgrades untouched presets while preserving edited routes', async () => {
+  const { levels, gameState } = await loadStateFixture();
+  const level14 = levels.find((level) => level.id === 14);
+  const level18 = levels.find((level) => level.id === 18);
+  const editedArrows = { ...level18.previousPresetArrows, '3,7': 'down-right' };
+  const state = gameState.createInitialState(levels, {
+    currentLevelId: 18,
+    arrowsByLevel: { 14: level14.previousPresetArrows, 18: editedArrows }
+  });
+  assert.deepEqual(gameState.getLevelArrows(state, 14), level14.presetArrows);
+  assert.deepEqual(gameState.getLevelArrows(state, 18), editedArrows);
 });
 
 test('gameState persists arrows by level in session payload', async () => {
