@@ -12,6 +12,7 @@
 //      too, without touching the module sources.
 // Browsers without import maps still work; they just keep the old caching.
 
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -37,8 +38,27 @@ export function listArtistModules(projectRoot) {
 
 export function buildArtistImportMap(modules, version) {
     const imports = Object.fromEntries(modules.map((specifier) => [specifier, `${specifier}?v=${version}`]));
-    const json = JSON.stringify({ imports }, null, 2);
-    return `${IMPORTMAP_BEGIN}\n<script type="importmap">\n${json}\n</script>\n${IMPORTMAP_END}`;
+    const importMapText = `\n${JSON.stringify({ imports }, null, 2)}\n`;
+    const csp = buildArtistCsp(importMapText);
+    return `${IMPORTMAP_BEGIN}\n<meta http-equiv="Content-Security-Policy" content="${csp}">\n<script type="importmap">${importMapText}</script>\n${IMPORTMAP_END}`;
+}
+
+// The inline import map changes with every release token, so CSP `script-src 'self'`
+// would block it. The generated block therefore carries the page's CSP too, with the
+// sha256 of the exact import-map text (the characters between <script> and </script>).
+export function buildArtistCsp(importMapText) {
+    const hash = crypto.createHash('sha256').update(importMapText, 'utf8').digest('base64');
+    return [
+        "default-src 'self'",
+        `script-src 'self' 'sha256-${hash}'`,
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data:",
+        "font-src 'self'",
+        "connect-src 'self'",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+    ].join('; ');
 }
 
 export function versionArtistIndex(html, modules, version) {

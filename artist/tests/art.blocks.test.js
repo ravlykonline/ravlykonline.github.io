@@ -8,7 +8,8 @@ import {
   appendToTarget, cloneDoc, createBlock, findInDoc, liftTail, moveDownInDoc, moveOutInDoc, moveUpInDoc,
   nearestInsertionPoint, placeLoose, placeTail, pruneLoose, removeFromDoc,
 } from '../js/core/workspace.js';
-import { describeBlock, blockDefinitions, BLOCK_CATEGORIES } from '../js/data/blocks.js';
+import { describeBlock, blockDefinitions, BLOCK_CATEGORIES, unitText } from '../js/data/blocks.js';
+import { pluralUk } from '../js/core/plural.js';
 import { lessons } from '../js/data/lessons.js';
 import { validateProgram } from '../js/runtime/execution-limits.js';
 import { pushSnapshot, undo, redo, clearHistory } from '../js/state/history.js';
@@ -228,8 +229,34 @@ runTest('describeBlock reads like Scratch phrases', () => {
   assert.equal(describeBlock({ type: 'repeat', n: 4 }), 'повторити 4 рази');
   assert.equal(describeBlock({ type: 'color', color: 'червоний' }), 'колір червоний');
   assert.equal(describeBlock({ type: 'pen_up' }), 'підняти олівець');
-  assert.equal(describeBlock({ type: 'step' }), 'крок вперед');
+  assert.equal(describeBlock({ type: 'step' }), 'крок вперед (одна клітинка)');
   assert.equal(describeBlock({ type: 'turn_right90' }), 'поворот праворуч');
+});
+
+runTest('pluralUk follows Ukrainian plural rules', () => {
+  const forms = ['крок', 'кроки', 'кроків'];
+  const expected = {
+    1: 'крок', 2: 'кроки', 4: 'кроки', 5: 'кроків', 11: 'кроків', 12: 'кроків', 14: 'кроків',
+    21: 'крок', 22: 'кроки', 25: 'кроків', 36: 'кроків', 111: 'кроків', 144: 'кроки', 101: 'крок', 0: 'кроків',
+  };
+  for (const [n, word] of Object.entries(expected)) assert.equal(pluralUk(Number(n), forms), word, n);
+});
+
+runTest('describeBlock agrees units with the number', () => {
+  assert.equal(describeBlock({ type: 'forward', n: 1 }), 'вперед 1 крок');
+  assert.equal(describeBlock({ type: 'forward', n: 2 }), 'вперед 2 кроки');
+  assert.equal(describeBlock({ type: 'back', n: 21 }), 'назад 21 крок');
+  assert.equal(describeBlock({ type: 'right', n: 144 }), 'праворуч ↻ 144 градуси');
+  assert.equal(describeBlock({ type: 'right', n: 1 }), 'праворуч ↻ 1 градус');
+  assert.equal(describeBlock({ type: 'left', n: 22 }), 'ліворуч ↺ 22 градуси');
+  assert.equal(describeBlock({ type: 'repeat', n: 6 }), 'повторити 6 разів');
+  assert.equal(describeBlock({ type: 'repeat', n: 2 }), 'повторити 2 рази');
+  assert.equal(describeBlock({ type: 'repeat', n: 36 }), 'повторити 36 разів');
+  assert.equal(unitText(blockDefinitions.repeat, 3), 'рази');
+  // типові значення палітри читаються природно
+  for (const [type, text] of [['forward', 'вперед 50 кроків'], ['right', 'праворуч ↻ 90 градусів'], ['repeat', 'повторити 4 рази']]) {
+    assert.equal(describeBlock(createBlock(type, 1)), text);
+  }
 });
 
 runTest('every block has a text phrase, a known category and numeric fields have quick data', () => {
@@ -242,8 +269,9 @@ runTest('every block has a text phrase, a known category and numeric fields have
       assert.ok(definition.param.step >= 1, type);
     }
   }
-  assert.deepEqual(blockDefinitions.right.param.quick, [10, 30, 45, 60, 90, 120, 144]);
-  assert.deepEqual(blockDefinitions.left.param.quick, [10, 30, 45, 60, 90, 120, 144]);
+  assert.deepEqual(blockDefinitions.right.param.quick, [10, 30, 45, 60, 90, 120]);
+  assert.deepEqual(blockDefinitions.left.param.quick, [10, 30, 45, 60, 90, 120]);
+  assert.ok(!blockDefinitions.right.param.quick.includes(144), '144 — відповідь рівня «Зірка»');
   assert.equal(blockDefinitions.right.param.step, 1);
   assert.equal(blockDefinitions.left.param.step, 1);
 });

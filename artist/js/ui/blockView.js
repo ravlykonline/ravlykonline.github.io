@@ -3,7 +3,7 @@
  * розміром) + справжній HTML-текст і поля. Дані вставляються лише через
  * createElement/textContent.
  */
-import { blockDefinitions, describeBlock } from '../data/blocks.js';
+import { blockDefinitions, describeBlock, unitText } from '../data/blocks.js';
 import { COLORS, colorHex } from '../data/colors.js';
 import { hatPath, loopPath, stackPath, SHAPE } from '../core/blockShape.js';
 import { closePopover, openColorPopover, openNumberPopover } from './popover.js';
@@ -117,7 +117,7 @@ function buildStaticField(block, definition) {
   return field;
 }
 
-function buildNumberField(block, definition, handlers) {
+function buildNumberField(block, definition, handlers, onValue) {
   const { param } = definition;
   const input = document.createElement('input');
   input.type = 'text';
@@ -138,6 +138,7 @@ function buildNumberField(block, definition, handlers) {
     const value = handlers.onParamChange(block.id, param.key, raw, session);
     input.value = String(value);
     sizeInput(input);
+    onValue(value);
     return value;
   };
   const backToBlock = () => input.closest('.blk')?.focus();
@@ -165,6 +166,8 @@ function buildNumberField(block, definition, handlers) {
     selectOnClick = false;
     input.value = input.value.replace(/\D+/g, '');
     sizeInput(input);
+    const typed = Number.parseInt(input.value, 10);
+    if (Number.isFinite(typed)) onValue(typed);
   });
   input.addEventListener('keydown', (event) => {
     event.stopPropagation();
@@ -175,6 +178,7 @@ function buildNumberField(block, definition, handlers) {
     } else if (event.key === 'Escape') {
       event.preventDefault();
       input.value = String(block[param.key]);
+      onValue(block[param.key]);
       backToBlock();
     } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       event.preventDefault();
@@ -224,14 +228,20 @@ function buildColorField(block, definition, handlers) {
 }
 
 function buildPhrase(block, definition, handlers) {
-  const [before, after] = definition.text;
+  const [before] = definition.text;
   const nodes = [textSpan(before)];
+  const after = definition.param ? unitText(definition, block[definition.param.key]) : definition.text[1];
+  const unit = after ? textSpan(after) : null;
   if (definition.param) {
     if (!handlers) nodes.push(buildStaticField(block, definition));
     else if (definition.param.kind === 'color') nodes.push(buildColorField(block, definition, handlers));
-    else nodes.push(buildNumberField(block, definition, handlers));
+    else {
+      nodes.push(buildNumberField(block, definition, handlers, (value) => {
+        if (unit) unit.textContent = unitText(definition, value);
+      }));
+    }
   }
-  if (after) nodes.push(textSpan(after));
+  if (unit) nodes.push(unit);
   return nodes;
 }
 
@@ -282,7 +292,7 @@ export function buildHatElement() {
   el.dataset.hat = 'true';
   el.tabIndex = 0;
   el.setAttribute('role', 'group');
-  el.setAttribute('aria-label', 'Початок програми: коли натиснуто «Запустити»');
+  el.setAttribute('aria-label', 'Початок програми: коли натиснуто «Старт»');
 
   const head = document.createElement('div');
   head.className = 'blk-head';

@@ -3,7 +3,7 @@ import { blockDefinitions, describeBlock } from './data/blocks.js';
 import { buildProgramCode, programToText } from './core/codegen.js';
 import { buildEditorLink } from './core/editorLink.js';
 import { evaluateGoal } from './core/goals.js';
-import { getBestBlocks, getGhostSegments } from './core/ghost.js';
+import { getBestBlocks, getGhostSegments, shouldColorGhost } from './core/ghost.js';
 import { describeGhost, describeTurtleStatus } from './core/describe.js';
 import { createLessonMenu } from './ui/lessonMenu.js';
 import { createMoreMenu } from './ui/moreMenu.js';
@@ -20,7 +20,9 @@ import { createStepController } from './runtime/stepController.js';
 import { sleep } from './utils/sleep.js';
 import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from './state/history.js';
 import { trapFocus } from './utils/focus-trap.js';
-import { playSuccess, playFailure, playSnap } from './utils/sounds.js';
+import { playSuccess, playFailure, playSnap, setSoundEnabled } from './utils/sounds.js';
+import { buildLevelSearch, parseLevelParam } from './core/levelLink.js';
+import { loadProgress, saveProgress } from './state/progressStore.js';
 import { addTrailSegment, clearTurtleCanvas, placeTurtleSnail, renderLessonGuide, selectTurtlePose, setTrailEnd, setupCanvas, wiggleSnail } from './ui/canvas.js';
 import { REDUCED_MOTION_STEP_PAUSE_MS, SPEEDS, getStepDuration, interpolateTurtle, speedFactor } from './domain/snail.js';
 import { getDomReferences } from './ui/dom.js';
@@ -218,6 +220,7 @@ function commit(mutate, { focusId = null, message = '' } = {}) {
   pushSnapshot(before);
   pruneLoose(getDoc());
   appState.errorBlockId = null;
+  clearFeedback(dom);
   normalizeInsertTarget();
   updateWorkspaceUi();
   if (focusId !== null) focusBlock(focusId);
@@ -282,6 +285,7 @@ const workspaceApi = {
       }
       found.block[key] = value;
       appState.errorBlockId = null;
+      clearFeedback(dom);
       blockElementById(id)?.setAttribute('aria-label', describeBlock(found.block));
       updateDerivedUi();
     }
@@ -341,6 +345,7 @@ function dropBlocks({ source, mode, slot, height, x, y }) {
   pushSnapshot(before);
   pruneLoose(doc);
   appState.errorBlockId = null;
+  clearFeedback(dom);
   normalizeInsertTarget();
   updateWorkspaceUi();
   if (mode !== 'delete') focusBlock(tail[0].id, { preventScroll: true });
@@ -366,7 +371,9 @@ function refreshUi() {
   });
   const ghost = getGhostSegments(appState.currentLesson);
   renderLessonGuide(dom, appState.currentLesson, ghost);
-  dom.ghostDescription.textContent = describeGhost(ghost, appState.currentLesson.start);
+  dom.ghostDescription.textContent = describeGhost(ghost, appState.currentLesson.start, {
+    withColors: shouldColorGhost(appState.currentLesson),
+  });
   updateWorkspaceUi();
   renderControls(dom, appState);
 }
@@ -398,7 +405,26 @@ function loadLesson(index) {
   refreshUi();
   resetBoard();
   highlightCodeLine(dom, null);
+  syncLevelInUrl();
   showIntroIfNeeded(appState.currentLesson);
+}
+
+/** Адреса завжди веде на поточний рівень (?level=N); решта параметрів лишається. */
+function syncLevelInUrl() {
+  try {
+    const { pathname, search, hash } = window.location;
+    window.history.replaceState(null, '', `${pathname}${buildLevelSearch(search, appState.currentLessonIndex)}${hash}`);
+  } catch {
+    // history недоступна — адреса просто не оновиться
+  }
+}
+
+const lessonIds = lessons.map((lesson) => lesson.id);
+
+function restoreProgress() {
+  const { done, stars } = loadProgress(lessonIds);
+  for (const index of done) appState.doneLessons.add(index);
+  for (const [index, value] of stars) appState.bestStars.set(index, value);
 }
 
 function performResetLesson() {
@@ -429,6 +455,7 @@ function restoreSnapshot(snapshot) {
   applyDoc(snapshot);
   appState.insertTargetId = null;
   appState.errorBlockId = null;
+  clearFeedback(dom);
   updateWorkspaceUi();
 }
 
@@ -593,6 +620,7 @@ async function finishProgram() {
   if (result.ok) {
     playSuccess();
     markLessonDone(appState.currentLessonIndex, result.stars);
+    saveProgress({ done: appState.doneLessons, stars: appState.bestStars }, lessonIds);
     refreshUi();
     wiggleSnail(dom);
     dom.screenReaderAnnouncer.textContent = appState.currentLesson.successMessage;
@@ -605,6 +633,10 @@ async function finishProgram() {
       blockCount: countBlocks(),
       bestBlocks: getBestBlocks(appState.currentLesson),
     });
+  } else if (result.partial) {
+    // Фігура правильна, бракує лише обов’язкового блока: це підказка, а не помилка.
+    playSnap();
+    showFeedback(dom, result.message, 'info');
   } else {
     playFailure();
     showFeedback(dom, result.message);
@@ -691,6 +723,12 @@ function goToNextLesson() {
   }
 }
 
+function setSound(enabled) {
+  setSoundEnabled(enabled);
+  dom.soundButton.setAttribute('aria-pressed', String(enabled));
+  dom.soundButton.textContent = enabled ? 'Звук: увімк.' : 'Звук: вимк.';
+}
+
 function setBlocksStyle(pastel) {
   document.body.classList.toggle('blocks-pastel', pastel);
   dom.blocksStyleButton.setAttribute('aria-pressed', String(pastel));
@@ -737,6 +775,10 @@ function bindEvents() {
   dom.nextButton.addEventListener('click', goToNextLesson);
   dom.undoButton.addEventListener('click', performUndo);
   dom.redoButton.addEventListener('click', performRedo);
+  dom.soundButton.addEventListener('click', () => {
+    setSound(dom.soundButton.getAttribute('aria-pressed') !== 'true');
+    announce(dom.soundButton.textContent);
+  });
   dom.blocksStyleButton.addEventListener('click', () => setBlocksStyle(!document.body.classList.contains('blocks-pastel')));
 
   dom.introOkButton.addEventListener('click', () => setIntroOpen(false));
@@ -811,7 +853,8 @@ function init() {
   setBlocksStyle(new URLSearchParams(window.location.search).get('blocks') === 'pastel');
   setEditorView(dom, appState.view);
   setResetConfirmOpen(false);
-  loadLesson(0);
+  restoreProgress();
+  loadLesson(parseLevelParam(window.location.search, lessons.length));
 }
 
 init();

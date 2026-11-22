@@ -23,6 +23,13 @@ export function isColorName(name) {
   return hexByName.has(name);
 }
 
+const nameByHex = new Map(COLORS.map((color) => [color.hex.toLowerCase(), color.name]));
+
+/** Назва кольору за HEX (для описів пунктиру); невідомий — null. */
+export function colorName(hex) {
+  return nameByHex.get(String(hex).toLowerCase()) ?? null;
+}
+
 export function colorHex(name) {
   return hexByName.get(name) ?? hexByName.get('чорний');
 }

@@ -2,6 +2,8 @@
  * Текстові описи для екранних читачів: де равлик і яку фігуру треба намалювати.
  * Чисті функції без DOM. Координати — ігрові (вісь y вниз), напрямок 0° — вгору.
  */
+import { colorName } from '../data/colors.js';
+
 const HEADING_WORDS = [
   'вгору',
   'вгору й праворуч',
@@ -49,7 +51,7 @@ function samePoint(a, b) {
  * Опис ghost-фігури: послідовність відрізків від старту, сусідні однонапрямні
  * зливаються; для складних фігур — короткий підсумок.
  */
-export function describeGhost(segments, start = {}) {
+export function describeGhost(segments, start = {}, { withColors = false } = {}) {
   if (!segments || segments.length === 0) return '';
   const sx = start.x ?? 0;
   const sy = start.y ?? 0;
@@ -58,18 +60,23 @@ export function describeGhost(segments, start = {}) {
   for (const segment of segments) {
     if (!samePoint(segment.from, position)) steps.push({ jump: true });
     const { word, length } = segmentWord(segment);
+    const color = withColors ? colorName(segment.color) : null;
     const last = steps[steps.length - 1];
-    if (last && !last.jump && last.word === word) {
+    if (last && !last.jump && last.word === word && last.color === color) {
       last.length += length;
     } else {
-      steps.push({ word, length });
+      steps.push({ word, length, color });
     }
     position = segment.to;
   }
 
   const intro = `Пунктирна фігура на полі. Старт у точці ${Math.round(sx)}, ${Math.round(sy)} (y рахується вниз).`;
   if (steps.length <= MAX_DESCRIBED_STEPS) {
-    const parts = steps.map((step) => (step.jump ? 'олівець піднято, перехід' : `${step.word} на ${Math.round(step.length)}`));
+    const parts = steps.map((step) => {
+      if (step.jump) return 'олівець піднято, перехід';
+      const base = `${step.word} на ${Math.round(step.length)}`;
+      return step.color ? `${base}, колір ${step.color}` : base;
+    });
     return `${intro} Лінії по черзі: ${parts.join('; ')}.`;
   }
   const xs = segments.flatMap((segment) => [segment.from[0], segment.to[0]]);

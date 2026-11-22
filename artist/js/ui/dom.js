@@ -38,6 +38,7 @@ export function getDomReferences() {
     hintText: document.getElementById('hint-text'),
     stepButton: document.getElementById('btn-step'),
     restartButton: document.getElementById('btn-restart'),
+    soundButton: document.getElementById('btn-sound'),
     speedSwitch: document.getElementById('speed-switch'),
     successSnail: document.getElementById('success-snail'),
     successStars: document.getElementById('success-stars'),

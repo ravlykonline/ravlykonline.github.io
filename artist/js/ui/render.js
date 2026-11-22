@@ -98,15 +98,11 @@ export function renderControls(dom, state) {
   }
 }
 
+/** Повідомлення лишається, доки його не прибрано (новий запуск, зміна програми, інший рівень). */
 export function showFeedback(dom, message, variant = 'error') {
   dom.feedback.textContent = message;
   dom.feedback.className = `show ${variant}`;
   dom.screenReaderAnnouncer.textContent = message;
-
-  window.clearTimeout(dom.feedbackTimer);
-  dom.feedbackTimer = window.setTimeout(() => {
-    dom.feedback.className = '';
-  }, 3800);
 }
 
 export function clearFeedback(dom) {

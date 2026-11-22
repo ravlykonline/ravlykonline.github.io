@@ -4,10 +4,22 @@
  */
 
 let _ctx = null;
+let soundEnabled = true;
+
+/** Вмикає/вимикає всі звуки (лише в пам’яті сесії). */
+export function setSoundEnabled(enabled) {
+  soundEnabled = Boolean(enabled);
+}
+
+export function isSoundEnabled() {
+  return soundEnabled;
+}
 
 function getCtx() {
   if (!_ctx) {
-    _ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const Context = globalThis.AudioContext || globalThis.webkitAudioContext;
+    if (!Context) throw new Error('AudioContext unavailable');
+    _ctx = new Context();
   }
   if (_ctx.state === 'suspended') {
     _ctx.resume();
@@ -32,6 +44,7 @@ function tone(ctx, freq, type, startTime, duration, volume = 0.3) {
  * Cheerful ascending arpeggio: C5 – E5 – G5 – C6
  */
 export function playSuccess() {
+  if (!soundEnabled) return;
   try {
     const ctx = getCtx();
     const now = ctx.currentTime;
@@ -48,6 +61,7 @@ export function playSuccess() {
  * Tiny soft «click» when a block snaps into place.
  */
 export function playSnap() {
+  if (!soundEnabled) return;
   try {
     const ctx = getCtx();
     const now = ctx.currentTime;
@@ -62,6 +76,7 @@ export function playSnap() {
  * Short descending wobble — soft "oops" sound.
  */
 export function playFailure() {
+  if (!soundEnabled) return;
   try {
     const ctx = getCtx();
     const now = ctx.currentTime;

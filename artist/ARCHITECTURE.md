@@ -22,7 +22,7 @@ js/main.js               оркестрація: події, зміни моде
 js/data/
   blocks.js              blockDefinitions: тип, фраза-мітка, категорія, параметр, code(block)
   colors.js              назви й HEX кольорів пера (звіряються з COLOR_REGISTRY кореня тестом)
-  lessons.js             20 рівнів у 4 розділах (схема — LEVELS.md)
+  lessons.js             21 рівень у 4 розділах (схема — LEVELS.md)
 
 js/core/                 чиста логіка без DOM
   constants.js           поле 400×300, GRID_STEP = 50
@@ -35,7 +35,9 @@ js/core/                 чиста логіка без DOM
   ghost.js               пунктир і bestBlocks із lesson.solution
   describe.js            тексти для читачів екрана (статус равлика, опис фігури)
   stars.js               форматування зірок
-  state.js               appState (лише пам'ять сесії)
+  state.js               appState (пам'ять сесії; програми рівнів — лише в пам'яті сторінки)
+  levelLink.js           ?level=N — розбір і побудова (чисті функції)
+  plural.js              pluralUk: «1 крок, 2 кроки, 5 кроків»
 
 js/domain/
   turtle.js              createTurtle, moveForward/Back, turnLeft/Right, penUp/Down, setColor, clamp меж
@@ -48,6 +50,7 @@ js/runtime/
   execution-limits.js    validateProgram: ≤ 500 повторів, вкладеність ≤ 3, ≤ 1000 дій
 
 js/state/history.js      скасування/повернення (знімки документа)
+js/state/progressStore.js прогрес (пройдені рівні, зірки) у sessionStorage вкладки
 
 js/ui/                   DOM (без innerHTML з даними)
   blockView.js           блок: SVG-контур + HTML-текст і поля
@@ -124,7 +127,7 @@ js/utils/                focus-trap, sleep, sounds
 
 ## 11. Приватність і безпека
 
-Без `localStorage`/cookies/мережевих запитів (крім шрифтів і сторінок сайту); без `innerHTML` з даними; без `eval`. Захисні заголовки (CSP тощо) задає хостинг сайту — див. `SECURITY.md`.
+Без `localStorage`/cookies/мережевих запитів (крім шрифтів і сторінок сайту); прогрес (пройдені рівні й зірки) — у sessionStorage вкладки, зникає після її закриття; код дитини не зберігається; без `innerHTML` з даними; без `eval`. `index.html` має власний CSP (`<meta>`, генерується разом з import map у `scripts/sync-artist-version.mjs`, хеш import map змінюється з кожним релізом); інші заголовки задає хостинг — див. `SECURITY.md`.
 
 ## 12. Кеш і реліз
 

@@ -321,3 +321,76 @@ runTest('animation: duration, heading interpolation and scale independence', () 
   const run = runProgram(withIds([blk('forward', 100)]), lesson);
   assert.ok(near(run.segments[0].to[0], 0) && near(run.segments[0].to[1], -100));
 });
+
+// ── Посилання на рівень, прогрес, звук, повідомлення ──────────────────────────
+
+runTest('level link: ?level=N parses 1-based, invalid values fall back to level 1, other params survive', async () => {
+  const { parseLevelParam, buildLevelSearch } = await import('../js/core/levelLink.js');
+  assert.equal(parseLevelParam('?level=14', 21), 13);
+  assert.equal(parseLevelParam('?blocks=pastel&level=1', 21), 0);
+  assert.equal(parseLevelParam('?level=21', 21), 20);
+  for (const bad of ['', '?level=0', '?level=22', '?level=-3', '?level=abc', '?level=2.5', '?level=', '?x=1']) {
+    assert.equal(parseLevelParam(bad, 21), 0, bad);
+  }
+  assert.equal(buildLevelSearch('?blocks=pastel', 13), '?blocks=pastel&level=14');
+  assert.equal(buildLevelSearch('?level=3&blocks=pastel', 4), '?level=5&blocks=pastel');
+  assert.equal(buildLevelSearch('', 0), '?level=1');
+});
+
+runTest('progress store: saves done levels and stars by lesson id, never code; survives bad data and missing storage', async () => {
+  const { loadProgress, saveProgress } = await import('../js/state/progressStore.js');
+  const store = new Map();
+  const storage = { getItem: (k) => store.get(k) ?? null, setItem: (k, v) => store.set(k, v) };
+  const ids = ['a', 'b', 'c'];
+  assert.equal(saveProgress({ done: new Set([0, 2]), stars: new Map([[0, 3], [2, 1]]) }, ids, storage), true);
+  const raw = [...store.values()].join('');
+  assert.doesNotMatch(raw, /forward|blocks|workspace/);
+  const loaded = loadProgress(['c', 'x', 'a'], storage); // порядок рівнів змінився
+  assert.deepEqual([...loaded.done].sort(), [0, 2]);
+  assert.equal(loaded.stars.get(0), 1);
+  assert.equal(loaded.stars.get(2), 3);
+  // сміття у сховищі
+  store.set([...store.keys()][0], '{not json');
+  assert.deepEqual([...loadProgress(ids, storage).done], []);
+  store.set([...store.keys()][0], JSON.stringify({ done: ['a', 5], stars: { a: 9, b: 2 } }));
+  const partial = loadProgress(ids, storage);
+  assert.deepEqual([...partial.done], [0]);
+  assert.deepEqual([...partial.stars], [[1, 2]]);
+  // сховища немає / кидає помилку
+  assert.equal(saveProgress({ done: new Set(), stars: new Map() }, ids, null), false);
+  const broken = { getItem() { throw new Error('denied'); }, setItem() { throw new Error('denied'); } };
+  assert.equal(saveProgress({ done: new Set([0]), stars: new Map() }, ids, broken), false);
+  assert.deepEqual([...loadProgress(ids, broken).done], []);
+});
+
+runTest('sounds: respect the on/off flag and survive a missing AudioContext', async () => {
+  const sounds = await import('../js/utils/sounds.js');
+  assert.equal(sounds.isSoundEnabled(), true);
+  sounds.playSuccess(); // без AudioContext у node — тихо пропускається
+  sounds.playSnap();
+  sounds.playFailure();
+  sounds.setSoundEnabled(false);
+  assert.equal(sounds.isSoundEnabled(), false);
+  let created = 0;
+  globalThis.AudioContext = class { constructor() { created += 1; } };
+  sounds.playSuccess();
+  sounds.playSnap();
+  sounds.playFailure();
+  assert.equal(created, 0, 'вимкнений звук не створює AudioContext');
+  sounds.setSoundEnabled(true);
+  delete globalThis.AudioContext;
+});
+
+runTest('feedback stays until cleared (no auto-hide timer)', async () => {
+  const { showFeedback, clearFeedback } = await import('../js/ui/render.js');
+  const dom = { feedback: { className: '', textContent: '' }, screenReaderAnnouncer: { textContent: '' } };
+  let timers = 0;
+  globalThis.window = { setTimeout() { timers += 1; return 1; }, clearTimeout() {} };
+  showFeedback(dom, 'Майже!', 'info');
+  assert.equal(dom.feedback.className, 'show info');
+  assert.equal(dom.feedback.textContent, 'Майже!');
+  assert.equal(timers, 0);
+  clearFeedback(dom);
+  assert.equal(dom.feedback.className, '');
+  delete globalThis.window;
+});

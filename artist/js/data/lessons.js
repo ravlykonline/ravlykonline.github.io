@@ -1,5 +1,5 @@
 /**
- * Рівні гри: 20 рівнів у 4 розділах.
+ * Рівні гри: 21 рівень у 4 розділах.
  *
  * Поля рівня:
  *   id, chapter, title, instruction  — тексти (plain text, без HTML)
@@ -48,7 +48,7 @@ export const lessons = [
     toolbox: ['step'],
     solution: [step(), step(), step()],
     success: { mode: 'shape' },
-    successMessage: 'Ти намалював пряму лінію.',
+    successMessage: 'Пряму лінію намальовано!',
     successTitle: 'Чудова робота!',
   },
   {
@@ -66,7 +66,7 @@ export const lessons = [
     toolbox: ['step', 'turn_right90'],
     solution: [step(), step(), right90(), step(), step()],
     success: { mode: 'shape' },
-    successMessage: 'Ти зробив акуратний куток.',
+    successMessage: 'Акуратний куток готовий!',
     successTitle: 'Чудова робота!',
   },
   {
@@ -213,7 +213,7 @@ export const lessons = [
     intro: {
       icon: '#',
       title: 'Числа в блоках',
-      body: 'Тепер ти сам обираєш відстань: «вперед 100» — це два кроки одразу. У блоків повороту число — кут у градусах: 90 — чверть оберту.',
+      body: 'Тепер число в блоці рахує маленькі кроки. Одна клітинка — це 50 таких кроків: «крок вперед» — те саме, що «вперед 50», а «вперед 100» — це дві клітинки. У блоків повороту число — кут у градусах: 90 — чверть оберту.',
     },
     instruction: 'Проведи вгору лінію завдовжки три клітинки одним блоком.',
     start: { x: 0, y: 50, heading: 0 },
@@ -222,7 +222,7 @@ export const lessons = [
     toolbox: NUMBER_TOOLS,
     solution: [fwd(150)],
     success: { mode: 'shape' },
-    successMessage: 'Одного блока досить!',
+    successMessage: 'Довга лінія готова!',
     successTitle: 'Чудово!',
   },
   {
@@ -265,21 +265,21 @@ export const lessons = [
       title: 'Налагодження',
       body: 'Програма вже є, але вона малює не те. Запусти її, порівняй малюнок із пунктиром і виправ помилку.',
     },
-    instruction: 'Равлик мав намалювати рівносторонній трикутник, але вийшло щось інше. Знайди помилку й виправ її.',
-    hint: 'Запусти програму й подивись, де равлик звернув не туди. Перевір кут повороту за правилом 360 ÷ 3.',
+    instruction: 'Равлик мав намалювати квадрат зі стороною 100, але вийшло щось інше. Знайди помилку й виправ її.',
+    hint: 'Запусти програму й порахуй сторони, які намалював равлик. Потім порахуй сторони на пунктирі.',
     start: { x: -50, y: 50, heading: 0 },
     pen: { color: 'червоний', width: 4 },
     showGrid: false,
     toolbox: [...NUMBER_TOOLS, 'repeat'],
-    startBlocks: [rep(3, [fwd(80), right(90)])],
-    solution: [rep(3, [fwd(80), right(120)])],
+    startBlocks: [rep(3, [fwd(100), right(90)])],
+    solution: [rep(4, [fwd(100), right(90)])],
     success: { mode: 'shape' },
     successMessage: 'Помилку знайдено й виправлено!',
-    successTitle: 'Ти — налагоджувач!',
+    successTitle: 'Помилку виправлено!',
   },
   {
     id: 'lesson-15', chapter: CH3, title: 'Рівень 15: Шестикутник',
-    instruction: 'Намалюй правильний шестикутник зі стороною 60. Кут повороту порахуй сам.',
+    instruction: 'Намалюй правильний шестикутник зі стороною 60. Кут повороту порахуй самостійно.',
     hint: 'Те саме правило, що для трикутника: 360 ÷ кількість сторін.',
     start: { x: -50, y: 50, heading: 0 },
     pen: { color: 'зелений', width: 4 },
@@ -289,7 +289,7 @@ export const lessons = [
     success: { mode: 'shape' },
     constraints: REPEAT_ONLY,
     successMessage: 'Шестикутник — як бджолині стільники!',
-    successTitle: 'Ти порахував кут!',
+    successTitle: 'Кут пораховано!',
   },
   {
     id: 'lesson-16', chapter: CH3, title: 'Рівень 16: Зірка',
@@ -299,6 +299,7 @@ export const lessons = [
       body: 'У зірки равлик повертає дуже різко — майже розвертається. Пробуй різні кути й дивись на пунктир: потрібний кут ближче до 150°, ніж до 90°.',
     },
     instruction: 'Намалюй п’ятикутну зірку з променями завдовжки 120, не відриваючи олівця.',
+    hint: 'Тут не спрацює 360 ÷ 5: щоб намалювати зірку, равлик обходить коло двічі. Тож загальний поворот — 2 × 360 = 720°. Поділи його на 5 променів.',
     start: { x: 0, y: 50, heading: 0 },
     pen: { color: 'фіолетовий', width: 4 },
     showGrid: false,
@@ -306,7 +307,7 @@ export const lessons = [
     solution: [rep(5, [fwd(120), right(144)])],
     success: { mode: 'shape' },
     constraints: REPEAT_ONLY,
-    successMessage: 'Зірка намальована! Ти — художник!',
+    successMessage: 'Равлик обійшов коло двічі: 720 ÷ 5 = 144°.',
     successTitle: 'Зіркова робота!',
   },
   {
@@ -367,8 +368,27 @@ export const lessons = [
     successTitle: 'Квітуча робота!',
   },
   {
-    id: 'lesson-20', chapter: CH4, title: 'Рівень 20: Вільне малювання',
-    instruction: 'Твій равлик, твої правила! Намалюй власний малюнок (щонайменше 8 відрізків).',
+    id: 'lesson-20', chapter: CH4, title: 'Рівень 20: Двокольоровий квадрат',
+    instruction: 'Намалюй квадрат зі стороною 100, у якого сторони чергуються за кольором: червона, синя, червона, синя. Допоможе «повторити».',
+    hint: 'У циклі виконується пара сторін: одна червона й одна синя. Скільки таких пар у квадрата?',
+    start: { x: -50, y: 50, heading: 0 },
+    pen: { color: 'чорний', width: 4 },
+    showGrid: false,
+    toolbox: ['forward', 'right', 'left', 'color', 'repeat'],
+    solution: [
+      rep(2, [
+        blk('color', 'червоний'), fwd(100), right(90),
+        blk('color', 'синій'), fwd(100), right(90),
+      ]),
+    ],
+    success: { mode: 'shape', checkColor: true },
+    constraints: REPEAT_ONLY,
+    successMessage: 'Кольоровий візерунок готовий!',
+    successTitle: 'Яскравий квадрат!',
+  },
+  {
+    id: 'lesson-21', chapter: CH4, title: 'Рівень 21: Вільне малювання',
+    instruction: 'Твій равлик, твої правила! Намалюй власний малюнок (щонайменше 8 різних ліній).',
     start: { x: 0, y: 0, heading: 0 },
     pen: { color: 'жовтогарячий', width: 4 },
     showGrid: false,
@@ -377,7 +397,7 @@ export const lessons = [
       'pen_up', 'pen_down', 'color', 'repeat',
     ],
     success: { mode: 'free', minSegments: 8 },
-    successMessage: 'Ти — справжній художник!',
+    successMessage: 'Справжня художня робота!',
     successTitle: 'Творча робота!',
     successButton: 'Почати знову',
   },

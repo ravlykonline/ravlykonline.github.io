@@ -7,14 +7,19 @@
  *   className   — службовий клас (залишено для сумісності)
  *   icon        — символ
  *   text        — фраза блока як у Scratch: [до поля, після поля] (поле — параметр)
- *   param       — опис параметра: { kind: 'number', key, label, default, min, max, step, aria, quick? }
+ *   spoken?     — повний текст для скрінрідера (блоки без параметра), якщо відрізняється від text
+ *   param       — опис параметра: { kind: 'number', key, label, default, min, max, step, aria, quick?, units? }
+ *                 units — [один, кілька, багато] для узгодження з числом («1 крок, 2 кроки, 5 кроків»)
  *                 або { kind: 'color', key, default, aria }; без поля — блок без параметра
  *   code(block) — рядок коду РАВЛИК (для repeat — заголовок «повторити N (»,
  *                 закриваюча «)» додається в codegen). Тільки валідний РАВЛИК.
  */
+import { pluralUk } from '../core/plural.js';
+
 export const MAX_REPEAT_COUNT = 500;
 
-export const ANGLE_QUICK_PICKS = [10, 30, 45, 60, 90, 120, 144];
+// Свідомо без 144: це відповідь рівня «Зірка».
+export const ANGLE_QUICK_PICKS = [10, 30, 45, 60, 90, 120];
 
 /** Категорії палітри в порядку показу. */
 export const BLOCK_CATEGORIES = [
@@ -29,13 +34,18 @@ const numberParam = (label, defaultValue, min, max, extra) => ({
   kind: 'number', key: 'n', label, default: defaultValue, min, max, ...extra,
 });
 
-const stepsParam = () => numberParam('кроків', 50, 1, 300, { step: 10, aria: 'Кількість кроків' });
-const angleParam = () => numberParam('°', 90, 1, 360, { step: 1, aria: 'Кут у градусах', quick: ANGLE_QUICK_PICKS });
+const stepsParam = () => numberParam('кроків', 50, 1, 300, {
+  step: 10, aria: 'Кількість кроків', units: ['крок', 'кроки', 'кроків'],
+});
+const angleParam = () => numberParam('°', 90, 1, 360, {
+  step: 1, aria: 'Кут у градусах', quick: ANGLE_QUICK_PICKS, units: ['градус', 'градуси', 'градусів'],
+});
 
 export const blockDefinitions = {
   step: {
     label: 'крок вперед', category: 'move', className: 'move turtle', icon: '↑',
     text: ['крок вперед', ''],
+    spoken: 'крок вперед (одна клітинка)',
     code: () => 'вперед 50',
   },
   turn_right90: {
@@ -91,7 +101,9 @@ export const blockDefinitions = {
   repeat: {
     label: 'повторити', category: 'repeat', className: 'repeat', icon: '↻',
     text: ['повторити', 'рази'],
-    param: numberParam('рази', 4, 1, MAX_REPEAT_COUNT, { step: 1, aria: 'Кількість повторів' }),
+    param: numberParam('рази', 4, 1, MAX_REPEAT_COUNT, {
+      step: 1, aria: 'Кількість повторів', units: ['раз', 'рази', 'разів'],
+    }),
     container: true,
     code: (block) => `повторити ${block.n} (`,
   },
@@ -99,11 +111,20 @@ export const blockDefinitions = {
 
 export const BLOCK_TYPES = Object.keys(blockDefinitions);
 
+/** Підпис після поля, узгоджений із числом: «1 крок», «2 кроки», «5 кроків». */
+export function unitText(definition, value) {
+  const units = definition.param?.units;
+  return units ? pluralUk(value, units) : definition.text[1];
+}
+
 /** Читабельний текст блока для скрінрідера й aria-label: «вперед 50 кроків». */
 export function describeBlock(block) {
   const definition = blockDefinitions[block.type];
   if (!definition) return '';
-  const [before, after] = definition.text;
-  const value = definition.param ? String(block[definition.param.key]) : '';
+  if (!definition.param && definition.spoken) return definition.spoken;
+  const [before] = definition.text;
+  const raw = definition.param ? block[definition.param.key] : '';
+  const value = definition.param ? String(raw) : '';
+  const after = definition.param ? unitText(definition, raw) : definition.text[1];
   return [before, value, after].filter(Boolean).join(' ');
 }

@@ -337,6 +337,10 @@
   color: var(--color-feedback-error);
 }
 
+#feedback.info {
+  color: var(--color-text);
+}
+
 .success-card {
   width: min(22.5rem, 90%);
   padding: var(--space-6) var(--space-5);
@@ -650,8 +654,13 @@
   width: min(13rem, 100%);
 }
 
-#workspace-menu .btn-style {
+#workspace-menu .btn-style,
+#more-menu .btn-style {
   align-self: stretch;
+}
+
+#more-menu .btn-style {
+  min-height: 2.75rem;
 }
 
 #workspace-menu .btn-reset {
