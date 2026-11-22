@@ -103,8 +103,7 @@ button.blk-field {
   touch-action: manipulation;
 }
 
-.blk-field:focus-visible,
-.blk-menu-btn:focus-visible {
+.blk-field:focus-visible {
   outline: 3px solid var(--color-focus-ring);
   outline-offset: 1px;
 }
@@ -115,41 +114,6 @@ button.blk-field {
   height: 14px;
   border-radius: 50%;
   box-shadow: 0 0 0 1.5px var(--blk-field-border);
-}
-
-.blk-menu-btn {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  margin-left: 2px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: color-mix(in srgb, currentColor 18%, transparent);
-  color: inherit;
-  font: inherit;
-  font-size: 1.1rem;
-  line-height: 1;
-  cursor: pointer;
-  opacity: 0;
-  touch-action: manipulation;
-}
-
-.blk-head:hover .blk-menu-btn,
-.blk-head:focus-within .blk-menu-btn,
-.blk:focus > .blk-head .blk-menu-btn {
-  opacity: 1;
-}
-
-@media (pointer: coarse) {
-  .blk-menu-btn {
-    width: 32px;
-    height: 32px;
-    opacity: 0.75;
-  }
 }
 
 /* ── C-блок «повторити» ────────────────────────────────────────────────────── */
@@ -238,8 +202,7 @@ button.blk-field {
   cursor: default;
 }
 
-.ws-canvas.is-running .blk-field,
-.ws-canvas.is-running .blk-menu-btn {
+.ws-canvas.is-running .blk-field {
   pointer-events: none;
 }
 

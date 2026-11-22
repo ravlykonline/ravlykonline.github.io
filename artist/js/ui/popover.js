@@ -1,6 +1,6 @@
 /**
  * Єдиний спливаючий елемент для полів блоків: кнопки −/+ і швидкий вибір кута,
- * список кольорів, контекстне меню блока. Тільки createElement/textContent.
+ * список кольорів. Тільки createElement/textContent.
  */
 let popover = null;
 let anchorEl = null;
@@ -19,10 +19,6 @@ function ensurePopover() {
 
 export function isPopoverOpen() {
   return Boolean(popover) && !popover.hidden;
-}
-
-export function popoverOwner() {
-  return isPopoverOpen() ? anchorEl : null;
 }
 
 export function closePopover({ restoreFocus = false } = {}) {
@@ -150,25 +146,20 @@ export function openNumberPopover({ anchor, param, getValue, setValue }) {
 }
 
 /**
- * Список-вибір (кольори) або меню (дії блока).
+ * Список кольорів.
  * items: [{ label, dotColor?, selected?, onSelect }]
- * Розташування: anchor (елемент) або point { x, y }.
  */
-export function openList({ anchor = null, point = null, role = 'listbox', label, items, onDone }) {
-  const rect = point
-    ? { left: point.x, right: point.x, top: point.y, bottom: point.y }
-    : anchor.getBoundingClientRect();
-  const view = open(anchor, rect, role, label, onDone);
-  const itemRole = role === 'menu' ? 'menuitem' : 'option';
+export function openColorPopover({ anchor, label, items }) {
+  const view = open(anchor, anchor.getBoundingClientRect(), 'listbox', label);
   const buttons = [];
 
   items.forEach((item) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'blk-pop-item';
-    button.setAttribute('role', itemRole);
+    button.setAttribute('role', 'option');
     button.tabIndex = -1;
-    if (role === 'listbox') button.setAttribute('aria-selected', String(Boolean(item.selected)));
+    button.setAttribute('aria-selected', String(Boolean(item.selected)));
     if (item.dotColor) {
       const dot = document.createElement('span');
       dot.className = 'blk-color-dot';

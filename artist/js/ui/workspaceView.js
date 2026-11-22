@@ -3,10 +3,9 @@
  * «коли ▶ натиснуто» виконується; вільні стоси — ні. DOM лише тут і в сусідніх
  * модулях ui/; логіка списків — у core/workspace.js.
  */
-import { blockDefinitions, describeBlock } from '../data/blocks.js';
-import { findInDoc, getDoc } from '../core/workspace.js';
+import { blockDefinitions } from '../data/blocks.js';
 import { buildBlockElement, buildHatElement, syncShapes } from './blockView.js';
-import { closePopover, openList, popoverOwner } from './popover.js';
+import { closePopover } from './popover.js';
 
 export const LOOSE_HINT = 'Не приєднано до «коли ▶ натиснуто» — не виконується';
 const MAIN_HINT = 'Натисни блок зліва, щоб додати його сюди, або перетягни його';
@@ -114,30 +113,6 @@ export function scrollBlockIntoView(id) {
   blockElementById(id)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 }
 
-// ── Контекстне меню блока ───────────────────────────────────────────────────
-
-export function openBlockMenu(blockEl, point = null) {
-  const id = Number(blockEl.dataset.blockId);
-  if (!Number.isFinite(id) || api.isLocked()) return;
-  if (popoverOwner() === blockEl) return;
-  const found = findInDoc(getDoc(), id);
-  if (!found) return;
-  const items = [];
-  if (found.index > 0) items.push({ label: '↑ Вгору', onSelect: () => api.moveUp(id) });
-  if (found.index < found.list.length - 1) items.push({ label: '↓ Вниз', onSelect: () => api.moveDown(id) });
-  if (found.parentId !== null) items.push({ label: '↖ Назовні', onSelect: () => api.moveOut(id) });
-  items.push({ label: '× Видалити', onSelect: () => api.remove(id) });
-
-  const menuButton = blockEl.querySelector(':scope > .blk-head > .blk-menu-btn');
-  openList({
-    anchor: point ? blockEl : (menuButton ?? blockEl),
-    point: point ?? undefined,
-    role: 'menu',
-    label: `Дії з блоком: ${describeBlock(found.block)}`,
-    items,
-  });
-}
-
 // ── Події (делегування: полотно живе, діти перемальовуються) ─────────────────
 
 function onKeyDown(event) {
@@ -179,12 +154,6 @@ function onKeyDown(event) {
 
 function onClick(event) {
   if (api.shouldSuppressClick()) return;
-  const menuButton = event.target.closest('.blk-menu-btn');
-  if (menuButton) {
-    event.stopPropagation();
-    openBlockMenu(menuButton.closest('.blk'));
-    return;
-  }
   if (event.target.closest('input, button')) return;
   const el = event.target.closest('.blk');
   if (!el || el.dataset.hat) {
@@ -197,19 +166,10 @@ function onClick(event) {
   }
 }
 
-function onContextMenu(event) {
-  const el = event.target.closest('.blk');
-  if (!el || el.dataset.hat) return;
-  event.preventDefault();
-  // Контекстне меню з клавіатури приходить із центром елемента.
-  openBlockMenu(el, { x: event.clientX, y: event.clientY });
-}
-
 export function initWorkspaceView(dom, handlers) {
   canvas = dom.workspaceCanvas;
   api = handlers;
   canvas.addEventListener('keydown', onKeyDown);
   canvas.addEventListener('click', onClick);
-  canvas.addEventListener('contextmenu', onContextMenu);
   canvas.addEventListener('scroll', () => closePopover(), { passive: true });
 }

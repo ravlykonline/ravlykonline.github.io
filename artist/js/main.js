@@ -20,7 +20,7 @@ import { sleep } from './utils/sleep.js';
 import { pushSnapshot, undo, redo, canUndo, canRedo, clearHistory } from './state/history.js';
 import { trapFocus } from './utils/focus-trap.js';
 import { playSuccess, playFailure, playSnap } from './utils/sounds.js';
-import { addTrailSegment, clearTurtleCanvas, placeTurtleSnail, renderLessonGuide, setTrailEnd, setupCanvas, wiggleSnail } from './ui/canvas.js';
+import { addTrailSegment, clearTurtleCanvas, placeTurtleSnail, renderLessonGuide, selectTurtlePose, setTrailEnd, setupCanvas, wiggleSnail } from './ui/canvas.js';
 import { REDUCED_MOTION_STEP_PAUSE_MS, SPEEDS, getStepDuration, interpolateTurtle, speedFactor } from './domain/snail.js';
 import { getDomReferences } from './ui/dom.js';
 import { clearFeedback, hideSuccess, isSuccessOpen, renderBlockCount, renderControls, renderHistoryControls, renderHint, renderLessonHeader, renderLessonNavigation, showFeedback, showSuccess } from './ui/render.js';
@@ -28,7 +28,7 @@ import { highlightCodeLine, renderCodeView, setEditorView } from './ui/codeView.
 import { copyText } from './ui/clipboard.js';
 import { createPaletteGhostBlock, renderPalette } from './ui/palette.js';
 import {
-  blockElementById, focusBlock, highlightBlocks, initWorkspaceView, openBlockMenu, renderWorkspaceView, scrollBlockIntoView,
+  blockElementById, focusBlock, highlightBlocks, initWorkspaceView, renderWorkspaceView, scrollBlockIntoView,
 } from './ui/workspaceView.js';
 import { createDragController } from './ui/dragdrop.js';
 import { closePopover } from './ui/popover.js';
@@ -127,12 +127,6 @@ function openIntro(lesson) {
   dom.introIcon.textContent = lesson.intro.icon ?? '';
   dom.introTitle.textContent = lesson.intro.title;
   dom.introBody.textContent = lesson.intro.body;
-  if (lesson.intro.code) {
-    dom.introCode.textContent = lesson.intro.code;
-    dom.introCode.hidden = false;
-  } else {
-    dom.introCode.hidden = true;
-  }
   setIntroOpen(true);
 }
 
@@ -377,9 +371,11 @@ function refreshUi() {
 }
 
 function resetBoard() {
+  const turtle = createTurtleForLesson(appState.currentLesson);
   clearTurtleCanvas(dom);
-  placeTurtleSnail(dom, createTurtleForLesson(appState.currentLesson));
-  dom.canvasStatus.textContent = `${describeTurtleStatus(createTurtleForLesson(appState.currentLesson))}. Готовий малювати.`;
+  selectTurtlePose(dom, turtle, turtle);
+  placeTurtleSnail(dom, turtle);
+  dom.canvasStatus.textContent = `${describeTurtleStatus(turtle)}. Готовий малювати.`;
 }
 
 function loadLesson(index) {
@@ -563,6 +559,7 @@ async function playStep(current) {
   highlightBlocks(appState);
   highlightCodeLine(dom, activeCodeLine());
   if (step.segment) appState.turtleSegments.push(step.segment);
+  selectTurtlePose(dom, step.before, step.after, appState.turtleSegments);
 
   const turtle = step.after;
   if (prefersReducedMotion()) {
@@ -798,7 +795,6 @@ function init() {
     createPaletteBlock: createPaletteGhostBlock,
     onDrop: dropBlocks,
     onCancel: cancelDrag,
-    onLongPress: (el, x, y) => openBlockMenu(el, { x, y }),
     onSnap: playSnap,
   });
   moreMenu = createMoreMenu(dom);

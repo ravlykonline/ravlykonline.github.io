@@ -93,7 +93,8 @@ runTest('chapter 2 introduces repeat; chapter 3 uses number blocks and the grid 
 runTest('intros: have title and body, no HTML; code is plain text', () => {
   for (const lesson of lessons.filter((l) => l.intro)) {
     assert.ok(lesson.intro.title && lesson.intro.body, lesson.id);
-    assert.doesNotMatch(`${lesson.intro.title}${lesson.intro.body}${lesson.intro.code ?? ''}`, /<[a-z/]/i, lesson.id);
+    assert.doesNotMatch(`${lesson.intro.title}${lesson.intro.body}`, /<[a-z/]/i, lesson.id);
+    assert.equal(Object.hasOwn(lesson.intro, 'code'), false, lesson.id);
   }
 });
 
@@ -101,7 +102,7 @@ runTest('pedagogy: intros of levels 13 and 14 do not give the answer', () => {
   const level13 = lessons[12];
   const level14 = lessons[13];
   assert.match(level13.intro.body, /360 ÷/);
-  assert.doesNotMatch(`${level13.intro.body}${level13.intro.code}`, /120/);
+  assert.doesNotMatch(level13.intro.body, /120/);
   assert.equal(level14.intro, undefined);
   assert.doesNotMatch(level14.instruction, /\b60°|праворуч 60/);
 });

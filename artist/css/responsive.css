@@ -488,11 +488,6 @@
     padding: var(--space-5) var(--space-4);
   }
 
-  .intro-code {
-    max-width: 100%;
-    overflow-x: auto;
-  }
-
   .blk-popover {
     max-width: calc(100vw - 0.75rem);
   }
@@ -601,13 +596,11 @@
     min-height: 2.75rem;
   }
 
-  button.blk-field,
-  .blk-menu-btn {
+  button.blk-field {
     position: relative;
   }
 
-  button.blk-field::after,
-  .blk-menu-btn::after {
+  button.blk-field::after {
     content: '';
     position: absolute;
     inset: -0.375rem -0.25rem;

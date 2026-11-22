@@ -56,7 +56,6 @@ export function getDomReferences() {
     introIcon: document.getElementById('intro-icon'),
     introTitle: document.getElementById('intro-title'),
     introBody: document.getElementById('intro-body'),
-    introCode: document.getElementById('intro-code'),
     introOkButton: document.getElementById('btn-intro-ok'),
   };
 }

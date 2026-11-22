@@ -1,10 +1,9 @@
 import { FIELD_HALF_HEIGHT, FIELD_HALF_WIDTH, GRID_STEP } from '../core/constants.js';
-import { getSnailTransform, isAtStart } from '../domain/snail.js';
+import { chooseSnailSide, getSnailTransform } from '../domain/snail.js';
 import { getStepMarks, shouldShowStepMarks } from '../core/ghost.js';
 import { avatarSvg, snailSvg } from './icons.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
-const SNAIL_SCALE = 0.9;
 const GHOST_COLOR = '#7d7790';
 
 function svgElement(name, attributes = {}) {
@@ -28,12 +27,13 @@ export function setupCanvas(dom) {
   dom.fieldBackground.setAttribute('width', FIELD_HALF_WIDTH * 2);
   dom.fieldBackground.setAttribute('height', FIELD_HALF_HEIGHT * 2);
 
-  // Равлик: зовнішня <g> задає позицію/кут, внутрішня — масштаб і «вигляд».
-  const sprite = svgElement('g', { transform: `scale(${SNAIL_SCALE})` });
-  const wiggle = svgElement('g', { 'data-snail-wiggle': 'true' });
-  for (const child of parseSvg(snailSvg).children) wiggle.appendChild(document.importNode(child, true));
-  sprite.appendChild(wiggle);
-  snailElement.replaceChildren(sprite);
+  // Поворот належить зовнішній групі, віддзеркалення — групі з позою.
+  const anchor = svgElement('circle', { 'data-pen-position': 'true', r: 2.5, fill: GHOST_COLOR });
+  const sprite = svgElement('g');
+  for (const child of parseSvg(snailSvg).children) sprite.appendChild(document.importNode(child, true));
+  snailElement.replaceChildren(anchor, sprite);
+  dom.snailSprite = sprite;
+  dom.snailTip = sprite.querySelector('[data-pen-tip]');
 
   avatarBox.replaceChildren(parseSvg(avatarSvg));
 }
@@ -41,26 +41,18 @@ export function setupCanvas(dom) {
 function appendArrow(layer, x, y, heading) {
   const group = svgElement('g', { transform: `translate(${x} ${y}) rotate(${heading})`, opacity: 0.55 });
   group.appendChild(svgElement('path', {
-    d: 'M0 -24 L5.5 -15 L-5.5 -15 Z',
+    d: 'M0 11 L5 21 L-5 21 Z',
     fill: GHOST_COLOR,
     stroke: 'none',
   }));
   layer.appendChild(group);
-  return group;
-}
-
-/** Стрілка старту ховається, поки равлик стоїть на старті, щоб не заважати його голові. */
-function syncStartArrow(dom, turtle) {
-  const marker = dom.startMarker;
-  if (!marker) return;
-  marker.arrow.setAttribute('visibility', isAtStart(turtle, marker.start) ? 'hidden' : 'visible');
 }
 
 /** Малює межі поля, сітку (якщо `lesson.showGrid`) і ghost-фігуру (пунктир, старт, стрілка). */
 export function renderLessonGuide(dom, lesson, ghostSegments = []) {
   const guideLayer = dom.guideLayer;
   guideLayer.replaceChildren();
-  dom.startMarker = null;
+  dom.ghostSegments = ghostSegments;
 
   guideLayer.appendChild(svgElement('rect', {
     x: -FIELD_HALF_WIDTH + 1,
@@ -113,22 +105,25 @@ export function renderLessonGuide(dom, lesson, ghostSegments = []) {
     guideLayer.appendChild(svgElement('circle', {
       cx: sx, cy: sy, r: 6, fill: 'none', stroke: GHOST_COLOR, 'stroke-width': 2, opacity: 0.6,
     }));
-    const arrow = appendArrow(guideLayer, sx, sy, lesson.start?.heading ?? 0);
-    dom.startMarker = { arrow, start: { x: sx, y: sy, heading: lesson.start?.heading ?? 0 } };
+    appendArrow(guideLayer, sx, sy, lesson.start?.heading ?? 0);
   }
 }
 
 export function clearTurtleCanvas(dom) {
   dom.trailLayer.replaceChildren();
+  dom.snailSide = 1;
+}
+
+export function selectTurtlePose(dom, before, after, trail = []) {
+  dom.snailSide = chooseSnailSide(before, after, [dom.ghostSegments, trail], dom.snailSide);
+  dom.snailSprite.setAttribute('transform', `scale(${dom.snailSide} 1)`);
 }
 
 /** Ставить равлика в позицію й кут черепахи; колір і піднятість олівця — з її стану. */
 export function placeTurtleSnail(dom, turtle) {
   dom.snailElement.setAttribute('transform', getSnailTransform(turtle));
-  const tip = dom.snailElement.querySelector('[data-pen-tip]');
-  if (tip) tip.setAttribute('fill', turtle.color);
+  dom.snailTip.setAttribute('fill', turtle.color);
   dom.snailElement.classList.toggle('pen-up', !turtle.penDown);
-  syncStartArrow(dom, turtle);
 }
 
 /** Окремий значок равлика (для модалок) без innerHTML. */
