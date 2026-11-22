@@ -371,16 +371,6 @@
     padding: var(--space-3) var(--space-3) 4.5rem;
   }
 
-  #code-view {
-    height: auto;
-    max-height: none;
-    min-height: 16rem;
-  }
-
-  .code-lines {
-    max-height: 60dvh;
-  }
-
   /* модалки й спливаючі вікна */
   .success-card,
   .intro-card,

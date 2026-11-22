@@ -52,7 +52,8 @@ export function highlightCodeLine(dom, index) {
 
 export function setEditorView(dom, view) {
   const isCode = view === 'code';
-  dom.editorPanels.classList.toggle('show-code', isCode);
+  dom.paletteSection.inert = isCode;
+  dom.blocksView.inert = isCode;
   dom.blocksView.hidden = isCode;
   dom.codeView.hidden = !isCode;
   dom.tabBlocks.setAttribute('aria-selected', String(!isCode));
