@@ -351,12 +351,45 @@ test('@desktop-chromium-only Ravlyk continues to the next level when the win dia
   await expect(page.locator('#snail')).toHaveAttribute('data-facing', 'up');
 });
 
-test('@desktop-chromium-only Ravlyk keeps level 16 arrows without scrolling on tablets', async ({ page }) => {
+test('@desktop-chromium-only Ravlyk displays the new order on the map and in navigation', async ({ page }) => {
+  await openGame(page);
+  await page.locator('#btn-map').click();
+  const levels = page.locator('.map-level');
+  const orderedNames = [
+    'Дві загублені команди',
+    'Переплутані повороти в лабіринті',
+    'Дві помилки на звивистій дорозі',
+    'Довга дорога з пастками',
+    'Лісовий лабіринт'
+  ];
+  for (const [index, title] of orderedNames.entries()) {
+    const number = 14 + index;
+    const button = levels.nth(number - 1);
+    await expect(button.locator('.map-level-id')).toHaveText(String(number));
+    await expect(button.locator('.map-level-name')).toHaveText(title);
+  }
+
+  await levels.nth(13).click();
+  for (const [index, title] of orderedNames.entries()) {
+    if (index > 0) {
+      await page.locator('#btn-next').click();
+    }
+    await expect(page.locator('#level-chip')).toHaveText(`${14 + index} / 20`);
+    await expect(page.locator('#level-title')).toHaveText(title);
+  }
+
+  await page.reload();
+  await expect(page.locator('#level-title')).toHaveText(orderedNames.at(-1));
+  await page.locator('#btn-prev').click();
+  await expect(page.locator('#level-title')).toHaveText(orderedNames.at(-2));
+});
+
+test('@desktop-chromium-only Ravlyk keeps the forest maze arrows without scrolling on tablets', async ({ page }) => {
   await openGame(page);
   for (const viewport of [{ width: 1024, height: 768 }, { width: 1180, height: 820 }, { width: 768, height: 1024 }]) {
     await page.setViewportSize(viewport);
     await page.locator('#btn-map').click();
-    await page.locator('.map-level').nth(15).click();
+    await page.getByRole('button', { name: /Лісовий лабіринт/ }).click();
     await expect(page.locator('#level-title')).toHaveText('Лісовий лабіринт');
     const overflow = await page.evaluate(() => ['.route-tools', '.command-tray', '#palette'].map((selector) => {
       const element = document.querySelector(selector);

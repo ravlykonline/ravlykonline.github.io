@@ -2,7 +2,7 @@ export function renderLevelMap({ completedLevelIds, currentLevelId, documentRef 
   const grid = documentRef.createElement('div');
   grid.className = 'level-map-grid';
 
-  for (const level of levels) {
+  for (const [index, level] of levels.entries()) {
     const isCurrent = level.id === currentLevelId;
     const isDone = completedLevelIds.includes(level.id);
     const button = documentRef.createElement('button');
@@ -14,9 +14,9 @@ export function renderLevelMap({ completedLevelIds, currentLevelId, documentRef 
     ].filter(Boolean).join(' ');
     button.dataset.levelId = String(level.id);
 
-    const idEl = documentRef.createElement('span');
-    idEl.className = 'map-level-id';
-    idEl.textContent = String(level.id);
+    const numberEl = documentRef.createElement('span');
+    numberEl.className = 'map-level-id';
+    numberEl.textContent = String(index + 1);
 
     const nameEl = documentRef.createElement('span');
     nameEl.className = 'map-level-name';
@@ -26,7 +26,7 @@ export function renderLevelMap({ completedLevelIds, currentLevelId, documentRef 
     stateEl.className = 'map-level-state';
     stateEl.textContent = text.mapState(isCurrent, isDone);
 
-    button.append(idEl, nameEl, stateEl);
+    button.append(numberEl, nameEl, stateEl);
     button.addEventListener('click', () => onSelect(level.id));
     grid.appendChild(button);
   }

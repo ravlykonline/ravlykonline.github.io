@@ -299,6 +299,75 @@ export const levels = [
     goal: 'Дві загублені стрілки.'
   }),
   createLevel({
+    id: 18,
+    name: 'Переплутані повороти в лабіринті',
+    type: 'debug', rows: 6, cols: 8,
+    start: { r: 4, c: 0 }, apple: { r: 5, c: 7 },
+    startFacing: 'right',
+    obstacles: [
+      { r: 1, c: 4, kind: 'log', label: 'Пеньок' },
+      { r: 2, c: 3, kind: 'rock', label: 'Камінь' },
+      { r: 2, c: 6, kind: 'rock', label: 'Камінь' },
+      { r: 3, c: 3, kind: 'log', label: 'Пеньок' },
+      { r: 4, c: 5, kind: 'rock', label: 'Камінь' },
+      { r: 4, c: 6, kind: 'log', label: 'Пеньок' },
+      { r: 5, c: 4, kind: 'rock', label: 'Камінь' },
+      { r: 5, c: 5, kind: 'log', label: 'Пеньок' }
+    ],
+    allowedTiles: ['right', 'up', 'down', 'left-up', 'down-right', 'left-down', 'up-right'],
+    previousPresetArrows: {
+      '4,1': 'right', '4,2': 'right', '4,3': 'right', '4,4': 'left-up',
+      '3,4': 'up', '2,4': 'down-right', '2,5': 'up-right', '3,5': 'left-down',
+      '3,6': 'right', '3,7': 'left-down', '4,7': 'down'
+    },
+    presetArrows: {
+      '4,1': 'right',
+      '4,2': 'right',
+      '4,3': 'right',
+      '4,4': 'left-up',
+      '3,4': 'left-down',
+      '3,5': 'right',
+      '3,6': 'right',
+      '3,7': 'down-right',
+      '4,7': 'down'
+    },
+    hint: 'Два повороти стоять не на своїх місцях. Поміняй їх місцями й перевір маршрут.',
+    goal: 'Повороти місцями.'
+  }),
+  createLevel({
+    id: 17,
+    name: 'Дві помилки на звивистій дорозі',
+    type: 'debug', rows: 6, cols: 8,
+    start: { r: 5, c: 0 }, apple: { r: 1, c: 7 },
+    obstacles: [
+      { r: 0, c: 4, kind: 'rock', label: 'Камінь' },
+      { r: 4, c: 1, kind: 'rock', label: 'Камінь' },
+      { r: 5, c: 3, kind: 'log', label: 'Пеньок' },
+      { r: 4, c: 3, kind: 'rock', label: 'Камінь' },
+      { r: 3, c: 1, kind: 'log', label: 'Пеньок' },
+      { r: 3, c: 5, kind: 'rock', label: 'Камінь' },
+      { r: 2, c: 3, kind: 'log', label: 'Пеньок' },
+      { r: 2, c: 5, kind: 'rock', label: 'Камінь' },
+      { r: 1, c: 3, kind: 'log', label: 'Пеньок' },
+      // Камінь над першою помилкою: Равлик зупиняється саме на хибній стрілці.
+      { r: 2, c: 2, kind: 'rock', label: 'Камінь' }
+    ],
+    allowedTiles: ['right', 'up', 'left-up', 'down-right'],
+    presetArrows: {
+      '5,1': 'right',
+      '5,2': 'left-up',
+      '4,2': 'up',
+      '3,2': 'up',
+      '3,3': 'right',
+      '3,4': 'left-up',
+      '2,4': 'up',
+      '1,4': 'down-right',
+      '1,5': 'right'
+    },
+    hint: 'У маршруті дві помилки. Виправ першу, знову запусти Равлика й знайди другу.',
+    goal: 'Дві помилки.'
+  }),
+  createLevel({
     id: 15,
     name: 'Довга дорога з пастками',
     type: 'play', rows: 6, cols: 8,
@@ -341,75 +410,6 @@ export const levels = [
     presetArrows: {},
     hint: 'Спочатку знайди прохід до яблука на всьому полі. Потім проклади маршрут картками.',
     goal: 'Плануй шлях.'
-  }),
-  createLevel({
-    id: 17,
-    name: 'Дві помилки на звивистій дорозі',
-    type: 'debug', rows: 6, cols: 8,
-    start: { r: 5, c: 0 }, apple: { r: 1, c: 7 },
-    obstacles: [
-      { r: 0, c: 4, kind: 'rock', label: 'Камінь' },
-      { r: 4, c: 1, kind: 'rock', label: 'Камінь' },
-      { r: 5, c: 3, kind: 'log', label: 'Пеньок' },
-      { r: 4, c: 3, kind: 'rock', label: 'Камінь' },
-      { r: 3, c: 1, kind: 'log', label: 'Пеньок' },
-      { r: 3, c: 5, kind: 'rock', label: 'Камінь' },
-      { r: 2, c: 3, kind: 'log', label: 'Пеньок' },
-      { r: 2, c: 5, kind: 'rock', label: 'Камінь' },
-      { r: 1, c: 3, kind: 'log', label: 'Пеньок' },
-      // Камінь над першою помилкою: Равлик зупиняється саме на хибній стрілці.
-      { r: 2, c: 2, kind: 'rock', label: 'Камінь' }
-    ],
-    allowedTiles: ['right', 'up', 'left-up', 'down-right'],
-    presetArrows: {
-      '5,1': 'right',
-      '5,2': 'left-up',
-      '4,2': 'up',
-      '3,2': 'up',
-      '3,3': 'right',
-      '3,4': 'left-up',
-      '2,4': 'up',
-      '1,4': 'down-right',
-      '1,5': 'right'
-    },
-    hint: 'У маршруті дві помилки. Виправ першу, знову запусти Равлика й знайди другу.',
-    goal: 'Дві помилки.'
-  }),
-  createLevel({
-    id: 18,
-    name: 'Переплутані повороти в лабіринті',
-    type: 'debug', rows: 6, cols: 8,
-    start: { r: 4, c: 0 }, apple: { r: 5, c: 7 },
-    startFacing: 'right',
-    obstacles: [
-      { r: 1, c: 4, kind: 'log', label: 'Пеньок' },
-      { r: 2, c: 3, kind: 'rock', label: 'Камінь' },
-      { r: 2, c: 6, kind: 'rock', label: 'Камінь' },
-      { r: 3, c: 3, kind: 'log', label: 'Пеньок' },
-      { r: 4, c: 5, kind: 'rock', label: 'Камінь' },
-      { r: 4, c: 6, kind: 'log', label: 'Пеньок' },
-      { r: 5, c: 4, kind: 'rock', label: 'Камінь' },
-      { r: 5, c: 5, kind: 'log', label: 'Пеньок' }
-    ],
-    allowedTiles: ['right', 'up', 'down', 'left-up', 'down-right', 'left-down', 'up-right'],
-    previousPresetArrows: {
-      '4,1': 'right', '4,2': 'right', '4,3': 'right', '4,4': 'left-up',
-      '3,4': 'up', '2,4': 'down-right', '2,5': 'up-right', '3,5': 'left-down',
-      '3,6': 'right', '3,7': 'left-down', '4,7': 'down'
-    },
-    presetArrows: {
-      '4,1': 'right',
-      '4,2': 'right',
-      '4,3': 'right',
-      '4,4': 'left-up',
-      '3,4': 'left-down',
-      '3,5': 'right',
-      '3,6': 'right',
-      '3,7': 'down-right',
-      '4,7': 'down'
-    },
-    hint: 'Два повороти стоять не на своїх місцях. Поміняй їх місцями й перевір маршрут.',
-    goal: 'Повороти місцями.'
   }),
   createLevel({
     id: 19,
