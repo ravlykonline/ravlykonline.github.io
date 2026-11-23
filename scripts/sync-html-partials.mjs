@@ -67,7 +67,7 @@ const partials = [
         tagName: 'footer',
         files: {
             'index.html': {
-                FOOTER_TEXT: '&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a>',
+                FOOTER_TEXT: '&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a> | <a href="resources.html" class="footer-link">Ресурси</a>',
             },
             'manual.html': {
                 FOOTER_TEXT: '&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a>',

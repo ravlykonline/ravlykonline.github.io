@@ -554,7 +554,7 @@ runTest('public pages keep shared main footer synchronized with partial', () => 
     const begin = '<!-- BEGIN shared:main-footer -->';
     const end = '<!-- END shared:main-footer -->';
     const expectedFooterText = {
-        'index.html': '&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a>',
+        'index.html': '&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a> | <a href="resources.html" class="footer-link">Ресурси</a>',
         'manual.html': '&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a>',
         'lessons.html': '&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a>',
         'resources.html': '&copy;<span class="current-year">2026</span> Мова програмування РАВЛИК | Автор: пан Артем - вчитель інформатики <a href="https://www.facebook.com/panaptem" target="_blank" rel="noopener noreferrer" class="footer-link">(Facebook)</a>',
